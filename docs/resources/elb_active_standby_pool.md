@@ -74,6 +74,9 @@ The following arguments are supported:
   -> **NOTE:** If this parameter is not passed, any type of active-standby pool can be added and will return an empty string.
   This parameter can be updated only when it is left blank.
 
+* `ip_version` - (Optional, String, ForceNew) Specifies the IP address version supported by active-standby pool.
+  The value can be **dualstack**, **v6**, or **v4**. Changing this parameter will create a new resource.
+
 * `loadbalancer_id` - (Optional, String, ForceNew) Specifies the ID of the load balancer with which the active-standby
   pool is associated. Changing this parameter will create a new resource.
 
@@ -201,13 +204,17 @@ The `healthmonitor` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The unique ID for the active-standby pool.
+* `id` - The unique ID of the active-standby pool.
 
 * `members` - The backend servers in the active-standby pool.
   The [members](#ELB_membersResp) structure is documented below.
 
 * `healthmonitor` - The health check configured for the active-standby pool.
   The [healthmonitor](#ELB_healthmonitorResp) structure is documented below.
+
+* `created_at` - The create time of the active-standby pool.
+
+* `updated_at` - The update time of the active-standby pool.
 
 <a name="ELB_membersResp"></a>
 The `members` block supports:

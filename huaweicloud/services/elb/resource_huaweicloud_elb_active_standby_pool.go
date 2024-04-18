@@ -107,6 +107,16 @@ func ResourceActiveStandbyPool() *schema.Resource {
 			},
 			"ip_version": {
 				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -325,6 +335,9 @@ func resourceActiveStandbyPoolRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("vpc_id", utils.PathSearch("pool.vpc_id", getActiveStandbyPoolBody, nil)),
 		d.Set("members", flattenActiveStandbyPoolMembers(getActiveStandbyPoolBody)),
 		d.Set("healthmonitor", flattenActiveStandbyPoolHealthMonitor(getActiveStandbyPoolBody)),
+		d.Set("ip_version", utils.PathSearch("pool.ip_version", getActiveStandbyPoolBody, nil)),
+		d.Set("created_at", utils.PathSearch("pool.created_at", getActiveStandbyPoolBody, nil)),
+		d.Set("updated_at", utils.PathSearch("pool.updated_at", getActiveStandbyPoolBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -483,6 +496,7 @@ func buildCreateActiveStandbyPoolBodyParams(d *schema.ResourceData) map[string]i
 		"any_port_enable": utils.ValueIngoreEmpty(d.Get("any_port_enable")),
 		"vpc_id":          utils.ValueIngoreEmpty(d.Get("vpc_id")),
 		"description":     utils.ValueIngoreEmpty(d.Get("description")),
+		"ip_version":      utils.ValueIngoreEmpty(d.Get("ip_version")),
 		"members":         buildActiveStandbyPoolMembers(d.Get("members").(*schema.Set).List()),
 		"healthmonitor":   buildActiveStandbyPoolHealthMonitor(d.Get("healthmonitor")),
 	}

@@ -26,6 +26,12 @@ type IpGroup struct {
 
 	// A list of IP addresses.
 	IpList []IpListOpt `json:"ip_list"`
+
+	// The create time.
+	CreatedAt string `json:"created_at"`
+
+	// The update time.
+	UpdatedAt string `json:"updated_at"`
 }
 
 type commonResult struct {

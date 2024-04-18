@@ -70,6 +70,7 @@ func TestAccElbActiveStandbyPool_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
 						"huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "any_port_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_version", "dualstack"),
 					resource.TestCheckResourceAttr(resourceName, "members.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.delay", "5"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.expected_codes", "200"),
@@ -82,6 +83,8 @@ func TestAccElbActiveStandbyPool_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "members.0.operating_status"),
 					resource.TestCheckResourceAttrSet(resourceName, "members.0.ip_version"),
 					resource.TestCheckResourceAttrSet(resourceName, "healthmonitor.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			{
@@ -104,6 +107,7 @@ resource "huaweicloud_elb_active_standby_pool" "test" {
   vpc_id          = huaweicloud_vpc.test.id
   type            = "instance"
   any_port_enable = false
+  ip_version      = "dualstack"
 
   members {
     address       = "192.168.0.1"
