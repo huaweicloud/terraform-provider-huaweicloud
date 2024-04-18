@@ -2,6 +2,7 @@ package lb
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -105,13 +106,11 @@ func ResourcePoolV2() *schema.Resource {
 			"persistence": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								"SOURCE_IP", "HTTP_COOKIE", "APP_COOKIE",
 							}, false),
@@ -120,23 +119,39 @@ func ResourcePoolV2() *schema.Resource {
 						"cookie_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
 							Computed: true,
 						},
 					},
 				},
 			},
 
-			"admin_state_up": {
-				Type:     schema.TypeBool,
-				Default:  true,
+			"protection_status": {
+				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+
+			"protection_reason": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"monitor_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			// deprecated
+			"admin_state_up": {
+				Type:       schema.TypeBool,
+				Default:    true,
+				Optional:   true,
+				Deprecated: "this field is deprecated",
 			},
 		},
 	}
@@ -152,42 +167,23 @@ func resourcePoolV2Create(ctx context.Context, d *schema.ResourceData, meta inte
 	adminStateUp := d.Get("admin_state_up").(bool)
 	var persistence pools.SessionPersistence
 	if p, ok := d.GetOk("persistence"); ok {
-		pV := (p.([]interface{}))[0].(map[string]interface{})
-
-		persistence = pools.SessionPersistence{
-			Type: pV["type"].(string),
+		persistence, err = buildPersistence(p)
+		if err != nil {
+			return diag.FromErr(err)
 		}
-
-		if persistence.Type == "APP_COOKIE" {
-			if pV["cookie_name"].(string) == "" {
-				return fmtp.DiagErrorf(
-					"Persistence cookie_name needs to be set if using 'APP_COOKIE' persistence type")
-			}
-			persistence.CookieName = pV["cookie_name"].(string)
-
-			if pV["timeout"].(int) != 0 {
-				return fmtp.DiagErrorf(
-					"Persistence timeout is invalid when type is set to 'APP_COOKIE'")
-			}
-		} else {
-			if pV["cookie_name"].(string) != "" {
-				return fmtp.DiagErrorf(
-					"Persistence cookie_name can only be set if using 'APP_COOKIE' persistence type")
-			}
-		}
-
-		persistence.PersistenceTimeout = pV["timeout"].(int)
 	}
 
 	createOpts := pools.CreateOpts{
-		TenantID:       d.Get("tenant_id").(string),
-		Name:           d.Get("name").(string),
-		Description:    d.Get("description").(string),
-		Protocol:       pools.Protocol(d.Get("protocol").(string)),
-		LoadbalancerID: d.Get("loadbalancer_id").(string),
-		ListenerID:     d.Get("listener_id").(string),
-		LBMethod:       pools.LBMethod(d.Get("lb_method").(string)),
-		AdminStateUp:   &adminStateUp,
+		TenantID:         d.Get("tenant_id").(string),
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		Protocol:         pools.Protocol(d.Get("protocol").(string)),
+		LoadbalancerID:   d.Get("loadbalancer_id").(string),
+		ListenerID:       d.Get("listener_id").(string),
+		LBMethod:         pools.LBMethod(d.Get("lb_method").(string)),
+		AdminStateUp:     &adminStateUp,
+		ProtectionStatus: d.Get("protection_status").(string),
+		ProtectionReason: d.Get("protection_reason").(string),
 	}
 
 	// Must omit if not set
@@ -256,6 +252,9 @@ func resourcePoolV2Read(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("tenant_id", pool.TenantID),
 		d.Set("admin_state_up", pool.AdminStateUp),
 		d.Set("name", pool.Name),
+		d.Set("protection_status", pool.ProtectionStatus),
+		d.Set("protection_reason", pool.ProtectionReason),
+		d.Set("monitor_id", pool.MonitorID),
 	)
 
 	if len(pool.Loadbalancers) != 0 {
@@ -302,6 +301,23 @@ func resourcePoolV2Update(ctx context.Context, d *schema.ResourceData, meta inte
 	if d.HasChange("admin_state_up") {
 		asu := d.Get("admin_state_up").(bool)
 		updateOpts.AdminStateUp = &asu
+	}
+	if d.HasChange("protection_status") {
+		updateOpts.ProtectionStatus = d.Get("protection_status").(string)
+	}
+	if d.HasChange("protection_reason") {
+		protectionReason := d.Get("protection_reason").(string)
+		updateOpts.ProtectionReason = &protectionReason
+	}
+	if d.HasChange("persistence") {
+		var persistence pools.SessionPersistence
+		if p, ok := d.GetOk("persistence"); ok {
+			persistence, err = buildPersistence(p)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		updateOpts.Persistence = &persistence
 	}
 
 	// Wait for LoadBalancer to become active before continuing
@@ -381,4 +397,31 @@ func resourcePoolV2Delete(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	return nil
+}
+
+func buildPersistence(p interface{}) (pools.SessionPersistence, error) {
+	pV := (p.([]interface{}))[0].(map[string]interface{})
+
+	persistence := pools.SessionPersistence{
+		Type: pV["type"].(string),
+	}
+
+	if persistence.Type == "APP_COOKIE" {
+		if pV["cookie_name"].(string) == "" {
+			return persistence, fmt.Errorf(
+				"persistence cookie_name needs to be set if using 'APP_COOKIE' persistence type")
+		}
+		persistence.CookieName = pV["cookie_name"].(string)
+
+		if pV["timeout"].(int) != 0 {
+			return persistence, fmt.Errorf(
+				"persistence timeout is invalid when type is set to 'APP_COOKIE'")
+		}
+	} else if pV["cookie_name"].(string) != "" {
+		return persistence, fmt.Errorf(
+			"persistence cookie_name can only be set if using 'APP_COOKIE' persistence type")
+	}
+
+	persistence.PersistenceTimeout = pV["timeout"].(int)
+	return persistence, nil
 }
