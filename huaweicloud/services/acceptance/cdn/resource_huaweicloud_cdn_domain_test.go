@@ -135,10 +135,12 @@ resource "huaweicloud_cdn_domain" "test" {
 
   cache_settings {
     rules {
-      rule_type = "all"
-      ttl       = 365
-      ttl_type  = "d"
-      priority  = 2
+      rule_type           = "all"
+      ttl                 = 365
+      ttl_type            = "d"
+      priority            = 2
+      url_parameter_type  = "del_params"
+      url_parameter_value = "test_value"
     }
   }
 
@@ -170,11 +172,12 @@ resource "huaweicloud_cdn_domain" "test" {
   cache_settings {
     follow_origin = true
     rules {
-      rule_type = "file_extension"
-      content   = ".jpg"
-      ttl       = 0
-      ttl_type  = "d"
-      priority  = 3
+      rule_type          = "file_extension"
+      content            = ".jpg"
+      ttl                = 0
+      ttl_type           = "d"
+      priority           = 3
+      url_parameter_type = "ignore_url_params"
     }
   }
 }

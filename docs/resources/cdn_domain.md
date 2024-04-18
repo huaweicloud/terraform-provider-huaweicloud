@@ -51,10 +51,11 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 
   cache_settings {
     rules {
-      rule_type = "all"
-      ttl       = 180
-      ttl_type  = "d"
-      priority  = 2
+      rule_type          = "all"
+      ttl                = 180
+      ttl_type           = "d"
+      priority           = 2
+      url_parameter_type = "ignore_url_params"
     }
   }
 }
@@ -652,6 +653,18 @@ The `rules` block support:
     Up to 20 directories are supported.
   + If `rule_type` is set to **full_path**, the value must start with a slash (/) and cannot end with an asterisk.
     Example: `/test/index.html` or `/test/*.jpg`
+
+* `url_parameter_type` - (Optional, String) Specifies the URL parameter types. Valid values are as follows:
+  + **del_params**: Ignore specific URL parameters.
+  + **reserve_params**: Retain specific URL parameters.
+  + **ignore_url_params**: Ignore all URL parameters.
+  + **full_url**: Retain all URL parameters.
+
+  Defaults to **full_url**.
+
+* `url_parameter_value` - (Optional, String) Specifies the URL parameter values, which are separated by commas (,).
+  Up to 10 parameters can be set.
+  This parameter is mandatory when `url_parameter_type` is set to **del_params** or **reserve_params**.
 
 ## Attribute Reference
 
