@@ -413,7 +413,7 @@ The `force_redirect` blocks support:
 
 * `enabled` - (Required, Bool) Specifies whether to enable force redirect.
 
-* `type` - (Optional, String) Specifies the force redirect type.
+* `type` - (Required, String) Specifies the force redirect type.
   Possible values are: **http** (force redirect to HTTP) and **https** (force redirect to HTTPS).
 
   -> Force redirect **https** type can be set only if https is enabled.
