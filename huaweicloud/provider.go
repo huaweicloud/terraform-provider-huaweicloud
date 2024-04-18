@@ -685,6 +685,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_mysql_accounts":                rds.DataSourceRdsMysqlAccounts(),
 			"huaweicloud_rds_mysql_binlog":                  rds.DataSourceRdsMysqlBinlog(),
 			"huaweicloud_rds_parametergroups":               rds.DataSourceParametergroups(),
+			"huaweicloud_rds_sql_audit_operations":          rds.DataSourceRdsSqlAuditTypes(),
+			"huaweicloud_rds_cross_region_backups":          rds.DataSourceRdsCrossRegionBackups(),
 
 			"huaweicloud_rms_policy_definitions":                 rms.DataSourcePolicyDefinitions(),
 			"huaweicloud_rms_assignment_package_templates":       rms.DataSourceTemplates(),
@@ -778,9 +780,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_key_v1":      dew.DataSourceKmsKey(),
 			"huaweicloud_kms_data_key_v1": dew.DataSourceKmsDataKeyV1(),
 
-			"huaweicloud_rds_flavors_v3":           rds.DataSourceRdsFlavor(),
-			"huaweicloud_sfs_file_system_v2":       sfs.DataSourceSFSFileSystemV2(),
-			"huaweicloud_rds_sql_audit_operations": rds.DataSourceRdsSqlAuditTypes(),
+			"huaweicloud_rds_flavors_v3":     rds.DataSourceRdsFlavor(),
+			"huaweicloud_sfs_file_system_v2": sfs.DataSourceSFSFileSystemV2(),
 
 			"huaweicloud_vpc_v1":                    vpc.DataSourceVpcV1(),
 			"huaweicloud_vpc_ids_v1":                vpc.DataSourceVpcIdsV1(),

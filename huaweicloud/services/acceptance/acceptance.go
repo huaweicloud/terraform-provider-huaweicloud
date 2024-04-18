@@ -332,6 +332,8 @@ var (
 	HW_HSS_HOST_PROTECTION_QUOTA_ID = os.Getenv("HW_HSS_HOST_PROTECTION_QUOTA_ID")
 
 	HW_DDS_SECOND_LEVEL_MONITORING_ENABLED = os.Getenv("HW_DDS_SECOND_LEVEL_MONITORING_ENABLED")
+
+	HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID = os.Getenv("HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1557,5 +1559,12 @@ func TestAccPreCheckHSSHostProtectionQuotaId(t *testing.T) {
 func TestAccPreCheckDDSSecondLevelMonitoringEnabled(t *testing.T) {
 	if HW_DDS_SECOND_LEVEL_MONITORING_ENABLED == "" {
 		t.Skip("HW_DDS_SECOND_LEVEL_MONITORING_ENABLED must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsCrossRegionBackupInstanceId(t *testing.T) {
+	if HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID == "" {
+		t.Skip("HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID must be set for the acceptance test")
 	}
 }
