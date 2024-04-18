@@ -112,9 +112,19 @@ resource "huaweicloud_cdn_domain" "domain_1" {
     url_signing {
       enabled     = true
       type        = "type_a"
+      sign_method = "md5"
+      match_type  = "all"
+      sign_arg    = "Psd_123"
       key         = "A27jtfSTy13q7A0UnTA9vpxYXEb"
+      backup_key  = "S36klgTFa60q3V8DmSK2hwfBOYp"
       time_format = "dec"
       expire_time = 30
+
+      inherit_config {
+        enabled           = true
+        inherit_type      = "m3u8"
+        inherit_time_type = "sys_time"
+      }
     }
 
     flexible_origin {
@@ -400,13 +410,53 @@ The `url_signing` block support:
   **type_c1**: Method C1.
   **type_c2**: Method C2.
 
-* `key` - (Optional, String) Specifies the authentication key contains `6` to `32` characters, including letters and digits.
+* `sign_method` - (Optional, String) Specifies the encryption algorithm type for URL authentication.
+  The default value is **md5**. The valid values are as following:
+  + **md5**
+  + **sha256**
+
+* `match_type` - (Optional, String) Specifies the authentication scope. The default value is **all**.
+  Currently, only **all** is supported, indicates that all files are involved in authentication.
+
+* `sign_arg` - (Optional, String) Specifies the authentication parameters. The default value is **auth_key**.
+  The valid length is limited from `1` to `100` characters, only letters, digits, and underscores (_) are allowed.
+  The value can not start with a digit.
+
+* `inherit_config` - (Optional, List) Specifies the details of the authentication inheritance.
+  The [inherit_config](#inherit_config_object) structure is documented below.
+
+  -> Add authentication parameters to TS and MP4 files under M3U8/MPD index files, so that the files can be played
+  after authentication succeeds.
+
+* `key` - (Optional, String) Specifies the authentication key contains `16` to `32` characters, including letters and digits.
+
+  -> This parameter is mandatory when URL signing is enabled.
+
+* `backup_key` - (Optional, String) Specifies the standby authentication key contains `16` to `32` characters,
+  including letters and digits.
 
 * `time_format` - (Optional, String) Specifies the time format. Possible values are:
   **dec**: Decimal, can be used in Method A, Method B and Method C2.
   **hex**: Hexadecimal, can be used in Method C1 and Method C2.
 
 * `expire_time` - (Optional, Int) Specifies the expiration time. The value ranges from `0` to `31536000`, in seconds.
+
+<a name="inherit_config_object"></a>
+The `inherit_config` blocks support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable authentication inheritance.
+
+* `inherit_type` - (Optional, String) Specifies the authentication inheritance configuration.
+  The valid values are **m3u8** and **mpd**. Separate multiple values with commas (,). e.g. **m3u8,mpd**.
+
+  -> This parameter is mandatory when authentication inheritance is enabled.
+
+* `inherit_time_type` - (Optional, String) Specifies the time type that inherits authentication settings.
+  The valid values are as follows:
+  + **sys_time**: The current system time.
+  + **parent_url_time**: The time when a user accesses the M3U8/MPD file.
+
+  -> This parameter is mandatory when authentication inheritance is enabled.
 
 <a name="force_redirect_object"></a>
 The `force_redirect` blocks support:
@@ -670,6 +720,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `configs/url_signing/status` - The status of the url_signing. The available values are 'on' and 'off'.
 
+* `configs/url_signing/inherit_config/status` - The status of the authentication inheritance.
+  The valid values are **on** and **off**.
+
 * `configs/force_redirect/status` - The status of the force redirect. The available values are 'on' and 'off'.
 
 * `configs/compress/status` - The status of the compress. The available values are 'on' and 'off'.
@@ -692,8 +745,8 @@ $ terraform import huaweicloud_cdn_domain.test <name>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `enterprise_project_id`,
-`configs.0.url_signing.0.key`, `configs.0.https_settings.0.certificate_body`, `configs.0.https_settings.0.private_key`,
-and `cache_settings`.
+`configs.0.url_signing.0.key`, `configs.0.url_signing.0.backup_key`, `configs.0.https_settings.0.certificate_body`,
+`configs.0.https_settings.0.private_key`, `cache_settings`.
 It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
 with the resource. Also, you can ignore changes as below.
@@ -704,8 +757,8 @@ resource "huaweicloud_cdn_domain" "test" {
   
   lifecycle {
     ignore_changes = [
-      enterprise_project_id, configs.0.url_signing.0.key, configs.0.https_settings.0.certificate_body,
-      configs.0.https_settings.0.private_key, cache_settings,
+      enterprise_project_id, configs.0.url_signing.0.key, configs.0.url_signing.0.backup_key,
+      configs.0.https_settings.0.certificate_body, configs.0.https_settings.0.private_key, cache_settings,
     ]
   }
 }
