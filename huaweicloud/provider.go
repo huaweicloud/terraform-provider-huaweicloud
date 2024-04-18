@@ -429,6 +429,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_connection_routes":                       cc.DataSourceCcConnectionRoutes(),
 			"huaweicloud_cc_central_network_policies_change_set":     cc.DataSourceCcCentralNetworkPoliciesChangeSet(),
 			"huaweicloud_cc_connection_tags":                         cc.DataSourceCcConnectionTags(),
+			"huaweicloud_cc_global_connection_bandwidth_sites":       cc.DataSourceCcGlobalConnectionBandwidthSites(),
 
 			"huaweicloud_cce_addon_template":      cce.DataSourceAddonTemplate(),
 			"huaweicloud_cce_cluster":             cce.DataSourceCCEClusterV3(),
