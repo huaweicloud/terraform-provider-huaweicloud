@@ -346,6 +346,11 @@ func testAccOpenGaussInstance_basic(rName, password string, replicaNum int) stri
 %[1]s
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  depends_on = [
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
+  ]
+
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -379,6 +384,11 @@ func testAccOpenGaussInstance_update(rName, password string, replicaNum int) str
 %[1]s
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  depends_on = [
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
+  ]
+
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -417,6 +427,11 @@ func testAccOpenGaussInstance_prepaid(rName, password string) string {
 %[1]s
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  depends_on = [
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
+  ]
+
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -458,6 +473,11 @@ func testAccOpenGaussInstance_prepaidUpdate(rName, password string) string {
 %[1]s
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  depends_on = [
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
+  ]
+
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -504,6 +524,10 @@ func testAccOpenGaussInstance_haModeCentralized(rName, password string) string {
 %[1]s
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  depends_on = [
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
+  ]
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -535,6 +559,11 @@ func testAccOpenGaussInstance_haModeCentralizedUpdate(rName, password string) st
 %[1]s
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  depends_on = [
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
+  ]
+
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
@@ -571,6 +600,11 @@ func testAccOpenGaussInstance_withEpsId(rName, password string, replicaNum int, 
 %[1]s
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  depends_on = [
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
+    huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss_egress
+  ]
+
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
