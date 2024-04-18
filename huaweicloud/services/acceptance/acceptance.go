@@ -182,6 +182,8 @@ var (
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID        = os.Getenv("HW_CFW_INSTANCE_ID")
 	HW_CFW_EAST_WEST_FIREWALL = os.Getenv("HW_CFW_EAST_WEST_FIREWALL")
+	HW_CFW_START_TIME         = os.Getenv("HW_CFW_START_TIME")
+	HW_CFW_END_TIME           = os.Getenv("HW_CFW_END_TIME")
 
 	// The cluster ID of the CCE
 	HW_CCE_CLUSTER_ID = os.Getenv("HW_CCE_CLUSTER_ID")
@@ -1054,6 +1056,13 @@ func TestAccPreCheckTargetTenantDcVGW(t *testing.T) {
 func TestAccPreCheckCfw(t *testing.T) {
 	if HW_CFW_INSTANCE_ID == "" {
 		t.Skip("HW_CFW_INSTANCE_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwTimeRange(t *testing.T) {
+	if HW_CFW_START_TIME == "" || HW_CFW_END_TIME == "" {
+		t.Skip("HW_CFW_START_TIME and HW_CFW_END_TIME must be set for CFW acceptance tests")
 	}
 }
 
