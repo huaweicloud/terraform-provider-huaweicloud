@@ -69,6 +69,12 @@ type L7Policy struct {
 
 	// Rules are List of associated L7 rule IDs.
 	Rules []Rule `json:"rules"`
+
+	// The create time.
+	CreatedAt string `json:"created_at"`
+
+	// The update time.
+	UpdatedAt string `json:"updated_at"`
 }
 
 // Rule represents layer 7 load balancing rule.

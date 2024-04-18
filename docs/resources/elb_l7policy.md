@@ -210,7 +210,13 @@ The `fixed_response_config` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The unique ID for the L7 policy.
+* `id` - The unique ID of the L7 policy.
+
+* `provisioning_status` - The provisioning status of the forwarding policy.
+
+* `created_at` - The create time of the L7 policy.
+
+* `updated_at` - The update time of the L7 policy.
 
 ## Timeouts
 

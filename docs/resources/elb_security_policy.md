@@ -57,6 +57,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
+* `created_at` - The create time of the security policy.
+
+* `updated_at` - The update time of the security policy.
+
 * `listeners` - The listener which the security policy associated with.
   The [ListenerRef](#SecurityPoliciesV3_ListenerRef) structure is documented below.
 

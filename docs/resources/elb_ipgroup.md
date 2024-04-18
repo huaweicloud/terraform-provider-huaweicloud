@@ -49,6 +49,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The uuid of the ip group.
 
+* `listener_ids` - The listener IDs which the ip group associated with.
+
+* `created_at` - The create time of the ip group.
+
+* `updated_at` - The update time of the ip group.
+
 ELB IP group can be imported using the IP group ID, e.g.
 
 ```

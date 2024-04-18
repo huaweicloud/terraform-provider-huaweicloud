@@ -71,6 +71,14 @@ func ResourceL7RuleV3() *schema.Resource {
 				Computed: true,
 				Elem:     l7RuleConditionSchema(),
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -164,6 +172,8 @@ func resourceL7RuleV3Read(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("type", l7Rule.RuleType),
 		d.Set("compare_type", l7Rule.CompareType),
 		d.Set("value", l7Rule.Value),
+		d.Set("created_at", l7Rule.CreatedAt),
+		d.Set("updated_at", l7Rule.UpdatedAt),
 	)
 
 	var conditions []map[string]interface{}

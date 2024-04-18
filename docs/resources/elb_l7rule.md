@@ -161,7 +161,11 @@ The `condition` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The unique ID for the L7 Rule.
+* `id` - The unique ID of the L7 Rule.
+
+* `created_at` - The create time of the L7 Rule.
+
+* `updated_at` - The update time of the L7 Rule.
 
 ## Timeouts
 
