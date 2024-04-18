@@ -382,3 +382,93 @@ resource "huaweicloud_dli_queue" "test" {
   }
 }`, elasticResourcePoolName, queueName)
 }
+
+func TestAccDliQueue_sparkDriver(t *testing.T) {
+	rName := act.RandomAccResourceName()
+	resourceName := "huaweicloud_dli_queue.test"
+
+	var obj queues.CreateOpts
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDliQueueResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { act.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDliQueue_sparkDriver_step1(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "spark_driver.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "spark_driver.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "spark_driver.0.max_instance", "2"),
+					resource.TestCheckResourceAttr(resourceName, "spark_driver.0.max_concurrent", "1"),
+					resource.TestCheckResourceAttr(resourceName, "spark_driver.0.max_prefetch_instance", "0"),
+				),
+			},
+			{
+				Config: testAccDliQueue_sparkDriver_step2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "spark_driver.0.max_prefetch_instance", "4"),
+				),
+			},
+			{
+				Config: testAccDliQueue_sparkDriver_step3(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "scaling_policies.#", "0"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccQueueImportStateFunc(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"tags",
+				},
+			},
+		},
+	})
+}
+
+func testAccDliQueue_sparkDriver_step1(queueName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_queue" "test" {
+  name     = "%s"
+  cu_count = 64
+
+  spark_driver {
+    max_instance          = 2
+    max_concurrent        = 1
+    max_prefetch_instance = "0"
+  }
+}`, queueName)
+}
+
+// Modify "max_prefetch_instance" parameter, and remove the "max_instance" and "max_concurrent" parameters。
+func testAccDliQueue_sparkDriver_step2(queueName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_queue" "test" {
+  name     = "%s"
+  cu_count = 64
+
+  spark_driver {
+    max_prefetch_instance = "4"
+  }
+}`, queueName)
+}
+
+// Remove spark_driver parameters
+func testAccDliQueue_sparkDriver_step3(queueName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_queue" "test" {
+  name     = "%s"
+  cu_count = 64
+}`, queueName)
+}
