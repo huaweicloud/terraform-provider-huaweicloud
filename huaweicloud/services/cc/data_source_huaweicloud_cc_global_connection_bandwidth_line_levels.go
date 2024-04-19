@@ -141,7 +141,7 @@ func (w *GlobalConnectionBandwidthLineLevelsDSWrapper) ListGlobalConnectionBandw
 		Method("GET").
 		URI(uri).
 		Query(params).
-		MarkerPager("line_levels", "next_marker", "marker").
+		MarkerPager("line_levels", "page_info.next_marker", "marker").
 		Request().
 		Result()
 }
