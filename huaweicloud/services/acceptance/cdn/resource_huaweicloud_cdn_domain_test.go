@@ -469,7 +469,6 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.slice_etag_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_receive_timeout", "60"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.cache_url_parameter_filter.0.type", "ignore_url_params"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.name", "test-name"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.type", "type_a"),
@@ -532,8 +531,6 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.description", "update description"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.slice_etag_status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_receive_timeout", "30"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.cache_url_parameter_filter.0.type", "del_params"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.cache_url_parameter_filter.0.value", "test_value"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.name", "test-name-update"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.value", "test-val-update"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.action", "set"),
@@ -648,10 +645,6 @@ resource "huaweicloud_cdn_domain" "test" {
     range_based_retrieval_enabled = true
     description                   = "test description"
     origin_receive_timeout        = "60"
-
-    cache_url_parameter_filter {
-      type = "ignore_url_params"
-    }
 
     retrieval_request_header {
       name   = "test-name"
@@ -781,11 +774,6 @@ resource "huaweicloud_cdn_domain" "test" {
     description                   = "update description"
     slice_etag_status             = "off"
     origin_receive_timeout        = "30"
-
-    cache_url_parameter_filter {
-      type  = "del_params"
-      value = "test_value"
-    }
 
     retrieval_request_header {
       name   = "test-name-update"

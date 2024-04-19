@@ -218,10 +218,11 @@ var compress = schema.Schema{
 }
 
 var cacheUrlParameterFilter = schema.Schema{
-	Type:     schema.TypeList,
-	Optional: true,
-	Computed: true,
-	MaxItems: 1,
+	Type:        schema.TypeList,
+	Optional:    true,
+	Computed:    true,
+	MaxItems:    1,
+	Description: "schema: Deprecated; Field `cache_url_parameter_filter` will be offline soon, use `cache_settings` instead",
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"type": {

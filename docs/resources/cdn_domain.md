@@ -94,10 +94,6 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       ocsp_stapling_status = "on"
     }
 
-    cache_url_parameter_filter {
-      type = "ignore_url_params"
-    }
-
     retrieval_request_header {
       name   = "test-name"
       value  = "test-val"
@@ -291,9 +287,6 @@ The `configs` block support:
 * `compress` - (Optional, List) Specifies the smart compression. The [compress](#compress_object) structure
   is documented below.
 
-* `cache_url_parameter_filter` - (Optional, List) Specifies the settings for caching URL parameters.
-  The [cache_url_parameter_filter](#cache_url_parameter_filter_object) structure is documented below.
-
 * `ip_frequency_limit` - (Optional, List) Specifies the IP access frequency limit.
   The [ip_frequency_limit](#ip_frequency_limit_object) structure is documented below.
 
@@ -429,17 +422,6 @@ The `compress` blocks support:
 
 * `type` - (Optional, String) Specifies the smart compression type.
   Possible values are: **gzip** (gzip) and **br** (Brotli).
-
-<a name="cache_url_parameter_filter_object"></a>
-The `cache_url_parameter_filter` block support:
-
-* `type` - (Optional, String) Specifies the operation type for caching URL parameters. Valid values are:
-  **full_url**: Cache all parameters
-  **ignore_url_params**: Ignore all parameters
-  **del_params**: Ignore specific URL parameters
-  **reserve_params**: Reserve specified URL parameters
-
-* `value` - (Optional, String) Specifies the parameter values. Multiple values are separated by semicolons (;).
 
 <a name="ip_frequency_limit_object"></a>
 The `ip_frequency_limit` block support:
