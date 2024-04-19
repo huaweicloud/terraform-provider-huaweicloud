@@ -154,6 +154,17 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"maintain_begin": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"maintain_end": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"maintain_begin"},
+			},
 			"db": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -318,6 +329,10 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
+	if err = updateRdsInstanceMaintainWindow(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
 	if v, ok := d.GetOk("db.0.port"); ok && v.(int) != res.Port {
 		if err = updateRdsInstanceDBPort(ctx, d, client, instanceID); err != nil {
 			return diag.FromErr(err)
@@ -432,6 +447,12 @@ func resourceRdsReadReplicaInstanceRead(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
+	maintainWindow := strings.Split(instance.MaintenanceWindow, "-")
+	if len(maintainWindow) == 2 {
+		d.Set("maintain_begin", maintainWindow[0])
+		d.Set("maintain_end", maintainWindow[1])
+	}
+
 	volumeList := make([]map[string]interface{}, 0, 1)
 	volume := map[string]interface{}{
 		"type":               instance.Volume.Type,
@@ -490,6 +511,10 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	if err = updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateRdsInstanceMaintainWindow(d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
