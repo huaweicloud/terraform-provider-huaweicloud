@@ -321,7 +321,7 @@ func dataSourceOpenGaussInstancesRead(_ context.Context, d *schema.ResourceData,
 		}
 
 		if shardingNum > 0 && coordinatorNum > 0 {
-			dnNum = shardingNum / 3
+			dnNum = shardingNum / instanceInAll.ReplicaNum
 			instanceToSet["nodes"] = nodesList
 			instanceToSet["coordinator_num"] = coordinatorNum
 			instanceToSet["sharding_num"] = dnNum
