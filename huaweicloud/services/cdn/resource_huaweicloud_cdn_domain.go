@@ -522,6 +522,34 @@ var referer = schema.Schema{
 	},
 }
 
+var videoSeek = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enable_video_seek": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"enable_flv_by_time_seek": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"start_parameter": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"end_parameter": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -665,6 +693,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"remote_auth":                &remoteAuth,
 						"quic":                       &quic,
 						"referer":                    &referer,
+						"video_seek":                 &videoSeek,
 					},
 				},
 			},
@@ -1083,6 +1112,22 @@ func buildRefererOpts(rawReferer []interface{}) *model.RefererConfig {
 	return &refererOpts
 }
 
+func buildVideoSeekOpts(rawVideoSeek []interface{}) *model.VideoSeek {
+	if len(rawVideoSeek) != 1 {
+		return nil
+	}
+
+	videoSeek := rawVideoSeek[0].(map[string]interface{})
+	videoSeekOpts := model.VideoSeek{
+		EnableVideoSeek:     videoSeek["enable_video_seek"].(bool),
+		EnableFlvByTimeSeek: utils.Bool(videoSeek["enable_flv_by_time_seek"].(bool)),
+		StartParameter:      utils.String(videoSeek["start_parameter"].(string)),
+		EndParameter:        utils.String(videoSeek["end_parameter"].(string)),
+	}
+
+	return &videoSeekOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1221,6 +1266,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.referer") {
 		configsOpts.Referer = buildRefererOpts(configs["referer"].([]interface{}))
+	}
+	if d.HasChange("configs.0.video_seek") {
+		configsOpts.VideoSeek = buildVideoSeekOpts(configs["video_seek"].([]interface{}))
 	}
 }
 
@@ -1651,6 +1699,23 @@ func flattenRefererAttrs(referer *model.RefererConfig) []map[string]interface{} 
 	return []map[string]interface{}{refererAttrs}
 }
 
+func flattenVideoSeekAttrs(videoSeek *model.VideoSeek) []map[string]interface{} {
+	if videoSeek == nil {
+		// When closing `video_seek`, the API response body will not return the information of this field.
+		// In order to avoid plan problems in terraform, a default value is added.
+		return []map[string]interface{}{{
+			"enable_video_seek": false,
+		}}
+	}
+
+	return []map[string]interface{}{{
+		"enable_video_seek":       videoSeek.EnableVideoSeek,
+		"enable_flv_by_time_seek": videoSeek.EnableFlvByTimeSeek,
+		"start_parameter":         videoSeek.StartParameter,
+		"end_parameter":           videoSeek.EndParameter,
+	}}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1702,6 +1767,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"origin_receive_timeout":        configsResp.OriginReceiveTimeout,
 		"quic":                          flattenQUICAttrs(configsResp.Quic),
 		"referer":                       flattenRefererAttrs(configsResp.Referer),
+		"video_seek":                    flattenVideoSeekAttrs(configsResp.VideoSeek),
 	}
 	return []map[string]interface{}{configsAttrs}
 }
