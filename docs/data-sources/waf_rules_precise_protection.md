@@ -35,8 +35,8 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the name of the precise protection rule.
 
-* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the protection policies
-  belong.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the protection policies belong.
+  If omitted, will query precise protection rules under the default enterprise project for enterprise users.
 
 * `status` - (Optional, String) Specifies the status of the precise protection rule.
 

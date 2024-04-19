@@ -262,7 +262,7 @@ func (w *RulesPreciseProtectionDSWrapper) listCustomRulesToSchema(body *gjson.Re
 }
 
 func (*RulesPreciseProtectionDSWrapper) setItemsStart(data gjson.Result) string {
-	rawDate := data.Get("c").Int()
+	rawDate := data.Get("start").Int()
 	return utils.FormatTimeStampRFC3339(rawDate, false)
 }
 
