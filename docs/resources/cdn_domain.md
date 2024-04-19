@@ -51,10 +51,11 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 
   cache_settings {
     rules {
-      rule_type = "all"
-      ttl       = 180
-      ttl_type  = "d"
-      priority  = 2
+      rule_type          = "all"
+      ttl                = 180
+      ttl_type           = "d"
+      priority           = 2
+      url_parameter_type = "ignore_url_params"
     }
   }
 }
@@ -91,10 +92,6 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       https_enabled        = true
       private_key          = file("your_directory/server_private.key")
       ocsp_stapling_status = "on"
-    }
-
-    cache_url_parameter_filter {
-      type = "ignore_url_params"
     }
 
     retrieval_request_header {
@@ -290,9 +287,6 @@ The `configs` block support:
 * `compress` - (Optional, List) Specifies the smart compression. The [compress](#compress_object) structure
   is documented below.
 
-* `cache_url_parameter_filter` - (Optional, List) Specifies the settings for caching URL parameters.
-  The [cache_url_parameter_filter](#cache_url_parameter_filter_object) structure is documented below.
-
 * `ip_frequency_limit` - (Optional, List) Specifies the IP access frequency limit.
   The [ip_frequency_limit](#ip_frequency_limit_object) structure is documented below.
 
@@ -428,17 +422,6 @@ The `compress` blocks support:
 
 * `type` - (Optional, String) Specifies the smart compression type.
   Possible values are: **gzip** (gzip) and **br** (Brotli).
-
-<a name="cache_url_parameter_filter_object"></a>
-The `cache_url_parameter_filter` block support:
-
-* `type` - (Optional, String) Specifies the operation type for caching URL parameters. Valid values are:
-  **full_url**: Cache all parameters
-  **ignore_url_params**: Ignore all parameters
-  **del_params**: Ignore specific URL parameters
-  **reserve_params**: Reserve specified URL parameters
-
-* `value` - (Optional, String) Specifies the parameter values. Multiple values are separated by semicolons (;).
 
 <a name="ip_frequency_limit_object"></a>
 The `ip_frequency_limit` block support:
@@ -652,6 +635,18 @@ The `rules` block support:
     Up to 20 directories are supported.
   + If `rule_type` is set to **full_path**, the value must start with a slash (/) and cannot end with an asterisk.
     Example: `/test/index.html` or `/test/*.jpg`
+
+* `url_parameter_type` - (Optional, String) Specifies the URL parameter types. Valid values are as follows:
+  + **del_params**: Ignore specific URL parameters.
+  + **reserve_params**: Retain specific URL parameters.
+  + **ignore_url_params**: Ignore all URL parameters.
+  + **full_url**: Retain all URL parameters.
+
+  Defaults to **full_url**.
+
+* `url_parameter_value` - (Optional, String) Specifies the URL parameter values, which are separated by commas (,).
+  Up to 10 parameters can be set.
+  This parameter is mandatory when `url_parameter_type` is set to **del_params** or **reserve_params**.
 
 ## Attribute Reference
 

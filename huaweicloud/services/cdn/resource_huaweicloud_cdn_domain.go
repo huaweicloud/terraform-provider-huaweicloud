@@ -218,10 +218,11 @@ var compress = schema.Schema{
 }
 
 var cacheUrlParameterFilter = schema.Schema{
-	Type:     schema.TypeList,
-	Optional: true,
-	Computed: true,
-	MaxItems: 1,
+	Type:        schema.TypeList,
+	Optional:    true,
+	Computed:    true,
+	MaxItems:    1,
+	Description: "schema: Deprecated; Field `cache_url_parameter_filter` will be offline soon, use `cache_settings` instead",
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"type": {
@@ -673,6 +674,14 @@ func ResourceCdnDomain() *schema.Resource {
 										Computed:    true,
 										Description: "schema: Required",
 									},
+									"url_parameter_type": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"url_parameter_value": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 								},
 							},
 						},
@@ -1062,12 +1071,14 @@ func buildCacheRules(followOrigin bool, rules []interface{}) *[]model.CacheRules
 	for i, val := range rules {
 		rule := val.(map[string]interface{})
 		result[i] = model.CacheRules{
-			FollowOrigin: utils.StringIgnoreEmpty(parseFunctionEnabledStatus(followOrigin)),
-			MatchType:    utils.StringIgnoreEmpty(parseCacheRuleType(rule["rule_type"].(string))),
-			MatchValue:   utils.StringIgnoreEmpty(rule["content"].(string)),
-			Ttl:          utils.Int32(int32(rule["ttl"].(int))),
-			TtlUnit:      parseCacheTTLUnits(rule["ttl_type"].(string)),
-			Priority:     int32(rule["priority"].(int)),
+			FollowOrigin:      utils.StringIgnoreEmpty(parseFunctionEnabledStatus(followOrigin)),
+			MatchType:         utils.StringIgnoreEmpty(parseCacheRuleType(rule["rule_type"].(string))),
+			MatchValue:        utils.StringIgnoreEmpty(rule["content"].(string)),
+			Ttl:               utils.Int32(int32(rule["ttl"].(int))),
+			TtlUnit:           parseCacheTTLUnits(rule["ttl_type"].(string)),
+			Priority:          int32(rule["priority"].(int)),
+			UrlParameterType:  utils.StringIgnoreEmpty(rule["url_parameter_type"].(string)),
+			UrlParameterValue: utils.StringIgnoreEmpty(rule["url_parameter_value"].(string)),
 		}
 	}
 	return &result
