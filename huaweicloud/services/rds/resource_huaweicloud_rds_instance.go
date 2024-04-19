@@ -324,6 +324,32 @@ func ResourceRdsInstance() *schema.Resource {
 				},
 			},
 
+			"tde_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"rotate_day": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"tde_enabled"},
+			},
+			"secret_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"tde_enabled"},
+			},
+			"secret_name": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"tde_enabled"},
+			},
+			"secret_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"tde_enabled"},
+			},
+
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -584,6 +610,10 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
+	if err = updateTde(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
@@ -767,6 +797,19 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 			})
 		}
 		d.Set("msdtc_hosts", hosts)
+	}
+
+	tdeStatus, err := instances.GetTdeStatus(client, instanceID).Extract()
+	if err != nil {
+		log.Printf("[ERROR] error query TDE of the instance: %s", err)
+	} else {
+		tdeEnabled := false
+		if tdeStatus.TdeStatus == "open" {
+			tdeEnabled = true
+		}
+		log.Printf("[DEBUG] get tdeStatus value: %#v", tdeStatus)
+		log.Printf("[DEBUG] get tdeEnabled value: %#v", tdeEnabled)
+		d.Set("tde_enabled", tdeEnabled)
 	}
 
 	return setRdsInstanceParameters(ctx, d, client, instanceID)
@@ -955,6 +998,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updateMsdtcHosts(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateTde(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1771,6 +1818,48 @@ func updateMsdtcHosts(ctx context.Context, d *schema.ResourceData, client *golan
 		if err = checkRDSInstanceJobFinish(client, job.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return fmt.Errorf("error waiting for RDS instance (%s) update msdtc hosts completed: %s", instanceID, err)
 		}
+	}
+
+	return nil
+}
+
+func updateTde(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	if !d.HasChanges("tde_enabled") {
+		return nil
+	}
+
+	if !d.Get("tde_enabled").(bool) {
+		return fmt.Errorf("TDE cannot be disabled after being enabled")
+	}
+
+	modifyTdeOpts := instances.ModifyTdeOpts{
+		RotateDay:     d.Get("rotate_day").(int),
+		SecretId:      d.Get("secret_id").(string),
+		SecretName:    d.Get("secret_name").(string),
+		SecretVersion: d.Get("secret_version").(string),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.OpenTde(client, modifyTdeOpts, instanceID).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance TDE: %s ", err)
+	}
+	job := res.(*instances.JobResponse)
+
+	if err := checkRDSInstanceJobFinish(client, job.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return fmt.Errorf("error waiting for RDS instance (%s) update TDE: %s", instanceID, err)
 	}
 
 	return nil

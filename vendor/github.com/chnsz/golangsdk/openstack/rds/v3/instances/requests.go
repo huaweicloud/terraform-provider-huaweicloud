@@ -472,7 +472,7 @@ func RestRootPassword(c *golangsdk.ServiceClient, instanceID string, opts RestRo
 	}
 
 	var r ErrorResponse
-	_, err = c.Post(resetRootPasswordURL(c, instanceID), b, &r, &golangsdk.RequestOpts{
+	_, err = c.Post(updateURL(c, instanceID, "password"), b, &r, &golangsdk.RequestOpts{
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})
 	return &r, err
@@ -506,14 +506,14 @@ func ModifyConfiguration(c *golangsdk.ServiceClient, instanceID string, opts Mod
 		return
 	}
 
-	_, r.Err = c.Put(configurationsURL(c, instanceID), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = c.Put(updateURL(c, instanceID, "configurations"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{200, 202},
 	})
 	return
 }
 
 func GetConfigurations(c *golangsdk.ServiceClient, instanceID string) (r GetConfigurationResult) {
-	_, r.Err = c.Get(configurationsURL(c, instanceID), &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = c.Get(getURL(c, instanceID, "configurations"), &r.Body, &golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{"Content-Type": "application/json"},
 	})
 	return
@@ -526,7 +526,7 @@ func RebootInstance(c *golangsdk.ServiceClient, instanceID string) (r JobResult)
 		return
 	}
 
-	_, r.Err = c.Post(actionURL(c, instanceID), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = c.Post(updateURL(c, instanceID, "action"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{200, 202},
 	})
 	return
@@ -589,7 +589,7 @@ func EnableAutoExpand(c *golangsdk.ServiceClient, opts EnableAutoExpandOpts) err
 		return err
 	}
 
-	_, err = c.Put(autoExpandURL(c, opts.InstanceId), b, nil, &golangsdk.RequestOpts{
+	_, err = c.Put(updateURL(c, opts.InstanceId, "disk-auto-expansion"), b, nil, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return err
@@ -605,7 +605,7 @@ func DisableAutoExpand(c *golangsdk.ServiceClient, instanceId string) error {
 		return err
 	}
 
-	_, err = c.Put(autoExpandURL(c, instanceId), b, nil, &golangsdk.RequestOpts{
+	_, err = c.Put(updateURL(c, instanceId, "disk-auto-expansion"), b, nil, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return err
@@ -614,7 +614,7 @@ func DisableAutoExpand(c *golangsdk.ServiceClient, instanceId string) error {
 // GetAutoExpand is a method used to obtain the automatic expansion configuarion of instance storage.
 func GetAutoExpand(c *golangsdk.ServiceClient, instanceId string) (*AutoExpansion, error) {
 	var r AutoExpansion
-	_, err := c.Get(autoExpandURL(c, instanceId), &r, &golangsdk.RequestOpts{
+	_, err := c.Get(getURL(c, instanceId, "disk-auto-expansion"), &r, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r, err
@@ -733,13 +733,13 @@ func ModifyBinlogRetentionHours(c *golangsdk.ServiceClient, opts ActionInstanceB
 		r.Err = err
 		return
 	}
-	_, r.Err = c.Put(binlogRetentionHoursURL(c, instanceId), b, &r.Body, &golangsdk.RequestOpts{})
+	_, r.Err = c.Put(updateURL(c, instanceId, "binlog/clear-policy"), b, &r.Body, &golangsdk.RequestOpts{})
 	return
 }
 
 // GetBinlogRetentionHours is a method used to obtain the binlog retention hours.
 func GetBinlogRetentionHours(c *golangsdk.ServiceClient, instanceId string) (r GetBinlogRetentionHoursResult) {
-	_, r.Err = c.Get(binlogRetentionHoursURL(c, instanceId), &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = c.Get(getURL(c, instanceId, "binlog/clear-policy"), &r.Body, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return
@@ -771,7 +771,7 @@ func ModifyMsdtcHosts(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, in
 
 // GetMsdtcHosts is a method used to obtain the msdtc hosts.
 func GetMsdtcHosts(c *golangsdk.ServiceClient, instanceId string) ([]RdsMsdtcHosts, error) {
-	url := msdtcHostsURL(c, instanceId)
+	url := updateURL(c, instanceId, "msdtc/hosts")
 
 	pages, err := pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
 		return MsdtcHostsPage{pagination.OffsetPageBase{PageResult: r}}
@@ -796,6 +796,36 @@ func Startup(client *golangsdk.ServiceClient, instanceId string) (r JobResult) {
 func Shutdown(client *golangsdk.ServiceClient, instanceId string) (r JobResult) {
 	_, r.Err = client.Post(updateURL(client, instanceId, "action/shutdown"), nil, &r.Body, &golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	})
+	return
+}
+
+type ModifyTdeOpts struct {
+	RotateDay     int    `json:"rotate_day,omitempty"`
+	SecretId      string `json:"secret_id,omitempty"`
+	SecretName    string `json:"secret_name,omitempty"`
+	SecretVersion string `json:"secret_version,omitempty"`
+}
+
+func (opts ModifyTdeOpts) ToActionInstanceMap() (map[string]interface{}, error) {
+	return toActionInstanceMap(opts)
+}
+
+// OpenTde is a method used to open TDE of the instance.
+func OpenTde(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, instanceId string) (r JobResult) {
+	b, err := opts.ToActionInstanceMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Put(updateURL(c, instanceId, "tde"), b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}
+
+// GetTdeStatus is a method used to obtain the TDE status.
+func GetTdeStatus(c *golangsdk.ServiceClient, instanceId string) (r GetTdeStatusResult) {
+	_, r.Err = c.Get(getURL(c, instanceId, "tde-status"), &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return
 }

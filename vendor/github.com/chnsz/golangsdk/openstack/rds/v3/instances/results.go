@@ -62,6 +62,10 @@ type GetBinlogRetentionHoursResult struct {
 	commonResult
 }
 
+type GetTdeStatusResult struct {
+	commonResult
+}
+
 type JobResult struct {
 	commonResult
 }
@@ -185,6 +189,17 @@ type GetConfigurationResp struct {
 
 func (r GetConfigurationResult) Extract() (*GetConfigurationResp, error) {
 	var response GetConfigurationResp
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type GetTdeStatusResp struct {
+	InstanceId string `json:"instance_id"`
+	TdeStatus  string `json:"tde_status"`
+}
+
+func (r GetTdeStatusResult) Extract() (*GetTdeStatusResp, error) {
+	var response GetTdeStatusResp
 	err := r.ExtractInto(&response)
 	return &response, err
 }

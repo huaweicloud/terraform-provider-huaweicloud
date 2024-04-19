@@ -302,6 +302,21 @@ The `db` block supports:
 
   -> **NOTE:** The `power_action` is a one-time action.
 
+* `tde_enabled` - (Optional, Bool) Specifies whether enable TDE for the instance.
+
+  -> **NOTE:** TDE cannot be disabled after being enabled.
+
+* `rotate_day` - (Optional, Int) Specifies the rotation days of TDE rotation.
+
+* `secret_id` - (Optional, String) Specifies the key ID of TDE rotation.
+
+* `secret_name` - (Optional, String) Specifies the key name of TDE rotation.
+
+* `secret_version` - (Optional, String) Specifies the key version of TDE rotation.
+
+  -> **NOTE:** `rotate_day`, `secret_id`, `secret_name` and `secret_version` will only take effect when `tde_enabled`
+  is **true**.
+
 The `volume` block supports:
 
 * `size` - (Required, Int) Specifies the volume size. Its value range is from 40 GB to 4000 GB. The value must be a
