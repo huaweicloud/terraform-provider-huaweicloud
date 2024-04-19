@@ -130,6 +130,7 @@ github.com/chnsz/golangsdk/openstack/dli/v2/batches
 github.com/chnsz/golangsdk/openstack/dli/v2/spark/resources
 github.com/chnsz/golangsdk/openstack/dli/v3/elasticresourcepool
 github.com/chnsz/golangsdk/openstack/dli/v3/flinkjob
+github.com/chnsz/golangsdk/openstack/dli/v3/queues
 github.com/chnsz/golangsdk/openstack/dli/v3/tags
 github.com/chnsz/golangsdk/openstack/dms/v1/groups
 github.com/chnsz/golangsdk/openstack/dms/v1/instances

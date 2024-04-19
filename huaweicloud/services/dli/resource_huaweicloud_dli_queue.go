@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -18,6 +19,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dli/v1/queues"
 	"github.com/chnsz/golangsdk/openstack/dli/v3/elasticresourcepool"
+	v3queues "github.com/chnsz/golangsdk/openstack/dli/v3/queues"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -43,6 +45,10 @@ const (
 	actionRestart  = "restart"
 	actionScaleOut = "scale_out"
 	actionScaleIn  = "scale_in"
+
+	MaxInstance         = "computeEngine.maxInstance"
+	MaxConcurrent       = "job.maxConcurrent"
+	MaxPrefetchInstance = "computeEngine.maxPrefetchInstance"
 )
 
 // @API DLI POST /v1.0/{project_id}/queues
@@ -54,6 +60,10 @@ const (
 // @API DLI POST /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}/queues
 // @API DLI GET /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}/queues
 // @API DLI PUT /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}/queues/{queue_name}
+// @API DLI GET /v3/{project_id}/queues/{queue_name}/properties
+// @API DLI PUT /v3/{project_id}/queues/{queue_name}/properties
+// @API DLI DELETE /v3/{project_id}/queues/{queue_name}/properties
+
 func ResourceDliQueue() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDliQueueCreate,
@@ -179,6 +189,30 @@ func ResourceDliQueue() *schema.Resource {
 					},
 				},
 			},
+			"spark_driver": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				// API
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_instance": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"max_concurrent": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						// The type received by these parameters in the update interface is int.
+						// When it is 0, it cannot be judged whether the value exists, so it is set to string.
+						"max_prefetch_instance": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -250,14 +284,21 @@ func resourceDliQueueCreate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	v3Client, err := cfg.DliV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating DLI V3 client: %s", err)
+	}
 	if v, ok := d.GetOk("scaling_policies"); ok {
-		v3Client, err := cfg.DliV3Client(region)
-		if err != nil {
-			return diag.Errorf("error creating DLI V3 client: %s", err)
-		}
 		err = updateQueueScalePolicies(v3Client, elasticResourcePoolName, queueName, v.(*schema.Set))
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("spark_driver"); ok {
+		maxInstance, maxConcurrent, maxPrefetchInstance := getQueueProperties(d)
+		if err = updateQueueSparkDriver(v3Client, queueName, maxInstance, maxConcurrent, maxPrefetchInstance); err != nil {
+			return diag.Errorf("error setting properties of the queue (%s): %s", queueName, err)
 		}
 	}
 
@@ -318,12 +359,12 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("elastic_resource_pool_name", queueDetail.ElasticResourcePoolName),
 	)
 
-	if elasticResourcePoolName, ok := d.GetOk("elastic_resource_pool_name"); ok {
-		v3Client, err := cfg.DliV3Client(region)
-		if err != nil {
-			return diag.Errorf("error creating DLI V3 client: %s", err)
-		}
+	v3Client, err := cfg.DliV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating DLI V3 client: %s", err)
+	}
 
+	if elasticResourcePoolName, ok := d.GetOk("elastic_resource_pool_name"); ok {
 		policies, err := getQueueScalingPolicies(v3Client, elasticResourcePoolName.(string), queueName)
 		if err != nil {
 			return diag.FromErr(err)
@@ -332,7 +373,49 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 		mErr = multierror.Append(mErr, d.Set("scaling_policies", policies))
 	}
 
+	sparkDriver, err := getSparkDriverByQueueName(v3Client, queueName)
+	if err != nil {
+		return diag.Errorf("error getting properties of the queue (%s): %s", queueName, err)
+	}
+	mErr = multierror.Append(mErr, d.Set("spark_driver", sparkDriver))
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getSparkDriverByQueueName(client *golangsdk.ServiceClient, queueName string) ([]map[string]interface{}, error) {
+	opts := v3queues.ListQueuePropertyOpts{
+		QueueName: queueName,
+	}
+	resp, err := v3queues.ListQueueProperty(client, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	var mErr *multierror.Error
+	sparkDriver := map[string]interface{}{}
+	for _, property := range resp {
+		switch property.Key {
+		case MaxInstance:
+			sparkDriver["max_instance"], err = strconv.Atoi(property.Value)
+			err = multierror.Append(mErr, err)
+		case MaxConcurrent:
+			sparkDriver["max_concurrent"], err = strconv.Atoi(property.Value)
+			err = multierror.Append(mErr, err)
+		case MaxPrefetchInstance:
+			sparkDriver["max_prefetch_instance"] = property.Value
+		}
+	}
+
+	if mErr.ErrorOrNil() != nil {
+		return nil, err
+	}
+
+	if len(sparkDriver) == 0 {
+		return nil, nil
+	}
+
+	result := make([]map[string]interface{}, 0)
+	result = append(result, sparkDriver)
+	return result, nil
 }
 
 func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err error) {
@@ -496,7 +579,64 @@ func resourceDliQueueUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	if d.HasChange("spark_driver") {
+		maxInstance, maxConcurrent, maxPrefetchInstance := getQueueProperties(d)
+		if err = deleteQueueProperties(v3Client, queueName, maxInstance, maxConcurrent, maxPrefetchInstance); err != nil {
+			return diag.Errorf("error deleting properties of the queue (%s): %s", queueName, err)
+		}
+
+		sparkDriver, err := getSparkDriverByQueueName(v3Client, queueName)
+		if err != nil {
+			return diag.Errorf("error getting properties of the queue (%s): %s", queueName, err)
+		}
+
+		// Set at least one property when updating.
+		if len(sparkDriver) > 0 {
+			if err = updateQueueSparkDriver(v3Client, queueName, maxInstance, maxConcurrent, maxPrefetchInstance); err != nil {
+				return diag.Errorf("error updating properties of the queue (%s): %s", queueName, err)
+			}
+		}
+	}
 	return resourceDliQueueRead(ctx, d, meta)
+}
+
+func getQueueProperties(d *schema.ResourceData) (maxInstance, maxConcurrent int, maxPrefetchInstance string) {
+	maxInstance = d.Get("spark_driver.0.max_instance").(int)
+	maxConcurrent = d.Get("spark_driver.0.max_concurrent").(int)
+	maxPrefetchInstance = d.Get("spark_driver.0.max_prefetch_instance").(string)
+	return
+}
+
+func buildDeleteQueueProperities(maxInstance, maxConcurrent int, maxPrefetchInstance string) []string {
+	result := []string{}
+	if maxInstance == 0 {
+		result = append(result, MaxInstance)
+	}
+	if maxConcurrent == 0 {
+		result = append(result, MaxConcurrent)
+	}
+	if maxPrefetchInstance == "" {
+		result = append(result, MaxPrefetchInstance)
+	}
+
+	return result
+}
+
+func deleteQueueProperties(client *golangsdk.ServiceClient, queueName string, maxInstance, maxCon int, maxPrefetchInstance string) error {
+	deleteOpts := buildDeleteQueueProperities(maxInstance, maxCon, maxPrefetchInstance)
+	if len(deleteOpts) == 0 {
+		return nil
+	}
+
+	resp, err := v3queues.DeleteQueueProperties(client, queueName, deleteOpts)
+	if err != nil {
+		return err
+	}
+
+	if !resp.IsSuccess {
+		return fmt.Errorf(resp.Message)
+	}
+	return nil
 }
 
 func buildScaleActionParam(oldValue, newValue int) string {
@@ -572,6 +712,29 @@ func associateQueueToElasticResourcePool(client *golangsdk.ServiceClient, opts e
 		return fmt.Errorf("unable to associate the queue to the elastic resource pool: %s", resp.Message)
 	}
 	return err
+}
+
+func updateQueueSparkDriver(client *golangsdk.ServiceClient, queueName string, maxInstance, maxCon int, maxPrefetchInstance string) error {
+	opts := v3queues.Property{
+		MaxInstance:   maxInstance,
+		MaxConcurrent: maxCon,
+	}
+	if maxPrefetchInstance != "" {
+		num, err := strconv.Atoi(maxPrefetchInstance)
+		if err != nil {
+			return fmt.Errorf("the string (%s) cannot be converted to number", maxPrefetchInstance)
+		}
+		opts.MaxPrefetchInstance = utils.Int(num)
+	}
+	resp, err := v3queues.UpdateQueueProperty(client, queueName, opts)
+	if err != nil {
+		return err
+	}
+
+	if !resp.IsSuccess {
+		return fmt.Errorf(resp.Message)
+	}
+	return nil
 }
 
 func resourceQueueImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
