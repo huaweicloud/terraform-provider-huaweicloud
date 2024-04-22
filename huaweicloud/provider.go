@@ -428,6 +428,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_inter_region_bandwidths":                 cc.DataSourceCcInterRegionBandwidths(),
 			"huaweicloud_cc_global_connection_bandwidths":            cc.DataSourceCcGlobalConnectionBandwidths(),
 			"huaweicloud_cc_global_connection_bandwidth_line_levels": cc.DataSourceCcGlobalConnectionBandwidthLineLevels(),
+			"huaweicloud_cc_global_connection_bandwidth_spec_codes":  cc.DataSourceCcGlobalConnectionBandwidthSpecCodes(),
 			"huaweicloud_cc_network_instances":                       cc.DataSourceCcNetworkInstances(),
 			"huaweicloud_cc_connection_routes":                       cc.DataSourceCcConnectionRoutes(),
 			"huaweicloud_cc_central_network_policies_change_set":     cc.DataSourceCcCentralNetworkPoliciesChangeSet(),
