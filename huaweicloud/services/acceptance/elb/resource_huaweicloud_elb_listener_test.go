@@ -51,6 +51,8 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			{
@@ -168,6 +170,106 @@ func TestAccElbV3Listener_with_default_pool(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_delete"},
+			},
+		},
+	})
+}
+
+func TestAccElbV3Listener_with_protocol_https(t *testing.T) {
+	var listener listeners.Listener
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_listener.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&listener,
+		getELBListenerResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3ListenerConfig_protocol_https(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "forward_elb", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_proto", "false"),
+					resource.TestCheckResourceAttr(resourceName, "real_ip", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_tls_certificate", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_tls_cipher", "false"),
+					resource.TestCheckResourceAttr(resourceName, "forward_tls_protocol", "false"),
+					resource.TestCheckResourceAttr(resourceName, "enable_member_retry", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_early_data_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "sni_match_algo", "wildcard"),
+					resource.TestCheckResourceAttrPair(resourceName, "quic_listener_id", "huaweicloud_elb_listener.quic", "id"),
+				),
+			},
+			{
+				Config: testAccElbV3ListenerConfig_protocol_https_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "forward_elb", "true"),
+					resource.TestCheckResourceAttr(resourceName, "forward_proto", "true"),
+					resource.TestCheckResourceAttr(resourceName, "real_ip", "true"),
+					resource.TestCheckResourceAttr(resourceName, "forward_tls_certificate", "true"),
+					resource.TestCheckResourceAttr(resourceName, "forward_tls_cipher", "true"),
+					resource.TestCheckResourceAttr(resourceName, "forward_tls_protocol", "true"),
+					resource.TestCheckResourceAttr(resourceName, "enable_member_retry", "true"),
+					resource.TestCheckResourceAttr(resourceName, "sni_match_algo", "longest_suffix"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_early_data_enable", "true"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_policy_id", "huaweicloud_elb_security_policy.test", "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccElbV3Listener_with_protocol_tls(t *testing.T) {
+	var listener listeners.Listener
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_listener.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&listener,
+		getELBListenerResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3ListenerConfig_protocol_tls(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "TLS"),
+				),
+			},
+			{
+				Config: testAccElbV3ListenerConfig_protocol_tls_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "proxy_protocol_enable", "true"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -431,4 +533,147 @@ resource "huaweicloud_elb_listener" "test" {
   }
 }
 `, rNameUpdate)
+}
+
+func testAccElbV3ListenerConfig_loadbalancer_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name            = "%s"
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+}`, rName)
+}
+
+func testAccElbV3ListenerConfig_protocol_quic(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_elb_listener" "quic" {
+  name               = "%s-quic"
+  protocol           = "QUIC"
+  protocol_port      = 80
+  loadbalancer_id    = huaweicloud_elb_loadbalancer.test.id
+  server_certificate = huaweicloud_elb_certificate.test.id
+}`, rName)
+}
+
+func testAccSecurityPolicies_tlsv13(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_elb_security_policy" "test" {
+  protocols = [
+    "TLSv1.3"
+  ]
+  ciphers = [
+    "TLS_AES_128_GCM_SHA256"
+  ]
+  name = "%s"
+}
+`, name)
+}
+
+func testAccElbV3ListenerConfig_protocol_https(rName string) string {
+	lb := testAccElbV3ListenerConfig_loadbalancer_basic(rName)
+	certificate := testAccElbV3CertificateConfig_basic(rName)
+	quicListener := testAccElbV3ListenerConfig_protocol_quic(rName)
+	return fmt.Sprintf(`
+%s
+
+%s
+
+%s
+
+resource "huaweicloud_elb_listener" "test" {
+  name                    = "%s"
+  protocol                = "HTTPS"
+  protocol_port           = 8080
+  loadbalancer_id         = huaweicloud_elb_loadbalancer.test.id
+  server_certificate      = huaweicloud_elb_certificate.test.id
+  forward_elb             = false
+  forward_proto           = false
+  real_ip                 = false
+  forward_tls_certificate = false
+  forward_tls_cipher      = false
+  forward_tls_protocol    = false
+  enable_member_retry     = false
+  ssl_early_data_enable   = false
+  sni_match_algo          = "wildcard"
+  quic_listener_id        = huaweicloud_elb_listener.quic.id
+}
+`, lb, certificate, quicListener, rName)
+}
+
+func testAccElbV3ListenerConfig_protocol_https_update(rName string) string {
+	lb := testAccElbV3ListenerConfig_loadbalancer_basic(rName)
+	certificate := testAccElbV3CertificateConfig_basic(rName)
+	quicListener := testAccElbV3ListenerConfig_protocol_quic(rName)
+	securityPolicy := testAccSecurityPolicies_tlsv13(rName)
+	return fmt.Sprintf(`
+%s
+
+%s
+
+%s
+
+%s
+
+resource "huaweicloud_elb_listener" "test" {
+  name                    = "%s"
+  protocol                = "HTTPS"
+  protocol_port           = 8080
+  loadbalancer_id         = huaweicloud_elb_loadbalancer.test.id
+  server_certificate      = huaweicloud_elb_certificate.test.id
+  forward_elb             = true
+  forward_proto           = true
+  real_ip                 = true
+  forward_tls_certificate = true
+  forward_tls_cipher      = true
+  forward_tls_protocol    = true
+  security_policy_id      = huaweicloud_elb_security_policy.test.id
+  ssl_early_data_enable   = true
+  enable_member_retry     = true
+  sni_match_algo          = "longest_suffix"
+}
+`, lb, certificate, quicListener, securityPolicy, rName)
+}
+
+func testAccElbV3ListenerConfig_protocol_tls(rName string) string {
+	lb := testAccElbV3ListenerConfig_loadbalancer_basic(rName)
+	certificate := testAccElbV3CertificateConfig_basic(rName)
+	return fmt.Sprintf(`
+%s
+
+%s
+
+resource "huaweicloud_elb_listener" "test" {
+  name               = "%s"
+  protocol           = "TLS"
+  protocol_port      = 80
+  loadbalancer_id    = huaweicloud_elb_loadbalancer.test.id
+  server_certificate = huaweicloud_elb_certificate.test.id
+}`, lb, certificate, rName)
+}
+
+func testAccElbV3ListenerConfig_protocol_tls_update(rName string) string {
+	lb := testAccElbV3ListenerConfig_loadbalancer_basic(rName)
+	certificate := testAccElbV3CertificateConfig_basic(rName)
+	return fmt.Sprintf(`
+%s
+
+%s
+
+resource "huaweicloud_elb_listener" "test" {
+  name                  = "%s"
+  protocol              = "TLS"
+  protocol_port         = 80
+  loadbalancer_id       = huaweicloud_elb_loadbalancer.test.id
+  server_certificate    = huaweicloud_elb_certificate.test.id
+  proxy_protocol_enable = true
+}`, lb, certificate, rName)
 }
