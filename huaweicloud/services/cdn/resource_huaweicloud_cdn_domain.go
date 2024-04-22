@@ -259,6 +259,11 @@ var compress = schema.Schema{
 				Optional: true,
 				Computed: true,
 			},
+			"file_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -939,8 +944,9 @@ func buildCompressOpts(rawCompress []interface{}) *model.Compress {
 
 	compress := rawCompress[0].(map[string]interface{})
 	compressOpts := model.Compress{
-		Status: parseFunctionEnabledStatus(compress["enabled"].(bool)),
-		Type:   utils.StringIgnoreEmpty(compress["type"].(string)),
+		Status:   parseFunctionEnabledStatus(compress["enabled"].(bool)),
+		Type:     utils.StringIgnoreEmpty(compress["type"].(string)),
+		FileType: utils.StringIgnoreEmpty(compress["file_type"].(string)),
 	}
 
 	return &compressOpts
@@ -1538,9 +1544,10 @@ func flattenCompressAttrs(compress *model.Compress) []map[string]interface{} {
 	}
 
 	compressAttrs := map[string]interface{}{
-		"status":  compress.Status,
-		"type":    compress.Type,
-		"enabled": analyseFunctionEnabledStatus(compress.Status),
+		"status":    compress.Status,
+		"type":      compress.Type,
+		"file_type": compress.FileType,
+		"enabled":   analyseFunctionEnabledStatus(compress.Status),
 	}
 
 	return []map[string]interface{}{compressAttrs}

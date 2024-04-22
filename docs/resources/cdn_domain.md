@@ -480,6 +480,10 @@ The `compress` blocks support:
 * `type` - (Optional, String) Specifies the smart compression type.
   Possible values are: **gzip** (gzip) and **br** (Brotli).
 
+* `file_type` - (Optional, String) Specifies the formats of files to be compressed. Enter up to 200 characters.
+  Multiple formats are separated by commas (,). Each format contains up to 50 characters.
+  Defaults to **.js,.html,.css,.xml,.json,.shtml,.htm**.
+
 <a name="ip_frequency_limit_object"></a>
 The `ip_frequency_limit` block support:
 

@@ -484,7 +484,10 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.inherit_config.0.inherit_type", "m3u8,mpd"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.inherit_config.0.inherit_time_type", "sys_time"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.inherit_config.0.status", "on"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "on"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.type", "gzip"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.file_type", ".js,.html,.css,.xml,.json,.shtml,.htm"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.type", "http"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.redirect_code", "301"),
@@ -561,7 +564,10 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.inherit_config.0.inherit_type", "mpd"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.inherit_config.0.inherit_time_type", "parent_url_time"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.inherit_config.0.status", "on"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "on"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.type", "br"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.file_type", ".js,.html"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.type", "http"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.force_redirect.0.redirect_code", "302"),
@@ -633,6 +639,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.inherit_config.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.inherit_config.0.status", "off"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.compress.0.enabled", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.video_seek.0.enable_video_seek", "false"),
 				),
@@ -720,7 +729,8 @@ resource "huaweicloud_cdn_domain" "test" {
     }
 
     compress {
-      enabled = false
+      enabled = true
+      type    = "gzip"
     }
 
     force_redirect {
@@ -866,7 +876,9 @@ resource "huaweicloud_cdn_domain" "test" {
     }
 
     compress {
-      enabled = false
+      enabled   = true
+      type      = "br"
+      file_type = ".js,.html"
     }
 
     force_redirect {
@@ -964,6 +976,10 @@ resource "huaweicloud_cdn_domain" "test" {
       inherit_config {
         enabled = false
       }
+    }
+
+    compress {
+      enabled = false
     }
 
     video_seek {
