@@ -493,6 +493,11 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.type", "white"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.include_empty", "false"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.video_seek.0.enable_video_seek", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.video_seek.0.enable_flv_by_time_seek", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.video_seek.0.start_parameter", "test-start"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.video_seek.0.end_parameter", "test-end"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "2"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
@@ -565,6 +570,11 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.type", "black"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.referer.0.include_empty", "true"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.video_seek.0.enable_video_seek", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.video_seek.0.enable_flv_by_time_seek", "false"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.video_seek.0.start_parameter", "test-startUpdate"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.video_seek.0.end_parameter", ""),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.match_type", "file_path"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.match_pattern", "/test/folder01;/test/folder02"),
@@ -623,6 +633,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.inherit_config.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.inherit_config.0.status", "off"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.video_seek.0.enable_video_seek", "false"),
 				),
 			},
 			{
@@ -721,6 +733,13 @@ resource "huaweicloud_cdn_domain" "test" {
       type          = "white"
       value         = "*.common.com,192.187.2.43,www.test.top:4990"
       include_empty = false
+    }
+
+    video_seek {
+      enable_video_seek       = true
+      enable_flv_by_time_seek = true
+      start_parameter         = "test-start"
+      end_parameter           = "test-end"
     }
 
     flexible_origin {
@@ -862,6 +881,12 @@ resource "huaweicloud_cdn_domain" "test" {
       include_empty = true
     }
 
+    video_seek {
+      enable_video_seek       = true
+      enable_flv_by_time_seek = false
+      start_parameter         = "test-startUpdate"
+    }
+
     flexible_origin {
       match_type    = "file_path"
       match_pattern = "/test/folder01;/test/folder02"
@@ -939,6 +964,10 @@ resource "huaweicloud_cdn_domain" "test" {
       inherit_config {
         enabled = false
       }
+    }
+
+    video_seek {
+      enable_video_seek = false
     }
   }
 }

@@ -330,6 +330,13 @@ The `configs` block support:
 
   -> You can define referer whitelists and blacklists to control who can access specific domain names.
 
+* `video_seek` - (Optional, List) Specifies the video seek settings. The [video_seek](#video_seek_object) structure
+  is documented below.
+
+  -> 1. You need to configure a cache rule for `FLV` and `MP4` files and ignored all URL parameters in `cache_settings`.
+  <br/>2. Video seek is valid only when your origin server supports range requests.
+  <br/>3. Only `MP4` and `FLV` videos are supported.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -644,6 +651,20 @@ The `referer` block support:
   A referer whitelist including blank `referers` indicates that requests without any `referers` are allowed to access.
 
   Defaults to **false**.
+
+<a name="video_seek_object"></a>
+The `video_seek` block support:
+
+* `enable_video_seek` - (Required, Bool) Specifies the video seek status. **true**: enabled; **false**: disabled.
+
+* `enable_flv_by_time_seek` - (Optional, Bool) Specifies the time-based `FLV` seek status.
+  **true**: enabled; **false**: disabled. Defaults to **false**.
+
+* `start_parameter` - (Optional, String) Specifies the video playback start parameter in user request URLs.
+  The value contains up to `64` characters. Only letters, digits, and underscores (_) are allowed.
+
+* `end_parameter` - (Optional, String) Specifies the video playback end parameter in user request URLs.
+  The value contains up to `64` characters. Only letters, digits, and underscores (_) are allowed.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
