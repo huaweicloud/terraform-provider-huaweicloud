@@ -59,6 +59,32 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the loadbalancer. Changing this
   creates a new loadbalancer.
 
+* `protection_status` - (Optional, String) Specifies whether modification protection is enabled. Value options:
+  + **nonProtection**: No protection.
+  + **consoleProtection**: Console modification protection.
+
+  Defaults to **nonProtection**.
+
+* `protection_reason` - (Optional, String) Specifies the reason to enable modification protection. Only valid when
+  `protection_status` is **consoleProtection**.
+
+* `charging_mode` - (Optional, String) Specifies the charging mode of the loadbalancer.  
+  The valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
+
+* `period_unit` - (Optional, String) Specifies the charging period unit of the loadbalancer.  
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
+
+* `period` - (Optional, Int) Specifies the charging period of the loadbalancer.
+  + If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  + If `period_unit` is set to **year**, the value ranges from `1` to `3`.
+
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.  
+  Valid values are **true** and **false**. Defaults to **false**.
+
+-> **NOTE:** `period_unit`, `period` and `auto_renew` can only be updated when changing to **prePaid** billing mode.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -66,6 +92,14 @@ In addition to all arguments above, the following attributes are exported:
 * `vip_port_id` - The Port ID of the Load Balancer IP.
 
 * `public_ip` - The EIP address that is associated to the Load Balancer instance.
+
+* `charge_mode` - Indicates how the load balancer will be billed.
+
+* `frozen_scene` - Indicates the scenario where the load balancer is frozen.
+
+* `created_at` - The create time of the load balancer.
+
+* `updated_at` - The update time of the load balancer.
 
 ## Timeouts
 
@@ -81,4 +115,22 @@ Load balancers can be imported using the `id`, e.g.
 
 ```
 $ terraform import huaweicloud_lb_loadbalancer.test 3e3632db-36c6-4b28-a92e-e72e6562daa6
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `period_unit`, `period`, `auto_renew`.
+It is generally recommended running `terraform plan` after importing a loadbalancer.
+You can then decide if changes should be applied to the loadbalancer, or the resource definition should be updated to
+align with the loadbalancer. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_lb_loadbalancer" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      period_unit, period, auto_renew,
+    ]
+  }
+}
 ```

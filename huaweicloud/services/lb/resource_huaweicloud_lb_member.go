@@ -262,6 +262,9 @@ func resourceMemberV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		return nil
 	})
+	if err != nil {
+		return diag.Errorf("error deleting member: %s", err)
+	}
 
 	// Wait for LB to become ACTIVE
 	err = waitForLBV2viaPool(ctx, lbClient, poolID, "ACTIVE", timeout)

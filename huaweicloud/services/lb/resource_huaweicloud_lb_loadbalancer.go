@@ -9,10 +9,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/elb/v2/loadbalancers"
+	lbv3 "github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -26,8 +28,14 @@ import (
 // @API ELB GET /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags
 // @API ELB PUT /v2/{project_id}/elb/loadbalancers/{loadbalancer_id}
 // @API ELB DELETE /v2/{project_id}/elb/loadbalancers/{loadbalancer_id}
-// @API VPC PUT /v1/ports/{port_id}
-// @API VPC GET /v1/ports/{port_id}
+// @API ELB POST /v3/{project_id}/elb/loadbalancers/change-charge-mode
+// @API VPC PUT /v2.0/ports/{port_id}
+// @API VPC GET /v2.0/ports/{port_id}
+// @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API BSS POST /v2/orders/suscriptions/resources/query
+// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
+// @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
 func ResourceLoadBalancer() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceLoadBalancerV2Create,
@@ -89,12 +97,6 @@ func ResourceLoadBalancer() *schema.Resource {
 				Computed: true,
 			},
 
-			"admin_state_up": {
-				Type:     schema.TypeBool,
-				Default:  true,
-				Optional: true,
-			},
-
 			"tags": common.TagsSchema(),
 
 			"loadbalancer_provider": {
@@ -121,7 +123,66 @@ func ResourceLoadBalancer() *schema.Resource {
 				Computed: true,
 			},
 
+			"protection_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"protection_reason": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			// charge info: charging_mode, period_unit, period, auto_renew
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, false),
+			},
+
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+
+			"period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"period_unit"},
+				ValidateFunc: validation.IntBetween(1, 9),
+			},
+
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
+
 			"public_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"charge_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"frozen_scene": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -131,6 +192,13 @@ func ResourceLoadBalancer() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Description: "schema: Deprecated",
+			},
+
+			"admin_state_up": {
+				Type:        schema.TypeBool,
+				Default:     true,
+				Optional:    true,
 				Description: "schema: Deprecated",
 			},
 		},
@@ -143,6 +211,16 @@ func resourceLoadBalancerV2Create(ctx context.Context, d *schema.ResourceData, m
 	elbClient, err := cfg.LoadBalancerClient(region)
 	if err != nil {
 		return diag.Errorf("error creating ELB v2 Client: %s", err)
+	}
+
+	// client for changing charging mode
+	elbV3Client, err := cfg.ElbV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating ELB v3 client: %s", err)
+	}
+	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
 
 	// client for setting tags
@@ -167,6 +245,8 @@ func resourceLoadBalancerV2Create(ctx context.Context, d *schema.ResourceData, m
 		Flavor:              d.Get("flavor").(string),
 		Provider:            lbProvider,
 		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+		ProtectionStatus:    d.Get("protection_status").(string),
+		ProtectionReason:    d.Get("protection_reason").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -185,12 +265,38 @@ func resourceLoadBalancerV2Create(ctx context.Context, d *schema.ResourceData, m
 	// set the ID on the resource
 	d.SetId(lb.ID)
 
+	// change to pre-paid mode
+	if d.Get("charging_mode").(string) == "prePaid" {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
+			return diag.FromErr(err)
+		}
+		changeChargingModeOpts := lbv3.ChangeChargingModeOpts{
+			LoadBalancerIds: []string{d.Id()},
+			ChargingMode:    "prepaid",
+			PrepaidOptions: lbv3.PrepaidOptions{
+				PeriodType: d.Get("period_unit").(string),
+				PeriodNum:  d.Get("period").(int),
+				AutoRenew:  d.Get("auto_renew").(string),
+				AutoPay:    true,
+			},
+		}
+		orderId, err := lbv3.ChangeChargingMode(elbV3Client, changeChargingModeOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error changing charging mode of load-balancer(%s): %s", d.Id(), err)
+		}
+
+		// wait for order complete
+		if err := common.WaitOrderComplete(ctx, bssClient, orderId, timeout); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// Once the LoadBalancer has been created, apply any requested security groups
 	// to the port that was created behind the scenes.
 	if lb.VipPortID != "" {
-		networkingClient, err := cfg.NetworkingV1Client(region)
+		networkingClient, err := cfg.NetworkingV2Client(region)
 		if err != nil {
-			return diag.Errorf("error creating VPC v1 Client: %s", err)
+			return diag.Errorf("error creating VPC v2 Client: %s", err)
 		}
 
 		if err := resourceLoadBalancerV2SecurityGroups(networkingClient, lb.VipPortID, d); err != nil {
@@ -248,14 +354,26 @@ func resourceLoadBalancerV2Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("flavor", lb.Flavor),
 		d.Set("loadbalancer_provider", lb.Provider),
 		d.Set("enterprise_project_id", lb.EnterpriseProjectID),
+		d.Set("protection_status", lb.ProtectionStatus),
+		d.Set("protection_reason", lb.ProtectionReason),
 		d.Set("public_ip", publicIp),
+		d.Set("charge_mode", lb.ChargeMode),
+		d.Set("frozen_scene", lb.FrozenScene),
+		d.Set("created_at", lb.CreatedAt),
+		d.Set("updated_at", lb.UpdatedAt),
 	)
+
+	if lb.BillingInfo != "" {
+		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
+	} else {
+		mErr = multierror.Append(mErr, d.Set("charging_mode", "postPaid"))
+	}
 
 	// Get any security groups on the VIP Port
 	if lb.VipPortID != "" {
-		networkingClient, err := cfg.NetworkingV1Client(region)
+		networkingClient, err := cfg.NetworkingV2Client(region)
 		if err != nil {
-			return diag.Errorf("error creating VPC v1 Client: %s", err)
+			return diag.Errorf("error creating VPC v2 Client: %s", err)
 		}
 
 		port, err := ports.Get(networkingClient, lb.VipPortID).Extract()
@@ -288,8 +406,17 @@ func resourceLoadBalancerV2Update(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.Errorf("error creating ELB v2 Client: %s", err)
 	}
+	elbV3Client, err := cfg.ElbV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating ELB v3 client: %s", err)
+	}
+	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating BSS v2 client: %s", err)
+	}
+	timeout := d.Timeout(schema.TimeoutUpdate)
 
-	if d.HasChanges("name", "description", "admin_state_up") {
+	if d.HasChanges("name", "description", "admin_state_up", "protection_status", "protection_reason") {
 		var updateOpts loadbalancers.UpdateOpts
 		if d.HasChange("name") {
 			updateOpts.Name = d.Get("name").(string)
@@ -302,16 +429,22 @@ func resourceLoadBalancerV2Update(ctx context.Context, d *schema.ResourceData, m
 			asu := d.Get("admin_state_up").(bool)
 			updateOpts.AdminStateUp = &asu
 		}
+		if d.HasChange("protection_status") {
+			updateOpts.ProtectionStatus = d.Get("protection_status").(string)
+		}
+		if d.HasChange("protection_reason") {
+			protectionReason := d.Get("protection_reason").(string)
+			updateOpts.ProtectionReason = &protectionReason
+		}
 
 		// Wait for LoadBalancer to become active before continuing
-		timeout := d.Timeout(schema.TimeoutUpdate)
 		err = waitForLBV2LoadBalancer(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
 		log.Printf("[DEBUG] Updating LoadBalancer %s with options: %#v", d.Id(), updateOpts)
-		//lintignore:R006
+		// lintignore:R006
 		err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
 			_, err = loadbalancers.Update(elbClient, d.Id(), updateOpts).Extract()
 			if err != nil {
@@ -319,6 +452,9 @@ func resourceLoadBalancerV2Update(ctx context.Context, d *schema.ResourceData, m
 			}
 			return nil
 		})
+		if err != nil {
+			return diag.Errorf("error updating loadbalancer: %s", err)
+		}
 
 		// Wait for LoadBalancer to become active before continuing
 		err = waitForLBV2LoadBalancer(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
@@ -331,14 +467,48 @@ func resourceLoadBalancerV2Update(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChange("security_group_ids") {
 		vipPortID := d.Get("vip_port_id").(string)
 		if vipPortID != "" {
-			networkingClient, err := cfg.NetworkingV1Client(region)
+			networkingClient, err := cfg.NetworkingV2Client(region)
 			if err != nil {
-				return diag.Errorf("error creating VPC V1 Client: %s", err)
+				return diag.Errorf("error creating VPC V2 Client: %s", err)
 			}
 
 			if err := resourceLoadBalancerV2SecurityGroups(networkingClient, vipPortID, d); err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	// update charging mode
+	if d.HasChange("charging_mode") {
+		if d.Get("charging_mode").(string) == "postPaid" {
+			return diag.Errorf("error updating the charging mode of the load-balancer (%s): %s", d.Id(),
+				"only support changing post-paid load-balancer to pre-paid")
+		}
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
+			return diag.FromErr(err)
+		}
+		changeChargingModeOpts := lbv3.ChangeChargingModeOpts{
+			LoadBalancerIds: []string{d.Id()},
+			ChargingMode:    "prepaid",
+			PrepaidOptions: lbv3.PrepaidOptions{
+				PeriodType: d.Get("period_unit").(string),
+				PeriodNum:  d.Get("period").(int),
+				AutoRenew:  d.Get("auto_renew").(string),
+				AutoPay:    true,
+			},
+		}
+		orderId, err := lbv3.ChangeChargingMode(elbV3Client, changeChargingModeOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error changing charging mode of load-balancer(%s): %s", d.Id(), err)
+		}
+
+		// wait for order complete
+		if err := common.WaitOrderComplete(ctx, bssClient, orderId, timeout); err != nil {
+			return diag.FromErr(err)
+		}
+	} else if d.HasChange("auto_renew") {
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the load-balancer (%s): %s", d.Id(), err)
 		}
 	}
 
@@ -367,14 +537,24 @@ func resourceLoadBalancerV2Delete(ctx context.Context, d *schema.ResourceData, m
 
 	log.Printf("[DEBUG] Deleting LoadBalancer %s", d.Id())
 	timeout := d.Timeout(schema.TimeoutDelete)
-	//lintignore:R006
-	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
-		err = loadbalancers.Delete(elbClient, d.Id()).ExtractErr()
-		if err != nil {
-			return common.CheckForRetryableError(err)
+	if d.Get("charging_mode").(string) == "prePaid" {
+		// Unsubscribe the prepaid LoadBalancer will automatically delete it
+		if err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+			return diag.Errorf("error unsubscribing ELB LoadBalancer : %s", err)
 		}
-		return nil
-	})
+	} else {
+		// lintignore:R006
+		err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+			err = loadbalancers.Delete(elbClient, d.Id()).ExtractErr()
+			if err != nil {
+				return common.CheckForRetryableError(err)
+			}
+			return nil
+		})
+		if err != nil {
+			return diag.Errorf("error deleting loadbalancer: %s", err)
+		}
+	}
 
 	// Wait for LoadBalancer to become delete
 	pending := []string{"PENDING_UPDATE", "PENDING_DELETE", "ACTIVE"}
@@ -382,7 +562,6 @@ func resourceLoadBalancerV2Delete(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
 	return nil
 }
 
