@@ -276,6 +276,8 @@ var (
 	HW_CC_PEER_DOMAIN_ID     = os.Getenv("HW_CC_PEER_DOMAIN_ID")
 	HW_CC_PEER_CONNECTION_ID = os.Getenv("HW_CC_PEER_CONNECTION_ID")
 
+	HW_CC_PERMISSION_ID = os.Getenv("HW_CC_PERMISSION_ID")
+
 	HW_CERT_BATCH_PUSH_ID     = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 	HW_CERT_BATCH_PUSH_WAF_ID = os.Getenv("HW_CERT_BATCH_PUSH_WAF_ID")
 
@@ -1440,6 +1442,13 @@ func TestAccPreCheckCCGlobalGateway(t *testing.T) {
 func TestAccPreCheckCCAuth(t *testing.T) {
 	if HW_CC_PEER_DOMAIN_ID == "" || HW_CC_PEER_CONNECTION_ID == "" {
 		t.Skip("HW_CC_PEER_DOMAIN_ID, HW_CC_PEER_CONNECTION_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCCPermission(t *testing.T) {
+	if HW_CC_PERMISSION_ID == "" {
+		t.Skip("HW_CC_PERMISSION_ID must be set for the acceptance test")
 	}
 }
 
