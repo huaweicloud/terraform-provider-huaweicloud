@@ -409,6 +409,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_flavors":   bms.DataSourceBmsFlavors(),
 			"huaweicloud_bms_instances": bms.DataSourceBmsInstances(),
 
+			"huaweicloud_cae_environments": cae.DataSourceEnvironments(),
+
 			"huaweicloud_cbr_backup":   cbr.DataSourceBackup(),
 			"huaweicloud_cbr_vaults":   cbr.DataSourceVaults(),
 			"huaweicloud_cbr_policies": cbr.DataSourcePolicies(),
