@@ -503,6 +503,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "2"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.#", "2"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "403"),
@@ -590,6 +592,14 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.back_sources.0.ip_or_domain", "www.hshs.cdd"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.0.back_sources.0.sources_type", "domain"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.0.limit_rate_after", "0"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.0.limit_rate_value", "104857600"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.0.match_type", "catalog"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.0.match_value", "/test/ff"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.0.priority", "4"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.0.type", "size"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "503"),
@@ -632,6 +642,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.slice_etag_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_receive_timeout", "5"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.remote_auth_rules.#", "0"),
@@ -777,6 +788,23 @@ resource "huaweicloud_cdn_domain" "test" {
       }
     }
 
+    request_limit_rules {
+      limit_rate_after = 0
+      limit_rate_value = 0
+      match_type       = "all"
+      priority         = 2
+      type             = "size"
+    }
+    
+    request_limit_rules {
+      limit_rate_after = 1073741824
+      limit_rate_value = 104857600
+      match_type       = "catalog"
+      match_value      = "/test/ff"
+      priority         = 5
+      type             = "size"
+    }
+
     remote_auth {
       enabled = true
 
@@ -910,6 +938,15 @@ resource "huaweicloud_cdn_domain" "test" {
         ip_or_domain = "www.hshs.cdd"
         sources_type = "domain"
       }
+    }
+
+    request_limit_rules {
+      limit_rate_after = 0
+      limit_rate_value = 104857600
+      match_type       = "catalog"
+      match_value      = "/test/ff"
+      priority         = 4
+      type             = "size"
     }
 
     remote_auth {
