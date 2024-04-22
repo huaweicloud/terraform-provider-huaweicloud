@@ -499,6 +499,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_datasource_connections": dli.DataSourceConnections(),
 			"huaweicloud_dli_elastic_resource_pools": dli.DataSourceDliElasticPools(),
 			"huaweicloud_dli_quotas":                 dli.DataSourceDliQuotas(),
+			"huaweicloud_dli_sql_templates":          dli.DataSourceDliSqlTemplates(),
 
 			"huaweicloud_dms_kafka_flavors":             dms.DataSourceKafkaFlavors(),
 			"huaweicloud_dms_kafka_instances":           dms.DataSourceDmsKafkaInstances(),
