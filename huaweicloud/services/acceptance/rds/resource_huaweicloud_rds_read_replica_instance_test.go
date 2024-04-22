@@ -45,6 +45,8 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "10"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "connect_timeout"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "14"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "09:00"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
@@ -70,6 +72,8 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "15"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "div_precision_increment"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "12"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "15:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "17:00"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar_update"),
 				),
@@ -141,6 +145,8 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
   security_group_id   = huaweicloud_networking_secgroup.test.id
   ssl_enable          = true
+  maintain_begin      = "06:00"
+  maintain_end        = "09:00"
 
   db {
     port = 8888
@@ -187,6 +193,8 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
   security_group_id   = huaweicloud_networking_secgroup.test.id
   ssl_enable          = false
+  maintain_begin      = "15:00"
+  maintain_end        = "17:00"
 
   db {
     port = 8889

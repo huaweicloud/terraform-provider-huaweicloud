@@ -78,6 +78,14 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the instance. The value consists of 0 to 64
   characters, including letters, digits, periods (.), underscores (_), and hyphens (-).
 
+* `maintain_begin` - (Optional, String) Specifies the time at which the maintenance time window starts, for example, **22:00**.
+
+* `maintain_end` - (Optional, String) Specifies the time at which the maintenance time window ends, for example, **01:00**.
+
+-> **Note** For RDS for MySQL and RDS for PostgreSQL databases, the maintenance begin time and end time must be on the
+  hour, and the interval between them must be one to four hours.<br>
+  For RDS for SQL Server databases, the interval between the maintenance begin time and end time must be four hours.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the read replica instance. Valid values
   are **prePaid** and **postPaid**, defaults to **postPaid**. Changing this creates a new resource.
 
