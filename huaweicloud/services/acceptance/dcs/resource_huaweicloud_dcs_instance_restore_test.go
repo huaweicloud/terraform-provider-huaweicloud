@@ -38,7 +38,7 @@ func TestAccDcsRestore_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dcs_isntance_restore.test"
+	rName := "huaweicloud_dcs_instance_restore.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -77,7 +77,7 @@ resource "huaweicloud_dcs_backup" "test" {
   backup_format = "rdb"
 }
 
-resource "huaweicloud_dcs_isntance_restore" "test" {
+resource "huaweicloud_dcs_instance_restore" "test" {
   instance_id = huaweicloud_dcs_instance.instance_1.id
   backup_id   = huaweicloud_dcs_backup.test.backup_id
   description = "test DCS restoration"

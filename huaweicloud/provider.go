@@ -1031,7 +1031,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_hotkey_analysis":  dcs.ResourceHotKeyAnalysis(),
 			"huaweicloud_dcs_bigkey_analysis":  dcs.ResourceBigKeyAnalysis(),
 			"huaweicloud_dcs_account":          dcs.ResourceDcsAccount(),
-			"huaweicloud_dcs_isntance_restore": dcs.ResourceDcsRestore(),
+			"huaweicloud_dcs_instance_restore": dcs.ResourceDcsRestore(),
 			"huaweicloud_dcs_diagnosis_task":   dcs.ResourceDiagnosisTask(),
 
 			"huaweicloud_dds_database_role":      dds.ResourceDatabaseRole(),
@@ -1564,8 +1564,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_recordset_v2": dns.ResourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone_v2":      dns.ResourceDNSZone(),
 
-			"huaweicloud_dcs_instance_v1": dcs.ResourceDcsInstance(),
-			"huaweicloud_dds_instance_v3": dds.ResourceDdsInstanceV3(),
+			"huaweicloud_dcs_instance_v1":      dcs.ResourceDcsInstance(),
+			"huaweicloud_dds_instance_v3":      dds.ResourceDdsInstanceV3(),
+			"huaweicloud_dcs_isntance_restore": dcs.ResourceDcsRestore(),
 
 			"huaweicloud_kms_key_v1": dew.ResourceKmsKey(),
 
