@@ -16,7 +16,8 @@ import (
 //   - DLS.6036: Workspace does not exist.
 //
 // + Data Service:
-//   - DLM.4205: catalog does not found.
+//   - DLM.4205: Catalog does not found.
+//   - DLM.4018: API does not exist (during API detail query).
 //
 // + Security:
 //   - DLM.3027: Permission set does not found.
