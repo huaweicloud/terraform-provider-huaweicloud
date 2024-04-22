@@ -135,6 +135,7 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 			"ssl_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Computed: true,
 			},
 			"parameters": {
 				Type: schema.TypeSet,
@@ -432,6 +433,7 @@ func resourceRdsReadReplicaInstanceRead(ctx context.Context, d *schema.ResourceD
 	d.Set("type", instance.Type)
 	d.Set("status", instance.Status)
 	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
+	d.Set("ssl_enable", instance.EnableSsl)
 	d.Set("tags", utils.TagsToMap(instance.Tags))
 
 	if len(instance.PrivateIps) > 0 {

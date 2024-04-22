@@ -295,6 +295,7 @@ func ResourceRdsInstance() *schema.Resource {
 			"ssl_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Computed: true,
 			},
 
 			"binlog_retention_hours": {
@@ -686,6 +687,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
 	d.Set("switch_strategy", instance.SwitchStrategy)
 	d.Set("charging_mode", instance.ChargeInfo.ChargeMode)
+	d.Set("ssl_enable", instance.EnableSsl)
 	d.Set("tags", utils.TagsToMap(instance.Tags))
 
 	publicIps := make([]interface{}, len(instance.PublicIps))
@@ -2011,7 +2013,34 @@ func configRdsInstanceSSL(ctx context.Context, d *schema.ResourceData, client *g
 	if err != nil {
 		return fmt.Errorf("error updating instance SSL configuration: %s ", err)
 	}
+	// wait for the instance ssl to be 'ACTIVE'.
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{strconv.FormatBool(sslEnable)},
+		Refresh:      rdsInstanceSslRefreshFunc(client, instanceID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        2 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for RDS instance (%s) ssl_enable modified to: %#v", instanceID, sslEnable)
+	}
 	return nil
+}
+
+func rdsInstanceSslRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		instance, err := GetRdsInstanceByID(client, instanceID)
+		if err != nil {
+			return nil, "FOUND ERROR", err
+		}
+		if instance.Id == "" {
+			return instance, "DELETED", fmt.Errorf("the instance(%s) has been deleted", instance.Id)
+		}
+		if instance.Status == "FAILED" {
+			return nil, instance.Status, fmt.Errorf("the instance status is: %s", instance.Status)
+		}
+		return instance, strconv.FormatBool(instance.EnableSsl), nil
+	}
 }
 
 func checkRDSInstanceJobFinish(client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
