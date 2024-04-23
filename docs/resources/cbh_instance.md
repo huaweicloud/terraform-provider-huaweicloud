@@ -54,9 +54,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required, String, ForceNew) Specifies the ID of the security group.
-
-  Changing this parameter will create a new resource.
+* `security_group_id` - (Required, String) Specifies the IDs of the security group. Multiple security group IDs are
+  separated by commas (,) without spaces.
 
 * `availability_zone` - (Required, String, ForceNew) Specifies the availability zone name.
 
