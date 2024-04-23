@@ -3,6 +3,7 @@ package dli
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 
 	"github.com/hashicorp/go-multierror"
@@ -138,7 +139,15 @@ func resourceDliSQLDatabaseRead(_ context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "DLI database")
 	}
-	d.SetId(db.ResourceId)
+
+	if db.ResourceId == "" {
+		log.Printf("[WARN] unable to find the resource ID from the API response body during normal tenant (EPS " +
+			"service has not been activated), it maybe cause the resource ID not being effectively referenced into " +
+			"TMS tags management resource.")
+		d.SetId(dbName)
+	} else {
+		d.SetId(db.ResourceId)
+	}
 
 	mErr := multierror.Append(nil,
 		d.Set("name", db.Name),
