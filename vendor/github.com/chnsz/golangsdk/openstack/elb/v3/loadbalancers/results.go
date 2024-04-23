@@ -212,6 +212,23 @@ func (r GetStatusesResult) Extract() (*StatusTree, error) {
 	return s.Statuses, err
 }
 
+// ChangeResult represents the result of a ChangeChargingMode operation.
+// Call its Extract method to get the order ID.
+type ChangeResult struct {
+	golangsdk.Result
+}
+
+// Extract is a function that accepts a result and extracts the order ID.
+func (r ChangeResult) Extract() (string, error) {
+	var s struct {
+		LoadBalancerIdList []string `json:"loadbalancer_id_list"`
+		EipIdList          []string `json:"eip_id_list"`
+		OrderId            string   `json:"order_id"`
+	}
+	err := r.ExtractInto(&s)
+	return s.OrderId, err
+}
+
 // CreateResult represents the result of a create operation. Call its Extract
 // method to interpret it as a LoadBalancer.
 type CreateResult struct {

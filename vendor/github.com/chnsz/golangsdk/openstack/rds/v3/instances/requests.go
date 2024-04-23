@@ -829,3 +829,22 @@ func GetTdeStatus(c *golangsdk.ServiceClient, instanceId string) (r GetTdeStatus
 	})
 	return
 }
+
+type ModifyReadWritePermissionsOpts struct {
+	Readonly bool `json:"readonly"`
+}
+
+func (opts ModifyReadWritePermissionsOpts) ToActionInstanceMap() (map[string]interface{}, error) {
+	return toActionInstanceMap(opts)
+}
+
+// ModifyReadWritePermissions is a method used to modify the read write permissions of the instance.
+func ModifyReadWritePermissions(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, instanceId string) (r JobResult) {
+	b, err := opts.ToActionInstanceMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Put(updateURL(c, instanceId, "readonly-status"), b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}
