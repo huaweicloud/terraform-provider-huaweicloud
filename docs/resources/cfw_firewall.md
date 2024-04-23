@@ -262,7 +262,7 @@ $ terraform import huaweicloud_cfw_firewall.test 6cb1ce47-9990-447e-b071-d167c53
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`period_unit`, `period`, `auto_renew` and `east_west_firewall_er_attachment_id`. It is generally
+`period_unit`, `period` and `auto_renew`. It is generally
 recommended running `terraform plan` after importing an CFW firewall. You can then decide if changes should be applied to
 the firewall, or the resource definition should be updated to align with the firewall. Also you can ignore changes as
 below.
@@ -273,7 +273,7 @@ resource "huaweicloud_cfw_firewall" "test" {
 
   lifecycle {
     ignore_changes = [
-      period_unit, period, auto_renew, east_west_firewall_er_attachment_id
+      period_unit, period, auto_renew
     ]
   }
 }
