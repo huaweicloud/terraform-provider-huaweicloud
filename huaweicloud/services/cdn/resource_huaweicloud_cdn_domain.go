@@ -259,6 +259,11 @@ var compress = schema.Schema{
 				Optional: true,
 				Computed: true,
 			},
+			"file_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -550,6 +555,39 @@ var videoSeek = schema.Schema{
 	},
 }
 
+var requestLimitRules = schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"priority": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"match_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"limit_rate_after": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"limit_rate_value": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"match_value": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -694,6 +732,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"quic":                       &quic,
 						"referer":                    &referer,
 						"video_seek":                 &videoSeek,
+						"request_limit_rules":        &requestLimitRules,
 					},
 				},
 			},
@@ -939,8 +978,9 @@ func buildCompressOpts(rawCompress []interface{}) *model.Compress {
 
 	compress := rawCompress[0].(map[string]interface{})
 	compressOpts := model.Compress{
-		Status: parseFunctionEnabledStatus(compress["enabled"].(bool)),
-		Type:   utils.StringIgnoreEmpty(compress["type"].(string)),
+		Status:   parseFunctionEnabledStatus(compress["enabled"].(bool)),
+		Type:     utils.StringIgnoreEmpty(compress["type"].(string)),
+		FileType: utils.StringIgnoreEmpty(compress["file_type"].(string)),
 	}
 
 	return &compressOpts
@@ -1128,6 +1168,29 @@ func buildVideoSeekOpts(rawVideoSeek []interface{}) *model.VideoSeek {
 	return &videoSeekOpts
 }
 
+func buildRequestLimitRulesOpts(rawRequestLimitRules []interface{}) *[]model.RequestLimitRules {
+	if len(rawRequestLimitRules) < 1 {
+		// Define an empty array to clear all request limit rules
+		rst := make([]model.RequestLimitRules, 0)
+		return &rst
+	}
+
+	requestLimitRulesOpts := make([]model.RequestLimitRules, len(rawRequestLimitRules))
+	for i, v := range rawRequestLimitRules {
+		ruleMap := v.(map[string]interface{})
+		ruleOpt := model.RequestLimitRules{
+			Priority:       int32(ruleMap["priority"].(int)),
+			MatchType:      ruleMap["match_type"].(string),
+			MatchValue:     utils.String(ruleMap["match_value"].(string)),
+			Type:           ruleMap["type"].(string),
+			LimitRateAfter: int64(ruleMap["limit_rate_after"].(int)),
+			LimitRateValue: int32(ruleMap["limit_rate_value"].(int)),
+		}
+		requestLimitRulesOpts[i] = ruleOpt
+	}
+	return &requestLimitRulesOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1269,6 +1332,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.video_seek") {
 		configsOpts.VideoSeek = buildVideoSeekOpts(configs["video_seek"].([]interface{}))
+	}
+	if d.HasChange("configs.0.request_limit_rules") {
+		configsOpts.RequestLimitRules = buildRequestLimitRulesOpts(configs["request_limit_rules"].(*schema.Set).List())
 	}
 }
 
@@ -1538,9 +1604,10 @@ func flattenCompressAttrs(compress *model.Compress) []map[string]interface{} {
 	}
 
 	compressAttrs := map[string]interface{}{
-		"status":  compress.Status,
-		"type":    compress.Type,
-		"enabled": analyseFunctionEnabledStatus(compress.Status),
+		"status":    compress.Status,
+		"type":      compress.Type,
+		"file_type": compress.FileType,
+		"enabled":   analyseFunctionEnabledStatus(compress.Status),
 	}
 
 	return []map[string]interface{}{compressAttrs}
@@ -1716,6 +1783,25 @@ func flattenVideoSeekAttrs(videoSeek *model.VideoSeek) []map[string]interface{} 
 	}}
 }
 
+func flattenRequestLimitRulesAttrs(requestLimitRules *[]model.RequestLimitRules) []map[string]interface{} {
+	if requestLimitRules == nil || len(*requestLimitRules) == 0 {
+		return nil
+	}
+
+	requestLimitRulesAttrs := make([]map[string]interface{}, len(*requestLimitRules))
+	for i, v := range *requestLimitRules {
+		requestLimitRulesAttrs[i] = map[string]interface{}{
+			"priority":         v.Priority,
+			"match_type":       v.MatchType,
+			"match_value":      v.MatchValue,
+			"type":             v.Type,
+			"limit_rate_after": v.LimitRateAfter,
+			"limit_rate_value": v.LimitRateValue,
+		}
+	}
+	return requestLimitRulesAttrs
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1768,6 +1854,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"quic":                          flattenQUICAttrs(configsResp.Quic),
 		"referer":                       flattenRefererAttrs(configsResp.Referer),
 		"video_seek":                    flattenVideoSeekAttrs(configsResp.VideoSeek),
+		"request_limit_rules":           flattenRequestLimitRulesAttrs(configsResp.RequestLimitRules),
 	}
 	return []map[string]interface{}{configsAttrs}
 }

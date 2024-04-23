@@ -136,6 +136,15 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       }
     }
 
+    request_limit_rules {
+      limit_rate_after = 50
+      limit_rate_value = 1048576
+      match_type       = "catalog"
+      match_value      = "/test/ff"
+      priority         = 4
+      type             = "size"
+    }
+
     remote_auth {
       enabled = true
 
@@ -337,6 +346,11 @@ The `configs` block support:
   <br/>2. Video seek is valid only when your origin server supports range requests.
   <br/>3. Only `MP4` and `FLV` videos are supported.
 
+* `request_limit_rules` - (Optional, List) Specifies the request rate limiting rules.
+  The [request_limit_rules](#request_limit_rules_object) structure is documented below.
+
+  -> Up to 60 request limit rules can be configured.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -479,6 +493,10 @@ The `compress` blocks support:
 
 * `type` - (Optional, String) Specifies the smart compression type.
   Possible values are: **gzip** (gzip) and **br** (Brotli).
+
+* `file_type` - (Optional, String) Specifies the formats of files to be compressed. Enter up to 200 characters.
+  Multiple formats are separated by commas (,). Each format contains up to 50 characters.
+  Defaults to **.js,.html,.css,.xml,.json,.shtml,.htm**.
 
 <a name="ip_frequency_limit_object"></a>
 The `ip_frequency_limit` block support:
@@ -665,6 +683,28 @@ The `video_seek` block support:
 
 * `end_parameter` - (Optional, String) Specifies the video playback end parameter in user request URLs.
   The value contains up to `64` characters. Only letters, digits, and underscores (_) are allowed.
+
+<a name="request_limit_rules_object"></a>
+The `request_limit_rules` block support:
+
+* `priority` - (Required, Int) Specifies the unique priority. A larger value indicates a higher priority.
+  The value ranges from **1** to **100**.
+
+* `match_type` - (Required, String) Specifies the match type. The options are **all** (all files) and **catalog** (directory).
+
+* `type` - (Required, String) Specifies the rate limit mode. Currently, only rate limit by traffic is supported.
+  This parameter can only be set to **size**.
+
+* `limit_rate_after` - (Required, Int) Specifies the rate limiting condition. Unit: byte.
+  The value ranges from **0** to **1,073,741,824**.
+
+* `limit_rate_value` - (Required, Int) Specifies the rate limiting value, in bit/s.
+  The value ranges from **0** to **104,857,600**.
+
+-> The speed is limited to the value of `limit_rate_value` after `limit_rate_after` bytes are transmitted.
+
+* `match_value` - (Optional, String) Specifies the match type value. This field is required when `match_type` is
+  set to **catalog**. The value is a directory address starting with a slash (/), for example, **/test**.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
