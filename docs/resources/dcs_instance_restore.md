@@ -2,7 +2,7 @@
 subcategory: "Distributed Cache Service (DCS)"
 ---
 
-# huaweicloud_dcs_isntance_restore
+# huaweicloud_dcs_instance_restore
 
 Use this resource to restore a DCS instance with a backup within HuaweiCloud.
 
@@ -16,7 +16,7 @@ the state before restoration.
 variable "instance_id" {}
 variable "backup_id" {}
 
-resource "huaweicloud_dcs_isntance_restore" "test" {
+resource "huaweicloud_dcs_instance_restore" "test" {
   instance_id = var.instance_id
   backup_id   = var.backup_id
   description = "test DCS restoration"
