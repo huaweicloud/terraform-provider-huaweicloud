@@ -317,6 +317,10 @@ The `db` block supports:
   -> **NOTE:** `rotate_day`, `secret_id`, `secret_name` and `secret_version` will only take effect when `tde_enabled`
   is **true**.
 
+* `read_write_permissions` - (Optional, String) Specifies the read write permissions of the instance. Valid values:
+  + **readwrite**: read write permissions.
+  + **readonly**: readonly permissions.
+
 The `volume` block supports:
 
 * `size` - (Required, Int) Specifies the volume size. Its value range is from 40 GB to 4000 GB. The value must be a

@@ -326,3 +326,29 @@ func RemoveAvailabilityZone(c *golangsdk.ServiceClient, id string, opts Availabi
 	_, r.Err = c.Post(updateAvailabilityZoneURL(c, id, "batch-remove"), b, &r.Body, &golangsdk.RequestOpts{})
 	return
 }
+
+// Charging info.
+type ChangeChargingModeOpts struct {
+	LoadBalancerIds []string       `json:"loadbalancer_ids" required:"true"`
+	ChargingMode    string         `json:"charge_mode" required:"true"`
+	PrepaidOptions  PrepaidOptions `json:"prepaid_options,omitempty"`
+}
+
+type PrepaidOptions struct {
+	IncludePublicIp *bool  `json:"include_publicip,omitempty"`
+	PeriodType      string `json:"period_type" required:"true"`
+	PeriodNum       int    `json:"period_num,omitempty"`
+	AutoRenew       string `json:"auto_renew,omitempty"`
+	AutoPay         bool   `json:"auto_pay,omitempty"`
+}
+
+// ChangeChargingMode will change the charging mode of the loadbalancer
+func ChangeChargingMode(c *golangsdk.ServiceClient, opts ChangeChargingModeOpts) (r ChangeResult) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Post(changeChargingModeURL(c), b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}

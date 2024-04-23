@@ -108,6 +108,12 @@ type CreateOpts struct {
 
 	// Enterprise project ID
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
+
+	// Protection status
+	ProtectionStatus string `json:"protection_status,omitempty"`
+
+	// Protection reason
+	ProtectionReason string `json:"protection_reason,omitempty"`
 }
 
 // ToLoadBalancerCreateMap builds a request body from CreateOpts.
@@ -153,6 +159,12 @@ type UpdateOpts struct {
 	// The administrative state of the Loadbalancer. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
+
+	// Update protection status
+	ProtectionStatus string `json:"protection_status,omitempty"`
+
+	// Update protection reason
+	ProtectionReason *string `json:"protection_reason,omitempty"`
 }
 
 // ToLoadBalancerUpdateMap builds a request body from UpdateOpts.

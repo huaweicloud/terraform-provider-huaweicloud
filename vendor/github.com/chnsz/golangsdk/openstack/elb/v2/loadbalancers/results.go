@@ -61,6 +61,27 @@ type LoadBalancer struct {
 
 	// The public ip of the loadbalancer.
 	PublicIps []PublicIp `json:"publicips"`
+
+	// Update protection status
+	ProtectionStatus string `json:"protection_status"`
+
+	// Update protection reason
+	ProtectionReason string `json:"protection_reason"`
+
+	// Billing info
+	BillingInfo string `json:"billing_info"`
+
+	// Charge mode
+	ChargeMode string `json:"charge_mode"`
+
+	// Frozen scene
+	FrozenScene string `json:"frozen_scene"`
+
+	// The create time.
+	CreatedAt string `json:"created_at"`
+
+	// The update time.
+	UpdatedAt string `json:"updated_at"`
 }
 
 type PublicIp struct {

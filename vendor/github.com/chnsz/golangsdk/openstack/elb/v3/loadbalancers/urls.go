@@ -29,3 +29,7 @@ func resourceForceDeleteURL(c *golangsdk.ServiceClient, id string) string {
 func updateAvailabilityZoneURL(c *golangsdk.ServiceClient, id string, action string) string {
 	return c.ServiceURL(rootPath, resourcePath, id, azPath, action)
 }
+
+func changeChargingModeURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL(rootPath, resourcePath, "change-charge-mode")
+}

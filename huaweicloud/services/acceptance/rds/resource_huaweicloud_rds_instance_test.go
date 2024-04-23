@@ -677,6 +677,7 @@ resource "huaweicloud_rds_instance" "test" {
   availability_zone      = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
   ssl_enable             = true  
   binlog_retention_hours = "12"
+  read_write_permissions = "readonly"
 
   db {
     type     = "MySQL"
@@ -728,6 +729,7 @@ resource "huaweicloud_rds_instance" "test" {
   ssl_enable             = false
   param_group_id         = huaweicloud_rds_parametergroup.pg_1.id
   binlog_retention_hours = "0"
+  read_write_permissions = "readwrite"
 
   db {
     password = "Huangwei!120521"
@@ -780,6 +782,7 @@ resource "huaweicloud_rds_instance" "test" {
   ssl_enable             = false
   param_group_id         = huaweicloud_rds_parametergroup.pg_1.id
   binlog_retention_hours = "6"
+  read_write_permissions = "readwrite"
 
   db {
     password = "Huangwei!120521"
