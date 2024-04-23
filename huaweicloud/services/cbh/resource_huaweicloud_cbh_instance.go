@@ -27,6 +27,7 @@ import (
 // @API CBH POST /v2/{project_id}/cbs/instance
 // @API CBH GET /v2/{project_id}/cbs/instance/list
 // @API CBH PUT /v2/{project_id}/cbs/instance/password
+// @API CBH PUT /v2/{project_id}/cbs/instance/{server_id}/security-groups
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -81,8 +82,7 @@ func ResourceCBHInstance() *schema.Resource {
 			"security_group_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
-				Description: `Specifies the ID of the security group.`,
+				Description: `Specifies the IDs of the security group.`,
 			},
 			"availability_zone": {
 				Type:        schema.TypeString,
@@ -214,6 +214,16 @@ func resourceCBHInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error waiting for CBH instance (%s) creation to active: %s", d.Id(), err)
 	}
 
+	// After successfully creating an instance using the first security group ID, check if it is necessary to update the
+	// security group to the target value.
+	securityGroupIDs := d.Get("security_group_id").(string)
+	sgIDs := strings.Split(securityGroupIDs, ",")
+	if len(sgIDs) > 1 {
+		if err := updateSecurityGroup(client, d.Id(), sgIDs); err != nil {
+			return diag.Errorf("error updating the security group after successful creation of CBH instance (%s): %s", d.Id(), err)
+		}
+	}
+
 	return resourceCBHInstanceRead(ctx, d, meta)
 }
 
@@ -328,9 +338,16 @@ func buildCreateNetworkPublicIpBodyParam(d *schema.ResourceData, cfg *config.Con
 }
 
 func buildCreateNetworkSecurityGroupsBodyParam(d *schema.ResourceData) interface{} {
+	securityGroupIDs := d.Get("security_group_id").(string)
+	sgIDList := strings.Split(securityGroupIDs, ",")
+	if len(sgIDList) == 0 {
+		return nil
+	}
+	// When creating an instance, if multiple security group IDs are specified,
+	// prioritize using the first one for creation.
 	return []map[string]interface{}{
 		{
-			"id": d.Get("security_group_id"),
+			"id": sgIDList[0],
 		},
 	}
 }
@@ -409,11 +426,20 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		cfg                      = meta.(*config.Config)
 		region                   = cfg.GetRegion(d)
 		updateCBHInstanceProduct = "cbh"
+		ID                       = d.Id()
 	)
 
 	client, err := cfg.NewServiceClient(updateCBHInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CBH client: %s", err)
+	}
+
+	if d.HasChanges("security_group_id") {
+		securityGroupIDs := d.Get("security_group_id").(string)
+		sgIDs := strings.Split(securityGroupIDs, ",")
+		if err := updateSecurityGroup(client, ID, sgIDs); err != nil {
+			return diag.Errorf("error updating the security group of the CBH instance (%s): %s", ID, err)
+		}
 	}
 
 	if d.HasChanges("public_ip_id") {
@@ -438,18 +464,33 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		expression := fmt.Sprintf("[?server_id == '%s']|[0].resource_info.resource_id", d.Id())
+		expression := fmt.Sprintf("[?server_id == '%s']|[0].resource_info.resource_id", ID)
 		resourceId := utils.PathSearch(expression, instances, "").(string)
 		if resourceId == "" {
 			return diag.Errorf("error updating the auto-renew of the CBH instance (%s): "+
-				"resource ID is not found in list API response", d.Id())
+				"resource ID is not found in list API response", ID)
 		}
 
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceId); err != nil {
-			return diag.Errorf("error updating the auto-renew of the CBH instance (%s): %s", d.Id(), err)
+			return diag.Errorf("error updating the auto-renew of the CBH instance (%s): %s", ID, err)
 		}
 	}
 	return resourceCBHInstanceRead(ctx, d, meta)
+}
+
+func updateSecurityGroup(client *golangsdk.ServiceClient, resourceId string, sgIDs []string) error {
+	updateSecurityGroupPath := client.Endpoint + "v2/{project_id}/cbs/instance/{server_id}/security-groups"
+	updateSecurityGroupPath = strings.ReplaceAll(updateSecurityGroupPath, "{project_id}", client.ProjectID)
+	updateSecurityGroupPath = strings.ReplaceAll(updateSecurityGroupPath, "{server_id}", resourceId)
+	updateSecurityGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"security_groups": sgIDs,
+		},
+	}
+	_, err := client.Request("PUT", updateSecurityGroupPath, &updateSecurityGroupOpt)
+
+	return err
 }
 
 func updatePublicIpId(client *golangsdk.ServiceClient, d *schema.ResourceData) error {

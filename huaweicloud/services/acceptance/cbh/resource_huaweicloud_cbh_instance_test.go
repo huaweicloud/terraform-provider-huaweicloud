@@ -86,11 +86,10 @@ func TestAccCBHInstance_basic(t *testing.T) {
 						"huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "subnet_id",
 						"huaweicloud_vpc_subnet.test", "id"),
-					resource.TestCheckResourceAttrPair(rName, "security_group_id",
-						"huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "availability_zone",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 
+					resource.TestCheckResourceAttrSet(rName, "security_group_id"),
 					resource.TestCheckResourceAttrSet(rName, "private_ip"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "version"),
@@ -102,6 +101,8 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "password", "test_147258"),
 					resource.TestCheckResourceAttr(rName, "auto_renew", "true"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"huaweicloud_networking_secgroup.test", "id"),
 				),
 			},
 			{
@@ -123,10 +124,15 @@ func TestAccCBHInstance_basic(t *testing.T) {
 
 func testCBHInstance_base(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_networking_secgroup" "test2" {
+  name                 = "%[2]s_2"
+  delete_default_rules = true
+}
 
 data "huaweicloud_availability_zones" "test" {}
-`, common.TestBaseNetwork(name))
+`, common.TestBaseNetwork(name), name)
 }
 
 func testCBHInstance_basic(name string) string {
@@ -139,7 +145,7 @@ resource "huaweicloud_cbh_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   subnet_address    = "192.168.0.154"
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = join(",", [huaweicloud_networking_secgroup.test.id, huaweicloud_networking_secgroup.test2.id])
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   password          = "test_123456"
   charging_mode     = "prePaid"
