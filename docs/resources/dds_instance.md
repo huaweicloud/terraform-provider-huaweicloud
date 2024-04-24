@@ -153,6 +153,10 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the DDS instance.
 
+* `replica_set_name` - (Optional, String) Specifies the name of the replica set in the connection address.
+  It must be `3` to `128` characters long and start with a letter. It is case-sensitive and can contain only letters,
+  digits, and underscores (_). Default is **replica**.
+
 * `ssl` - (Optional, Bool) Specifies whether to enable or disable SSL. Defaults to true.
 
 **NOTE:** The instance will be restarted in the background when switching SSL. Please operate with caution.

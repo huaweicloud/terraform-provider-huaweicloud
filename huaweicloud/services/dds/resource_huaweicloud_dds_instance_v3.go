@@ -46,6 +46,8 @@ import (
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/backups/policy
 // @API DDS GET /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/replica-set/name
+// @API DDS GET /v3/{project_id}/instances/{instance_id}/replica-set/name
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
@@ -231,6 +233,11 @@ func ResourceDdsInstanceV3() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"replica_set_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
@@ -515,6 +522,13 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	if replicaSetName, ok := d.GetOk("replica_set_name"); ok && replicaSetName.(string) != "replica" {
+		err = updateReplicaSetName(ctx, client, d.Timeout(schema.TimeoutCreate), instance.Id, replicaSetName.(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceDdsInstanceV3Read(ctx, d, meta)
 }
 
@@ -528,6 +542,44 @@ func isEqualPeriod(old, new string) bool {
 	sort.Strings(newArray)
 
 	return reflect.DeepEqual(oldArray, newArray)
+}
+
+func updateReplicaSetName(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId, replicaSetName string) error {
+	opt := instances.ReplicaSetNameOpts{
+		Name: replicaSetName,
+	}
+	retryFunc := func() (interface{}, bool, error) {
+		resp, err := instances.UpdateReplicaSetName(client, instanceId, opt)
+		retry, err := handleMultiOperationsError(err)
+		return resp, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      timeout,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating replica set name: %s", err)
+	}
+	resp := r.(*instances.CommonResp)
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Running"},
+		Target:       []string{"Completed"},
+		Refresh:      JobStateRefreshFunc(client, resp.JobId),
+		Timeout:      timeout,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for the job (%s) completed: %s ", resp.JobId, err)
+	}
+
+	return nil
 }
 
 func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -625,6 +677,15 @@ func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	mErr = multierror.Append(mErr, d.Set("second_level_monitoring_enabled", secondsLevelMonitoring.Enabled))
+
+	// set replica set name
+	if d.Get("mode").(string) == "ReplicaSet" {
+		replicaSetName, err := instances.GetReplicaSetName(client, d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		mErr = multierror.Append(mErr, d.Set("replica_set_name", replicaSetName.Name))
+	}
 
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("Error setting dds instance fields: %s", err)
@@ -768,6 +829,13 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 			if err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	if d.HasChange("replica_set_name") {
+		err = updateReplicaSetName(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId, d.Get("replica_set_name").(string))
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
