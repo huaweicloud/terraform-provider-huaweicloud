@@ -588,6 +588,43 @@ var requestLimitRules = schema.Schema{
 	},
 }
 
+var errorCodeCache = schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"code": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"ttl": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+		},
+	},
+}
+
+var ipFilter = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"value": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -733,6 +770,8 @@ func ResourceCdnDomain() *schema.Resource {
 						"referer":                    &referer,
 						"video_seek":                 &videoSeek,
 						"request_limit_rules":        &requestLimitRules,
+						"error_code_cache":           &errorCodeCache,
+						"ip_filter":                  &ipFilter,
 					},
 				},
 			},
@@ -1191,6 +1230,39 @@ func buildRequestLimitRulesOpts(rawRequestLimitRules []interface{}) *[]model.Req
 	return &requestLimitRulesOpts
 }
 
+func buildErrorCodeCacheOpts(rawErrorCodeCache []interface{}) *[]model.ErrorCodeCache {
+	if len(rawErrorCodeCache) < 1 {
+		// Define an empty array to clear all error code cache
+		rst := make([]model.ErrorCodeCache, 0)
+		return &rst
+	}
+
+	errorCodeCacheOpts := make([]model.ErrorCodeCache, len(rawErrorCodeCache))
+	for i, v := range rawErrorCodeCache {
+		cacheMap := v.(map[string]interface{})
+		cacheOpt := model.ErrorCodeCache{
+			Code: utils.Int32(int32(cacheMap["code"].(int))),
+			Ttl:  utils.Int32(int32(cacheMap["ttl"].(int))),
+		}
+		errorCodeCacheOpts[i] = cacheOpt
+	}
+	return &errorCodeCacheOpts
+}
+
+func buildIpFilterOpts(rawIpFilter []interface{}) *model.IpFilter {
+	if len(rawIpFilter) != 1 {
+		return nil
+	}
+
+	ipFilter := rawIpFilter[0].(map[string]interface{})
+	ipFilterOpts := model.IpFilter{
+		Type:  ipFilter["type"].(string),
+		Value: utils.String(ipFilter["value"].(string)),
+	}
+
+	return &ipFilterOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1335,6 +1407,12 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.request_limit_rules") {
 		configsOpts.RequestLimitRules = buildRequestLimitRulesOpts(configs["request_limit_rules"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.error_code_cache") {
+		configsOpts.ErrorCodeCache = buildErrorCodeCacheOpts(configs["error_code_cache"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.ip_filter") {
+		configsOpts.IpFilter = buildIpFilterOpts(configs["ip_filter"].([]interface{}))
 	}
 }
 
@@ -1802,6 +1880,33 @@ func flattenRequestLimitRulesAttrs(requestLimitRules *[]model.RequestLimitRules)
 	return requestLimitRulesAttrs
 }
 
+func flattenErrorCodeCacheAttrs(errorCodeCache *[]model.ErrorCodeCache) []map[string]interface{} {
+	if errorCodeCache == nil || len(*errorCodeCache) == 0 {
+		return nil
+	}
+
+	errorCodeCacheAttrs := make([]map[string]interface{}, len(*errorCodeCache))
+	for i, v := range *errorCodeCache {
+		errorCodeCacheAttrs[i] = map[string]interface{}{
+			"code": v.Code,
+			"ttl":  v.Ttl,
+		}
+	}
+	return errorCodeCacheAttrs
+}
+
+func flattenIpFilterAttrs(ipFilter *model.IpFilter) []map[string]interface{} {
+	if ipFilter == nil {
+		return nil
+	}
+
+	ipFilterAttrs := map[string]interface{}{
+		"type":  ipFilter.Type,
+		"value": ipFilter.Value,
+	}
+	return []map[string]interface{}{ipFilterAttrs}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1855,6 +1960,8 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"referer":                       flattenRefererAttrs(configsResp.Referer),
 		"video_seek":                    flattenVideoSeekAttrs(configsResp.VideoSeek),
 		"request_limit_rules":           flattenRequestLimitRulesAttrs(configsResp.RequestLimitRules),
+		"error_code_cache":              flattenErrorCodeCacheAttrs(configsResp.ErrorCodeCache),
+		"ip_filter":                     flattenIpFilterAttrs(configsResp.IpFilter),
 	}
 	return []map[string]interface{}{configsAttrs}
 }

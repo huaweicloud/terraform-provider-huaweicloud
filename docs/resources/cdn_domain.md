@@ -145,6 +145,11 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       type             = "size"
     }
 
+    error_code_cache {
+      code = 403
+      ttl  = 70
+    }
+
     remote_auth {
       enabled = true
 
@@ -350,6 +355,17 @@ The `configs` block support:
   The [request_limit_rules](#request_limit_rules_object) structure is documented below.
 
   -> Up to 60 request limit rules can be configured.
+
+* `error_code_cache` - (Optional, List) Specifies the status code cache TTL.
+  The [error_code_cache](#error_code_cache_object) structure is documented below.
+
+  -> 1. The status code cache TTL cannot be configured for domain names with special configurations.
+  <br/>2. Domain names whose service type is whole site acceleration do not support configuring this field.
+  <br/>3. By default, CDN caches status codes `400`, `404`, `416`, `500`, `502`, and `504` for `3` seconds and does not
+  cache other status codes.
+
+* `ip_filter` - (Optional, List) Specifies the IP address blacklist or whitelist.
+  The [ip_filter](#ip_filter_object) structure is documented below.
 
 <a name="https_settings_object"></a>
 The `https_settings` block support:
@@ -705,6 +721,29 @@ The `request_limit_rules` block support:
 
 * `match_value` - (Optional, String) Specifies the match type value. This field is required when `match_type` is
   set to **catalog**. The value is a directory address starting with a slash (/), for example, **/test**.
+
+<a name="error_code_cache_object"></a>
+The `error_code_cache` block support:
+
+* `code` - (Required, Int) Specifies the error code. Valid values are: **301**, **302**, **400**, **403**, **404**,
+  **405**, **414**, **500**, **501**, **502**, **503**, and **504**.
+
+* `ttl` - (Required, Int) Specifies the error code cache TTL, in seconds. The value ranges from **0** to **31,536,000**.
+
+<a name="ip_filter_object"></a>
+The `ip_filter` block support:
+
+* `type` - (Required, String) Specifies the IP ACL type. Valid values are:
+  + **off**: Disable the IP ACL.
+  + **black**: IP address blacklist.
+  + **white**: IP address whitelist.
+
+  Defaults to **off**.
+
+* `value` - (Optional, String) Specifies the IP address blacklist or whitelist. This field is required when `type` is
+  set to **black** or **white**. A list contains up to `500` IP addresses and IP address segments, which are separated
+  by commas (,). IPv6 addresses are supported. Duplicate IP addresses and IP address segments will be removed.
+  Addresses with wildcard characters are not supported, for example, `192.168.0.*`.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
