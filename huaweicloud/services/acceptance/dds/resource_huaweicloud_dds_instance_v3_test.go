@@ -270,6 +270,7 @@ func TestAccDDSV3Instance_withConfigurationReplicaSet(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
+					resource.TestCheckResourceAttr(resourceName, "replica_set_name", "replicaName"),
 				),
 			},
 		},
@@ -980,6 +981,8 @@ resource "huaweicloud_dds_instance" "instance" {
   password          = "Terraform@123"
   mode              = "ReplicaSet"
   port              = %[3]d
+  replica_set_name  = "replicaName"
+
   datastore {
     type           = "DDS-Community"
     version        = "3.4"

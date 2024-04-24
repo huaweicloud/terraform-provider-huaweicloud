@@ -181,6 +181,11 @@ type AvailabilityZoneResp struct {
 	JobId string `json:"job_id"`
 }
 
+type CommonResp struct {
+	// Job ID.
+	JobId string `json:"job_id"`
+}
+
 type SlowLogStatusResp struct {
 	// Status.
 	Status string `json:"status"`
