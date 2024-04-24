@@ -507,6 +507,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_cache.#", "2"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.type", "black"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.value", "5.12.3.65,35.2.65.21"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "403"),
@@ -606,6 +609,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_cache.0.code", "403"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_cache.0.ttl", "70"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.type", "white"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.value", "5.12.3.66"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "503"),
@@ -650,6 +656,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_cache.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.type", "off"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.remote_auth_rules.#", "0"),
@@ -822,6 +829,11 @@ resource "huaweicloud_cdn_domain" "test" {
       ttl  = 31536000
     }
 
+    ip_filter {
+      type  = "black"
+      value = "5.12.3.65,35.2.65.21"
+    }
+
     remote_auth {
       enabled = true
 
@@ -971,6 +983,11 @@ resource "huaweicloud_cdn_domain" "test" {
       ttl  = 70
     }
 
+    ip_filter {
+      type  = "white"
+      value = "5.12.3.66"
+    }
+
     remote_auth {
       enabled = true
 
@@ -1043,6 +1060,10 @@ resource "huaweicloud_cdn_domain" "test" {
 
     video_seek {
       enable_video_seek = false
+    }
+
+    ip_filter {
+      type = "off"
     }
   }
 }

@@ -605,6 +605,26 @@ var errorCodeCache = schema.Schema{
 	},
 }
 
+var ipFilter = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"value": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -751,6 +771,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"video_seek":                 &videoSeek,
 						"request_limit_rules":        &requestLimitRules,
 						"error_code_cache":           &errorCodeCache,
+						"ip_filter":                  &ipFilter,
 					},
 				},
 			},
@@ -1228,6 +1249,20 @@ func buildErrorCodeCacheOpts(rawErrorCodeCache []interface{}) *[]model.ErrorCode
 	return &errorCodeCacheOpts
 }
 
+func buildIpFilterOpts(rawIpFilter []interface{}) *model.IpFilter {
+	if len(rawIpFilter) != 1 {
+		return nil
+	}
+
+	ipFilter := rawIpFilter[0].(map[string]interface{})
+	ipFilterOpts := model.IpFilter{
+		Type:  ipFilter["type"].(string),
+		Value: utils.String(ipFilter["value"].(string)),
+	}
+
+	return &ipFilterOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1375,6 +1410,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.error_code_cache") {
 		configsOpts.ErrorCodeCache = buildErrorCodeCacheOpts(configs["error_code_cache"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.ip_filter") {
+		configsOpts.IpFilter = buildIpFilterOpts(configs["ip_filter"].([]interface{}))
 	}
 }
 
@@ -1857,6 +1895,18 @@ func flattenErrorCodeCacheAttrs(errorCodeCache *[]model.ErrorCodeCache) []map[st
 	return errorCodeCacheAttrs
 }
 
+func flattenIpFilterAttrs(ipFilter *model.IpFilter) []map[string]interface{} {
+	if ipFilter == nil {
+		return nil
+	}
+
+	ipFilterAttrs := map[string]interface{}{
+		"type":  ipFilter.Type,
+		"value": ipFilter.Value,
+	}
+	return []map[string]interface{}{ipFilterAttrs}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1911,6 +1961,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"video_seek":                    flattenVideoSeekAttrs(configsResp.VideoSeek),
 		"request_limit_rules":           flattenRequestLimitRulesAttrs(configsResp.RequestLimitRules),
 		"error_code_cache":              flattenErrorCodeCacheAttrs(configsResp.ErrorCodeCache),
+		"ip_filter":                     flattenIpFilterAttrs(configsResp.IpFilter),
 	}
 	return []map[string]interface{}{configsAttrs}
 }

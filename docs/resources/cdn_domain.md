@@ -364,6 +364,9 @@ The `configs` block support:
   <br/>3. By default, CDN caches status codes `400`, `404`, `416`, `500`, `502`, and `504` for `3` seconds and does not
   cache other status codes.
 
+* `ip_filter` - (Optional, List) Specifies the IP address blacklist or whitelist.
+  The [ip_filter](#ip_filter_object) structure is documented below.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -726,6 +729,21 @@ The `error_code_cache` block support:
   **405**, **414**, **500**, **501**, **502**, **503**, and **504**.
 
 * `ttl` - (Required, Int) Specifies the error code cache TTL, in seconds. The value ranges from **0** to **31,536,000**.
+
+<a name="ip_filter_object"></a>
+The `ip_filter` block support:
+
+* `type` - (Required, String) Specifies the IP ACL type. Valid values are:
+  + **off**: Disable the IP ACL.
+  + **black**: IP address blacklist.
+  + **white**: IP address whitelist.
+
+  Defaults to **off**.
+
+* `value` - (Optional, String) Specifies the IP address blacklist or whitelist. This field is required when `type` is
+  set to **black** or **white**. A list contains up to `500` IP addresses and IP address segments, which are separated
+  by commas (,). IPv6 addresses are supported. Duplicate IP addresses and IP address segments will be removed.
+  Addresses with wildcard characters are not supported, for example, `192.168.0.*`.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
