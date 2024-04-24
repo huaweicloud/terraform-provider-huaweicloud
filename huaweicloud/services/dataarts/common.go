@@ -13,6 +13,7 @@ import (
 // For the DataArts Studio service, there are some known 404 error codes:
 // + Workspace:
 //   - DLM.4001: Instance or workspace does not exist.
+//   - DLS.6036: Workspace does not exist.
 //
 // + Data Service:
 //   - DLM.4205: catalog does not found.
