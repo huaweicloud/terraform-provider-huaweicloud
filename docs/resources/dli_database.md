@@ -45,7 +45,9 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Resource ID in UUID format.
+* `id` - Resource ID.
+
+-> If the user has opened the EPS service, this value is a UUID value. If not, this value is the database name.
 
 ## Import
 
