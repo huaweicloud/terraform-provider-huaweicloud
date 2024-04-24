@@ -81,6 +81,9 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "subnet_address", "192.168.0.154"),
 					resource.TestCheckResourceAttr(rName, "public_ip_id", ""),
 					resource.TestCheckResourceAttr(rName, "public_ip", ""),
+					// The built-in disk for this flavor instance is **0.2TB**, increase disk size by **1TB** through
+					// the `attach_disk_size` parameter.
+					resource.TestCheckResourceAttr(rName, "data_disk_size", "1.2"),
 
 					resource.TestCheckResourceAttrPair(rName, "vpc_id",
 						"huaweicloud_vpc.test", "id"),
@@ -93,6 +96,7 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "private_ip"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "version"),
+					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 				),
 			},
 			{
@@ -100,7 +104,9 @@ func TestAccCBHInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "password", "test_147258"),
+					resource.TestCheckResourceAttr(rName, "flavor_id", "cbh.basic.20"),
 					resource.TestCheckResourceAttr(rName, "auto_renew", "true"),
+					resource.TestCheckResourceAttr(rName, "data_disk_size", "3.2"),
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
 						"huaweicloud_networking_secgroup.test", "id"),
 				),
@@ -116,6 +122,7 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					"period_unit",
 					"auto_renew",
 					"ipv6_enable",
+					"attach_disk_size",
 				},
 			},
 		},
@@ -152,6 +159,7 @@ resource "huaweicloud_cbh_instance" "test" {
   period_unit       = "month"
   auto_renew        = "false"
   period            = 1
+  attach_disk_size  = 1
 }
 `, testCBHInstance_base(name), name)
 }
@@ -161,7 +169,7 @@ func testCBHInstance_basic_update(name string) string {
 %s
 
 resource "huaweicloud_cbh_instance" "test" {
-  flavor_id         = "cbh.basic.10"
+  flavor_id         = "cbh.basic.20"
   name              = "%s"
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
@@ -173,6 +181,7 @@ resource "huaweicloud_cbh_instance" "test" {
   period_unit       = "month"
   auto_renew        = "true"
   period            = 1
+  attach_disk_size  = 2
 }
 `, testCBHInstance_base(name), name)
 }
