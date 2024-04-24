@@ -385,6 +385,9 @@ func resourcePoolV2Delete(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 		return nil
 	})
+	if err != nil {
+		return diag.Errorf("error deleting pool: %s", err)
+	}
 
 	if lbID != "" {
 		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
