@@ -1,0 +1,114 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_hosts": {
+          "block": {
+            "attributes": {
+              "agent_status": {
+                "type": "string",
+                "optional": true
+              },
+              "asset_value": {
+                "type": "string",
+                "optional": true
+              },
+              "detect_result": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "optional": true
+              },
+              "hosts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agent_id": "string",
+                      "agent_status": "string",
+                      "asset_risk_num": "number",
+                      "asset_value": "string",
+                      "baseline_risk_num": "number",
+                      "detect_result": "string",
+                      "enterprise_project_id": "string",
+                      "group_id": "string",
+                      "id": "string",
+                      "intrusion_risk_num": "number",
+                      "name": "string",
+                      "open_time": "string",
+                      "os_type": "string",
+                      "policy_group_id": "string",
+                      "private_ip": "string",
+                      "protect_charging_mode": "string",
+                      "protect_status": "string",
+                      "protect_version": "string",
+                      "public_ip": "string",
+                      "quota_id": "string",
+                      "status": "string",
+                      "vulnerability_risk_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "os_type": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "protect_charging_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "protect_status": {
+                "type": "string",
+                "optional": true
+              },
+              "protect_version": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

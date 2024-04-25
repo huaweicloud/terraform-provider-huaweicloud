@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dcs_instance_restore": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the backup ID used to restore the DCS instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the time when the restoration record created.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the DCS instance restoration.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DCS instance to be restored.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "restore_name": {
+                "type": "string",
+                "description": "Indicates the name of the restoration record.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the time when the restoration record completed.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,6 +9,10 @@
                 "type": "string",
                 "required": true
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -26,6 +30,10 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
               },
               "value": {
                 "type": "string",

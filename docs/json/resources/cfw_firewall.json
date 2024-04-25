@@ -140,8 +140,7 @@
                   "string"
                 ],
                 "description": "Specifies the key/value pairs to associate with the firewall.",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               }
             },
             "block_types": {

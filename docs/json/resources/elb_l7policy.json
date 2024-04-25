@@ -11,6 +11,10 @@
                 "forcenew": true,
                 "default": "REDIRECT_TO_POOL"
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "optional": true
@@ -34,6 +38,10 @@
                 "optional": true,
                 "computed": true
               },
+              "provisioning_status": {
+                "type": "string",
+                "computed": true
+              },
               "redirect_listener_id": {
                 "type": "string",
                 "optional": true,
@@ -45,6 +53,10 @@
                 "computed": true
               },
               "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
                 "type": "string",
                 "computed": true
               }

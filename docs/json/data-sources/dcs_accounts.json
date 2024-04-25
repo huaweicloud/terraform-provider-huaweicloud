@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_accounts": {
+          "block": {
+            "attributes": {
+              "account_name": {
+                "type": "string",
+                "description": "Specifies the account name.",
+                "optional": true
+              },
+              "account_role": {
+                "type": "string",
+                "description": "Specifies the account role. The value can be **read** or **write**.",
+                "optional": true
+              },
+              "account_type": {
+                "type": "string",
+                "description": "Specifies the account type. The value can be **normal** or **default**.",
+                "optional": true
+              },
+              "accounts": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "account_name": "string",
+                      "account_role": "string",
+                      "account_type": "string",
+                      "description": "string",
+                      "id": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "ACL account list.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the account description.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the account status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

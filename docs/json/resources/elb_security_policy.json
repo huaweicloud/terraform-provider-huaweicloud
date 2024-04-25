@@ -13,6 +13,10 @@
                 "description": "Specifies the cipher suite list of the security policy.",
                 "required": true
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "Specifies the description of the ELB security policy",
@@ -58,6 +62,10 @@
                 "required": true
               },
               "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
                 "type": "string",
                 "computed": true
               }

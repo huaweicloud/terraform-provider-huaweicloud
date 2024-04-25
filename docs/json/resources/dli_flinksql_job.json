@@ -41,6 +41,14 @@
                 ],
                 "optional": true
               },
+              "flink_version": {
+                "type": "string",
+                "optional": true
+              },
+              "graph_type": {
+                "type": "string",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -65,6 +73,10 @@
                 "required": true
               },
               "obs_bucket": {
+                "type": "string",
+                "optional": true
+              },
+              "operator_config": {
                 "type": "string",
                 "optional": true
               },
@@ -116,7 +128,19 @@
                 "type": "string",
                 "optional": true
               },
+              "static_estimator": {
+                "type": "bool",
+                "optional": true
+              },
+              "static_estimator_config": {
+                "type": "string",
+                "optional": true
+              },
               "status": {
+                "type": "string",
+                "computed": true
+              },
+              "stream_graph": {
                 "type": "string",
                 "computed": true
               },

@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_rules_blacklist": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the protective action of the blacklist and whitelist rule.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the protection policies belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the blacklist or whitelist rule.",
+                "optional": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the ID of the policy to which the blacklist and whitelist rules belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "Specifies the ID of the blacklist or whitelist rule.",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "number",
+                      "address_group": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "size": "number"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "ip_address": "string",
+                      "name": "string",
+                      "policy_id": "string",
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the blacklist and whitelist rules.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the blacklist or whitelist rule.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_connection_routes": {
+          "block": {
+            "attributes": {
+              "cloud_connection_id": {
+                "type": "string",
+                "description": "Specifies cloud connection ID.",
+                "optional": true
+              },
+              "cloud_connection_route_id": {
+                "type": "string",
+                "description": "Specifies cloud connection route ID.",
+                "optional": true
+              },
+              "cloud_connection_routes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_connection_id": "string",
+                      "destination": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "project_id": "string",
+                      "region_id": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of cloud connection routes.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies network instance ID of cloud connection route.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies region ID of cloud connection route.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -11,6 +11,10 @@
                 "computed": true,
                 "forcenew": true
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "optional": true,
@@ -23,7 +27,9 @@
               },
               "ip_version": {
                 "type": "string",
-                "computed": true
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "listener_id": {
                 "type": "string",
@@ -57,6 +63,10 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
               },
               "vpc_id": {
                 "type": "string",

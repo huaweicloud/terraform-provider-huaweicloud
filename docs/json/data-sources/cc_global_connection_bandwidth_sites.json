@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_global_connection_bandwidth_sites": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name_cn": {
+                "type": "string",
+                "description": "Specifies the site name in Chinese.",
+                "optional": true
+              },
+              "name_en": {
+                "type": "string",
+                "description": "Specifies the site name in English.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "site_code": {
+                "type": "string",
+                "description": "Specifies site code.",
+                "optional": true
+              },
+              "site_id": {
+                "type": "string",
+                "description": "Specifies site ID.",
+                "optional": true
+              },
+              "site_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "group_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "id": "string",
+                            "name_cn": "string",
+                            "name_en": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "name_cn": "string",
+                      "name_en": "string",
+                      "public_border_group": "string",
+                      "region_id": "string",
+                      "service_list": "string",
+                      "site_code": "string",
+                      "site_type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The site list.",
+                "computed": true
+              },
+              "site_type": {
+                "type": "string",
+                "description": "Specifies site type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

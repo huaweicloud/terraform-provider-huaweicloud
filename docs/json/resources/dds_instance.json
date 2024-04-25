@@ -93,6 +93,11 @@
                 "type": "string",
                 "computed": true
               },
+              "replica_set_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "second_level_monitoring_enabled": {
                 "type": "bool",
                 "optional": true,

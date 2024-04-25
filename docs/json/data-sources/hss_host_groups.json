@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_host_groups": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "host_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "host_num": "number",
+                      "id": "string",
+                      "name": "string",
+                      "risk_host_num": "number",
+                      "unprotect_host_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "host_num": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "risk_host_num": {
+                "type": "string",
+                "optional": true
+              },
+              "unprotect_host_num": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

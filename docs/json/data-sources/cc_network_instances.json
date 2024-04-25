@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_network_instances": {
+          "block": {
+            "attributes": {
+              "cloud_connection_id": {
+                "type": "string",
+                "description": "Specifies the cloud connection ID.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the network instance description.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC or virtual gateway to be loaded to the cloud connection.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the network instance name.",
+                "optional": true
+              },
+              "network_instance_id": {
+                "type": "string",
+                "description": "Specifies the network instance ID.",
+                "optional": true
+              },
+              "network_instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cidrs": [
+                        "list",
+                        "string"
+                      ],
+                      "cloud_connection_id": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "id": "string",
+                      "instance_domain_id": "string",
+                      "instance_id": "string",
+                      "name": "string",
+                      "project_id": "string",
+                      "region_id": "string",
+                      "status": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Network instance list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies the region ID of the network instance.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the network instance.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the network instance.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

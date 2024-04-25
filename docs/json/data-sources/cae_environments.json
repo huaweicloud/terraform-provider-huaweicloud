@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cae_environments": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project to which the environments belong.",
+                "optional": true
+              },
+              "environment_id": {
+                "type": "string",
+                "description": "Specifies the ID of the environment to be queried.",
+                "optional": true
+              },
+              "environments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "created_at": "string",
+                      "id": "string",
+                      "name": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the environments.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the environment to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the environment to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CAE",
+            "name": "Cloud Application Engine",
+            "catalog": "CodeArts",
+            "name_cn": "云应用引擎",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

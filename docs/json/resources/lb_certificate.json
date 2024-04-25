@@ -28,6 +28,10 @@
                 "computed": true,
                 "forcenew": true
               },
+              "expire_time": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

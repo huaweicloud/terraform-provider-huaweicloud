@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identity_providers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_providers": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "id": "string",
+                      "links": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "protocols": "string",
+                            "self": "string"
+                          }
+                        ]
+                      ],
+                      "remote_ids": [
+                        "set",
+                        "string"
+                      ],
+                      "sso_type": "string",
+                      "status": "bool"
+                    }
+                  ]
+                ],
+                "description": "The list of identity providers.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the identity provider.",
+                "optional": true
+              },
+              "sso_type": {
+                "type": "string",
+                "description": "Specifies the single sign-on type of the identity provider.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the identity provider. The value can be **true** or **false**",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management & Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

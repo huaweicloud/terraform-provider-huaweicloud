@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dli_flink_templates": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the flink template to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the ID of the flink template to be queried.",
+                "optional": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "sql": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All templates that match the filter parameters.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the flink template to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

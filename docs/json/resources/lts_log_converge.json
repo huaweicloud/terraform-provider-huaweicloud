@@ -1,0 +1,120 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_log_converge": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the log converge configuration.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "management_account_id": {
+                "type": "string",
+                "description": "The administrator account ID used to manage log converge.",
+                "required": true,
+                "forcenew": true
+              },
+              "member_account_id": {
+                "type": "string",
+                "description": "The member account ID to which the converged logs belong.",
+                "required": true,
+                "forcenew": true
+              },
+              "organization_id": {
+                "type": "string",
+                "description": "The organization ID to which the converged logs belong.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the log converge configuration.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "log_mapping_config": {
+                "block": {
+                  "attributes": {
+                    "source_log_group_id": {
+                      "type": "string",
+                      "description": "The ID of the log group for source side.",
+                      "required": true
+                    },
+                    "target_log_group_id": {
+                      "type": "string",
+                      "description": "The ID of the log group for target side.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "target_log_group_name": {
+                      "type": "string",
+                      "description": "The name of the log group for target side.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "log_stream_config": {
+                      "block": {
+                        "attributes": {
+                          "source_log_stream_id": {
+                            "type": "string",
+                            "description": "The ID of the log stream for source side.",
+                            "required": true
+                          },
+                          "target_log_stream_eps_id": {
+                            "type": "string",
+                            "description": "The enterprise project ID of the log stream for target side.",
+                            "computed": true
+                          },
+                          "target_log_stream_id": {
+                            "type": "string",
+                            "description": "The ID of the log stream for target side.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "target_log_stream_name": {
+                            "type": "string",
+                            "description": "The name of the log group for target side.",
+                            "required": true
+                          },
+                          "target_log_stream_ttl": {
+                            "type": "number",
+                            "description": "The TTL of the log stream for target side.",
+                            "required": true
+                          }
+                        },
+                        "description": "The log streams converged under the current log group."
+                      },
+                      "nesting_mode": "set"
+                    }
+                  },
+                  "description": "The log converge configurations."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_inter_region_bandwidths": {
+          "block": {
+            "attributes": {
+              "bandwidth_package_id": {
+                "type": "string",
+                "description": "Specifies the bandwidth package ID.",
+                "optional": true
+              },
+              "cloud_connection_id": {
+                "type": "string",
+                "description": "Specifies the cloud connection ID.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "inter_region_bandwidth_id": {
+                "type": "string",
+                "description": "Specifies the inter-region bandwidth ID.",
+                "optional": true
+              },
+              "inter_region_bandwidths": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": "number",
+                      "bandwidth_package_id": "string",
+                      "cloud_connection_id": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "inter_regions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "local_region_id": "string",
+                            "project_id": "string",
+                            "remote_region_id": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The inter-region bandwidth list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

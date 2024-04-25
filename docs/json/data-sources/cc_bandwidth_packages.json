@@ -1,0 +1,109 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_bandwidth_packages": {
+          "block": {
+            "attributes": {
+              "bandwidth": {
+                "type": "number",
+                "description": "Specifies Bandwidth range specified for the bandwidth package.",
+                "optional": true
+              },
+              "bandwidth_package_id": {
+                "type": "string",
+                "description": "Specifies the bandwidth package ID.",
+                "optional": true
+              },
+              "bandwidth_packages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": "number",
+                      "billing_mode": "string",
+                      "charge_mode": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "interflow_mode": "string",
+                      "local_area_id": "string",
+                      "name": "string",
+                      "order_id": "string",
+                      "product_id": "string",
+                      "project_id": "string",
+                      "remote_area_id": "string",
+                      "resource_id": "string",
+                      "resource_type": "string",
+                      "spec_code": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Bandwidth package list.",
+                "computed": true
+              },
+              "billing_mode": {
+                "type": "string",
+                "description": "Specifies the billing mode of the bandwidth package.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project that the bandwidth package belongs to.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the bandwidth package name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the ID of the resource that the bandwidth package is bound to.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the bandwidth package status.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the tags of the bandwidth package.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

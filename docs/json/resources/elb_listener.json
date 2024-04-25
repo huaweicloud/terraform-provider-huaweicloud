@@ -18,6 +18,10 @@
                 "type": "string",
                 "optional": true
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "default_pool_id": {
                 "type": "string",
                 "optional": true,
@@ -27,11 +31,21 @@
                 "type": "string",
                 "optional": true
               },
+              "enable_member_retry": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "force_delete": {
                 "type": "bool",
                 "optional": true
               },
               "forward_eip": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_elb": {
                 "type": "bool",
                 "optional": true,
                 "computed": true
@@ -46,7 +60,27 @@
                 "optional": true,
                 "computed": true
               },
+              "forward_proto": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "forward_request_port": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_tls_certificate": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_tls_cipher": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "forward_tls_protocol": {
                 "type": "bool",
                 "optional": true,
                 "computed": true
@@ -59,7 +93,7 @@
               "http2_enable": {
                 "type": "bool",
                 "optional": true,
-                "default": false
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -104,6 +138,20 @@
                 "computed": true,
                 "forcenew": true
               },
+              "proxy_protocol_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "quic_listener_id": {
+                "type": "string",
+                "optional": true
+              },
+              "real_ip": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -118,6 +166,10 @@
                 "optional": true,
                 "computed": true
               },
+              "security_policy_id": {
+                "type": "string",
+                "optional": true
+              },
               "server_certificate": {
                 "type": "string",
                 "optional": true
@@ -127,6 +179,15 @@
                   "list",
                   "string"
                 ],
+                "optional": true
+              },
+              "sni_match_algo": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ssl_early_data_enable": {
+                "type": "bool",
                 "optional": true
               },
               "tags": {
@@ -139,6 +200,10 @@
               "tls_ciphers_policy": {
                 "type": "string",
                 "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
                 "computed": true
               }
             },

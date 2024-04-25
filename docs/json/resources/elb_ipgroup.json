@@ -5,6 +5,10 @@
         "huaweicloud_elb_ipgroup": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "optional": true
@@ -19,11 +23,22 @@
                 "type": "string",
                 "computed": true
               },
+              "listener_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
               "name": {
                 "type": "string",
                 "required": true
               },
               "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
                 "type": "string",
                 "computed": true
               }

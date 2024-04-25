@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_global_connection_bandwidth_spec_codes": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "level": {
+                "type": "string",
+                "description": "Line grade.",
+                "optional": true
+              },
+              "local_area": {
+                "type": "string",
+                "description": "Local access point included in the line specification.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "remote_area": {
+                "type": "string",
+                "description": "Remote access point included in the line specification.",
+                "optional": true
+              },
+              "spec_codes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "level": "string",
+                      "local_area": "string",
+                      "name_en": "string",
+                      "name_zh": "string",
+                      "remote_area": "string",
+                      "size": "number",
+                      "sku": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The line specification list.",
+                "computed": true
+              },
+              "spec_id": {
+                "type": "string",
+                "description": "Line specification ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

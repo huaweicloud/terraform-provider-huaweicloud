@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_cross_region_backups": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the ID of the cross-region backup.",
+                "optional": true
+              },
+              "backup_type": {
+                "type": "string",
+                "description": "Specifies the type of the cross-region backup.",
+                "required": true
+              },
+              "backups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "associated_with_ddm": "bool",
+                      "begin_time": "string",
+                      "databases": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "end_time": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "name": "string",
+                      "size": "number",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the cross-region backups.",
+                "computed": true
+              },
+              "begin_time": {
+                "type": "string",
+                "description": "Specifies the start time for obtaining the cross-region backup list.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time for obtaining the cross-region backup list.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the RDS instance.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the cross-region backup.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the cross-region backup.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

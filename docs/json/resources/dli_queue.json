@@ -21,8 +21,7 @@
               },
               "elastic_resource_pool_name": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -77,6 +76,55 @@
                 "type": "string",
                 "optional": true,
                 "computed": true
+              }
+            },
+            "block_types": {
+              "scaling_policies": {
+                "block": {
+                  "attributes": {
+                    "impact_start_time": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "impact_stop_time": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "max_cu": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "min_cu": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "priority": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
+              "spark_driver": {
+                "block": {
+                  "attributes": {
+                    "max_concurrent": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "max_instance": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "max_prefetch_instance": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

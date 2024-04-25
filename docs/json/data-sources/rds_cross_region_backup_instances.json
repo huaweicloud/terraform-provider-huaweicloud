@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_cross_region_backup_instances": {
+          "block": {
+            "attributes": {
+              "backup_instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "destination_project_id": "string",
+                      "destination_region": "string",
+                      "id": "string",
+                      "keep_days": "number",
+                      "name": "string",
+                      "source_project_id": "string",
+                      "source_region": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of instances for which cross-region backups are created.",
+                "computed": true
+              },
+              "destination_project_id": {
+                "type": "string",
+                "description": "Specifies the project ID of the target backup region.",
+                "optional": true
+              },
+              "destination_region": {
+                "type": "string",
+                "description": "Specifies the region where the cross-region backup is located.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the instance.",
+                "optional": true
+              },
+              "keep_days": {
+                "type": "number",
+                "description": "Specifies the number of days to retain cross-region backups.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the instance.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "source_project_id": {
+                "type": "string",
+                "description": "Specifies the project ID of the source backup region.",
+                "optional": true
+              },
+              "source_region": {
+                "type": "string",
+                "description": "Specifies the source backup region.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

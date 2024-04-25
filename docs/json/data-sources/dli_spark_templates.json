@@ -1,0 +1,135 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dli_spark_templates": {
+          "block": {
+            "attributes": {
+              "group": {
+                "type": "string",
+                "description": "Specifies the group name to which the spark templates belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the spark template to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the ID of the spark template to be queried.",
+                "optional": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "body": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "app_name": "string",
+                            "app_parameters": [
+                              "list",
+                              "string"
+                            ],
+                            "auto_recovery": "bool",
+                            "configurations": [
+                              "map",
+                              "string"
+                            ],
+                            "dependent_packages": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "resources": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "name": "string",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "driver_cores": "number",
+                            "driver_memory": "string",
+                            "executor_cores": "number",
+                            "executor_memory": "string",
+                            "files": [
+                              "list",
+                              "string"
+                            ],
+                            "jars": [
+                              "list",
+                              "string"
+                            ],
+                            "main_class": "string",
+                            "max_retry_times": "number",
+                            "modules": [
+                              "list",
+                              "string"
+                            ],
+                            "name": "string",
+                            "num_executors": "number",
+                            "obs_bucket": "string",
+                            "python_files": [
+                              "list",
+                              "string"
+                            ],
+                            "queue_name": "string",
+                            "resources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "specification": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "group": "string",
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "All templates that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

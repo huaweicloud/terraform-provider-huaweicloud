@@ -73,6 +73,14 @@
                           "ttl_type": {
                             "type": "string",
                             "required": true
+                          },
+                          "url_parameter_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "url_parameter_value": {
+                            "type": "string",
+                            "optional": true
                           }
                         }
                       },
@@ -86,6 +94,10 @@
               "configs": {
                 "block": {
                   "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
                     "ipv6_enable": {
                       "type": "bool",
                       "optional": true
@@ -95,9 +107,19 @@
                       "optional": true,
                       "computed": true
                     },
+                    "origin_receive_timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
                     "range_based_retrieval_enabled": {
                       "type": "bool",
                       "optional": true
+                    },
+                    "slice_etag_status": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
                     }
                   },
                   "block_types": {
@@ -113,7 +135,8 @@
                             "type": "string",
                             "optional": true
                           }
-                        }
+                        },
+                        "description": "schema: Deprecated; Field `cache_url_parameter_filter` will be offline soon, use `cache_settings` instead"
                       },
                       "nesting_mode": "list",
                       "max_items": 1
@@ -124,6 +147,11 @@
                           "enabled": {
                             "type": "bool",
                             "required": true
+                          },
+                          "file_type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
                           },
                           "status": {
                             "type": "string",
@@ -138,6 +166,21 @@
                       },
                       "nesting_mode": "list",
                       "max_items": 1
+                    },
+                    "error_code_cache": {
+                      "block": {
+                        "attributes": {
+                          "code": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "ttl": {
+                            "type": "number",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
                     },
                     "flexible_origin": {
                       "block": {
@@ -200,14 +243,18 @@
                             "type": "bool",
                             "required": true
                           },
+                          "redirect_code": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
                           "status": {
                             "type": "string",
                             "computed": true
                           },
                           "type": {
                             "type": "string",
-                            "optional": true,
-                            "computed": true
+                            "required": true
                           }
                         }
                       },
@@ -295,6 +342,23 @@
                       "nesting_mode": "list",
                       "max_items": 1
                     },
+                    "ip_filter": {
+                      "block": {
+                        "attributes": {
+                          "type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
                     "ip_frequency_limit": {
                       "block": {
                         "attributes": {
@@ -304,6 +368,64 @@
                           },
                           "qps": {
                             "type": "number",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "origin_request_url_rewrite": {
+                      "block": {
+                        "attributes": {
+                          "match_type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "priority": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "source_url": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "target_url": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "quic": {
+                      "block": {
+                        "attributes": {
+                          "enabled": {
+                            "type": "bool",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "referer": {
+                      "block": {
+                        "attributes": {
+                          "include_empty": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
                             "optional": true,
                             "computed": true
                           }
@@ -426,6 +548,37 @@
                       "nesting_mode": "list",
                       "max_items": 1
                     },
+                    "request_limit_rules": {
+                      "block": {
+                        "attributes": {
+                          "limit_rate_after": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "limit_rate_value": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "match_type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "match_value": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "priority": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
                     "retrieval_request_header": {
                       "block": {
                         "attributes": {
@@ -448,6 +601,12 @@
                     "url_signing": {
                       "block": {
                         "attributes": {
+                          "backup_key": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "sensitive": true
+                          },
                           "enabled": {
                             "type": "bool",
                             "required": true
@@ -458,6 +617,22 @@
                             "computed": true
                           },
                           "key": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "sensitive": true
+                          },
+                          "match_type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "sign_arg": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "sign_method": {
                             "type": "string",
                             "optional": true,
                             "computed": true
@@ -475,6 +650,79 @@
                             "type": "string",
                             "optional": true,
                             "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "inherit_config": {
+                            "block": {
+                              "attributes": {
+                                "enabled": {
+                                  "type": "bool",
+                                  "required": true
+                                },
+                                "inherit_time_type": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "inherit_type": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "user_agent_filter": {
+                      "block": {
+                        "attributes": {
+                          "type": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "ua_list": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "video_seek": {
+                      "block": {
+                        "attributes": {
+                          "enable_flv_by_time_seek": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "enable_video_seek": {
+                            "type": "bool",
+                            "required": true
+                          },
+                          "end_parameter": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "start_parameter": {
+                            "type": "string",
+                            "optional": true
                           }
                         }
                       },

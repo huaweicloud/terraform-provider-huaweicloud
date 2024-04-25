@@ -135,9 +135,29 @@
                 ],
                 "computed": true
               },
+              "read_write_permissions": {
+                "type": "string",
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "rotate_day": {
+                "type": "number",
+                "optional": true
+              },
+              "secret_id": {
+                "type": "string",
+                "optional": true
+              },
+              "secret_name": {
+                "type": "string",
+                "optional": true
+              },
+              "secret_version": {
+                "type": "string",
+                "optional": true
               },
               "security_group_id": {
                 "type": "string",
@@ -145,7 +165,8 @@
               },
               "ssl_enable": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "status": {
                 "type": "string",
@@ -167,6 +188,11 @@
                   "string"
                 ],
                 "optional": true
+              },
+              "tde_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
               },
               "time_zone": {
                 "type": "string",

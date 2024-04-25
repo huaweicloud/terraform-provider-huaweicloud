@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_dataservice_catalog": {
+          "block": {
+            "attributes": {
+              "api_total": {
+                "type": "number",
+                "description": "The total number of APIs in the current catalog.",
+                "computed": true
+              },
+              "catalog_total": {
+                "type": "number",
+                "description": "The total number of sub-catalogs in the current catalog.",
+                "computed": true
+              },
+              "create_user": {
+                "type": "string",
+                "description": "The creator of the catalog.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the catalog.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the catalog.",
+                "optional": true
+              },
+              "dlm_type": {
+                "type": "string",
+                "description": "The type of DLM engine.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the catalog.",
+                "required": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "The ID of the parent catalog for current catalog.",
+                "optional": true,
+                "default": "0"
+              },
+              "path": {
+                "type": "string",
+                "description": "The path of current catalog.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the catalog is located.",
+                "computed": true
+              },
+              "update_user": {
+                "type": "string",
+                "description": "The user who latest updated the catalog.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the catalog.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the catalog belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

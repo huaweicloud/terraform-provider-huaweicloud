@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_nameservers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "nameservers": {
+                "type": [
+                  "set",
+                  [
+                    "object",
+                    {
+                      "ns_records": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "address": "string",
+                            "hostname": "string",
+                            "priority": "number"
+                          }
+                        ]
+                      ],
+                      "region": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "All name servers that match the filter parameters.",
+                "computed": true
+              },
+              "server_region": {
+                "type": "string",
+                "description": "Specifies the region to which the name server belongs.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the name server.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Business Applications",
+            "name_cn": "云解析服务",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

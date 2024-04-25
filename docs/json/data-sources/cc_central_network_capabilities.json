@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_central_network_capabilities": {
+          "block": {
+            "attributes": {
+              "capabilities": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "capability": "string",
+                      "domain_id": "string",
+                      "specifications": "string"
+                    }
+                  ]
+                ],
+                "description": "Central network capability list.",
+                "computed": true
+              },
+              "capability": {
+                "type": "string",
+                "description": "Specifies the capability of the central network.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

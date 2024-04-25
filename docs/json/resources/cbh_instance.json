@@ -5,6 +5,11 @@
         "huaweicloud_cbh_instance": {
           "block": {
             "attributes": {
+              "attach_disk_size": {
+                "type": "number",
+                "description": "Specifies the size of the additional data disk for the CBH instance.",
+                "optional": true
+              },
               "auto_renew": {
                 "type": "string",
                 "description": "Specifies whether auto renew is enabled.",
@@ -22,11 +27,22 @@
                 "required": true,
                 "forcenew": true
               },
+              "data_disk_size": {
+                "type": "number",
+                "description": "Indicates the data disk size of the instance.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the CBH instance belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "flavor_id": {
                 "type": "string",
                 "description": "Specifies the product ID of the CBH server.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -83,9 +99,8 @@
               },
               "security_group_id": {
                 "type": "string",
-                "description": "Specifies the ID of the security group.",
-                "required": true,
-                "forcenew": true
+                "description": "Specifies the IDs of the security group.",
+                "required": true
               },
               "status": {
                 "type": "string",

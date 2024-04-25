@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dli_sql_templates": {
+          "block": {
+            "attributes": {
+              "group": {
+                "type": "string",
+                "description": "Specifies the group name to which the SQL templates belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the SQL template to be queried.",
+                "optional": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "Specifies user ID of owner to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the ID of the SQL template to be queried.",
+                "optional": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "group": "string",
+                      "id": "string",
+                      "name": "string",
+                      "owner": "string",
+                      "sql": "string"
+                    }
+                  ]
+                ],
+                "description": "All templates that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

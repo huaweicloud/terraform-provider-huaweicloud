@@ -5,6 +5,23 @@
         "huaweicloud_lb_loadbalancer": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "charge_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "optional": true
@@ -15,6 +32,10 @@
                 "computed": true,
                 "forcenew": true
               },
+              "frozen_scene": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -22,6 +43,23 @@
               "name": {
                 "type": "string",
                 "optional": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_reason": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "public_ip": {
                 "type": "string",
@@ -37,6 +75,10 @@
                   "string"
                 ],
                 "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
               },
               "vip_address": {
                 "type": "string",

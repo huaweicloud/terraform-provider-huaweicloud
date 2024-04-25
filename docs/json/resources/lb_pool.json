@@ -29,9 +29,22 @@
                 "computed": true,
                 "forcenew": true
               },
+              "monitor_id": {
+                "type": "string",
+                "computed": true
+              },
               "name": {
                 "type": "string",
                 "optional": true
+              },
+              "protection_reason": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "protocol": {
                 "type": "string",
@@ -49,24 +62,20 @@
                   "attributes": {
                     "cookie_name": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "timeout": {
                       "type": "number",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "type": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               }
             }
           },
