@@ -69,6 +69,9 @@ paths:
     /v1.0/{project_id}/clusters/{cluster_id}/role_extend:
         POST:
             tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/type/{type}/independent:
+        POST:
+            tag: CSS
     /v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/close:
         PUT:
             tag: CSS

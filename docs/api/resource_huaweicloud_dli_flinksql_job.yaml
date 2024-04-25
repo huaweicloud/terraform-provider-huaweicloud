@@ -37,3 +37,6 @@ paths:
     /v3/{project_id}/dli_flink_job/{resource_id}/tags/delete:
         POST:
             tag: DLI
+    /v3/{project_id}/streaming/jobs/{job_id}/gen-graph:
+        POST:
+            tag: DLI

@@ -8,17 +8,17 @@ host: huaweicloud.com
 tags:
     - name: ELB
 paths:
-    /v1/ports/{port_id}:
-        GET:
-            tag: VPC
-        PUT:
-            tag: VPC
     /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags:
         GET:
             tag: ELB
     /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags/action:
         POST:
             tag: ELB
+    /v2.0/ports/{port_id}:
+        GET:
+            tag: VPC
+        PUT:
+            tag: VPC
     /v2/{project_id}/elb/loadbalancers:
         POST:
             tag: ELB
@@ -28,4 +28,21 @@ paths:
         GET:
             tag: ELB
         PUT:
+            tag: ELB
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/autorenew/{instance_id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
+    /v3/{project_id}/elb/loadbalancers/change-charge-mode:
+        POST:
             tag: ELB

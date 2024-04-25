@@ -29,6 +29,12 @@ paths:
             tag: CFW
         POST:
             tag: CFW
+    /v2/{project_id}/cfw-cfw/{fw_instance_id}/tags/create:
+        POST:
+            tag: CFW
+    /v2/{project_id}/cfw-cfw/{fw_instance_id}/tags/delete:
+        DELETE:
+            tag: CFW
     /v2/{project_id}/firewall:
         POST:
             tag: CFW

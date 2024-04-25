@@ -59,6 +59,11 @@ paths:
     /v3/{project_id}/instances/{instance_id}/remark:
         PUT:
             tag: DDS
+    /v3/{project_id}/instances/{instance_id}/replica-set/name:
+        GET:
+            tag: DDS
+        PUT:
+            tag: DDS
     /v3/{project_id}/instances/{instance_id}/reset-password:
         PUT:
             tag: DDS

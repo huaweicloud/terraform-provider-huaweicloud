@@ -92,11 +92,20 @@ paths:
     /v3/{project_id}/instances/{instance_id}/port:
         PUT:
             tag: RDS
+    /v3/{project_id}/instances/{instance_id}/readonly-status:
+        PUT:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/security-group:
         PUT:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/ssl:
         PUT:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/tde:
+        PUT:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/tde-status:
+        GET:
             tag: RDS
     /v3/{project_id}/jobs:
         GET:

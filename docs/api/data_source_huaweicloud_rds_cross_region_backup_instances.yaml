@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_rds_cross_region_backup_instances
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/backups/offsite-backup-instance:
+        GET:
+            tag: RDS

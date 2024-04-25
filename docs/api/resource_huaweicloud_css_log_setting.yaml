@@ -1,0 +1,27 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_log_setting
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}/logs/close:
+        PUT:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/logs/open:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/logs/policy/close:
+        PUT:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/logs/policy/update:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/logs/settings:
+        GET:
+            tag: CSS
+        POST:
+            tag: CSS

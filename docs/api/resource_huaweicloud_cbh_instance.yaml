@@ -11,11 +11,16 @@ paths:
     /v2/{project_id}/cbs/instance:
         POST:
             tag: CBH
+        PUT:
+            tag: CBH
     /v2/{project_id}/cbs/instance/{server_id}/eip/bind:
         POST:
             tag: CBH
     /v2/{project_id}/cbs/instance/{server_id}/eip/unbind:
         POST:
+            tag: CBH
+    /v2/{project_id}/cbs/instance/{server_id}/security-groups:
+        PUT:
             tag: CBH
     /v2/{project_id}/cbs/instance/list:
         GET:

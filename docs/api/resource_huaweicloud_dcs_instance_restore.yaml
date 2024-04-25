@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_instance_restore
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/instances/{instance_id}/restores:
+        GET:
+            tag: DCS
+        POST:
+            tag: DCS

@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dli_database_privilege
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DLI
+paths:
+    /v1.0/{project_id}/authorization:
+        PUT:
+            tag: DLI
+    /v1.0/{project_id}/authorization/privileges:
+        GET:
+            tag: DLI
