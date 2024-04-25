@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/mitchellh/go-homedir"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aad"
@@ -230,6 +232,12 @@ func Provider() *schema.Provider {
 							Required:    true,
 							Description: descriptions["assume_role_domain_name"],
 							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_DOMAIN_NAME", nil),
+						},
+						"domain_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: descriptions["assume_role_domain_id"],
+							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_DOMAIN_ID", nil),
 						},
 					},
 				},
@@ -1787,6 +1795,8 @@ func init() {
 
 		"assume_role_domain_name": "The name of domain for assume role.",
 
+		"assume_role_domain_id": "The id of domain for v5 assume role.",
+
 		"cloud": "The endpoint of cloud provider, defaults to myhuaweicloud.com",
 
 		"endpoints": "The custom endpoints used to override the default endpoint URL.",
@@ -1806,46 +1816,6 @@ func init() {
 func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersion string) (interface{},
 	diag.Diagnostics) {
 	var tenantName, tenantID, delegatedProject, identityEndpoint string
-	region := d.Get("region").(string)
-	cloud := getCloudDomain(d.Get("cloud").(string), region)
-
-	isRegional := d.Get("regional").(bool)
-	if strings.HasPrefix(region, prefixEuropeRegion) {
-		// the default format of endpoints in Europe site is xxx.{{region}}.{{cloud}}
-		isRegional = true
-	}
-
-	// project_name is prior to tenant_name
-	// if neither of them was set, use region as the default project
-	if v, ok := d.GetOk("project_name"); ok && v.(string) != "" {
-		tenantName = v.(string)
-	} else if v, ok := d.GetOk("tenant_name"); ok && v.(string) != "" {
-		tenantName = v.(string)
-	} else {
-		tenantName = region
-	}
-
-	// project_id is prior to tenant_id
-	if v, ok := d.GetOk("project_id"); ok && v.(string) != "" {
-		tenantID = v.(string)
-	} else {
-		tenantID = d.Get("tenant_id").(string)
-	}
-
-	// Use region as delegated_project if it's not set
-	if v, ok := d.GetOk("delegated_project"); ok && v.(string) != "" {
-		delegatedProject = v.(string)
-	} else {
-		delegatedProject = region
-	}
-
-	// use auth_url as identityEndpoint if specified
-	if v, ok := d.GetOk("auth_url"); ok {
-		identityEndpoint = v.(string)
-	} else {
-		// use cloud as basis for identityEndpoint
-		identityEndpoint = fmt.Sprintf("https://iam.%s.%s/v3", region, cloud)
-	}
 
 	conf := config.Config{
 		AccessKey:           d.Get("access_key").(string),
@@ -1855,21 +1825,14 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		ClientKeyFile:       d.Get("key").(string),
 		DomainID:            d.Get("domain_id").(string),
 		DomainName:          d.Get("domain_name").(string),
-		IdentityEndpoint:    identityEndpoint,
 		Insecure:            d.Get("insecure").(bool),
 		Password:            d.Get("password").(string),
 		Token:               d.Get("token").(string),
 		SecurityToken:       d.Get("security_token").(string),
-		Region:              region,
-		TenantID:            tenantID,
-		TenantName:          tenantName,
 		Username:            d.Get("user_name").(string),
 		UserID:              d.Get("user_id").(string),
 		AgencyName:          d.Get("agency_name").(string),
 		AgencyDomainName:    d.Get("agency_domain_name").(string),
-		DelegatedProject:    delegatedProject,
-		Cloud:               cloud,
-		RegionClient:        isRegional,
 		MaxRetries:          d.Get("max_retries").(int),
 		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
 		SharedConfigFile:    d.Get("shared_config_file").(string),
@@ -1886,15 +1849,79 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		// without assume_role block in provider
 		delegatedAgencyName := os.Getenv("HW_ASSUME_ROLE_AGENCY_NAME")
 		delegatedDomianName := os.Getenv("HW_ASSUME_ROLE_DOMAIN_NAME")
+		delegatedDomianID := os.Getenv("HW_ASSUME_ROLE_DOMAIN_ID")
 		if delegatedAgencyName != "" && delegatedDomianName != "" {
 			conf.AssumeRoleAgency = delegatedAgencyName
 			conf.AssumeRoleDomain = delegatedDomianName
+			conf.AssumeRoleDomainID = delegatedDomianID
 		}
 	} else {
 		assumeRole := assumeRoleList[0].(map[string]interface{})
 		conf.AssumeRoleAgency = assumeRole["agency_name"].(string)
 		conf.AssumeRoleDomain = assumeRole["domain_name"].(string)
+		conf.AssumeRoleDomainID = assumeRole["domain_id"].(string)
 	}
+
+	conf.Region = d.Get("region").(string)
+
+	if conf.SharedConfigFile != "" {
+		err := readConfig(&conf)
+		if err != nil {
+			return nil, diag.FromErr(err)
+		}
+	}
+	if conf.Region == "" {
+		return nil, diag.Errorf("region should be provided")
+	}
+
+	cloud := getCloudDomain(d.Get("cloud").(string), conf.Region)
+	conf.Cloud = cloud
+
+	isRegional := d.Get("regional").(bool)
+	if strings.HasPrefix(conf.Region, prefixEuropeRegion) {
+		// the default format of endpoints in Europe site is xxx.{{region}}.{{cloud}}
+		isRegional = true
+	}
+	conf.RegionClient = isRegional
+
+	// if can't read from shared config, keep the original way
+	if conf.TenantID == "" {
+		// project_id is prior to tenant_id
+		if v, ok := d.GetOk("project_id"); ok && v.(string) != "" {
+			tenantID = v.(string)
+		} else {
+			tenantID = d.Get("tenant_id").(string)
+		}
+		conf.TenantID = tenantID
+
+		// project_name is prior to tenant_name
+		// if neither of them was set, use region as the default project
+		if v, ok := d.GetOk("project_name"); ok && v.(string) != "" {
+			tenantName = v.(string)
+		} else if v, ok := d.GetOk("tenant_name"); ok && v.(string) != "" {
+			tenantName = v.(string)
+		} else {
+			tenantName = conf.Region
+		}
+		conf.TenantName = tenantName
+	}
+
+	// Use region as delegated_project if it's not set
+	if v, ok := d.GetOk("delegated_project"); ok && v.(string) != "" {
+		delegatedProject = v.(string)
+	} else {
+		delegatedProject = conf.Region
+	}
+	conf.DelegatedProject = delegatedProject
+
+	// use auth_url as identityEndpoint if specified
+	if v, ok := d.GetOk("auth_url"); ok {
+		identityEndpoint = v.(string)
+	} else {
+		// use cloud as basis for identityEndpoint
+		identityEndpoint = fmt.Sprintf("https://iam.%s.%s/v3", conf.Region, cloud)
+	}
+	conf.IdentityEndpoint = identityEndpoint
 
 	// get custom endpoints
 	endpoints, err := flattenProviderEndpoints(d)
@@ -1979,4 +2006,66 @@ func getCloudDomain(cloud, region string) string {
 		return defaultEuropeCloud
 	}
 	return defaultCloud
+}
+
+func readConfig(c *config.Config) error {
+	profilePath, err := homedir.Expand(c.SharedConfigFile)
+	if err != nil {
+		return err
+	}
+
+	current := c.Profile
+	var providerConfig config.Profile
+	_, err = os.Stat(profilePath)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("The specified shared config file %s does not exist", profilePath)
+	}
+
+	data, err := os.ReadFile(profilePath)
+	if err != nil {
+		return fmt.Errorf("Err reading from shared config file: %s", err)
+	}
+	sharedConfig := config.SharedConfig{}
+	err = json.Unmarshal(data, &sharedConfig)
+	if err != nil {
+		return err
+	}
+
+	// fetch current from shared config if not specified with provider
+	if current == "" {
+		current = sharedConfig.Current
+	}
+
+	// fetch the current profile config
+	for _, v := range sharedConfig.Profiles {
+		if current == v.Name {
+			providerConfig = v
+			break
+		}
+	}
+	if (providerConfig == config.Profile{}) {
+		return fmt.Errorf("Error finding profile %s from shared config file", current)
+	}
+
+	c.AccessKey = providerConfig.AccessKeyId
+	c.SecretKey = providerConfig.SecretAccessKey
+	// non required fields
+	if providerConfig.Region != "" {
+		c.Region = providerConfig.Region
+	}
+	if providerConfig.DomainId != "" {
+		c.DomainID = providerConfig.DomainId
+	}
+	if providerConfig.ProjectId != "" {
+		c.TenantID = providerConfig.ProjectId
+	}
+	// assume role
+	if providerConfig.AgencyName != "" {
+		c.AssumeRoleAgency = providerConfig.AgencyName
+	}
+	if providerConfig.AgencyDomainName != "" {
+		c.AssumeRoleDomain = providerConfig.AgencyDomainName
+	}
+
+	return nil
 }

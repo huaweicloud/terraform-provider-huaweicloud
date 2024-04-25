@@ -50,6 +50,7 @@ type Config struct {
 	SecurityToken       string
 	AssumeRoleAgency    string
 	AssumeRoleDomain    string
+	AssumeRoleDomainID  string
 	Cloud               string
 	MaxRetries          int
 	TerraformVersion    string
@@ -110,7 +111,11 @@ func (c *Config) LoadAndValidate() error {
 
 	// Assume role
 	if c.AssumeRoleAgency != "" {
-		err = buildClientByAgency(c)
+		if c.AssumeRoleDomainID != "" {
+			err = buildClientByAgencyV5(c)
+		} else {
+			err = buildClientByAgency(c)
+		}
 		if err != nil {
 			return err
 		}

@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/jmespath/go-jmespath"
-	"github.com/mitchellh/go-homedir"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/auth"
@@ -21,12 +20,13 @@ import (
 	iam_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/pathorcontents"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const (
 	securityKeyURL     string = "http://169.254.169.254/openstack/latest/securitykey"
 	keyExpiresDuration int64  = 600
-	assumeRoleDuration int32  = 24 * 60 * 60
+	assumeRoleDuration int32  = 12 * 60 * 60
 )
 
 // CLI Shared Config
@@ -56,8 +56,6 @@ func buildClient(c *Config) error {
 		return buildClientByAKSK(c)
 	} else if c.Password != "" && (c.Username != "" || c.UserID != "") {
 		return buildClientByPassword(c)
-	} else if c.SharedConfigFile != "" {
-		return buildClientByConfig(c)
 	}
 
 	return buildClientByMeta(c)
@@ -250,68 +248,6 @@ func buildClientByAKSK(c *Config) error {
 	return genClients(c, projectAuthOptions, domainAuthOptions)
 }
 
-func buildClientByConfig(c *Config) error {
-	profilePath, err := homedir.Expand(c.SharedConfigFile)
-	if err != nil {
-		return err
-	}
-
-	current := c.Profile
-	var providerConfig Profile
-	_, err = os.Stat(profilePath)
-	if os.IsNotExist(err) {
-		return fmt.Errorf("The specified shared config file %s does not exist", profilePath)
-	}
-
-	data, err := os.ReadFile(profilePath)
-	if err != nil {
-		return fmt.Errorf("Err reading from shared config file: %s", err)
-	}
-	sharedConfig := SharedConfig{}
-	err = json.Unmarshal(data, &sharedConfig)
-	if err != nil {
-		return err
-	}
-
-	// fetch current from shared config if not specified with provider
-	if current == "" {
-		current = sharedConfig.Current
-	}
-
-	// fetch the current profile config
-	for _, v := range sharedConfig.Profiles {
-		if current == v.Name {
-			providerConfig = v
-			break
-		}
-	}
-	if (providerConfig == Profile{}) {
-		return fmt.Errorf("Error finding profile %s from shared config file", current)
-	}
-
-	c.AccessKey = providerConfig.AccessKeyId
-	c.SecretKey = providerConfig.SecretAccessKey
-	// non required fields
-	if providerConfig.Region != "" {
-		c.Region = providerConfig.Region
-	}
-	if providerConfig.DomainId != "" {
-		c.DomainID = providerConfig.DomainId
-	}
-	if providerConfig.ProjectId != "" {
-		c.TenantID = providerConfig.ProjectId
-	}
-	// assume role
-	if providerConfig.AgencyName != "" {
-		c.AssumeRoleAgency = providerConfig.AgencyName
-	}
-	if providerConfig.AgencyDomainName != "" {
-		c.AssumeRoleDomain = providerConfig.AgencyDomainName
-	}
-
-	return buildClientByAKSK(c)
-}
-
 func buildClientByPassword(c *Config) error {
 	var projectAuthOptions, domainAuthOptions golangsdk.AuthOptions
 
@@ -385,6 +321,50 @@ func buildClientByAgency(c *Config) error {
 		return fmt.Errorf("Error Creating temporary accesskey by agency: %s", err)
 	}
 	c.AccessKey, c.SecretKey, c.SecurityToken = response.Credential.Access, response.Credential.Secret, response.Credential.Securitytoken
+
+	return buildClientByAKSK(c)
+}
+
+func buildClientByAgencyV5(c *Config) error {
+	client, err := c.NewServiceClient("sts", c.Region)
+	if err != nil {
+		return fmt.Errorf("Error creating Huaweicloud IAM V5 client: %s", err)
+	}
+
+	createAssumeHttpUrl := "v5/agencies/assume"
+	createAssumePath := client.Endpoint + createAssumeHttpUrl
+	agencyUrn := "iam::" + c.AssumeRoleDomainID + ":agency:" + c.AssumeRoleAgency
+	createAssumeOpts := map[string]interface{}{
+		"duration_seconds":    assumeRoleDuration,
+		"agency_urn":          agencyUrn,
+		"agency_session_name": c.AssumeRoleAgency,
+	}
+	createAssumeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(createAssumeOpts),
+	}
+	createAssumeResp, err := client.Request("POST", createAssumePath, &createAssumeOpt)
+	if err != nil {
+		return fmt.Errorf("error creating IAM agency assume: %s", err)
+	}
+	createAssumeRespBody, err := utils.FlattenResponse(createAssumeResp)
+	if err != nil {
+		return fmt.Errorf("error extracting IAM agency assume response: %s", err)
+	}
+
+	accessKey, err := jmespath.Search("credentials.access_key_id", createAssumeRespBody)
+	if err != nil {
+		return fmt.Errorf("error fetching assume credentials: access_key_id is not found in API response")
+	}
+	secretKey, err := jmespath.Search("credentials.secret_access_key", createAssumeRespBody)
+	if err != nil {
+		return fmt.Errorf("error fetching assume credentials: secret_access_id is not found in API response")
+	}
+	securityToken, err := jmespath.Search("credentials.security_token", createAssumeRespBody)
+	if err != nil {
+		return fmt.Errorf("error fetching assume credentials: security_token is not found in API response")
+	}
+	c.AccessKey, c.SecretKey, c.SecurityToken = accessKey.(string), secretKey.(string), securityToken.(string)
 
 	return buildClientByAKSK(c)
 }
