@@ -42,9 +42,11 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `flavor_id` - (Required, String, ForceNew) Specifies the product ID of the CBH server.
+* `flavor_id` - (Required, String) Specifies the product ID of the CBH server. When updating the flavor, it can only be
+  changed to a higher flavor.
 
-  Changing this parameter will create a new resource.
+  -> 1. The flavor change is a high-risk operation, with a certain risk of failure.
+  <br/>2. Flavor change failing may impact the usability of the instance. Please be sure to back up your data.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of a VPC.
 
@@ -97,6 +99,16 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
+* `attach_disk_size` - (Optional, Int) Specifies the size of the additional data disk for the CBH instance.
+  The unit is TB. It refers to the additional disk size added on top of the existing disk. And the sum of the built-in
+  disk of the instance flavor and the additional disk cannot exceed **300TB**.
+
+  -> 1. Storage expansion is a high-risk operation, with a certain risk of failure.
+  <br/>2. Expansion failure may affect the usability of the instance. Please ensure to back up your data.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the CBH instance
+  belongs. For enterprise users, if omitted, default enterprise project will be used.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -111,11 +123,15 @@ In addition to all arguments above, the following attributes are exported:
 
 * `version` - Indicates the current version of the instance image.
 
+* `data_disk_size` - Indicates the data disk size of the instance. The unit is TB. It represents the sum of the disks
+  that come with the flavor and the disks that have already been expanded.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 60 minutes.
+* `update` - Default is 60 minutes.
 * `delete` - Default is 30 minutes.
 
 ## Import
@@ -128,7 +144,7 @@ $ terraform import huaweicloud_cbh_instance.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `charging_mode`, `period`, `period_unit`,
-`auto_renew`, `password`, `ipv6_enable`.
+`auto_renew`, `password`, `ipv6_enable`, `attach_disk_size`.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated
 to align with the instance. Also, you can ignore changes as below.
@@ -139,7 +155,7 @@ resource "huaweicloud_cbh_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      charging_mode, period, period_unit, auto_renew, password, ipv6_enable,
+      charging_mode, period, period_unit, auto_renew, password, ipv6_enable, attach_disk_size,
     ]
   }
 }
