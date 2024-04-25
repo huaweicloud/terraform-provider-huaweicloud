@@ -45,3 +45,7 @@ func replicaSetNameURL(c *golangsdk.ServiceClient, instanceId string) string {
 func slowLogStatusURL(c *golangsdk.ServiceClient, instanceId string, status string) string {
 	return c.ServiceURL("instances", instanceId, "slowlog-desensitization", status)
 }
+
+func restartURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "restart")
+}

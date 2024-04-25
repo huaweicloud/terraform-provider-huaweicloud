@@ -322,6 +322,11 @@ type ReplicaSetNameOpts struct {
 	Name string `json:"name" required:"true"`
 }
 
+type RestartOpts struct {
+	TargetType string `json:"target_type,omitempty"`
+	TargetId   string `json:"target_id" required:"true"`
+}
+
 type AvailabilityZoneOpts struct {
 	TargetAzs string `json:"target_azs" required:"true"`
 }
@@ -383,6 +388,19 @@ func UpdateSlowLogStatus(c *golangsdk.ServiceClient, instanceId string, slowLogS
 func GetSlowLogStatus(c *golangsdk.ServiceClient, instanceId string) (*SlowLogStatusResp, error) {
 	var r SlowLogStatusResp
 	_, err := c.Get(slowLogStatusURL(c, instanceId, "status"), &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+func RestartInstance(c *golangsdk.ServiceClient, instanceId string, opts RestartOpts) (*CommonResp, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r CommonResp
+	_, err = c.Post(restartURL(c, instanceId), b, &r, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r, err
