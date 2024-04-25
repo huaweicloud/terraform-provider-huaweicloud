@@ -150,6 +150,13 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       ttl  = 70
     }
 
+    origin_request_url_rewrite {
+      match_type = "file_path"
+      priority   = 10
+      source_url = "/tt/abc.txt"
+      target_url = "/new/$1/$2.html"
+    }
+
     remote_auth {
       enabled = true
 
@@ -366,6 +373,11 @@ The `configs` block support:
 
 * `ip_filter` - (Optional, List) Specifies the IP address blacklist or whitelist.
   The [ip_filter](#ip_filter_object) structure is documented below.
+
+* `origin_request_url_rewrite` - (Optional, List) Specifies the rules of rewriting origin request URLs.
+  The [origin_request_url_rewrite](#origin_request_url_rewrite_object) structure is documented below.
+
+  -> Up to 20 rules can be configured.
 
 <a name="https_settings_object"></a>
 The `https_settings` block support:
@@ -744,6 +756,27 @@ The `ip_filter` block support:
   set to **black** or **white**. A list contains up to `500` IP addresses and IP address segments, which are separated
   by commas (,). IPv6 addresses are supported. Duplicate IP addresses and IP address segments will be removed.
   Addresses with wildcard characters are not supported, for example, `192.168.0.*`.
+
+<a name="origin_request_url_rewrite_object"></a>
+The `origin_request_url_rewrite` block support:
+
+* `priority` - (Required, Int) Specifies the priority of a URL rewrite rule. The priority of a rule is mandatory and
+  must be unique. The rule with the highest priority will be used for matching first. The value ranges from **1** to
+  **100**.
+
+* `match_type` - (Required, String) Specifies the match type. Valid values are:
+  + **all**: All files.
+  + **file_path**: URI path.
+  + **wildcard**: Wildcard.
+  + **full_path**: Full path.
+
+* `target_url` - (Required, String) Specifies a URI starts with a slash (/) and does not contain `http://`, `https://`,
+  or the domain name. The value contains up to `256` characters. The nth wildcard (*) field can be substituted with
+  `$n`, where n = 1, 2, 3..., for example, `/newtest/$1/$2.jpg`.
+
+* `source_url` - (Optional, String) Specifies the URI to be rewritten. The URI starts with a slash (/) and does not
+  contain `http://`, `https://`, or the domain name. The value contains up to `512` characters.
+  Wildcards (*) are supported, for example, `/test/*/*.mp4`. This field is invalid when `match_type` is set to **all**.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:

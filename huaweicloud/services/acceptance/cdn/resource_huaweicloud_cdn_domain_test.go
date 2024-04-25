@@ -510,6 +510,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.type", "black"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.value", "5.12.3.65,35.2.65.21"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.#", "2"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "403"),
@@ -612,6 +614,12 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.type", "white"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.value", "5.12.3.66"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.0.match_type", "file_path"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.0.priority", "10"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.0.source_url", "/tt/abc.txt"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.0.target_url", "/new/$1/$2.html"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "503"),
@@ -657,6 +665,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_cache.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.type", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.remote_auth_rules.#", "0"),
@@ -834,6 +843,19 @@ resource "huaweicloud_cdn_domain" "test" {
       value = "5.12.3.65,35.2.65.21"
     }
 
+    origin_request_url_rewrite {
+      match_type = "all"
+      priority   = 2
+      target_url = "/nn.tx"
+    }
+
+    origin_request_url_rewrite {
+      match_type = "file_path"
+      priority   = 5
+      source_url = "/tt/ab.txt"
+      target_url = "/new/$1/$2.html"
+    }
+
     remote_auth {
       enabled = true
 
@@ -986,6 +1008,13 @@ resource "huaweicloud_cdn_domain" "test" {
     ip_filter {
       type  = "white"
       value = "5.12.3.66"
+    }
+
+    origin_request_url_rewrite {
+      match_type = "file_path"
+      priority   = 10
+      source_url = "/tt/abc.txt"
+      target_url = "/new/$1/$2.html"
     }
 
     remote_auth {
