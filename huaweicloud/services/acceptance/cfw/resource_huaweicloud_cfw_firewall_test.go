@@ -124,12 +124,23 @@ func TestAccFirewall_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "charging_mode", "prePaid"),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrSet(rName, "engine_type"),
 					resource.TestCheckResourceAttrSet(rName, "ha_type"),
 					resource.TestCheckResourceAttrSet(rName, "protect_objects.#"),
 					resource.TestCheckResourceAttrSet(rName, "service_type"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "support_ipv6"),
+				),
+			},
+			{
+				Config: testFirewall_prePaid_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "tags.k1", "v1"),
+					resource.TestCheckResourceAttr(rName, "tags.k2", "v2"),
 				),
 			},
 			{
@@ -396,6 +407,28 @@ resource "huaweicloud_cfw_firewall" "test" {
   tags = {
     key = "value"
     foo = "bar"
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = false
+}
+`, name)
+}
+
+func testFirewall_prePaid_update(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cfw_firewall" "test" {
+  name = "%s"
+
+  flavor {
+    version = "Professional"
+  }
+
+  tags = {
+    k1 = "v1"
+    k2 = "v2"
   }
 
   charging_mode = "prePaid"

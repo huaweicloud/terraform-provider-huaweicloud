@@ -41,6 +41,8 @@ const (
 // @API CFW GET /v1/{project_id}/ips/switch
 // @API CFW POST /v1/{project_id}/ips/protect
 // @API CFW GET /v1/{project_id}/ips/protect
+// @API CFW POST /v2/{project_id}/cfw-cfw/{fw_instance_id}/tags/create
+// @API CFW DELETE /v2/{project_id}/cfw-cfw/{fw_instance_id}/tags/delete
 
 func ResourceFirewall() *schema.Resource {
 	return &schema.Resource{
@@ -81,7 +83,6 @@ func ResourceFirewall() *schema.Resource {
 				Type:        schema.TypeMap,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Specifies the key/value pairs to associate with the firewall.`,
 			},
 			"east_west_firewall_inspection_cidr": {
@@ -887,6 +888,13 @@ func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	if !d.IsNewResource() && d.HasChange("tags") {
+		err := updateTags(d, meta)
+		if err != nil {
+			return diag.Errorf("error updating tags: %s", err)
+		}
+	}
+
 	return resourceFirewallRead(ctx, d, meta)
 }
 
@@ -990,6 +998,83 @@ func buildUpdateIpsProtectModeBodyParams(mode int, objectID string) map[string]i
 		"object_id": objectID,
 		"mode":      mode,
 	}
+}
+
+func updateTags(d *schema.ResourceData, meta interface{}) error {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	client, err := cfg.NewServiceClient("cfw", region)
+	if err != nil {
+		return fmt.Errorf("error creating CFW client: %s", err)
+	}
+
+	oRaw, nRaw := d.GetChange("tags")
+	oMap := oRaw.(map[string]interface{})
+	nMap := nRaw.(map[string]interface{})
+
+	// Remove old tags.
+	if len(oMap) > 0 {
+		if err := deleteTags(client, oMap, d.Id()); err != nil {
+			return err
+		}
+	}
+
+	// Set new tags.
+	if len(nMap) > 0 {
+		if err := createTags(client, nMap, d.Id()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func createTags(createTagsClient *golangsdk.ServiceClient, tags map[string]interface{}, id string) error {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	createTagsHttpUrl := "v2/{project_id}/cfw-cfw/{fw_instance_id}/tags/create"
+	createTagsPath := createTagsClient.Endpoint + createTagsHttpUrl
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{project_id}", createTagsClient.ProjectID)
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{fw_instance_id}", id)
+	createTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"tags": utils.ExpandResourceTags(tags),
+		},
+	}
+
+	_, err := createTagsClient.Request("POST", createTagsPath, &createTagsOpt)
+	if err != nil {
+		return fmt.Errorf("error creating tags: %s", err)
+	}
+
+	return nil
+}
+
+func deleteTags(deleteTagsClient *golangsdk.ServiceClient, tags map[string]interface{}, id string) error {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	deleteTagsHttpUrl := "v2/{project_id}/cfw-cfw/{fw_instance_id}/tags/delete"
+	deleteTagsPath := deleteTagsClient.Endpoint + deleteTagsHttpUrl
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{project_id}", deleteTagsClient.ProjectID)
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{fw_instance_id}", id)
+	deleteTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	deleteTagsOpt.JSONBody = map[string]interface{}{
+		"tags": utils.ExpandResourceTags(tags),
+	}
+
+	_, err := deleteTagsClient.Request("DELETE", deleteTagsPath, &deleteTagsOpt)
+	if err != nil {
+		return fmt.Errorf("error deleting tags: %s", err)
+	}
+
+	return nil
 }
 
 func resourceFirewallDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

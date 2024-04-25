@@ -107,10 +107,6 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
   The [flavor](#Firewall_Flavor) structure is documented below.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the firewall.
-
-  Changing this parameter will create a new resource.
-
 * `east_west_firewall_inspection_cidr` - (Optional, String, ForceNew) Specifies the inspection cidr of the east-west firewall.
 
   Changing this parameter will create a new resource.
@@ -163,6 +159,8 @@ The following arguments are supported:
   + **1**: Strict Mode.
   + **2**: Medium Mode.
   + **3**: Loose Mode.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the firewall.
 
 <a name="Firewall_Flavor"></a>
 The `flavor` block supports:
