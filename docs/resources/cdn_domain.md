@@ -379,6 +379,9 @@ The `configs` block support:
 
   -> Up to 20 rules can be configured.
 
+* `user_agent_filter` - (Optional, List) Specifies the User-Agent blacklist or whitelist settings.
+  The [user_agent_filter](#user_agent_filter_object) structure is documented below.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -762,7 +765,7 @@ The `origin_request_url_rewrite` block support:
 
 * `priority` - (Required, Int) Specifies the priority of a URL rewrite rule. The priority of a rule is mandatory and
   must be unique. The rule with the highest priority will be used for matching first. The value ranges from **1** to
-  **100**.
+  **100**. A greater number indicates a higher priority.
 
 * `match_type` - (Required, String) Specifies the match type. Valid values are:
   + **all**: All files.
@@ -777,6 +780,17 @@ The `origin_request_url_rewrite` block support:
 * `source_url` - (Optional, String) Specifies the URI to be rewritten. The URI starts with a slash (/) and does not
   contain `http://`, `https://`, or the domain name. The value contains up to `512` characters.
   Wildcards (*) are supported, for example, `/test/*/*.mp4`. This field is invalid when `match_type` is set to **all**.
+
+<a name="user_agent_filter_object"></a>
+The `user_agent_filter` block support:
+
+* `type` - (Required, String) Specifies the User-Agent blacklist or whitelist type. Valid values are:
+  + **off**: The User-Agent blacklist/whitelist is disabled.
+  + **black**: The User-Agent blacklist.
+  + **white**: The User-Agent whitelist.
+
+* `ua_list` - (Optional, List) Specifies the User-Agent blacklist or whitelist. This parameter is required when `type`
+  is set to **black** or **white**. Up to `10` rules can be configured. A rule contains up to `100` characters.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:

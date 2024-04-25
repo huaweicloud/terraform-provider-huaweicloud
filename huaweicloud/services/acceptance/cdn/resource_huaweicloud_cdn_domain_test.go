@@ -512,6 +512,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.#", "2"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "white"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.ua_list.#", "3"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "403"),
@@ -620,6 +623,9 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.0.source_url", "/tt/abc.txt"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.0.target_url", "/new/$1/$2.html"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "black"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.ua_list.0", "t1*"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "503"),
@@ -666,6 +672,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_cache.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.type", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.#", "0"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "off"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.remote_auth_rules.#", "0"),
@@ -856,6 +864,15 @@ resource "huaweicloud_cdn_domain" "test" {
       target_url = "/new/$1/$2.html"
     }
 
+    user_agent_filter {
+      type    = "white"
+      ua_list = [
+        "t1",
+        "t2",
+        "t3*",
+      ]
+    }
+
     remote_auth {
       enabled = true
 
@@ -1017,6 +1034,13 @@ resource "huaweicloud_cdn_domain" "test" {
       target_url = "/new/$1/$2.html"
     }
 
+    user_agent_filter {
+      type    = "black"
+      ua_list = [
+        "t1*",
+      ]
+    }
+
     remote_auth {
       enabled = true
 
@@ -1092,6 +1116,10 @@ resource "huaweicloud_cdn_domain" "test" {
     }
 
     ip_filter {
+      type = "off"
+    }
+
+    user_agent_filter {
       type = "off"
     }
   }

@@ -651,6 +651,27 @@ var originRequestUrlRewrite = schema.Schema{
 	},
 }
 
+var userAgentFilter = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"ua_list": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -799,6 +820,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"error_code_cache":           &errorCodeCache,
 						"ip_filter":                  &ipFilter,
 						"origin_request_url_rewrite": &originRequestUrlRewrite,
+						"user_agent_filter":          &userAgentFilter,
 					},
 				},
 			},
@@ -1311,6 +1333,20 @@ func buildOriginRequestUrlRewriteOpts(rawOriginRequestUrlRewrite []interface{}) 
 	return &originRequestUrlRewriteOpts
 }
 
+func buildUserAgentFilterOpts(rawUserAgentFilter []interface{}) *model.UserAgentFilter {
+	if len(rawUserAgentFilter) != 1 {
+		return nil
+	}
+
+	userAgentFilter := rawUserAgentFilter[0].(map[string]interface{})
+	userAgentFilterOpts := model.UserAgentFilter{
+		Type:   userAgentFilter["type"].(string),
+		UaList: utils.ExpandToStringListPointer(userAgentFilter["ua_list"].(*schema.Set).List()),
+	}
+
+	return &userAgentFilterOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1465,6 +1501,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	if d.HasChange("configs.0.origin_request_url_rewrite") {
 		originRequestUrlRewrites := configs["origin_request_url_rewrite"].(*schema.Set).List()
 		configsOpts.OriginRequestUrlRewrite = buildOriginRequestUrlRewriteOpts(originRequestUrlRewrites)
+	}
+	if d.HasChange("configs.0.user_agent_filter") {
+		configsOpts.UserAgentFilter = buildUserAgentFilterOpts(configs["user_agent_filter"].([]interface{}))
 	}
 }
 
@@ -1976,6 +2015,21 @@ func flattenOriginRequestUrlRewriteAttrs(originRequestUrlRewrite *[]model.Origin
 	return originRequestUrlRewriteAttrs
 }
 
+func flattenUserAgentFilterAttrs(userAgentFilter *model.UserAgentFilter) []map[string]interface{} {
+	if userAgentFilter == nil {
+		return nil
+	}
+
+	userAgentFilterAttrs := map[string]interface{}{
+		"type": userAgentFilter.Type,
+	}
+	if uaList := userAgentFilter.UaList; uaList != nil {
+		userAgentFilterAttrs["ua_list"] = *uaList
+	}
+
+	return []map[string]interface{}{userAgentFilterAttrs}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -2032,6 +2086,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"error_code_cache":              flattenErrorCodeCacheAttrs(configsResp.ErrorCodeCache),
 		"ip_filter":                     flattenIpFilterAttrs(configsResp.IpFilter),
 		"origin_request_url_rewrite":    flattenOriginRequestUrlRewriteAttrs(configsResp.OriginRequestUrlRewrite),
+		"user_agent_filter":             flattenUserAgentFilterAttrs(configsResp.UserAgentFilter),
 	}
 	return []map[string]interface{}{configsAttrs}
 }
