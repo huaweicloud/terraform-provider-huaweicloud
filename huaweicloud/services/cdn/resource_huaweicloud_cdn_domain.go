@@ -625,6 +625,53 @@ var ipFilter = schema.Schema{
 	},
 }
 
+var originRequestUrlRewrite = schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"priority": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"match_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"target_url": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"source_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
+var userAgentFilter = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"ua_list": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -772,6 +819,8 @@ func ResourceCdnDomain() *schema.Resource {
 						"request_limit_rules":        &requestLimitRules,
 						"error_code_cache":           &errorCodeCache,
 						"ip_filter":                  &ipFilter,
+						"origin_request_url_rewrite": &originRequestUrlRewrite,
+						"user_agent_filter":          &userAgentFilter,
 					},
 				},
 			},
@@ -1263,6 +1312,41 @@ func buildIpFilterOpts(rawIpFilter []interface{}) *model.IpFilter {
 	return &ipFilterOpts
 }
 
+func buildOriginRequestUrlRewriteOpts(rawOriginRequestUrlRewrite []interface{}) *[]model.OriginRequestUrlRewrite {
+	if len(rawOriginRequestUrlRewrite) < 1 {
+		// Define an empty array to clear all origin request url rewrite
+		rst := make([]model.OriginRequestUrlRewrite, 0)
+		return &rst
+	}
+
+	originRequestUrlRewriteOpts := make([]model.OriginRequestUrlRewrite, len(rawOriginRequestUrlRewrite))
+	for i, v := range rawOriginRequestUrlRewrite {
+		urlMap := v.(map[string]interface{})
+		urlOpt := model.OriginRequestUrlRewrite{
+			Priority:  int32(urlMap["priority"].(int)),
+			MatchType: urlMap["match_type"].(string),
+			TargetUrl: urlMap["target_url"].(string),
+			SourceUrl: utils.StringIgnoreEmpty(urlMap["source_url"].(string)),
+		}
+		originRequestUrlRewriteOpts[i] = urlOpt
+	}
+	return &originRequestUrlRewriteOpts
+}
+
+func buildUserAgentFilterOpts(rawUserAgentFilter []interface{}) *model.UserAgentFilter {
+	if len(rawUserAgentFilter) != 1 {
+		return nil
+	}
+
+	userAgentFilter := rawUserAgentFilter[0].(map[string]interface{})
+	userAgentFilterOpts := model.UserAgentFilter{
+		Type:   userAgentFilter["type"].(string),
+		UaList: utils.ExpandToStringListPointer(userAgentFilter["ua_list"].(*schema.Set).List()),
+	}
+
+	return &userAgentFilterOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1413,6 +1497,13 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.ip_filter") {
 		configsOpts.IpFilter = buildIpFilterOpts(configs["ip_filter"].([]interface{}))
+	}
+	if d.HasChange("configs.0.origin_request_url_rewrite") {
+		originRequestUrlRewrites := configs["origin_request_url_rewrite"].(*schema.Set).List()
+		configsOpts.OriginRequestUrlRewrite = buildOriginRequestUrlRewriteOpts(originRequestUrlRewrites)
+	}
+	if d.HasChange("configs.0.user_agent_filter") {
+		configsOpts.UserAgentFilter = buildUserAgentFilterOpts(configs["user_agent_filter"].([]interface{}))
 	}
 }
 
@@ -1907,6 +1998,38 @@ func flattenIpFilterAttrs(ipFilter *model.IpFilter) []map[string]interface{} {
 	return []map[string]interface{}{ipFilterAttrs}
 }
 
+func flattenOriginRequestUrlRewriteAttrs(originRequestUrlRewrite *[]model.OriginRequestUrlRewrite) []map[string]interface{} {
+	if originRequestUrlRewrite == nil || len(*originRequestUrlRewrite) == 0 {
+		return nil
+	}
+
+	originRequestUrlRewriteAttrs := make([]map[string]interface{}, len(*originRequestUrlRewrite))
+	for i, v := range *originRequestUrlRewrite {
+		originRequestUrlRewriteAttrs[i] = map[string]interface{}{
+			"priority":   v.Priority,
+			"match_type": v.MatchType,
+			"target_url": v.TargetUrl,
+			"source_url": v.SourceUrl,
+		}
+	}
+	return originRequestUrlRewriteAttrs
+}
+
+func flattenUserAgentFilterAttrs(userAgentFilter *model.UserAgentFilter) []map[string]interface{} {
+	if userAgentFilter == nil {
+		return nil
+	}
+
+	userAgentFilterAttrs := map[string]interface{}{
+		"type": userAgentFilter.Type,
+	}
+	if uaList := userAgentFilter.UaList; uaList != nil {
+		userAgentFilterAttrs["ua_list"] = *uaList
+	}
+
+	return []map[string]interface{}{userAgentFilterAttrs}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -1962,6 +2085,8 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"request_limit_rules":           flattenRequestLimitRulesAttrs(configsResp.RequestLimitRules),
 		"error_code_cache":              flattenErrorCodeCacheAttrs(configsResp.ErrorCodeCache),
 		"ip_filter":                     flattenIpFilterAttrs(configsResp.IpFilter),
+		"origin_request_url_rewrite":    flattenOriginRequestUrlRewriteAttrs(configsResp.OriginRequestUrlRewrite),
+		"user_agent_filter":             flattenUserAgentFilterAttrs(configsResp.UserAgentFilter),
 	}
 	return []map[string]interface{}{configsAttrs}
 }
