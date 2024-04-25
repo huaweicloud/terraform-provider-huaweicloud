@@ -26,6 +26,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+type ctxType string
+
 // @API DDS POST /v3/{project_id}/instances
 // @API DDS GET /v3/{project_id}/instances
 // @API DDS POST /v3/{project_id}/instances/{id}/tags/action
@@ -48,6 +50,7 @@ import (
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/monitoring-by-seconds/switch
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/replica-set/name
 // @API DDS GET /v3/{project_id}/instances/{instance_id}/replica-set/name
+// @API DDS PUT /v3/{project_id}/configurations/{config_id}/apply
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
@@ -156,7 +159,6 @@ func ResourceDdsInstanceV3() *schema.Resource {
 						"id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -560,6 +562,7 @@ func updateReplicaSetName(ctx context.Context, client *golangsdk.ServiceClient, 
 		WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
 		WaitTarget:   []string{"normal"},
 		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
@@ -571,6 +574,7 @@ func updateReplicaSetName(ctx context.Context, client *golangsdk.ServiceClient, 
 		Target:       []string{"Completed"},
 		Refresh:      JobStateRefreshFunc(client, resp.JobId),
 		Timeout:      timeout,
+		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 
@@ -582,7 +586,7 @@ func updateReplicaSetName(ctx context.Context, client *golangsdk.ServiceClient, 
 	return nil
 }
 
-func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.DdsV3Client(conf.GetRegion(d))
 	if err != nil {
@@ -689,6 +693,16 @@ func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta i
 
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("Error setting dds instance fields: %s", err)
+	}
+
+	if ctx.Value(ctxType("configurationIdChanged")) == "true" {
+		return diag.Diagnostics{
+			diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Configuration ID Changed",
+				Detail:   "Configuration ID changed, please check whether the instance needs to be restarted.",
+			},
+		}
 	}
 
 	return nil
@@ -931,6 +945,35 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	// update configuration
+	if d.HasChange("configuration") {
+		for i := range d.Get("configuration").([]interface{}) {
+			configTypePath := fmt.Sprintf("configuration.%d.type", i)
+			configIdPath := fmt.Sprintf("configuration.%d.id", i)
+			if d.HasChange(configIdPath) {
+				// If the DB instance type is cluster and the shard or config parameter template is to be changed, the
+				// param is the group ID. If the parameter template of the mongos node is changed, the param is the
+				// node ID. If the DB instance to be changed is a replica set instance, the param is the instance ID.
+				var ids []string
+				configType := d.Get(configTypePath).(string)
+				if configType == "replica" {
+					ids = []string{instanceId}
+				} else {
+					ids, err = getDdsInstanceV3GroupIDOrNodeID(client, instanceId, configType)
+					if err != nil {
+						return diag.FromErr(err)
+					}
+				}
+
+				// update config ID
+				if ctx, err = applyConfigurationToEntity(ctx, client, d.Timeout(schema.TimeoutUpdate), d.Id(),
+					d.Get(configIdPath).(string), ids); err != nil {
+					return diag.FromErr(err)
+				}
+			}
+		}
+	}
+
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := enterpriseprojects.MigrateResourceOpts{
 			ResourceId:   instanceId,
@@ -1069,72 +1112,47 @@ func flattenDdsInstanceV3Nodes(dds instances.InstanceResponse) interface{} {
 	return nodesList
 }
 
-func getDdsInstanceV3ShardGroupID(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]string, error) {
-	groupIDs := make([]string, 0)
+func getDdsInstanceV3GroupIDOrNodeID(client *golangsdk.ServiceClient, instanceID, getTpye string) ([]string, error) {
+	ids := make([]string, 0)
 
-	instanceID := d.Id()
 	opts := instances.ListInstanceOpts{
 		Id: instanceID,
 	}
 	allPages, err := instances.List(client, &opts).AllPages()
 	if err != nil {
-		return groupIDs, fmt.Errorf("Error fetching DDS instance: %s", err)
+		return ids, fmt.Errorf("error fetching DDS instance: %s", err)
 	}
 	instanceList, err := instances.ExtractInstances(allPages)
 	if err != nil {
-		return groupIDs, fmt.Errorf("Error extracting DDS instance: %s", err)
+		return ids, fmt.Errorf("error extracting DDS instance: %s", err)
 	}
 	if instanceList.TotalCount == 0 {
 		log.Printf("[WARN] DDS instance (%s) was not found", instanceID)
-		return groupIDs, nil
+		return ids, nil
 	}
 	insts := instanceList.Instances
 	instanceObj := insts[0]
 
 	log.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instanceObj)
 
-	for _, group := range instanceObj.Groups {
-		if group.Type == "shard" {
-			groupIDs = append(groupIDs, group.Id)
+	switch getTpye {
+	case "shard", "config":
+		for _, group := range instanceObj.Groups {
+			if group.Type == getTpye {
+				ids = append(ids, group.Id)
+			}
 		}
-	}
-
-	return groupIDs, nil
-}
-
-func getDdsInstanceV3MongosNodeID(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]string, error) {
-	nodeIDs := make([]string, 0)
-
-	instanceID := d.Id()
-	opts := instances.ListInstanceOpts{
-		Id: instanceID,
-	}
-	allPages, err := instances.List(client, &opts).AllPages()
-	if err != nil {
-		return nodeIDs, fmt.Errorf("Error fetching DDS instance: %s", err)
-	}
-	instanceList, err := instances.ExtractInstances(allPages)
-	if err != nil {
-		return nodeIDs, fmt.Errorf("Error extracting DDS instance: %s", err)
-	}
-	if instanceList.TotalCount == 0 {
-		log.Printf("[WARN] DDS instance (%s) was not found", instanceID)
-		return nodeIDs, nil
-	}
-	insts := instanceList.Instances
-	instanceObj := insts[0]
-
-	log.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instanceObj)
-
-	for _, group := range instanceObj.Groups {
-		if group.Type == "mongos" {
-			for _, node := range group.Nodes {
-				nodeIDs = append(nodeIDs, node.Id)
+	case "mongos":
+		for _, group := range instanceObj.Groups {
+			if group.Type == "mongos" {
+				for _, node := range group.Nodes {
+					ids = append(ids, node.Id)
+				}
 			}
 		}
 	}
 
-	return nodeIDs, nil
+	return ids, nil
 }
 
 func flavorUpdate(ctx context.Context, conf *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData,
@@ -1255,7 +1273,7 @@ func flavorSizeUpdate(ctx context.Context, conf *config.Config, client *golangsd
 	}
 
 	if groupType == "shard" {
-		groupIDs, err := getDdsInstanceV3ShardGroupID(client, d)
+		groupIDs, err := getDdsInstanceV3GroupIDOrNodeID(client, d.Id(), "shard")
 		if err != nil {
 			return err
 		}
@@ -1317,7 +1335,7 @@ func flavorSpecCodeUpdate(ctx context.Context, conf *config.Config, client *gola
 	}
 	switch groupType {
 	case "mongos":
-		nodeIDs, err := getDdsInstanceV3MongosNodeID(client, d)
+		nodeIDs, err := getDdsInstanceV3GroupIDOrNodeID(client, d.Id(), "mongos")
 		if err != nil {
 			return err
 		}
@@ -1346,7 +1364,7 @@ func flavorSpecCodeUpdate(ctx context.Context, conf *config.Config, client *gola
 			}
 		}
 	case "shard":
-		groupIDs, err := getDdsInstanceV3ShardGroupID(client, d)
+		groupIDs, err := getDdsInstanceV3GroupIDOrNodeID(client, d.Id(), "shard")
 		if err != nil {
 			return err
 		}
@@ -1400,4 +1418,50 @@ func flavorSpecCodeUpdate(ctx context.Context, conf *config.Config, client *gola
 	}
 
 	return nil
+}
+
+func applyConfigurationToEntity(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instID, configID string, entityIDs []string) (context.Context, error) {
+	applyConfigurationToEntityHttpUrl := "v3/{project_id}/configurations/{config_id}/apply"
+	applyConfigurationToEntityPath := client.Endpoint + applyConfigurationToEntityHttpUrl
+	applyConfigurationToEntityPath = strings.ReplaceAll(applyConfigurationToEntityPath, "{project_id}", client.ProjectID)
+	applyConfigurationToEntityPath = strings.ReplaceAll(applyConfigurationToEntityPath, "{config_id}", configID)
+
+	applyConfigurationToEntityOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"entity_ids": entityIDs,
+		},
+	}
+
+	// retry, the job_id in return is useless
+	retryFunc := func() (interface{}, bool, error) {
+		resp, err := client.Request("PUT", applyConfigurationToEntityPath, &applyConfigurationToEntityOpt)
+		retry, err := handleMultiOperationsError(err)
+		return resp, retry, err
+	}
+
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, instID),
+		WaitTarget:   []string{"normal"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return ctx, fmt.Errorf("error apply configuration(%s): %s", configID, err)
+	}
+
+	// wait for job complete
+	err = waitForInstanceReady(ctx, client, instID, timeout)
+	if err != nil {
+		return ctx, err
+	}
+
+	// Sending configurationIdChanged to Read to warn users the instance needs a reboot.
+	ctx = context.WithValue(ctx, ctxType("configurationIdChanged"), "true")
+
+	return ctx, nil
 }
