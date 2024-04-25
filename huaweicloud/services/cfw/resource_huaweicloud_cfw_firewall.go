@@ -344,7 +344,7 @@ func resourceFirewallCreate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 
 		createEastWestFirewallOpt.JSONBody = utils.RemoveNil(buildCreateEastWestFirewallBodyParams(d))
-		createEastWestFirewallResp, err := createFirewallClient.Request("POST", createEastWestFirewallPath, &createEastWestFirewallOpt)
+		_, err := createFirewallClient.Request("POST", createEastWestFirewallPath, &createEastWestFirewallOpt)
 		if err != nil {
 			return diag.Errorf("error creating east-west firewall: %s", err)
 		}
@@ -353,13 +353,6 @@ func resourceFirewallCreate(ctx context.Context, d *schema.ResourceData, meta in
 		if err != nil {
 			return diag.Errorf("error waiting for the east-west firewall (%s) creation to complete: %s", d.Id(), err)
 		}
-
-		createEastWestFirewallRespBody, err := utils.FlattenResponse(createEastWestFirewallResp)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		d.Set("east_west_firewall_er_attachment_id", utils.PathSearch("data.er.er_attach_id", createEastWestFirewallRespBody, nil))
 	}
 
 	return resourceFirewallUpdate(ctx, d, meta)
@@ -664,6 +657,7 @@ func resourceFirewallRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("east_west_firewall_mode", utils.PathSearch("data.mode", getEastWestFirewallRespBody, nil)),
 		d.Set("east_west_firewall_status", utils.PathSearch("data.status", getEastWestFirewallRespBody, nil)),
 		d.Set("east_west_firewall_inspection_vpc_id", utils.PathSearch("data.inspection_vpc.id", getEastWestFirewallRespBody, nil)),
+		d.Set("east_west_firewall_er_attachment_id", utils.PathSearch("data.er.attachment_id", getEastWestFirewallRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
