@@ -575,12 +575,11 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 
-		instances, err := getCBHInstanceList(client)
+		resourceId, err := getInstanceResourceIdById(client, ID)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		expression := fmt.Sprintf("[?server_id == '%s']|[0].resource_info.resource_id", ID)
-		resourceId := utils.PathSearch(expression, instances, "").(string)
+
 		if resourceId == "" {
 			return diag.Errorf("error updating the auto-renew of the CBH instance (%s): "+
 				"resource ID is not found in list API response", ID)
@@ -592,12 +591,10 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		instances, err := getCBHInstanceList(client)
+		resourceId, err := getInstanceResourceIdById(client, ID)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		expression := fmt.Sprintf("[?server_id == '%s']|[0].resource_info.resource_id", ID)
-		resourceId := utils.PathSearch(expression, instances, "").(string)
 
 		if resourceId == "" {
 			return diag.Errorf("error updating the enterprise project ID of the CBH instance (%s): "+
@@ -616,6 +613,17 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	return resourceCBHInstanceRead(ctx, d, meta)
+}
+
+func getInstanceResourceIdById(client *golangsdk.ServiceClient, instanceId string) (string, error) {
+	instances, err := getCBHInstanceList(client)
+	if err != nil {
+		return "", err
+	}
+	expression := fmt.Sprintf("[?server_id == '%s']|[0].resource_info.resource_id", instanceId)
+	resourceId := utils.PathSearch(expression, instances, "").(string)
+
+	return resourceId, nil
 }
 
 func updateFlavorId(client *golangsdk.ServiceClient, resourceId, flavorId string) (string, error) {
