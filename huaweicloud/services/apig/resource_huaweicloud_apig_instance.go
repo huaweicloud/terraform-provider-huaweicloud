@@ -482,7 +482,6 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("ingress_bandwidth_charging_mode", resp.IngressBandwidthChargingMode),
 		// Attributes
 		d.Set("maintain_end", resp.MaintainEnd),
-		d.Set("ingress_address", resp.Ipv4IngressEipAddress),
 		d.Set("vpc_ingress_address", resp.Ipv4VpcIngressAddress),
 		d.Set("egress_address", resp.Ipv4EgressAddress),
 		d.Set("supported_features", resp.SupportedFeatures),
@@ -505,12 +504,20 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 		)
 	}
 
-	ingressBandwidthSize := 0
+	var (
+		ingressBandwidthSize int
+		ingressPublicIp      string
+	)
 	if len(resp.PublicIps) > 0 {
 		ingressBandwidthSize = resp.PublicIps[0].BandwidthSize
+		ingressPublicIp = resp.PublicIps[0].IpAddress
+	} else {
+		ingressPublicIp = resp.Ipv4IngressEipAddress
 	}
+
 	mErr = multierror.Append(mErr,
 		d.Set("ingress_bandwidth_size", ingressBandwidthSize),
+		d.Set("ingress_address", ingressPublicIp),
 	)
 
 	if tagList, err := instances.GetTags(client, instanceId); err != nil {

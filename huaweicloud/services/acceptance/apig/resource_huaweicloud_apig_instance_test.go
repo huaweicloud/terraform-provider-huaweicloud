@@ -265,6 +265,7 @@ func TestAccInstance_ingress(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_address", ""),
 				),
 			},
 			{
@@ -275,6 +276,7 @@ func TestAccInstance_ingress(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "5"),
 					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", "bandwidth"),
+					resource.TestCheckResourceAttrSet(resourceName, "ingress_address"),
 				),
 			},
 			{
@@ -292,6 +294,7 @@ func TestAccInstance_ingress(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_address", ""),
 				),
 			},
 			{
