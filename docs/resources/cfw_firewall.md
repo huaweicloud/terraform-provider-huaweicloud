@@ -107,18 +107,12 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
   The [flavor](#Firewall_Flavor) structure is documented below.
 
-* `east_west_firewall_inspection_cidr` - (Optional, String, ForceNew) Specifies the inspection cidr of the east-west firewall.
+* `east_west_firewall_inspection_cidr` - (Optional, String) Specifies the inspection cidr of the east-west firewall.
 
-  Changing this parameter will create a new resource.
-
-* `east_west_firewall_mode` - (Optional, String, ForceNew) Specifies the mode of the east-west firewall.
+* `east_west_firewall_mode` - (Optional, String) Specifies the mode of the east-west firewall.
   The value can be: **er**.
 
-  Changing this parameter will create a new resource.
-
-* `east_west_firewall_er_id` - (Optional, String, ForceNew) Specifies the ER ID of the east-west firewall.
-
-  Changing this parameter will create a new resource.
+* `east_west_firewall_er_id` - (Optional, String) Specifies the ER ID of the east-west firewall.
 
 * `east_west_firewall_status` - (Optional, Int) Specifies the protection statue of the east-west firewall.
   The value can be: **0**(enabled) and **1**(disabled). Defaults to **0**.

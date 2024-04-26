@@ -15,6 +15,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
@@ -58,6 +59,30 @@ func ResourceFirewall() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.All(
+			customdiff.ValidateChange("east_west_firewall_inspection_cidr", func(_ context.Context, old, new, _ any) error {
+				// can only update from empty
+				if old.(string) != new.(string) && old.(string) != "" {
+					return fmt.Errorf("east_west_firewall_inspection_cidr can't be updated")
+				}
+				return nil
+			}),
+			customdiff.ValidateChange("east_west_firewall_er_id", func(_ context.Context, old, new, _ any) error {
+				// can only update from empty
+				if old.(string) != new.(string) && old.(string) != "" {
+					return fmt.Errorf("east_west_firewall_er_id can't be updated")
+				}
+				return nil
+			}),
+			customdiff.ValidateChange("east_west_firewall_mode", func(_ context.Context, old, new, _ any) error {
+				// can only update from empty
+				if old.(string) != new.(string) && old.(string) != "" {
+					return fmt.Errorf("east_west_firewall_mode can't be updated")
+				}
+				return nil
+			}),
+		),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -86,25 +111,25 @@ func ResourceFirewall() *schema.Resource {
 				Description: `Specifies the key/value pairs to associate with the firewall.`,
 			},
 			"east_west_firewall_inspection_cidr": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the inspection cidr of the east-west firewall.`,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"east_west_firewall_er_id", "east_west_firewall_mode"},
+				Description:  `Specifies the inspection cidr of the east-west firewall.`,
 			},
 			"east_west_firewall_er_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the ER ID of the east-west firewall.`,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"east_west_firewall_inspection_cidr", "east_west_firewall_mode"},
+				Description:  `Specifies the ER ID of the east-west firewall.`,
 			},
 			"east_west_firewall_mode": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the mode of the east-west firewall.`,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"east_west_firewall_inspection_cidr", "east_west_firewall_er_id"},
+				Description:  `Specifies the mode of the east-west firewall.`,
 			},
 			"east_west_firewall_status": {
 				Type:        schema.TypeInt,
@@ -330,32 +355,6 @@ func resourceFirewallCreate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
-	if _, ok := d.GetOk("east_west_firewall_inspection_cidr"); ok {
-		// create east west firewall
-		var (
-			createEastWestFirewallHttpUrl = "v1/{project_id}/firewall/east-west"
-		)
-
-		createEastWestFirewallPath := createFirewallClient.Endpoint + createEastWestFirewallHttpUrl
-		createEastWestFirewallPath = strings.ReplaceAll(createEastWestFirewallPath, "{project_id}", createFirewallClient.ProjectID)
-		createEastWestFirewallPath += fmt.Sprintf("?fw_instance_id=%s", d.Id())
-
-		createEastWestFirewallOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-
-		createEastWestFirewallOpt.JSONBody = utils.RemoveNil(buildCreateEastWestFirewallBodyParams(d))
-		_, err := createFirewallClient.Request("POST", createEastWestFirewallPath, &createEastWestFirewallOpt)
-		if err != nil {
-			return diag.Errorf("error creating east-west firewall: %s", err)
-		}
-
-		err = createEastWestFirewallWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return diag.Errorf("error waiting for the east-west firewall (%s) creation to complete: %s", d.Id(), err)
-		}
-	}
-
 	return resourceFirewallUpdate(ctx, d, meta)
 }
 
@@ -399,6 +398,40 @@ func buildCreateFirewallRequestBodyFlavor(rawParams interface{}) map[string]inte
 		}
 		return params
 	}
+	return nil
+}
+
+func createEastWestFirewall(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	var (
+		createEastWestFirewallHttpUrl = "v1/{project_id}/firewall/east-west"
+		createEastWestFirewallProduct = "cfw"
+	)
+	createEastWestFirewallClient, err := cfg.NewServiceClient(createEastWestFirewallProduct, region)
+	if err != nil {
+		return fmt.Errorf("error creating CFW client: %s", err)
+	}
+
+	createEastWestFirewallPath := createEastWestFirewallClient.Endpoint + createEastWestFirewallHttpUrl
+	createEastWestFirewallPath = strings.ReplaceAll(createEastWestFirewallPath, "{project_id}", createEastWestFirewallClient.ProjectID)
+	createEastWestFirewallPath += fmt.Sprintf("?fw_instance_id=%s", d.Id())
+
+	createEastWestFirewallOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	createEastWestFirewallOpt.JSONBody = utils.RemoveNil(buildCreateEastWestFirewallBodyParams(d))
+	_, err = createEastWestFirewallClient.Request("POST", createEastWestFirewallPath, &createEastWestFirewallOpt)
+	if err != nil {
+		return fmt.Errorf("error creating east-west firewall: %s", err)
+	}
+
+	err = createEastWestFirewallWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("error waiting for the east-west firewall (%s) creation to complete: %s", d.Id(), err)
+	}
+
 	return nil
 }
 
@@ -812,8 +845,16 @@ func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
+	if d.HasChanges("east_west_firewall_inspection_cidr", "east_west_firewall_er_id", "east_west_firewall_mode") {
+		// create east west firewall
+		err := createEastWestFirewall(ctx, d, meta)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	var vpcBoderObjectID, internetBorderObjectID string
-	if d.IsNewResource() {
+	if d.IsNewResource() || d.HasChanges("east_west_firewall_inspection_cidr", "east_west_firewall_er_id", "east_west_firewall_mode") {
 		// getFirewall: Query the List of CFW firewalls
 		var (
 			getFirewallHttpUrl = "v1/{project_id}/firewall/exist"
@@ -865,7 +906,8 @@ func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
-	if d.IsNewResource() || d.HasChange("east_west_firewall_status") {
+	if d.IsNewResource() || d.HasChanges("east_west_firewall_status", "east_west_firewall_inspection_cidr",
+		"east_west_firewall_er_id", "east_west_firewall_mode") {
 		if vpcBoderObjectID != "" {
 			err := updateEastWestFirewallStatus(d, meta, vpcBoderObjectID)
 			if err != nil {
