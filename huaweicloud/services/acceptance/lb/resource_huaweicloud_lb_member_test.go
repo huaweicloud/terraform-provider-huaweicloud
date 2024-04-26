@@ -50,26 +50,25 @@ func TestAccLBV2Member_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckLBV2MemberDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:             testAccLBV2MemberConfig_basic(rName),
-				ExpectNonEmptyPlan: true, // Because admin_state_up remains false.
+				Config: testAccLBV2MemberConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc1.CheckResourceExists(),
 					rc2.CheckResourceExists(),
 				),
 			},
 			{
-				Config:             testAccLBV2MemberConfig_update(rName),
-				ExpectNonEmptyPlan: true, // Because admin_state_up remains false.
+				Config: testAccLBV2MemberConfig_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("huaweicloud_lb_member.member_1", "weight", "10"),
 					resource.TestCheckResourceAttr("huaweicloud_lb_member.member_2", "weight", "15"),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_lb_member.member_1",
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccLBMemberImportStateIdFunc(),
+				ResourceName:            "huaweicloud_lb_member.member_1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"admin_state_up"},
+				ImportStateIdFunc:       testAccLBMemberImportStateIdFunc(),
 			},
 		},
 	})
@@ -197,7 +196,6 @@ resource "huaweicloud_lb_member" "member_1" {
   address        = "192.168.0.10"
   protocol_port  = 8080
   weight         = 10
-  admin_state_up = "true"
   pool_id        = huaweicloud_lb_pool.pool_1.id
   subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 
@@ -212,7 +210,6 @@ resource "huaweicloud_lb_member" "member_2" {
   address        = "192.168.0.11"
   protocol_port  = 8080
   weight         = 15
-  admin_state_up = "true"
   pool_id        = huaweicloud_lb_pool.pool_1.id
   subnet_id      = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 

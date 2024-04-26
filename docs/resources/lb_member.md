@@ -49,6 +49,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The unique ID for the member.
 
+* `backend_server_status` - Indicates the administrative status of the backend server.
+
+* `operating_status` - Indicates the health check result of the backend server.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
