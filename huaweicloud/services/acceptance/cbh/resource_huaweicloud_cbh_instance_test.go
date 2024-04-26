@@ -129,6 +129,58 @@ func TestAccCBHInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccCBHInstance_epsId_migrate(t *testing.T) {
+	var (
+		obj          interface{}
+		name         = acceptance.RandomAccResourceName()
+		rName        = "huaweicloud_cbh_instance.test"
+		defaultEpsId = "0"
+		migrateEpsId = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getCBHInstanceResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testCBHInstance_epsId_basic(name, defaultEpsId),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", defaultEpsId),
+				),
+			},
+			{
+				Config: testCBHInstance_epsId_basic(name, migrateEpsId),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", migrateEpsId),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"charging_mode",
+					"password",
+					"period",
+					"period_unit",
+				},
+			},
+		},
+	})
+}
+
 func testCBHInstance_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -184,4 +236,24 @@ resource "huaweicloud_cbh_instance" "test" {
   attach_disk_size  = 2
 }
 `, testCBHInstance_base(name), name)
+}
+
+func testCBHInstance_epsId_basic(name, epsId string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbh_instance" "test" {
+  flavor_id             = "cbh.basic.10"
+  name                  = "%[2]s"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  password              = "test_123456"
+  charging_mode         = "prePaid"
+  period_unit           = "month"
+  period                = 1
+  enterprise_project_id = "%[3]s"
+}
+`, testCBHInstance_base(name), name, epsId)
 }
