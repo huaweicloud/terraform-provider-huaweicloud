@@ -15,8 +15,9 @@ type ListOptsBuilder interface {
 // the server attributes you want to see returned. Marker and Limit are used
 // for pagination.
 type ListOpts struct {
-	Region     string `q:"region"`
-	EngineName string `q:"engine_name"`
+	Region        string `q:"region"`
+	EngineName    string `q:"engine_name"`
+	EngineVersion string `q:"engine_version"`
 }
 
 // ToFlavorListQuery formats a ListOpts into a query string.

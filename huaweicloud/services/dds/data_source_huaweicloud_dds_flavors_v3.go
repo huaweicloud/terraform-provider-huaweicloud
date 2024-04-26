@@ -2,9 +2,9 @@ package dds
 
 import (
 	"context"
-	"log"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -52,6 +52,10 @@ func DataSourceDDSFlavorV3() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"engine_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"spec_code": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -67,6 +71,11 @@ func DataSourceDDSFlavorV3() *schema.Resource {
 						"memory": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						"az_status": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -109,28 +118,28 @@ func dataSourceDDSFlavorV3Read(_ context.Context, d *schema.ResourceData, meta i
 		}
 
 		flavor := map[string]interface{}{
-			"spec_code": item.SpecCode,
-			"type":      item.Type,
-			"vcpus":     item.Vcpus,
-			"memory":    item.Ram,
+			"engine_name": item.EngineName,
+			"spec_code":   item.SpecCode,
+			"type":        item.Type,
+			"vcpus":       item.Vcpus,
+			"memory":      item.Ram,
+			"az_status":   item.AzStatus,
 		}
 		flavorList = append(flavorList, flavor)
 	}
 
-	log.Printf("[DEBUG] extract %d/%d flavors by filters.", len(flavorList), len(allFlavors))
-	if len(flavorList) < 1 {
-		return diag.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+	dataSourceId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
 	}
-
-	d.SetId("dds flavors")
+	d.SetId(dataSourceId)
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("flavors", flavorList),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("Error setting dds instance fields: %s", err)
+		return diag.Errorf("Error setting DDS instance fields: %s", err)
 	}
 
 	return nil

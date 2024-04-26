@@ -19,9 +19,13 @@ func TestAccDDSFlavorV3DataSource_basic(t *testing.T) {
 				Config: testAccDDSFlavorV3DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSourceName, "flavors.0.engine_name", "DDS-Community"),
 					resource.TestCheckResourceAttr(dataSourceName, "flavors.0.vcpus", "2"),
 					resource.TestCheckResourceAttr(dataSourceName, "flavors.0.memory", "4"),
 					resource.TestCheckResourceAttr(dataSourceName, "flavors.0.type", "mongos"),
+
+					resource.TestCheckResourceAttrSet(dataSourceName, "flavors.0.spec_code"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "flavors.0.az_status.%"),
 				),
 			},
 		},
