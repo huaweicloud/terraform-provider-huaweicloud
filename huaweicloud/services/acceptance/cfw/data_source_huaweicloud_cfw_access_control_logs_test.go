@@ -1,0 +1,155 @@
+package cfw
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+)
+
+func TestAccDataSourceCfwAccessControlLogs_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_cfw_access_control_logs.test"
+	dc := acceptance.InitDataSourceCheck(dataSource)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckCfw(t)
+			acceptance.TestAccPreCheckCfwTimeRange(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testDataSourceDataSourceCfwAccessControlLogs_basic(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.app"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.action"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.protocol"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.dst_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_port"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.dst_port"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_region_name"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.dst_region_name"),
+
+					resource.TestCheckOutput("app_filter_is_useful", "true"),
+					resource.TestCheckOutput("action_filter_is_useful", "true"),
+					resource.TestCheckOutput("src_port_filter_is_useful", "true"),
+					resource.TestCheckOutput("dst_port_filter_is_useful", "true"),
+					resource.TestCheckOutput("src_region_name_filter_is_useful", "true"),
+					resource.TestCheckOutput("dst_region_name_filter_is_useful", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testDataSourceDataSourceCfwAccessControlLogs_basic() string {
+	return fmt.Sprintf(`
+data "huaweicloud_cfw_access_control_logs" "test" {
+  fw_instance_id = "%[1]s"
+  start_time     = "%[2]s"
+  end_time       = "%[3]s"
+}
+
+locals {
+  records         = data.huaweicloud_cfw_access_control_logs.test.records
+  app             = local.records[0].app
+  action          = local.records[0].action
+  src_port        = local.records[0].src_port
+  dst_port        = local.records[0].dst_port
+  src_region_name = local.records[0].src_region_name
+  dst_region_name = local.records[0].dst_region_name
+}
+
+data "huaweicloud_cfw_access_control_logs" "filter_by_app" {
+  fw_instance_id = "%[1]s"
+  start_time     = "%[2]s"
+  end_time       = "%[3]s"
+  app            = local.app
+}
+
+data "huaweicloud_cfw_access_control_logs" "filter_by_action" {
+  fw_instance_id = "%[1]s"
+  start_time     = "%[2]s"
+  end_time       = "%[3]s"
+  action         = local.action
+}
+
+data "huaweicloud_cfw_access_control_logs" "filter_by_src_port" {
+  fw_instance_id = "%[1]s"
+  start_time     = "%[2]s"
+  end_time       = "%[3]s"
+  src_port       = local.src_port
+}
+
+data "huaweicloud_cfw_access_control_logs" "filter_by_dst_port" {
+  fw_instance_id = "%[1]s"
+  start_time     = "%[2]s"
+  end_time       = "%[3]s"
+  dst_port       = local.dst_port
+}
+
+data "huaweicloud_cfw_access_control_logs" "filter_by_src_region_name" {
+  fw_instance_id  = "%[1]s"
+  start_time      = "%[2]s"
+  end_time        = "%[3]s"
+  src_region_name = local.src_region_name
+}
+
+data "huaweicloud_cfw_access_control_logs" "filter_by_dst_region_name" {
+  fw_instance_id  = "%[1]s"
+  start_time      = "%[2]s"
+  end_time        = "%[3]s"
+  dst_region_name = local.dst_region_name
+}
+
+locals {
+  records_by_app             = data.huaweicloud_cfw_access_control_logs.filter_by_app.records
+  records_by_action          = data.huaweicloud_cfw_access_control_logs.filter_by_action.records
+  records_by_src_port        = data.huaweicloud_cfw_access_control_logs.filter_by_src_port.records
+  records_by_dst_port        = data.huaweicloud_cfw_access_control_logs.filter_by_dst_port.records
+  records_by_src_region_name = data.huaweicloud_cfw_access_control_logs.filter_by_src_region_name.records
+  records_by_dst_region_name = data.huaweicloud_cfw_access_control_logs.filter_by_dst_region_name.records
+}
+
+output "app_filter_is_useful" {
+  value = length(local.records_by_app) > 0 && alltrue(
+    [for v in local.records_by_app[*].app : v == local.app]
+  )
+}
+
+output "action_filter_is_useful" {
+  value = length(local.records_by_action) > 0 && alltrue(
+    [for v in local.records_by_action[*].action : v == local.action]
+  )
+}
+
+output "src_port_filter_is_useful" {
+  value = length(local.records_by_src_port) > 0 && alltrue(
+    [for v in local.records_by_src_port[*].src_port : v == local.src_port]
+  )
+}
+
+output "dst_port_filter_is_useful" {
+  value = length(local.records_by_dst_port) > 0 && alltrue(
+    [for v in local.records_by_dst_port[*].dst_port : v == local.dst_port]
+  )
+}
+
+output "src_region_name_filter_is_useful" {
+  value = length(local.records_by_src_region_name) > 0 && alltrue(
+    [for v in local.records_by_src_region_name[*].src_region_name : v == local.src_region_name]
+  )
+}
+
+output "dst_region_name_filter_is_useful" {
+  value = length(local.records_by_dst_region_name) > 0 && alltrue(
+    [for v in local.records_by_dst_region_name[*].dst_region_name : v == local.dst_region_name]
+  )
+}
+`, acceptance.HW_CFW_INSTANCE_ID, acceptance.HW_CFW_START_TIME, acceptance.HW_CFW_END_TIME)
+}
