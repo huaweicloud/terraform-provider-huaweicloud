@@ -52,6 +52,13 @@ In addition to all arguments above, the following attributes are exported:
 
 -> If the user has opened the EPS service, this value is a UUID value. If not, this value is the database name.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
+
 ## Import
 
 DLI SQL databases can be imported by their `name`, e.g.

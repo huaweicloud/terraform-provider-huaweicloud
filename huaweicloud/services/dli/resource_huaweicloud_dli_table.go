@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -29,6 +30,12 @@ func ResourceDliTable() *schema.Resource {
 		CreateContext: resourceDliTableCreate,
 		ReadContext:   resourceDliTableRead,
 		DeleteContext: resourceDliTableDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -153,10 +160,19 @@ func ResourceDliTable() *schema.Resource {
 				Computed: true,
 			},
 		},
+	}
+}
 
-		Timeouts: &schema.ResourceTimeout{
-			Delete: schema.DefaultTimeout(10 * time.Minute),
-		},
+func datatableCreateRefreshFunc(client *golangsdk.ServiceClient, dbName, tableName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		detail, queryErr := tables.Get(client, dbName, tableName)
+		if queryErr != nil {
+			if _, ok := queryErr.(golangsdk.ErrDefault404); !ok {
+				return detail, "ERROR", queryErr
+			}
+			return detail, "PENDING", nil
+		}
+		return detail, "COMPLETED", nil
 	}
 }
 
@@ -189,13 +205,27 @@ func resourceDliTableCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 	log.Printf("[DEBUG] Creating new DLI table opts: %#v", opts)
 
-	rst, createErr := tables.Create(client, databaseName, opts)
-	if createErr != nil {
-		return diag.Errorf("error creating DLI table: %s", createErr)
-	}
+	resp, err := tables.Create(client, databaseName, opts)
+	if err != nil {
+		if _, ok := err.(golangsdk.ErrDefault408); !ok {
+			return diag.Errorf("error create DLI datatable (%s) to the database (%s): %s", databaseName, tableName, err)
+		}
 
-	if rst != nil && !rst.IsSuccess {
-		return diag.Errorf("error creating DLI table: %s", rst.Message)
+		// Return synchronization job result times out.
+		// At this time, the job has entered the creation phase.
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
+			Refresh:      datatableCreateRefreshFunc(client, databaseName, tableName),
+			Timeout:      d.Timeout(schema.TimeoutCreate),
+			PollInterval: 10 * time.Second,
+		}
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("error create DLI datatable (%s) to the database (%s): %s", databaseName, tableName, err)
+		}
+	} else if resp != nil && !resp.IsSuccess {
+		return diag.Errorf("the request was sent successfully, but some errors occurred: %s", resp.Message)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", databaseName, tableName))
@@ -296,7 +326,20 @@ func setStoragePropertiesToState(d *schema.ResourceData, storageProperties []map
 	return mErr.ErrorOrNil()
 }
 
-func resourceDliTableDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func datatableDeleteRefreshFunc(client *golangsdk.ServiceClient, dbName, tableName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		detail, queryErr := tables.Get(client, dbName, tableName)
+		if queryErr != nil {
+			if _, ok := queryErr.(golangsdk.ErrDefault404); !ok {
+				return detail, "ERROR", queryErr
+			}
+			return detail, "COMPLETED", nil
+		}
+		return detail, "PENDING", nil
+	}
+}
+
+func resourceDliTableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.DliV1Client(region)
@@ -305,16 +348,28 @@ func resourceDliTableDelete(_ context.Context, d *schema.ResourceData, meta inte
 	}
 
 	databaseName, tableName := ParseTableInfoFromId(d.Id())
+	resp, err := tables.Delete(client, databaseName, tableName, false)
+	if err != nil {
+		if _, ok := err.(golangsdk.ErrDefault408); !ok {
+			return diag.Errorf("error deleting DLI database: %s", err)
+		}
 
-	resp, dErr := tables.Delete(client, databaseName, tableName, false)
-	if dErr != nil {
-		return diag.Errorf("error delete DLI Table %q:%s", d.Id(), dErr)
+		// Return synchronization job result times out.
+		// At this time, the job has entered the delete phase.
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
+			Refresh:      datatableDeleteRefreshFunc(client, databaseName, tableName),
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			PollInterval: 10 * time.Second,
+		}
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("error deleting DLI datatable (%s) from the database (%s): %s", databaseName, tableName, err)
+		}
+	} else if resp != nil && !resp.IsSuccess {
+		return diag.Errorf("the request was sent successfully, but some errors occurred: %s", resp.Message)
 	}
-
-	if resp != nil && !resp.IsSuccess {
-		return diag.Errorf("error delete DLI Table: %s", resp.Message)
-	}
-
 	return nil
 }
 
