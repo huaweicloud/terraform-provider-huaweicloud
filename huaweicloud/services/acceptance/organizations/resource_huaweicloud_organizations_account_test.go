@@ -37,7 +37,17 @@ func getAccountResourceFunc(cfg *config.Config, state *terraform.ResourceState) 
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving Account: %s", err)
 	}
-	return utils.FlattenResponse(getAccountResp)
+
+	getAccountRespBody, err := utils.FlattenResponse(getAccountResp)
+	if err != nil {
+		return nil, err
+	}
+
+	status := utils.PathSearch("account.status", getAccountRespBody, "").(string)
+	if status == "" || status == "pending_closure" || status == "suspended" {
+		return nil, golangsdk.ErrDefault404{}
+	}
+	return getAccountRespBody, nil
 }
 
 func TestAccAccount_basic(t *testing.T) {
@@ -61,6 +71,7 @@ func TestAccAccount_basic(t *testing.T) {
 			acceptance.TestAccPreCheckOrganizationsOrganizationalUnitId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccount_basic(name),
