@@ -9,8 +9,10 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -32,6 +34,7 @@ import (
 // @API ELB DELETE /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/force-elb
 // @API ELB DELETE /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}
 // @API EIP DELETE /v1/{project_id}/publicips/{publicip_id}
+// @API ELB POST /v3/{project_id}/elb/loadbalancers/change-charge-mode
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -52,6 +55,30 @@ func ResourceLoadBalancerV3() *schema.Resource {
 			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			customdiff.ValidateChange("charging_mode", func(_ context.Context, old, new, _ any) error {
+				// can only update from postPaid
+				if old.(string) != new.(string) && (old.(string) == "prePaid") {
+					return fmt.Errorf("charging_mode can only be updated from postPaid to prePaid")
+				}
+				return nil
+			}),
+			customdiff.ValidateChange("period_unit", func(_ context.Context, old, new, _ any) error {
+				// can only update from empty
+				if old.(string) != new.(string) && old.(string) != "" {
+					return fmt.Errorf("period_unit can only be updated when changing charging_mode to prePaid")
+				}
+				return nil
+			}),
+			customdiff.ValidateChange("period", func(_ context.Context, old, new, _ any) error {
+				// can only update from empty
+				if old.(int) != new.(int) && old.(int) != 0 {
+					return fmt.Errorf("period can only be updated when changing charging_mode to prePaid")
+				}
+				return nil
+			}),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -216,12 +243,30 @@ func ResourceLoadBalancerV3() *schema.Resource {
 			"tags": common.TagsSchema(),
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
-			"auto_pay":      common.SchemaAutoPay(nil),
-
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, false),
+			},
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"period_unit"},
+				ValidateFunc: validation.IntBetween(1, 9),
+			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
+			"auto_pay":   common.SchemaAutoPay(nil),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -523,6 +568,40 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
+	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating BSS V2 client: %s", err)
+	}
+
+	// update charging mode first
+	if d.HasChange("charging_mode") {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
+			return diag.FromErr(err)
+		}
+		changeChargingModeOpts := loadbalancers.ChangeChargingModeOpts{
+			LoadBalancerIds: []string{d.Id()},
+			ChargingMode:    "prepaid",
+			PrepaidOptions: loadbalancers.PrepaidOptions{
+				PeriodType: d.Get("period_unit").(string),
+				PeriodNum:  d.Get("period").(int),
+				AutoRenew:  d.Get("auto_renew").(string),
+				AutoPay:    true,
+			},
+		}
+		orderId, err := loadbalancers.ChangeChargingMode(elbClient, changeChargingModeOpts).Extract()
+		if err != nil {
+			return diag.Errorf("error changing charging mode of load-balancer(%s): %s", d.Id(), err)
+		}
+
+		// wait for order complete
+		if err := common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.FromErr(err)
+		}
+	} else if d.HasChange("auto_renew") {
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the load-balancer (%s): %s", d.Id(), err)
+		}
+	}
 
 	updateLoadBalancerChanges := []string{"name", "description", "cross_vpc_backend", "ipv4_subnet_id", "ipv6_network_id",
 		"ipv6_bandwidth_id", "ipv4_address", "l4_flavor_id", "l7_flavor_id", "autoscaling_enabled", "min_l7_flavor_id",
@@ -560,15 +639,6 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	if d.HasChange("auto_renew") {
-		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
-		if err != nil {
-			return diag.Errorf("error creating BSS V2 client: %s", err)
-		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
-			return diag.Errorf("error updating the auto-renew of the LoadBalancer (%s): %s", d.Id(), err)
-		}
-	}
 	// update tags
 	if d.HasChange("tags") {
 		elbV2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
