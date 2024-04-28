@@ -1,5 +1,8 @@
 ---
 subcategory: "Log Tank Service (LTS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: lts_waf_access"
+description: ""
 ---
 
 # huaweicloud_lts_waf_access

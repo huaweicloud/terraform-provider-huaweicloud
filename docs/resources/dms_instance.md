@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dms_instance"
+description: ""
 ---
 
 # huaweicloud\_dms\_instance

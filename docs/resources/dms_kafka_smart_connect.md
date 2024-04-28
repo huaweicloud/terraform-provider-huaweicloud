@@ -1,5 +1,8 @@
 ---
 subcategory: "Distributed Message Service (DMS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dms_kafka_smart_connect"
+description: ""
 ---
 
 # huaweicloud_dms_kafka_smart_connect

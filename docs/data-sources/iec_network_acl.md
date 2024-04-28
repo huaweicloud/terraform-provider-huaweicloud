@@ -1,5 +1,8 @@
 ---
 subcategory: "Intelligent EdgeCloud (IEC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: iec_network_acl"
+description: ""
 ---
 
 # huaweicloud_iec_network_acl

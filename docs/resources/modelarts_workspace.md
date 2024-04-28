@@ -1,5 +1,8 @@
 ---
 subcategory: "AI Development Platform (ModelArts)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: modelarts_workspace"
+description: ""
 ---
 
 # huaweicloud_modelarts_workspace

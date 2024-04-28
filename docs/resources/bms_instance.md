@@ -1,5 +1,8 @@
 ---
 subcategory: "Bare Metal Server (BMS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: bms_instance"
+description: ""
 ---
 
 # huaweicloud_bms_instance

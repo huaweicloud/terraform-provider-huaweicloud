@@ -1,5 +1,8 @@
 ---
 subcategory: "GaussDB(DWS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dws_workload_queues"
+description: ""
 ---
 
 # huaweicloud_dws_workload_queues

@@ -1,5 +1,8 @@
 ---
 subcategory: "Graph Engine Service (GES)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: ges_backup"
+description: ""
 ---
 
 # huaweicloud_ges_backup

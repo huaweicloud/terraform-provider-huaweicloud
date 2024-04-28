@@ -1,5 +1,8 @@
 ---
 subcategory: "IAM Identity Center"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: identitycenter_account_assignment"
+description: ""
 ---
 
 # huaweicloud_identitycenter_account_assignment

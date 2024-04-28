@@ -1,5 +1,8 @@
 ---
 subcategory: "MapReduce Service (MRS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: mapreduce_clusters"
+description: ""
 ---
 
 # huaweicloud_mapreduce_clusters

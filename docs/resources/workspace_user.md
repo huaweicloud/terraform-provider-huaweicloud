@@ -1,5 +1,8 @@
 ---
 subcategory: "Workspace"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: workspace_user"
+description: ""
 ---
 
 # huaweicloud_workspace_user

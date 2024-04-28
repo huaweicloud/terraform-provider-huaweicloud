@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Bastion Host (CBH)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cbh_instance"
+description: ""
 ---
 
 # huaweicloud_cbh_instance

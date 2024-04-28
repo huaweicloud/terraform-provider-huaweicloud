@@ -1,5 +1,8 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: networking_vip_associate"
+description: ""
 ---
 
 # huaweicloud_networking_vip_associate

@@ -1,5 +1,8 @@
 ---
 subcategory: "Document Database Service (DDS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dds_parameter_template"
+description: ""
 ---
 
 # huaweicloud_dds_parameter_template

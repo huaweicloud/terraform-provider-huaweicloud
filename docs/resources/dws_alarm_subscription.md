@@ -1,5 +1,8 @@
 ---
 subcategory: "GaussDB(DWS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dws_alarm_subscription"
+description: ""
 ---
 
 # huaweicloud_dws_alarm_subscription

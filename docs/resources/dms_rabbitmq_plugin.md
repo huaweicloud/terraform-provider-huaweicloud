@@ -1,5 +1,8 @@
 ---
 subcategory: "Distributed Message Service (DMS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dms_rabbitmq_plugin"
+description: ""
 ---
 
 # huaweicloud_dms_rabbitmq_plugin

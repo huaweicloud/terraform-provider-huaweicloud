@@ -1,5 +1,8 @@
 ---
 subcategory: "Global Accelerator (GA)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: ga_accelerator"
+description: ""
 ---
 
 # huaweicloud_ga_accelerator

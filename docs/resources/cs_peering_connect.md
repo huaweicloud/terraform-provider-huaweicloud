@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cs_peering_connect"
+description: ""
 ---
 
 # huaweicloud_cs_peering_connect

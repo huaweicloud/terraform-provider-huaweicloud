@@ -1,5 +1,8 @@
 ---
 subcategory: "GaussDB(DWS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dws_disaster_recovery_task"
+description: ""
 ---
 
 # huaweicloud_dws_disaster_recovery_task

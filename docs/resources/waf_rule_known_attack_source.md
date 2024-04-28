@@ -1,5 +1,8 @@
 ---
 subcategory: "Web Application Firewall (WAF)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: waf_rule_known_attack_source"
+description: ""
 ---
 
 # huaweicloud_waf_rule_known_attack_source

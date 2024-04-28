@@ -1,5 +1,8 @@
 ---
 subcategory: "Intelligent EdgeCloud (IEC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: iec_eips"
+description: ""
 ---
 
 # huaweicloud_iec_eips

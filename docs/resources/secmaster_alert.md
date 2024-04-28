@@ -1,5 +1,8 @@
 ---
 subcategory: "SecMaster"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: secmaster_alert"
+description: ""
 ---
 
 # huaweicloud_secmaster_alert

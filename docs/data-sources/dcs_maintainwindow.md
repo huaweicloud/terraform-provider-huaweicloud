@@ -1,5 +1,8 @@
 ---
 subcategory: "Distributed Cache Service (DCS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dcs_maintainwindow"
+description: ""
 ---
 
 # huaweicloud_dcs_maintainwindow

@@ -1,5 +1,8 @@
 ---
 subcategory: "Global Accelerator (GA)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: ga_address_group"
+description: ""
 ---
 
 # huaweicloud_ga_address_group

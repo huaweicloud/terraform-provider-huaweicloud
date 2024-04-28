@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: compute_keypair"
+description: ""
 ---
 
 # huaweicloud_compute_keypair

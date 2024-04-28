@@ -1,5 +1,8 @@
 ---
 subcategory: "Organizations"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: organizations_trusted_service"
+description: ""
 ---
 
 # huaweicloud_organizations_trusted_service

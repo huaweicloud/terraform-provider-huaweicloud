@@ -1,5 +1,8 @@
 ---
 subcategory: "API Gateway (Shared APIG)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: api_gateway_api"
+description: ""
 ---
 
 # huaweicloud_api_gateway_api

@@ -1,5 +1,8 @@
 ---
 subcategory: "Organizations"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: organizations_organizational_unit"
+description: ""
 ---
 
 # huaweicloud_organizations_organizational_unit

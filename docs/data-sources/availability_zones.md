@@ -1,5 +1,8 @@
 # huaweicloud_availability_zones
 
+layout: "huaweicloud"
+page_title: "HuaweiCloud: availability_zones"
+description: ""
 Use this data source to get a list of availability zones from HuaweiCloud
 
 ## Example Usage

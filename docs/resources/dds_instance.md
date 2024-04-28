@@ -1,5 +1,8 @@
 ---
 subcategory: "Document Database Service (DDS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dds_instance"
+description: ""
 ---
 
 # huaweicloud_dds_instance

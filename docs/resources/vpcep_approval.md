@@ -1,5 +1,8 @@
 ---
 subcategory: "VPC Endpoint (VPCEP)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: vpcep_approval"
+description: ""
 ---
 
 # huaweicloud_vpcep_approval

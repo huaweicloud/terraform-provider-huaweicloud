@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dms_queue"
+description: ""
 ---
 
 # huaweicloud_dms_queue

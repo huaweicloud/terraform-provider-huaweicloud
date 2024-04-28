@@ -1,5 +1,8 @@
 ---
 subcategory: "Distributed Database Middleware (DDM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: ddm_schema"
+description: ""
 ---
 
 # huaweicloud_ddm_schema

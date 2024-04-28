@@ -1,5 +1,8 @@
 ---
 subcategory: "Advanced Anti-DDoS"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: aad_forward_rule"
+description: ""
 ---
 
 # huaweicloud_aad_forward_rule

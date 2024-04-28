@@ -1,5 +1,8 @@
 ---
 subcategory: "Elastic Load Balance (ELB)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: lb_pool"
+description: ""
 ---
 
 # huaweicloud_lb_pool

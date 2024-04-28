@@ -1,5 +1,8 @@
 ---
 subcategory: "VPC Endpoint (VPCEP)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: vpcep_public_services"
+description: ""
 ---
 
 # huaweicloud_vpcep_public_services

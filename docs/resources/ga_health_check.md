@@ -1,5 +1,8 @@
 ---
 subcategory: "Global Accelerator (GA)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: ga_health_check"
+description: ""
 ---
 
 # huaweicloud_ga_health_check

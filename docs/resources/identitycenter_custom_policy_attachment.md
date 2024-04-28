@@ -1,5 +1,8 @@
 ---
 subcategory: "IAM Identity Center"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: identitycenter_custom_policy_attachment"
+description: ""
 ---
 
 # huaweicloud_identitycenter_custom_policy_attachment

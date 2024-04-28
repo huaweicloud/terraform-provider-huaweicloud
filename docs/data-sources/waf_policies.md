@@ -1,5 +1,8 @@
 ---
 subcategory: "Web Application Firewall (WAF)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: waf_policies"
+description: ""
 ---
 
 # huaweicloud_waf_policies

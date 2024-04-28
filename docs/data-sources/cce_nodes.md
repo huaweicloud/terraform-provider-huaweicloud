@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Container Engine (CCE)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cce_nodes"
+description: ""
 ---
 
 # huaweicloud_cce_nodes

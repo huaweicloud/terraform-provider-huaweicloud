@@ -1,5 +1,8 @@
 ---
 subcategory: "Domain Name Service (DNS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dns_zone"
+description: ""
 ---
 
 # huaweicloud_dns_zone

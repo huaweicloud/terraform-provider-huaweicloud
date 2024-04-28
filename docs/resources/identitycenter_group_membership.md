@@ -1,5 +1,8 @@
 ---
 subcategory: "IAM Identity Center"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: identitycenter_group_membership"
+description: ""
 ---
 
 # huaweicloud_identitycenter_group_membership

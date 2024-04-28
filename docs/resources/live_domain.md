@@ -1,5 +1,8 @@
 ---
 subcategory: "Live"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: live_domain"
+description: ""
 ---
 
 # huaweicloud_live_domain

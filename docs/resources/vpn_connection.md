@@ -1,5 +1,8 @@
 ---
 subcategory: "Virtual Private Network (VPN)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: vpn_connection"
+description: ""
 ---
 
 # huaweicloud_vpn_connection

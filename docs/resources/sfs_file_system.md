@@ -1,5 +1,8 @@
 ---
 subcategory: "Scalable File Service (SFS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: sfs_file_system"
+description: ""
 ---
 
 # huaweicloud_sfs_file_system

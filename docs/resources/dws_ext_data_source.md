@@ -1,5 +1,8 @@
 ---
 subcategory: "GaussDB(DWS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dws_ext_data_source"
+description: ""
 ---
 
 # huaweicloud_dws_ext_data_source

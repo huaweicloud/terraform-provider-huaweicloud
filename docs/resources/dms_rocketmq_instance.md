@@ -1,5 +1,8 @@
 ---
 subcategory: "Distributed Message Service (DMS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dms_rocketmq_instance"
+description: ""
 ---
 
 # huaweicloud_dms_rocketmq_instance

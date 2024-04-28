@@ -1,5 +1,8 @@
 ---
 subcategory: "Distributed Database Middleware (DDM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: ddm_instance"
+description: ""
 ---
 
 # huaweicloud_ddm_instance

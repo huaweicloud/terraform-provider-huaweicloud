@@ -1,5 +1,8 @@
 ---
 subcategory: "ServiceStage"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: servicestage_component"
+description: ""
 ---
 
 # huaweicloud_servicestage_component

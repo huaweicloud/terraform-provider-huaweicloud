@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Firewall (CFW)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cfw_address_group_member"
+description: ""
 ---
 
 # huaweicloud_cfw_address_group_member

@@ -1,5 +1,8 @@
 ---
 subcategory: "Config"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: rms_assignment_package_templates"
+description: ""
 ---
 
 # huaweicloud_rms_assignment_package_templates

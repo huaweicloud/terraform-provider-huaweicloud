@@ -1,5 +1,8 @@
 ---
 subcategory: "Virtual Private Network (VPN)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: vpn_customer_gateway"
+description: ""
 ---
 
 # huaweicloud_vpn_customer_gateway

@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Container Instance (CCI)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cci_namespaces"
+description: ""
 ---
 
 # huaweicloud_cci_namespaces

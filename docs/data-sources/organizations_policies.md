@@ -1,5 +1,8 @@
 ---
 subcategory: "Organizations"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: organizations_policies"
+description: ""
 ---
 
 # huaweicloud_organizations_policies

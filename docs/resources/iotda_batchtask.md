@@ -1,5 +1,8 @@
 ---
 subcategory: "IoT Device Access (IoTDA)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: iotda_batchtask"
+description: ""
 ---
 
 # huaweicloud_iotda_batchtask

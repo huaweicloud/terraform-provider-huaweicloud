@@ -1,5 +1,8 @@
 ---
 subcategory: "Auto Scaling"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: as_notification"
+description: ""
 ---
 
 # huaweicloud_as_notification

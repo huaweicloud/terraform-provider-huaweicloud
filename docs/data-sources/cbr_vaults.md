@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Backup and Recovery (CBR)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cbr_vaults"
+description: ""
 ---
 
 # huaweicloud_cbr_vaults

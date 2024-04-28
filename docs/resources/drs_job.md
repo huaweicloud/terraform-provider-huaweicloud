@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Replication Service (DRS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: drs_job"
+description: ""
 ---
 
 # huaweicloud_drs_job

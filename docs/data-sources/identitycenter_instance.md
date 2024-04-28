@@ -1,5 +1,8 @@
 ---
 subcategory: "IAM Identity Center"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: identitycenter_instance"
+description: ""
 ---
 
 # huaweicloud_identitycenter_instance

@@ -1,5 +1,8 @@
 ---
 subcategory: "Software Repository for Container (SWR)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: swr_organization"
+description: ""
 ---
 
 # huaweicloud_swr_organization

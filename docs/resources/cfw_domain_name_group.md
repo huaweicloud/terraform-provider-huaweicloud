@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Firewall (CFW)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cfw_domain_name_group"
+description: ""
 ---
 
 # huaweicloud_cfw_domain_name_group

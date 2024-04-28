@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Connect (CC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cc_network_instances"
+description: ""
 ---
 
 # huaweicloud_cc_network_instances

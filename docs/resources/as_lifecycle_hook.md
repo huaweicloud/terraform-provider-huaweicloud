@@ -1,5 +1,8 @@
 ---
 subcategory: "Auto Scaling"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: as_lifecycle_hook"
+description: ""
 ---
 
 # huaweicloud_as_lifecycle_hook

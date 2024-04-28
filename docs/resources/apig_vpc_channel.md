@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: apig_vpc_channel"
+description: ""
 ---
 
 # huaweicloud_apig_vpc_channel

@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: antiddos"
+description: ""
 ---
 
 # huaweicloud\_antiddos

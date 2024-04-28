@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: fgs_trigger"
+description: ""
 ---
 
 # huaweicloud_fgs_trigger

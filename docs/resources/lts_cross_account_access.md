@@ -1,5 +1,8 @@
 ---
 subcategory: "Log Tank Service (LTS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: lts_cross_account_access"
+description: ""
 ---
 
 # huaweicloud_lts_cross_account_access

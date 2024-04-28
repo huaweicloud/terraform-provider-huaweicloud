@@ -1,5 +1,8 @@
 ---
 subcategory: "Elastic Cloud Server (ECS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: compute_eip_associate"
+description: ""
 ---
 
 # huaweicloud_compute_eip_associate

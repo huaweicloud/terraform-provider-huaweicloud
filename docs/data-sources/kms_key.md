@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Encryption Workshop (DEW)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: kms_key"
+description: ""
 ---
 
 # huaweicloud_kms_key

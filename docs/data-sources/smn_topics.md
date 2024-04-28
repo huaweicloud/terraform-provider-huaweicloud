@@ -1,5 +1,8 @@
 ---
 subcategory: "Simple Message Notification (SMN)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: smn_topics"
+description: ""
 ---
 
 # huaweicloud_smn_topics

@@ -1,5 +1,8 @@
 ---
 subcategory: "Video on Demand (VOD)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: vod_watermark_template"
+description: ""
 ---
 
 # huaweicloud_vod_watermark_template

@@ -1,5 +1,8 @@
 ---
 subcategory: "GeminiDB"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: gaussdb_redis_instance"
+description: ""
 ---
 
 # huaweicloud_gaussdb_redis_instance

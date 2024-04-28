@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: compute_floatingip"
+description: ""
 ---
 
 # huaweicloud_compute_floatingip_v2

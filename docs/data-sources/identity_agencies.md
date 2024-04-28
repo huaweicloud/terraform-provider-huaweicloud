@@ -1,5 +1,8 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: identity_agencies"
+description: ""
 ---
 
 # huaweicloud_identity_agencies

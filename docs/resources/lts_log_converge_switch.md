@@ -1,5 +1,8 @@
 ---
 subcategory: "Log Tank Service (LTS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: lts_log_converge_switch"
+description: ""
 ---
 
 # huaweicloud_lts_log_converge_switch

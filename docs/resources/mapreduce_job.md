@@ -1,5 +1,8 @@
 ---
 subcategory: "MapReduce Service (MRS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: mapreduce_job"
+description: ""
 ---
 
 # huaweicloud_mapreduce_job

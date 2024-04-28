@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cs_cluster"
+description: ""
 ---
 
 # huaweicloud_cs_cluster

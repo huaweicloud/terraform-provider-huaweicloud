@@ -1,5 +1,8 @@
 ---
 subcategory: "Web Application Firewall (WAF)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: waf_address_groups"
+description: ""
 ---
 
 # huaweicloud_waf_address_groups

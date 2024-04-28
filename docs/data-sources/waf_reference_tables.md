@@ -1,5 +1,8 @@
 ---
 subcategory: "Web Application Firewall (WAF)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: waf_reference_tables"
+description: ""
 ---
 
 # huaweicloud_waf_reference_tables

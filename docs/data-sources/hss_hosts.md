@@ -1,5 +1,8 @@
 ---
 subcategory: "Host Security Service (HSS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: hss_hosts"
+description: ""
 ---
 
 # huaweicloud_hss_hosts

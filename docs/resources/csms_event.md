@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Encryption Workshop (DEW)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: csms_event"
+description: ""
 ---
 
 # huaweicloud_csms_event

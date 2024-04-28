@@ -1,5 +1,8 @@
 ---
 subcategory: "Global Accelerator (GA)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: ga_endpoint_groups"
+description: ""
 ---
 
 # huaweicloud_ga_endpoint_groups

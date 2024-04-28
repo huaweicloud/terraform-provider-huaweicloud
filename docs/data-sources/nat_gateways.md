@@ -1,5 +1,8 @@
 ---
 subcategory: "NAT Gateway (NAT)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: nat_gateways"
+description: ""
 ---
 
 # huaweicloud_nat_gateways

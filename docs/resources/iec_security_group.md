@@ -1,5 +1,8 @@
 ---
 subcategory: "Intelligent EdgeCloud (IEC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: iec_security_group"
+description: ""
 ---
 
 # huaweicloud_iec_security_group

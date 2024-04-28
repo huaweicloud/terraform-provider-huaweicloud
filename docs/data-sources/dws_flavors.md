@@ -1,5 +1,8 @@
 ---
 subcategory: "GaussDB(DWS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dws_flavors"
+description: ""
 ---
 
 # huaweicloud_dws_flavors

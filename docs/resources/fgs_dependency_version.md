@@ -1,5 +1,8 @@
 ---
 subcategory: "FunctionGraph"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: fgs_dependency_version"
+description: ""
 ---
 
 # huaweicloud_fgs_dependency_version

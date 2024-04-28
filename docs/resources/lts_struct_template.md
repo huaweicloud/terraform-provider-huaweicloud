@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: lts_struct_template"
+description: ""
 ---
 
 # huaweicloud_lts_struct_template

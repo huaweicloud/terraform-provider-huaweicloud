@@ -1,5 +1,8 @@
 ---
 subcategory: "DataArts Studio"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dataarts_studio_instance"
+description: ""
 ---
 
 # huaweicloud_dataarts_studio_instance

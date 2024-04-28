@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Lake Insight (DLI)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: dli_spark_template"
+description: ""
 ---
 
 # huaweicloud_dli_spark_template

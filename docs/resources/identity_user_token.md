@@ -1,5 +1,8 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: identity_user_token"
+description: ""
 ---
 
 # huaweicloud_identity_user_token

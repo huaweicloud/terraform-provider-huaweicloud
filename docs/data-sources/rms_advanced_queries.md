@@ -1,5 +1,8 @@
 ---
 subcategory: "Config"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: rms_advanced_queries"
+description: ""
 ---
 
 # huaweicloud_rms_advanced_queries

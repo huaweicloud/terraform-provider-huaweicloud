@@ -1,5 +1,8 @@
 ---
 subcategory: "MapReduce Service (MRS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: mapreduce_data_connection"
+description: ""
 ---
 
 # huaweicloud_mapreduce_data_connection

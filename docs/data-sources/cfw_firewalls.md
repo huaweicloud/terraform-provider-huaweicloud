@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Firewall (CFW)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cfw_firewalls"
+description: ""
 ---
 
 # huaweicloud_cfw_firewalls

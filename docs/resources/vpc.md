@@ -1,5 +1,8 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: vpc"
+description: ""
 ---
 
 # huaweicloud_vpc

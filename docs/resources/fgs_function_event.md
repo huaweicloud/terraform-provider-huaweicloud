@@ -1,5 +1,8 @@
 ---
 subcategory: "FunctionGraph"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: fgs_function_event"
+description: ""
 ---
 
 # huaweicloud_fgs_function_event

@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Firewall (CFW)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cfw_lts_log"
+description: ""
 ---
 
 # huaweicloud_cfw_lts_log

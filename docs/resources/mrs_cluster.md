@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: mrs_cluster"
+description: ""
 ---
 
 # huaweicloud\_mrs\_cluster

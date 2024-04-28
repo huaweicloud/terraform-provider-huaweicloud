@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Eye (CES)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: ces_alarmrule"
+description: ""
 ---
 
 # huaweicloud_ces_alarmrule

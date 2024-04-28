@@ -1,5 +1,8 @@
 ---
 subcategory: "Workspace"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: workspace_flavors"
+description: ""
 ---
 
 # huaweicloud_workspace_flavors

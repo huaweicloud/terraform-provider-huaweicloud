@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Trace Service (CTS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: cts_notifications"
+description: ""
 ---
 
 # huaweicloud_cts_notifications
