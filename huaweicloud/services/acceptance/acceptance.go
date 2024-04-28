@@ -84,6 +84,7 @@ var (
 	HW_RAM_SHARE_UPDATE_ACCOUNT_ID   = os.Getenv("HW_RAM_SHARE_UPDATE_ACCOUNT_ID")
 	HW_RAM_SHARE_UPDATE_RESOURCE_URN = os.Getenv("HW_RAM_SHARE_UPDATE_RESOURCE_URN")
 	HW_RAM_ENABLE_FLAG               = os.Getenv("HW_RAM_ENABLE_FLAG")
+	HW_RAM_SHARE_INVITATION_ID       = os.Getenv("HW_RAM_SHARE_INVITATION_ID")
 
 	HW_CDN_DOMAIN_NAME              = os.Getenv("HW_CDN_DOMAIN_NAME")
 	HW_CDN_CERT_PATH                = os.Getenv("HW_CDN_CERT_PATH")
@@ -784,6 +785,13 @@ func TestAccPreCheckRAM(t *testing.T) {
 func TestAccPreCheckRAMSharedPrincipals(t *testing.T) {
 	if HW_RAM_ENABLE_FLAG == "" {
 		t.Skip("Skip the RAM acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRAMShareInvitationId(t *testing.T) {
+	if HW_RAM_SHARE_INVITATION_ID == "" {
+		t.Skip("HW_RAM_SHARE_INVITATION_ID must be set for the acceptance tests.")
 	}
 }
 
