@@ -1,5 +1,8 @@
 ---
 subcategory: "Log Tank Service (LTS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_lts_structuring_custom_templates"
+description: ""
 ---
 
 # huaweicloud_lts_structuring_custom_templates

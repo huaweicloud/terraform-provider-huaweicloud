@@ -1,5 +1,8 @@
 ---
 subcategory: "DataArts Studio"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dataarts_security_permission_set"
+description: ""
 ---
 
 # huaweicloud_dataarts_security_permission_set

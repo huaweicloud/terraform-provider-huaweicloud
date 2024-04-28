@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Data Migration (CDM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cdm_link"
+description: ""
 ---
 
 # huaweicloud_cdm_link

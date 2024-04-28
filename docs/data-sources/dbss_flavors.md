@@ -1,5 +1,8 @@
 ---
 subcategory: "Database Security Service (DBSS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dbss_flavors"
+description: ""
 ---
 
 # huaweicloud_dbss_flavors

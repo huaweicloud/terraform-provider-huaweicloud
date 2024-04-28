@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_mrs_job"
+description: ""
 ---
 
 # huaweicloud\_mrs\_job

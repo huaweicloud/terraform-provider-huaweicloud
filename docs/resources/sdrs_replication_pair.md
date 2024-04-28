@@ -1,5 +1,8 @@
 ---
 subcategory: "Storage Disaster Recovery Service (SDRS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_sdrs_replication_pair"
+description: ""
 ---
 
 # huaweicloud_sdrs_replication_pair

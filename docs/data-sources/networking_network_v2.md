@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_networking_network_v2"
+description: ""
 ---
 
 # huaweicloud\_networking\_network\_v2

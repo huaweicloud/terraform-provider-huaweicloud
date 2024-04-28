@@ -1,5 +1,8 @@
 ---
 subcategory: "EventGrid (EG)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_eg_event_subscription"
+description: ""
 ---
 
 # huaweicloud_eg_event_subscription

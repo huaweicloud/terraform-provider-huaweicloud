@@ -1,5 +1,8 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_identity_permissions"
+description: ""
 ---
 
 # huaweicloud_identity_permissions

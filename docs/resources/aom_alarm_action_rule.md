@@ -1,5 +1,8 @@
 ---
 subcategory: "Application Operations Management (AOM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_aom_alarm_action_rule"
+description: ""
 ---
 
 # huaweicloud_aom_alarm_action_rule

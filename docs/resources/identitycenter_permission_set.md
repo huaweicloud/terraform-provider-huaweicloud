@@ -1,5 +1,8 @@
 ---
 subcategory: "IAM Identity Center"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_identitycenter_permission_set"
+description: ""
 ---
 
 # huaweicloud_identitycenter_permission_set

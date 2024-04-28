@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_iotda_batchtask_file"
+description: ""
 ---
 
 # huaweicloud_iotda_batchtask_file

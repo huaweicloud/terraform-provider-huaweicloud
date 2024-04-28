@@ -1,5 +1,8 @@
 ---
 subcategory: "Elastic Volume Service (EVS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_evs_volumes"
+description: ""
 ---
 
 # huaweicloud_evs_volumes

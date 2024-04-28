@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Lake Insight (DLI)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dli_datasource_connection_associate"
+description: ""
 ---
 
 # huaweicloud_dli_datasource_connection_privilege

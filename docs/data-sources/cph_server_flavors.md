@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Phone (CPH)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cph_server_flavors"
+description: ""
 ---
 
 # huaweicloud_cph_server_flavors

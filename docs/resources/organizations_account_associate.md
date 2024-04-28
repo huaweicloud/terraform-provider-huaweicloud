@@ -1,5 +1,8 @@
 ---
 subcategory: "Organizations"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_organizations_account_associate"
+description: ""
 ---
 
 # huaweicloud_organizations_account_associate

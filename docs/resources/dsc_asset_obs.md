@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Security Center (DSC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dsc_asset_obs"
+description: ""
 ---
 
 # huaweicloud_dsc_asset_obs

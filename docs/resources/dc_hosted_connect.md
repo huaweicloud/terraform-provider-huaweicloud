@@ -1,5 +1,8 @@
 ---
 subcategory: "Direct Connect (DC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dc_hosted_connect"
+description: ""
 ---
 
 # huaweicloud_dc_hosted_connect

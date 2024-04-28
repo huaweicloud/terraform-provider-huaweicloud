@@ -1,5 +1,8 @@
 ---
 subcategory: "Live"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_live_bucket_authorization"
+description: ""
 ---
 
 # huaweicloud_live_bucket_authorization

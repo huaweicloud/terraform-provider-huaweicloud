@@ -1,5 +1,8 @@
 ---
 subcategory: "Network ACL"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_network_acl_rule"
+description: ""
 ---
 
 # huaweicloud_network_acl_rule

@@ -1,5 +1,8 @@
 ---
 subcategory: "Workspace"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_workspace_terminal_bindings"
+description: ""
 ---
 
 # huaweicloud_workspace_terminal_bindings

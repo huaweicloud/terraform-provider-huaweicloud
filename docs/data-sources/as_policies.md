@@ -1,5 +1,8 @@
 ---
 subcategory: "Auto Scaling"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_as_policies"
+description: ""
 ---
 
 # huaweicloud_as_policies

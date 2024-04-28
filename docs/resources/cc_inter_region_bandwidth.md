@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Connect (CC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cc_inter_region_bandwidth"
+description: ""
 ---
 
 # huaweicloud_cc_inter_region_bandwidth

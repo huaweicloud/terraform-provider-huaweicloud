@@ -1,5 +1,8 @@
 ---
 subcategory: "Ubiquitous Cloud Native Service (UCS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_ucs_fleet"
+description: ""
 ---
 
 # huaweicloud_ucs_fleet

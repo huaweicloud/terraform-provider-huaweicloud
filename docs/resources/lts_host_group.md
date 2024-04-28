@@ -1,5 +1,8 @@
 ---
 subcategory: "Log Tank Service (LTS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_lts_host_group"
+description: ""
 ---
 
 # huaweicloud_lts_host_group

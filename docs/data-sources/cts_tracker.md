@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cts_tracker"
+description: ""
 ---
 
 # huaweicloud\_cts\_tracker

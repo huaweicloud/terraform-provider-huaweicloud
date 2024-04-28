@@ -1,5 +1,8 @@
 ---
 subcategory: "Media Processing Center (MPC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_mpc_transcoding_template_group"
+description: ""
 ---
 
 # huaweicloud_mpc_transcoding_template_group

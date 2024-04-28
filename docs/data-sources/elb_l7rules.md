@@ -1,5 +1,8 @@
 ---
 subcategory: Dedicated Load Balance (Dedicated ELB)
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_elb_l7rules"
+description: ""
 ---
 
 # huaweicloud_elb_l7rules

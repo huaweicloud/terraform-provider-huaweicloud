@@ -1,5 +1,8 @@
 ---
 subcategory: "Log Tank Service (LTS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_lts_notification_template"
+description: ""
 ---
 
 # huaweicloud_lts_notification_template

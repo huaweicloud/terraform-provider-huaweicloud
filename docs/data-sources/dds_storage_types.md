@@ -1,5 +1,8 @@
 ---
 subcategory: "Document Database Service (DDS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dds_storage_types"
+description: ""
 ---
 
 # huaweicloud_dds_storage_types

@@ -1,5 +1,8 @@
 ---
 subcategory: "IoT Device Access (IoTDA)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_iotda_device_groups"
+description: ""
 ---
 
 # huaweicloud_iotda_device_groups

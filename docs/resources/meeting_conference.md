@@ -1,5 +1,8 @@
 ---
 subcategory: "Meeting"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_meeting_conference"
+description: ""
 ---
 
 # huaweicloud_meeting_conference

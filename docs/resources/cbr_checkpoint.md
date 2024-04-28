@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Backup and Recovery (CBR)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cbr_checkpoint"
+description: ""
 ---
 
 # huaweicloud_cbr_checkpoint

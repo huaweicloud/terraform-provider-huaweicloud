@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Application Engine (CAE)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cae_component_configurations"
+description: ""
 ---
 
 # huaweicloud_cae_component_configurations

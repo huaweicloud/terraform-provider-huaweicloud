@@ -1,5 +1,8 @@
 ---
 subcategory: "DataArts Studio"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dataarts_architecture_business_metric"
+description: ""
 ---
 
 # huaweicloud_dataarts_architecture_business_metric

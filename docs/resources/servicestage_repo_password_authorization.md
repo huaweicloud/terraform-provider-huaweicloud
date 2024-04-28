@@ -1,5 +1,8 @@
 ---
 subcategory: "ServiceStage"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_servicestage_repo_password_authorization"
+description: ""
 ---
 
 # huaweicloud_servicestage_repo_password_authorization

@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_fw_rule_v2"
+description: ""
 ---
 
 # huaweicloud\_fw\_rule\_v2

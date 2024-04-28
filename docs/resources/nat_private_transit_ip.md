@@ -1,5 +1,8 @@
 ---
 subcategory: "NAT Gateway (NAT)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_nat_private_transit_ip"
+description: ""
 ---
 
 # huaweicloud_nat_private_transit_ip

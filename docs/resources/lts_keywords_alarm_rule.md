@@ -1,5 +1,8 @@
 ---
 subcategory: "Log Tank Service (LTS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_lts_keywords_alarm_rule"
+description: ""
 ---
 
 # huaweicloud_lts_keywords_alarm_rule

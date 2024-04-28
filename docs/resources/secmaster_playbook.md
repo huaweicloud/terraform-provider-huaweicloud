@@ -1,5 +1,8 @@
 ---
 subcategory: "SecMaster"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_secmaster_playbook"
+description: ""
 ---
 
 # huaweicloud_secmaster_playbook

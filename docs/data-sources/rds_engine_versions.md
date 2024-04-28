@@ -1,5 +1,8 @@
 ---
 subcategory: "Relational Database Service (RDS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_rds_engine_versions"
+description: ""
 ---
 
 # huaweicloud_rds_engine_versions

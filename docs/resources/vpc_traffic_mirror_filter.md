@@ -1,5 +1,8 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_vpc_traffic_mirror_filter"
+description: ""
 ---
 
 # huaweicloud_vpc_traffic_mirror_filter

@@ -1,5 +1,8 @@
 ---
 subcategory: "API Gateway (Dedicated APIG)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_apig_certificate"
+description: ""
 ---
 
 # huaweicloud_apig_certificate

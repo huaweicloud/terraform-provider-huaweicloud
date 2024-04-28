@@ -1,5 +1,8 @@
 ---
 subcategory: "KooGallery"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_koogallery_assets"
+description: ""
 ---
 
 # huaweicloud_koogallery_assets

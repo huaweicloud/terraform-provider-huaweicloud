@@ -1,5 +1,8 @@
 ---
 subcategory: "Domain Name Service (DNS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dns_line_group"
+description: ""
 ---
 
 # huaweicloud_dns_line_group

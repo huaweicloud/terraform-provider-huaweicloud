@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Native Anti-DDoS Advanced"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cnad_advanced_black_white_list"
+description: ""
 ---
 
 # huaweicloud_cnad_advanced_black_white_list

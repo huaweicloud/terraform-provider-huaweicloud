@@ -1,5 +1,8 @@
 ---
 subcategory: "Elastic Cloud Server (ECS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_compute_auto_launch_group"
+description: ""
 ---
 
 # huaweicloud_compute_auto_launch_group

@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_csbs_backup"
+description: ""
 ---
 
 # huaweicloud\_csbs\_backup

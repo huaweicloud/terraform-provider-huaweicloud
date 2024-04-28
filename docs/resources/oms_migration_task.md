@@ -1,5 +1,8 @@
 ---
 subcategory: "Object Storage Migration Service (OMS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_oms_migration_task"
+description: ""
 ---
 
 # huaweicloud_oms_migration_task

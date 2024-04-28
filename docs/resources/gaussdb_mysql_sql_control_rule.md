@@ -1,5 +1,8 @@
 ---
 subcategory: "GaussDB(for MySQL)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_mysql_sql_control_rule"
+description: ""
 ---
 
 # huaweicloud_gaussdb_mysql_sql_control_rule

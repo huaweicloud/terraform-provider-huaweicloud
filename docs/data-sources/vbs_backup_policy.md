@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_vbs_backup_policy"
+description: ""
 ---
 
 # huaweicloud\_vbs\_backup\_policy

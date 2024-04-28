@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Connect (CC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cc_central_network_connection_bandwidth_associate"
+description: ""
 ---
 
 # huaweicloud_cc_central_network_connection_bandwidth_associate

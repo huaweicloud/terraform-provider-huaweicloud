@@ -1,5 +1,8 @@
 ---
 subcategory: "Resource Formation (RFS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_rfs_stack"
+description: ""
 ---
 
 # huaweicloud_rfs_stack

@@ -1,5 +1,8 @@
 ---
 subcategory: "GaussDB(DWS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dws_workload_plan_execution"
+description: ""
 ---
 
 # huaweicloud_dws_workload_plan_execution

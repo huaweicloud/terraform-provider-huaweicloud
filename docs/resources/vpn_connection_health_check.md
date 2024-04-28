@@ -1,5 +1,8 @@
 ---
 subcategory: "Virtual Private Network (VPN)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_vpn_connection_health_check"
+description: ""
 ---
 
 # huaweicloud_vpn_connection_health_check

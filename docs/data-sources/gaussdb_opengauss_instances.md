@@ -1,5 +1,8 @@
 ---
 subcategory: "GaussDB"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_opengauss_instances"
+description: ""
 ---
 
 # huaweicloud_gaussdb_opengauss_instances

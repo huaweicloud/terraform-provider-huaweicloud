@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Replication Service (DRS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_drs_availability_zones"
+description: ""
 ---
 
 # huaweicloud_drs_availability_zones

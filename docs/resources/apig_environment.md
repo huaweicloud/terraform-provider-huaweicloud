@@ -1,5 +1,8 @@
 ---
 subcategory: "API Gateway (Dedicated APIG)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_apig_environment"
+description: ""
 ---
 
 # huaweicloud_apig_environment

@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Service Engine (CSE)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cse_microservice_instance"
+description: ""
 ---
 
 # huaweicloud_cse_microservice_instance

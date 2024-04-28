@@ -1,5 +1,8 @@
 ---
 subcategory: "Distributed Cache Service (DCS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dcs_instance"
+description: ""
 ---
 
 # huaweicloud_dcs_instance

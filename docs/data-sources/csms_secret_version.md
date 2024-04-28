@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Encryption Workshop (DEW)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_csms_secret_version"
+description: ""
 ---
 
 # huaweicloud_csms_secret_version

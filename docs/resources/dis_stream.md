@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Ingestion Service (DIS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dis_stream"
+description: ""
 ---
 
 # huaweicloud_dis_stream

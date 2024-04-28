@@ -1,5 +1,8 @@
 ---
 subcategory: "GaussDB(for MySQL)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_mysql_parameter_template"
+description: ""
 ---
 
 # huaweicloud_gaussdb_mysql_parameter_template

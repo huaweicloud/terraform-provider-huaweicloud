@@ -1,5 +1,8 @@
 ---
 subcategory: "Live"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_live_record_callback"
+description: ""
 ---
 
 # huaweicloud_live_record_callback

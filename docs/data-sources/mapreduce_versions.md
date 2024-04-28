@@ -1,5 +1,8 @@
 ---
 subcategory: "MapReduce Service (MRS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_mapreduce_versions"
+description: ""
 ---
 
 # huaweicloud_mapreduce_versions

@@ -1,5 +1,8 @@
 ---
 subcategory: "Relational Database Service (RDS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_rds_lts_log"
+description: ""
 ---
 
 # huaweicloud_rds_lts_log

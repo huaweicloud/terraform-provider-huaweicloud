@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_vbs_backup"
+description: ""
 ---
 
 # huaweicloud\_vbs\_backup

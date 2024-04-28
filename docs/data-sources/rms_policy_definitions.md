@@ -1,5 +1,8 @@
 ---
 subcategory: "Config"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_rms_policy_definitions"
+description: ""
 ---
 
 # huaweicloud_rms_policy_definitions
