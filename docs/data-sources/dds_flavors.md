@@ -20,15 +20,14 @@ data "huaweicloud_dds_flavors" "flavor" {
 * `region` - (Optional, String) Specifies the region in which to obtain the flavors. If omitted,
   the provider-level region will be used.
 
-* `engine_name` - (Required, String) Specifies the engine name of the dds, "DDS-Community" and "DDS-Enhanced" are
-  supported.
+* `engine_name` - (Required, String) Specifies the engine name. Value options: **DDS-Community** and **DDS-Enhanced**.
 
-* `type` - (Optional, String) Specifies the type of the DDS favor. "mongos", "shard", "config", "replica" and "single"
-  are supported.
+* `type` - (Optional, String) Specifies the type of the flavor. Value options: **mongos**, **shard**, **config**,
+  **replica** and **single**.
 
-* `vcpus` - (Optional, String) Specifies the vcpus of the dds flavor.
+* `vcpus` - (Optional, String) Specifies the number of vCPUs.
 
-* `memory` - (Optional, String) Specifies the ram of the dds flavor in GB.
+* `memory` - (Optional, String) Specifies the memory size in GB.
 
 ## Attribute Reference
 
@@ -38,9 +37,23 @@ In addition to all arguments above, the following attributes are exported:
 
 * `flavors` - Indicates the flavors information. Structure is documented below.
 
-The `flavors` block contains:
+  The [flavors](#flavors_struct) structure is documented below.
 
-* `spec_code` - The name of the dds flavor.
-* `type` - See `type` above.
-* `vcpus` - See `vcpus` above.
-* `memory` - See `memory` above.
+<a name="flavors_struct"></a>
+The `flavors` block supports:
+
+* `engine_name` - Indicates the engine name.
+
+* `spec_code` - Indicates the resource specification code.
+
+* `type` - Indicates the type of the flavor.
+
+* `vcpus` - Indicates the number of vCPUs.
+
+* `memory` - Indicates the memory size in GB.
+
+* `az_status` - Indicates the mapping between availability zone and status of the flavor. **key** indicates the AZ ID,
+  and **value** indicates the specification status in the AZ. Its value can be any of the following:
+  + **normal**: The specification is on sale.
+  + **unsupported**: This specification is not supported.
+  + **sellout**: The specification is sold out.
