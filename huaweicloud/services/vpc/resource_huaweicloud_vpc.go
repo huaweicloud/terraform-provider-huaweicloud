@@ -252,7 +252,7 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 
 	res, err := obtainV3VpcResp(v3Client, d.Id())
 	if err != nil {
-		diag.Errorf("error retrieving VPC (%s) v3 detail: %s", d.Id(), err)
+		return diag.Errorf("error retrieving VPC (%s) v3 detail: %s", d.Id(), err)
 	}
 
 	if val, ok := d.GetOk("secondary_cidr"); ok {
