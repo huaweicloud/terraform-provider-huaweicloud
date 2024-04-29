@@ -85,7 +85,8 @@ func ResourceConnection() *schema.Resource {
 			"peer_subnets": {
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				Description: `The customer subnets.`,
 			},
 			"psk": {
