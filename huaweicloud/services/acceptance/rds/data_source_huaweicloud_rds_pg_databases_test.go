@@ -129,5 +129,5 @@ output "size_filter_is_useful" {
   )
 }
 
-`, testPgDatabase_basic(name, "test_description"))
+`, testPgDatabase_basic(name))
 }

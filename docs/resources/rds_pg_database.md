@@ -38,10 +38,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `owner` - (Optional, String, ForceNew) Specifies the database user. The value must be an existing username and must be
-  different from system usernames. Defaults to **root**.
-
-  Changing this parameter will create a new resource.
+* `owner` - (Optional, String) Specifies the database user. The value must be an existing username and must be different
+  from system usernames. Defaults to **root**.
 
 * `template` - (Optional, String, ForceNew) Specifies the name of the database template. Value options: **template0**,
   **template1**. Defaults to **template1**.

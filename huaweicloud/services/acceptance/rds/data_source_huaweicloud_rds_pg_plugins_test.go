@@ -90,5 +90,5 @@ output "created_filter_is_useful" {
     [for v in data.huaweicloud_rds_pg_plugins.created_filter.plugins[*].created : v == local.created]
   )  
 }
-`, testPgDatabase_basic(name, ""))
+`, testPgDatabase_basic(name))
 }
