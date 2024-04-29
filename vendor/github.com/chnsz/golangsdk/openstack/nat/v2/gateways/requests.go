@@ -14,6 +14,9 @@ type CreateOpts struct {
 	Spec string `json:"spec" required:"true"`
 	// The gateway description.
 	Description string `json:"description,omitempty"`
+	// The private IP address of the public NAT gateway.
+	// The IP address is assigned by the VPC subnet.
+	NgportIpAddress string `json:"ngport_ip_address,omitempty"`
 	// The enterprise project ID to which the gateway belongs.
 	EnterpriseProjectId string `json:"enterprise_project_id,omitempty"`
 }
