@@ -88,13 +88,15 @@ func TestAccPgAccount_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testPgAccount_basic(name, "Test@12345678", "test_description"),
+				Config: testPgAccount_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
 						"huaweicloud_rds_instance.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", "test_description"),
+					resource.TestCheckResourceAttrPair(rName, "memberof.0",
+						"huaweicloud_rds_pg_account.member", "name"),
 					resource.TestCheckResourceAttr(rName, "attributes.#", "1"),
 					resource.TestCheckResourceAttrSet(rName, "attributes.0.rol_super"),
 					resource.TestCheckResourceAttrSet(rName, "attributes.0.rol_inherit"),
@@ -107,12 +109,14 @@ func TestAccPgAccount_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testPgAccount_basic(name, "Test@123456789", "test_description_update"),
+				Config: testPgAccount_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
 						"huaweicloud_rds_instance.test", "id"),
 					resource.TestCheckResourceAttr(rName, "description", "test_description_update"),
+					resource.TestCheckResourceAttrPair(rName, "memberof.0",
+						"huaweicloud_rds_pg_account.member_update", "name"),
 				),
 			},
 			{
@@ -125,15 +129,50 @@ func TestAccPgAccount_basic(t *testing.T) {
 	})
 }
 
-func testPgAccount_basic(name, pwd, description string) string {
+func testPgAccount_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_rds_pg_account" "member" {
+  instance_id = huaweicloud_rds_instance.test.id
+  name        = "%[2]s_member"
+  password    = "Test@123456789"
+}
 
 resource "huaweicloud_rds_pg_account" "test" {
+  depends_on  = [huaweicloud_rds_pg_account.member]
   instance_id = huaweicloud_rds_instance.test.id
-  name        = "%s"
-  password    = "%s"
-  description = "%s"
+  name        = "%[2]s"
+  password    = "Test@12345678"
+  description = "test_description"
+  memberof    = [huaweicloud_rds_pg_account.member.name]
 }
-`, testAccRdsInstance_basic(name), name, pwd, description)
+`, testAccRdsInstance_basic(name), name)
+}
+
+func testPgAccount_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_pg_account" "member" {
+  instance_id = huaweicloud_rds_instance.test.id
+  name        = "%[2]s_member"
+  password    = "Test@123456789"
+}
+
+resource "huaweicloud_rds_pg_account" "member_update" {
+  instance_id = huaweicloud_rds_instance.test.id
+  name        = "%[2]s_member_update"
+  password    = "Test@123456789"
+}
+
+resource "huaweicloud_rds_pg_account" "test" {
+  depends_on  = [huaweicloud_rds_pg_account.member_update]
+  instance_id = huaweicloud_rds_instance.test.id
+  name        = "%[2]s"
+  password    = "Test@123456789"
+  description = "test_description_update"
+  memberof    = [huaweicloud_rds_pg_account.member_update.name]
+}
+`, testAccRdsInstance_basic(name), name)
 }
