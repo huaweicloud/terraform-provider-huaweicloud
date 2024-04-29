@@ -29,6 +29,7 @@ var multiCatalogKeys = map[string][]string{
 	"vpc":          {"networkv2", "vpcv3", "fwv2"},
 	"elb":          {"elbv2", "elbv3"},
 	"dns":          {"dns_region", "dnsv21"},
+	"dds":          {"ddsv31"},
 	"kms":          {"kmsv1", "kmsv3"},
 	"mrs":          {"mrsv2"},
 	"nat":          {"natv3"},
@@ -450,6 +451,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"dds": {
 		Name:    "dds",
 		Version: "v3",
+		Product: "DDS",
+	},
+	"ddsv31": {
+		Name:    "dds",
+		Version: "v3.1",
 		Product: "DDS",
 	},
 	"geminidb": {

@@ -25,8 +25,10 @@ data "huaweicloud_dds_flavors" "flavor" {
 
 * `engine_name` - (Required, String) Specifies the engine name. Value options: **DDS-Community** and **DDS-Enhanced**.
 
+* `engine_version` - (Optional, String) Specifies the DB version number. Value options: **3.4**, **4.0**, **4.2** and **4.4**.
+
 * `type` - (Optional, String) Specifies the type of the flavor. Value options: **mongos**, **shard**, **config**,
-  **replica** and **single**.
+  **replica**, **single** and **readonly**.
 
 * `vcpus` - (Optional, String) Specifies the number of vCPUs.
 
@@ -46,6 +48,8 @@ In addition to all arguments above, the following attributes are exported:
 The `flavors` block supports:
 
 * `engine_name` - Indicates the engine name.
+
+* `engine_versions` - Indicates the database versions.
 
 * `spec_code` - Indicates the resource specification code.
 
