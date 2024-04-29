@@ -1,5 +1,69 @@
 # CHANGELOG
 
+## 1.64.0 (April 29, 2024)
+
+* **New Resource:**
+  + `huaweicloud_ram_resource_share_accepter` [GH-4710]
+  + `huaweicloud_dds_instance_restart` [GH-4691]
+  + `huaweicloud_dataarts_security_permission_set_privilege` [GH-4685]
+  + `huaweicloud_identity_login_policy` [GH-4681]
+  + `huaweicloud_rds_recycling_policy` [GH-4678]
+  + `huaweicloud_dataarts_security_permission_set_member` [GH-4663]
+  + `huaweicloud_dataarts_dataservice_catalog` [GH-4651]
+  + `huaweicloud_cc_global_connection_bandwidth_spec_codes` [GH-4649]
+  + `huaweicloud_lts_log_converge` [GH-4633]
+  + `huaweicloud_lts_log_converge_switch` [GH-4631]
+  + `huaweicloud_cae_component_deployment` [GH-4609]
+
+* **New Data Source:**
+  + `huaweicloud_ram_resource_share_invatations` [GH-4712]
+  + `huaweicloud_dataarts_security_data_secrecy_level` [GH-4692]
+  + `huaweicloud_cfw_attack_logs` [GH-4683]
+  + `huaweicloud_rds_cross_region_backup_instances` [GH-4682]
+  + `huaweicloud_cc_permissions` [GH-4675]
+  + `huaweicloud_waf_rules_blacklist` [GH-4673]
+  + `huaweicloud_dcs_accounts` [GH-4667]
+  + `huaweicloud_waf_rules_geolocation_access_control` [GH-4662]
+  + `huaweicloud_cc_connection_tags` [GH-4659]
+  + `huaweicloud_dli_sql_templates` [GH-4658]
+  + `huaweicloud_identity_providers` [GH-4656]
+  + `huaweicloud_waf_rules_precise_protection` [GH-4655]
+  + `huaweicloud_cc_global_connection_bandwidth_sites` [GH-4653]
+  + `huaweicloud_rds_cross_region_backups` [GH-4647]
+  + `huaweicloud_rms_resource_aggregators` [GH-4645]
+  + `huaweicloud_dli_spark_templates` [GH-4641]
+  + `huaweicloud_cc_connection_routes` [GH-4640]
+  + `huaweicloud_dli_flink_templates` [GH-4639]
+  + `huaweicloud_hss_hosts` [GH-4638]
+  + `huaweicloud_cc_central_network_policies_change_set` [GH-4635]
+  + `huaweicloud_cc_global_connection_bandwidth_line_levels` [GH-4634]
+  + `huaweicloud_cc_connection_routes` [GH-4623]
+  + `huaweicloud_cc_central_network_capabilities` [GH-4620]
+  + `huaweicloud_dns_nameservers` [GH-4617]
+  + `huaweicloud_rds_sql_audit_operations` [GH-4615]
+  + `huaweicloud_cc_bandwidth_packages` [GH-4613]
+  + `huaweicloud_dli_spark_templates` [GH-4610]
+  + `huaweicloud_hss_host_groups` [GH-4606]
+  + `huaweicloud_hss_hosts` [GH-4605]
+  + `huaweicloud_cc_network_instances` [GH-4600]
+  + `huaweicloud_rms_advanced_queries` [GH-4596]
+  + `huaweicloud_cc_inter_region_bandwidths` [GH-4595]
+  + `huaweicloud_rms_organizational_assignment_packages` [GH-4592]
+  + `huaweicloud_gaussdb_mysql_restore_time_ranges` [GH-4587]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cfw_firewall: Support creating east-west firewall afterwards [GH-4703]
+* resource/huaweicloud_cfw_firewall: Add tags update support [GH-4693]
+* resource/huaweicloud_cfw_firewall: Add attachment_id import support [GH-4689]
+* resource/huaweicloud_rds_instance: Add read write permission support [GH-4679]
+* resource/huaweicloud_cbh_instance: Add security group update support [GH-4672]
+* resource/huaweicloud_rds_read_replica_instance: Add maintain window support [GH-4660]
+
+BUG FIXES:
+
+* resource/huaweicloud_vpc: Fix return error of vpc v3 API [GH-4725]
+
 ## 1.63.2 (April 25, 2024)
 
 ENHANCEMENTS:
