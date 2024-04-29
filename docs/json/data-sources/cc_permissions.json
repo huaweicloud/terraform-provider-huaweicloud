@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_permissions": {
+          "block": {
+            "attributes": {
+              "cloud_connection_id": {
+                "type": "string",
+                "description": "Specifies the cloud connection ID.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the permission description.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the network instance ID.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the permission name.",
+                "optional": true
+              },
+              "permission_id": {
+                "type": "string",
+                "description": "Specifies the permission ID.",
+                "optional": true
+              },
+              "permissions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_connection_id": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "id": "string",
+                      "instance_domain_id": "string",
+                      "instance_id": "string",
+                      "instance_type": "string",
+                      "name": "string",
+                      "project_id": "string",
+                      "region_id": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the authorized instances.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

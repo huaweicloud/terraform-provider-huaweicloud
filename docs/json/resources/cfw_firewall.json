@@ -26,15 +26,13 @@
                 "type": "string",
                 "description": "Specifies the ER ID of the east-west firewall.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "east_west_firewall_inspection_cidr": {
                 "type": "string",
                 "description": "Specifies the inspection cidr of the east-west firewall.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "east_west_firewall_inspection_vpc_id": {
                 "type": "string",
@@ -45,8 +43,7 @@
                 "type": "string",
                 "description": "Specifies the mode of the east-west firewall.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "east_west_firewall_status": {
                 "type": "number",

@@ -36,8 +36,7 @@
                 "type": "string",
                 "description": "Specifies the enterprise project ID to which the CBH instance belongs.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "flavor_id": {
                 "type": "string",

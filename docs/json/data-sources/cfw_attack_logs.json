@@ -1,0 +1,157 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_attack_logs": {
+          "block": {
+            "attributes": {
+              "app": {
+                "type": "string",
+                "description": "Specifies the application protocol.",
+                "optional": true
+              },
+              "attack_rule": {
+                "type": "string",
+                "description": "Specifies the intrusion event rule.",
+                "optional": true
+              },
+              "attack_rule_id": {
+                "type": "string",
+                "description": "Specifies the attack rule ID.",
+                "optional": true
+              },
+              "attack_type": {
+                "type": "string",
+                "description": "Specifies the intrusion event type.",
+                "optional": true
+              },
+              "dst_ip": {
+                "type": "string",
+                "description": "Specifies the destination IP address.",
+                "optional": true
+              },
+              "dst_port": {
+                "type": "number",
+                "description": "Specifies the destination port.",
+                "optional": true
+              },
+              "dst_region_name": {
+                "type": "string",
+                "description": "Specifies the destination region name.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time.",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall instance ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "level": {
+                "type": "string",
+                "description": "Specifies the threat level.",
+                "optional": true
+              },
+              "log_type": {
+                "type": "string",
+                "description": "Specifies the log type.",
+                "optional": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "app": "string",
+                      "attack_rule": "string",
+                      "attack_rule_id": "string",
+                      "attack_type": "string",
+                      "direction": "string",
+                      "dst_ip": "string",
+                      "dst_port": "number",
+                      "dst_region_id": "string",
+                      "dst_region_name": "string",
+                      "event_time": "string",
+                      "level": "string",
+                      "log_id": "string",
+                      "packet": "string",
+                      "packet_length": "number",
+                      "packet_messages": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "hex_index": "string",
+                            "hexs": [
+                              "list",
+                              "string"
+                            ],
+                            "utf8_string": "string"
+                          }
+                        ]
+                      ],
+                      "protocol": "string",
+                      "source": "string",
+                      "src_ip": "string",
+                      "src_port": "number",
+                      "src_region_id": "string",
+                      "src_region_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The attack log records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "src_ip": {
+                "type": "string",
+                "description": "Specifies the source IP address.",
+                "optional": true
+              },
+              "src_port": {
+                "type": "number",
+                "description": "Specifies the source port.",
+                "optional": true
+              },
+              "src_region_name": {
+                "type": "string",
+                "description": "Specifies the source region name.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -15,6 +15,11 @@
                   [
                     "object",
                     {
+                      "az_status": [
+                        "map",
+                        "string"
+                      ],
+                      "engine_name": "string",
                       "memory": "string",
                       "spec_code": "string",
                       "type": "string",

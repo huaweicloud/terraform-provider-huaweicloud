@@ -1,0 +1,104 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_security_permission_set_privilege": {
+          "block": {
+            "attributes": {
+              "actions": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "column_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "connection_id": {
+                "type": "string",
+                "optional": true
+              },
+              "database_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "database_url": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "datasource_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "permission_set_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "schema_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "sync_msg": {
+                "type": "string",
+                "computed": true
+              },
+              "table_name": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

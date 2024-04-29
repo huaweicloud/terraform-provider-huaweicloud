@@ -1,0 +1,109 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_central_network_attachments": {
+          "block": {
+            "attributes": {
+              "attachment_id": {
+                "type": "string",
+                "description": "Specifies the attachment ID.",
+                "optional": true
+              },
+              "attachment_instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "optional": true
+              },
+              "attachment_instance_type": {
+                "type": "string",
+                "description": "Specifies the type of attachment instance.",
+                "optional": true
+              },
+              "central_network_attachments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attachment_id": "string",
+                      "attachment_instance_id": "string",
+                      "attachment_instance_project_id": "string",
+                      "attachment_instance_region_id": "string",
+                      "attachment_instance_site_code": "string",
+                      "attachment_instance_type": "string",
+                      "bandwidth_size": "number",
+                      "bandwidth_type": "string",
+                      "central_network_id": "string",
+                      "central_network_plane_id": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "enterprise_router_attachment_id": "string",
+                      "enterprise_router_id": "string",
+                      "enterprise_router_project_id": "string",
+                      "enterprise_router_region_id": "string",
+                      "enterprise_router_site_code": "string",
+                      "global_connection_bandwidth_id": "string",
+                      "id": "string",
+                      "is_frozen": "bool",
+                      "name": "string",
+                      "specification_value": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "approved_state": "string",
+                            "attached_er_id": "string",
+                            "enterprise_router_table_id": "string",
+                            "hosted_cloud": "string",
+                            "reason": "string"
+                          }
+                        ]
+                      ],
+                      "state": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "List of attachments on the central network.",
+                "computed": true
+              },
+              "central_network_id": {
+                "type": "string",
+                "description": "Specifies the central network ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the attachment name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "description": "Specifies the attachment status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

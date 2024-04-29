@@ -59,7 +59,8 @@
                   "string"
                 ],
                 "description": "The customer subnets.",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "psk": {
                 "type": "string",
