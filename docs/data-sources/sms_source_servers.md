@@ -1,5 +1,8 @@
 ---
 subcategory: "Server Migration Service (SMS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_sms_source_servers"
+description: ""
 ---
 
 # huaweicloud_sms_source_servers

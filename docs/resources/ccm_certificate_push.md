@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Certificate Manager (CCM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_ccm_certificate_push"
+description: ""
 ---
 
 # huaweicloud_ccm_certificate_push

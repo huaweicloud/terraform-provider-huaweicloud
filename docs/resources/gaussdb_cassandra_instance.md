@@ -1,5 +1,8 @@
 ---
 subcategory: "GeminiDB"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_cassandra_instance"
+description: ""
 ---
 
 # huaweicloud_gaussdb_cassandra_instance

@@ -1,5 +1,8 @@
 ---
 subcategory: "Web Application Firewall (WAF)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_waf_rule_web_tamper_protection"
+description: ""
 ---
 
 # huaweicloud_waf_rule_web_tamper_protection

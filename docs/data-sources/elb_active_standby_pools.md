@@ -1,5 +1,8 @@
 ---
 subcategory: Dedicated Load Balance (Dedicated ELB)
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_elb_active_standby_pools"
+description: ""
 ---
 
 # huaweicloud_elb_active_standby_pools

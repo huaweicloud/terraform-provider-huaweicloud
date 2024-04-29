@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Trace Service (CTS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cts_data_tracker"
+description: ""
 ---
 
 # huaweicloud_cts_data_tracker

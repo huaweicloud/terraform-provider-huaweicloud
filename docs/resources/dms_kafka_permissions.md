@@ -1,5 +1,8 @@
 ---
 subcategory: "Distributed Message Service (DMS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dms_kafka_permissions"
+description: ""
 ---
 
 # huaweicloud_dms_kafka_permissions

@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Security Center (DSC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dsc_instance"
+description: ""
 ---
 
 # huaweicloud_dsc_instance

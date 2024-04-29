@@ -1,5 +1,8 @@
 ---
 subcategory: "Intelligent EdgeCloud (IEC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_iec_keypair"
+description: ""
 ---
 
 # huaweicloud_iec_keypair

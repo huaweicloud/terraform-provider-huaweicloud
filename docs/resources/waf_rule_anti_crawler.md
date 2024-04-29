@@ -1,5 +1,8 @@
 ---
 subcategory: "Web Application Firewall (WAF)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_waf_rule_anti_crawler"
+description: ""
 ---
 
 # huaweicloud_waf_rule_anti_crawler

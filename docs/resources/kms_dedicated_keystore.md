@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Encryption Workshop (DEW)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_kms_dedicated_keystore"
+description: ""
 ---
 
 # huaweicloud_kms_dedicated_keystore

@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Lake Insight (DLI)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dli_flinkjar_job"
+description: ""
 ---
 
 # huaweicloud_dli_flinkjar_job

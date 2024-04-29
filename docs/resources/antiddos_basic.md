@@ -1,5 +1,8 @@
 ---
 subcategory: "Anti-DDoS"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_antiddos_basic"
+description: ""
 ---
 
 # huaweicloud_antiddos_basic

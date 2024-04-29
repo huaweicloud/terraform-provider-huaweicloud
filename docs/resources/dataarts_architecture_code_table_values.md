@@ -1,5 +1,8 @@
 ---
 subcategory: "DataArts Studio"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dataarts_architecture_code_table_values"
+description: ""
 ---
 
 # huaweicloud_dataarts_architecture_code_table_values

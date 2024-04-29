@@ -1,5 +1,8 @@
 ---
 subcategory: "Distributed Cache Service (DCS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dcs_hotkey_analyses"
+description: ""
 ---
 
 # huaweicloud_dcs_hotkey_analyses

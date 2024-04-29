@@ -1,5 +1,8 @@
 ---
 subcategory: "MapReduce Service (MRS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_mapreduce_scaling_policy"
+description: ""
 ---
 
 # huaweicloud_mapreduce_scaling_policy

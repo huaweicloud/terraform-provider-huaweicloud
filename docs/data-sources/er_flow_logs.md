@@ -1,5 +1,8 @@
 ---
 subcategory: "Enterprise Router (ER)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_er_flow_logs"
+description: ""
 ---
 
 # huaweicloud_er_flow_logs

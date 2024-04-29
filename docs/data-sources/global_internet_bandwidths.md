@@ -1,5 +1,8 @@
 ---
 subcategory: "Elastic IP (EIP)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_global_internet_bandwidths"
+description: ""
 ---
 
 # huaweicloud_global_internet_bandwidths

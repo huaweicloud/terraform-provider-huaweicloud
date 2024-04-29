@@ -1,5 +1,8 @@
 # huaweicloud_account
 
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_account"
+description: ""
 Use this data source to get information about the current account.
 
 ## Example Usage

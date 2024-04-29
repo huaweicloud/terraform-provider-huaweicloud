@@ -1,5 +1,8 @@
 ---
 subcategory: "Elastic IP (EIP)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_vpc_eip_associate"
+description: ""
 ---
 
 # huaweicloud_vpc_eip_associate

@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Firewall (CFW)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cfw_black_white_list"
+description: ""
 ---
 
 # huaweicloud_cfw_black_white_list

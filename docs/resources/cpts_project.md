@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Performance Test Service (CPTS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cpts_project"
+description: ""
 ---
 
 # huaweicloud_cpts_project

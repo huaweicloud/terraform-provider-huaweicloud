@@ -1,5 +1,8 @@
 ---
 subcategory: "CloudTable"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cloudtable_cluster"
+description: ""
 ---
 
 # huaweicloud_cloudtable_cluster

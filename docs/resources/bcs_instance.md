@@ -1,5 +1,8 @@
 ---
 subcategory: "Blockchain Service (BCS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_bcs_instance"
+description: ""
 ---
 
 # huaweicloud_bcs_instance

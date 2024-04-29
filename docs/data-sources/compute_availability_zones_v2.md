@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_compute_availability_zones_v2"
+description: ""
 ---
 
 # huaweicloud\_compute\_availability\_zones\_v2

@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_vpnaas_endpoint_group_v2"
+description: ""
 ---
 
 # huaweicloud_vpnaas_endpoint_group_v2

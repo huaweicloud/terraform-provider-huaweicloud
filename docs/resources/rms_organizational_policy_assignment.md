@@ -1,5 +1,8 @@
 ---
 subcategory: "Config"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_rms_organizational_policy_assignment"
+description: ""
 ---
 
 # huaweicloud_rms_organizational_policy_assignment

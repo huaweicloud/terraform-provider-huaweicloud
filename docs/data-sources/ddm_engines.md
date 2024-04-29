@@ -1,5 +1,8 @@
 ---
 subcategory: "Distributed Database Middleware (DDM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_ddm_engines"
+description: ""
 ---
 
 # huaweicloud_ddm_engines

@@ -1,5 +1,8 @@
 ---
 subcategory: "Application Operations Management (AOM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_aom_prom_instance"
+description: ""
 ---
 
 # huaweicloud_aom_prom_instance

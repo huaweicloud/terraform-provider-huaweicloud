@@ -1,5 +1,8 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_vpc_flow_log"
+description: ""
 ---
 
 # huaweicloud_vpc_flow_log

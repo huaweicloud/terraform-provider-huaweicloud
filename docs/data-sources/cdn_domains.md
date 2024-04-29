@@ -1,5 +1,8 @@
 ---
 subcategory: Content Delivery Network (CDN)
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_cdn_domains"
+description: ""
 ---
 
 # huaweicloud_cdn_domains

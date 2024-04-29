@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Operations Center (COC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_coc_script"
+description: ""
 ---
 
 # huaweicloud_coc_script

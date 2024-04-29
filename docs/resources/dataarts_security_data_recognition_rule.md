@@ -1,5 +1,8 @@
 ---
 subcategory: "DataArts Studio"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dataarts_security_data_recognition_rule"
+description: ""
 ---
 
 # huaweicloud_dataarts_security_data_recognition_rule

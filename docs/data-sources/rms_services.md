@@ -1,5 +1,8 @@
 ---
 subcategory: "Config"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_rms_services"
+description: ""
 ---
 
 # huaweicloud_rms_services

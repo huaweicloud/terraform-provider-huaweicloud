@@ -1,5 +1,8 @@
 ---
 subcategory: "Tag Management Service (TMS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_tms_tags"
+description: ""
 ---
 
 # huaweicloud_tms_tags

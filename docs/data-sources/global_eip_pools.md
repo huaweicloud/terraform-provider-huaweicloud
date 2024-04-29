@@ -1,5 +1,8 @@
 ---
 subcategory: "Elastic IP (EIP)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_global_eip_pools"
+description: ""
 ---
 
 # huaweicloud_global_eip_pools

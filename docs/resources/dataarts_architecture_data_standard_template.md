@@ -1,5 +1,8 @@
 ---
 subcategory: "DataArts Studio"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dataarts_architecture_data_standard_template"
+description: ""
 ---
 
 # huaweicloud_dataarts_architecture_data_standard_template

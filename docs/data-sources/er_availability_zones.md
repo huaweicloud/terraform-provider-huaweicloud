@@ -1,5 +1,8 @@
 ---
 subcategory: "Enterprise Router (ER)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_er_availability_zones"
+description: ""
 ---
 
 # huaweicloud_er_availability_zones

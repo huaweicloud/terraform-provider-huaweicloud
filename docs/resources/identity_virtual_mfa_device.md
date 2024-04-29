@@ -1,5 +1,8 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_identity_virtual_mfa_device"
+description: ""
 ---
 
 # huaweicloud_identity_virtual_mfa_device

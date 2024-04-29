@@ -1,5 +1,8 @@
 ---
 subcategory: "AI Development Platform (ModelArts)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_modelarts_notebook_mount_storage"
+description: ""
 ---
 
 # huaweicloud_modelarts_notebook_mount_storage

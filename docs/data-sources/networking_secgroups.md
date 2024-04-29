@@ -1,5 +1,8 @@
 ---
 subcategory: "Virtual Private Cloud (VPC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_networking_secgroups"
+description: ""
 ---
 
 # huaweicloud_networking_secgroups

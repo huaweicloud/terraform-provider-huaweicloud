@@ -1,5 +1,8 @@
 ---
 subcategory: "Video on Demand (VOD)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_vod_media_asset"
+description: ""
 ---
 
 # huaweicloud_vod_media_asset

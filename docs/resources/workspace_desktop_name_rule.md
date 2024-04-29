@@ -1,5 +1,8 @@
 ---
 subcategory: "Workspace"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_workspace_desktop_name_rule"
+description: ""
 ---
 
 # huaweicloud_workspace_desktop_name_rule

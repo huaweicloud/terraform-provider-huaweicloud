@@ -1,5 +1,8 @@
 ---
 subcategory: "GeminiDB"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_redis_eip_associate"
+description: ""
 ---
 
 # huaweicloud_gaussdb_redis_eip_associate

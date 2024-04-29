@@ -1,5 +1,8 @@
 ---
 subcategory: "Image Management Service (IMS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_images_image_copy"
+description: ""
 ---
 
 # huaweicloud_images_image_copy

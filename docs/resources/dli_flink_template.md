@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Lake Insight (DLI)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dli_flink_template"
+description: ""
 ---
 
 # huaweicloud_dli_flink_template

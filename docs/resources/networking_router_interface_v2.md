@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_networking_router_interface_v2"
+description: ""
 ---
 
 # huaweicloud_networking_router_interface_v2

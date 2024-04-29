@@ -1,5 +1,8 @@
 ---
 subcategory: "Identity and Access Management (IAM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_identity_group_role_assignment"
+description: ""
 ---
 
 # huaweicloud_identity_group_role_assignment

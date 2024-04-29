@@ -1,5 +1,8 @@
 ---
 subcategory: "GaussDB(DWS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dws_logical_cluster"
+description: ""
 ---
 
 # huaweicloud_dws_logical_cluster

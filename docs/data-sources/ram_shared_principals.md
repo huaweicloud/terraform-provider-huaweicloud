@@ -1,5 +1,8 @@
 ---
 subcategory: "Resource Access Manager (RAM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_ram_shared_principals"
+description: ""
 ---
 
 # huaweicloud_ram_shared_principals

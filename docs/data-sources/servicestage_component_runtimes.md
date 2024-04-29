@@ -1,5 +1,8 @@
 ---
 subcategory: "ServiceStage"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_servicestage_component_runtimes"
+description: ""
 ---
 
 # huaweicloud_servicestage_component_runtimes

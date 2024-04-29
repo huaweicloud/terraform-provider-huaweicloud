@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_fw_firewall_group_v2"
+description: ""
 ---
 
 # huaweicloud\_fw\_firewall\_group\_v2

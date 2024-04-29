@@ -1,5 +1,8 @@
 ---
 subcategory: "IAM Identity Center"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_identitycenter_custom_role_attachment"
+description: ""
 ---
 
 # huaweicloud_identitycenter_custom_role_attachment

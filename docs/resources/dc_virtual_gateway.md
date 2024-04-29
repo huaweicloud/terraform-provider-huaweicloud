@@ -1,5 +1,8 @@
 ---
 subcategory: "Direct Connect (DC)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_dc_virtual_gateway"
+description: ""
 ---
 
 # huaweicloud_dc_virtual_gateway

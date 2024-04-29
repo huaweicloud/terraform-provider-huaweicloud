@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Search Service (CSS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_css_logstash_cluster"
+description: ""
 ---
 
 # huaweicloud_css_logstash_cluster

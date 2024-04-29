@@ -1,5 +1,8 @@
 ---
 subcategory: "Object Storage Service (OBS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_obs_bucket_policy"
+description: ""
 ---
 
 # huaweicloud_obs_bucket_policy

@@ -1,5 +1,8 @@
 ---
 subcategory: "Virtual Private Network (VPN)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_vpn_gateway_availability_zones"
+description: ""
 ---
 
 # huaweicloud_vpn_gateway_availability_zones

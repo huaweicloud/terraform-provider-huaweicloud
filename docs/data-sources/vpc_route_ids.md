@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_vpc_route_ids"
+description: ""
 ---
 
 # huaweicloud_vpc_route_ids

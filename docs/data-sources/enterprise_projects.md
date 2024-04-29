@@ -1,5 +1,8 @@
 ---
 subcategory: "Enterprise Project Management Service (EPS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_enterprise_projects"
+description: ""
 ---
 
 # huaweicloud_enterprise_projects

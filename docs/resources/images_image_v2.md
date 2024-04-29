@@ -1,5 +1,8 @@
 ---
 subcategory: "Deprecated"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_images_image_v2"
+description: ""
 ---
 
 # huaweicloud_images_image_v2

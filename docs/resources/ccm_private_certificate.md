@@ -1,5 +1,8 @@
 ---
 subcategory: "Cloud Certificate Manager (CCM)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_ccm_private_certificate"
+description: ""
 ---
 
 # huaweicloud_ccm_private_certificate

@@ -1,5 +1,8 @@
 ---
 subcategory: "Config"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_rms_organizational_assignment_package"
+description: ""
 ---
 
 # huaweicloud_rms_organizational_assignment_package

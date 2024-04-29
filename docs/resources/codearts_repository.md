@@ -1,5 +1,8 @@
 ---
 subcategory: "CodeArts"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_codearts_repository"
+description: ""
 ---
 
 # huaweicloud_codearts_repository

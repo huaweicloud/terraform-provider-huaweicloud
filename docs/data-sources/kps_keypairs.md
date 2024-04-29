@@ -1,5 +1,8 @@
 ---
 subcategory: "Data Encryption Workshop (DEW)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_kps_keypairs"
+description: ""
 ---
 
 # huaweicloud_kps_keypairs

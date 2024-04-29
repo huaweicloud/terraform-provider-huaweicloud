@@ -1,5 +1,8 @@
 ---
 subcategory: "Software Repository for Container (SWR)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_swr_image_retention_policy"
+description: ""
 ---
 
 # huaweicloud_swr_image_retention_policy

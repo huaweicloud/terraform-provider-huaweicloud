@@ -1,5 +1,8 @@
 ---
 subcategory: "Ubiquitous Cloud Native Service (UCS)"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_ucs_policy"
+description: ""
 ---
 
 # huaweicloud_ucs_policy
