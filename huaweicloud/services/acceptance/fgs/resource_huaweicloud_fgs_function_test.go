@@ -210,6 +210,9 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 					resource.TestCheckResourceAttr(rName1, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL),
 					resource.TestCheckResourceAttrPair(rName1, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(rName1, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(rName1, "custom_image.0.command", "/bin/sh"),
+					resource.TestCheckResourceAttr(rName1, "custom_image.0.args", "-args,value"),
+					resource.TestCheckResourceAttr(rName1, "custom_image.0.working_dir", "/"),
 					rc2.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName2, "name", randName+"_2"),
 					resource.TestCheckResourceAttr(rName2, "agency", "functiongraph_swr_trust"),
@@ -228,6 +231,9 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 					resource.TestCheckResourceAttr(rName1, "vpc_id", ""),
 					resource.TestCheckResourceAttr(rName1, "network_id", ""),
 					resource.TestCheckResourceAttr(rName1, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL_UPDATED),
+					resource.TestCheckResourceAttr(rName1, "custom_image.0.command", ""),
+					resource.TestCheckResourceAttr(rName1, "custom_image.0.args", ""),
+					resource.TestCheckResourceAttr(rName1, "custom_image.0.working_dir", "/"),
 					rc2.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName2, "handler", "-"),
 					resource.TestCheckResourceAttrPair(rName2, "vpc_id", "huaweicloud_vpc.test", "id"),
@@ -485,7 +491,10 @@ resource "huaweicloud_fgs_function" "create_with_vpc_access" {
   agency      = "functiongraph_swr_trust"
 
   custom_image {
-    url = "%[3]s"
+    url         = "%[3]s"
+    command     = "/bin/sh"
+    args        = "-args,value"
+    working_dir = "/"
   }
 
   vpc_id     = huaweicloud_vpc.test.id
