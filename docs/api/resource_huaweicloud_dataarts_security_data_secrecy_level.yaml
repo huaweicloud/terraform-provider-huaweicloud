@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_security_data_secrecy_level
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v1/{project_id}/security/data-classification/secrecy-level:
+        POST:
+            tag: DataArtsStudio
+    /v1/{project_id}/security/data-classification/secrecy-level/{id}:
+        DELETE:
+            tag: DataArtsStudio
+        GET:
+            tag: DataArtsStudio
+        PUT:
+            tag: DataArtsStudio

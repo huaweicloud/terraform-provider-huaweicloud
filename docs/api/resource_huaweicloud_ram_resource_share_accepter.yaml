@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ram_resource_share_accepter
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RAM
+paths:
+    /v1/resource-share-invitations/{resource_share_invitation_id}/accept:
+        POST:
+            tag: RAM
+    /v1/resource-share-invitations/{resource_share_invitation_id}/reject:
+        POST:
+            tag: RAM
