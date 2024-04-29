@@ -16,6 +16,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS PUT /v3/{project_id}/instances/recycle-policy
+// @API RDS GET /v3/{project_id}/instances/recycle-policy
 func ResourceRecyclingPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRecyclingPolicyCreateOrUpdate,
