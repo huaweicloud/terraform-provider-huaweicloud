@@ -49,6 +49,7 @@ type ctxType string
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/binlog/clear-policy
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/msdtc/hosts
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/tde-status
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/second-level-monitor
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/name
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/failover/mode
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/collations
@@ -56,6 +57,7 @@ type ctxType string
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/tde
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/readonly-status
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/modify-dns
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/second-level-monitor
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/port
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ip
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/security-group
@@ -367,7 +369,17 @@ func ResourceRdsInstance() *schema.Resource {
 				Optional:     true,
 				RequiredWith: []string{"tde_enabled"},
 			},
-
+			"seconds_level_monitoring_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"seconds_level_monitoring_interval": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"seconds_level_monitoring_enabled"},
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -650,6 +662,10 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
+	if err = updateSecondLevelMonitoring(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
@@ -842,15 +858,25 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.Set("msdtc_hosts", hosts)
 	}
 
-	tdeStatus, err := instances.GetTdeStatus(client, instanceID).Extract()
-	if err != nil {
-		log.Printf("[ERROR] error query TDE of the instance: %s", err)
-	} else {
+	if isSQLServerDatabase(d) {
+		tdeStatus, err := instances.GetTdeStatus(client, instanceID).Extract()
+		if err != nil {
+			return diag.Errorf("error getting TDE of the instance: %s", err)
+		}
 		tdeEnabled := false
 		if tdeStatus.TdeStatus == "open" {
 			tdeEnabled = true
 		}
 		d.Set("tde_enabled", tdeEnabled)
+	}
+
+	if isMySQLDatabase(d) {
+		secondsLevelMonitoring, err := instances.GetSecondLevelMonitoring(client, instanceID).Extract()
+		if err != nil {
+			return diag.Errorf("error getting RDS seconds level monitoring: %s", err)
+		}
+		d.Set("seconds_level_monitoring_enabled", secondsLevelMonitoring.SwitchOption)
+		d.Set("seconds_level_monitoring_interval", secondsLevelMonitoring.Interval)
 	}
 
 	return setRdsInstanceParameters(ctx, d, client, instanceID)
@@ -1051,6 +1077,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updatePrivateDNSNamePrefix(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateSecondLevelMonitoring(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1950,6 +1980,38 @@ func updateReadWritePermissions(ctx context.Context, d *schema.ResourceData, cli
 
 	if err = checkRDSInstanceJobFinish(client, job.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
 		return fmt.Errorf("error waiting for RDS instance (%s) update read write permissions: %s", instanceID, err)
+	}
+
+	return nil
+}
+
+func updateSecondLevelMonitoring(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	if !d.HasChanges("seconds_level_monitoring_enabled", "seconds_level_monitoring_interval") {
+		return nil
+	}
+
+	modifySecondsLevelMonitoringOpts := instances.ModifySecondLevelMonitoringOpts{
+		SwitchOption: d.Get("seconds_level_monitoring_enabled").(bool),
+		Interval:     d.Get("seconds_level_monitoring_interval").(int),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res := instances.ModifySecondLevelMonitoring(client, modifySecondsLevelMonitoringOpts, instanceID)
+		retry, err := handleMultiOperationsError(res.Err)
+		return res, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error modify RDS instance (%s) seconds level monitoring: %s", instanceID, err)
 	}
 
 	return nil

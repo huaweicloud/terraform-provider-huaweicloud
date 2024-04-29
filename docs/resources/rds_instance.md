@@ -327,6 +327,11 @@ The `db` block supports:
   + **readwrite**: read write permissions.
   + **readonly**: readonly permissions.
 
+* `seconds_level_monitoring_enabled` - (Optional, Bool) Specifies whether to enable seconds level monitoring.
+
+* `seconds_level_monitoring_interval` - (Optional, Int) Specifies the seconds level monitoring interval. Valid values:
+  **1**, **5**. It is mandatory when `seconds_level_monitoring_enabled` is **true**.
+
 The `volume` block supports:
 
 * `size` - (Required, Int) Specifies the volume size. Its value range is from 40 GB to 4000 GB. The value must be a
