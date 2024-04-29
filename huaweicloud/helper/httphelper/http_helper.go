@@ -29,7 +29,8 @@ type HttpHelper struct {
 	queryExt    map[string]any
 	filters     []*filters.JsonFilter
 
-	pager func(r pagination.PageResult) pagination.Page
+	offsetStart int
+	pager       func(r pagination.PageResult) pagination.Page
 
 	responseBody []byte
 	result       golangsdk.Result
@@ -130,10 +131,17 @@ func (c *HttpHelper) LinkPager(dataPath, linkExp string) *HttpHelper {
 	return c
 }
 
+// OffsetStart set the default value of offset.
+// Note: must be executed before setting pager.
+func (c *HttpHelper) OffsetStart(offsetStart int) *HttpHelper {
+	c.offsetStart = offsetStart
+	return c
+}
+
 func (c *HttpHelper) OffsetPager(dataPath, offsetKey, limitKey string, defaultLimit int) *HttpHelper {
 	if defaultLimit > 0 {
 		c.queryExt[limitKey] = defaultLimit
-		c.queryExt[offsetKey] = 0
+		c.queryExt[offsetKey] = c.offsetStart
 	}
 	timestamp, _ := uuid.GenerateUUID()
 
