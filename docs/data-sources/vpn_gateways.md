@@ -64,6 +64,8 @@ The `gateways` block supports:
 
 * `er_id` - The ID of the ER to which the VPN gateway is connected.
 
+* `er_attachment_id` - The ER attachment ID.
+
 * `local_subnets` - The local subnets.
 
 * `connect_subnet` - The VPC network segment used by the VPN gateway.
