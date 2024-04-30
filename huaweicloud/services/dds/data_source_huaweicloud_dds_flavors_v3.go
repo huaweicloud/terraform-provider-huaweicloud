@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-// @API DDS GET /v3/{project_id}/flavors
+// @API DDS GET /v3.1/{project_id}/flavors
 func DataSourceDDSFlavorV3() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDDSFlavorV3Read,
@@ -32,12 +32,13 @@ func DataSourceDDSFlavorV3() *schema.Resource {
 					"DDS-Community", "DDS-Enhanced",
 				}, true),
 			},
+			"engine_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"mongos", "shard", "config", "replica", "single",
-				}, true),
 			},
 			"vcpus": {
 				Type:     schema.TypeString,
@@ -77,6 +78,11 @@ func DataSourceDDSFlavorV3() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"engine_versions": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -87,14 +93,15 @@ func DataSourceDDSFlavorV3() *schema.Resource {
 func dataSourceDDSFlavorV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	ddsClient, err := conf.DdsV3Client(region)
+	ddsClient, err := conf.NewServiceClient("ddsv31", region)
 	if err != nil {
-		return diag.Errorf("Error creating DDS client: %s", err)
+		return diag.Errorf("Error creating DDS v3.1 client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{
-		Region:     region,
-		EngineName: d.Get("engine_name").(string),
+		Region:        region,
+		EngineName:    d.Get("engine_name").(string),
+		EngineVersion: d.Get("engine_version").(string),
 	}
 
 	pages, err := flavors.List(ddsClient, listOpts).AllPages()
@@ -118,12 +125,13 @@ func dataSourceDDSFlavorV3Read(_ context.Context, d *schema.ResourceData, meta i
 		}
 
 		flavor := map[string]interface{}{
-			"engine_name": item.EngineName,
-			"spec_code":   item.SpecCode,
-			"type":        item.Type,
-			"vcpus":       item.Vcpus,
-			"memory":      item.Ram,
-			"az_status":   item.AzStatus,
+			"engine_name":     item.EngineName,
+			"spec_code":       item.SpecCode,
+			"type":            item.Type,
+			"vcpus":           item.Vcpus,
+			"memory":          item.Ram,
+			"az_status":       item.AzStatus,
+			"engine_versions": item.EngineVersions,
 		}
 		flavorList = append(flavorList, flavor)
 	}
