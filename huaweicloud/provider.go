@@ -490,8 +490,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_csms_events":         dew.DataSourceDewCsmsEvents(),
 			"huaweicloud_css_flavors":         css.DataSourceCssFlavors(),
 
-			"huaweicloud_dataarts_studio_workspaces":                  dataarts.DataSourceDataArtsStudioWorkspaces(),
 			"huaweicloud_dataarts_architecture_ds_template_optionals": dataarts.DataSourceTemplateOptionalFields(),
+			"huaweicloud_dataarts_studio_data_connections":            dataarts.DataSourceDataConnections(),
+			"huaweicloud_dataarts_studio_workspaces":                  dataarts.DataSourceDataArtsStudioWorkspaces(),
 
 			"huaweicloud_dbss_flavors": dbss.DataSourceDbssFlavors(),
 
