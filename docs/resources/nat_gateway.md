@@ -52,6 +52,11 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the NAT gateway, which contain maximum of `512`
   characters, and angle brackets (<) and (>) are not allowed.
 
+* `ngport_ip_address` - (Optional, String, ForceNew) Specifies the private IP address of the NAT gateway.
+  The IP address must be one of the IP addresses of the VPC subnet associated with the NAT gateway.
+  If not spacified, it will be automatically allocated.
+  Changing this will creates a new resource.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of the NAT gateway.  
   Changing this will create a new resource.
 

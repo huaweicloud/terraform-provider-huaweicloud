@@ -33,6 +33,9 @@ type Gateway struct {
 	RouterId string `json:"router_id"`
 	// The network ID that VPC have.
 	InternalNetworkId string `json:"internal_network_id"`
+	// The private IP address of the public NAT gateway.
+	// The IP address is assigned by the VPC subnet.
+	NgportIpAddress string `json:"ngport_ip_address"`
 	// The enterprise project ID to which the gateway belongs.
 	EnterpriseProjectId string `json:"enterprise_project_id"`
 }
