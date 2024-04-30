@@ -179,21 +179,21 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the loadbalancer. Changing this
   creates a new loadbalancer.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the ELB loadbalancer.
+* `charging_mode` - (Optional, String) Specifies the charging mode of the ELB loadbalancer.
   Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
-  Changing this parameter will create a new resource.
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the ELB loadbalancer.
+* `period_unit` - (Optional, String) Specifies the charging period unit of the ELB loadbalancer.
   Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
-  Changing this parameter will create a new resource.
 
-* `period` - (Optional, Int, ForceNew) Specifies the charging period of the ELB loadbalancer.
+* `period` - (Optional, Int) Specifies the charging period of the ELB loadbalancer.
   If `period_unit` is set to **month**, the value ranges from 1 to 9.
   If `period_unit` is set to **year**, the value ranges from 1 to 3.
   This parameter is mandatory if `charging_mode` is set to **prePaid**.
-  Changing this parameter will create a new resource.
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are **true** and **false**.
+
+-> **NOTE:** `period_unit`, `period` and `auto_renew` can only be updated when `charging_mode` changed to **prePaid**
+  billing mode.
 
 * `force_delete` - (Optional, Bool) Specifies whether to forcibly delete the LoadBalancer, remove the LoadBalancer,
   listeners, unbind associated pools. Defaults to **false**.

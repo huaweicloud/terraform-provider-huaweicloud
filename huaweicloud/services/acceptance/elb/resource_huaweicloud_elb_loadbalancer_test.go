@@ -319,6 +319,67 @@ func TestAccElbV3LoadBalancer_availabilityZone(t *testing.T) {
 	})
 }
 
+func TestAccElbV3LoadBalancer_updateChargingMode(t *testing.T) {
+	var lb loadbalancers.LoadBalancer
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_loadbalancer.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&lb,
+		getELBResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3LoadBalancerConfig_postPaid(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "false"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
+				),
+			},
+			{
+				Config: testAccElbV3LoadBalancerConfig_prePaidUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "false"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "description", "update flavors"),
+					resource.TestCheckResourceAttrPair(
+						resourceName, "l4_flavor_id", "data.huaweicloud_elb_flavors.l4flavors", "ids.0"),
+					resource.TestCheckResourceAttrPair(
+						resourceName, "l7_flavor_id", "data.huaweicloud_elb_flavors.l7flavors", "ids.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone.0",
+						"data.huaweicloud_availability_zones.test", "names.1"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"period_unit", "period", "auto_renew"},
+			},
+		},
+	})
+}
+
 func testAccElbV3LoadBalancerConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -495,6 +556,30 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   iptype       = "5_bgp"
   sharetype    = "WHOLE"
   bandwidth_id = huaweicloud_vpc_bandwidth.test.id
+}
+`, rName)
+}
+
+func testAccElbV3LoadBalancerConfig_postPaid(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name            = "%s"
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
 }
 `, rName)
 }
