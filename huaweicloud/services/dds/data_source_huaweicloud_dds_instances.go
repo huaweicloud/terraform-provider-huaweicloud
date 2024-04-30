@@ -145,13 +145,53 @@ func ddsInstanceInstanceSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the enterprise project id of the dds instance.`,
 			},
+			"groups": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"size": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"used": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"nodes": {
+							Type:        schema.TypeList,
+							Elem:        ddsInstanceInstanceNodeSchema(),
+							Computed:    true,
+							Description: `Indicates the instance nodes information.`,
+						},
+					},
+				},
+			},
+			"tags": common.TagsComputedSchema(),
+
+			// deprecated
 			"nodes": {
 				Type:        schema.TypeList,
 				Elem:        ddsInstanceInstanceNodeSchema(),
 				Computed:    true,
-				Description: `Indicates the instance nodes information.`,
+				Description: `This field is deprecated.`,
 			},
-			"tags": common.TagsComputedSchema(),
 		},
 	}
 	return &sc
@@ -342,7 +382,29 @@ func flattenGetDDSInstancesResponseBodyInstance(resp interface{}, client *golang
 			"status":                utils.PathSearch("status", v, nil),
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
 			"nodes":                 flattenInstanceNodes(v),
+			"groups":                flattenInstanceGroups(v),
 			"tags":                  tagMap,
+		})
+	}
+	return rst
+}
+
+func flattenInstanceGroups(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
+	}
+	curJson := utils.PathSearch("groups", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"type":   utils.PathSearch("type", v, nil),
+			"id":     utils.PathSearch("id", v, nil),
+			"name":   utils.PathSearch("name", v, nil),
+			"status": utils.PathSearch("status", v, nil),
+			"size":   utils.PathSearch("volume.size", v, nil),
+			"used":   utils.PathSearch("volume.used", v, nil),
+			"nodes":  flattenInstanceNodes(v),
 		})
 	}
 	return rst

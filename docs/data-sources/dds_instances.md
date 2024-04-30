@@ -80,8 +80,8 @@ The `Instance` block supports:
 
 * `enterprise_project_id` - Indicates the enterprise project id of the dds instance.
 
-* `nodes` - Indicates the instance nodes information.
-  The [Node](#DdsInstance_InstanceNode) structure is documented below.
+* `groups` - Indicates the instance groups information.
+  The [group](#DdsInstance_InstanceGroup) structure is documented below.
 
 * `tags` - Indicates the key/value pairs to associate with the DDS instance.
 
@@ -101,8 +101,26 @@ The `InstanceBackupStrategy` block supports:
 
 * `keep_days` - Indicates the number of days to retain the generated backup files.
 
-<a name="DdsInstance_InstanceNode"></a>
-The `nodes` block supports:
+<a name="DdsInstance_InstanceGroup"></a>
+The `group` block supports:
+
+* `type` - Indicates the node type.
+
+* `id` - Indicates the group ID.
+
+* `name` - Indicates the group name.
+
+* `status` - Indicates the group status.
+
+* `size` - Indicates the disk size.
+
+* `used` - Indicates the disk usage.
+
+* `nodes` - Indicates the nodes info.
+  The [node](#DdsInstance_InstanceGroupNode) structure is documented below.
+
+<a name="DdsInstance_InstanceGroupNode"></a>
+The `node` block supports:
 
 * `id` - Indicates the node ID.
 
