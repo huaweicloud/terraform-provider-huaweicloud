@@ -245,6 +245,11 @@ func ResourceGateway() *schema.Resource {
 				Computed:    true,
 				Description: `The update time.`,
 			},
+			"er_attachment_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ER attachment ID.`,
+			},
 			"used_connection_group": {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -764,6 +769,7 @@ func resourceGatewayRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("access_vpc_id", utils.PathSearch("vpn_gateway.access_vpc_id", getGatewayRespBody, nil)),
 		d.Set("access_subnet_id", utils.PathSearch("vpn_gateway.access_subnet_id", getGatewayRespBody, nil)),
 		d.Set("er_id", utils.PathSearch("vpn_gateway.er_id", getGatewayRespBody, nil)),
+		d.Set("er_attachment_id", utils.PathSearch("vpn_gateway.er_attachment_id", getGatewayRespBody, nil)),
 		d.Set("network_type", utils.PathSearch("vpn_gateway.network_type", getGatewayRespBody, nil)),
 		d.Set("access_private_ip_1", utils.PathSearch("vpn_gateway.access_private_ip_1", getGatewayRespBody, nil)),
 		d.Set("access_private_ip_2", utils.PathSearch("vpn_gateway.access_private_ip_2", getGatewayRespBody, nil)),
