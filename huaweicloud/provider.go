@@ -464,6 +464,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_service_groups": cfw.DataSourceCfwServiceGroups(),
 			"huaweicloud_cfw_address_groups": cfw.DataSourceCfwAddressGroups(),
 			"huaweicloud_cfw_attack_logs":    cfw.DataSourceCfwAttackLogs(),
+			"huaweicloud_cfw_flow_logs":      cfw.DataSourceCfwFlowLogs(),
 
 			"huaweicloud_cnad_advanced_instances":         cnad.DataSourceInstances(),
 			"huaweicloud_cnad_advanced_available_objects": cnad.DataSourceAvailableProtectedObjects(),
