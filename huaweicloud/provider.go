@@ -1215,6 +1215,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_acl":                   iam.ResourceIdentityACL(),
 			"huaweicloud_identity_agency":                iam.ResourceIAMAgencyV3(),
 			"huaweicloud_identity_service_agency":        iam.ResourceIAMServiceAgency(),
+			"huaweicloud_identity_trust_agency":          iam.ResourceIAMTrustAgency(),
 			"huaweicloud_identity_group":                 iam.ResourceIdentityGroup(),
 			"huaweicloud_identity_group_membership":      iam.ResourceIdentityGroupMembership(),
 			"huaweicloud_identity_group_role_assignment": iam.ResourceIdentityGroupRoleAssignment(),
