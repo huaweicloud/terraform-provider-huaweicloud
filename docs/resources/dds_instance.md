@@ -209,8 +209,9 @@ The `configuration` block supports:
   + For a Community Edition single node instance, the value is **single**.
     Changing this creates a new instance.
 
-* `id` - (Required, String, ForceNew) Specifies the ID of the template.
-  Changing this creates a new instance.
+* `id` - (Required, String) Specifies the ID of the template.
+
+  -> Atfer updating the `configuration.id`, please check whether the instance needs to be restarted.
 
 The `flavor` block supports:
 
