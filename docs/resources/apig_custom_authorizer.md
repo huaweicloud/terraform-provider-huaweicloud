@@ -17,11 +17,12 @@ variable "authorizer_name" {}
 variable "function_urn" {}
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id  = var.instance_id
-  name         = var.authorizer_name
-  function_urn = var.function_urn
-  type         = "FRONTEND"
-  cache_age    = 60
+  instance_id      = var.instance_id
+  name             = var.authorizer_name
+  function_urn     = var.function_urn
+  function_version = "latest"
+  type             = "FRONTEND"
+  cache_age        = 60
 
   identity {
     name     = "user_name"
@@ -47,6 +48,8 @@ The following arguments are supported:
   Only letters, digits and underscores (_) are allowed.
 
 * `function_urn` - (Required, String) Specifies the uniform function URN of the function graph resource.
+
+* `function_version` - (Required, String) Specifies the version of the FGS function.
 
 * `type` - (Optional, String, ForceNew) Specifies the custom authorize type.
   The valid values are **FRONTEND** and **BACKEND**. Defaults to **FRONTEND**.
