@@ -671,26 +671,21 @@ func TestAccFgsV2Function_versions(t *testing.T) {
 				Config: testAccFunction_versions_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "versions.0.name", "latest"),
+					resource.TestCheckResourceAttr(resourceName, "versions.#", "0"),
 				),
 			},
 			{
 				Config: testAccFunction_versions_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "versions.0.name", "latest"),
-					resource.TestCheckResourceAttr(resourceName, "versions.0.aliases.0.name", "demo"),
-					resource.TestCheckResourceAttr(resourceName, "versions.0.aliases.0.description",
-						"This is a description of the demo alias"),
+					resource.TestCheckResourceAttr(resourceName, "versions.#", "1"),
 				),
 			},
 			{
 				Config: testAccFunction_versions_step3(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "versions.0.name", "latest"),
-					resource.TestCheckResourceAttr(resourceName, "versions.0.aliases.0.name", "demo_update"),
-					resource.TestCheckResourceAttr(resourceName, "versions.0.aliases.0.description", ""),
+					resource.TestCheckResourceAttr(resourceName, "versions.#", "2"),
 				),
 			},
 			{
@@ -719,11 +714,6 @@ resource "huaweicloud_fgs_function" "test" {
   runtime               = "Python2.7"
   code_type             = "inline"
   func_code             = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
-
-  // Test whether 'plan' and 'apply' commands will report an error when only the version number is filled in.
-  versions {
-    name = "latest"
-  }
 }
 `, name)
 }
@@ -742,11 +732,11 @@ resource "huaweicloud_fgs_function" "test" {
   func_code             = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
 
   versions {
-    name = "latest"
+    name = "%[1]s"
 
     aliases {
-      name        = "demo"
-      description = "This is a description of the demo alias"
+      name        = "custom_alias"
+      description = "This is a description of the custom alias"
     }
   }
 }
@@ -770,7 +760,14 @@ resource "huaweicloud_fgs_function" "test" {
     name = "latest"
 
     aliases {
-      name = "demo_update"
+      name = "demo"
+    }
+  }
+  versions {
+    name = "%[1]s"
+
+    aliases {
+      name = "custom_alias_update"
     }
   }
 }

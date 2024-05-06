@@ -360,8 +360,6 @@ The `versions` block supports:
 
 * `name` - (Required, String) Specifies the version name.
 
-  -> Currently, only supports the management of the default version (**latest**).
-
 * `aliases` - (Optional, List) Specifies the aliases management for specified version.
   The [object](#functiongraph_aliases_management) structure is documented below.
 

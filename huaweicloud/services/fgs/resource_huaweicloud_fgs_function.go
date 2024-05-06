@@ -582,22 +582,32 @@ func createFunctionVersions(client *golangsdk.ServiceClient, functionUrn string,
 	for _, v := range versionSet.List() {
 		version := v.(map[string]interface{})
 		versionNum := version["name"].(string) // The version name, also name as the version number.
+
+		if versionNum != "latest" {
+			createOpts := versions.CreateOpts{
+				FunctionUrn: functionUrn,
+				Version:     versionNum,
+			}
+			_, err := versions.Create(client, createOpts)
+			if err != nil {
+				return err
+			}
+		}
 		// In the future, the function will support manage multiple versions, and will add the corresponding logic to
 		// create versions based on the related API (Create) in this place.
 		aliasCfg := version["aliases"].([]interface{})
-		if len(aliasCfg) < 1 {
-			continue
-		}
-		alias := aliasCfg[0].(map[string]interface{})
-		opt := aliases.CreateOpts{
-			FunctionUrn: functionUrn,
-			Name:        alias["name"].(string),
-			Version:     versionNum,
-			Description: alias["description"].(string),
-		}
-		_, err := aliases.Create(client, opt)
-		if err != nil {
-			return err
+		for _, val := range aliasCfg {
+			alias := val.(map[string]interface{})
+			opt := aliases.CreateOpts{
+				FunctionUrn: functionUrn,
+				Name:        alias["name"].(string),
+				Version:     versionNum,
+				Description: alias["description"].(string),
+			}
+			_, err := aliases.Create(client, opt)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -716,6 +726,9 @@ func parseFunctionVersions(client *golangsdk.ServiceClient, functionUrn string) 
 		}
 		if v, ok := aliasesConfig[versionNum]; ok {
 			version["aliases"] = v
+		} else if versionNum == "latest" {
+			// If no alias is set for the default version, the corresponding structure object is not saved.
+			continue
 		}
 		result = append(result, version)
 	}
@@ -885,16 +898,24 @@ func deleteFunctionVersions(client *golangsdk.ServiceClient, functionUrn string,
 	// In the future, the function will support manage multiple versions.
 	for _, v := range versionSet.List() {
 		version := v.(map[string]interface{})
+		versionNum := version["name"].(string) // The version name, also name as the version number.
+		if versionNum != "latest" {
+			// Deletes a function version, also deleting all aliases beneath it.
+			err := function.Delete(client, fmt.Sprintf("%s:%s", functionUrn, versionNum)).ExtractErr()
+			if err != nil {
+				return err
+			}
+			continue
+		}
+		// Since the latest version cannot be deleted, only the version alias under it can be deleted.
 		aliasCfg := version["aliases"].([]interface{})
-		if len(aliasCfg) > 0 {
-			alias := aliasCfg[0].(map[string]interface{})
+		for _, val := range aliasCfg {
+			alias := val.(map[string]interface{})
 			err := aliases.Delete(client, functionUrn, alias["name"].(string))
 			if err != nil {
 				return err
 			}
 		}
-		// There will be added the corresponding logic to delete versions based on the related APIs in this place when
-		// the API (Delete) is support.
 	}
 	return nil
 }
