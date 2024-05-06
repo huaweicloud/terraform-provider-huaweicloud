@@ -19,19 +19,20 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DDS POST /v3/{project_id}/instances/{instance_id}/modify-internal-ip
+// @API DDS POST /v3/{project_id}/nodes/{node_id}/bind-eip
+// @API DDS POST /v3/{project_id}/nodes/{node_id}/unbind-eip
 // @API DDS GET /v3/{project_id}/instances
 // @API DDS GET /v3/{project_id}/jobs
-func ResourceDDSInstanceModifyIP() *schema.Resource {
+// @API EIP GET /v1/{project_id}/publicips
+func ResourceDDSInstanceBindEIP() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDDSInstanceModifyIPCreate,
-		ReadContext:   resourceDDSInstanceModifyIPRead,
-		UpdateContext: resourceDDSInstanceModifyIPUpdate,
-		DeleteContext: resourceDDSInstanceModifyIPDelete,
+		CreateContext: resourceDDSInstanceBindEIPCreate,
+		ReadContext:   resourceDDSInstanceBindEIPRead,
+		DeleteContext: resourceDDSInstanceBindEIPDelete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		Importer: &schema.ResourceImporter{
@@ -55,41 +56,54 @@ func ResourceDDSInstanceModifyIP() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"new_ip": {
+			"public_ip": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 		},
 	}
 }
 
-func resourceDDSInstanceModifyIPCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.DdsV3Client(conf.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating DDS client: %s ", err)
-	}
-	instId := d.Get("instance_id").(string)
-	nodeId := d.Get("node_id").(string)
-
-	// modify instance internal IP
-	err = modifyInstanceInternalIP(ctx, client, d.Timeout(schema.TimeoutCreate), instId, nodeId, d.Get("new_ip").(string))
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	d.SetId(instId + "/" + nodeId)
-
-	return resourceDDSInstanceModifyIPRead(ctx, d, meta)
-}
-
-func resourceDDSInstanceModifyIPRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDDSInstanceBindEIPCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	client, err := conf.DdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DDS client: %s ", err)
 	}
+	vpcClient, err := conf.NetworkingV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating VPC client: %s", err)
+	}
+
+	instId := d.Get("instance_id").(string)
+	nodeId := d.Get("node_id").(string)
+	publicIP := d.Get("public_ip").(string)
+	publicID, err := common.GetEipIDbyAddress(vpcClient, publicIP, "all_granted_eps")
+	if err != nil {
+		return diag.Errorf("error getting EIP ID with public IP %s: %s", publicIP, err)
+	}
+
+	// binding eip
+	err = bindOrUnbindEIP(ctx, d, client, d.Timeout(schema.TimeoutCreate), publicID, "bind-eip")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	d.SetId(instId + "/" + nodeId)
+
+	return resourceDDSInstanceBindEIPRead(ctx, d, meta)
+}
+
+func resourceDDSInstanceBindEIPRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+	client, err := conf.DdsV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating DDS client: %s ", err)
+	}
+
 	instID := d.Get("instance_id").(string)
 	getInstanceInfoHttpUrl := "v3/{project_id}/instances?id={instance_id}"
 	getInstanceInfoPath := client.Endpoint + getInstanceInfoHttpUrl
@@ -109,16 +123,17 @@ func resourceDDSInstanceModifyIPRead(_ context.Context, d *schema.ResourceData, 
 	}
 
 	nodeID := d.Get("node_id").(string)
-	jsonPaths := fmt.Sprintf("instances|[0].groups[*].nodes[?id=='%s'][]|[0].private_ip", nodeID)
-	privateIP := utils.PathSearch(jsonPaths, getInstanceInfoRespBody, "")
-	if privateIP.(string) == "" {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving private IP")
+	jsonPaths := fmt.Sprintf("instances|[0].groups[*].nodes[?id=='%s'][]|[0].public_ip", nodeID)
+	publicIP := utils.PathSearch(jsonPaths, getInstanceInfoRespBody, "")
+	if publicIP.(string) == "" {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving public IP")
 	}
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("new_ip", privateIP),
+		d.Set("public_ip", publicIP),
 	)
+
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting fields: %s", err)
 	}
@@ -126,58 +141,50 @@ func resourceDDSInstanceModifyIPRead(_ context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func resourceDDSInstanceModifyIPUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDDSInstanceBindEIPDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.DdsV3Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DDS client: %s ", err)
 	}
+
+	// unbinding eip
+	err = bindOrUnbindEIP(ctx, d, client, d.Timeout(schema.TimeoutDelete), "", "unbind-eip")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	return nil
+}
+
+func bindOrUnbindEIP(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, timeout time.Duration,
+	publicID, action string) error {
 	instID := d.Get("instance_id").(string)
 	nodeID := d.Get("node_id").(string)
-	newIP := d.Get("new_ip").(string)
 
-	if d.HasChange("new_ip") {
-		err = modifyInstanceInternalIP(ctx, client, d.Timeout(schema.TimeoutUpdate), instID, nodeID, newIP)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
-	return resourceDDSInstanceModifyIPRead(ctx, d, meta)
-}
-
-func resourceDDSInstanceModifyIPDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting modify internal IP resource is not supported. The resource is only removed from the state," +
-		" the instance remains in the cloud."
-	return diag.Diagnostics{
-		diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  errorMsg,
-		},
-	}
-}
-
-func modifyInstanceInternalIP(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
-	instID, nodeID, newIP string) error {
-	modifyHttpUrl := "v3/{project_id}/instances/{instance_id}/modify-internal-ip"
-	modifyPath := client.Endpoint + modifyHttpUrl
-	modifyPath = strings.ReplaceAll(modifyPath, "{project_id}", client.ProjectID)
-	modifyPath = strings.ReplaceAll(modifyPath, "{instance_id}", instID)
-	modifyOpt := golangsdk.RequestOpts{
+	bindOrUnbindEIPHttpUrl := "v3/{project_id}/nodes/{node_id}/{action}"
+	bindOrUnbindEIPPath := client.Endpoint + bindOrUnbindEIPHttpUrl
+	bindOrUnbindEIPPath = strings.ReplaceAll(bindOrUnbindEIPPath, "{project_id}", client.ProjectID)
+	bindOrUnbindEIPPath = strings.ReplaceAll(bindOrUnbindEIPPath, "{node_id}", nodeID)
+	bindOrUnbindEIPPath = strings.ReplaceAll(bindOrUnbindEIPPath, "{action}", action)
+	bindOrUnbindEIPOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody: map[string]interface{}{
-			"node_id": nodeID,
-			"new_ip":  newIP,
-		},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	if action == "bind-eip" {
+		bindOrUnbindEIPOpt.JSONBody = map[string]interface{}{
+			"public_ip_id": publicID,
+			"public_ip":    d.Get("public_ip"),
+		}
 	}
 
 	// retry
 	retryFunc := func() (interface{}, bool, error) {
-		resp, err := client.Request("POST", modifyPath, &modifyOpt)
+		resp, err := client.Request("POST", bindOrUnbindEIPPath, &bindOrUnbindEIPOpt)
 		retry, err := handleMultiOperationsError(err)
 		return resp, retry, err
 	}
-	modifyResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	bindOrUnbindEIPResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     ddsInstanceStateRefreshFunc(client, instID),
@@ -187,17 +194,17 @@ func modifyInstanceInternalIP(ctx context.Context, client *golangsdk.ServiceClie
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return fmt.Errorf("error modifying internal ip for instance(%s) node(%s): %s", instID, nodeID, err)
+		return fmt.Errorf("error %s for instance(%s) node(%s): %s", action, instID, nodeID, err)
 	}
 
 	// get job ID
-	modifyRespBody, err := utils.FlattenResponse(modifyResp.(*http.Response))
+	bindOrUnbindEIPRespBody, err := utils.FlattenResponse(bindOrUnbindEIPResp.(*http.Response))
 	if err != nil {
 		return fmt.Errorf("error flatten response: %s", err)
 	}
-	jobID := utils.PathSearch("job_id", modifyRespBody, "")
+	jobID := utils.PathSearch("job_id", bindOrUnbindEIPRespBody, "")
 	if jobID.(string) == "" {
-		return fmt.Errorf("error modifying internal ip for instance(%s) node(%s): %s", instID, nodeID, "job_id not found")
+		return fmt.Errorf("error %s for instance(%s) node(%s): %s", action, instID, nodeID, "job_id not found")
 	}
 
 	// wait for job complete
@@ -215,17 +222,4 @@ func modifyInstanceInternalIP(ctx context.Context, client *golangsdk.ServiceClie
 	}
 
 	return nil
-}
-
-func resourceDDSInstanceNodeImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
-	[]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format of import ID, must be <instance_id>/<node_id>")
-	}
-
-	d.Set("instance_id", parts[0])
-	d.Set("node_id", parts[1])
-
-	return []*schema.ResourceData{d}, nil
 }
