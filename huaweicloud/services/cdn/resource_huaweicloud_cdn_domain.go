@@ -693,6 +693,31 @@ var errorCodeRedirectRules = schema.Schema{
 	},
 }
 
+var hsts = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"max_age": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"include_subdomains": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -849,6 +874,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"origin_request_url_rewrite": &originRequestUrlRewrite,
 						"user_agent_filter":          &userAgentFilter,
 						"error_code_redirect_rules":  &errorCodeRedirectRules,
+						"hsts":                       &hsts,
 					},
 				},
 			},
@@ -1395,6 +1421,21 @@ func buildErrorCodeRedirectRules(errorCodeRedirectRules []interface{}) *[]model.
 	return &errorCodeRedirectRulesOpts
 }
 
+func buildHstsOpts(rawHsts []interface{}) *model.Hsts {
+	if len(rawHsts) != 1 {
+		return nil
+	}
+
+	hsts := rawHsts[0].(map[string]interface{})
+	hstsOpts := model.Hsts{
+		Status:            parseFunctionEnabledStatus(hsts["enabled"].(bool)),
+		MaxAge:            utils.Int32(int32(hsts["max_age"].(int))),
+		IncludeSubdomains: utils.StringIgnoreEmpty(hsts["include_subdomains"].(string)),
+	}
+
+	return &hstsOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1559,6 +1600,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	if d.HasChange("configs.0.error_code_redirect_rules") {
 		errorCodeRedirectRules := configs["error_code_redirect_rules"].(*schema.Set).List()
 		configsOpts.ErrorCodeRedirectRules = buildErrorCodeRedirectRules(errorCodeRedirectRules)
+	}
+	if d.HasChange("configs.0.hsts") {
+		configsOpts.Hsts = buildHstsOpts(configs["hsts"].([]interface{}))
 	}
 }
 
@@ -2101,6 +2145,20 @@ func flattenErrorCodeRedirectRulesAttrs(errorCodeRedirectRules *[]model.ErrorCod
 	return errorCodeRedirectRulesAttrs
 }
 
+func flattenHstsAttrs(hsts *model.HstsQuery) []map[string]interface{} {
+	if hsts == nil {
+		return nil
+	}
+
+	hstsAttrs := map[string]interface{}{
+		"enabled":            analyseFunctionEnabledStatus(hsts.Status),
+		"max_age":            hsts.MaxAge,
+		"include_subdomains": hsts.IncludeSubdomains,
+	}
+
+	return []map[string]interface{}{hstsAttrs}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -2160,6 +2218,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"origin_request_url_rewrite":    flattenOriginRequestUrlRewriteAttrs(configsResp.OriginRequestUrlRewrite),
 		"user_agent_filter":             flattenUserAgentFilterAttrs(configsResp.UserAgentFilter),
 		"error_code_redirect_rules":     flattenErrorCodeRedirectRulesAttrs(configsResp.ErrorCodeRedirectRules),
+		"hsts":                          flattenHstsAttrs(configsResp.Hsts),
 	}
 	return []map[string]interface{}{configsAttrs}
 }

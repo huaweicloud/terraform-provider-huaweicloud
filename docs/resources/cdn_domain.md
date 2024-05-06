@@ -395,6 +395,11 @@ The `configs` block support:
 * `error_code_redirect_rules` - (Optional, List) Specifies the custom error pages.
   The [error_code_redirect_rules](#error_code_redirect_rules_object) structure is documented below.
 
+* `hsts` - (Optional, List) Specifies the HSTS settings. HSTS forces clients (such as browsers) to use HTTPS to access
+  your server, improving access security. The [hsts](#hsts_object) structure is documented below.
+
+  -> This field can only be used when the HTTPS certificate is enabled.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -815,6 +820,18 @@ The `error_code_redirect_rules` block support:
 
 * `target_link` - (Required, String) Specifies the destination URL. The value must start with **http://** or **https://**.
   For example: `http://www.example.com`.
+
+<a name="hsts_object"></a>
+The `hsts` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable HSTS settings.
+
+* `max_age` - (Optional, Int) Specifies the expiration time, which means the TTL of the response header
+  `Strict-Transport-Security` on the client. The value ranges from **0** to **63,072,000**. The unit is second.
+  This field is required when enable HSTS settings.
+
+* `include_subdomains` - (Optional, String) Specifies whether subdomain names are included.
+  The options are **on** (included) and **off** (not included). This field is required when enable HSTS settings.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:

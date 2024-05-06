@@ -265,6 +265,9 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.quic.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.include_subdomains", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.max_age", "0"),
 					testAccCheckTLSVersion(resourceName, "TLSv1.1,TLSv1.2"),
 
 					resource.TestCheckResourceAttrSet(resourceName, "configs.0.https_settings.0.certificate_body"),
@@ -285,6 +288,10 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.quic.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.include_subdomains", "on"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.max_age", "63072000"),
+
 					testAccCheckTLSVersion(resourceName, "TLSv1.1,TLSv1.2,TLSv1.3"),
 				),
 			},
@@ -297,6 +304,7 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.enabled", "false"),
 				),
 			},
 			{
@@ -372,6 +380,12 @@ resource "huaweicloud_cdn_domain" "test" {
     quic {
       enabled = true
     }
+
+    hsts {
+      enabled            = true
+      include_subdomains = "off"
+      max_age            = 0
+    }
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
@@ -408,6 +422,12 @@ resource "huaweicloud_cdn_domain" "test" {
     quic {
       enabled = false
     }
+
+    hsts {
+      enabled            = true
+      include_subdomains = "on"
+      max_age            = 63072000
+    }
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
@@ -432,6 +452,10 @@ resource "huaweicloud_cdn_domain" "test" {
 
     https_settings {
       https_enabled = false
+    }
+
+    hsts {
+      enabled = false
     }
   }
 }
