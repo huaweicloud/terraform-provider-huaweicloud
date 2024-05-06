@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.64.1 (May 6, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpn_gateway: Add er_attachment_id support [GH-4731]
+
 ## 1.64.0 (April 29, 2024)
 
 * **New Resource:**
