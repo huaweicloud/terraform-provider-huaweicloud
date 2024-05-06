@@ -823,6 +823,12 @@ func ResourceCdnDomain() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						// Cloud will configure this field to `off` by default
+						"origin_follow302_status": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 						"https_settings":             &httpsConfig,
 						"retrieval_request_header":   &requestAndResponseHeader,
 						"http_response_header":       &requestAndResponseHeader,
@@ -1486,6 +1492,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	if d.HasChange("configs.0.origin_receive_timeout") {
 		configsOpts.OriginReceiveTimeout = utils.Int32IgnoreEmpty(int32(configs["origin_receive_timeout"].(int)))
 	}
+	if d.HasChange("configs.0.origin_follow302_status") {
+		configsOpts.OriginFollow302Status = utils.StringIgnoreEmpty(configs["origin_follow302_status"].(string))
+	}
 	if d.HasChange("configs.0.https_settings") {
 		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
 	}
@@ -2141,6 +2150,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"description":                   configsResp.Remark,
 		"slice_etag_status":             configsResp.SliceEtagStatus,
 		"origin_receive_timeout":        configsResp.OriginReceiveTimeout,
+		"origin_follow302_status":       configsResp.OriginFollow302Status,
 		"quic":                          flattenQUICAttrs(configsResp.Quic),
 		"referer":                       flattenRefererAttrs(configsResp.Referer),
 		"video_seek":                    flattenVideoSeekAttrs(configsResp.VideoSeek),

@@ -303,6 +303,13 @@ The `configs` block support:
 * `origin_receive_timeout` - (Optional, Int) Specifies the origin response timeout.
   The value ranges from **5** to **60**, in seconds. Defaults to **30**.
 
+* `origin_follow302_status` - (Optional, String) Specifies whether to enable redirection from the origin.
+  Valid values are as follows:
+  + **on**: Enable.
+  + **off**: Disable.
+
+  Defaults to **off**.
+
 * `https_settings` - (Optional, List) Specifies the certificate configuration. The [https_settings](#https_settings_object)
   structure is documented below.
 
