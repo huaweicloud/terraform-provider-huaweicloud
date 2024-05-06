@@ -51,6 +51,14 @@ The following arguments are supported:
 
 * `function_version` - (Required, String) Specifies the version of the FGS function.
 
+* `network_type` - (Optional, String) Specifies the framework type of the function.
+  + **V1**: Non-VPC network architecture.
+  + **V2**: VPC network architecture.
+
+  Defaults to **V1**.
+
+* `function_alias_uri` - (Optional, String) Specifies the version alias URI of the FGS function.
+
 * `type` - (Optional, String, ForceNew) Specifies the custom authorize type.
   The valid values are **FRONTEND** and **BACKEND**. Defaults to **FRONTEND**.
   Changing this will create a new custom authorizer resource.

@@ -85,6 +85,18 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 				),
 				// To ensure compatibility with older versions, RequiredWith is not used.
 			},
+			"network_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The framework type of the function.`,
+			},
+			"function_alias_uri": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The version alias URI of the FGS function.",
+			},
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -186,15 +198,17 @@ func buildCustomAuthorizerOpts(d *schema.ResourceData) (authorizers.CustomAuthOp
 	}
 
 	return authorizers.CustomAuthOpts{
-		Name:              d.Get("name").(string),
-		Type:              t,
-		AuthorizerType:    "FUNC", // The custom authorizer only support 'FUNC'.
-		AuthorizerURI:     functionUrn,
-		AuthorizerVersion: functionVersion,
-		IsBodySend:        utils.Bool(d.Get("is_body_send").(bool)),
-		TTL:               utils.Int(d.Get("cache_age").(int)),
-		UserData:          utils.String(d.Get("user_data").(string)),
-		Identities:        buildIdentities(identities),
+		Name:               d.Get("name").(string),
+		Type:               t,
+		AuthorizerType:     "FUNC", // The custom authorizer only support 'FUNC'.
+		AuthorizerURI:      functionUrn,
+		AuthorizerVersion:  functionVersion,
+		NetworkType:        d.Get("network_type").(string),
+		AuthorizerAliasUri: d.Get("function_alias_uri").(string),
+		IsBodySend:         utils.Bool(d.Get("is_body_send").(bool)),
+		TTL:                utils.Int(d.Get("cache_age").(int)),
+		UserData:           utils.String(d.Get("user_data").(string)),
+		Identities:         buildIdentities(identities),
 	}, nil
 }
 
@@ -254,6 +268,8 @@ func resourceCustomAuthorizerRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("name", resp.Name),
 		d.Set("function_urn", resp.AuthorizerURI),
 		d.Set("function_version", resp.AuthorizerVersion),
+		d.Set("network_type", resp.NetworkType),
+		d.Set("function_alias_uri", resp.AuthorizerAliasUri),
 		d.Set("type", resp.Type),
 		d.Set("is_body_send", resp.IsBodySend),
 		d.Set("cache_age", resp.TTL),
