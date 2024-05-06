@@ -17,6 +17,9 @@ paths:
     /v2/orders/suscriptions/resources/query:
         POST:
             tag: BSS
+    /v3/{project_id}/configurations/{config_id}/apply:
+        PUT:
+            tag: DDS
     /v3/{project_id}/instances:
         GET:
             tag: DDS

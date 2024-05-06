@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: DDS
 paths:
-    /v3/{project_id}/flavors:
+    /v3.1/{project_id}/flavors:
         GET:
             tag: DDS

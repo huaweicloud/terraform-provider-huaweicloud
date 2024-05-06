@@ -50,3 +50,6 @@ paths:
     /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/force-elb:
         DELETE:
             tag: ELB
+    /v3/{project_id}/elb/loadbalancers/change-charge-mode:
+        POST:
+            tag: ELB
