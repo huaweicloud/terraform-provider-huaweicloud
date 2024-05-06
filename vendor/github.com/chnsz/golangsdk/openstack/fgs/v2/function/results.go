@@ -73,6 +73,10 @@ type Function struct {
 	EnableAuthInHeader bool `json:"enable_auth_in_header"`
 	// Private domain name.
 	DomainNames string `json:"domain_names"`
+	// The pre-stop handler of the function.
+	PreStopHandler string `json:"pre_stop_handler"`
+	// Maximum duration the function can be initialized.
+	PreStopTimeout int `json:"pre_stop_timeout"`
 }
 
 type FuncMount struct {

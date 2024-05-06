@@ -43,11 +43,29 @@ type CreateOpts struct {
 	LogConfig           *FuncLogConfig    `json:"log_config,omitempty"`
 	GPUMemory           int               `json:"gpu_memory,omitempty"`
 	GPUType             string            `json:"gpu_type,omitempty"`
+	// The pre-stop handler of the function.
+	// The value must contain a period (.) in the format of "xx.xx".
+	PreStopHandler string `json:"pre_stop_handler,omitempty"`
+	// Maximum duration the function can be initialized.
+	// Value range: 1s–90s.
+	PreStopTimeout int `json:"pre_stop_timeout,omitempty"`
 }
 
 type CustomImage struct {
 	Enabled bool   `json:"enabled" required:"true"`
 	Image   string `json:"image" required:"true"`
+	// The startup commands of the SWR image.
+	// Multiple commands are separated by commas (,). For example, "/bin/sh".
+	Command string `json:"command,omitempty"`
+	// The command line arguments used to start the SWR image.
+	// Multiple parameters are separated by commas (,).
+	Args string `json:"args,omitempty"`
+	// The working directory of the SWR image.
+	WorkingDir string `json:"working_dir,omitempty"`
+	// The user ID of the SWR image.
+	UserId string `json:"uid,omitempty"`
+	// The user group ID of the SWR image.
+	UserGroupId string `json:"gid,omitempty"`
 }
 
 func (opts CreateOpts) ToCreateFunctionMap() (map[string]interface{}, error) {
@@ -192,6 +210,12 @@ type UpdateMetadataOpts struct {
 	// Restore Hook timeout of snapshot-based cold start.
 	// Range: 1s to 300s.
 	RestoreHookTimeout int `json:"restore_hook_timeout,omitempty"`
+	// The pre-stop handler of the function.\
+	// The value must contain a period (.) in the format of "xx.xx".
+	PreStopHandler string `json:"pre_stop_handler,omitempty"`
+	// Maximum duration the function can be initialized.
+	// Value range: 1s–90s.
+	PreStopTimeout int `json:"pre_stop_timeout,omitempty"`
 }
 
 type StrategyConfig struct {

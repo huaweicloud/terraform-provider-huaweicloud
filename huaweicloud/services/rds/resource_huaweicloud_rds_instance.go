@@ -55,6 +55,7 @@ type ctxType string
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/msdtc/host
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/tde
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/readonly-status
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/modify-dns
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/port
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ip
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/security-group
@@ -263,6 +264,12 @@ func ResourceRdsInstance() *schema.Resource {
 				ValidateFunc: utils.ValidateIP,
 			},
 
+			"private_dns_name_prefix": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"ha_replication_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -441,6 +448,14 @@ func ResourceRdsInstance() *schema.Resource {
 			},
 
 			"private_ips": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
+			"private_dns_names": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
@@ -631,6 +646,10 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if err = updatePrivateDNSNamePrefix(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
@@ -704,6 +723,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	d.Set("switch_strategy", instance.SwitchStrategy)
 	d.Set("charging_mode", instance.ChargeInfo.ChargeMode)
 	d.Set("ssl_enable", instance.EnableSsl)
+	d.Set("private_dns_names", instance.PrivateDnsNames)
 	d.Set("tags", utils.TagsToMap(instance.Tags))
 
 	publicIps := make([]interface{}, len(instance.PublicIps))
@@ -711,6 +731,11 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		publicIps[i] = v
 	}
 	d.Set("public_ips", publicIps)
+
+	if len(instance.PrivateDnsNames) > 0 {
+		privateDNSNamePrefix := strings.Split(instance.PrivateDnsNames[0], ".")[0]
+		d.Set("private_dns_name_prefix", privateDNSNamePrefix)
+	}
 
 	privateIps := make([]string, len(instance.PrivateIps))
 	for i, v := range instance.PrivateIps {
@@ -1022,6 +1047,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updateReadWritePermissions(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updatePrivateDNSNamePrefix(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1924,6 +1953,71 @@ func updateReadWritePermissions(ctx context.Context, d *schema.ResourceData, cli
 	}
 
 	return nil
+}
+
+func updatePrivateDNSNamePrefix(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	if !d.HasChanges("private_dns_name_prefix") {
+		return nil
+	}
+
+	privateDNSNamePrefix := d.Get("private_dns_name_prefix").(string)
+	modifyPrivateDNSNamePrefixOpts := instances.ModifyPrivateDnsNamePrefixOpts{
+		DnsName: privateDNSNamePrefix,
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.ModifyPrivateDnsNamePrefix(client, modifyPrivateDNSNamePrefixOpts, instanceID).Extract()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance private DNS name prefix: %s ", err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      rdsInstancePrivateDNSNameRefreshFunc(client, instanceID, privateDNSNamePrefix),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        1 * time.Second,
+		PollInterval: 2 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for RDS instance (%s) updating instance private DNS name prefix "+
+			"completed: %s", instanceID, err)
+	}
+	return nil
+}
+
+func rdsInstancePrivateDNSNameRefreshFunc(client *golangsdk.ServiceClient, instanceID,
+	privateDNSNamePrefix string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		instance, err := GetRdsInstanceByID(client, instanceID)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+		if instance.Id == "" {
+			return instance, "DELETED", fmt.Errorf("the instance(%s) has been deleted", instanceID)
+		}
+		if len(instance.PrivateDnsNames) == 0 {
+			return instance, "ERROR", fmt.Errorf("error getting private DNS names of the instance(%s)", instanceID)
+		}
+		prefix := strings.Split(instance.PrivateDnsNames[0], ".")[0]
+		if privateDNSNamePrefix != prefix {
+			return instance, "PENDING", nil
+		}
+		return instance, "COMPLETED", nil
+	}
 }
 
 func updatePowerAction(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, powerAction string) error {

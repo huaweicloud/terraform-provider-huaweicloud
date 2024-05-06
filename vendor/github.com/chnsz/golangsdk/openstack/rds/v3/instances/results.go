@@ -54,6 +54,10 @@ type ModifyConfigurationResult struct {
 	commonResult
 }
 
+type ModifySecondLevelMonitoringResult struct {
+	commonResult
+}
+
 type GetConfigurationResult struct {
 	commonResult
 }
@@ -63,6 +67,10 @@ type GetBinlogRetentionHoursResult struct {
 }
 
 type GetTdeStatusResult struct {
+	commonResult
+}
+
+type GetSecondLevelMonitoringResult struct {
 	commonResult
 }
 
@@ -200,6 +208,17 @@ type GetTdeStatusResp struct {
 
 func (r GetTdeStatusResult) Extract() (*GetTdeStatusResp, error) {
 	var response GetTdeStatusResp
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
+type GetSecondLevelMonitoringResp struct {
+	SwitchOption bool `json:"switch_option"`
+	Interval     int  `json:"interval"`
+}
+
+func (r GetSecondLevelMonitoringResult) Extract() (*GetSecondLevelMonitoringResp, error) {
+	var response GetSecondLevelMonitoringResp
 	err := r.ExtractInto(&response)
 	return &response, err
 }
