@@ -385,6 +385,9 @@ The `configs` block support:
 * `user_agent_filter` - (Optional, List) Specifies the User-Agent blacklist or whitelist settings.
   The [user_agent_filter](#user_agent_filter_object) structure is documented below.
 
+* `error_code_redirect_rules` - (Optional, List) Specifies the custom error pages.
+  The [error_code_redirect_rules](#error_code_redirect_rules_object) structure is documented below.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -794,6 +797,17 @@ The `user_agent_filter` block support:
 
 * `ua_list` - (Optional, List) Specifies the User-Agent blacklist or whitelist. This parameter is required when `type`
   is set to **black** or **white**. Up to `10` rules can be configured. A rule contains up to `100` characters.
+
+<a name="error_code_redirect_rules_object"></a>
+The `error_code_redirect_rules` block support:
+
+* `error_code` - (Required, Int) Specifies the redirect unique error code. Valid values are: **400**, **403**, **404**,
+  **405**, **414**, **416**, **451**, **500**, **501**, **502**, **503**, and **504**.
+
+* `target_code` - (Required, Int) Specifies the redirect status code. The value can be **301** or **302**.
+
+* `target_link` - (Required, String) Specifies the destination URL. The value must start with **http://** or **https://**.
+  For example: `http://www.example.com`.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:

@@ -512,6 +512,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.#", "2"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.#", "2"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "white"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.ua_list.#", "3"),
 
@@ -626,6 +628,11 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "black"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.ua_list.0", "t1*"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.0.error_code", "416"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.0.target_code", "301"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.0.target_link", "http://example.com"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "503"),
@@ -674,6 +681,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "off"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.remote_auth_rules.#", "0"),
@@ -873,6 +882,18 @@ resource "huaweicloud_cdn_domain" "test" {
       ]
     }
 
+    error_code_redirect_rules {
+      error_code  = 416
+      target_code = 301
+      target_link = "http://example.com"
+    }
+
+    error_code_redirect_rules {
+      error_code  = 502
+      target_code = 302
+      target_link = "https://xxx.cn/"
+    }
+
     remote_auth {
       enabled = true
 
@@ -1039,6 +1060,12 @@ resource "huaweicloud_cdn_domain" "test" {
       ua_list = [
         "t1*",
       ]
+    }
+
+    error_code_redirect_rules {
+      error_code  = 416
+      target_code = 301
+      target_link = "http://example.com"
     }
 
     remote_auth {

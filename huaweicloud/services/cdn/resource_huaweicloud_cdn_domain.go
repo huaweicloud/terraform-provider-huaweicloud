@@ -672,6 +672,27 @@ var userAgentFilter = schema.Schema{
 	},
 }
 
+var errorCodeRedirectRules = schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"error_code": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"target_code": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"target_link": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -821,6 +842,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"ip_filter":                  &ipFilter,
 						"origin_request_url_rewrite": &originRequestUrlRewrite,
 						"user_agent_filter":          &userAgentFilter,
+						"error_code_redirect_rules":  &errorCodeRedirectRules,
 					},
 				},
 			},
@@ -1347,6 +1369,26 @@ func buildUserAgentFilterOpts(rawUserAgentFilter []interface{}) *model.UserAgent
 	return &userAgentFilterOpts
 }
 
+func buildErrorCodeRedirectRules(errorCodeRedirectRules []interface{}) *[]model.ErrorCodeRedirectRules {
+	if len(errorCodeRedirectRules) < 1 {
+		// Define an empty array to clear all error code redirect rules
+		rst := make([]model.ErrorCodeRedirectRules, 0)
+		return &rst
+	}
+
+	errorCodeRedirectRulesOpts := make([]model.ErrorCodeRedirectRules, len(errorCodeRedirectRules))
+	for i, v := range errorCodeRedirectRules {
+		ruleMap := v.(map[string]interface{})
+		ruleOpt := model.ErrorCodeRedirectRules{
+			ErrorCode:  int32(ruleMap["error_code"].(int)),
+			TargetCode: int32(ruleMap["target_code"].(int)),
+			TargetLink: ruleMap["target_link"].(string),
+		}
+		errorCodeRedirectRulesOpts[i] = ruleOpt
+	}
+	return &errorCodeRedirectRulesOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1504,6 +1546,10 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.user_agent_filter") {
 		configsOpts.UserAgentFilter = buildUserAgentFilterOpts(configs["user_agent_filter"].([]interface{}))
+	}
+	if d.HasChange("configs.0.error_code_redirect_rules") {
+		errorCodeRedirectRules := configs["error_code_redirect_rules"].(*schema.Set).List()
+		configsOpts.ErrorCodeRedirectRules = buildErrorCodeRedirectRules(errorCodeRedirectRules)
 	}
 }
 
@@ -2030,6 +2076,22 @@ func flattenUserAgentFilterAttrs(userAgentFilter *model.UserAgentFilter) []map[s
 	return []map[string]interface{}{userAgentFilterAttrs}
 }
 
+func flattenErrorCodeRedirectRulesAttrs(errorCodeRedirectRules *[]model.ErrorCodeRedirectRules) []map[string]interface{} {
+	if errorCodeRedirectRules == nil || len(*errorCodeRedirectRules) == 0 {
+		return nil
+	}
+
+	errorCodeRedirectRulesAttrs := make([]map[string]interface{}, len(*errorCodeRedirectRules))
+	for i, v := range *errorCodeRedirectRules {
+		errorCodeRedirectRulesAttrs[i] = map[string]interface{}{
+			"error_code":  v.ErrorCode,
+			"target_code": v.TargetCode,
+			"target_link": v.TargetLink,
+		}
+	}
+	return errorCodeRedirectRulesAttrs
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -2087,6 +2149,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"ip_filter":                     flattenIpFilterAttrs(configsResp.IpFilter),
 		"origin_request_url_rewrite":    flattenOriginRequestUrlRewriteAttrs(configsResp.OriginRequestUrlRewrite),
 		"user_agent_filter":             flattenUserAgentFilterAttrs(configsResp.UserAgentFilter),
+		"error_code_redirect_rules":     flattenErrorCodeRedirectRulesAttrs(configsResp.ErrorCodeRedirectRules),
 	}
 	return []map[string]interface{}{configsAttrs}
 }
