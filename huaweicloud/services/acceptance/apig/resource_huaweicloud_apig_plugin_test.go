@@ -227,29 +227,40 @@ resource "huaweicloud_apig_plugin" "test" {
   content     = jsonencode(
     {
       response_headers = [{
-        name   = "X-Custom-Pwd"
-        value  = "**********"
-        action = "override"
+        name       = "X-Custom-Pwd"
+        value      = "**********"
+        value_type = "custom_value"
+        action     = "override"
       },
       {
-        name   = "X-Custom-Debug-Step"
-        value  = "Beta"
-        action = "skip"
+        name       = "X-Custom-Debug-Step"
+        value      = "Beta"
+        value_type = "custom_value"
+        action     = "skip"
       },
       {
-        name   = "X-Custom-Config"
-        value  = "<HTTP response test>"
-        action = "append"
+        name       = "X-Custom-Config"
+        value      = "<HTTP response test>"
+        action     = "append"
+        value_type = "custom_value"
       },
       {
-        name   = "X-Custom-Id"
-        value  = ""
-        action = "delete"
+        name       = "X-Custom-Id"
+        value      = ""
+        value_type = "custom_value"
+        action     = "delete"
       },
       {
-        name   = "X-Custom-Log-Level"
-        value  = "DEBUG"
-        action = "add"
+        name       = "X-Custom-Log-Level"
+        value      = "DEBUG"
+        value_type = "custom_value"
+        action     = "add"
+      },
+      {
+        name       = "Sys-Param"
+        value      = "$context.cacheStatus"
+        value_type = "system_parameter"
+        action     = "add"
       }]
     }
   )
@@ -269,14 +280,22 @@ resource "huaweicloud_apig_plugin" "test" {
   content     = jsonencode(
     {
       response_headers = [{
-        name   = "X-Custom-Pwd"
-        value  = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-        action = "delete"
+        name       = "X-Custom-Pwd"
+        value      = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        value_type = "custom_value"
+        action     = "delete"
       },
       {
-        name   = "X-Custom-Log-PATH"
-        value  = "/tmp/debug.log"
-        action = "add"
+        name       = "X-Custom-Log-PATH"
+        value      = "/tmp/debug.log"
+        value_type = "custom_value"
+        action     = "add"
+      },
+      {
+        name       = "Sys-Param-updated"
+        value      = "$context.cacheStatus"
+        value_type = "system_parameter"
+        action     = "append"
       }]
     }
   )
