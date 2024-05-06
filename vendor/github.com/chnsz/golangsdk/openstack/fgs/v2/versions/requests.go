@@ -5,6 +5,36 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
+// CreateOpts is the structure that used to create a release version under specified function.
+type CreateOpts struct {
+	// Function URN to which the version belongs.
+	FunctionUrn string `json:"-" required:"true"`
+	// The MD5 value.
+	Digest string `json:"digest,omitempty"`
+	// The name of the release version.
+	Version string `json:"version,omitempty"`
+	// The description of the release version.
+	Description string `json:"description,omitempty"`
+}
+
+var requestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
+// Create is a method to create version using given parameters.
+func Create(client *golangsdk.ServiceClient, opts CreateOpts) (*Version, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r Version
+	_, err = client.Post(rootURL(client, opts.FunctionUrn), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
 // ListOpts is the structure that used to query function version list.
 type ListOpts struct {
 	// Function URN.
