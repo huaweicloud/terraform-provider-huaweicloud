@@ -819,11 +819,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_flavors_v3":     rds.DataSourceRdsFlavor(),
 			"huaweicloud_sfs_file_system_v2": sfs.DataSourceSFSFileSystemV2(),
 
-			"huaweicloud_vpc_v1":                    vpc.DataSourceVpcV1(),
-			"huaweicloud_vpc_ids_v1":                vpc.DataSourceVpcIdsV1(),
-			"huaweicloud_vpc_peering_connection_v2": vpc.DataSourceVpcPeeringConnectionV2(),
-			"huaweicloud_vpc_subnet_v1":             vpc.DataSourceVpcSubnetV1(),
-			"huaweicloud_vpc_subnet_ids_v1":         vpc.DataSourceVpcSubnetIdsV1(),
+			"huaweicloud_vpc_v1":                     vpc.DataSourceVpcV1(),
+			"huaweicloud_vpc_ids_v1":                 vpc.DataSourceVpcIdsV1(),
+			"huaweicloud_vpc_peering_connection_v2":  vpc.DataSourceVpcPeeringConnectionV2(),
+			"huaweicloud_vpc_subnet_v1":              vpc.DataSourceVpcSubnetV1(),
+			"huaweicloud_vpc_subnet_ids_v1":          vpc.DataSourceVpcSubnetIdsV1(),
+			"huaweicloud_vpc_traffic_mirror_filters": vpc.DataSourceVpcTrafficMirrorFilters(),
 
 			"huaweicloud_cce_cluster_v3": cce.DataSourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":    cce.DataSourceNode(),
