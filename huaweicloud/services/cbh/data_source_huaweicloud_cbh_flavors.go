@@ -27,6 +27,14 @@ func DataSourceCbhFlavors() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"action": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"spec_code": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"flavor_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -100,6 +108,25 @@ func flavorSchema() *schema.Resource {
 	return &sc
 }
 
+func buildFlavorsReadPath(getCBHFlavorsClient *golangsdk.ServiceClient, getCBHFlavorsHttpUrl string, d *schema.ResourceData) string {
+	getCBHFlavorsPath := getCBHFlavorsClient.Endpoint + getCBHFlavorsHttpUrl
+	getCBHFlavorsPath = strings.ReplaceAll(getCBHFlavorsPath, "{project_id}",
+		getCBHFlavorsClient.ProjectID)
+
+	// If the `action` is set to **update**, the `spec_code` parameter is required.
+	// If the `action` is not filled in, set it to **create** query.
+	if action, ok := d.GetOk("action"); ok {
+		getCBHFlavorsPath += "?action=" + fmt.Sprintf("%v", action)
+		if action == "update" {
+			getCBHFlavorsPath += "&spec_code=" + fmt.Sprintf("%v", d.Get("spec_code"))
+		}
+	} else {
+		getCBHFlavorsPath += "?action=create"
+	}
+
+	return getCBHFlavorsPath
+}
+
 func datasourceFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -116,16 +143,12 @@ func datasourceFlavorsRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CBH client: %s", err)
 	}
 
-	getCBHFlavorsPath := getCBHFlavorsClient.Endpoint + getCBHFlavorsHttpUrl
-	getCBHFlavorsPath = strings.ReplaceAll(getCBHFlavorsPath, "{project_id}",
-		getCBHFlavorsClient.ProjectID)
-	getCBHFlavorsPath += "?action=create"
-
 	getCBHFlavorsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
-	getCBHFlavorsResp, err := getCBHFlavorsClient.Request("GET", getCBHFlavorsPath, &getCBHFlavorsOpt)
+	getCBHFlavorsResp, err := getCBHFlavorsClient.Request("GET",
+		buildFlavorsReadPath(getCBHFlavorsClient, getCBHFlavorsHttpUrl, d), &getCBHFlavorsOpt)
 
 	if err != nil {
 		return diag.Errorf("error retrieving CBH flavors, %s", err)
