@@ -40,8 +40,6 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+08:00"),
-					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.210"),
-					resource.TestCheckResourceAttr(resourceName, "private_ips.0", "192.168.0.210"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8634"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00"),

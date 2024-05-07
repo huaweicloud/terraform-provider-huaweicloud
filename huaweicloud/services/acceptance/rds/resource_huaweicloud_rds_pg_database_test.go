@@ -20,7 +20,7 @@ func getPgDatabaseResourceFunc(cfg *config.Config, state *terraform.ResourceStat
 	region := acceptance.HW_REGION_NAME
 	// getPgDatabase: query RDS PostgreSQL database
 	var (
-		getPgDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/detail?page=1&limit=100"
+		getPgDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/detail?db={db_name}&page=1&limit=100"
 		getPgDatabaseProduct = "rds"
 	)
 	getPgDatabaseClient, err := cfg.NewServiceClient(getPgDatabaseProduct, region)
@@ -39,6 +39,7 @@ func getPgDatabaseResourceFunc(cfg *config.Config, state *terraform.ResourceStat
 	getPgDatabasePath := getPgDatabaseClient.Endpoint + getPgDatabaseHttpUrl
 	getPgDatabasePath = strings.ReplaceAll(getPgDatabasePath, "{project_id}", getPgDatabaseClient.ProjectID)
 	getPgDatabasePath = strings.ReplaceAll(getPgDatabasePath, "{instance_id}", instanceId)
+	getPgDatabasePath = strings.ReplaceAll(getPgDatabasePath, "{db_name}", dbName)
 
 	getPgDatabaseResp, err := pagination.ListAllItems(
 		getPgDatabaseClient,
@@ -86,7 +87,7 @@ func TestAccPgDatabase_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testPgDatabase_basic(name, "test_description"),
+				Config: testPgDatabase_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -100,13 +101,14 @@ func TestAccPgDatabase_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testPgDatabase_basic(name, ""),
+				Config: testPgDatabase_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
 						"huaweicloud_rds_instance.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "owner", "root"),
+					resource.TestCheckResourceAttrPair(rName, "owner",
+						"huaweicloud_rds_pg_account.test", "name"),
 					resource.TestCheckResourceAttr(rName, "character_set", "UTF8"),
 					resource.TestCheckResourceAttr(rName, "lc_collate", "en_US.UTF-8"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
@@ -122,7 +124,7 @@ func TestAccPgDatabase_basic(t *testing.T) {
 	})
 }
 
-func testPgDatabase_basic(name, description string) string {
+func testPgDatabase_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -135,7 +137,33 @@ resource "huaweicloud_rds_pg_database" "test" {
   lc_collate                 = "en_US.UTF-8"
   lc_ctype                   = "en_US.UTF-8"
   is_revoke_public_privilege = false
-  description                = "%[3]s"
+  description                = "test_description"
 }
-`, testAccRdsInstance_basic(name), name, description)
+`, testAccRdsInstance_basic(name), name)
+}
+
+func testPgDatabase_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_pg_account" "test" {
+  instance_id = huaweicloud_rds_instance.test.id
+  name        = "%[2]s"
+  password    = "Test@12345678"
+}
+
+resource "huaweicloud_rds_pg_database" "test" {
+  depends_on = [huaweicloud_rds_pg_account.test]
+
+  instance_id                = huaweicloud_rds_instance.test.id
+  name                       = "%[2]s"
+  owner                      = huaweicloud_rds_pg_account.test.name
+  character_set              = "UTF8"
+  template                   = "template1"
+  lc_collate                 = "en_US.UTF-8"
+  lc_ctype                   = "en_US.UTF-8"
+  is_revoke_public_privilege = false
+  description                = ""
+}
+`, testAccRdsInstance_basic(name), name)
 }

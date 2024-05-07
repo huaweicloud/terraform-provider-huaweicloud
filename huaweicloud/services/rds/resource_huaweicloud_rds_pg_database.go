@@ -28,6 +28,7 @@ import (
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/database
 // @API RDS GET /v3/{project_id}/instances
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/database/detail
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/database/owner
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/database/update
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}/database/{db_name}
 func ResourcePgDatabase() *schema.Resource {
@@ -69,7 +70,6 @@ func ResourcePgDatabase() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the database user.`,
 			},
 			"template": {
@@ -193,7 +193,7 @@ func resourcePgDatabaseRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	// getPgDatabase: query RDS PostgreSQL database
 	var (
-		getPgDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/detail?page=1&limit=100"
+		getPgDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/detail?db={db_name}&page=1&limit=100"
 		getPgDatabaseProduct = "rds"
 	)
 	getPgDatabaseClient, err := cfg.NewServiceClient(getPgDatabaseProduct, region)
@@ -212,6 +212,7 @@ func resourcePgDatabaseRead(_ context.Context, d *schema.ResourceData, meta inte
 	getPgDatabasePath := getPgDatabaseClient.Endpoint + getPgDatabaseHttpUrl
 	getPgDatabasePath = strings.ReplaceAll(getPgDatabasePath, "{project_id}", getPgDatabaseClient.ProjectID)
 	getPgDatabasePath = strings.ReplaceAll(getPgDatabasePath, "{instance_id}", instanceId)
+	getPgDatabasePath = strings.ReplaceAll(getPgDatabasePath, "{db_name}", dbName)
 
 	getPgDatabaseResp, err := pagination.ListAllItems(
 		getPgDatabaseClient,
@@ -257,51 +258,109 @@ func resourcePgDatabaseUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
+	var (
+		updatePgDatabaseProduct = "rds"
+	)
+	updatePgDatabaseClient, err := cfg.NewServiceClient(updatePgDatabaseProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating RDS client: %s", err)
+	}
+
+	if d.HasChange("owner") {
+		// updatePgDatabaseOwner: update RDS PostgreSQL database owner
+		if err = updatePgDatabaseOwner(ctx, d, updatePgDatabaseClient); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("description") {
-		// updatePgDatabase: update RDS PostgreSQL database
-		var (
-			updatePgDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/update"
-			updatePgDatabaseProduct = "rds"
-		)
-		updatePgDatabaseClient, err := cfg.NewServiceClient(updatePgDatabaseProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating RDS client: %s", err)
-		}
-
-		instanceId := d.Get("instance_id").(string)
-		updatePgDatabasePath := updatePgDatabaseClient.Endpoint + updatePgDatabaseHttpUrl
-		updatePgDatabasePath = strings.ReplaceAll(updatePgDatabasePath, "{project_id}", updatePgDatabaseClient.ProjectID)
-		updatePgDatabasePath = strings.ReplaceAll(updatePgDatabasePath, "{instance_id}", instanceId)
-
-		updatePgDatabaseOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-
-		requestBody := buildUpdatePgDatabaseBodyParams(d)
-		log.Printf("[DEBUG] Update RDS PostgreSQL database description options: %#v", requestBody)
-		updatePgDatabaseOpt.JSONBody = utils.RemoveNil(requestBody)
-		retryFunc := func() (interface{}, bool, error) {
-			_, err = updatePgDatabaseClient.Request("POST", updatePgDatabasePath, &updatePgDatabaseOpt)
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
-		}
-		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			WaitFunc:     rdsInstanceStateRefreshFunc(updatePgDatabaseClient, instanceId),
-			WaitTarget:   []string{"ACTIVE"},
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			DelayTimeout: 1 * time.Second,
-			PollInterval: 10 * time.Second,
-		})
-		if err != nil {
-			return diag.Errorf("error updating RDS PostgreSQL database: %s", err)
+		// updatePgDatabaseDescription: update RDS PostgreSQL database description
+		if err = updatePgDatabaseDescription(ctx, d, updatePgDatabaseClient); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 	return resourcePgDatabaseRead(ctx, d, meta)
 }
 
-func buildUpdatePgDatabaseBodyParams(d *schema.ResourceData) map[string]interface{} {
+func updatePgDatabaseOwner(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		updatePgDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/owner"
+	)
+
+	instanceId := d.Get("instance_id").(string)
+	updatePgDatabasePath := client.Endpoint + updatePgDatabaseHttpUrl
+	updatePgDatabasePath = strings.ReplaceAll(updatePgDatabasePath, "{project_id}", client.ProjectID)
+	updatePgDatabasePath = strings.ReplaceAll(updatePgDatabasePath, "{instance_id}", instanceId)
+
+	updatePgDatabaseOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	updatePgDatabaseOpt.JSONBody = utils.RemoveNil(buildUpdatePgDatabaseOwnerBodyParams(d))
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := client.Request("POST", updatePgDatabasePath, &updatePgDatabaseOpt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating RDS PostgreSQL database owner: %s", err)
+	}
+	return nil
+}
+
+func buildUpdatePgDatabaseOwnerBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"owner":    d.Get("owner"),
+		"database": d.Get("name"),
+	}
+	return bodyParams
+}
+
+func updatePgDatabaseDescription(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		updatePgDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/update"
+	)
+
+	instanceId := d.Get("instance_id").(string)
+	updatePgDatabasePath := client.Endpoint + updatePgDatabaseHttpUrl
+	updatePgDatabasePath = strings.ReplaceAll(updatePgDatabasePath, "{project_id}", client.ProjectID)
+	updatePgDatabasePath = strings.ReplaceAll(updatePgDatabasePath, "{instance_id}", instanceId)
+
+	updatePgDatabaseOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	updatePgDatabaseOpt.JSONBody = utils.RemoveNil(buildUpdatePgDatabaseDescriptionBodyParams(d))
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := client.Request("POST", updatePgDatabasePath, &updatePgDatabaseOpt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating RDS PostgreSQL database description: %s", err)
+	}
+	return nil
+}
+
+func buildUpdatePgDatabaseDescriptionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":    d.Get("name"),
 		"comment": d.Get("description"),
