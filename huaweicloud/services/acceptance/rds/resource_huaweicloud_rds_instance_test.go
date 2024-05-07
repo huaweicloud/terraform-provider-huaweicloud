@@ -156,6 +156,8 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "div_precision_increment"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "12"),
 					resource.TestCheckResourceAttr(resourceName, "binlog_retention_hours", "12"),
+					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_interval", "1"),
 				),
 			},
 			{
@@ -173,6 +175,8 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "connect_timeout"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "14"),
 					resource.TestCheckResourceAttr(resourceName, "binlog_retention_hours", "0"),
+					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_interval", "5"),
 					resource.TestCheckResourceAttrSet(resourceName, "db.0.password"),
 				),
 			},
@@ -183,6 +187,7 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.limit_size", "0"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "0"),
 					resource.TestCheckResourceAttr(resourceName, "binlog_retention_hours", "6"),
+					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "false"),
 				),
 			},
 		},
@@ -669,6 +674,7 @@ data "huaweicloud_rds_flavors" "test" {
   db_version    = "8.0"
   instance_mode = "single"
   group_type    = "dedicated"
+  vcpus         = 4
 }
 
 resource "huaweicloud_rds_instance" "test" {
@@ -681,6 +687,9 @@ resource "huaweicloud_rds_instance" "test" {
   ssl_enable             = true  
   binlog_retention_hours = "12"
   read_write_permissions = "readonly"
+
+  seconds_level_monitoring_enabled  = true
+  seconds_level_monitoring_interval = 1
 
   db {
     type     = "MySQL"
@@ -720,6 +729,7 @@ data "huaweicloud_rds_flavors" "test" {
   db_version    = "8.0"
   instance_mode = "single"
   group_type    = "dedicated"
+  vcpus         = 4
 }
 
 resource "huaweicloud_rds_instance" "test" {
@@ -733,6 +743,9 @@ resource "huaweicloud_rds_instance" "test" {
   param_group_id         = huaweicloud_rds_parametergroup.pg_1.id
   binlog_retention_hours = "0"
   read_write_permissions = "readwrite"
+
+  seconds_level_monitoring_enabled  = true
+  seconds_level_monitoring_interval = 5
 
   db {
     password = "Huangwei!120521"
@@ -773,6 +786,7 @@ data "huaweicloud_rds_flavors" "test" {
   db_version    = "8.0"
   instance_mode = "single"
   group_type    = "dedicated"
+  vcpus         = 4
 }
 
 resource "huaweicloud_rds_instance" "test" {
@@ -786,6 +800,8 @@ resource "huaweicloud_rds_instance" "test" {
   param_group_id         = huaweicloud_rds_parametergroup.pg_1.id
   binlog_retention_hours = "6"
   read_write_permissions = "readwrite"
+
+  seconds_level_monitoring_enabled = false
 
   db {
     password = "Huangwei!120521"
