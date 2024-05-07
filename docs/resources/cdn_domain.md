@@ -276,6 +276,18 @@ The `sources` block supports:
   + If `origin_type` is set to **ipaddr** or **domain**, the acceleration domain name will be used by default.
   + If `origin_type` is set to **obs_bucket**, the bucket's domain name will be used by default.
 
+* `weight` - (Optional, Int) Specifies the weight. The value ranges from **1** to **100**. Defaults to **50**.
+  A larger value indicates a larger number of times that content is pulled from this IP address.
+
+  -> If there are multiple origin servers with the same priority, the weight determines the proportion of content pulled
+  from each origin server.
+
+* `obs_bucket_type` - (Optional, String) Specifies the OBS bucket type. Valid values are as follows:
+  + **private**: Private bucket.
+  + **public**: Public bucket.
+
+  This field is valid only when `origin_type` is set to **obs_bucket**. Defaults to **public**.
+
 <a name="configs_object"></a>
 The `configs` block support:
 
@@ -302,6 +314,13 @@ The `configs` block support:
 
 * `origin_receive_timeout` - (Optional, Int) Specifies the origin response timeout.
   The value ranges from **5** to **60**, in seconds. Defaults to **30**.
+
+* `origin_follow302_status` - (Optional, String) Specifies whether to enable redirection from the origin.
+  Valid values are as follows:
+  + **on**: Enable.
+  + **off**: Disable.
+
+  Defaults to **off**.
 
 * `https_settings` - (Optional, List) Specifies the certificate configuration. The [https_settings](#https_settings_object)
   structure is documented below.
@@ -384,6 +403,14 @@ The `configs` block support:
 
 * `user_agent_filter` - (Optional, List) Specifies the User-Agent blacklist or whitelist settings.
   The [user_agent_filter](#user_agent_filter_object) structure is documented below.
+
+* `error_code_redirect_rules` - (Optional, List) Specifies the custom error pages.
+  The [error_code_redirect_rules](#error_code_redirect_rules_object) structure is documented below.
+
+* `hsts` - (Optional, List) Specifies the HSTS settings. HSTS forces clients (such as browsers) to use HTTPS to access
+  your server, improving access security. The [hsts](#hsts_object) structure is documented below.
+
+  -> This field can only be used when the HTTPS certificate is enabled.
 
 <a name="https_settings_object"></a>
 The `https_settings` block support:
@@ -794,6 +821,29 @@ The `user_agent_filter` block support:
 
 * `ua_list` - (Optional, List) Specifies the User-Agent blacklist or whitelist. This parameter is required when `type`
   is set to **black** or **white**. Up to `10` rules can be configured. A rule contains up to `100` characters.
+
+<a name="error_code_redirect_rules_object"></a>
+The `error_code_redirect_rules` block support:
+
+* `error_code` - (Required, Int) Specifies the redirect unique error code. Valid values are: **400**, **403**, **404**,
+  **405**, **414**, **416**, **451**, **500**, **501**, **502**, **503**, and **504**.
+
+* `target_code` - (Required, Int) Specifies the redirect status code. The value can be **301** or **302**.
+
+* `target_link` - (Required, String) Specifies the destination URL. The value must start with **http://** or **https://**.
+  For example: `http://www.example.com`.
+
+<a name="hsts_object"></a>
+The `hsts` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable HSTS settings.
+
+* `max_age` - (Optional, Int) Specifies the expiration time, which means the TTL of the response header
+  `Strict-Transport-Security` on the client. The value ranges from **0** to **63,072,000**. The unit is second.
+  This field is required when enable HSTS settings.
+
+* `include_subdomains` - (Optional, String) Specifies whether subdomain names are included.
+  The options are **on** (included) and **off** (not included). This field is required when enable HSTS settings.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:

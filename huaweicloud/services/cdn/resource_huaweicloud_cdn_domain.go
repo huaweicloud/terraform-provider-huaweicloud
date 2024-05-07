@@ -672,6 +672,52 @@ var userAgentFilter = schema.Schema{
 	},
 }
 
+var errorCodeRedirectRules = schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"error_code": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"target_code": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"target_link": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	},
+}
+
+var hsts = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"max_age": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"include_subdomains": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -750,6 +796,16 @@ func ResourceCdnDomain() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"weight": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"obs_bucket_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -802,6 +858,12 @@ func ResourceCdnDomain() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						// Cloud will configure this field to `off` by default
+						"origin_follow302_status": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 						"https_settings":             &httpsConfig,
 						"retrieval_request_header":   &requestAndResponseHeader,
 						"http_response_header":       &requestAndResponseHeader,
@@ -821,6 +883,8 @@ func ResourceCdnDomain() *schema.Resource {
 						"ip_filter":                  &ipFilter,
 						"origin_request_url_rewrite": &originRequestUrlRewrite,
 						"user_agent_filter":          &userAgentFilter,
+						"error_code_redirect_rules":  &errorCodeRedirectRules,
+						"hsts":                       &hsts,
 					},
 				},
 			},
@@ -1347,6 +1411,41 @@ func buildUserAgentFilterOpts(rawUserAgentFilter []interface{}) *model.UserAgent
 	return &userAgentFilterOpts
 }
 
+func buildErrorCodeRedirectRules(errorCodeRedirectRules []interface{}) *[]model.ErrorCodeRedirectRules {
+	if len(errorCodeRedirectRules) < 1 {
+		// Define an empty array to clear all error code redirect rules
+		rst := make([]model.ErrorCodeRedirectRules, 0)
+		return &rst
+	}
+
+	errorCodeRedirectRulesOpts := make([]model.ErrorCodeRedirectRules, len(errorCodeRedirectRules))
+	for i, v := range errorCodeRedirectRules {
+		ruleMap := v.(map[string]interface{})
+		ruleOpt := model.ErrorCodeRedirectRules{
+			ErrorCode:  int32(ruleMap["error_code"].(int)),
+			TargetCode: int32(ruleMap["target_code"].(int)),
+			TargetLink: ruleMap["target_link"].(string),
+		}
+		errorCodeRedirectRulesOpts[i] = ruleOpt
+	}
+	return &errorCodeRedirectRulesOpts
+}
+
+func buildHstsOpts(rawHsts []interface{}) *model.Hsts {
+	if len(rawHsts) != 1 {
+		return nil
+	}
+
+	hsts := rawHsts[0].(map[string]interface{})
+	hstsOpts := model.Hsts{
+		Status:            parseFunctionEnabledStatus(hsts["enabled"].(bool)),
+		MaxAge:            utils.Int32(int32(hsts["max_age"].(int))),
+		IncludeSubdomains: utils.StringIgnoreEmpty(hsts["include_subdomains"].(string)),
+	}
+
+	return &hstsOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1368,6 +1467,8 @@ func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 			HttpPort:            utils.Int32IgnoreEmpty(int32(source["http_port"].(int))),
 			HttpsPort:           utils.Int32IgnoreEmpty(int32(source["https_port"].(int))),
 			HostName:            utils.StringIgnoreEmpty(source["retrieval_host"].(string)),
+			Weight:              utils.Int32IgnoreEmpty(int32(source["weight"].(int))),
+			ObsBucketType:       utils.StringIgnoreEmpty(source["obs_bucket_type"].(string)),
 		}
 	}
 	return &sourcesOpts
@@ -1444,6 +1545,9 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	if d.HasChange("configs.0.origin_receive_timeout") {
 		configsOpts.OriginReceiveTimeout = utils.Int32IgnoreEmpty(int32(configs["origin_receive_timeout"].(int)))
 	}
+	if d.HasChange("configs.0.origin_follow302_status") {
+		configsOpts.OriginFollow302Status = utils.StringIgnoreEmpty(configs["origin_follow302_status"].(string))
+	}
 	if d.HasChange("configs.0.https_settings") {
 		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
 	}
@@ -1504,6 +1608,13 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.user_agent_filter") {
 		configsOpts.UserAgentFilter = buildUserAgentFilterOpts(configs["user_agent_filter"].([]interface{}))
+	}
+	if d.HasChange("configs.0.error_code_redirect_rules") {
+		errorCodeRedirectRules := configs["error_code_redirect_rules"].(*schema.Set).List()
+		configsOpts.ErrorCodeRedirectRules = buildErrorCodeRedirectRules(errorCodeRedirectRules)
+	}
+	if d.HasChange("configs.0.hsts") {
+		configsOpts.Hsts = buildHstsOpts(configs["hsts"].([]interface{}))
 	}
 }
 
@@ -2030,6 +2141,36 @@ func flattenUserAgentFilterAttrs(userAgentFilter *model.UserAgentFilter) []map[s
 	return []map[string]interface{}{userAgentFilterAttrs}
 }
 
+func flattenErrorCodeRedirectRulesAttrs(errorCodeRedirectRules *[]model.ErrorCodeRedirectRules) []map[string]interface{} {
+	if errorCodeRedirectRules == nil || len(*errorCodeRedirectRules) == 0 {
+		return nil
+	}
+
+	errorCodeRedirectRulesAttrs := make([]map[string]interface{}, len(*errorCodeRedirectRules))
+	for i, v := range *errorCodeRedirectRules {
+		errorCodeRedirectRulesAttrs[i] = map[string]interface{}{
+			"error_code":  v.ErrorCode,
+			"target_code": v.TargetCode,
+			"target_link": v.TargetLink,
+		}
+	}
+	return errorCodeRedirectRulesAttrs
+}
+
+func flattenHstsAttrs(hsts *model.HstsQuery) []map[string]interface{} {
+	if hsts == nil {
+		return nil
+	}
+
+	hstsAttrs := map[string]interface{}{
+		"enabled":            analyseFunctionEnabledStatus(hsts.Status),
+		"max_age":            hsts.MaxAge,
+		"include_subdomains": hsts.IncludeSubdomains,
+	}
+
+	return []map[string]interface{}{hstsAttrs}
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -2049,6 +2190,8 @@ func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{
 			"http_port":               v.HttpPort,
 			"https_port":              v.HttpsPort,
 			"retrieval_host":          v.HostName,
+			"weight":                  v.Weight,
+			"obs_bucket_type":         v.ObsBucketType,
 		}
 	}
 
@@ -2079,6 +2222,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"description":                   configsResp.Remark,
 		"slice_etag_status":             configsResp.SliceEtagStatus,
 		"origin_receive_timeout":        configsResp.OriginReceiveTimeout,
+		"origin_follow302_status":       configsResp.OriginFollow302Status,
 		"quic":                          flattenQUICAttrs(configsResp.Quic),
 		"referer":                       flattenRefererAttrs(configsResp.Referer),
 		"video_seek":                    flattenVideoSeekAttrs(configsResp.VideoSeek),
@@ -2087,6 +2231,8 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"ip_filter":                     flattenIpFilterAttrs(configsResp.IpFilter),
 		"origin_request_url_rewrite":    flattenOriginRequestUrlRewriteAttrs(configsResp.OriginRequestUrlRewrite),
 		"user_agent_filter":             flattenUserAgentFilterAttrs(configsResp.UserAgentFilter),
+		"error_code_redirect_rules":     flattenErrorCodeRedirectRulesAttrs(configsResp.ErrorCodeRedirectRules),
+		"hsts":                          flattenHstsAttrs(configsResp.Hsts),
 	}
 	return []map[string]interface{}{configsAttrs}
 }

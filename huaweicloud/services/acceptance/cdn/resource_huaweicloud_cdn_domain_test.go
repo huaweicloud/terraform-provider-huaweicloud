@@ -66,6 +66,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "sources.0.origin_type", "ipaddr"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "80"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.https_port", "443"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.weight", "50"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
@@ -78,6 +79,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "download"),
 					resource.TestCheckResourceAttr(resourceName, "service_area", "global"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.weight", "100"),
 				),
 			},
 			{
@@ -91,6 +93,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "8001"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.https_port", "8002"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.weight", "1"),
 				),
 			},
 			{
@@ -167,6 +170,7 @@ resource "huaweicloud_cdn_domain" "test" {
     origin_type = "ipaddr"
     http_port   = 80
     https_port  = 443
+    weight      = 100
   }
 
   cache_settings {
@@ -200,6 +204,7 @@ resource "huaweicloud_cdn_domain" "test" {
     retrieval_host = "customize.test.huaweicloud.com"
     http_port      = 8001
     https_port     = 8002
+    weight         = 1
   }
 
   cache_settings {}
@@ -265,6 +270,9 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.quic.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.include_subdomains", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.max_age", "0"),
 					testAccCheckTLSVersion(resourceName, "TLSv1.1,TLSv1.2"),
 
 					resource.TestCheckResourceAttrSet(resourceName, "configs.0.https_settings.0.certificate_body"),
@@ -285,6 +293,10 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.quic.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.include_subdomains", "on"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.max_age", "63072000"),
+
 					testAccCheckTLSVersion(resourceName, "TLSv1.1,TLSv1.2,TLSv1.3"),
 				),
 			},
@@ -297,6 +309,7 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_status", "off"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.hsts.0.enabled", "false"),
 				),
 			},
 			{
@@ -372,6 +385,12 @@ resource "huaweicloud_cdn_domain" "test" {
     quic {
       enabled = true
     }
+
+    hsts {
+      enabled            = true
+      include_subdomains = "off"
+      max_age            = 0
+    }
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
@@ -408,6 +427,12 @@ resource "huaweicloud_cdn_domain" "test" {
     quic {
       enabled = false
     }
+
+    hsts {
+      enabled            = true
+      include_subdomains = "on"
+      max_age            = 63072000
+    }
   }
 }
 `, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
@@ -432,6 +457,10 @@ resource "huaweicloud_cdn_domain" "test" {
 
     https_settings {
       https_enabled = false
+    }
+
+    hsts {
+      enabled = false
     }
   }
 }
@@ -469,6 +498,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.slice_etag_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_receive_timeout", "60"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_follow302_status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.name", "test-name"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.url_signing.0.type", "type_a"),
@@ -511,6 +541,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.ip_filter.0.value", "5.12.3.65,35.2.65.21"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.#", "2"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.#", "2"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "white"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.ua_list.#", "3"),
@@ -559,6 +591,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.description", "update description"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.slice_etag_status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_receive_timeout", "30"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_follow302_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.name", "test-name-update"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.value", "test-val-update"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.retrieval_request_header.0.action", "set"),
@@ -626,6 +659,11 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "black"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.ua_list.0", "t1*"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.0.error_code", "416"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.0.target_code", "301"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.0.target_link", "http://example.com"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "503"),
@@ -667,6 +705,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.description", ""),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.slice_etag_status", "on"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_receive_timeout", "5"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_follow302_status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.flexible_origin.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.request_limit_rules.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_cache.#", "0"),
@@ -674,6 +713,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "off"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.remote_auth_rules.#", "0"),
@@ -873,6 +914,18 @@ resource "huaweicloud_cdn_domain" "test" {
       ]
     }
 
+    error_code_redirect_rules {
+      error_code  = 416
+      target_code = 301
+      target_link = "http://example.com"
+    }
+
+    error_code_redirect_rules {
+      error_code  = 502
+      target_code = 302
+      target_link = "https://xxx.cn/"
+    }
+
     remote_auth {
       enabled = true
 
@@ -940,6 +993,7 @@ resource "huaweicloud_cdn_domain" "test" {
     description                   = "update description"
     slice_etag_status             = "off"
     origin_receive_timeout        = "30"
+    origin_follow302_status       = "on"
 
     retrieval_request_header {
       name   = "test-name-update"
@@ -1041,6 +1095,12 @@ resource "huaweicloud_cdn_domain" "test" {
       ]
     }
 
+    error_code_redirect_rules {
+      error_code  = 416
+      target_code = 301
+      target_link = "http://example.com"
+    }
+
     remote_auth {
       enabled = true
 
@@ -1086,6 +1146,7 @@ resource "huaweicloud_cdn_domain" "test" {
     range_based_retrieval_enabled = false
     slice_etag_status             = "on"
     origin_receive_timeout        = "5"
+    origin_follow302_status       = "off"
 
     remote_auth {
       enabled = false
