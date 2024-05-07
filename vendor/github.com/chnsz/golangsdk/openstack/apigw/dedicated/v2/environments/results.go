@@ -66,6 +66,11 @@ type VariableGetResult struct {
 	VariableResult
 }
 
+// VariableUpdateResult represents a result of the UpdateVariable operation.
+type VariableUpdateResult struct {
+	VariableResult
+}
+
 type Variable struct {
 	// Environment variable ID.
 	Id string `json:"id"`
