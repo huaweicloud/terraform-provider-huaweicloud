@@ -31,18 +31,6 @@ The following arguments are supported:
 * `spec_code` - (Optional, String) Specifies the ID of the CBH specification, the query result shows all specifications
   that can be changed by this specification. This parameter is required when `action` is set to **update**.
 
-* `asset` - (Optional, Int) Specifies the number of CBH assets.
-
-* `type` - (Optional, String) Specifies the type of CBH specification. The value can be:
-  + **basic**: Standard version.
-  + **enhance**: Professional version.
-
-* `vcpus` - (Optional, Int) Specifies the number of CPU cores of the CBH.
-
-* `memory` - (Optional, Int) Specifies the memory size of the CBH, in GB.
-
-* `max_connection` - (Optional, Int) Specifies the maximum number of connections to the CBH.
-
 * `flavor_id` - (Optional, String) Specifies the ID of the specification of CBH.
   At present, CBH provides two functional versions: standard version and professional version.
   The standard version is equipped with asset specifications of 10(for example the `flavor_id` is: **cbh.basic.10**),
@@ -50,6 +38,18 @@ The following arguments are supported:
   The professional version is equipped with 10(for example the `flavor_id` is: **cbh.enhance.10**),
   20, 50, 100, 200, 500, 1000, 2000, 5000, 10000 asset specifications.
   The specification 'enhance' is more advanced than the specification 'basic'.
+
+* `type` - (Optional, String) Specifies the type of CBH specification. The value can be:
+  + **basic**: Standard version.
+  + **enhance**: Professional version.
+
+* `asset` - (Optional, Int) Specifies the number of CBH assets.
+
+* `memory` - (Optional, Int) Specifies the memory size of the CBH, in GB.
+
+* `vcpus` - (Optional, Int) Specifies the number of CPU cores of the CBH.
+
+* `max_connection` - (Optional, Int) Specifies the maximum number of connections to the CBH.
 
 ## Attribute Reference
 
