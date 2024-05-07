@@ -519,11 +519,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_datasource_auths":       dli.DataSourceAuths(),
 			"huaweicloud_dli_datasource_connections": dli.DataSourceConnections(),
 			"huaweicloud_dli_elastic_resource_pools": dli.DataSourceDliElasticPools(),
+			"huaweicloud_dli_flink_templates":        dli.DataSourceDliFlinkTemplates(),
 			"huaweicloud_dli_quotas":                 dli.DataSourceDliQuotas(),
+			"huaweicloud_dli_spark_templates":        dli.DataSourceDliSparkTemplates(),
+			"huaweicloud_dli_sql_jobs":               dli.DataSourceDliSqlJobs(),
 			"huaweicloud_dli_sql_templates":          dli.DataSourceDliSqlTemplates(),
-
-			"huaweicloud_dli_flink_templates": dli.DataSourceDliFlinkTemplates(),
-			"huaweicloud_dli_spark_templates": dli.DataSourceDliSparkTemplates(),
 
 			"huaweicloud_dms_kafka_flavors":             dms.DataSourceKafkaFlavors(),
 			"huaweicloud_dms_kafka_instances":           dms.DataSourceDmsKafkaInstances(),
