@@ -231,6 +231,11 @@ The following arguments are supported:
 
   -> The service area cannot be changed between Chinese mainland and outside Chinese mainland.
 
+* `enabled` - (Optional, Bool) Specifies whether to enable accelerated domain name. Defaults to **true**.
+
+  -> The CDN domain name can be disabled only when the domain name status is enabled. And it can only be enabled when
+  the domain name status is disabled.
+
 * `configs` - (Optional, List) Specifies the domain configuration items. The [configs](#configs_object) structure is
   documented below.
 

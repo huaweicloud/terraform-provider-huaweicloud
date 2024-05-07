@@ -815,6 +815,11 @@ func ResourceCdnDomain() *schema.Resource {
 				Computed:    true,
 				Description: "schema: Required",
 			},
+			"enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1688,7 +1693,38 @@ func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 	if err := waitingForStatusOnline(ctx, cdnClient, d, d.Timeout(schema.TimeoutCreate), opts); err != nil {
 		return diag.Errorf("error waiting for CDN domain (%s) creation to become online: %s", d.Id(), err)
 	}
+
+	if !d.Get("enabled").(bool) {
+		err = disableCDNDomainStatus(ctx, cdnClient, d, d.Timeout(schema.TimeoutCreate), opts)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceCdnDomainUpdate(ctx, d, meta)
+}
+
+func disableCDNDomainStatus(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, opts *domains.ExtensionOpts) error {
+	if err := domains.Disable(client, d.Id(), opts).Err; err != nil {
+		return fmt.Errorf("error disabling CDN domain %s: %s", d.Id(), err)
+	}
+
+	if err := waitingForStatusOffline(ctx, client, d, timeout, opts); err != nil {
+		return fmt.Errorf("error waiting for CDN domain (%s) update to become offline: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func enableCDNDomainStatus(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, opts *domains.ExtensionOpts) error {
+	if err := domains.Enable(client, d.Id(), opts).Err; err != nil {
+		return fmt.Errorf("error enabling CDN domain %s: %s", d.Id(), err)
+	}
+
+	if err := waitingForStatusOnline(ctx, client, d, timeout, opts); err != nil {
+		return fmt.Errorf("error waiting for CDN domain (%s) update to become online: %s", d.Id(), err)
+	}
+	return nil
 }
 
 func waitingForStatusOnline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
@@ -2306,6 +2342,7 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("type", v.BusinessType),
 		d.Set("cname", v.CName),
 		d.Set("domain_status", v.DomainStatus),
+		d.Set("enabled", v.DomainStatus == "online"),
 		d.Set("service_area", v.ServiceArea),
 		d.Set("sources", flattenSourcesAttrs(configsResp.Sources)),
 		d.Set("configs", flattenConfigAttrs(configsResp, d)),
@@ -2382,6 +2419,26 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
+	if d.HasChange("enabled") {
+		cdnClient, err := cfg.CdnV1Client(region)
+		if err != nil {
+			return diag.Errorf("error creating CDN v1 client: %s", err)
+		}
+		opts := buildResourceExtensionOpts(d, cfg)
+
+		if d.Get("enabled").(bool) {
+			err = enableCDNDomainStatus(ctx, cdnClient, d, d.Timeout(schema.TimeoutUpdate), opts)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		} else {
+			err = disableCDNDomainStatus(ctx, cdnClient, d, d.Timeout(schema.TimeoutUpdate), opts)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	return resourceCdnDomainRead(ctx, d, meta)
 }
 
@@ -2440,12 +2497,9 @@ func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta i
 	opts := buildResourceExtensionOpts(d, cfg)
 	if d.Get("domain_status").(string) == "online" {
 		// make sure the status has changed to offline before deleting it.
-		if err = domains.Disable(cdnClient, d.Id(), opts).Err; err != nil {
-			return diag.Errorf("error disable CDN domain %s: %s", d.Id(), err)
-		}
-
-		if err := waitingForStatusOffline(ctx, cdnClient, d, d.Timeout(schema.TimeoutDelete), opts); err != nil {
-			return diag.Errorf("error waiting for CDN domain (%s) update to become offline: %s", d.Id(), err)
+		err = disableCDNDomainStatus(ctx, cdnClient, d, d.Timeout(schema.TimeoutDelete), opts)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

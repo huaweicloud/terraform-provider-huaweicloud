@@ -59,6 +59,8 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "type", "web"),
 					resource.TestCheckResourceAttr(resourceName, "service_area", "outside_mainland_china"),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "domain_status", "online"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_protocol", "http"),
 					resource.TestCheckResourceAttr(resourceName, "sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.active", "1"),
@@ -78,6 +80,8 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "type", "download"),
 					resource.TestCheckResourceAttr(resourceName, "service_area", "global"),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "domain_status", "offline"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.weight", "100"),
 				),
@@ -89,6 +93,8 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "type", "web"),
 					resource.TestCheckResourceAttr(resourceName, "service_area", "mainland_china"),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "domain_status", "online"),
 					resource.TestCheckResourceAttr(resourceName, "sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "8001"),
@@ -120,9 +126,9 @@ func TestAccCdnDomain_basic(t *testing.T) {
 
 var testAccCdnDomain_basic = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
-  name                  = "%s"
-  type                  = "web"
-  service_area          = "outside_mainland_china"
+  name         = "%s"
+  type         = "web"
+  service_area = "outside_mainland_china"
 
   configs {
     origin_protocol = "http"
@@ -156,9 +162,10 @@ resource "huaweicloud_cdn_domain" "test" {
 
 var testAccCdnDomain_update1 = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
-  name                  = "%s"
-  type                  = "download"
-  service_area          = "global"
+  name         = "%s"
+  type         = "download"
+  service_area = "global"
+  enabled      = false
 
   configs {
     origin_protocol = "http"
@@ -189,9 +196,10 @@ resource "huaweicloud_cdn_domain" "test" {
 
 var testAccCdnDomain_update2 = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
-  name                  = "%s"
-  type                  = "web"
-  service_area          = "mainland_china"
+  name         = "%s"
+  type         = "web"
+  service_area = "mainland_china"
+  enabled      = true
 
   configs {
     origin_protocol = "http"
@@ -213,9 +221,9 @@ resource "huaweicloud_cdn_domain" "test" {
 
 var testAccCdnDomain_update3 = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
-  name                  = "%s"
-  type                  = "web"
-  service_area          = "mainland_china"
+  name         = "%s"
+  type         = "web"
+  service_area = "mainland_china"
 
   sources {
     active      = 1
