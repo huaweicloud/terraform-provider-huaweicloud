@@ -796,6 +796,16 @@ func ResourceCdnDomain() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"weight": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"obs_bucket_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -1457,6 +1467,8 @@ func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 			HttpPort:            utils.Int32IgnoreEmpty(int32(source["http_port"].(int))),
 			HttpsPort:           utils.Int32IgnoreEmpty(int32(source["https_port"].(int))),
 			HostName:            utils.StringIgnoreEmpty(source["retrieval_host"].(string)),
+			Weight:              utils.Int32IgnoreEmpty(int32(source["weight"].(int))),
+			ObsBucketType:       utils.StringIgnoreEmpty(source["obs_bucket_type"].(string)),
 		}
 	}
 	return &sourcesOpts
@@ -2178,6 +2190,8 @@ func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{
 			"http_port":               v.HttpPort,
 			"https_port":              v.HttpsPort,
 			"retrieval_host":          v.HostName,
+			"weight":                  v.Weight,
+			"obs_bucket_type":         v.ObsBucketType,
 		}
 	}
 

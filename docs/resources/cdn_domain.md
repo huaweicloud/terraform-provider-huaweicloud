@@ -276,6 +276,18 @@ The `sources` block supports:
   + If `origin_type` is set to **ipaddr** or **domain**, the acceleration domain name will be used by default.
   + If `origin_type` is set to **obs_bucket**, the bucket's domain name will be used by default.
 
+* `weight` - (Optional, Int) Specifies the weight. The value ranges from **1** to **100**. Defaults to **50**.
+  A larger value indicates a larger number of times that content is pulled from this IP address.
+
+  -> If there are multiple origin servers with the same priority, the weight determines the proportion of content pulled
+  from each origin server.
+
+* `obs_bucket_type` - (Optional, String) Specifies the OBS bucket type. Valid values are as follows:
+  + **private**: Private bucket.
+  + **public**: Public bucket.
+
+  This field is valid only when `origin_type` is set to **obs_bucket**. Defaults to **public**.
+
 <a name="configs_object"></a>
 The `configs` block support:
 

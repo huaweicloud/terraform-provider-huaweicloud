@@ -66,6 +66,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "sources.0.origin_type", "ipaddr"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "80"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.https_port", "443"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.weight", "50"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
@@ -78,6 +79,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "download"),
 					resource.TestCheckResourceAttr(resourceName, "service_area", "global"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.weight", "100"),
 				),
 			},
 			{
@@ -91,6 +93,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "sources.0.retrieval_host", "customize.test.huaweicloud.com"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.http_port", "8001"),
 					resource.TestCheckResourceAttr(resourceName, "sources.0.https_port", "8002"),
+					resource.TestCheckResourceAttr(resourceName, "sources.0.weight", "1"),
 				),
 			},
 			{
@@ -167,6 +170,7 @@ resource "huaweicloud_cdn_domain" "test" {
     origin_type = "ipaddr"
     http_port   = 80
     https_port  = 443
+    weight      = 100
   }
 
   cache_settings {
@@ -200,6 +204,7 @@ resource "huaweicloud_cdn_domain" "test" {
     retrieval_host = "customize.test.huaweicloud.com"
     http_port      = 8001
     https_port     = 8002
+    weight         = 1
   }
 
   cache_settings {}
