@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -13,8 +12,6 @@ import (
 func TestAccDatasourcePgAccounts_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	rName := "data.huaweicloud_rds_pg_accounts.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
-		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
 	dc := acceptance.InitDataSourceCheck(rName)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -22,7 +19,7 @@ func TestAccDatasourcePgAccounts_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourcePgAccounts_basic(name, dbPwd),
+				Config: testAccDatasourcePgAccounts_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "users.#"),
@@ -35,7 +32,7 @@ func TestAccDatasourcePgAccounts_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "users.0.attributes.0.rolconnlimit"),
 					resource.TestCheckResourceAttrSet(rName, "users.0.attributes.0.rolreplication"),
 					resource.TestCheckResourceAttrSet(rName, "users.0.attributes.0.rolbypassrls"),
-					resource.TestCheckResourceAttrSet(rName, "users.1.description"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.description"),
 					resource.TestCheckOutput("user_name_filter_is_useful", "true"),
 				),
 			},
@@ -43,13 +40,14 @@ func TestAccDatasourcePgAccounts_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourcePgAccounts_basic(name string, dbPwd string) string {
+func testAccDatasourcePgAccounts_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_rds_pg_accounts" "test" {
   depends_on  = [huaweicloud_rds_pg_account.test]
   instance_id = huaweicloud_rds_pg_account.test.instance_id
+  user_name   = "%s"
 }
 
 data "huaweicloud_rds_pg_accounts" "user_name_filter" {
@@ -68,5 +66,5 @@ output "user_name_filter_is_useful" {
   )
 }
 
-`, testPgAccount_basic(name, dbPwd, "test"))
+`, testPgAccount_basic(name), name)
 }

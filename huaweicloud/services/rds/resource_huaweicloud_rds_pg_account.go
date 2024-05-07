@@ -31,6 +31,8 @@ import (
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}/db_user/{user_name}
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/db_user/detail
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/db_user/resetpwd
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/db-user-role
+// @API RDS DELETE /v3/{project_id}/instances/{instance_id}/db-user-role
 func ResourcePgAccount() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePgAccountCreate,
@@ -72,6 +74,12 @@ func ResourcePgAccount() *schema.Resource {
 				Sensitive:   true,
 				Description: `Specifies the password of the DB account.`,
 			},
+			"memberof": {
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Description: `Specifies  the list of default rights of a account.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -82,12 +90,6 @@ func ResourcePgAccount() *schema.Resource {
 				Elem:        pgAccountAttributesSchema(),
 				Computed:    true,
 				Description: `Indicates the permission attributes of the account.`,
-			},
-			"memberof": {
-				Type:        schema.TypeList,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Computed:    true,
-				Description: `Indicates the default rights of the account.`,
 			},
 		},
 	}
@@ -190,6 +192,10 @@ func resourcePgAccountCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	accountName := d.Get("name").(string)
 	d.SetId(instanceId + "/" + accountName)
+
+	if err = updatePgAccountMemberOf(ctx, d, createPgAccountClient); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return resourcePgAccountRead(ctx, d, meta)
 }
@@ -297,6 +303,10 @@ func resourcePgAccountUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
+	if err = updatePgAccountMemberOf(ctx, d, updatePgAccountClient); err != nil {
+		return diag.FromErr(err)
+	}
+
 	if err = updatePgAccountPassword(ctx, d, updatePgAccountClient); err != nil {
 		return diag.FromErr(err)
 	}
@@ -305,6 +315,77 @@ func resourcePgAccountUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 	return resourcePgAccountRead(ctx, d, meta)
+}
+
+func updatePgAccountMemberOf(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	if !d.HasChange("memberof") {
+		return nil
+	}
+
+	oldRaws, newRaws := d.GetChange("memberof")
+	addMemberOf := newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
+	deleteMemberOf := oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
+
+	if deleteMemberOf.Len() > 0 {
+		requestBody := buildUpdatePgAccountMemberOfBodyParams(d.Get("name").(string), deleteMemberOf.List())
+		err := updateMemberOf(ctx, d, client, "DELETE", requestBody)
+		if err != nil {
+			return err
+		}
+	}
+
+	if addMemberOf.Len() > 0 {
+		requestBody := buildUpdatePgAccountMemberOfBodyParams(d.Get("name").(string), addMemberOf.List())
+		err := updateMemberOf(ctx, d, client, "POST", requestBody)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func buildUpdatePgAccountMemberOfBodyParams(user string, memberOf []interface{}) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"user":  user,
+		"roles": memberOf,
+	}
+	return bodyParams
+}
+
+func updateMemberOf(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, httpMethod string,
+	requestBody map[string]interface{}) error {
+	// updatePgAccount: update RDS PostgreSQL account memberOf
+	updatePgAccountMemberOfHttpUrl := "v3/{project_id}/instances/{instance_id}/db-user-role"
+
+	instanceId := d.Get("instance_id").(string)
+	updatePgAccountMemberOfPath := client.Endpoint + updatePgAccountMemberOfHttpUrl
+	updatePgAccountMemberOfPath = strings.ReplaceAll(updatePgAccountMemberOfPath, "{project_id}", client.ProjectID)
+	updatePgAccountMemberOfPath = strings.ReplaceAll(updatePgAccountMemberOfPath, "{instance_id}", instanceId)
+
+	updatePgAccountMemberOfOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         requestBody,
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := client.Request(httpMethod, updatePgAccountMemberOfPath, &updatePgAccountMemberOfOpt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating PostgreSQL account member: %s", err)
+	}
+	return nil
 }
 
 func updatePgAccountPassword(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
