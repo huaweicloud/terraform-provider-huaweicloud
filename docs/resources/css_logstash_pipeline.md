@@ -13,11 +13,11 @@ Manages CSS logstash cluster pipeline resource within HuaweiCloud.
 
 ```hcl
 variable "cluster_id" {}
-variable "config_file_name" {}
+variable "config_file_names" {}
 
 resource "huaweicloud_css_logstash_pipeline" "test" {
   cluster_id = var.cluster_id
-  name       = var.config_file_name
+  names      = var.config_file_names
 }
 ```
 
