@@ -18,3 +18,7 @@ func associateDomainURL(c *golangsdk.ServiceClient, instanceId string, groupId s
 func disAssociateDomainURL(c *golangsdk.ServiceClient, instanceId string, groupId string, domainId string) string {
 	return c.ServiceURL(rootPath, instanceId, "api-groups", groupId, "domains", domainId)
 }
+
+func domainAccessEnabledURL(c *golangsdk.ServiceClient, instanceId, groupId string) string {
+	return c.ServiceURL(rootPath, instanceId, "api-groups", groupId, "sl-domain-access-settings")
+}

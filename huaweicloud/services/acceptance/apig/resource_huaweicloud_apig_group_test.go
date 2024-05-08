@@ -381,3 +381,72 @@ resource "huaweicloud_apig_group" "test" {
 }
 `, testAccGroup_base(name), name)
 }
+
+func TestAccGroup_DomainAccessEnabled(t *testing.T) {
+	var (
+		group apigroups.Group
+		rName = "huaweicloud_apig_group.test"
+		name  = acceptance.RandomAccResourceName()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&group,
+		getGroupFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGroup_DomainAccessEnabled_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "domain_access_enabled", "false"),
+				),
+			},
+			{
+				Config: testAccGroup_DomainAccessEnabled_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "domain_access_enabled", "true"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccGroupImportStateFunc(),
+			},
+		},
+	})
+}
+
+func testAccGroup_DomainAccessEnabled_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_group" "test" {
+  name                  = "%[2]s"
+  instance_id           = huaweicloud_apig_instance.test.id
+  domain_access_enabled = false
+}
+`, testAccGroup_base(name), name)
+}
+
+func testAccGroup_DomainAccessEnabled_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_group" "test" {
+  name                  = "%[2]s"
+  instance_id           = huaweicloud_apig_instance.test.id
+  domain_access_enabled = true
+}
+`, testAccGroup_base(name), name)
+}

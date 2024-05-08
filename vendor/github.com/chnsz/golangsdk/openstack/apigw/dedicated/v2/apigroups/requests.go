@@ -139,3 +139,28 @@ func DisAssociateDomain(client *golangsdk.ServiceClient, intanceId string, group
 	_, err := client.Delete(disAssociateDomainURL(client, intanceId, groupId, domainId), nil)
 	return err
 }
+
+// UpdateDomainAccessEnabledOpts is the structure that whether to use the dubugging domain name access the APIs.
+type UpdateDomainAccessEnabledOpts struct {
+	// The ID of the instance to which the group belongs.
+	InstanceId string `json:"-" required:"true"`
+	// The ID of the group.
+	GroupId string `json:"-" required:"true"`
+	// Whether to use the debugging domain name to access the APIs within the group.
+	// Defalut value is true.
+	SlDomainAccessEnabled *bool `json:"sl_domain_access_enabled" required:"true"`
+}
+
+// UpdateDomainAccessEnabled is a method used to control whether the APIs in the group can be accessed
+// through the dubugging domain.
+func UpdateDomainAccessEnabled(c *golangsdk.ServiceClient, opts UpdateDomainAccessEnabledOpts) error {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Put(domainAccessEnabledURL(c, opts.InstanceId, opts.GroupId), b, nil, &golangsdk.RequestOpts{
+		OkCodes: []int{204},
+	})
+	return err
+}

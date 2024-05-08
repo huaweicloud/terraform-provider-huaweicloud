@@ -63,6 +63,9 @@ The following arguments are supported:
   -> Different groups under the same dedicated instance cannot be bound to the same independent domain name.
      Each API group can be associated with up to `5` domain names.
 
+* `domain_access_enabled` - (Optional, Bool) Specifies whether to use the debugging domain name to access the APIs
+  within the group. The default value is `true`.
+
 <a name="group_environment"></a>
 The `environment` block supports:
 
