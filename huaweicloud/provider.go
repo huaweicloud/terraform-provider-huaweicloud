@@ -724,6 +724,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_cross_region_backup_instances": rds.DataSourceRdsCrossRegionBackupInstances(),
 			"huaweicloud_rds_sql_audit_logs":                rds.DataSourceRdsSqlAuditLogs(),
 			"huaweicloud_rds_error_logs":                    rds.DataSourceRdsErrorLogs(),
+			"huaweicloud_rds_slow_logs":                     rds.DataSourceRdsSlowLogs(),
 
 			"huaweicloud_rms_policy_definitions":                 rms.DataSourcePolicyDefinitions(),
 			"huaweicloud_rms_assignment_package_templates":       rms.DataSourceTemplates(),
