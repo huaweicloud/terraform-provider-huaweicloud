@@ -29,6 +29,7 @@ func TestAccDatasourceCbhFlavors_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "flavors.0.type"),
 					resource.TestCheckResourceAttrSet(rName, "flavors.0.data_disk_size"),
 
+					resource.TestCheckOutput("action_is_useful", "true"),
 					resource.TestCheckOutput("flavor_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("type_filter_is_useful", "true"),
 					resource.TestCheckOutput("asset_filter_is_useful", "true"),
@@ -48,6 +49,16 @@ data "huaweicloud_cbh_flavors" "test" {}
 locals {
   flavor_id = data.huaweicloud_cbh_flavors.test.flavors[0].id
 }
+
+data "huaweicloud_cbh_flavors" "action_filter" {
+  action    = "update"
+  spec_code = local.flavor_id
+}
+
+output "action_is_useful" {
+  value = length(data.huaweicloud_cbh_flavors.action_filter.flavors) > 0
+}
+
 data "huaweicloud_cbh_flavors" "flavor_id_filter" {
   flavor_id = local.flavor_id
 }
