@@ -9,7 +9,7 @@ import (
 // SecurityCheckHostInfoResponseInfo 受配置检测影响的服务器信息
 type SecurityCheckHostInfoResponseInfo struct {
 
-	// 服务器ID
+	// 主机ID
 	HostId *string `json:"host_id,omitempty"`
 
 	// 服务器名称
@@ -21,7 +21,7 @@ type SecurityCheckHostInfoResponseInfo struct {
 	// 服务器私网IP
 	HostPrivateIp *string `json:"host_private_ip,omitempty"`
 
-	// 扫描时间
+	// 扫描时间(ms)
 	ScanTime *int64 `json:"scan_time,omitempty"`
 
 	// 风险项数量

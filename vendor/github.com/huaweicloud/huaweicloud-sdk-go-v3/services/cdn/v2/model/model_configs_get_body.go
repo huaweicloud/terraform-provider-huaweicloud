@@ -90,6 +90,14 @@ type ConfigsGetBody struct {
 
 	// 自定义错误页面
 	ErrorCodeRedirectRules *[]ErrorCodeRedirectRules `json:"error_code_redirect_rules,omitempty"`
+
+	Sni *Sni `json:"sni,omitempty"`
+
+	// 访问URL重写。
+	RequestUrlRewrite *[]RequestUrlRewrite `json:"request_url_rewrite,omitempty"`
+
+	// 浏览器缓存过期时间。
+	BrowserCacheRules *[]BrowserCacheRules `json:"browser_cache_rules,omitempty"`
 }
 
 func (o ConfigsGetBody) String() string {

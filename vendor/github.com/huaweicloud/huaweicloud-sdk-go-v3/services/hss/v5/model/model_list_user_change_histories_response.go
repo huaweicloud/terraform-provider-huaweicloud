@@ -9,7 +9,7 @@ import (
 // ListUserChangeHistoriesResponse Response Object
 type ListUserChangeHistoriesResponse struct {
 
-	// 总数
+	// 账号变动总数
 	TotalNum *int32 `json:"total_num,omitempty"`
 
 	// 账号历史变动记录列表

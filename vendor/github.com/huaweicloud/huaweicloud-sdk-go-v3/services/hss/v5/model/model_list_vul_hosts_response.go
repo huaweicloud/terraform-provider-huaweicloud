@@ -9,10 +9,10 @@ import (
 // ListVulHostsResponse Response Object
 type ListVulHostsResponse struct {
 
-	// 受影响的云服务器台数
+	// 受影响的云服务器总数
 	TotalNum *int32 `json:"total_num,omitempty"`
 
-	// 受影响的云服务器台数信息
+	// 受影响的云服务器列表
 	DataList       *[]VulHostInfo `json:"data_list,omitempty"`
 	HttpStatusCode int            `json:"-"`
 }

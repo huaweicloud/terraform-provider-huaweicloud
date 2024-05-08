@@ -9,10 +9,10 @@ import (
 // ChangeIsolatedFileRequest Request Object
 type ChangeIsolatedFileRequest struct {
 
-	// region id
+	// Region ID
 	Region string `json:"region"`
 
-	// 租户企业项目ID，查询所有企业项目时填写：all_granted_eps
+	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	Body *ChangeIsolatedFileRequestInfo `json:"body,omitempty"`

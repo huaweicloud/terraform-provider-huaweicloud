@@ -9,7 +9,7 @@ import (
 // ListPortsResponse Response Object
 type ListPortsResponse struct {
 
-	// 总数
+	// 开放端口总数
 	TotalNum *int32 `json:"total_num,omitempty"`
 
 	// 端口信息列表

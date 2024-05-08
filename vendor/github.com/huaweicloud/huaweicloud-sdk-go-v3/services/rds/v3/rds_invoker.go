@@ -77,6 +77,18 @@ func (i *BatchRestorePostgreSqlTablesInvoker) Invoke() (*model.BatchRestorePostg
 	}
 }
 
+type BatchStopInstanceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchStopInstanceInvoker) Invoke() (*model.BatchStopInstanceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchStopInstanceResponse), nil
+	}
+}
+
 type BatchTagAddActionInvoker struct {
 	*invoker.BaseInvoker
 }

@@ -12,7 +12,7 @@ type UpdateBackupPolicyRequestInfo struct {
 	// 策略是否启用，缺省值：true
 	Enabled *bool `json:"enabled,omitempty"`
 
-	// 策略ID
+	// 备份策略ID
 	PolicyId string `json:"policy_id"`
 
 	OperationDefinition *OperationDefinitionRequestInfo `json:"operation_definition,omitempty"`

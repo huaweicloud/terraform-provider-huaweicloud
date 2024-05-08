@@ -188,10 +188,10 @@ type AlarmRuleParamPeriod struct {
 }
 
 type AlarmRuleParamPeriodEnum struct {
-	E_60000    AlarmRuleParamPeriod
-	E_300000   AlarmRuleParamPeriod
-	E_900000   AlarmRuleParamPeriod
-	E_36000000 AlarmRuleParamPeriod
+	E_60000   AlarmRuleParamPeriod
+	E_300000  AlarmRuleParamPeriod
+	E_900000  AlarmRuleParamPeriod
+	E_3600000 AlarmRuleParamPeriod
 }
 
 func GetAlarmRuleParamPeriodEnum() AlarmRuleParamPeriodEnum {
@@ -202,8 +202,8 @@ func GetAlarmRuleParamPeriodEnum() AlarmRuleParamPeriodEnum {
 			value: 300000,
 		}, E_900000: AlarmRuleParamPeriod{
 			value: 900000,
-		}, E_36000000: AlarmRuleParamPeriod{
-			value: 36000000,
+		}, E_3600000: AlarmRuleParamPeriod{
+			value: 3600000,
 		},
 	}
 }

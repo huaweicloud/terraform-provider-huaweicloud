@@ -21,7 +21,7 @@ type HttpPutBody struct {
 	// HTTPS协议使用的私钥，当证书开启时必传。  > PEM编码格式。
 	PrivateKey *string `json:"private_key,omitempty"`
 
-	// 证书来源,1：华为云托管证书,0：自有证书, 默认值0。  > 证书开启时必传
+	// 证书来源,0：自有证书。  > 证书开启时必传
 	CertificateSource *int32 `json:"certificate_source,omitempty"`
 
 	// 是否使用HTTP2.0，on：是，off：否。  > 默认关闭，https_status=off时，该值不生效。

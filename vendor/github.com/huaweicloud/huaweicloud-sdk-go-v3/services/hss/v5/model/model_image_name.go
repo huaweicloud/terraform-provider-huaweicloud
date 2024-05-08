@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// ImageName 镜像名称
+// ImageName 镜像名称，只有容器类型的告警有
 type ImageName struct {
 }
 

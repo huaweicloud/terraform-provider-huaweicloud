@@ -7,9 +7,9 @@ import (
 )
 
 type LineStatus struct {
-	StartPoint *TaskType `json:"startPoint,omitempty"`
+	StartPoint *Point `json:"startPoint,omitempty"`
 
-	EndPoint *TaskType `json:"endPoint,omitempty"`
+	EndPoint *Point `json:"endPoint,omitempty"`
 
 	// 表示是否为关键线路（关键线路未执行无法取消升级流程）
 	Critical *string `json:"critical,omitempty"`

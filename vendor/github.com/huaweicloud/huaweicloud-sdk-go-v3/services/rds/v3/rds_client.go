@@ -145,6 +145,27 @@ func (c *RdsClient) BatchRestorePostgreSqlTablesInvoker(request *model.BatchRest
 	return &BatchRestorePostgreSqlTablesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// BatchStopInstance 批量停止实例
+//
+// 批量停止实例
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) BatchStopInstance(request *model.BatchStopInstanceRequest) (*model.BatchStopInstanceResponse, error) {
+	requestDef := GenReqDefForBatchStopInstance()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchStopInstanceResponse), nil
+	}
+}
+
+// BatchStopInstanceInvoker 批量停止实例
+func (c *RdsClient) BatchStopInstanceInvoker(request *model.BatchStopInstanceRequest) *BatchStopInstanceInvoker {
+	requestDef := GenReqDefForBatchStopInstance()
+	return &BatchStopInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // BatchTagAddAction 批量添加标签
 //
 // 批量添加标签。

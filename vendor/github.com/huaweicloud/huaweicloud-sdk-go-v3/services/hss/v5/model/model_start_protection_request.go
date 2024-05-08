@@ -9,7 +9,7 @@ import (
 // StartProtectionRequest Request Object
 type StartProtectionRequest struct {
 
-	// region id
+	// Region ID
 	Region string `json:"region"`
 
 	// 企业项目ID，查询所有企业项目时填写：all_granted_eps

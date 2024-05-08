@@ -26,6 +26,9 @@ type TrackerResponseBody struct {
 	// 是否应用到我的组织。 只针对管理类追踪器。设置为true时，ORG组织下所有成员当前区域的审计日志会转储到该追踪器配置的OBS桶或者LTS日志流，但是事件列表界面不支持查看其它组织成员的审计日志。
 	IsOrganizationTracker *bool `json:"is_organization_tracker,omitempty"`
 
+	// 云服务委托名称。
+	AgencyName *TrackerResponseBodyAgencyName `json:"agency_name,omitempty"`
+
 	ManagementEventSelector *ManagementEventSelector `json:"management_event_selector,omitempty"`
 
 	Lts *Lts `json:"lts,omitempty"`
@@ -69,6 +72,49 @@ func (o TrackerResponseBody) String() string {
 	}
 
 	return strings.Join([]string{"TrackerResponseBody", string(data)}, " ")
+}
+
+type TrackerResponseBodyAgencyName struct {
+	value string
+}
+
+type TrackerResponseBodyAgencyNameEnum struct {
+	CTS_ADMIN_TRUST TrackerResponseBodyAgencyName
+}
+
+func GetTrackerResponseBodyAgencyNameEnum() TrackerResponseBodyAgencyNameEnum {
+	return TrackerResponseBodyAgencyNameEnum{
+		CTS_ADMIN_TRUST: TrackerResponseBodyAgencyName{
+			value: "cts_admin_trust",
+		},
+	}
+}
+
+func (c TrackerResponseBodyAgencyName) Value() string {
+	return c.value
+}
+
+func (c TrackerResponseBodyAgencyName) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *TrackerResponseBodyAgencyName) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
 }
 
 type TrackerResponseBodyTrackerType struct {

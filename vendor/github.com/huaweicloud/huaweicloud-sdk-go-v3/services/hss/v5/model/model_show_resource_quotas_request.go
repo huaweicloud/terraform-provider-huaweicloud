@@ -9,7 +9,7 @@ import (
 // ShowResourceQuotasRequest Request Object
 type ShowResourceQuotasRequest struct {
 
-	// region id
+	// Region ID
 	Region *string `json:"region,omitempty"`
 
 	// 企业项目ID，查询所有企业项目时填写：all_granted_eps

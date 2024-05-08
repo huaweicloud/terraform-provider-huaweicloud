@@ -63,7 +63,7 @@ type SmartConnectTaskRespSourceConfig struct {
 	TaskNum *int32 `json:"task_num,omitempty"`
 
 	// 是否重命名Topic。（仅源端类型为Kafka时会显示）
-	RenameTopicEnable *bool `json:"rename_topic_enable,omitempty"`
+	RenameTopicEnabled *bool `json:"rename_topic_enabled,omitempty"`
 
 	// 是否添加来源header。（仅源端类型为Kafka时会显示）
 	ProvenanceHeaderEnabled *bool `json:"provenance_header_enabled,omitempty"`

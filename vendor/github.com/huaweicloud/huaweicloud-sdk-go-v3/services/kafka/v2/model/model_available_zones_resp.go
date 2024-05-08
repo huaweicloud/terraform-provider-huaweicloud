@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type ListAvailableZonesRespAvailableZones struct {
+type AvailableZonesResp struct {
 
 	// 是否售罄。
 	SoldOut *bool `json:"soldOut,omitempty"`
@@ -36,11 +36,11 @@ type ListAvailableZonesRespAvailableZones struct {
 	Ipv6Enable *bool `json:"ipv6_enable,omitempty"`
 }
 
-func (o ListAvailableZonesRespAvailableZones) String() string {
+func (o AvailableZonesResp) String() string {
 	data, err := utils.Marshal(o)
 	if err != nil {
-		return "ListAvailableZonesRespAvailableZones struct{}"
+		return "AvailableZonesResp struct{}"
 	}
 
-	return strings.Join([]string{"ListAvailableZonesRespAvailableZones", string(data)}, " ")
+	return strings.Join([]string{"AvailableZonesResp", string(data)}, " ")
 }

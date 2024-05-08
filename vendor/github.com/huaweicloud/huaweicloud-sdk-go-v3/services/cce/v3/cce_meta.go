@@ -465,6 +465,10 @@ func GenReqDefForDeleteCluster() *def.HttpRequestDef {
 		WithJsonTag("delete_sfs30").
 		WithLocationType(def.Query))
 	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("LtsReclaimPolicy").
+		WithJsonTag("lts_reclaim_policy").
+		WithLocationType(def.Query))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
 		WithName("Tobedeleted").
 		WithJsonTag("tobedeleted").
 		WithLocationType(def.Query))
@@ -1123,6 +1127,10 @@ func GenReqDefForShowClusterConfigurationDetails() *def.HttpRequestDef {
 		WithJsonTag("cluster_id").
 		WithLocationType(def.Path))
 
+	reqDefBuilder.WithResponseField(def.NewFieldDef().
+		WithName("Body").
+		WithLocationType(def.Body))
+
 	requestDef := reqDefBuilder.Build()
 	return requestDef
 }
@@ -1220,6 +1228,30 @@ func GenReqDefForShowNodePool() *def.HttpRequestDef {
 		WithName("ErrorStatus").
 		WithJsonTag("errorStatus").
 		WithLocationType(def.Query))
+
+	requestDef := reqDefBuilder.Build()
+	return requestDef
+}
+
+func GenReqDefForShowNodePoolConfigurationDetails() *def.HttpRequestDef {
+	reqDefBuilder := def.NewHttpRequestDefBuilder().
+		WithMethod(http.MethodGet).
+		WithPath("/api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}/configuration/detail").
+		WithResponse(new(model.ShowNodePoolConfigurationDetailsResponse)).
+		WithContentType("application/json")
+
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("ClusterId").
+		WithJsonTag("cluster_id").
+		WithLocationType(def.Path))
+	reqDefBuilder.WithRequestField(def.NewFieldDef().
+		WithName("NodepoolId").
+		WithJsonTag("nodepool_id").
+		WithLocationType(def.Path))
+
+	reqDefBuilder.WithResponseField(def.NewFieldDef().
+		WithName("Body").
+		WithLocationType(def.Body))
 
 	requestDef := reqDefBuilder.Build()
 	return requestDef

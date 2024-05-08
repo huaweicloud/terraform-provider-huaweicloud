@@ -15,6 +15,9 @@ type ListPostgresqlDatabasesRequest struct {
 	// 实例ID。
 	InstanceId string `json:"instance_id"`
 
+	// 数据库名称；忽略大小写模糊查询。
+	Db *string `json:"db,omitempty"`
+
 	// 分页页码，从1开始。
 	Page int32 `json:"page"`
 

@@ -9,7 +9,7 @@ import (
 // ListProtectionPolicyRequest Request Object
 type ListProtectionPolicyRequest struct {
 
-	// region id
+	// Region ID
 	Region string `json:"region"`
 
 	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
@@ -27,7 +27,7 @@ type ListProtectionPolicyRequest struct {
 	// 防护策略id
 	ProtectPolicyId *string `json:"protect_policy_id,omitempty"`
 
-	// 策略支持的操作系统
+	// 策略支持的操作系统，包含如下：   - Windows : Windows系统   - Linux : Linux系统
 	OperatingSystem *string `json:"operating_system,omitempty"`
 }
 

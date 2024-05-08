@@ -15,7 +15,7 @@ type UserChangeHistoryResponseInfo struct {
 	// 变更类型   - ADD ：添加   - DELETE ：删除   - MODIFY ： 修改
 	ChangeType *string `json:"change_type,omitempty"`
 
-	// 服务器ID
+	// 主机ID
 	HostId *string `json:"host_id,omitempty"`
 
 	// 服务器名称
@@ -24,7 +24,7 @@ type UserChangeHistoryResponseInfo struct {
 	// 服务器私有IP
 	PrivateIp *string `json:"private_ip,omitempty"`
 
-	// 是否有登陆权限
+	// 是否有登录权限
 	LoginPermission *bool `json:"login_permission,omitempty"`
 
 	// 是否有root权限
@@ -45,7 +45,7 @@ type UserChangeHistoryResponseInfo struct {
 	// 到期时间，采用时间戳，默认毫秒，
 	ExpireTime *int64 `json:"expire_time,omitempty"`
 
-	// 变更时间
+	// 账号增加、修改、删除等操作的变更时间
 	RecentScanTime *int64 `json:"recent_scan_time,omitempty"`
 }
 

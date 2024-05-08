@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// HandleTime 处理时间，毫秒
+// HandleTime 处理时间，毫秒，已处理的告警才有
 type HandleTime struct {
 }
 

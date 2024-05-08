@@ -9,7 +9,7 @@ import (
 // ListWeakPasswordUsersResponse Response Object
 type ListWeakPasswordUsersResponse struct {
 
-	// 总数
+	// 弱口令总数
 	TotalNum *int64 `json:"total_num,omitempty"`
 
 	// 弱口令列表

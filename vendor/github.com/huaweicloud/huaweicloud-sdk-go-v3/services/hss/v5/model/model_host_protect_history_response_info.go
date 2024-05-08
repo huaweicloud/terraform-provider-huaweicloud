@@ -8,7 +8,7 @@ import (
 
 type HostProtectHistoryResponseInfo struct {
 
-	// 检测时间
+	// 静态网页防篡改的检测时间(ms)
 	OccrTime *int64 `json:"occr_time,omitempty"`
 
 	// 被篡改文件路径

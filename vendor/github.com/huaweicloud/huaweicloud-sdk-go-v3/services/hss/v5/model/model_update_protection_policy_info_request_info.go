@@ -18,21 +18,21 @@ type UpdateProtectionPolicyInfoRequestInfo struct {
 	ProtectionMode string `json:"protection_mode"`
 
 	// 是否开启诱饵防护，包含如下1种, 默认为开启防护诱饵防护。   - opened ：开启。   - closed ：关闭。
-	BaitProtectionStatus string `json:"bait_protection_status"`
+	BaitProtectionStatus *string `json:"bait_protection_status,omitempty"`
 
 	// 防护目录,多个目录请用英文分号隔开，最多支持填写20个防护目录
 	ProtectionDirectory string `json:"protection_directory"`
 
-	// 防护文件类型
+	// 防护文件类型，例如：docx，txt，avi
 	ProtectionType string `json:"protection_type"`
 
 	// 排除目录(选填)，多个目录请用英文分号隔开，最多支持填写20个排除目录
 	ExcludeDirectory *string `json:"exclude_directory,omitempty"`
 
-	// 关联server
+	// 开启了此勒索防护策略的agent的id列表
 	AgentIdList *[]string `json:"agent_id_list,omitempty"`
 
-	// 操作系统，包含如下：   - Windows : Windows系统   - Linux : Linux系统
+	// 支持该策略的操作系统，包含如下：   - Windows : Windows系统   - Linux : Linux系统
 	OperatingSystem string `json:"operating_system"`
 
 	// 是否运行时检测，包含如下2种，暂时只有关闭一种状态，为保留字段。   - opened ：开启。   - closed ：关闭。

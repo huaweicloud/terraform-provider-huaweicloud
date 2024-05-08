@@ -9,10 +9,10 @@ import (
 // ListPolicyGroupRequest Request Object
 type ListPolicyGroupRequest struct {
 
-	// region id
+	// Region ID
 	Region string `json:"region"`
 
-	// 租户企业项目ID，查询所有企业项目时填写：all_granted_eps
+	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	// 策略组名
@@ -23,6 +23,9 @@ type ListPolicyGroupRequest struct {
 
 	// 每页显示个数
 	Limit *int32 `json:"limit,omitempty"`
+
+	// 是否查询容器版策略
+	ContainerMode *bool `json:"container_mode,omitempty"`
 }
 
 func (o ListPolicyGroupRequest) String() string {

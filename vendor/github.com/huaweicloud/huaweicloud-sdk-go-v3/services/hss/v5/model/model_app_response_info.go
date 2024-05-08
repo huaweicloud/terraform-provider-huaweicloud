@@ -9,7 +9,7 @@ import (
 // AppResponseInfo 软件信息
 type AppResponseInfo struct {
 
-	// agent_id
+	// HSS的Agent ID
 	AgentId *string `json:"agent_id,omitempty"`
 
 	// 主机id
@@ -27,10 +27,10 @@ type AppResponseInfo struct {
 	// 版本号
 	Version *string `json:"version,omitempty"`
 
-	// 更新时间
+	// 更新时间，最近一次更新的时间，用毫秒表示
 	UpdateTime *int64 `json:"update_time,omitempty"`
 
-	// 最近扫描时间
+	// 最近扫描时间，用毫秒表示
 	RecentScanTime *int64 `json:"recent_scan_time,omitempty"`
 
 	// 容器id

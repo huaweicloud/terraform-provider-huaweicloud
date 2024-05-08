@@ -109,8 +109,8 @@ func openWebTamperProtection(client *hssv5.HssClient, cfg *config.Config, hostId
 	)
 
 	requestBody := hssv5model.SetWtpProtectionStatusRequestInfo{
-		Status:       utils.Bool(true),
-		HostIdList:   &[]string{hostId},
+		Status:       true,
+		HostIdList:   []string{hostId},
 		ChargingMode: utils.String(chargingModePacketCycle),
 		ResourceId:   utils.StringIgnoreEmpty(d.Get("quota_id").(string)),
 	}
@@ -290,8 +290,8 @@ func resourceWebTamperProtectionDelete(_ context.Context, d *schema.ResourceData
 		Region:              region,
 		EnterpriseProjectId: &epsId,
 		Body: &hssv5model.SetWtpProtectionStatusRequestInfo{
-			Status:     utils.Bool(false),
-			HostIdList: &[]string{hostId},
+			Status:     false,
+			HostIdList: []string{hostId},
 		},
 	}
 

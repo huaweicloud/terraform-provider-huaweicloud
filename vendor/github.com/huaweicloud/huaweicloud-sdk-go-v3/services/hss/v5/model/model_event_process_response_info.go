@@ -42,6 +42,15 @@ type EventProcessResponseInfo struct {
 	// 进程有效用户ID
 	ProcessEuid *int32 `json:"process_euid,omitempty"`
 
+	// 祖父进程文件路径
+	AncestorProcessPath *string `json:"ancestor_process_path,omitempty"`
+
+	// 祖父进程id
+	AncestorProcessPid *int32 `json:"ancestor_process_pid,omitempty"`
+
+	// 祖父进程文件命令行
+	AncestorProcessCmdline *string `json:"ancestor_process_cmdline,omitempty"`
+
 	// 父进程名称
 	ParentProcessName *string `json:"parent_process_name,omitempty"`
 
@@ -116,6 +125,15 @@ type EventProcessResponseInfo struct {
 
 	// 进程启动文件hash
 	ProcessHash *string `json:"process_hash,omitempty"`
+
+	// 进程文件hash
+	ProcessFileHash *string `json:"process_file_hash,omitempty"`
+
+	// 父进程文件hash
+	ParentProcessFileHash *string `json:"parent_process_file_hash,omitempty"`
+
+	// 是否阻断成功，1阻断成功 0阻断失败
+	Block *int32 `json:"block,omitempty"`
 }
 
 func (o EventProcessResponseInfo) String() string {

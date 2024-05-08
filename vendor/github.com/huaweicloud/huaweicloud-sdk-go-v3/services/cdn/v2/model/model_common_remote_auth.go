@@ -12,7 +12,7 @@ type CommonRemoteAuth struct {
 	// 是否开启远程鉴权(on：开启，off：关闭)。
 	RemoteAuthentication string `json:"remote_authentication"`
 
-	RemoteAuthRules *RemoteAuthRuleVo `json:"remote_auth_rules"`
+	RemoteAuthRules *RemoteAuthRule `json:"remote_auth_rules"`
 }
 
 func (o CommonRemoteAuth) String() string {

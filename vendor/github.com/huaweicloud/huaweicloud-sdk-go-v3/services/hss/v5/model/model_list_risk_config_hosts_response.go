@@ -9,7 +9,7 @@ import (
 // ListRiskConfigHostsResponse Response Object
 type ListRiskConfigHostsResponse struct {
 
-	// 数据总量
+	// 受配置检测影响的服务器数据总量
 	TotalNum *int64 `json:"total_num,omitempty"`
 
 	// 数据列表

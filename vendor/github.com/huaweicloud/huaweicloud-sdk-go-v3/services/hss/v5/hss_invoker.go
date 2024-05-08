@@ -137,6 +137,18 @@ func (i *ChangeVulStatusInvoker) Invoke() (*model.ChangeVulStatusResponse, error
 	}
 }
 
+type CreateQuotasOrderInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateQuotasOrderInvoker) Invoke() (*model.CreateQuotasOrderResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateQuotasOrderResponse), nil
+	}
+}
+
 type CreateVulnerabilityScanTaskInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -794,6 +806,18 @@ func (i *ShowImageCheckRuleDetailInvoker) Invoke() (*model.ShowImageCheckRuleDet
 		return nil, err
 	} else {
 		return result.(*model.ShowImageCheckRuleDetailResponse), nil
+	}
+}
+
+type ShowProductdataOfferingInfosInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowProductdataOfferingInfosInvoker) Invoke() (*model.ShowProductdataOfferingInfosResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowProductdataOfferingInfosResponse), nil
 	}
 }
 

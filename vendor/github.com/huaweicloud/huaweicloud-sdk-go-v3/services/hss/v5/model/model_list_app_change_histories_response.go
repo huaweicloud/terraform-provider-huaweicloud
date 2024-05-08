@@ -9,7 +9,7 @@ import (
 // ListAppChangeHistoriesResponse Response Object
 type ListAppChangeHistoriesResponse struct {
 
-	// 总数,
+	// 软件变动总数
 	TotalNum *int32 `json:"total_num,omitempty"`
 
 	// 软件历史变动记录列表

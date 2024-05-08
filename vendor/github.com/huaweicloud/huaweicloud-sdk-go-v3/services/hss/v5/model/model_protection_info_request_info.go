@@ -8,13 +8,13 @@ import (
 
 type ProtectionInfoRequestInfo struct {
 
-	// 操作系统，包含如下：   - Windows : Windows系统   - Linux : Linux系统
+	// 需要开启防护的主机的操作系统，包含如下：   - Windows : Windows系统   - Linux : Linux系统
 	OperatingSystem string `json:"operating_system"`
 
 	// 勒索防护是否开启，包含如下：   - closed ：关闭。   - opened ：开启。   若选择开启，protection_policy_id或者create_protection_policy必填一项
 	RansomProtectionStatus string `json:"ransom_protection_status"`
 
-	// 防护策略ID,若选择已有策略防护,则该字段必选
+	// 勒索防护策略ID,若选择已有策略防护,则该字段必选
 	ProtectionPolicyId *string `json:"protection_policy_id,omitempty"`
 
 	CreateProtectionPolicy *ProtectionProxyInfoRequestInfo `json:"create_protection_policy,omitempty"`

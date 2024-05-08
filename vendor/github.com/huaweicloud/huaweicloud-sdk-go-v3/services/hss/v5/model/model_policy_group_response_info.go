@@ -15,7 +15,7 @@ type PolicyGroupResponseInfo struct {
 	// 策略组ID
 	GroupId *string `json:"group_id,omitempty"`
 
-	// 描述信息
+	// 策略组的描述信息
 	Description *string `json:"description,omitempty"`
 
 	// 是否允许删除该策略组

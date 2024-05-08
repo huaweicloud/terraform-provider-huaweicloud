@@ -297,10 +297,12 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 			return nil, fmt.Errorf("kms_key_name is mandatory when the encryption_type is kms")
 		}
 
+		kmsKeyName := k.(string)
+
 		if v, ok := d.GetOk("private_key"); ok {
 			keyProtection.PrivateKey = utils.String(v.(string))
 		}
-		keyProtection.Encryption.KmsKeyName = k.(string)
+		keyProtection.Encryption.KmsKeyName = &kmsKeyName
 		createOpts.Body.Keypair.KeyProtection = &keyProtection
 	}
 
@@ -393,7 +395,8 @@ func buildImportPrivateKeyParams(d *schema.ResourceData) (*model.ImportPrivateKe
 		PrivateKey: d.Get("private_key").(string),
 	}
 
-	importPrivateKeyProtection.Encryption.KmsKeyName = d.Get("kms_key_name").(string)
+	kmsKeyName := d.Get("kms_key_name").(string)
+	importPrivateKeyProtection.Encryption.KmsKeyName = &kmsKeyName
 	importOps.Body.Keypair.KeyProtection = &importPrivateKeyProtection
 
 	return importOps, nil

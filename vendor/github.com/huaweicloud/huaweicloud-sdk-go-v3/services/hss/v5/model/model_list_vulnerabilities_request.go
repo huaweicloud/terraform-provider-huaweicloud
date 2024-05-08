@@ -9,7 +9,7 @@ import (
 // ListVulnerabilitiesRequest Request Object
 type ListVulnerabilitiesRequest struct {
 
-	// 企业租户ID，“0”表示默认企业项目，查询所有企业项目时填写：all_granted_eps
+	// 企业项目ID，“0”表示默认企业项目，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	// 漏洞类型，包含如下：   -linux_vul : linux漏洞   -windows_vul : windows漏洞   -web_cms : Web-CMS漏洞   -app_vul : 应用漏洞

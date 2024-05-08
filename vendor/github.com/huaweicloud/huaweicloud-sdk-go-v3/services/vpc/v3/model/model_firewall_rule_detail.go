@@ -47,6 +47,9 @@ type FirewallRuleDetail struct {
 
 	// 功能说明：ACL规则的目的地址组ID 约束：destination_ip_address和destination_address_group_id不能同时设置
 	DestinationAddressGroupId string `json:"destination_address_group_id"`
+
+	// 功能说明：是否启用ACL规则。 取值范围：true，表示启用；false，表示停用。 默认值：true。
+	Enabled bool `json:"enabled"`
 }
 
 func (o FirewallRuleDetail) String() string {

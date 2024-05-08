@@ -17,6 +17,9 @@ type NotificationsResponseBody struct {
 	// 标识操作类型。 目前支持的操作类型有完整类型(complete)和自定义类型(customized)。 完整类型下，CTS发送通知的对象为已对接服务的所有事件。 自定义类型下，CTS发送通知的对象是在operations列表中指定的事件。
 	OperationType *NotificationsResponseBodyOperationType `json:"operation_type,omitempty"`
 
+	// 云服务委托名称。
+	AgencyName *NotificationsResponseBodyAgencyName `json:"agency_name,omitempty"`
+
 	// 操作事件列表。
 	Operations *[]Operations `json:"operations,omitempty"`
 
@@ -82,6 +85,49 @@ func (c NotificationsResponseBodyOperationType) MarshalJSON() ([]byte, error) {
 }
 
 func (c *NotificationsResponseBodyOperationType) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type NotificationsResponseBodyAgencyName struct {
+	value string
+}
+
+type NotificationsResponseBodyAgencyNameEnum struct {
+	CTS_ADMIN_TRUST NotificationsResponseBodyAgencyName
+}
+
+func GetNotificationsResponseBodyAgencyNameEnum() NotificationsResponseBodyAgencyNameEnum {
+	return NotificationsResponseBodyAgencyNameEnum{
+		CTS_ADMIN_TRUST: NotificationsResponseBodyAgencyName{
+			value: "cts_admin_trust",
+		},
+	}
+}
+
+func (c NotificationsResponseBodyAgencyName) Value() string {
+	return c.value
+}
+
+func (c NotificationsResponseBodyAgencyName) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *NotificationsResponseBodyAgencyName) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: string")

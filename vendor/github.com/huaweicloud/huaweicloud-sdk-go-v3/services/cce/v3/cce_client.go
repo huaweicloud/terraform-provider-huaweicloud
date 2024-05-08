@@ -1285,6 +1285,27 @@ func (c *CceClient) ShowNodePoolInvoker(request *model.ShowNodePoolRequest) *Sho
 	return &ShowNodePoolInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowNodePoolConfigurationDetails 查询指定节点池支持配置的参数列表
+//
+// 该API用于查询CCE服务下指定节点池支持配置的参数列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowNodePoolConfigurationDetails(request *model.ShowNodePoolConfigurationDetailsRequest) (*model.ShowNodePoolConfigurationDetailsResponse, error) {
+	requestDef := GenReqDefForShowNodePoolConfigurationDetails()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowNodePoolConfigurationDetailsResponse), nil
+	}
+}
+
+// ShowNodePoolConfigurationDetailsInvoker 查询指定节点池支持配置的参数列表
+func (c *CceClient) ShowNodePoolConfigurationDetailsInvoker(request *model.ShowNodePoolConfigurationDetailsRequest) *ShowNodePoolConfigurationDetailsInvoker {
+	requestDef := GenReqDefForShowNodePoolConfigurationDetails()
+	return &ShowNodePoolConfigurationDetailsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowNodePoolConfigurations 查询指定节点池支持配置的参数内容
 //
 // 该API用于查询指定节点池支持配置的参数内容。

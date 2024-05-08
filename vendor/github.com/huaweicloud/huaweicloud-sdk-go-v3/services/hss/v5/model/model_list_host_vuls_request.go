@@ -32,6 +32,9 @@ type ListHostVulsRequest struct {
 
 	// 漏洞状态，包含如下：   - vul_status_unfix : 未处理   - vul_status_ignored : 已忽略   - vul_status_verified : 验证中   - vul_status_fixing : 修复中   - vul_status_fixed : 修复成功   - vul_status_reboot : 修复成功待重启   - vul_status_failed : 修复失败   - vul_status_fix_after_reboot : 请重启主机再次修复
 	Status *string `json:"status,omitempty"`
+
+	// 修复优先级,包含如下 - Critical 紧急  - High 高  - Medium 中  - Low 低
+	RepairPriority *string `json:"repair_priority,omitempty"`
 }
 
 func (o ListHostVulsRequest) String() string {

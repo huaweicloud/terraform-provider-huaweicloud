@@ -23,6 +23,9 @@ type ListPromInstanceRequest struct {
 
 	// Prometheus实例状态。
 	PromStatus *ListPromInstanceRequestPromStatus `json:"prom_status,omitempty"`
+
+	// 企业项目id。 - 查询单个企业项目下实例，填写企业项目id。 - 查询所有企业项目下实例，填写“all_granted_eps”。
+	EnterpriseProjectId *string `json:"Enterprise-Project-Id,omitempty"`
 }
 
 func (o ListPromInstanceRequest) String() string {
@@ -52,7 +55,7 @@ type ListPromInstanceRequestPromTypeEnum struct {
 func GetListPromInstanceRequestPromTypeEnum() ListPromInstanceRequestPromTypeEnum {
 	return ListPromInstanceRequestPromTypeEnum{
 		DEFAULT: ListPromInstanceRequestPromType{
-			value: "DEFAULT",
+			value: "default",
 		},
 		ECS: ListPromInstanceRequestPromType{
 			value: "ECS",

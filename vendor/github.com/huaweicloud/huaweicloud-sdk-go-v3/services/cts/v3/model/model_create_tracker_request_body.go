@@ -17,6 +17,9 @@ type CreateTrackerRequestBody struct {
 	// 标识追踪器名称。 当\"tracker_type\"参数值为\"system\"时该参数为默认值\"system\"。 当\"tracker_type\"参数值为\"data\"时该参数需要指定追踪器名称\"。
 	TrackerName string `json:"tracker_name"`
 
+	// 云服务委托名称。 参数值为\"cts_admin_trust\"时，创建追踪器会自动创建一个云服务委托：cts_admin_trust。
+	AgencyName *CreateTrackerRequestBodyAgencyName `json:"agency_name,omitempty"`
+
 	// 是否应用到我的组织。 只针对管理类追踪器。设置为true时，ORG组织下所有成员当前区域的审计日志会转储到该追踪器配置的OBS桶或者LTS日志流，但是事件列表界面不支持查看其它组织成员的审计日志。
 	IsOrganizationTracker *bool `json:"is_organization_tracker,omitempty"`
 
@@ -77,6 +80,49 @@ func (c CreateTrackerRequestBodyTrackerType) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateTrackerRequestBodyTrackerType) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type CreateTrackerRequestBodyAgencyName struct {
+	value string
+}
+
+type CreateTrackerRequestBodyAgencyNameEnum struct {
+	CTS_ADMIN_TRUST CreateTrackerRequestBodyAgencyName
+}
+
+func GetCreateTrackerRequestBodyAgencyNameEnum() CreateTrackerRequestBodyAgencyNameEnum {
+	return CreateTrackerRequestBodyAgencyNameEnum{
+		CTS_ADMIN_TRUST: CreateTrackerRequestBodyAgencyName{
+			value: "cts_admin_trust",
+		},
+	}
+}
+
+func (c CreateTrackerRequestBodyAgencyName) Value() string {
+	return c.value
+}
+
+func (c CreateTrackerRequestBodyAgencyName) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *CreateTrackerRequestBodyAgencyName) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: string")

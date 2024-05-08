@@ -27,7 +27,7 @@ type EventUserResponseInfo struct {
 	// 用户登录ip
 	LoginIp *string `json:"login_ip,omitempty"`
 
-	// 登录的服务类型
+	// 服务类型，包含如下:   - system   - mysql   - redis
 	ServiceType *string `json:"service_type,omitempty"`
 
 	// 登录服务端口

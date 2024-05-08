@@ -9,7 +9,10 @@ import (
 // ChangeVulStatusRequest Request Object
 type ChangeVulStatusRequest struct {
 
-	// 企业租户ID，“0”表示默认企业项目，查询所有企业项目时填写：all_granted_eps
+	// 缺省值:application/json; charset=utf-8
+	ContentType *string `json:"Content-Type,omitempty"`
+
+	// 企业项目ID，“0”表示默认企业项目，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	Body *ChangeVulStatusRequestInfo `json:"body,omitempty"`

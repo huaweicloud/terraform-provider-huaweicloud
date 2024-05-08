@@ -7,6 +7,7 @@ import (
 )
 
 type Point struct {
+	TaskType *TaskType `json:"taskType,omitempty"`
 }
 
 func (o Point) String() string {

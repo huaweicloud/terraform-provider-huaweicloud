@@ -53,6 +53,18 @@ func (i *BatchDeleteInstanceUsersInvoker) Invoke() (*model.BatchDeleteInstanceUs
 	}
 }
 
+type BatchDeleteMessageDiagnosisReportsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchDeleteMessageDiagnosisReportsInvoker) Invoke() (*model.BatchDeleteMessageDiagnosisReportsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchDeleteMessageDiagnosisReportsResponse), nil
+	}
+}
+
 type BatchRestartOrDeleteInstancesInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -134,6 +146,18 @@ func (i *CreateKafkaUserClientQuotaTaskInvoker) Invoke() (*model.CreateKafkaUser
 		return nil, err
 	} else {
 		return result.(*model.CreateKafkaUserClientQuotaTaskResponse), nil
+	}
+}
+
+type CreateMessageDiagnosisTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateMessageDiagnosisTaskInvoker) Invoke() (*model.CreateMessageDiagnosisTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateMessageDiagnosisTaskResponse), nil
 	}
 }
 
@@ -266,6 +290,18 @@ func (i *ListInstancesInvoker) Invoke() (*model.ListInstancesResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ListInstancesResponse), nil
+	}
+}
+
+type ListMessageDiagnosisReportsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListMessageDiagnosisReportsInvoker) Invoke() (*model.ListMessageDiagnosisReportsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListMessageDiagnosisReportsResponse), nil
 	}
 }
 
@@ -473,6 +509,18 @@ func (i *ShowCoordinatorsInvoker) Invoke() (*model.ShowCoordinatorsResponse, err
 	}
 }
 
+type ShowDiagnosisPreCheckInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowDiagnosisPreCheckInvoker) Invoke() (*model.ShowDiagnosisPreCheckResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowDiagnosisPreCheckResponse), nil
+	}
+}
+
 type ShowEngineInstanceExtendProductInfoInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -626,6 +674,18 @@ func (i *ShowMaintainWindowsInvoker) Invoke() (*model.ShowMaintainWindowsRespons
 		return nil, err
 	} else {
 		return result.(*model.ShowMaintainWindowsResponse), nil
+	}
+}
+
+type ShowMessageDiagnosisReportInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowMessageDiagnosisReportInvoker) Invoke() (*model.ShowMessageDiagnosisReportResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowMessageDiagnosisReportResponse), nil
 	}
 }
 

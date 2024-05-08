@@ -27,7 +27,7 @@ type EventFileResponseInfo struct {
 	// 文件最后一次状态改变时间
 	FileCtime *int64 `json:"file_ctime,omitempty"`
 
-	// 文件hash
+	// 文件hash,当前为sha256
 	FileHash *string `json:"file_hash,omitempty"`
 
 	// 文件md5

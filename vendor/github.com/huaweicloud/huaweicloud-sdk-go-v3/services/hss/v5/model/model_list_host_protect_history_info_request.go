@@ -12,16 +12,16 @@ type ListHostProtectHistoryInfoRequest struct {
 	// Region Id
 	Region string `json:"region"`
 
-	// 企业项目
+	// 企业项目ID
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
-	// Host Id
-	HostId string `json:"host_id"`
+	// Host Id，为空时查所有主机
+	HostId *string `json:"host_id,omitempty"`
 
-	// 起始时间
+	// 起始时间(ms)
 	StartTime int64 `json:"start_time"`
 
-	// 终止时间
+	// 终止时间(ms)
 	EndTime int64 `json:"end_time"`
 
 	// limit

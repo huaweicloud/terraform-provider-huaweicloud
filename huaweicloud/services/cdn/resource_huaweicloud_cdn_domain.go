@@ -1230,13 +1230,13 @@ func buildRemoteAuthOpts(rawRemoteAuth []interface{}) *model.CommonRemoteAuth {
 	return &remoteAuthOpts
 }
 
-func buildRemoteAuthRulesOpts(rawRemoteAuthRules []interface{}) *model.RemoteAuthRuleVo {
+func buildRemoteAuthRulesOpts(rawRemoteAuthRules []interface{}) *model.RemoteAuthRule {
 	if len(rawRemoteAuthRules) != 1 {
 		return nil
 	}
 
 	remoteAuthRule := rawRemoteAuthRules[0].(map[string]interface{})
-	remoteAuthRuleOpts := model.RemoteAuthRuleVo{
+	remoteAuthRuleOpts := model.RemoteAuthRule{
 		AuthServer:            remoteAuthRule["auth_server"].(string),
 		RequestMethod:         remoteAuthRule["request_method"].(string),
 		FileTypeSetting:       remoteAuthRule["file_type_setting"].(string),
@@ -1979,7 +1979,7 @@ func flattenRemoteAuthAttrs(remoteAuth *model.CommonRemoteAuth) []map[string]int
 	return []map[string]interface{}{remoteAuthAttrs}
 }
 
-func flattenRemoteAuthRulesAttrs(remoteAuthRule *model.RemoteAuthRuleVo) []map[string]interface{} {
+func flattenRemoteAuthRulesAttrs(remoteAuthRule *model.RemoteAuthRule) []map[string]interface{} {
 	if remoteAuthRule == nil {
 		return nil
 	}
