@@ -55,6 +55,8 @@ The following arguments are supported:
 * `environment` - (Optional, List) Specifies an array of one or more environments of the associated group.  
   The [object](#group_environment) structure is documented below.
 
+ -> The `environment` paramater is conflict with `huaweicloud_apig_environment_variable` resource.
+
 * `url_domains` - (Optional, List) Specifies independent domain names of the associated with group.  
   The [url_domains](#group_url_domains) structure is documented below.
 

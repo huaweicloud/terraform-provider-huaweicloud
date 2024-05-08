@@ -136,6 +136,27 @@ func GetVariable(client *golangsdk.ServiceClient, instanceId, varId string) (r V
 	return
 }
 
+// UpdateVariableOpts is the structure that used to update specified environment variable.
+type UpdateVariableOpts struct {
+	// The ID of the instance.
+	InstanceId string `json:"-" required:"true"`
+	// The ID of the environment variable.
+	VariableId string `json:"-" required:"true"`
+	// The value of the environment variable.
+	Value string `json:"variable_value" required:"true"`
+}
+
+// UpdateVariable is a method to update the value of the environment variable.
+func UpdateVariable(client *golangsdk.ServiceClient, opts UpdateVariableOpts) (r VariableUpdateResult) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Put(resourceURL(client, opts.InstanceId, "env-variables", opts.VariableId), b, &r.Body, nil)
+	return
+}
+
 // ListVariablesOpts allows to filter list data using given parameters.
 type ListVariablesOpts struct {
 	// API group ID.
