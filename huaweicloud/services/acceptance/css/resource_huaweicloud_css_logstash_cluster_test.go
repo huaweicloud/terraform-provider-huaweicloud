@@ -149,6 +149,51 @@ func TestAccLogstashCluster_updateWithEpsId(t *testing.T) {
 	})
 }
 
+func TestAccLogstashCluster_route(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_logstash_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getLogstashClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLogstashCluster_route_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "routes.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "routes.0.ip_address", "192.168.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "routes.0.ip_net_mask", "255.255.255.0"),
+				),
+			},
+			{
+				Config: testAccLogstashCluster_route_add(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "routes.#", "2"),
+				),
+			},
+			{
+				Config: testAccLogstashCluster_route_del(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "routes.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "routes.0.ip_address", "192.168.10.0"),
+					resource.TestCheckResourceAttr(resourceName, "routes.0.ip_net_mask", "255.255.255.0"),
+				),
+			},
+		},
+	})
+}
+
 func testAcclogstashBase(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -244,4 +289,99 @@ resource "huaweicloud_css_logstash_cluster" "test" {
   }
 }
 `, testAcclogstashBase(rName), rName, epsId)
+}
+
+func testAccLogstashCluster_route_basic(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_logstash_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.0"
+
+  node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  routes {
+    ip_address  = "192.168.0.0"
+    ip_net_mask = "255.255.255.0"
+  }
+}
+`, testAcclogstashBase(rName), rName)
+}
+
+func testAccLogstashCluster_route_add(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_logstash_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.0"
+
+  node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  routes {
+    ip_address  = "192.168.0.0"
+    ip_net_mask = "255.255.255.0"
+  }
+
+  routes {
+    ip_address  = "192.168.10.0"
+    ip_net_mask = "255.255.255.0"
+  }
+}
+`, testAcclogstashBase(rName), rName)
+}
+
+func testAccLogstashCluster_route_del(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_logstash_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.0"
+
+  node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  routes {
+    ip_address  = "192.168.10.0"
+    ip_net_mask = "255.255.255.0"
+  }
+}
+`, testAcclogstashBase(rName), rName)
 }

@@ -94,6 +94,9 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   The valid values are **true** and **false**, defaults to **false**.
 
+* `routes` - (Optional, List) Specifies the list of route objects.
+  The [routes](#Css_route) structure is documented below.
+
 <a name="Css_node_config"></a>
 The `node_config` block supports:
 
@@ -126,6 +129,13 @@ The `volume` block supports:
   + **ULTRAHIGH**: Ultra-high I/O. The solid-state drive (SSD) is used.
   + **ESSD**: Extreme speed I/O. The SATA disk is used.
   Changing this parameter will create a new resource.
+
+<a name="Css_route"></a>
+The `routes` block supports:
+
+* `ip_address` - (Required, String) Specifies the route ip address.
+
+* `ip_net_mask` - (Required, String) Specifies the subnet mask of the route ip address.
 
 ## Attribute Reference
 

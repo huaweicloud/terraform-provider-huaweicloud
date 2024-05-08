@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
@@ -27,6 +28,8 @@ import (
 // @API CSS POST /v1.0/extend/{project_id}/clusters/{cluster_id}/role/shrink
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/changename
 // @API CSS POST /v1.0/{project_id}/{resource_type}/{cluster_id}/tags/action
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/route
+// @API CSS GET /v1.0/{project_id}/clusters/{cluster_id}/route
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -133,6 +136,22 @@ func ResourceLogstashCluster() *schema.Resource {
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+			"routes": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ip_address": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"ip_net_mask": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 			"nodes": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -233,6 +252,12 @@ func resourceLogstashClusterCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(createResultErr)
 	}
 
+	if v, ok := d.GetOk("routes"); ok {
+		err := updateClusterRoute(conf, d, v.(*schema.Set).List(), "add_ip")
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceLogstashClusterRead(ctx, d, meta)
 }
 
@@ -308,6 +333,11 @@ func resourceLogstashClusterRead(_ context.Context, d *schema.ResourceData, meta
 		return common.CheckDeletedDiag(d, err, "error retrieving CSS logstash cluster")
 	}
 
+	getRoutesRespBody, err := getClusterRoute(conf, d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", clusterDetail.Name),
@@ -323,6 +353,7 @@ func resourceLogstashClusterRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("created_at", clusterDetail.Created),
 		d.Set("endpoint", clusterDetail.Endpoint),
 		d.Set("status", clusterDetail.Status),
+		d.Set("routes", flattenGetRoute(getRoutesRespBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -413,6 +444,20 @@ func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, 
 			ProjectId:    conf.GetProjectID(region),
 		}
 		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("routes") {
+		oldRaws, newRaws := d.GetChange("routes")
+		addRaws := newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
+		delRaws := oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
+		err := updateClusterRoute(conf, d, delRaws.List(), "del_ip")
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = updateClusterRoute(conf, d, addRaws.List(), "add_ip")
+		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -517,4 +562,85 @@ func resourceLogstashClusterDelete(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("failed to check the result of deletion %s", err)
 	}
 	return nil
+}
+
+func updateClusterRoute(conf *config.Config, d *schema.ResourceData, routes []interface{}, actionType string) error {
+	if len(routes) == 0 {
+		return nil
+	}
+
+	region := conf.GetRegion(d)
+	cssV1Client, err := conf.CssV1Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating CSS V1 client: %s", err)
+	}
+
+	updateRouteHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/route"
+	updateRoutePath := cssV1Client.Endpoint + updateRouteHttpUrl
+	updateRoutePath = strings.ReplaceAll(updateRoutePath, "{project_id}", cssV1Client.ProjectID)
+	updateRoutePath = strings.ReplaceAll(updateRoutePath, "{cluster_id}", d.Id())
+
+	updateRouteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	for _, route := range routes {
+		ipAddress := utils.PathSearch("ip_address", route, "").(string)
+		ipNetMask := utils.PathSearch("ip_net_mask", route, "").(string)
+		updateRouteOpt.JSONBody = map[string]interface{}{
+			"configtype":  actionType,
+			"configkey":   ipAddress,
+			"configvalue": ipNetMask,
+		}
+		_, err = cssV1Client.Request("POST", updateRoutePath, &updateRouteOpt)
+		if err != nil {
+			return fmt.Errorf("error updating CSS logstash route, cluster_id: %s, error: %s", d.Id(), err)
+		}
+	}
+
+	return nil
+}
+
+func getClusterRoute(conf *config.Config, d *schema.ResourceData) (interface{}, error) {
+	region := conf.GetRegion(d)
+	cssV1Client, err := conf.CssV1Client(region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CSS V1 client: %s", err)
+	}
+
+	getRouteHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/route"
+	getRoutePath := cssV1Client.Endpoint + getRouteHttpUrl
+	getRoutePath = strings.ReplaceAll(getRoutePath, "{project_id}", cssV1Client.ProjectID)
+	getRoutePath = strings.ReplaceAll(getRoutePath, "{cluster_id}", d.Id())
+
+	updateRouteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getRouteResp, err := cssV1Client.Request("GET", getRoutePath, &updateRouteOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error get CSS logstash routes, cluster_id: %s, error: %s", d.Id(), err)
+	}
+
+	getRouteRespBody, err := utils.FlattenResponse(getRouteResp)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving CSS logstash routes response: %s", err)
+	}
+
+	return getRouteRespBody, nil
+}
+
+func flattenGetRoute(resp interface{}) []interface{} {
+	routes := utils.PathSearch("routeResps", resp, make([]interface{}, 0)).([]interface{})
+
+	rst := make([]interface{}, len(routes))
+	for i, v := range routes {
+		rst[i] = map[string]interface{}{
+			"ip_address":  utils.PathSearch("ipAddress", v, nil),
+			"ip_net_mask": utils.PathSearch("ipNetMask", v, nil),
+		}
+	}
+	return rst
 }
