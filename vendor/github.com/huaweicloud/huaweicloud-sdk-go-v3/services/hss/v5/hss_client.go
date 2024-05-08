@@ -40,9 +40,9 @@ func (c *HssClient) AddHostsGroupInvoker(request *model.AddHostsGroupRequest) *A
 	return &AddHostsGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// AssociatePolicyGroup 部署策略
+// AssociatePolicyGroup 部署策略组
 //
-// 部署策略
+// 部署策略组
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *HssClient) AssociatePolicyGroup(request *model.AssociatePolicyGroupRequest) (*model.AssociatePolicyGroupResponse, error) {
@@ -55,7 +55,7 @@ func (c *HssClient) AssociatePolicyGroup(request *model.AssociatePolicyGroupRequ
 	}
 }
 
-// AssociatePolicyGroupInvoker 部署策略
+// AssociatePolicyGroupInvoker 部署策略组
 func (c *HssClient) AssociatePolicyGroupInvoker(request *model.AssociatePolicyGroupRequest) *AssociatePolicyGroupInvoker {
 	requestDef := GenReqDefForAssociatePolicyGroup()
 	return &AssociatePolicyGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -248,6 +248,27 @@ func (c *HssClient) ChangeVulStatus(request *model.ChangeVulStatusRequest) (*mod
 func (c *HssClient) ChangeVulStatusInvoker(request *model.ChangeVulStatusRequest) *ChangeVulStatusInvoker {
 	requestDef := GenReqDefForChangeVulStatus()
 	return &ChangeVulStatusInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateQuotasOrder HSS服务创建订单订购配额
+//
+// # HSS服务创建订单订购配额，只支持包周期计费模式
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *HssClient) CreateQuotasOrder(request *model.CreateQuotasOrderRequest) (*model.CreateQuotasOrderResponse, error) {
+	requestDef := GenReqDefForCreateQuotasOrder()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateQuotasOrderResponse), nil
+	}
+}
+
+// CreateQuotasOrderInvoker HSS服务创建订单订购配额
+func (c *HssClient) CreateQuotasOrderInvoker(request *model.CreateQuotasOrderRequest) *CreateQuotasOrderInvoker {
+	requestDef := GenReqDefForCreateQuotasOrder()
+	return &CreateQuotasOrderInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // CreateVulnerabilityScanTask 创建漏洞扫描任务
@@ -880,9 +901,9 @@ func (c *HssClient) ListProcessesHostInvoker(request *model.ListProcessesHostReq
 	return &ListProcessesHostInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListProtectionPolicy 查询防护策略列表
+// ListProtectionPolicy 查询勒索病毒的防护策略列表
 //
-// 查询防护策略列表
+// 查询勒索病毒的防护策略列表
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *HssClient) ListProtectionPolicy(request *model.ListProtectionPolicyRequest) (*model.ListProtectionPolicyResponse, error) {
@@ -895,7 +916,7 @@ func (c *HssClient) ListProtectionPolicy(request *model.ListProtectionPolicyRequ
 	}
 }
 
-// ListProtectionPolicyInvoker 查询防护策略列表
+// ListProtectionPolicyInvoker 查询勒索病毒的防护策略列表
 func (c *HssClient) ListProtectionPolicyInvoker(request *model.ListProtectionPolicyRequest) *ListProtectionPolicyInvoker {
 	requestDef := GenReqDefForListProtectionPolicy()
 	return &ListProtectionPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -1405,6 +1426,27 @@ func (c *HssClient) ShowImageCheckRuleDetailInvoker(request *model.ShowImageChec
 	return &ShowImageCheckRuleDetailInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowProductdataOfferingInfos 查询产商品信息
+//
+// 查询产商品信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *HssClient) ShowProductdataOfferingInfos(request *model.ShowProductdataOfferingInfosRequest) (*model.ShowProductdataOfferingInfosResponse, error) {
+	requestDef := GenReqDefForShowProductdataOfferingInfos()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowProductdataOfferingInfosResponse), nil
+	}
+}
+
+// ShowProductdataOfferingInfosInvoker 查询产商品信息
+func (c *HssClient) ShowProductdataOfferingInfosInvoker(request *model.ShowProductdataOfferingInfosRequest) *ShowProductdataOfferingInfosInvoker {
+	requestDef := GenReqDefForShowProductdataOfferingInfos()
+	return &ShowProductdataOfferingInfosInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowResourceQuotas 查询配额信息
 //
 // 查询配额信息
@@ -1573,9 +1615,9 @@ func (c *HssClient) UpdateBackupPolicyInfoInvoker(request *model.UpdateBackupPol
 	return &UpdateBackupPolicyInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// UpdateProtectionPolicy 修改防护策略
+// UpdateProtectionPolicy 修改勒索防护策略
 //
-// 修改防护策略
+// 修改勒索防护策略
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *HssClient) UpdateProtectionPolicy(request *model.UpdateProtectionPolicyRequest) (*model.UpdateProtectionPolicyResponse, error) {
@@ -1588,7 +1630,7 @@ func (c *HssClient) UpdateProtectionPolicy(request *model.UpdateProtectionPolicy
 	}
 }
 
-// UpdateProtectionPolicyInvoker 修改防护策略
+// UpdateProtectionPolicyInvoker 修改勒索防护策略
 func (c *HssClient) UpdateProtectionPolicyInvoker(request *model.UpdateProtectionPolicyRequest) *UpdateProtectionPolicyInvoker {
 	requestDef := GenReqDefForUpdateProtectionPolicy()
 	return &UpdateProtectionPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}

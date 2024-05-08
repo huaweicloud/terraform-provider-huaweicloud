@@ -9,7 +9,7 @@ import (
 // ListQuotasDetailRequest Request Object
 type ListQuotasDetailRequest struct {
 
-	// region id
+	// Region ID
 	Region *string `json:"region,omitempty"`
 
 	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
@@ -30,7 +30,7 @@ type ListQuotasDetailRequest struct {
 	// 服务器名称
 	HostName *string `json:"host_name,omitempty"`
 
-	// 资源ID
+	// HSS配额的资源ID
 	ResourceId *string `json:"resource_id,omitempty"`
 
 	// 收费模式，包含如下2种。   - packet_cycle ：包年/包月。   - on_demand ：按需。
@@ -39,7 +39,7 @@ type ListQuotasDetailRequest struct {
 	// 每页数量
 	Limit *int32 `json:"limit,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
+	// 偏移量：指定返回记录的开始位置，必须为数字
 	Offset *int32 `json:"offset,omitempty"`
 }
 

@@ -701,6 +701,18 @@ func (i *ShowNodePoolInvoker) Invoke() (*model.ShowNodePoolResponse, error) {
 	}
 }
 
+type ShowNodePoolConfigurationDetailsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowNodePoolConfigurationDetailsInvoker) Invoke() (*model.ShowNodePoolConfigurationDetailsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowNodePoolConfigurationDetailsResponse), nil
+	}
+}
+
 type ShowNodePoolConfigurationsInvoker struct {
 	*invoker.BaseInvoker
 }

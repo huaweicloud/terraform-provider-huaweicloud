@@ -56,7 +56,7 @@ type HcHttpClient struct {
 	endpoints     []string
 	endpointIndex int32
 	credential    auth.ICredential
-	extraHeader   map[string]string
+	extraHeaders  map[string]string
 	httpClient    *impl.DefaultHttpClient
 	errorHandler  sdkerr.ErrorHandler
 }
@@ -80,14 +80,18 @@ func (hc *HcHttpClient) WithErrorHandler(errorHandler sdkerr.ErrorHandler) *HcHt
 	return hc
 }
 
+func (hc *HcHttpClient) WithExtraHeaders(extraHeaders map[string]string) *HcHttpClient {
+	hc.extraHeaders = extraHeaders
+	return hc
+}
+
 func (hc *HcHttpClient) GetCredential() auth.ICredential {
 	return hc.credential
 }
 
-// Deprecated: This function will be removed in the future version.
+// Deprecated: This function will be removed in the future version. Use WithExtraHeaders instead.
 func (hc *HcHttpClient) PreInvoke(headers map[string]string) *HcHttpClient {
-	hc.extraHeader = headers
-	return hc
+	return hc.WithExtraHeaders(headers)
 }
 
 func (hc *HcHttpClient) Sync(req interface{}, reqDef *def.HttpRequestDef) (interface{}, error) {
@@ -100,7 +104,7 @@ func (hc *HcHttpClient) Sync(req interface{}, reqDef *def.HttpRequestDef) (inter
 
 func (hc *HcHttpClient) SyncInvoke(req interface{}, reqDef *def.HttpRequestDef,
 	exchange *exchange.SdkExchange) (interface{}, error) {
-	return hc.SyncInvokeWithExtraHeaders(req, reqDef, exchange, hc.extraHeader)
+	return hc.SyncInvokeWithExtraHeaders(req, reqDef, exchange, hc.extraHeaders)
 }
 
 func (hc *HcHttpClient) SyncInvokeWithExtraHeaders(req interface{}, reqDef *def.HttpRequestDef,
@@ -174,17 +178,7 @@ func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef
 		builder.WithProgressListener(pq.GetProgressListener()).WithProgressInterval(pq.GetProgressInterval())
 	}
 
-	uaValue := "huaweicloud-usdk-go/3.0"
-	if extraHeaders != nil {
-		for k, v := range extraHeaders {
-			if strings.ToLower(k) == strings.ToLower(userAgent) {
-				uaValue = uaValue + ";" + v
-			} else {
-				builder.AddHeaderParam(k, v)
-			}
-		}
-	}
-	builder.AddHeaderParam(userAgent, uaValue)
+	hc.fillExtraHeaders(builder, extraHeaders)
 
 	builder, err = hc.fillParamsFromReq(req, t, reqDef, attrMaps, builder)
 	if err != nil {
@@ -202,6 +196,35 @@ func (hc *HcHttpClient) buildRequest(req interface{}, reqDef *def.HttpRequestDef
 	}
 
 	return httpRequest, err
+}
+
+func (hc *HcHttpClient) fillExtraHeaders(builder *request.HttpRequestBuilder, extraHeaders map[string]string) {
+	headers := make(map[string]string)
+
+	// client-level headers
+	if hc.extraHeaders != nil {
+		for k, v := range hc.extraHeaders {
+			headers[k] = v
+		}
+	}
+
+	// request-level headers
+	if extraHeaders != nil {
+		for k, v := range extraHeaders {
+			headers[k] = v
+		}
+	}
+
+	// user-agent
+	uaValue := "huaweicloud-usdk-go/3.0"
+	for k, v := range headers {
+		if strings.ToLower(k) == strings.ToLower(userAgent) {
+			uaValue = uaValue + ";" + v
+		} else {
+			builder.AddHeaderParam(k, v)
+		}
+	}
+	builder.AddHeaderParam(userAgent, uaValue)
 }
 
 func (hc *HcHttpClient) fillParamsFromReq(req interface{}, t reflect.Type, reqDef *def.HttpRequestDef,

@@ -15,22 +15,22 @@ type PortResponseInfo struct {
 	// 监听ip
 	Laddr *string `json:"laddr,omitempty"`
 
-	// port status, normal, danger or unknow   - \"normal\" : 正常   - \"danger\" : 危险   - \"unknow\" : 未知
+	// port status, normal, danger or unknow   - \"normal\" : 正常   - \"danger\" : 危险   - \"unknown\" : 未知
 	Status *string `json:"status,omitempty"`
 
 	// 端口号
 	Port *int32 `json:"port,omitempty"`
 
-	// 类型
+	// 端口类型：目前包括TCP，UDP两种
 	Type *string `json:"type,omitempty"`
 
 	// 进程ID
 	Pid *int32 `json:"pid,omitempty"`
 
-	// 程序文件
+	// 进程可执行文件路径
 	Path *string `json:"path,omitempty"`
 
-	// agent id
+	// Agent ID
 	AgentId *string `json:"agent_id,omitempty"`
 
 	// 容器id

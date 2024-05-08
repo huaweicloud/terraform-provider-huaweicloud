@@ -24,16 +24,16 @@ type ListUserChangeHistoriesRequest struct {
 	// 服务器私有IP
 	PrivateIp *string `json:"private_ip,omitempty"`
 
-	// 变更类型:   - ADD ：添加   - DELETE ：删除   - MODIFY ： 修改
+	// 账号变更类型:   - ADD ：添加   - DELETE ：删除   - MODIFY ： 修改
 	ChangeType *string `json:"change_type,omitempty"`
 
-	// 默认10
+	// 每页显示数量，默认10
 	Limit *int32 `json:"limit,omitempty"`
 
-	// 默认是0
+	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
 	Offset *int32 `json:"offset,omitempty"`
 
-	// 企业项目
+	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	// 变更开始时间，13位时间戳

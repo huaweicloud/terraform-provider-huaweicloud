@@ -42,10 +42,10 @@ type PrivateImageRepositoryInfo struct {
 	// 镜像大小
 	ImageSize *int64 `json:"image_size,omitempty"`
 
-	// 镜像版本最后更新时间
+	// 镜像版本最后更新时间，时间单位 毫秒（ms）
 	LatestUpdateTime *int64 `json:"latest_update_time,omitempty"`
 
-	// 最近扫描时间
+	// 最近扫描时间，时间单位 毫秒（ms）
 	LatestScanTime *int64 `json:"latest_scan_time,omitempty"`
 
 	// 漏洞个数
@@ -66,13 +66,13 @@ type PrivateImageRepositoryInfo struct {
 	// 是否可扫描
 	Scannable *bool `json:"scannable,omitempty"`
 
-	// 企业实例名称
+	// 企业版镜像实例名称
 	InstanceName *string `json:"instance_name,omitempty"`
 
-	// 企业实例ID
+	// 企业版镜像实例ID
 	InstanceId *string `json:"instance_id,omitempty"`
 
-	// 企业镜像URL
+	// 企业版镜像实例URL
 	InstanceUrl *string `json:"instance_url,omitempty"`
 
 	// 多架构关联镜像信息

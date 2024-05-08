@@ -856,6 +856,17 @@ func GenReqDefForShowLogs() *def.HttpRequestDef {
 	return requestDef
 }
 
+func GenReqDefForShowQuota() *def.HttpRequestDef {
+	reqDefBuilder := def.NewHttpRequestDefBuilder().
+		WithMethod(http.MethodGet).
+		WithPath("/v1.0/cdn/quota").
+		WithResponse(new(model.ShowQuotaResponse)).
+		WithContentType("application/json")
+
+	requestDef := reqDefBuilder.Build()
+	return requestDef
+}
+
 func GenReqDefForShowTags() *def.HttpRequestDef {
 	reqDefBuilder := def.NewHttpRequestDefBuilder().
 		WithMethod(http.MethodGet).

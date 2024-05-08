@@ -9,7 +9,7 @@ import (
 // ProcessStatisticResponseInfo 进程统计信息
 type ProcessStatisticResponseInfo struct {
 
-	// 进程名称
+	// 进程的可执行文件路径
 	Path *string `json:"path,omitempty"`
 
 	// 进程数量

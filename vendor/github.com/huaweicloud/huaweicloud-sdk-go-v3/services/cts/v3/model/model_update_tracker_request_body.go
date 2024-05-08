@@ -17,6 +17,9 @@ type UpdateTrackerRequestBody struct {
 	// 标识追踪器名称。 当\"tracker_type\"参数值为\"system\"时该参数为默认值\"system\"。 当\"tracker_type\"参数值为\"data\"时该参数需要指定追踪器名称\"。
 	TrackerName string `json:"tracker_name"`
 
+	// 云服务委托名称。 参数值为\"cts_admin_trust\"时，更新追踪器会自动创建一个云服务委托：cts_admin_trust。
+	AgencyName *UpdateTrackerRequestBodyAgencyName `json:"agency_name,omitempty"`
+
 	// 标识追踪器状态，该接口中可修改的状态包括正常（enabled）和停止（disabled）。如果选择修改状态为停止，则修改成功后追踪器停止记录事件。
 	Status *UpdateTrackerRequestBodyStatus `json:"status,omitempty"`
 
@@ -80,6 +83,49 @@ func (c UpdateTrackerRequestBodyTrackerType) MarshalJSON() ([]byte, error) {
 }
 
 func (c *UpdateTrackerRequestBodyTrackerType) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type UpdateTrackerRequestBodyAgencyName struct {
+	value string
+}
+
+type UpdateTrackerRequestBodyAgencyNameEnum struct {
+	CTS_ADMIN_TRUST UpdateTrackerRequestBodyAgencyName
+}
+
+func GetUpdateTrackerRequestBodyAgencyNameEnum() UpdateTrackerRequestBodyAgencyNameEnum {
+	return UpdateTrackerRequestBodyAgencyNameEnum{
+		CTS_ADMIN_TRUST: UpdateTrackerRequestBodyAgencyName{
+			value: "cts_admin_trust",
+		},
+	}
+}
+
+func (c UpdateTrackerRequestBodyAgencyName) Value() string {
+	return c.value
+}
+
+func (c UpdateTrackerRequestBodyAgencyName) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *UpdateTrackerRequestBodyAgencyName) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: string")

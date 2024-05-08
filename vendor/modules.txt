@@ -512,7 +512,7 @@ github.com/hashicorp/terraform-svchost
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 ## explicit
 github.com/hashicorp/yamux
-# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.86
+# github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.94
 ## explicit; go 1.14
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core
 github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth

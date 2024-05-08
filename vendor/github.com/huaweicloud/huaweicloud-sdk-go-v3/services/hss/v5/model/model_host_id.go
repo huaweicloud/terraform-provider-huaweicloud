@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// HostId 服务器ID
+// HostId 主机ID
 type HostId struct {
 }
 

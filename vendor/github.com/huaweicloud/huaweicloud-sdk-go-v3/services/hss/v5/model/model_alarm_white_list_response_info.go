@@ -12,7 +12,7 @@ type AlarmWhiteListResponseInfo struct {
 	// 企业项目名称
 	EnterpriseProjectName *string `json:"enterprise_project_name,omitempty"`
 
-	// SHA256
+	// 事件白名单SHA256
 	Hash *string `json:"hash,omitempty"`
 
 	// 描述信息
@@ -30,7 +30,7 @@ type AlarmWhiteListResponseInfo struct {
 	// 通配符，包含如下: - \"equal\" # 相等 - \"contain\" # 包含
 	JudgeType *string `json:"judge_type,omitempty"`
 
-	// 更新时间，毫秒
+	// 事件白名单更新时间，毫秒
 	UpdateTime *int64 `json:"update_time,omitempty"`
 }
 

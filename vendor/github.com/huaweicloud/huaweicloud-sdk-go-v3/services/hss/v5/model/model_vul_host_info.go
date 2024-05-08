@@ -9,31 +9,34 @@ import (
 // VulHostInfo 软件漏洞列表
 type VulHostInfo struct {
 
-	// 主机id
+	// 受漏洞影响的服务器id
 	HostId *string `json:"host_id,omitempty"`
 
 	// 危险程度   - Critical : 漏洞cvss评分大于等于9；对应控制台页面的高危   - High : 漏洞cvss评分大于等于7，小于9；对应控制台页面的中危   - Medium : 漏洞cvss评分大于等于4，小于7；对应控制台页面的中危   - Low : 漏洞cvss评分小于4；对应控制台页面的低危
 	SeverityLevel *string `json:"severity_level,omitempty"`
 
-	// 受影响资产名称
+	// 受影响主机名称
 	HostName *string `json:"host_name,omitempty"`
 
-	// 受影响资产ip
+	// 受影响主机ip
 	HostIp *string `json:"host_ip,omitempty"`
 
-	// 主机对应的agent id
+	// 主机对应的Agent ID
 	AgentId *string `json:"agent_id,omitempty"`
 
-	// 漏洞cve数
+	// 主机绑定的配额版本
+	Version *string `json:"version,omitempty"`
+
+	// 漏洞cve总数
 	CveNum *int32 `json:"cve_num,omitempty"`
 
-	// cve列表
+	// 漏洞对应的cve id列表
 	CveIdList *[]string `json:"cve_id_list,omitempty"`
 
 	// 漏洞状态   - vul_status_unfix : 未处理   - vul_status_ignored : 已忽略   - vul_status_verified : 验证中   - vul_status_fixing : 修复中   - vul_status_fixed : 修复成功   - vul_status_reboot : 修复成功待重启   - vul_status_failed : 修复失败   - vul_status_fix_after_reboot : 请重启主机再次修复
 	Status *string `json:"status,omitempty"`
 
-	// 修复命令行
+	// 修复漏洞需要执行的命令行（只有Linux漏洞有该字段）
 	RepairCmd *string `json:"repair_cmd,omitempty"`
 
 	// 应用软件的路径（只有应用漏洞有该字段）
@@ -66,11 +69,17 @@ type VulHostInfo struct {
 	// 首次扫描时间
 	FirstScanTime *int64 `json:"first_scan_time,omitempty"`
 
-	// 扫描时间
+	// 扫描时间，时间戳单位：毫秒
 	ScanTime *int64 `json:"scan_time,omitempty"`
 
 	// 是否可以回滚到修复漏洞时创建的备份
 	SupportRestore *bool `json:"support_restore,omitempty"`
+
+	// 漏洞在当前主机上不可进行的操作类型列表
+	DisabledOperateTypes *[]VulHostInfoDisabledOperateTypes `json:"disabled_operate_types,omitempty"`
+
+	// 修复优先级,包含如下  - Critical 紧急  - High 高  - Medium 中  - Low 低
+	RepairPriority *string `json:"repair_priority,omitempty"`
 }
 
 func (o VulHostInfo) String() string {

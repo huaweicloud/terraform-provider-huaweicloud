@@ -73,6 +73,12 @@ type HostVulInfo struct {
 
 	// 是否可以回滚到修复漏洞时创建的备份
 	SupportRestore *bool `json:"support_restore,omitempty"`
+
+	// 该漏洞不可进行的操作类型列表
+	DisabledOperateTypes *[]VulHostInfoDisabledOperateTypes `json:"disabled_operate_types,omitempty"`
+
+	// 修复优先级,包含如下 - Critical 紧急  - High 高  - Medium 中  - Low 低
+	RepairPriority *string `json:"repair_priority,omitempty"`
 }
 
 func (o HostVulInfo) String() string {

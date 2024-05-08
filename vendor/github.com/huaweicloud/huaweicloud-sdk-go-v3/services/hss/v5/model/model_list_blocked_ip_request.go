@@ -9,10 +9,10 @@ import (
 // ListBlockedIpRequest Request Object
 type ListBlockedIpRequest struct {
 
-	// region id
+	// Region ID
 	Region string `json:"region"`
 
-	// 租户企业项目ID，查询所有企业项目时填写：all_granted_eps
+	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	// 查询时间范围天数，与自定义查询时间begin_time，end_time互斥
@@ -27,7 +27,7 @@ type ListBlockedIpRequest struct {
 	// 拦截状态，包含如下:   - intercepted : 已拦截   - canceled : 已解除拦截   - cancelling : 待解除拦截
 	InterceptStatus *string `json:"intercept_status,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
+	// 偏移量：指定返回记录的开始位置，必须为数字
 	Offset *int32 `json:"offset,omitempty"`
 
 	// 每页显示个数

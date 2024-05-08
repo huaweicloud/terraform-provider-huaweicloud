@@ -51,6 +51,9 @@ type SubNetworkInterface struct {
 
 	// 功能说明：辅助弹性网卡的创建时间 取值范围：UTC时间格式：yyyy-MM-ddTHH:mm:ss
 	CreatedAt *sdktime.SdkTime `json:"created_at"`
+
+	// 功能说明：辅助弹性网卡安全使能标记，如果不使能则安全组不生效。 取值范围：true（使能），false（不使能）
+	SecurityEnabled bool `json:"security_enabled"`
 }
 
 func (o SubNetworkInterface) String() string {

@@ -19,6 +19,9 @@ type PartitionReassignRequest struct {
 
 	// 定时时间，格式为Unix时间戳，单位为毫秒
 	ExecuteAt *int64 `json:"execute_at,omitempty"`
+
+	// 设为true表示执行时间预估任务，false为执行重平衡任务。
+	TimeEstimate *bool `json:"time_estimate,omitempty"`
 }
 
 func (o PartitionReassignRequest) String() string {

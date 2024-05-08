@@ -15,6 +15,9 @@ type CreateConnectorTaskResponse struct {
 	// SmartConnect任务配置的Topic。
 	Topics *string `json:"topics,omitempty"`
 
+	// SmartConnect任务配置的Topic正则表达式。
+	TopicsRegex *string `json:"topics_regex,omitempty"`
+
 	// SmartConnect任务的源端类型。
 	SourceType *string `json:"source_type,omitempty"`
 

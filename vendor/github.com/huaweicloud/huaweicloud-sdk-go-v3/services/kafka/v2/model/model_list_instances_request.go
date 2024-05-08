@@ -13,7 +13,7 @@ import (
 type ListInstancesRequest struct {
 
 	// 消息引擎：kafka。
-	Engine *ListInstancesRequestEngine `json:"engine,omitempty"`
+	Engine ListInstancesRequestEngine `json:"engine"`
 
 	// 实例名称。
 	Name *string `json:"name,omitempty"`

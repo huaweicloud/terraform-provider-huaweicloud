@@ -12,7 +12,7 @@ import (
 // BlockedIpResponseInfo 已拦截IP详情
 type BlockedIpResponseInfo struct {
 
-	// 服务器ID
+	// 主机ID
 	HostId string `json:"host_id"`
 
 	// 服务器名称

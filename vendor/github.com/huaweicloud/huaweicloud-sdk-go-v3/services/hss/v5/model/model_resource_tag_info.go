@@ -9,10 +9,10 @@ import (
 type ResourceTagInfo struct {
 
 	// 键。最大长度128个unicode字符。 key不能为空
-	Key *string `json:"key,omitempty"`
+	Key string `json:"key"`
 
 	// 值
-	Value *string `json:"value,omitempty"`
+	Value string `json:"value"`
 }
 
 func (o ResourceTagInfo) String() string {

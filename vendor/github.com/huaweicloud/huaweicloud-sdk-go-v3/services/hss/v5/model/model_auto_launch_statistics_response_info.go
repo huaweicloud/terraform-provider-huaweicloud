@@ -12,10 +12,10 @@ type AutoLaunchStatisticsResponseInfo struct {
 	// 自启动项名称
 	Name *string `json:"name,omitempty"`
 
-	// 自启动项类型
+	// 自启动项类型   - 0 ：自启动服务   - 1 ：定时任务   - 2 ：预加载动态库   - 3 ：Run注册表键   - 4 ：开机启动文件夹
 	Type *string `json:"type,omitempty"`
 
-	// 数量
+	// 当前自启动项的主机数量
 	Num *int32 `json:"num,omitempty"`
 }
 

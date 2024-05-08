@@ -39,6 +39,9 @@ type DeleteClusterRequest struct {
 	// 是否删除sfs3.0（文件存储卷3.0）， 枚举取值： - true或block (执行删除流程，失败则阻塞后续流程) - try (执行删除流程，失败则忽略，并继续执行后续流程) - false或skip (跳过删除流程，默认选项)
 	DeleteSfs30 *DeleteClusterRequestDeleteSfs30 `json:"delete_sfs30,omitempty"`
 
+	// 是否删除LTS LogStream（日志流）， 枚举取值： - true或block (执行删除流程，失败则阻塞后续流程) - try (执行删除流程，失败则忽略，并继续执行后续流程) - false或skip (跳过删除流程，默认选项)
+	LtsReclaimPolicy *DeleteClusterRequestLtsReclaimPolicy `json:"lts_reclaim_policy,omitempty"`
+
 	// 是否使用包周期集群删除参数预置模式（仅对包周期集群生效）。  需要和其他删除选项参数一起使用，未指定的参数，则使用默认值。  使用该参数，集群不执行真正的删除，仅将本次请求的全部query参数都预置到集群数据库中，用于包周期集群退订时识别用户要删除的资源。  允许重复执行，覆盖预置的删除参数。  枚举取值： - true  (预置模式，仅预置query参数，不执行删除)
 	Tobedeleted *DeleteClusterRequestTobedeleted `json:"tobedeleted,omitempty"`
 
@@ -453,6 +456,65 @@ func (c DeleteClusterRequestDeleteSfs30) MarshalJSON() ([]byte, error) {
 }
 
 func (c *DeleteClusterRequestDeleteSfs30) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type DeleteClusterRequestLtsReclaimPolicy struct {
+	value string
+}
+
+type DeleteClusterRequestLtsReclaimPolicyEnum struct {
+	TRUE  DeleteClusterRequestLtsReclaimPolicy
+	BLOCK DeleteClusterRequestLtsReclaimPolicy
+	TRY   DeleteClusterRequestLtsReclaimPolicy
+	FALSE DeleteClusterRequestLtsReclaimPolicy
+	SKIP  DeleteClusterRequestLtsReclaimPolicy
+}
+
+func GetDeleteClusterRequestLtsReclaimPolicyEnum() DeleteClusterRequestLtsReclaimPolicyEnum {
+	return DeleteClusterRequestLtsReclaimPolicyEnum{
+		TRUE: DeleteClusterRequestLtsReclaimPolicy{
+			value: "true",
+		},
+		BLOCK: DeleteClusterRequestLtsReclaimPolicy{
+			value: "block",
+		},
+		TRY: DeleteClusterRequestLtsReclaimPolicy{
+			value: "try",
+		},
+		FALSE: DeleteClusterRequestLtsReclaimPolicy{
+			value: "false",
+		},
+		SKIP: DeleteClusterRequestLtsReclaimPolicy{
+			value: "skip",
+		},
+	}
+}
+
+func (c DeleteClusterRequestLtsReclaimPolicy) Value() string {
+	return c.value
+}
+
+func (c DeleteClusterRequestLtsReclaimPolicy) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *DeleteClusterRequestLtsReclaimPolicy) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: string")

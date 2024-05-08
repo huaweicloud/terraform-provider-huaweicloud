@@ -19,6 +19,9 @@ type CustomerModifyAutoEnlargePolicyReq struct {
 
 	// 可用存储空间百分比，小于等于此值或者10GB时触发扩容，switch_option为true时必填
 	TriggerThreshold *CustomerModifyAutoEnlargePolicyReqTriggerThreshold `json:"trigger_threshold,omitempty"`
+
+	// 每次自动扩容的百分比步长，取值范围5~50，开启自定义步长功能时必填
+	StepPercent *int32 `json:"step_percent,omitempty"`
 }
 
 func (o CustomerModifyAutoEnlargePolicyReq) String() string {

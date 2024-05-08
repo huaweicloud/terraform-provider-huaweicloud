@@ -12,7 +12,7 @@ type WeakPwdAccountInfoResponseInfo struct {
 	// 弱口令账号名称
 	UserName *string `json:"user_name,omitempty"`
 
-	// 账号类型
+	// 账号类型，包含如下:   - system   - mysql   - redis
 	ServiceType *string `json:"service_type,omitempty"`
 
 	// 弱口令使用时长，单位天

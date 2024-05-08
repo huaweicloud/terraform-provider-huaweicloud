@@ -14,7 +14,7 @@ type CloseProtectionInfoRequestInfo struct {
 	// 需要关闭勒索防护的agentID列表
 	AgentIdList []string `json:"agent_id_list"`
 
-	// 关闭防护类型，包含如下：   - close_all : 关闭所有防护   - close_anti : 关闭勒索防护   - close_backup : 关闭备份功能
+	// 关闭防护类型，包含如下：   - close_anti : 关闭勒索防护；暂不支持关闭备份防护，若需要解绑存储库，请前往cbr服务进行操作。
 	CloseProtectionType string `json:"close_protection_type"`
 }
 

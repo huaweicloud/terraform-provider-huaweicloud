@@ -9,7 +9,7 @@ import (
 // IsolatedFileRequestInfo 恢复的文件详情
 type IsolatedFileRequestInfo struct {
 
-	// 服务器ID
+	// 主机ID
 	HostId *string `json:"host_id,omitempty"`
 
 	// 文件哈希

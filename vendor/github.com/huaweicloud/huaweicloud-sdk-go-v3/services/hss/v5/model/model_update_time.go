@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// UpdateTime 更新时间，毫秒
+// UpdateTime 事件白名单更新时间，毫秒
 type UpdateTime struct {
 }
 

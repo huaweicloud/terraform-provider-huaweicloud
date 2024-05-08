@@ -9,7 +9,7 @@ import (
 // ListSecurityEventsResponse Response Object
 type ListSecurityEventsResponse struct {
 
-	// 总数
+	// 告警事件总数
 	TotalNum *int32 `json:"total_num,omitempty"`
 
 	// 事件列表详情

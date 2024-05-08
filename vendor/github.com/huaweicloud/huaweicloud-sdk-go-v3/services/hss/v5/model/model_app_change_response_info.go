@@ -9,7 +9,7 @@ import (
 // AppChangeResponseInfo 软件变动历史信息
 type AppChangeResponseInfo struct {
 
-	// agent_id
+	// Agent ID
 	AgentId *string `json:"agent_id,omitempty"`
 
 	// the type of change   - add ：新建   - delete ：删除   - modify ：修改
@@ -21,7 +21,7 @@ type AppChangeResponseInfo struct {
 	// 软件名称
 	AppName *string `json:"app_name,omitempty"`
 
-	// 弹性服务器名称
+	// 服务器名称
 	HostName *string `json:"host_name,omitempty"`
 
 	// 服务器ip
@@ -30,10 +30,10 @@ type AppChangeResponseInfo struct {
 	// 版本号
 	Version *string `json:"version,omitempty"`
 
-	// 更新时间
+	// 软件更新时间
 	UpdateTime *int64 `json:"update_time,omitempty"`
 
-	// 变更时间
+	// 最近扫描时间
 	RecentScanTime *int64 `json:"recent_scan_time,omitempty"`
 }
 

@@ -12,7 +12,7 @@ type ListRiskConfigsRequest struct {
 	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
-	// 基线名称
+	// 配置检查（基线）的名称，例如SSH、CentOS 7、Windows
 	CheckName *string `json:"check_name,omitempty"`
 
 	// 策略组ID
@@ -21,16 +21,16 @@ type ListRiskConfigsRequest struct {
 	// 风险等级，包含如下:   - Security : 安全   - Low : 低危   - Medium : 中危   - High : 高危
 	Severity *string `json:"severity,omitempty"`
 
-	// 标准类型，包含如下:   - cn_standard : 等保合规标准   - hw_standard : 华为标准   - qt_standard : 青腾标准
+	// 标准类型，包含如下:   - cn_standard : 等保合规标准   - hw_standard : 云安全实践标准
 	Standard *string `json:"standard,omitempty"`
 
-	// 服务器id
+	// 主机id
 	HostId *string `json:"host_id,omitempty"`
 
 	// 每页显示数量，默认10
 	Limit *int32 `json:"limit,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
+	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0。
 	Offset *int32 `json:"offset,omitempty"`
 }
 

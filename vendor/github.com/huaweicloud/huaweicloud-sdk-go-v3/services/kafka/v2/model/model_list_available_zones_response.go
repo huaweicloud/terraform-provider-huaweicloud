@@ -13,8 +13,8 @@ type ListAvailableZonesResponse struct {
 	RegionId *string `json:"region_id,omitempty"`
 
 	// 可用区数组。
-	AvailableZones *[]ListAvailableZonesRespAvailableZones `json:"available_zones,omitempty"`
-	HttpStatusCode int                                     `json:"-"`
+	AvailableZones *[]AvailableZonesResp `json:"available_zones,omitempty"`
+	HttpStatusCode int                   `json:"-"`
 }
 
 func (o ListAvailableZonesResponse) String() string {

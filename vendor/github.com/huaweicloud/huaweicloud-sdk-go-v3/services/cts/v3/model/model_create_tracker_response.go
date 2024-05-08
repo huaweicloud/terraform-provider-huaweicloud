@@ -43,6 +43,9 @@ type CreateTrackerResponse struct {
 	// 标识追踪器名称，当前版本默认为“system”。
 	TrackerName *string `json:"tracker_name,omitempty"`
 
+	// 云服务委托名称。
+	AgencyName *CreateTrackerResponseAgencyName `json:"agency_name,omitempty"`
+
 	// 标识追踪器状态，包括正常（enabled），停止（disabled）和异常（error）三种状态，状态为异常时需通过明细（detail）字段说明错误来源。
 	Status *CreateTrackerResponseStatus `json:"status,omitempty"`
 
@@ -96,6 +99,49 @@ func (c CreateTrackerResponseTrackerType) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateTrackerResponseTrackerType) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type CreateTrackerResponseAgencyName struct {
+	value string
+}
+
+type CreateTrackerResponseAgencyNameEnum struct {
+	CTS_ADMIN_TRUST CreateTrackerResponseAgencyName
+}
+
+func GetCreateTrackerResponseAgencyNameEnum() CreateTrackerResponseAgencyNameEnum {
+	return CreateTrackerResponseAgencyNameEnum{
+		CTS_ADMIN_TRUST: CreateTrackerResponseAgencyName{
+			value: "cts_admin_trust",
+		},
+	}
+}
+
+func (c CreateTrackerResponseAgencyName) Value() string {
+	return c.value
+}
+
+func (c CreateTrackerResponseAgencyName) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *CreateTrackerResponseAgencyName) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: string")

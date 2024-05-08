@@ -12,7 +12,7 @@ type PortStatisticResponseInfo struct {
 	// 端口号
 	Port *int32 `json:"port,omitempty"`
 
-	// 类型
+	// 端口类型
 	Type *string `json:"type,omitempty"`
 
 	// 端口数量

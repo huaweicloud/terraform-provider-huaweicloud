@@ -308,6 +308,18 @@ func (i *ShowLogsInvoker) Invoke() (*model.ShowLogsResponse, error) {
 	}
 }
 
+type ShowQuotaInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowQuotaInvoker) Invoke() (*model.ShowQuotaResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowQuotaResponse), nil
+	}
+}
+
 type ShowTagsInvoker struct {
 	*invoker.BaseInvoker
 }

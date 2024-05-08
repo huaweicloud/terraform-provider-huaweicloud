@@ -24,7 +24,7 @@ type PortHostResponseInfo struct {
 	// 监听ip
 	Laddr *string `json:"laddr,omitempty"`
 
-	// 程序文件路径
+	// 进程可执行文件路径
 	Path *string `json:"path,omitempty"`
 
 	// pid
@@ -36,13 +36,13 @@ type PortHostResponseInfo struct {
 	// 状态
 	Status *string `json:"status,omitempty"`
 
-	// 类型
+	// 端口类型：目前包括TCP，UDP两种
 	Type *string `json:"type,omitempty"`
 
 	// 容器名称
 	ContainerName *string `json:"container_name,omitempty"`
 
-	// agent id
+	// Agent ID
 	AgentId *string `json:"agent_id,omitempty"`
 }
 

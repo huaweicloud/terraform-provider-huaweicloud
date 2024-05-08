@@ -12,13 +12,13 @@ type ListWtpProtectHostRequest struct {
 	// Region Id
 	Region string `json:"region"`
 
-	// 企业项目
+	// 企业项目ID
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	// 服务器名称
 	HostName *string `json:"host_name,omitempty"`
 
-	// 云服务器ID
+	// 主机ID
 	HostId *string `json:"host_id,omitempty"`
 
 	// 弹性公网IP
@@ -42,7 +42,7 @@ type ListWtpProtectHostRequest struct {
 	// 默认10
 	Limit *int32 `json:"limit,omitempty"`
 
-	// 默认是0
+	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0
 	Offset *int32 `json:"offset,omitempty"`
 }
 

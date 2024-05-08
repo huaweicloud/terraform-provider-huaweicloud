@@ -9,7 +9,7 @@ import (
 // ListAppsResponse Response Object
 type ListAppsResponse struct {
 
-	// 总数
+	// 软件总数
 	TotalNum *int32 `json:"total_num,omitempty"`
 
 	// 软件列表

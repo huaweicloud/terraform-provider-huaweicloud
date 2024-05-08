@@ -9,7 +9,7 @@ import (
 // VerifyDomainOwnerResponse Response Object
 type VerifyDomainOwnerResponse struct {
 
-	// 验证是否通过，true:通过，false:不通过
+	// 验证是否通过，true：通过，false：不通过。
 	Result *bool `json:"result,omitempty"`
 
 	XRequestId     *string `json:"X-Request-Id,omitempty"`

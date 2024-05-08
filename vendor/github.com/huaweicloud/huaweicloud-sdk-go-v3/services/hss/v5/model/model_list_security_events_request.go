@@ -9,10 +9,13 @@ import (
 // ListSecurityEventsRequest Request Object
 type ListSecurityEventsRequest struct {
 
-	// region id
+	// 事件类别，包含如下:   - host : 主机安全事件   - container : 容器安全事件
+	Category string `json:"category"`
+
+	// Region ID
 	Region string `json:"region"`
 
-	// 租户企业项目ID，查询所有企业项目时填写：all_granted_eps
+	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	// 查询时间范围天数，与自定义查询时间begin_time，end_time互斥
@@ -21,7 +24,7 @@ type ListSecurityEventsRequest struct {
 	// 服务器名称
 	HostName *string `json:"host_name,omitempty"`
 
-	// 服务器ID
+	// 主机ID
 	HostId *string `json:"host_id,omitempty"`
 
 	// 服务器私有IP
@@ -33,7 +36,7 @@ type ListSecurityEventsRequest struct {
 	// 容器实例名称
 	ContainerName *string `json:"container_name,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
+	// 偏移量：指定返回记录的开始位置，必须为数字
 	Offset *int32 `json:"offset,omitempty"`
 
 	// 每页显示个数
@@ -47,9 +50,6 @@ type ListSecurityEventsRequest struct {
 
 	// 威胁等级，包含如下:   - Security ：安全   - Low : 低危   - Medium : 中危   - High : 高危   - Critical : 危急
 	Severity *string `json:"severity,omitempty"`
-
-	// 事件类别，包含如下:   - host : 主机安全事件   - container : 容器安全事件
-	Category string `json:"category"`
 
 	// 自定义查询时间，与查询时间范围天数互斥，查询时间段的起始时间，毫秒级时间戳，end_time减去begin_time小于等于2天，与查询时间范围天数互斥
 	BeginTime *string `json:"begin_time,omitempty"`

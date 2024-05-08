@@ -122,8 +122,8 @@ github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734 h1:HKL
 github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734/go.mod h1:kNDNcF7sN4DocDLBkQYz73HGKwN1ANB1blq4lIYLYvg=
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d h1:kJCB4vdITiW1eC1vq2e6IsrXKrZit1bv/TDYFGMp4BQ=
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
-github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.86 h1:lnphPnFjIZNqfzaLxeDzVfMoRaW1nMsL/cv313Peq0Y=
-github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.86/go.mod h1:j8hJuz4uvsxnzkYmEDO7lB6Jj3TY09KY/DxLUPcO6a8=
+github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.94 h1:I77BU6cIp/f+RdRicvzCni1zKUKkxuMWjKXHuJtoXy0=
+github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.94/go.mod h1:j8hJuz4uvsxnzkYmEDO7lB6Jj3TY09KY/DxLUPcO6a8=
 github.com/imdario/mergo v0.3.12 h1:b6R2BslTbIEToALKP7LxUvijTsNI9TAe80pLWN2g/HU=
 github.com/imdario/mergo v0.3.12/go.mod h1:jmQim1M+e3UYxmgPu/WyfjB3N3VflVyUjjjwH0dnCYA=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=

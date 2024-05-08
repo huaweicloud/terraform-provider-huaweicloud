@@ -38,16 +38,16 @@ type BatchScanPrivateImageRequestInfo struct {
 	// 镜像大小
 	ImageSize *int64 `json:"image_size,omitempty"`
 
-	// 创建时间开始日期
+	// 创建时间开始日期，时间单位 毫秒（ms）
 	StartLatestUpdateTime *int64 `json:"start_latest_update_time,omitempty"`
 
-	// 创建时间结束日期
+	// 创建时间结束日期，时间单位 毫秒（ms）
 	EndLatestUpdateTime *int64 `json:"end_latest_update_time,omitempty"`
 
-	// 最近一次扫描完成时间开始日期
+	// 最近一次扫描完成时间开始日期，时间单位 毫秒（ms）
 	StartLatestScanTime *int64 `json:"start_latest_scan_time,omitempty"`
 
-	// 最近一次扫描完成时间结束日期
+	// 最近一次扫描完成时间结束日期，时间单位 毫秒（ms）
 	EndLatestScanTime *int64 `json:"end_latest_scan_time,omitempty"`
 }
 

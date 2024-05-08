@@ -9,7 +9,7 @@ import (
 // AutoLauchResponseInfo 中间件信息
 type AutoLauchResponseInfo struct {
 
-	// agent_id
+	// Agent ID
 	AgentId *string `json:"agent_id,omitempty"`
 
 	// 主机id
@@ -24,13 +24,13 @@ type AutoLauchResponseInfo struct {
 	// 自启动项名称
 	Name *string `json:"name,omitempty"`
 
-	// 自启动项类型
+	// 自启动项类型   - 0 ：自启动服务   - 1 ：定时任务   - 2 ：预加载动态库   - 3 ：Run注册表键   - 4 ：开机启动文件夹
 	Type *int32 `json:"type,omitempty"`
 
-	// 路径
+	// 自启动项的路径
 	Path *string `json:"path,omitempty"`
 
-	// 文件hash
+	// 采用sha256算法生成的文件hash值
 	Hash *string `json:"hash,omitempty"`
 
 	// 运行用户

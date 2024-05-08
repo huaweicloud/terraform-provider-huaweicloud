@@ -9,10 +9,10 @@ import (
 // UserResponseInfo 账号信息
 type UserResponseInfo struct {
 
-	// agent_id
+	// Agent ID
 	AgentId *string `json:"agent_id,omitempty"`
 
-	// 服务器ID
+	// 主机ID
 	HostId *string `json:"host_id,omitempty"`
 
 	// 服务器名称
@@ -24,7 +24,7 @@ type UserResponseInfo struct {
 	// 用户名
 	UserName *string `json:"user_name,omitempty"`
 
-	// 是否有登陆权限
+	// 是否有登录权限
 	LoginPermission *bool `json:"login_permission,omitempty"`
 
 	// 是否有root权限
@@ -38,9 +38,6 @@ type UserResponseInfo struct {
 
 	// 用户启动shell
 	Shell *string `json:"shell,omitempty"`
-
-	// 到期时间，采用时间戳，默认毫秒，
-	ExpireTime *int64 `json:"expire_time,omitempty"`
 
 	// 最近扫描时间
 	RecentScanTime *int64 `json:"recent_scan_time,omitempty"`

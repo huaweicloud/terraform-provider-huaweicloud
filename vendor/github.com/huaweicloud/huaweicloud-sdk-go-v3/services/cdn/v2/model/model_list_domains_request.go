@@ -27,7 +27,7 @@ type ListDomainsRequest struct {
 	// 查询的页码，即：从哪一页开始查询，取值范围1-65535，默认值为1。
 	PageNumber *int32 `json:"page_number,omitempty"`
 
-	// 展示标签标识 true：不展示 false：展示。
+	// 展示标签标识 true：展示 false：不展示。
 	ShowTags *bool `json:"show_tags,omitempty"`
 
 	// 精准匹配 true：开启 false：关闭。

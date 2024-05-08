@@ -14,7 +14,7 @@ type HostRaspProtectHistoryResponseInfo struct {
 	// 服务器名称
 	HostName *string `json:"host_name,omitempty"`
 
-	// 告警时间
+	// 动态网页防篡改的告警时间(ms)
 	AlarmTime *int64 `json:"alarm_time,omitempty"`
 
 	// 威胁类型
@@ -23,10 +23,10 @@ type HostRaspProtectHistoryResponseInfo struct {
 	// 告警级别
 	AlarmLevel *int32 `json:"alarm_level,omitempty"`
 
-	// 源IP
+	// 攻击主机的源IP
 	SourceIp *string `json:"source_ip,omitempty"`
 
-	// 攻击URL
+	// 攻击请求的URL
 	AttackedUrl *string `json:"attacked_url,omitempty"`
 }
 

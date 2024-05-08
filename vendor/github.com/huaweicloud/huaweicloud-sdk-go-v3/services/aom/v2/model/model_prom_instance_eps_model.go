@@ -77,7 +77,7 @@ type PromInstanceEpsModelPromTypeEnum struct {
 func GetPromInstanceEpsModelPromTypeEnum() PromInstanceEpsModelPromTypeEnum {
 	return PromInstanceEpsModelPromTypeEnum{
 		DEFAULT: PromInstanceEpsModelPromType{
-			value: "DEFAULT",
+			value: "default",
 		},
 		ECS: PromInstanceEpsModelPromType{
 			value: "ECS",

@@ -24,6 +24,9 @@ type CreateNotificationResponse struct {
 	// 通知用户列表，目前最多支持对10个用户组和50个用户发起的操作进行配置。
 	NotifyUserList *[]NotificationUsers `json:"notify_user_list,omitempty"`
 
+	// 云服务委托名称。
+	AgencyName *CreateNotificationResponseAgencyName `json:"agency_name,omitempty"`
+
 	// 通知状态，启用和停用。
 	Status *CreateNotificationResponseStatus `json:"status,omitempty"`
 
@@ -84,6 +87,49 @@ func (c CreateNotificationResponseOperationType) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateNotificationResponseOperationType) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type CreateNotificationResponseAgencyName struct {
+	value string
+}
+
+type CreateNotificationResponseAgencyNameEnum struct {
+	CTS_ADMIN_TRUST CreateNotificationResponseAgencyName
+}
+
+func GetCreateNotificationResponseAgencyNameEnum() CreateNotificationResponseAgencyNameEnum {
+	return CreateNotificationResponseAgencyNameEnum{
+		CTS_ADMIN_TRUST: CreateNotificationResponseAgencyName{
+			value: "cts_admin_trust",
+		},
+	}
+}
+
+func (c CreateNotificationResponseAgencyName) Value() string {
+	return c.value
+}
+
+func (c CreateNotificationResponseAgencyName) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *CreateNotificationResponseAgencyName) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: string")

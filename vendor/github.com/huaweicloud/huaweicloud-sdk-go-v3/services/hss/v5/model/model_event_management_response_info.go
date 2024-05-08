@@ -24,16 +24,16 @@ type EventManagementResponseInfo struct {
 	// 威胁等级，包含如下:   - Security : 安全   - Low : 低危   - Medium : 中危   - High : 高危   - Critical : 危急
 	Severity *string `json:"severity,omitempty"`
 
-	// 容器实例名称
+	// 容器实例名称，只有容器类型的告警有
 	ContainerName *string `json:"container_name,omitempty"`
 
-	// 镜像名称
+	// 镜像名称，只有容器类型的告警有
 	ImageName *string `json:"image_name,omitempty"`
 
 	// 服务器名称
 	HostName *string `json:"host_name,omitempty"`
 
-	// 服务器ID
+	// 主机ID
 	HostId *string `json:"host_id,omitempty"`
 
 	// 服务器私有IP
@@ -66,16 +66,16 @@ type EventManagementResponseInfo struct {
 	// 发生时间，毫秒
 	OccurTime *int64 `json:"occur_time,omitempty"`
 
-	// 处理时间，毫秒
+	// 处理时间，毫秒，已处理的告警才有
 	HandleTime *int64 `json:"handle_time,omitempty"`
 
 	// 处理状态，包含如下:   - unhandled ：未处理   - handled : 已处理
 	HandleStatus *string `json:"handle_status,omitempty"`
 
-	// 处理方式，包含如下:   - mark_as_handled : 手动处理   - ignore : 忽略   - add_to_alarm_whitelist : 加入告警白名单   - add_to_login_whitelist : 加入登录白名单   - isolate_and_kill : 隔离查杀
+	// 处理方式，已处理的告警才有，包含如下:   - mark_as_handled : 手动处理   - ignore : 忽略   - add_to_alarm_whitelist : 加入告警白名单   - add_to_login_whitelist : 加入登录白名单   - isolate_and_kill : 隔离查杀
 	HandleMethod *string `json:"handle_method,omitempty"`
 
-	// 备注信息
+	// 备注信息，已处理的告警才有
 	Handler *string `json:"handler,omitempty"`
 
 	// 支持的处理操作

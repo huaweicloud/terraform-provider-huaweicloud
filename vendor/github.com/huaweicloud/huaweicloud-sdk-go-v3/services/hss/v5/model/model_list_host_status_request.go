@@ -51,7 +51,7 @@ type ListHostStatusRequest struct {
 	// 服务器组名称
 	GroupName *string `json:"group_name,omitempty"`
 
-	// region id
+	// Region ID
 	Region *string `json:"region,omitempty"`
 
 	// 存在告警事件

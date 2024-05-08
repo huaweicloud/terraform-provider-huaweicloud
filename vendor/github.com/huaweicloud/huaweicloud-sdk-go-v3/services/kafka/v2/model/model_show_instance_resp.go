@@ -47,7 +47,7 @@ type ShowInstanceResp struct {
 	// 实例ID。
 	InstanceId *string `json:"instance_id,omitempty"`
 
-	// 资源规格标识。   - dms.instance.kafka.cluster.c3.mini：Kafka实例的基准带宽为100MByte/秒。   - dms.instance.kafka.cluster.c3.small.2：Kafka实例的基准带宽为300MByte/秒。   - dms.instance.kafka.cluster.c3.middle.2：Kafka实例的基准带宽为600MByte/秒。   - dms.instance.kafka.cluster.c3.high.2：Kafka实例的基准带宽为1200MByte/秒。
+	// 资源规格标识。   [- dms.instance.kafka.cluster.c3.mini：Kafka实例的基准带宽为100MByte/秒。   - dms.instance.kafka.cluster.c3.small.2：Kafka实例的基准带宽为300MByte/秒。   - dms.instance.kafka.cluster.c3.middle.2：Kafka实例的基准带宽为600MByte/秒。   - dms.instance.kafka.cluster.c3.high.2：Kafka实例的基准带宽为1200MByte/秒。](tag:hws,hws_eu,hws_hk,ocb,hws_ocb,ctc,g42,hk_g42,tm,hk_tm,dt)
 	ResourceSpecCode *string `json:"resource_spec_code,omitempty"`
 
 	// [付费模式，1表示按需计费，0表示包年/包月计费。](tag:hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)[付费模式，暂未使用。](tag:hws_ocb,ocb) [付费模式，1表示按需计费。](tag:dt,g42,tm,hk_g42,hk_tm,hcs)
@@ -95,6 +95,9 @@ type ShowInstanceResp struct {
 	// 是否开启安全认证。 - true：开启 - false：未开启
 	SslEnable *bool `json:"ssl_enable,omitempty"`
 
+	// 是否开启broker间副本加密传输。 - true：开启 - false：未开启
+	BrokerSslEnable *bool `json:"broker_ssl_enable,omitempty"`
+
 	// 开启SASL后使用的安全协议。 - SASL_SSL: 采用SSL证书进行加密传输，支持账号密码认证，安全性更高。 - SASL_PLAINTEXT: 明文传输，支持账号密码认证，性能更好，建议使用SCRAM-SHA-512机制。
 	KafkaSecurityProtocol *string `json:"kafka_security_protocol,omitempty"`
 
@@ -140,6 +143,9 @@ type ShowInstanceResp struct {
 	// 实例节点所在的可用区，返回“可用区ID”。
 	AvailableZones *[]string `json:"available_zones,omitempty"`
 
+	// 实例节点所在的可用区名称，返回“可用区名称”。
+	AvailableZoneNames *[]string `json:"available_zone_names,omitempty"`
+
 	// 总共消息存储空间，单位：GB。
 	TotalStorageSpace *int32 `json:"total_storage_space,omitempty"`
 
@@ -175,6 +181,9 @@ type ShowInstanceResp struct {
 
 	// 是否开启消息收集功能。
 	EnableLogCollection *bool `json:"enable_log_collection,omitempty"`
+
+	// 是否开启新证书。
+	NewAuthCert *bool `json:"new_auth_cert,omitempty"`
 
 	// 跨VPC访问信息。
 	CrossVpcInfo *string `json:"cross_vpc_info,omitempty"`

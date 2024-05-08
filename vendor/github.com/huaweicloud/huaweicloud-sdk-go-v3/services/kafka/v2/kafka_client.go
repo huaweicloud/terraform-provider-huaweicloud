@@ -40,9 +40,9 @@ func (c *KafkaClient) BatchCreateOrDeleteKafkaTagInvoker(request *model.BatchCre
 	return &BatchCreateOrDeleteKafkaTagInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// BatchDeleteGroup Kafka实例批量删除Group
+// BatchDeleteGroup Kafka实例批量删除消费组
 //
-// 该接口用于向Kafka实例批量删除Group。
+// 该接口用于向Kafka实例批量删除消费组。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *KafkaClient) BatchDeleteGroup(request *model.BatchDeleteGroupRequest) (*model.BatchDeleteGroupResponse, error) {
@@ -55,7 +55,7 @@ func (c *KafkaClient) BatchDeleteGroup(request *model.BatchDeleteGroupRequest) (
 	}
 }
 
-// BatchDeleteGroupInvoker Kafka实例批量删除Group
+// BatchDeleteGroupInvoker Kafka实例批量删除消费组
 func (c *KafkaClient) BatchDeleteGroupInvoker(request *model.BatchDeleteGroupRequest) *BatchDeleteGroupInvoker {
 	requestDef := GenReqDefForBatchDeleteGroup()
 	return &BatchDeleteGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -101,6 +101,27 @@ func (c *KafkaClient) BatchDeleteInstanceUsers(request *model.BatchDeleteInstanc
 func (c *KafkaClient) BatchDeleteInstanceUsersInvoker(request *model.BatchDeleteInstanceUsersRequest) *BatchDeleteInstanceUsersInvoker {
 	requestDef := GenReqDefForBatchDeleteInstanceUsers()
 	return &BatchDeleteInstanceUsersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// BatchDeleteMessageDiagnosisReports 批量删除消息积压诊断报告
+//
+// 批量删除消息积压诊断报告
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KafkaClient) BatchDeleteMessageDiagnosisReports(request *model.BatchDeleteMessageDiagnosisReportsRequest) (*model.BatchDeleteMessageDiagnosisReportsResponse, error) {
+	requestDef := GenReqDefForBatchDeleteMessageDiagnosisReports()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchDeleteMessageDiagnosisReportsResponse), nil
+	}
+}
+
+// BatchDeleteMessageDiagnosisReportsInvoker 批量删除消息积压诊断报告
+func (c *KafkaClient) BatchDeleteMessageDiagnosisReportsInvoker(request *model.BatchDeleteMessageDiagnosisReportsRequest) *BatchDeleteMessageDiagnosisReportsInvoker {
+	requestDef := GenReqDefForBatchDeleteMessageDiagnosisReports()
+	return &BatchDeleteMessageDiagnosisReportsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // BatchRestartOrDeleteInstances 批量重启或删除实例
@@ -153,7 +174,7 @@ func (c *KafkaClient) CloseKafkaManagerInvoker(request *model.CloseKafkaManagerR
 //
 // 创建实例。
 //
-// 该接口支持创建按需和包周期两种计费方式的实例。
+// [该接口支持创建按需和包周期两种计费方式的实例。](tag:hws,hws_eu,hws_hk,ocb,hws_ocb,ctc,g42,hk_g42,tm,hk_tm,dt)
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *KafkaClient) CreateInstanceByEngine(request *model.CreateInstanceByEngineRequest) (*model.CreateInstanceByEngineResponse, error) {
@@ -256,6 +277,27 @@ func (c *KafkaClient) CreateKafkaUserClientQuotaTaskInvoker(request *model.Creat
 	return &CreateKafkaUserClientQuotaTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateMessageDiagnosisTask 创建消息积压诊断任务
+//
+// 创建消息积压诊断任务
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KafkaClient) CreateMessageDiagnosisTask(request *model.CreateMessageDiagnosisTaskRequest) (*model.CreateMessageDiagnosisTaskResponse, error) {
+	requestDef := GenReqDefForCreateMessageDiagnosisTask()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateMessageDiagnosisTaskResponse), nil
+	}
+}
+
+// CreateMessageDiagnosisTaskInvoker 创建消息积压诊断任务
+func (c *KafkaClient) CreateMessageDiagnosisTaskInvoker(request *model.CreateMessageDiagnosisTaskRequest) *CreateMessageDiagnosisTaskInvoker {
+	requestDef := GenReqDefForCreateMessageDiagnosisTask()
+	return &CreateMessageDiagnosisTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreatePostPaidInstance 创建实例
 //
 // 创建按需计费类型的Kafka实例。
@@ -279,7 +321,7 @@ func (c *KafkaClient) CreatePostPaidInstanceInvoker(request *model.CreatePostPai
 
 // CreateReassignmentTask Kafka实例开始分区重平衡任务
 //
-// 该接口用于向Kafka实例提交分区重平衡任务，若成功则返回重平衡任务的job id。
+// 该接口用于向Kafka实例提交分区重平衡任务或计算重平衡预估时间。
 //
 // Please refer to HUAWEI cloud API Explorer for details.
 func (c *KafkaClient) CreateReassignmentTask(request *model.CreateReassignmentTaskRequest) (*model.CreateReassignmentTaskResponse, error) {
@@ -485,6 +527,27 @@ func (c *KafkaClient) ListInstances(request *model.ListInstancesRequest) (*model
 func (c *KafkaClient) ListInstancesInvoker(request *model.ListInstancesRequest) *ListInstancesInvoker {
 	requestDef := GenReqDefForListInstances()
 	return &ListInstancesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListMessageDiagnosisReports 查询消息积压诊断报告列表
+//
+// 查询消息积压诊断报告列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KafkaClient) ListMessageDiagnosisReports(request *model.ListMessageDiagnosisReportsRequest) (*model.ListMessageDiagnosisReportsResponse, error) {
+	requestDef := GenReqDefForListMessageDiagnosisReports()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListMessageDiagnosisReportsResponse), nil
+	}
+}
+
+// ListMessageDiagnosisReportsInvoker 查询消息积压诊断报告列表
+func (c *KafkaClient) ListMessageDiagnosisReportsInvoker(request *model.ListMessageDiagnosisReportsRequest) *ListMessageDiagnosisReportsInvoker {
+	requestDef := GenReqDefForListMessageDiagnosisReports()
+	return &ListMessageDiagnosisReportsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListProducts 查询产品规格列表
@@ -854,6 +917,27 @@ func (c *KafkaClient) ShowCoordinatorsInvoker(request *model.ShowCoordinatorsReq
 	return &ShowCoordinatorsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowDiagnosisPreCheck 消息积压诊断预检查
+//
+// 消息积压诊断预检查
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KafkaClient) ShowDiagnosisPreCheck(request *model.ShowDiagnosisPreCheckRequest) (*model.ShowDiagnosisPreCheckResponse, error) {
+	requestDef := GenReqDefForShowDiagnosisPreCheck()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowDiagnosisPreCheckResponse), nil
+	}
+}
+
+// ShowDiagnosisPreCheckInvoker 消息积压诊断预检查
+func (c *KafkaClient) ShowDiagnosisPreCheckInvoker(request *model.ShowDiagnosisPreCheckRequest) *ShowDiagnosisPreCheckInvoker {
+	requestDef := GenReqDefForShowDiagnosisPreCheck()
+	return &ShowDiagnosisPreCheckInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowEngineInstanceExtendProductInfo 查询实例的扩容规格列表
 //
 // 查询实例的扩容规格列表。
@@ -1128,6 +1212,27 @@ func (c *KafkaClient) ShowMaintainWindows(request *model.ShowMaintainWindowsRequ
 func (c *KafkaClient) ShowMaintainWindowsInvoker(request *model.ShowMaintainWindowsRequest) *ShowMaintainWindowsInvoker {
 	requestDef := GenReqDefForShowMaintainWindows()
 	return &ShowMaintainWindowsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowMessageDiagnosisReport 查询诊断报告详情
+//
+// 查询诊断报告详情
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *KafkaClient) ShowMessageDiagnosisReport(request *model.ShowMessageDiagnosisReportRequest) (*model.ShowMessageDiagnosisReportResponse, error) {
+	requestDef := GenReqDefForShowMessageDiagnosisReport()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowMessageDiagnosisReportResponse), nil
+	}
+}
+
+// ShowMessageDiagnosisReportInvoker 查询诊断报告详情
+func (c *KafkaClient) ShowMessageDiagnosisReportInvoker(request *model.ShowMessageDiagnosisReportRequest) *ShowMessageDiagnosisReportInvoker {
+	requestDef := GenReqDefForShowMessageDiagnosisReport()
+	return &ShowMessageDiagnosisReportInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowMessages 查询分区指定时间段的消息

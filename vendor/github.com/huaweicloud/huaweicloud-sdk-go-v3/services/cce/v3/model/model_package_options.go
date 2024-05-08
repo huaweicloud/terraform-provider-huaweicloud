@@ -15,8 +15,8 @@ type PackageOptions struct {
 	// 参数名称
 	Name string `json:"name"`
 
-	// 参数默认值，不指定时按默认值生效
-	Default string `json:"default"`
+	// 参数默认值，不指定时按默认值生效, 参数类型以实际返回为准，可能为integer,string或者boolean
+	Default *interface{} `json:"default"`
 
 	// 参数生效方式  - static：节点创建时生效，后续不可修改 - immediately：节点运行中时可以修改，修改后生效
 	ValidAt PackageOptionsValidAt `json:"validAt"`

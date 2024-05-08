@@ -15,7 +15,7 @@ type ListHostProtectHistoryInfoResponse struct {
 	// 防护状态   - close : 未开启   - opened : 防护中
 	ProtectStatus *string `json:"protect_status,omitempty"`
 
-	// total number
+	// total number of static WTPs
 	TotalNum *int64 `json:"total_num,omitempty"`
 
 	// data list

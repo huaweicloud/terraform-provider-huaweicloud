@@ -21,7 +21,7 @@ type HttpGetBody struct {
 	// 证书过期时间。  > UTC时间。
 	ExpireTime *int64 `json:"expire_time,omitempty"`
 
-	// 证书来源,1：华为云托管证书,0：自有证书。
+	// 证书来源,0：自有证书。
 	CertificateSource *int32 `json:"certificate_source,omitempty"`
 
 	// 证书类型。server：国际证书；server_sm：国密证书。

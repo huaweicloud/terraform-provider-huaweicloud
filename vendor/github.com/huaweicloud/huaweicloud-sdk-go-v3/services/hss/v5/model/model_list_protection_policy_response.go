@@ -9,7 +9,7 @@ import (
 // ListProtectionPolicyResponse Response Object
 type ListProtectionPolicyResponse struct {
 
-	// 总数
+	// 策略总数
 	TotalNum *int32 `json:"total_num,omitempty"`
 
 	// 查询防护策略列表

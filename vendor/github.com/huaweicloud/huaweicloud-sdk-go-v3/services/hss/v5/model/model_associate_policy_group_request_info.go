@@ -14,7 +14,7 @@ type AssociatePolicyGroupRequestInfo struct {
 	// 是否要对全量主机部署策略，如果为true的话，不需填写host_id_list，如果为false的话，需要填写host_id_list
 	OperateAll *bool `json:"operate_all,omitempty"`
 
-	// 服务器ID列表
+	// 需要部署策略组的主机ID列表
 	HostIdList *[]string `json:"host_id_list,omitempty"`
 }
 

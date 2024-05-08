@@ -652,3 +652,111 @@ func (i *UpdateObsBucketAuthorityPublicInvoker) Invoke() (*model.UpdateObsBucket
 		return result.(*model.UpdateObsBucketAuthorityPublicResponse), nil
 	}
 }
+
+type CreateOttChannelInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateOttChannelInfoInvoker) Invoke() (*model.CreateOttChannelInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateOttChannelInfoResponse), nil
+	}
+}
+
+type DeleteOttChannelInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteOttChannelInfoInvoker) Invoke() (*model.DeleteOttChannelInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteOttChannelInfoResponse), nil
+	}
+}
+
+type ListOttChannelInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListOttChannelInfoInvoker) Invoke() (*model.ListOttChannelInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListOttChannelInfoResponse), nil
+	}
+}
+
+type ModifyOttChannelInfoEncoderSettingsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifyOttChannelInfoEncoderSettingsInvoker) Invoke() (*model.ModifyOttChannelInfoEncoderSettingsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifyOttChannelInfoEncoderSettingsResponse), nil
+	}
+}
+
+type ModifyOttChannelInfoEndPointsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifyOttChannelInfoEndPointsInvoker) Invoke() (*model.ModifyOttChannelInfoEndPointsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifyOttChannelInfoEndPointsResponse), nil
+	}
+}
+
+type ModifyOttChannelInfoGeneralInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifyOttChannelInfoGeneralInvoker) Invoke() (*model.ModifyOttChannelInfoGeneralResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifyOttChannelInfoGeneralResponse), nil
+	}
+}
+
+type ModifyOttChannelInfoInputInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifyOttChannelInfoInputInvoker) Invoke() (*model.ModifyOttChannelInfoInputResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifyOttChannelInfoInputResponse), nil
+	}
+}
+
+type ModifyOttChannelInfoRecordSettingsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifyOttChannelInfoRecordSettingsInvoker) Invoke() (*model.ModifyOttChannelInfoRecordSettingsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifyOttChannelInfoRecordSettingsResponse), nil
+	}
+}
+
+type ModifyOttChannelInfoStatsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifyOttChannelInfoStatsInvoker) Invoke() (*model.ModifyOttChannelInfoStatsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifyOttChannelInfoStatsResponse), nil
+	}
+}

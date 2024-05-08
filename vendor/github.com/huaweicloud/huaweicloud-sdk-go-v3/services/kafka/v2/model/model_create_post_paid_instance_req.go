@@ -15,7 +15,7 @@ type CreatePostPaidInstanceReq struct {
 	// 实例名称。  由英文字符开头，只能由英文字母、数字、中划线、下划线组成，长度为4~64的字符。
 	Name string `json:"name"`
 
-	// 实例的描述信息。  长度不超过1024的字符串。  > \\与\"在json报文中属于特殊字符，如果参数值中需要显示\\或者\"字符，请在字符前增加转义字符\\，比如\\\\或者\\\"。
+	// 实例的描述信息。  长度不超过1024的字符串。[且字符串不能包含\">\"与\"<\"，字符串首字符不能为\"=\",\"+\",\"-\",\"@\"的全角和半角字符。](tag:hcs)  > \\与\"在json报文中属于特殊字符，如果参数值中需要显示\\或者\"字符，请在字符前增加转义字符\\，比如\\\\或者\\\"。
 	Description *string `json:"description,omitempty"`
 
 	// 消息引擎。取值填写为：kafka。
@@ -89,9 +89,6 @@ type CreatePostPaidInstanceReq struct {
 
 	// 磁盘的容量到达容量阈值后，对于消息的处理策略。  取值如下： - produce_reject：表示拒绝消息写入。 - time_base：表示自动删除最老消息。
 	RetentionPolicy *CreatePostPaidInstanceReqRetentionPolicy `json:"retention_policy,omitempty"`
-
-	// 是否开启ipv6。仅在虚拟私有云支持ipv6时生效。
-	Ipv6Enable *bool `json:"ipv6_enable,omitempty"`
 
 	// 是否开启磁盘加密。
 	DiskEncryptedEnable *bool `json:"disk_encrypted_enable,omitempty"`

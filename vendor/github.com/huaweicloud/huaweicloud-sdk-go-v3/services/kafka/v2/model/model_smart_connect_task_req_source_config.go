@@ -69,7 +69,7 @@ type SmartConnectTaskReqSourceConfig struct {
 	TaskNum *int32 `json:"task_num,omitempty"`
 
 	// 是否重命名Topic，在目标Topic名称前添加源端Kafka实例的别名，形成目标Topic新的名称。（仅源端类型为Kafka时需要填写）
-	RenameTopicEnable *bool `json:"rename_topic_enable,omitempty"`
+	RenameTopicEnabled *bool `json:"rename_topic_enabled,omitempty"`
 
 	// 目标Topic接收复制的消息，此消息header中包含消息来源。两端实例数据双向复制时，请开启“添加来源header”，防止循环复制。（仅源端类型为Kafka时需要填写）
 	ProvenanceHeaderEnabled *bool `json:"provenance_header_enabled,omitempty"`

@@ -83,13 +83,13 @@ type Host struct {
 	// 资产风险
 	Asset *int32 `json:"asset,omitempty"`
 
-	// 漏洞风险
+	// 漏洞风险总数，包含Linux软件漏洞、Windows系统漏洞、Web-CMS漏洞、应用漏洞
 	Vulnerability *int32 `json:"vulnerability,omitempty"`
 
-	// 基线风险
+	// 基线风险总数，包含配置风险、弱口令
 	Baseline *int32 `json:"baseline,omitempty"`
 
-	// 入侵风险
+	// 入侵风险总数
 	Intrusion *int32 `json:"intrusion,omitempty"`
 
 	// 资产重要性，包含如下4种   - important ：重要资产   - common ：一般资产   - test ：测试资产

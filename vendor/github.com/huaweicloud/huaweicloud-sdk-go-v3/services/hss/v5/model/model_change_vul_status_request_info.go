@@ -22,7 +22,7 @@ type ChangeVulStatusRequestInfo struct {
 	Type *string `json:"type,omitempty"`
 
 	// 漏洞列表
-	DataList []VulOperateInfo `json:"data_list"`
+	DataList *[]VulOperateInfo `json:"data_list,omitempty"`
 
 	// 主机维度漏洞列表
 	HostDataList *[]HostVulOperateInfo `json:"host_data_list,omitempty"`

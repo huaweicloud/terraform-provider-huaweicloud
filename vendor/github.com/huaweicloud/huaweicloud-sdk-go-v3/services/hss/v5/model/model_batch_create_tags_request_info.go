@@ -10,10 +10,7 @@ import (
 type BatchCreateTagsRequestInfo struct {
 
 	// 标签对象列表
-	Tags *[]ResourceTagInfo `json:"tags,omitempty"`
-
-	// 标签对象列表
-	SysTags *[]ResourceTagInfo `json:"sys_tags,omitempty"`
+	Tags []ResourceTagInfo `json:"tags"`
 }
 
 func (o BatchCreateTagsRequestInfo) String() string {

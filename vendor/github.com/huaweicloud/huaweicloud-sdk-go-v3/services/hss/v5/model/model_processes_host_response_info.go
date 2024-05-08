@@ -9,7 +9,7 @@ import (
 // ProcessesHostResponseInfo 进程主机统计信息
 type ProcessesHostResponseInfo struct {
 
-	// 文件hash
+	// path对应的sha256值
 	Hash *string `json:"hash,omitempty"`
 
 	// 主机ip
@@ -24,7 +24,7 @@ type ProcessesHostResponseInfo struct {
 	// 启动时间
 	LaunchTime *int64 `json:"launch_time,omitempty"`
 
-	// 进程路径
+	// 进程可执行文件路径
 	ProcessPath *string `json:"process_path,omitempty"`
 
 	// 进程pid

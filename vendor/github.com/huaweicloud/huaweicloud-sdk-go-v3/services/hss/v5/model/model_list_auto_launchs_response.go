@@ -9,7 +9,7 @@ import (
 // ListAutoLaunchsResponse Response Object
 type ListAutoLaunchsResponse struct {
 
-	// 总数
+	// 自启动项总数
 	TotalNum *int32 `json:"total_num,omitempty"`
 
 	// 自启动项列表

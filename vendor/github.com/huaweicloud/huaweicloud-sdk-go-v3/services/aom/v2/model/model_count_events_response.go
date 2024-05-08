@@ -16,8 +16,11 @@ type CountEventsResponse struct {
 	Timestamps *[]int64 `json:"timestamps,omitempty"`
 
 	// 事件或者告警不同级别相同时间序列对应的统计结果。
-	Series         *[]EventSeries `json:"series,omitempty"`
-	HttpStatusCode int            `json:"-"`
+	Series *[]EventSeries `json:"series,omitempty"`
+
+	// 各类告警信息的数量汇总
+	Summary        map[string]int64 `json:"summary,omitempty"`
+	HttpStatusCode int              `json:"-"`
 }
 
 func (o CountEventsResponse) String() string {

@@ -15,7 +15,7 @@ type ImageVulCveInfo struct {
 	// CVSS分数
 	CvssScore *float32 `json:"cvss_score,omitempty"`
 
-	// 公布时间
+	// 公布时间，时间单位 毫秒（ms）
 	PublishTime *int64 `json:"publish_time,omitempty"`
 
 	// cve描述
