@@ -353,6 +353,9 @@ var (
 	HW_DDS_SECOND_LEVEL_MONITORING_ENABLED = os.Getenv("HW_DDS_SECOND_LEVEL_MONITORING_ENABLED")
 
 	HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID = os.Getenv("HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID")
+	HW_RDS_INSTANCE_ID                     = os.Getenv("HW_RDS_INSTANCE_ID")
+	HW_RDS_START_TIME                      = os.Getenv("HW_RDS_START_TIME")
+	HW_RDS_END_TIME                        = os.Getenv("HW_RDS_END_TIME")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1655,5 +1658,19 @@ func TestAccPreCheckDDSSecondLevelMonitoringEnabled(t *testing.T) {
 func TestAccPreCheckRdsCrossRegionBackupInstanceId(t *testing.T) {
 	if HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID == "" {
 		t.Skip("HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsInstanceId(t *testing.T) {
+	if HW_RDS_INSTANCE_ID == "" {
+		t.Skip("HW_RDS_INSTANCE_ID must be set for CFW acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsTimeRange(t *testing.T) {
+	if HW_RDS_START_TIME == "" || HW_RDS_END_TIME == "" {
+		t.Skip("HW_RDS_START_TIME and HW_RDS_END_TIME must be set for CFW acceptance tests")
 	}
 }
