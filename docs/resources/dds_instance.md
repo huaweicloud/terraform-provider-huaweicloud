@@ -83,35 +83,6 @@ resource "huaweicloud_dds_instance" "instance" {
 }
 ```
 
-## Example Usage: Creating a Single Community Edition
-
-```hcl
-variable "dds_password" {}
-
-resource "huaweicloud_dds_instance" "instance" {
-  name = "dds-instance"
-  datastore {
-    type           = "DDS-Community"
-    version        = "3.4"
-    storage_engine = "wiredTiger"
-  }
-  availability_zone = "{{ availability_zone }}"
-  vpc_id            = "{{ vpc_id }}"
-  subnet_id         = "{{ subnet_network_id }}}"
-  security_group_id = "{{ security_group_id }}"
-  password          = var.dds_password
-  mode              = "Single"
-  
-  flavor {
-    type      = "single"
-    num       = 1
-    storage   = "ULTRAHIGH"
-    size      = 30
-    spec_code = "dds.mongodb.s6.large.2.single"
-  }
-}
-```
-
 ## Argument Reference
 
 The following arguments are supported:
@@ -206,7 +177,6 @@ The `configuration` block supports:
 * `type` - (Required, String, ForceNew) Specifies the node type. Valid value:
   + For a Community Edition cluster instance, the value can be **mongos**, **shard** or **config**.
   + For a Community Edition replica set instance, the value is **replica**.
-  + For a Community Edition single node instance, the value is **single**.
     Changing this creates a new instance.
 
 * `id` - (Required, String) Specifies the ID of the template.
@@ -216,32 +186,37 @@ The `configuration` block supports:
 The `flavor` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the node type. Valid value:
-  + For a Community Edition cluster instance, the value can be **mongos**, **shard**, or **config**.
-  + For an Enhanced Edition cluster instance, the value is **shard**.
-  + For a Community Edition replica set instance, the value is **replica**.
-  + For a Community Edition single node instance, the value is **single**.
+  + For a cluster instance, the value can be **mongos**, **shard**, or **config**.
+  + For a replica set instance, the value is **replica**.
 
 * `num` - (Required, Int) Specifies the node quantity. Valid value:
-  + In a Community Edition cluster instance,the number of mongos ranges from 2 to 16.
-  + In a Community Edition cluster instance,the number of shards ranges from 2 to 16.
-  + In an Enhanced Edition cluster instance, the number of shards ranges from 2 to 12.
-  + config: the value is 1.
-  + replica: the value is 1.
-  + single: The value is 1. This parameter can be updated when the value of `type` is mongos or shard.
+  + If the value of type is **mongos**, num indicates the number of mongos nodes in the cluster instance. Value ranges
+    from **2** to **16**.
+  + If the value of type is **shard**, num indicates the number of shard groups in the cluster instance. Value ranges
+    from **2** to **16**.
+  + If the value of type is **config**, num indicates the number of config groups in the cluster instance. Value can
+    only be **1**.
+  + If the value of type is **replica**, num indicates the number of replica nodes in the replica set instance. Value
+    can be **3**, **5**, or **7**.
 
-* `storage` - (Optional, String, ForceNew) Specifies the disk type.
-  Valid value: **ULTRAHIGH** which indicates the type SSD.
+  This parameter can be updated when the value of `type` is mongos or shard.
 
-* `size` - (Optional, Int) Specifies the disk size. The value must be a multiple of 10. The unit is GB. This parameter
-  is mandatory for nodes except mongos and invalid for mongos. This parameter can be updated when the value of `type` is
-  shard, replica or single.
+* `storage` - (Optional, String, ForceNew) Specifies the disk type. Valid value:
+  + **ULTRAHIGH**: SSD storage.
+  + **EXTREMEHIGH**: Extreme SSD storage.
+
+  This parameter is valid for the shard and config nodes of a cluster instance and for replica set instances.
+
+* `size` - (Optional, Int) Specifies the disk size. The value must be a multiple of **10**. The unit is GB. This parameter
+  is mandatory for nodes except mongos and invalid for mongos.For a cluster instance, the storage space of a shard node
+  can be **10** to **2,000** GB, and the config storage space is **20** GB. For a replica set instance, the value ranges
+  from **10** to **3000** GB. This parameter can be updated when the value of `type` is shard or replica.
 
 * `spec_code` - (Required, String) Specifies the resource specification code. In a cluster instance, multiple
   specifications need to be specified. All specifications must be of the same series, that is, general-purpose (s6),
   enhanced (c3), or enhanced II (c6). For example:
   + dds.mongodb.s6.large.4.mongos and dds.mongodb.s6.large.4.config have the same specifications.
-  + dds.mongodb.s6.large.4.mongos and dds.mongodb.c3.large.4.config are not of the same specifications. This parameter
-      can be updated when the value of `type` is mongos, shard, replica or single.
+  + dds.mongodb.s6.large.4.mongos and dds.mongodb.c3.large.4.config are not of the same specifications.
 
 The `backup_strategy` block supports:
 

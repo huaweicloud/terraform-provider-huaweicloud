@@ -108,7 +108,7 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					testAccCheckDDSV3InstanceFlavor(&instance, "mongos", "spec_code", "dds.mongodb.s6.large.4.mongos"),
+					testAccCheckDDSV3InstanceFlavor(&instance, "config", "spec_code", "dds.mongodb.s6.xlarge.2.config"),
 				),
 			},
 			{
@@ -636,7 +636,7 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.s6.large.4.mongos"
+    spec_code = "dds.mongodb.s6.large.2.mongos"
   }
   flavor {
     type      = "shard"
@@ -650,7 +650,7 @@ resource "huaweicloud_dds_instance" "instance" {
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.s6.large.2.config"
+    spec_code = "dds.mongodb.s6.xlarge.2.config"
   }
 
   backup_strategy {

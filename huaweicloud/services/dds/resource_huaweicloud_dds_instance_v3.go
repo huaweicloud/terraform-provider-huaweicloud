@@ -731,9 +731,7 @@ func waitForInstanceReady(ctx context.Context, client *golangsdk.ServiceClient, 
 
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf(
-			"Error waiting for instance (%s) to become ready: %s ",
-			instanceId, err)
+		return fmt.Errorf("error waiting for instance (%s) to become ready: %s ", instanceId, err)
 	}
 
 	return nil
@@ -920,24 +918,21 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 			volumeSizeIndex := fmt.Sprintf("flavor.%d.size", i)
 			specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
 
-			// The update operation of the volume size must ahead of the update operation of the number. Because the
-			// size and number are updated at the same time and the number is increased, and the request will fail.
-			// For example, when the number is increased from 2 to 3, and the size of all nodes is increased from 20 to
-			// 30, the newly added node will prompt that the storage update failed and cannot be updated from 30 to 30.
+			// The update operation of the number must at the last, lest the new node already has new size or spec-code.
 			if d.HasChange(volumeSizeIndex) {
 				err := flavorSizeUpdate(ctx, conf, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
 			}
-			if d.HasChange(numIndex) {
-				err := flavorNumUpdate(ctx, conf, client, d, i)
+			if d.HasChange(specCodeIndex) {
+				err := flavorSpecCodeUpdate(ctx, conf, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
 			}
-			if d.HasChange(specCodeIndex) {
-				err := flavorSpecCodeUpdate(ctx, conf, client, d, i)
+			if d.HasChange(numIndex) {
+				err := flavorNumUpdate(ctx, conf, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
@@ -1172,7 +1167,7 @@ func flavorUpdate(ctx context.Context, conf *config.Config, client *golangsdk.Se
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return fmt.Errorf("Error updating instance from result: %s ", err)
+		return fmt.Errorf("error updating instance from result: %s ", err)
 	}
 	resp := r.(*instances.UpdateResp)
 	if resp.OrderId != "" {
@@ -1198,7 +1193,7 @@ func flavorNumUpdate(ctx context.Context, conf *config.Config, client *golangsdk
 	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
 	groupType := d.Get(groupTypeIndex).(string)
 	if groupType != "mongos" && groupType != "shard" {
-		return fmt.Errorf("Error updating instance: %s does not support adding nodes", groupType)
+		return fmt.Errorf("error updating instance: %s does not support adding nodes", groupType)
 	}
 	specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
 	volumeSizeIndex := fmt.Sprintf("flavor.%d.size", i)
@@ -1208,7 +1203,7 @@ func flavorNumUpdate(ctx context.Context, conf *config.Config, client *golangsdk
 	oldNum := oldNumRaw.(int)
 	newNum := newNumRaw.(int)
 	if newNum < oldNum {
-		return fmt.Errorf("Error updating instance: the new num(%d) must be greater than the old num(%d)", newNum, oldNum)
+		return fmt.Errorf("error updating instance: the new num(%d) must be greater than the old num(%d)", newNum, oldNum)
 	}
 
 	var numUpdateOpts []instances.UpdateOpt
@@ -1264,12 +1259,12 @@ func flavorSizeUpdate(ctx context.Context, conf *config.Config, client *golangsd
 	oldSize := oldSizeRaw.(int)
 	newSize := newSizeRaw.(int)
 	if newSize < oldSize {
-		return fmt.Errorf("Error updating instance: the new size(%d) must be greater than the old size(%d)", newSize, oldSize)
+		return fmt.Errorf("error updating instance: the new size(%d) must be greater than the old size(%d)", newSize, oldSize)
 	}
 	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
 	groupType := d.Get(groupTypeIndex).(string)
 	if groupType != "replica" && groupType != "single" && groupType != "shard" {
-		return fmt.Errorf("Error updating instance: %s does not support scaling up storage space", groupType)
+		return fmt.Errorf("error updating instance: %s does not support scaling up storage space", groupType)
 	}
 
 	if groupType == "shard" {
@@ -1312,7 +1307,7 @@ func flavorSizeUpdate(ctx context.Context, conf *config.Config, client *golangsd
 			updateVolumeOpts.IsAutoPay = true
 		}
 		opt := instances.UpdateOpt{
-			Param:  "volume",
+			Param:  "",
 			Value:  updateVolumeOpts,
 			Action: "enlarge-volume",
 			Method: "post",
@@ -1330,12 +1325,9 @@ func flavorSpecCodeUpdate(ctx context.Context, conf *config.Config, client *gola
 	specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
 	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
 	groupType := d.Get(groupTypeIndex).(string)
-	if groupType == "config" {
-		return fmt.Errorf("Error updating instance: %s does not support updating spec_code", groupType)
-	}
-	switch groupType {
-	case "mongos":
-		nodeIDs, err := getDdsInstanceV3GroupIDOrNodeID(client, d.Id(), "mongos")
+
+	if utils.StrSliceContains([]string{"mongos", "shard", "config"}, groupType) {
+		nodeIDs, err := getDdsInstanceV3GroupIDOrNodeID(client, d.Id(), groupType)
 		if err != nil {
 			return err
 		}
@@ -1343,7 +1335,7 @@ func flavorSpecCodeUpdate(ctx context.Context, conf *config.Config, client *gola
 			var specUpdateOpts []instances.UpdateOpt
 			updateSpecOpts := instances.UpdateSpecOpts{
 				Resize: instances.SpecOpts{
-					TargetType:     "mongos",
+					TargetType:     groupType,
 					TargetID:       ID,
 					TargetSpecCode: d.Get(specCodeIndex).(string),
 				},
@@ -1363,37 +1355,7 @@ func flavorSpecCodeUpdate(ctx context.Context, conf *config.Config, client *gola
 				return err
 			}
 		}
-	case "shard":
-		groupIDs, err := getDdsInstanceV3GroupIDOrNodeID(client, d.Id(), "shard")
-		if err != nil {
-			return err
-		}
-
-		for _, ID := range groupIDs {
-			var specUpdateOpts []instances.UpdateOpt
-			updateSpecOpts := instances.UpdateSpecOpts{
-				Resize: instances.SpecOpts{
-					TargetType:     "shard",
-					TargetID:       ID,
-					TargetSpecCode: d.Get(specCodeIndex).(string),
-				},
-			}
-			if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
-				updateSpecOpts.IsAutoPay = true
-			}
-			opt := instances.UpdateOpt{
-				Param:  "resize",
-				Value:  updateSpecOpts,
-				Action: "resize",
-				Method: "post",
-			}
-			specUpdateOpts = append(specUpdateOpts, opt)
-			err := flavorUpdate(ctx, conf, client, d, specUpdateOpts)
-			if err != nil {
-				return err
-			}
-		}
-	default:
+	} else {
 		var specUpdateOpts []instances.UpdateOpt
 		updateSpecOpts := instances.UpdateSpecOpts{
 			Resize: instances.SpecOpts{
@@ -1405,7 +1367,7 @@ func flavorSpecCodeUpdate(ctx context.Context, conf *config.Config, client *gola
 			updateSpecOpts.IsAutoPay = true
 		}
 		opt := instances.UpdateOpt{
-			Param:  "resize",
+			Param:  "",
 			Value:  updateSpecOpts,
 			Action: "resize",
 			Method: "post",
