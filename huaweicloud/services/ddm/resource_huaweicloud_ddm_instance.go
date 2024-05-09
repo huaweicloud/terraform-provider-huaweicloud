@@ -94,7 +94,7 @@ func ResourceDdmInstance() *schema.Resource {
 				Description: `Specifies the ID of an Engine.`,
 			},
 			"availability_zones": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Required:    true,
 				ForceNew:    true,
@@ -323,7 +323,7 @@ func buildCreateInstanceInstanceChildBody(d *schema.ResourceData, cfg *config.Co
 		"node_num":              utils.ValueIngoreEmpty(d.Get("node_num")),
 		"engine_id":             utils.ValueIngoreEmpty(d.Get("engine_id")),
 		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
-		"available_zones":       utils.ValueIngoreEmpty(d.Get("availability_zones")),
+		"available_zones":       d.Get("availability_zones").(*schema.Set).List(), // The ordering of the AZ list returned by the API is unknown.
 		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
 		"security_group_id":     utils.ValueIngoreEmpty(d.Get("security_group_id")),
 		"subnet_id":             utils.ValueIngoreEmpty(d.Get("subnet_id")),
