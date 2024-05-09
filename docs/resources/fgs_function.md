@@ -321,6 +321,11 @@ The following arguments are supported:
 * `reserved_instances` - (Optional, List) Specifies the reserved instance policies of the function.
   The [reserved_instances](#functiongraph_reserved_instances) structure is documented below.
 
+* `concurrency_num` - (Optional, Int) Specifies the number of concurrent requests of the function.
+  The valid value ranges from `1` to `1,000`, the default value is `1`.
+  
+  -> This parameter is only supported by the `v2` version of the function.
+
 * `gpu_memory` - (Optional, Int) Specifies the GPU memory size allocated to the function, in MByte (MB).
   The valid value ranges form `1,024` to `16,384`, the value must be a multiple of `1,024`.
   If not specified, the GPU function is disabled.
@@ -345,15 +350,22 @@ The `func_mounts` block supports:
 
 * `local_mount_path` - (Required, String) Specifies the function access path.
 
-* `concurrency_num` - (Optional, Int) Specifies the number of concurrent requests of the function.
-  The valid value ranges from `1` to `1,000`, the default value is `1`.
-  
-  -> This parameter is only supported by the `v2` version of the function.
-
 <a name="functiongraph_custom_image"></a>
 The `custom_image` block supports:
 
 * `url` - (Required, String) Specifies the URL of SWR image, the URL must start with `swr.`.
+
+* `command` - (Optional, String) Specifies the startup commands of the SWR image.
+  Multiple commands are separated by commas (,). e.g. `/bin/sh`.
+  If this parameter is not specified, the entrypoint or CMD in the image configuration will be used by default.
+
+* `args` - (Optional, String) Specifies the command line arguments used to start the SWR image.
+  If multiple arguments are separated by commas (,). e.g. `-args,value`.
+  If this parameter is not specified, the CMD in the image configuration will be used by default.
+
+* `working_dir` - (Optional, String) Specifies the working directory of the SWR image.
+  If not specified, the default value is `/`.
+  Currently, the folder path can only be set to `/` and it cannot be created or modified.
 
 <a name="functiongraph_versions_management"></a>
 The `versions` block supports:

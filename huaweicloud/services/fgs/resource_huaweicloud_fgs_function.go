@@ -263,8 +263,35 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"url": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Specifies the URL of SWR image.",
+						},
+						"command": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Specifies the startup commands of the SWR image.",
+						},
+						"args": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Specifies the command line arguments used to start the SWR image.",
+						},
+						"working_dir": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "Specifies the working directory of the SWR image.",
+						},
+						"user_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "schema: Internal; Specifies the user ID for running the image.",
+						},
+						"user_group_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "schema: Internal; Specifies the user group ID for running the image.",
 						},
 					},
 				},
@@ -370,6 +397,18 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Optional:     true,
 				RequiredWith: []string{"gpu_memory"},
 			},
+			// Currently, the "pre_stop_timeout" and "pre_stop_timeout" are not visible on the page,
+			// so they are temporarily used as internal parameters.
+			"pre_stop_handler": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "schema: Internal; Specifies the pre-stop handler of a function.",
+			},
+			"pre_stop_timeout": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "schema: Internal; Specifies the maximum duration that the function can be initialized.",
+			},
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -448,8 +487,13 @@ func buildCustomImage(imageConfig []interface{}) *function.CustomImage {
 
 	cfg := imageConfig[0].(map[string]interface{})
 	return &function.CustomImage{
-		Enabled: true,
-		Image:   cfg["url"].(string),
+		Enabled:     true,
+		Image:       cfg["url"].(string),
+		Command:     cfg["command"].(string),
+		Args:        cfg["args"].(string),
+		WorkingDir:  cfg["working_dir"].(string),
+		UserId:      cfg["user_id"].(string),
+		UserGroupId: cfg["user_group_id"].(string),
 	}
 }
 
@@ -493,6 +537,8 @@ func buildFgsFunctionParameters(d *schema.ResourceData, cfg *config.Config) (fun
 		CustomImage:         buildCustomImage(d.Get("custom_image").([]interface{})),
 		GPUMemory:           d.Get("gpu_memory").(int),
 		GPUType:             d.Get("gpu_type").(string),
+		PreStopHandler:      d.Get("pre_stop_handler").(string),
+		PreStopTimeout:      d.Get("pre_stop_timeout").(int),
 	}
 	if v, ok := d.GetOk("func_code"); ok {
 		funcCode := function.FunctionCodeOpts{
@@ -668,7 +714,12 @@ func flattenFgsCustomImage(imageConfig function.CustomImage) []map[string]interf
 	if (imageConfig != function.CustomImage{}) {
 		return []map[string]interface{}{
 			{
-				"url": imageConfig.Image,
+				"url":           imageConfig.Image,
+				"command":       imageConfig.Command,
+				"args":          imageConfig.Args,
+				"working_dir":   imageConfig.WorkingDir,
+				"user_id":       imageConfig.UserId,
+				"user_group_id": imageConfig.UserGroupId,
 			},
 		}
 	}
@@ -848,6 +899,8 @@ func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("versions", versionConfig),
 		d.Set("gpu_memory", f.GPUMemory),
 		d.Set("gpu_type", f.GPUType),
+		d.Set("pre_stop_handler", f.PreStopHandler),
+		d.Set("pre_stop_timeout", f.PreStopTimeout),
 	)
 
 	reservedInstances, err := getReservedInstanceConfig(fgsClient, d)
@@ -1212,6 +1265,8 @@ func resourceFgsFunctionMetadataUpdate(fgsClient *golangsdk.ServiceClient, urn s
 		DomainNames:        d.Get("dns_list").(string),
 		GPUMemory:          d.Get("gpu_memory").(int),
 		GPUType:            d.Get("gpu_type").(string),
+		PreStopHandler:     d.Get("pre_stop_handler").(string),
+		PreStopTimeout:     d.Get("pre_stop_timeout").(int),
 	}
 
 	if _, ok := d.GetOk("vpc_id"); ok {
