@@ -278,31 +278,6 @@ The following arguments are supported:
 
   -> **NOTE:** Only adding MSDTC hosts is supported, deletion is not allowed.
 
-* `private_dns_name_prefix` - (Optional, String) Specifies the prefix of the private domain name. The value contains
-  **8** to **64** characters. Only uppercase letters, lowercase letters, and digits are allowed.
-
-The `db` block supports:
-
-* `type` - (Required, String, ForceNew) Specifies the DB engine. Available value are **MySQL**, **PostgreSQL**,
-  **SQLServer** and **MariaDB**. Changing this parameter will create a new resource.
-
-* `version` - (Required, String, ForceNew) Specifies the database version. Changing this parameter will create a new
-  resource. Available values detailed in
-  [DB Engines and Versions](https://support.huaweicloud.com/intl/en-us/productdesc-rds/en-us_topic_0043898356.html).
-
-* `password` - (Optional, String) Specifies the database password. The value should contain 8 to 32 characters,
-  including uppercase and lowercase letters, digits, and the following special characters: ~!@#%^*-_=+? You are advised
-  to enter a strong password to improve security, preventing security risks such as brute force cracking.
-
-* `port` - (Optional, Int) Specifies the database port.
-  + The MySQL database port ranges from 1024 to 65535 (excluding 12017 and 33071, which are occupied by the RDS system
-      and cannot be used). The default value is 3306.
-  + The PostgreSQL database port ranges from 2100 to 9500. The default value is 5432.
-  + The Microsoft SQL Server database port can be 1433 or ranges from 2100 to 9500, excluding 5355 and 5985. The
-      default value is 1433.
-  + The MariaDB database port ranges from 1024 to 65535 (excluding 12017 and 33071, which are occupied by the RDS system
-      and cannot be used). The default value is 3306.
-
 * `power_action` - (Optional, String) Specifies the power action to be done for the instance.
   Value options: **ON**, **OFF** and **REBOOT**.
 
@@ -331,6 +306,34 @@ The `db` block supports:
 
 * `seconds_level_monitoring_interval` - (Optional, Int) Specifies the seconds level monitoring interval. Valid values:
   **1**, **5**. It is mandatory when `seconds_level_monitoring_enabled` is **true**.
+
+* `private_dns_name_prefix` - (Optional, String) Specifies the prefix of the private domain name. The value contains
+  **8** to **64** characters. Only uppercase letters, lowercase letters, and digits are allowed.
+
+* `slow_log_show_original_status` - (Optional, String) Specifies the slow log show original status of the instance.
+  Only **MySQL** and **PostgreSQL** are supported. Value options: **on**, **off**.
+
+The `db` block supports:
+
+* `type` - (Required, String, ForceNew) Specifies the DB engine. Available value are **MySQL**, **PostgreSQL**,
+  **SQLServer** and **MariaDB**. Changing this parameter will create a new resource.
+
+* `version` - (Required, String, ForceNew) Specifies the database version. Changing this parameter will create a new
+  resource. Available values detailed in
+  [DB Engines and Versions](https://support.huaweicloud.com/intl/en-us/productdesc-rds/en-us_topic_0043898356.html).
+
+* `password` - (Optional, String) Specifies the database password. The value should contain 8 to 32 characters,
+  including uppercase and lowercase letters, digits, and the following special characters: ~!@#%^*-_=+? You are advised
+  to enter a strong password to improve security, preventing security risks such as brute force cracking.
+
+* `port` - (Optional, Int) Specifies the database port.
+  + The MySQL database port ranges from 1024 to 65535 (excluding 12017 and 33071, which are occupied by the RDS system
+      and cannot be used). The default value is 3306.
+  + The PostgreSQL database port ranges from 2100 to 9500. The default value is 5432.
+  + The Microsoft SQL Server database port can be 1433 or ranges from 2100 to 9500, excluding 5355 and 5985. The
+      default value is 1433.
+  + The MariaDB database port ranges from 1024 to 65535 (excluding 12017 and 33071, which are occupied by the RDS system
+      and cannot be used). The default value is 3306.
 
 The `volume` block supports:
 
@@ -461,10 +464,10 @@ $ terraform import huaweicloud_rds_instance.instance_1 52e4b497d2c94df88a2eb4c66
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `db`, `collation`, `availability_zone`,`lower_case_table_names`.
-It is generally recommended running `terraform plan` after importing a RDS instance. You can then decide if changes
-should be applied to the instance, or the resource definition should be updated to align with the instance.
-Also, you can ignore changes as below.
+API response, security or some other reason. The missing attributes include: `db`, `collation`, `availability_zone`,
+`lower_case_table_names`,`slow_log_show_original_status`. It is generally recommended running `terraform plan` after
+importing a RDS instance. You can then decide if changes should be applied to the instance, or the resource definition
+should be updated to align with the instance. Also, you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_rds_instance" "instance_1" {
@@ -472,7 +475,7 @@ resource "huaweicloud_rds_instance" "instance_1" {
 
   lifecycle {
     ignore_changes = [
-      "db", "collation", "availability_zone", "lower_case_table_names"
+      "db", "collation", "availability_zone", "lower_case_table_names", "slow_log_show_original_status"
     ]
   }
 }

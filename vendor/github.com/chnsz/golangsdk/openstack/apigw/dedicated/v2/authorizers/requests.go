@@ -17,6 +17,12 @@ type CustomAuthOpts struct {
 	AuthorizerType string `json:"authorizer_type" required:"true"`
 	// Function URN.
 	AuthorizerURI string `json:"authorizer_uri" required:"true"`
+	// The framework type of the function.
+	NetworkType string `json:"network_type,omitempty"`
+	// The version of the FGS function.
+	AuthorizerVersion string `json:"authorizer_version,omitempty"`
+	// The version alias URI of the FGS function.
+	AuthorizerAliasUri string `json:"authorizer_alias_uri,omitempty"`
 	// Indicates whether to send the body.
 	IsBodySend *bool `json:"need_body,omitempty"`
 	// Identity source.

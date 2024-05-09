@@ -1,6 +1,7 @@
 package instances
 
 import (
+	"fmt"
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/pagination"
@@ -885,7 +886,7 @@ func (opts ModifyPrivateDnsNamePrefixOpts) ToActionInstanceMap() (map[string]int
 	return toActionInstanceMap(opts)
 }
 
-// ModifyPrivateDnsNamePrefix is a method used to private dns name prefix of the instance.
+// ModifyPrivateDnsNamePrefix is a method used to modify private dns name prefix of the instance.
 func ModifyPrivateDnsNamePrefix(c *golangsdk.ServiceClient, opts ActionInstanceBuilder, instanceId string) (r JobResult) {
 	b, err := opts.ToActionInstanceMap()
 	if err != nil {
@@ -893,5 +894,12 @@ func ModifyPrivateDnsNamePrefix(c *golangsdk.ServiceClient, opts ActionInstanceB
 		return
 	}
 	_, r.Err = c.Put(updateURL(c, instanceId, "modify-dns"), b, &r.Body, &golangsdk.RequestOpts{})
+	return
+}
+
+// ModifySlowLogShowOriginalStatus is a method used to modify slow log show original status of the instance.
+func ModifySlowLogShowOriginalStatus(c *golangsdk.ServiceClient, instanceId, status string) (r ModifySlowLogShowOriginalStatusResult) {
+	_, r.Err = c.Put(updateURL(c, instanceId, fmt.Sprintf("slowlog-sensitization/%s", status)), nil,
+		&r.Body, &golangsdk.RequestOpts{})
 	return
 }
