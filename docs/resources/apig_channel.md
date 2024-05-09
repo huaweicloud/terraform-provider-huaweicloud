@@ -218,27 +218,25 @@ The `member_group` block supports:
 * `microservice_version` - (Optional, String) Specifies the microservice version of the backend server group.
 
 * `microservice_port` - (Optional, Int) Specifies the microservice port of the backend server group.  
-  The valid value ranges from `0` to `65535`.
+  The valid value ranges from `0` to `65,535`.
 
 * `microservice_labels` - (Optional, Map) Specifies the microservice tags of the backend server group.
 
 <a name="channel_members"></a>
 The `member` block supports:
 
-* `host` - (Optional, String) Specifies the IP address each backend servers.  
-  Required if the `member_type` is **ecs**.
-  This parameter and `member.id` are alternative.
+* `host` - (Optional, String) Specifies the IP address each backend servers.
 
-* `id` - (Optional, String) Specifies the ECS ID for each backend servers.  
-  Required if the `member_type` is **ecs**.
-  This parameter and `member.host` are alternative.
+* `id` - (Optional, String) Specifies the ECS ID for each backend servers.
+
+  -> One of the parameter `member.host` and `member.id` must be set if `member_type` is **ecs**.
+     The parameter `member.host` and `member.id` are alternative.
 
 * `name` - (Optional, String) Specifies the name of the backend server.  
-  Required if the `member.id` is set.
-  This parameter and `member.host` are alternative.
+  Required if the parameter `member.id` is set.
 
 * `weight` - (Optional, Int) Specifies the weight of current backend server.  
-  The valid value ranges from `0` to `10000`, defaults to `0`.
+  The valid value ranges from `0` to `10,000`, defaults to `0`.
 
 * `is_backup` - (Optional, Bool) Specifies whether this member is the backup member.  
   Defaults to **false**.
@@ -254,7 +252,7 @@ The `member` block supports:
   Defaults to **1** (normal).
 
 * `port` - (Optional, Int) Specifies the port of the backend server.  
-  The valid value ranges from `0` to `65535`.
+  The valid value ranges from `0` to `65,535`.
   If omitted, the default port of channel will be used.
 
 <a name="channel_health_check"></a>
@@ -285,7 +283,7 @@ The `health_check` block supports:
   The valid values are **GET** and **HEAD**.
 
 * `port` - (Optional, Int) Specifies the destination host port for health check.  
-  The valid value ranges from `0` to `65535`.
+  The valid value ranges from `0` to `65,535`.
 
 * `http_codes` - (Optional, String) Specifies the response codes for determining a successful HTTP response.  
   The valid value ranges from `100` to `599` and the valid formats are as follows:
