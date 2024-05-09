@@ -59,7 +59,7 @@ func DataSourceDcsAccounts() *schema.Resource {
 				Description: `Specifies the account status.`,
 			},
 			"accounts": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `ACL account list.`,
 				Elem: &schema.Resource{
