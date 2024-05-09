@@ -51,6 +51,7 @@ type ctxType string
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/replica-set/name
 // @API DDS GET /v3/{project_id}/instances/{instance_id}/replica-set/name
 // @API DDS PUT /v3/{project_id}/configurations/{config_id}/apply
+// @API DDS POST /v3/{project_id}/instances/{instance_id}/replicaset-node
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
@@ -1192,7 +1193,7 @@ func flavorUpdate(ctx context.Context, conf *config.Config, client *golangsdk.Se
 func flavorNumUpdate(ctx context.Context, conf *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
 	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
 	groupType := d.Get(groupTypeIndex).(string)
-	if groupType != "mongos" && groupType != "shard" {
+	if groupType != "mongos" && groupType != "shard" && groupType != "replica" {
 		return fmt.Errorf("error updating instance: %s does not support adding nodes", groupType)
 	}
 	specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
@@ -1207,12 +1208,9 @@ func flavorNumUpdate(ctx context.Context, conf *config.Config, client *golangsdk
 	}
 
 	var numUpdateOpts []instances.UpdateOpt
-
-	if groupType == "mongos" {
-		updateNodeNumOpts := instances.UpdateNodeNumOpts{
-			Type:     groupType,
-			SpecCode: d.Get(specCodeIndex).(string),
-			Num:      newNum - oldNum,
+	if groupType == "replica" {
+		updateNodeNumOpts := instances.UpdateReplicaSetNodeNumOpts{
+			Num: newNum - oldNum,
 		}
 		if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
 			updateNodeNumOpts.IsAutoPay = true
@@ -1220,20 +1218,21 @@ func flavorNumUpdate(ctx context.Context, conf *config.Config, client *golangsdk
 		opt := instances.UpdateOpt{
 			Param:  "",
 			Value:  updateNodeNumOpts,
-			Action: "enlarge",
+			Action: "replicaset-node",
 			Method: "post",
 		}
-
 		numUpdateOpts = append(numUpdateOpts, opt)
 	} else {
-		volume := instances.VolumeOpts{
-			Size: &volumeSize,
-		}
 		updateNodeNumOpts := instances.UpdateNodeNumOpts{
 			Type:     groupType,
 			SpecCode: d.Get(specCodeIndex).(string),
 			Num:      newNum - oldNum,
-			Volume:   &volume,
+		}
+		if groupType == "shard" {
+			volume := instances.VolumeOpts{
+				Size: &volumeSize,
+			}
+			updateNodeNumOpts.Volume = &volume
 		}
 		if d.Get("charging_mode").(string) == "prePaid" && d.Get("auto_pay").(string) != "false" {
 			updateNodeNumOpts.IsAutoPay = true
