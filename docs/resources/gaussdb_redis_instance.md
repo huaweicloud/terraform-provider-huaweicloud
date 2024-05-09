@@ -86,6 +86,9 @@ The following arguments are supported:
 * `subnet_id` - (Required, String, ForceNew) Specifies the network ID of a subnet. Changing this parameter will create a
   new resource.
 
+* `mode` - (Optional, String, ForceNew) Specifies the instance type. Value options: **Cluster**, **Replication**.
+  Defaults to **Cluster**.
+
 * `security_group_id` - (Optional, String) Specifies the security group ID. Required if the selected subnet doesn't
   enable network ACL.
 
@@ -154,7 +157,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the DB instance ID.
 * `status` - Indicates the DB instance status.
-* `mode` - Indicates the instance type.
 * `db_user_name` - Indicates the default username.
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 * `private_ips` - Indicates the IP address list of the db.
