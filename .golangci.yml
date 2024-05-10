@@ -100,7 +100,7 @@ linters-settings:
       - name: var-naming
         disabled: false
         arguments:
-          - ["API", "ID", "IP", "VM", "JSON", "HTTP", "URL", "XML", "YAML", "CSS", "ACL", "CPU", "SQL"] # AllowList
+          - ["API", "ID", "IDS", "IP", "VM", "JSON", "HTTP", "URL", "XML", "YAML", "CSS", "ACL", "CPU", "SQL"] # AllowList
           - [] # DenyList
       - name: argument-limit
         disabled: false
