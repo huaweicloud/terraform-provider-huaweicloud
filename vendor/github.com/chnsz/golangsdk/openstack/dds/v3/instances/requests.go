@@ -183,6 +183,11 @@ type UpdateNodeNumOpts struct {
 	IsAutoPay bool        `json:"is_auto_pay,omitempty"`
 }
 
+type UpdateReplicaSetNodeNumOpts struct {
+	Num       int  `json:"num" required:"true"`
+	IsAutoPay bool `json:"is_auto_pay,omitempty"`
+}
+
 type SpecOpts struct {
 	TargetType     string `json:"target_type,omitempty"`
 	TargetID       string `json:"target_id" required:"true"`

@@ -75,7 +75,7 @@ resource "huaweicloud_dds_instance" "instance" {
   mode              = "ReplicaSet"
   flavor {
     type      = "replica"
-    num       = 1
+    num       = 3
     storage   = "ULTRAHIGH"
     size      = 30
     spec_code = "dds.mongodb.c3.medium.4.repset"
@@ -199,7 +199,7 @@ The `flavor` block supports:
   + If the value of type is **replica**, num indicates the number of replica nodes in the replica set instance. Value
     can be **3**, **5**, or **7**.
 
-  This parameter can be updated when the value of `type` is mongos or shard.
+  This parameter can be updated when the value of `type` is **mongos**, **shard** or **replica**.
 
 * `storage` - (Optional, String, ForceNew) Specifies the disk type. Valid value:
   + **ULTRAHIGH**: SSD storage.
