@@ -30,6 +30,7 @@ import (
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}/domains
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}/domains/{domain_id}
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}/sl-domain-access-settings
 func ResourceApigGroupV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGroupCreate,
@@ -156,6 +157,12 @@ func ResourceApigGroupV2() *schema.Resource {
 					},
 				},
 			},
+			"domain_access_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Specifies whether to use the debugging domain name to access the APIs within the group.",
+			},
 			"registration_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -233,18 +240,25 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 	d.SetId(resp.Id)
 
+	groupId := d.Id()
 	if environmentSet, ok := d.GetOk("environment"); ok {
-		err = createEnvironmentVariables(client, instanceId, d.Id(), environmentSet.(*schema.Set))
+		err = createEnvironmentVariables(client, instanceId, groupId, environmentSet.(*schema.Set))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if domains, ok := d.GetOk("url_domains"); ok {
-		err = associateDomain(client, instanceId, d.Id(), domains.(*schema.Set).List())
+		err = associateDomain(client, instanceId, groupId, domains.(*schema.Set).List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
+	}
+
+	// The API will not report an error if it is called repeatedly.
+	err = updateDomianAccessEnabled(client, instanceId, groupId, d.Get("domain_access_enabled").(bool))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceGroupRead(ctx, d, meta)
@@ -339,6 +353,7 @@ func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
 		d.Set("url_domains", flattenUrlDomain(resp.UrlDomians)),
+		d.Set("domain_access_enabled", resp.SlDomainAccessEnabled),
 		d.Set("registration_time", resp.RegistraionTime),
 		d.Set("update_time", resp.UpdateTime),
 	)
@@ -445,6 +460,19 @@ func updateAssociateDomian(client *golangsdk.ServiceClient, d *schema.ResourceDa
 	return nil
 }
 
+func updateDomianAccessEnabled(client *golangsdk.ServiceClient, instanceId, groupId string, domainAccessEnabled bool) error {
+	opt := apigroups.UpdateDomainAccessEnabledOpts{
+		InstanceId:            instanceId,
+		GroupId:               groupId,
+		SlDomainAccessEnabled: utils.Bool(domainAccessEnabled),
+	}
+	err := apigroups.UpdateDomainAccessEnabled(client, opt)
+	if err != nil {
+		return fmt.Errorf("error updating debugging domain name access (%s): %s", groupId, err)
+	}
+	return nil
+}
+
 func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
@@ -479,6 +507,14 @@ func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 			return diag.FromErr(err)
 		}
 	}
+
+	if d.HasChange("domain_access_enabled") {
+		err := updateDomianAccessEnabled(client, instanceId, groupId, d.Get("domain_access_enabled").(bool))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGroupRead(ctx, d, meta)
 }
 

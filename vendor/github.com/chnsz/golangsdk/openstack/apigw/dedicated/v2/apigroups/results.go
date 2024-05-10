@@ -51,6 +51,8 @@ type Group struct {
 	Status int `json:"status"`
 	// Indicates whether the API group is the default group.
 	IsDefault int `json:"is_default"`
+	// whether the APIs can be accessed through the debugging domain name.
+	SlDomainAccessEnabled bool `json:"sl_domain_access_enabled"`
 }
 
 type UrlDomian struct {
