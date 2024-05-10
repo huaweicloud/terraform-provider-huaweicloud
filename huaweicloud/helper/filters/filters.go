@@ -164,6 +164,40 @@ func index[S ~[]E, E comparable](s S, v E) int {
 }
 
 func has(x interface{}, y interface{}) (bool, error) {
+	if y == nil {
+		return true, nil
+	}
+
+	rf := reflect.ValueOf(x)
+	switch rf.Kind() {
+	case reflect.Array, reflect.Slice:
+		return sliceHas(x, y)
+	case reflect.Map:
+		return mapHas(x, y)
+	default:
+		return false, fmt.Errorf("[has] unsupported comparison type: %s", rf.Kind())
+	}
+}
+
+func mapHas(x interface{}, y interface{}) (bool, error) {
+	xRef := reflect.ValueOf(x)
+	yRef := reflect.ValueOf(y)
+	if xRef.Kind() != reflect.Map || yRef.Kind() != reflect.Map {
+		return false, fmt.Errorf("[mapHas] types must all be map: %s %s", xRef.Kind(), xRef.Kind())
+	}
+	for _, k := range yRef.MapKeys() {
+		yVal := yRef.MapIndex(k)
+		xVal := xRef.MapIndex(k)
+		if xVal.IsValid() && !xVal.IsNil() && isEqual(xVal, yVal) {
+			continue
+		}
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func sliceHas(x interface{}, y interface{}) (bool, error) {
 	xVal := toStrSlice(x)
 	rf := reflect.ValueOf(y)
 	if rf.IsValid() && rf.Kind() != reflect.Slice {
@@ -182,6 +216,18 @@ func has(x interface{}, y interface{}) (bool, error) {
 }
 
 func hasContain(x interface{}, y interface{}) (bool, error) {
+	rf := reflect.ValueOf(x)
+	switch rf.Kind() {
+	case reflect.Array, reflect.Slice:
+		return sliceHasContain(x, y)
+	case reflect.Map:
+		return mapHasContain(x, y)
+	default:
+		return false, fmt.Errorf("[hasContain] unsupported comparison type: %s", rf.Kind())
+	}
+}
+
+func sliceHasContain(x interface{}, y interface{}) (bool, error) {
 	xArr := toStrSlice(x)
 	yArr := make([]string, 0)
 	rf := reflect.ValueOf(y)
@@ -200,4 +246,39 @@ func hasContain(x interface{}, y interface{}) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func mapHasContain(x interface{}, y interface{}) (bool, error) {
+	if reflect.TypeOf(x).Kind() != reflect.Map || reflect.TypeOf(y).Kind() != reflect.Map {
+		return false, fmt.Errorf("[mapHas] types must all be map: %s %s", reflect.TypeOf(x), reflect.TypeOf(y))
+	}
+
+	xRef := reflect.ValueOf(x)
+	yRef := reflect.ValueOf(y)
+
+	keys := yRef.MapKeys()
+	for _, k := range keys {
+		yVal := yRef.MapIndex(k)
+		xVal := xRef.MapIndex(k)
+		if xVal.IsValid() && !xVal.IsNil() && isEqual(xVal, yVal) {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+// isEqual compare two basic type variables for equality
+// x and y may be of int32 and interface type, and are converted to string before comparison
+func isEqual(x, y reflect.Value) bool {
+	if x.Kind() == reflect.Pointer {
+		x = x.Elem()
+	}
+	if y.Kind() == reflect.Pointer {
+		y = y.Elem()
+	}
+
+	vx := fmt.Sprintf("%v", x.Interface())
+	vy := fmt.Sprintf("%v", y.Interface())
+	return vx == vy
 }
