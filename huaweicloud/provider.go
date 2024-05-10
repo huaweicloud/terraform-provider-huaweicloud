@@ -791,6 +791,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet_ids":                  vpc.DataSourceVpcSubnetIdsV1(),
 			"huaweicloud_vpc_traffic_mirror_filter_rules": vpc.DataSourceVpcTrafficMirrorFilterRules(),
 			"huaweicloud_vpc_traffic_mirror_sessions":     vpc.DataSourceVpcTrafficMirrorSessions(),
+			"huaweicloud_vpc_network_acls":                vpc.DataSourceNetworkAcls(),
 
 			"huaweicloud_vpcep_endpoints":           vpcep.DataSourceVPCEPEndpoints(),
 			"huaweicloud_vpcep_public_services":     vpcep.DataSourceVPCEPPublicServices(),
