@@ -84,6 +84,8 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					// The built-in disk for this flavor instance is **0.2TB**, increase disk size by **1TB** through
 					// the `attach_disk_size` parameter.
 					resource.TestCheckResourceAttr(rName, "data_disk_size", "1.2"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 
 					resource.TestCheckResourceAttrPair(rName, "vpc_id",
 						"huaweicloud_vpc.test", "id"),
@@ -107,6 +109,9 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "flavor_id", "cbh.basic.20"),
 					resource.TestCheckResourceAttr(rName, "auto_renew", "true"),
 					resource.TestCheckResourceAttr(rName, "data_disk_size", "3.2"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar_update"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value_update"),
+
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
 						"huaweicloud_networking_secgroup.test", "id"),
 				),
@@ -212,6 +217,11 @@ resource "huaweicloud_cbh_instance" "test" {
   auto_renew        = "false"
   period            = 1
   attach_disk_size  = 1
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testCBHInstance_base(name), name)
 }
@@ -234,6 +244,11 @@ resource "huaweicloud_cbh_instance" "test" {
   auto_renew        = "true"
   period            = 1
   attach_disk_size  = 2
+
+  tags = {
+    foo = "bar_update"
+    key = "value_update"
+  }
 }
 `, testCBHInstance_base(name), name)
 }

@@ -109,6 +109,8 @@ The following arguments are supported:
   -> 1. Storage expansion is a high-risk operation, with a certain risk of failure.
   <br/>2. Expansion failure may affect the usability of the instance. Please ensure to back up your data.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBH instance.
+
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the CBH instance
   belongs. For enterprise users, if omitted, default enterprise project will be used.
 

@@ -30,6 +30,8 @@ import (
 // @API CBH PUT /v2/{project_id}/cbs/instance/password
 // @API CBH PUT /v2/{project_id}/cbs/instance/{server_id}/security-groups
 // @API CBH PUT /v2/{project_id}/cbs/instance
+// @API CBH POST /v2/{project_id}/cbs/instance/{resource_id}/tags/action
+// @API CBH GET /v2/{project_id}/cbs/instance/{resource_id}/tags
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -150,6 +152,7 @@ func ResourceCBHInstance() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the size of the additional data disk for the CBH instance.`,
 			},
+			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -294,6 +297,11 @@ func buildCreateCBHInstanceBodyParam(d *schema.ResourceData, region string, epsI
 	if d.Get("ipv6_enable").(bool) {
 		bodyParam["ipv6_enable"] = true
 	}
+
+	if tagsRaw, ok := d.GetOk("tags"); ok {
+		bodyParam["tags"] = utils.ExpandResourceTags(tagsRaw.(map[string]interface{}))
+	}
+
 	return bodyParam
 }
 
@@ -612,7 +620,59 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if d.HasChange("tags") {
+		resourceId, err := getInstanceResourceIdById(client, ID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		if resourceId == "" {
+			return diag.Errorf("error updating tags of the CBH instance (%s): "+
+				"resource ID is not found in list API response", ID)
+		}
+
+		oRaw, nRaw := d.GetChange("tags")
+		oMap := oRaw.(map[string]interface{})
+		nMap := nRaw.(map[string]interface{})
+
+		if len(oMap) > 0 {
+			if err = doActionInstanceTags(resourceId, "delete", client, oMap); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if len(nMap) > 0 {
+			if err := doActionInstanceTags(resourceId, "create", client, nMap); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	return resourceCBHInstanceRead(ctx, d, meta)
+}
+
+func doActionInstanceTags(resourceId, action string, client *golangsdk.ServiceClient, tagsMap map[string]interface{}) error {
+	doActionTagsHttpUrl := "v2/{project_id}/cbs/instance/{resource_id}/tags/action"
+	doActionTagsPath := client.Endpoint + doActionTagsHttpUrl
+	doActionTagsPath = strings.ReplaceAll(doActionTagsPath, "{project_id}", client.ProjectID)
+	doActionTagsPath = strings.ReplaceAll(doActionTagsPath, "{resource_id}", resourceId)
+	doActionTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	doActionTagsOpt.JSONBody = map[string]interface{}{
+		"action": action,
+		"tags":   utils.ExpandResourceTags(tagsMap),
+	}
+
+	_, err := client.Request("POST", doActionTagsPath, &doActionTagsOpt)
+	if err != nil {
+		return fmt.Errorf("error updating (action: %s) tags of the CBH instance: %s", action, err)
+	}
+
+	return nil
 }
 
 func getInstanceResourceIdById(client *golangsdk.ServiceClient, instanceId string) (string, error) {
@@ -805,6 +865,12 @@ func resourceCBHInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 	// When EIP is not configured, the query interface field will return a space string.
 	publicIpId := strings.TrimSpace(utils.PathSearch("network.public_id", instance, "").(string))
 
+	resourceId := utils.PathSearch("resource_info.resource_id", instance, "").(string)
+	tags, err := getInstanceTags(resourceId, client)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
@@ -822,8 +888,39 @@ func resourceCBHInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("availability_zone", utils.PathSearch("az_info.zone", instance, nil)),
 		d.Set("version", utils.PathSearch("bastion_version", instance, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", instance, nil)),
+		d.Set("tags", tags),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getInstanceTags(resourceId string, client *golangsdk.ServiceClient) (
+	map[string]interface{}, error) {
+	getTagsHttpUrl := "v2/{project_id}/cbs/instance/{resource_id}/tags"
+	getTagsPath := client.Endpoint + getTagsHttpUrl
+	getTagsPath = strings.ReplaceAll(getTagsPath, "{project_id}", client.ProjectID)
+	getTagsPath = strings.ReplaceAll(getTagsPath, "{resource_id}", resourceId)
+	getTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getTagsResp, err := client.Request("GET", getTagsPath, &getTagsOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving tags of the CBH instance: %s", err)
+	}
+
+	getTagsRespBody, err := utils.FlattenResponse(getTagsResp)
+	if err != nil {
+		return nil, err
+	}
+
+	tags := utils.PathSearch("tags", getTagsRespBody, make([]interface{}, 0)).([]interface{})
+	result := make(map[string]interface{})
+	for _, val := range tags {
+		valMap := val.(map[string]interface{})
+		result[valMap["key"].(string)] = valMap["value"]
+	}
+
+	return result, nil
 }
 
 func getPublicAddressById(d *schema.ResourceData, cfg *config.Config, publicIpId string) (string, error) {
