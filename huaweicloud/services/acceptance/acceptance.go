@@ -281,6 +281,8 @@ var (
 
 	HW_CC_PERMISSION_ID = os.Getenv("HW_CC_PERMISSION_ID")
 
+	HW_CSS_ELB_AGENCY = os.Getenv("HW_CSS_ELB_AGENCY")
+
 	HW_CERT_BATCH_PUSH_ID     = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 	HW_CERT_BATCH_PUSH_WAF_ID = os.Getenv("HW_CERT_BATCH_PUSH_WAF_ID")
 
@@ -1471,6 +1473,13 @@ func TestAccPreCheckCCAuth(t *testing.T) {
 func TestAccPreCheckCCPermission(t *testing.T) {
 	if HW_CC_PERMISSION_ID == "" {
 		t.Skip("HW_CC_PERMISSION_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCSSElbAgency(t *testing.T) {
+	if HW_CSS_ELB_AGENCY == "" {
+		t.Skip("HW_CSS_ELB_AGENCY must be set for the acceptance test")
 	}
 }
 
