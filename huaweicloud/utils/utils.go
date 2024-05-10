@@ -212,6 +212,21 @@ func IsStrContainsSliceElement(str string, sl []string, ignoreCase, isExcat bool
 	return false
 }
 
+// IsSliceContainsAnyAnotherSliceElement is a method that used to determine whether a list contains any element of
+// another list (including its fragments belonging to the current string), returns true if it contains.
+// sl: The slice body used to determine the inclusion relationship.
+// another: The included slice object used to determine the inclusion relationship.
+// ignoreCase: Whether to ignore case.
+// isExcat: Whether the inclusion relationship of string objects applies exact matching rules.
+func IsSliceContainsAnyAnotherSliceElement(sl, another []string, ignoreCase, isExcat bool) bool {
+	for _, elem := range sl {
+		if IsStrContainsSliceElement(elem, another, ignoreCase, isExcat) {
+			return true
+		}
+	}
+	return false
+}
+
 func JsonMarshal(t interface{}) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	enc := json.NewEncoder(buffer)
