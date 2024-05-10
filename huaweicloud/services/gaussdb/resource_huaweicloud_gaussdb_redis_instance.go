@@ -104,6 +104,12 @@ func ResourceGaussRedisInstanceV3() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "Cluster",
+				ForceNew: true,
+			},
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -182,10 +188,6 @@ func ResourceGaussRedisInstanceV3() *schema.Resource {
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"mode": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -375,7 +377,7 @@ func resourceGaussRedisInstanceV3Create(ctx context.Context, d *schema.ResourceD
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-		Mode:                "Cluster",
+		Mode:                d.Get("mode").(string),
 		Flavor:              resourceGaussRedisFlavor(d),
 		DataStore:           resourceGaussRedisDataStore(d),
 		BackupStrategy:      resourceGaussRedisBackupStrategy(d),

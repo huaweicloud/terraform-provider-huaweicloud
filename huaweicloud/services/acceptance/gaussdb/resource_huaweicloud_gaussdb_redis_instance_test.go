@@ -76,6 +76,34 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccGaussRedisInstance_withReplication(t *testing.T) {
+	var instance instances.GeminiDBInstance
+
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_gaussdb_redis_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckGaussRedisInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGaussRedisInstanceConfig_withReplication(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGaussRedisInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "node_num", "2"),
+					resource.TestCheckResourceAttr(resourceName, "volume_size", "16"),
+					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
+					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
+					resource.TestCheckResourceAttr(resourceName, "ssl", "true"),
+					resource.TestCheckResourceAttr(resourceName, "mode", "Replication"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccGaussRedisInstance_updateWithEpsId(t *testing.T) {
 	var instance instances.GeminiDBInstance
 
@@ -268,6 +296,43 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   }
 }
 `, common.TestSecGroup(rName+"_update"), rName, password, nodeNum)
+}
+
+func testAccGaussRedisInstanceConfig_withReplication(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_gaussdb_nosql_flavors" "test" {
+  vcpus             = 2
+  engine            = "redis"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+
+resource "huaweicloud_gaussdb_redis_instance" "test" {
+  name              = "%[2]s"
+  password          = "Huangwei!120521"
+  flavor            = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
+  volume_size       = 16
+  vpc_id            = data.huaweicloud_vpc.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  node_num          = 2
+  port              = 8888
+  ssl               = true
+  mode              = "Replication"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+}
+`, common.TestSecGroup(rName), rName)
 }
 
 func testAccGaussRedisInstanceConfig_withEpsId(rName, password, epsId string) string {
