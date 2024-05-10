@@ -77,6 +77,14 @@ func ResourceDdsParameterTemplate() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the parameters defined by users based on the default parameter templates.`,
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -286,6 +294,8 @@ func resourceDdsParameterTemplateRead(_ context.Context, d *schema.ResourceData,
 		d.Set("description", utils.PathSearch("description",
 			getParameterTemplateRespBody, nil)),
 		d.Set("parameters", flattenGetParameterTemplateResponseBodyParameter(getParameterTemplateRespBody)),
+		d.Set("created_at", utils.PathSearch("created", getParameterTemplateRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("updated", getParameterTemplateRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

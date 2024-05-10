@@ -36,7 +36,7 @@ The following arguments are supported:
   The value must be 1 to 64 characters, which can contain only letters, digits, hyphens (-),
   underscores (_), and periods (.).
 
-* `node_type` - (Required, String, ForceNew) Specifies the node type of parameter template node_type. Valid value:
+* `node_type` - (Required, String, ForceNew) Specifies the node type of parameter template. Valid value:
   + **mongos**: the mongos node type.
   + **shard**: the shard node type.
   + **config**: the config node type.
@@ -65,6 +65,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `parameters` - Indicates the parameters defined by users based on the default parameter templates.
   The [Parameter](#DdsParameterTemplate_Parameter) structure is documented below.
+
+* `created_at` - The create time of the parameter template.
+
+* `updated_at` - The update time of the parameter template.
 
 <a name="DdsParameterTemplate_Parameter"></a>
 The `Parameter` block supports:
