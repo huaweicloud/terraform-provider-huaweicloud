@@ -5,7 +5,7 @@ page_title: "HuaweiCloud: huaweicloud_dli_datasource_connection_associate"
 description: ""
 ---
 
-# huaweicloud_dli_datasource_connection_privilege
+# huaweicloud_dli_datasource_connection_associate
 
 Using this resource to associate the elastic resource pools to the DLI datasource **enhanced** connection within
 HuaweiCloud.

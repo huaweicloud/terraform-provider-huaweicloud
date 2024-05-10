@@ -15,7 +15,7 @@ Use this data source to get the list of GaussDB MySQL backups.
 variable "backup_name" {}
 
 data "huaweicloud_gaussdb_mysql_backups" "test" {
-  backup_name = var.backup_name
+  name = var.backup_name
 }
 ```
 
