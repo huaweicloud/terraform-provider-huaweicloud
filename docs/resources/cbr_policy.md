@@ -7,11 +7,11 @@ description: ""
 
 # huaweicloud_cbr_policy
 
-Manages a CBR Policy resource within HuaweiCloud.
+Manages a backup policy for backing up vault objects within HuaweiCloud.
 
 ## Example Usage
 
-### create a backup policy
+### Create a backup policy (weekly backup)
 
 ```hcl
 variable "policy_name" {}
@@ -20,16 +20,23 @@ resource "huaweicloud_cbr_policy" "test" {
   name        = var.policy_name
   type        = "backup"
   time_period = 20
+  time_zone   = "UTC+08:00"
+
+  long_term_retention {
+    daily                = 10
+    weekly               = 10
+    monthly              = 1
+    full_backup_interval = -1
+  }
 
   backup_cycle {
-    frequency       = "WEEKLY"
-    days            = "MO,TH"
-    execution_times = ["06:00"]
+    days            = "SA,SU"
+    execution_times = ["08:00", "20:00"]
   }
 }
 ```
 
-### create a replication policy
+### Create a replication policy (periodic backup)
 
 ```hcl
 variable "policy_name" {}
@@ -44,7 +51,6 @@ resource "huaweicloud_cbr_policy" "test" {
   backup_quantity        = 20
 
   backup_cycle {
-    frequency       = "DAILY"
     interval        = 5
     execution_times = ["21:00"]
   }
@@ -59,7 +65,7 @@ The following arguments are supported:
   provider-level region will be used. Changing this will create a new policy.
 
 * `name` - (Required, String) Specifies the policy name.  
-  This parameter can contain a maximum of 64
+  This parameter can contain a maximum of `64`
   characters, which may consist of chinese characters, letters, digits, underscores(_) and hyphens (-).
 
 * `type` - (Required, String, ForceNew) Specifies the protection type of the policy.
@@ -102,12 +108,14 @@ The following arguments are supported:
 <a name="cbr_policy_backup_cycle"></a>
 The `backup_cycle` block supports:
 
-* `days` - (Optional, String) Specifies the weekly backup day of backup schedule. It supports seven days a week (MO, TU,
-  WE, TH, FR, SA, SU) and this parameter is separated by a comma (,) without spaces, between date and date during the
-  configuration.
+* `days` - (Optional, String) Specifies the weekly backup day of backup schedule.  
+  It supports seven days a week (MO, TU, WE, TH, FR, SA, SU) and this parameter is separated by a comma (,) without
+  spaces, between date and date during the configuration.
 
-* `interval` - (Optional, Int) Specifies the interval (in days) of backup schedule. The value range is `1` to `30`. This
-  parameter and `days` are alternative.
+* `interval` - (Optional, Int) Specifies the interval (in days) of backup schedule.  
+  The valid value ranges from `1` to `30`.
+
+-> Parameter `backup_cycle.days` and `backup_cycle.interval` are alternative.
 
 * `execution_times` - (Required, List) Specifies the backup time. Automated backups will be triggered at the backup
   time. The current time is in the UTC format (HH:MM). The minutes in the list must be set to **00** and the hours
@@ -139,10 +147,10 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Policies can be imported by their `id`. For example,
+Policies can be imported by their `id`, e.g.
 
-```
-terraform import huaweicloud_cbr_policy.test 4d2c2939-774f-42ef-ab15-e5b126b11ace
+```bash
+$ terraform import huaweicloud_cbr_policy.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the

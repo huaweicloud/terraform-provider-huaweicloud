@@ -7,7 +7,7 @@ description: ""
 
 # huaweicloud_cbr_vault
 
-Manages a CBR Vault resource within HuaweiCloud.
+Manages a CBR vault resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -62,7 +62,11 @@ resource "huaweicloud_cbr_vault" "test" {
   consistent_level = "crash_consistent"
   size             = 500
 
-  ... // Associated instances
+  auto_bind  = true
+  bind_rules = {
+    # {auto_bind_key} = {auto_bind_value}
+    service_name = "xxx"
+  }
 
   policy {
     id = var.backup_policy_id
