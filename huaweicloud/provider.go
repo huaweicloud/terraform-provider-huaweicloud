@@ -1008,6 +1008,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdm_link":           cdm.ResourceCdmLink(),
 
 			"huaweicloud_cdn_domain":         cdn.ResourceCdnDomain(),
+			"huaweicloud_cdn_billing_option": cdn.ResourceBillingOption(),
+
 			"huaweicloud_ces_alarmrule":      ces.ResourceAlarmRule(),
 			"huaweicloud_ces_resource_group": ces.ResourceResourceGroup(),
 			"huaweicloud_ces_alarm_template": ces.ResourceCesAlarmTemplate(),
