@@ -52,6 +52,7 @@ type ctxType string
 // @API DDS GET /v3/{project_id}/instances/{instance_id}/replica-set/name
 // @API DDS PUT /v3/{project_id}/configurations/{config_id}/apply
 // @API DDS POST /v3/{project_id}/instances/{instance_id}/replicaset-node
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/maintenance-window
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
@@ -217,6 +218,17 @@ func ResourceDdsInstanceV3() *schema.Resource {
 						},
 					},
 				},
+			},
+			"maintain_begin": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"maintain_end"},
+			},
+			"maintain_end": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"ssl": {
 				Type:     schema.TypeBool,
@@ -532,6 +544,17 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	if begin, ok := d.GetOk("maintain_begin"); ok {
+		windowOpts := instances.ChangeMaintenanceWindowOpts{
+			StartTime: begin.(string),
+			EndTime:   d.Get("maintain_end").(string),
+		}
+		err = instances.UpdateMaintenanceWindow(client, instance.Id, windowOpts)
+		if err != nil {
+			return diag.Errorf("error setting maintenance window of the DDS instance %s: %s", instance.Id, err)
+		}
+	}
+
 	return resourceDdsInstanceV3Read(ctx, d, meta)
 }
 
@@ -666,6 +689,16 @@ func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta
 	}
 	backupStrategyList = append(backupStrategyList, backupStrategy)
 	mErr = multierror.Append(mErr, d.Set("backup_strategy", backupStrategyList))
+
+	// set maintenance window
+	windows := strings.Split(instanceObj.MaintenanceWindow, "-")
+	if len(windows) != 2 {
+		return diag.Errorf("invalid format of maintenance window, must be <start_time>-<end_time>")
+	}
+	mErr = multierror.Append(mErr,
+		d.Set("maintain_begin", windows[0]),
+		d.Set("maintain_end", windows[1]),
+	)
 
 	// save tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
@@ -889,6 +922,30 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceId)
 		if tagErr != nil {
 			return diag.Errorf("Error updating tags of DDS instance:%s, err:%s", instanceId, tagErr)
+		}
+	}
+
+	if d.HasChange("maintain_begin") {
+		windowOpts := instances.ChangeMaintenanceWindowOpts{
+			StartTime: d.Get("maintain_begin").(string),
+			EndTime:   d.Get("maintain_end").(string),
+		}
+		retryFunc := func() (interface{}, bool, error) {
+			err = instances.UpdateMaintenanceWindow(client, instanceId, windowOpts)
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+			WaitTarget:   []string{"normal"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			return diag.Errorf("error setting maintenance window of the DDS instance %s: %s", instanceId, err)
 		}
 	}
 
