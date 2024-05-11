@@ -76,6 +76,10 @@ func (f *JsonFilter) Filter(filter Filter) *JsonFilter {
 	return f
 }
 
+func (f *JsonFilter) GetFilter() Filter {
+	return f.filter
+}
+
 func (f *JsonFilter) Get() (any, error) {
 	dt := reflect.TypeOf(f.jsonData)
 	if dt.Kind() == reflect.Slice {

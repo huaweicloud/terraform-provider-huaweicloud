@@ -314,7 +314,8 @@ func (c *HttpHelper) doFilter() {
 	for _, filter := range c.filters {
 		query := filters.New().
 			Data(data).
-			From(filter.GetFrom())
+			From(filter.GetFrom()).
+			Filter(filter.GetFilter())
 
 		for _, q := range filter.GetQueries() {
 			query = query.Where(q.Key, q.Operator, q.Value)
