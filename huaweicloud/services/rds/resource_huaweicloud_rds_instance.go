@@ -380,6 +380,10 @@ func ResourceRdsInstance() *schema.Resource {
 				Computed:     true,
 				RequiredWith: []string{"seconds_level_monitoring_enabled"},
 			},
+			"slow_log_show_original_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -664,6 +668,12 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	if err = updateSecondLevelMonitoring(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
+	}
+
+	if v, ok := d.GetOk("slow_log_show_original_status"); ok && v.(string) == "on" {
+		if err = updateSlowLogShowOriginalStatus(ctx, d, client, instanceID); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	tagRaw := d.Get("tags").(map[string]interface{})
@@ -1081,6 +1091,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updateSecondLevelMonitoring(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateSlowLogShowOriginalStatus(ctx, d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -2080,6 +2094,33 @@ func rdsInstancePrivateDNSNameRefreshFunc(client *golangsdk.ServiceClient, insta
 		}
 		return instance, "COMPLETED", nil
 	}
+}
+
+func updateSlowLogShowOriginalStatus(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	if !d.HasChange("slow_log_show_original_status") {
+		return nil
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res := instances.ModifySlowLogShowOriginalStatus(client, instanceID, d.Get("slow_log_show_original_status").(string))
+		retry, err := handleMultiOperationsError(res.Err)
+		return res, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, instanceID),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error modify RDS instance (%s) slow log show original status: %s", instanceID, err)
+	}
+
+	return nil
 }
 
 func updatePowerAction(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, powerAction string) error {

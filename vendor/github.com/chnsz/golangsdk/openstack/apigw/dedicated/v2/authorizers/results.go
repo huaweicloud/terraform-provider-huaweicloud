@@ -35,6 +35,12 @@ type CustomAuthorizer struct {
 	AuthorizerType string `json:"authorizer_type"`
 	// Function URN.
 	AuthorizerURI string `json:"authorizer_uri"`
+	// The framework type of the function.
+	NetworkType string `json:"network_type"`
+	// The version of the FGS function.
+	AuthorizerVersion string `json:"authorizer_version"`
+	// The version alias URI of the FGS function.
+	AuthorizerAliasUri string `json:"authorizer_alias_uri"`
 	// Identity source.
 	Identities []Identity `json:"identities"`
 	// Maximum cache age.

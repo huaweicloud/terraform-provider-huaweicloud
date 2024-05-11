@@ -78,6 +78,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					"db",
 					"status",
 					"availability_zone",
+					"slow_log_show_original_status",
 				},
 			},
 		},
@@ -543,18 +544,19 @@ func testAccRdsInstance_basic(name string) string {
 %[1]s
 
 resource "huaweicloud_rds_instance" "test" {
-  name                    = "%[2]s"
-  description             = "test_description"
-  flavor                  = "rds.pg.n1.large.2"
-  availability_zone       = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id       = huaweicloud_networking_secgroup.test.id
-  subnet_id               = data.huaweicloud_vpc_subnet.test.id
-  vpc_id                  = data.huaweicloud_vpc.test.id
-  time_zone               = "UTC+08:00"
-  fixed_ip                = "192.168.0.210"
-  maintain_begin          = "06:00"
-  maintain_end            = "09:00"
-  private_dns_name_prefix = "terraformTest"
+  name                          = "%[2]s"
+  description                   = "test_description"
+  flavor                        = "rds.pg.n1.large.2"
+  availability_zone             = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id             = huaweicloud_networking_secgroup.test.id
+  subnet_id                     = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                        = data.huaweicloud_vpc.test.id
+  time_zone                     = "UTC+08:00"
+  fixed_ip                      = "192.168.0.210"
+  maintain_begin                = "06:00"
+  maintain_end                  = "09:00"
+  private_dns_name_prefix       = "terraformTest"
+  slow_log_show_original_status = "on"
 
   db {
     type     = "PostgreSQL"
@@ -584,18 +586,19 @@ func testAccRdsInstance_update(name string) string {
 %[1]s
 
 resource "huaweicloud_rds_instance" "test" {
-  name                    = "%[2]s-update"
-  flavor                  = "rds.pg.n1.large.2"
-  availability_zone       = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id       = huaweicloud_networking_secgroup.test.id
-  subnet_id               = data.huaweicloud_vpc_subnet.test.id
-  vpc_id                  = data.huaweicloud_vpc.test.id
-  enterprise_project_id   = "%[3]s"
-  time_zone               = "UTC+08:00"
-  fixed_ip                = "192.168.0.230"
-  maintain_begin          = "15:00"
-  maintain_end            = "17:00"
-  private_dns_name_prefix = "terraformTestUpdate"
+  name                          = "%[2]s-update"
+  flavor                        = "rds.pg.n1.large.2"
+  availability_zone             = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id             = huaweicloud_networking_secgroup.test.id
+  subnet_id                     = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                        = data.huaweicloud_vpc.test.id
+  enterprise_project_id         = "%[3]s"
+  time_zone                     = "UTC+08:00"
+  fixed_ip                      = "192.168.0.230"
+  maintain_begin                = "15:00"
+  maintain_end                  = "17:00"
+  private_dns_name_prefix       = "terraformTestUpdate"
+  slow_log_show_original_status = "off"
 
   db {
     password = "Huangwei!120521"
@@ -1294,6 +1297,7 @@ resource "huaweicloud_rds_instance" "test_backup" {
   security_group_id = huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
+  time_zone         = "UTC+08:00"
   availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
 
   restore {

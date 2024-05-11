@@ -74,6 +74,10 @@ type GetSecondLevelMonitoringResult struct {
 	commonResult
 }
 
+type ModifySlowLogShowOriginalStatusResult struct {
+	commonResult
+}
+
 type JobResult struct {
 	commonResult
 }
