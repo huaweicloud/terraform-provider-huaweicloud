@@ -35,9 +35,9 @@ The following arguments are supported:
 
 * `policy_id` - (Optional, String) Specifies the ID of the ACL policy.
 
-* `policy_name` - (Optional, String) Specifies the name of the ACL policy.
+* `name` - (Optional, String) Specifies the name of the ACL policy.
 
-* `policy_type` - (Optional, String) Specifies the type of the ACL policy.
+* `type` - (Optional, String) Specifies the type of the ACL policy.
 
 * `env_id` - (Optional, String) Specifies the ID of the environment where the API is published.
 
