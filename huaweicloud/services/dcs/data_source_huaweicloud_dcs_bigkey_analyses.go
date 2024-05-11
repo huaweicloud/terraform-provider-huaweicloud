@@ -50,7 +50,7 @@ func DataSourceDcsBigkeyAnalyses() *schema.Resource {
 				Description: `Specifies the status of the big key analysis.`,
 			},
 			"records": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `Indicates the list of big key analysis records.`,
 				Elem: &schema.Resource{
