@@ -1,11 +1,11 @@
 ---
 subcategory: "Workspace"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_workspace_terminal_bindings"
+page_title: "HuaweiCloud: huaweicloud_workspace_terminal_binding"
 description: ""
 ---
 
-# huaweicloud_workspace_terminal_bindings
+# huaweicloud_workspace_terminal_binding
 
 Manages the terminal bindings between MAC addresses and desktops within HuaweiCloud.
 
@@ -18,7 +18,7 @@ Manages the terminal bindings between MAC addresses and desktops within HuaweiCl
 ```hcl
 variable "desktop_name" {}
 
-resource "huaweicloud_workspace_terminal_bindings" "test" {
+resource "huaweicloud_workspace_terminal_binding" "test" {
   enabled               = true
   disabled_after_delete = true
 
@@ -72,7 +72,7 @@ The `bindings` block supports:
 Bindings can be imported using the resource `id`, e.g.
 
 ```
-$ terraform import huaweicloud_workspace_terminal_bindings.test <id>
+$ terraform import huaweicloud_workspace_terminal_binding.test <id>
 ```
 
 Also you can using any UUID string to replace this ID in the import phase.
