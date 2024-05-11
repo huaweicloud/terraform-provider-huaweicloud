@@ -2,6 +2,7 @@ package gaussdb
 
 import (
 	"context"
+	"net/http"
 	"strings"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -88,13 +90,26 @@ func resourceGaussDBMysqlRestoreCreate(ctx context.Context, d *schema.ResourceDa
 	createOpt := golangsdk.RequestOpts{KeepResponseBody: true}
 	createOpt.JSONBody = utils.RemoveNil(buildCreateRestoreBodyParams(d))
 
-	createResp, err := client.Request("POST", createPath, &createOpt)
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("POST", createPath, &createOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Get("target_instance_id").(string)),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
 	if err != nil {
 		return diag.Errorf("error restoring from backup(%s) to GaussDB MySQL instance (%s): %s", backupId,
 			targetInstanceId, err)
 	}
 
-	createRespBody, err := utils.FlattenResponse(createResp)
+	createRespBody, err := utils.FlattenResponse(r.(*http.Response))
 	if err != nil {
 		return diag.FromErr(err)
 	}

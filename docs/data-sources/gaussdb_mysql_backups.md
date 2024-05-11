@@ -2,7 +2,8 @@
 subcategory: "GaussDB(for MySQL)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_gaussdb_mysql_backups"
-description: ""
+description: |-
+  Use this data source to get the list of GaussDB MySQL backups.
 ---
 
 # huaweicloud_gaussdb_mysql_backups
