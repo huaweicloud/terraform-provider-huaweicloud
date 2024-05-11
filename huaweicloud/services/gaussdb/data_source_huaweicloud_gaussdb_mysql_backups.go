@@ -69,7 +69,7 @@ func DataSourceGaussdbMysqlBackups() *schema.Resource {
 				Description: `Specifies the backup type.`,
 			},
 			"backups": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `Indicates the list of backups.`,
 				Elem: &schema.Resource{
@@ -174,7 +174,10 @@ func dataSourceGaussdbMysqlBackupsRead(_ context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.showGaussMySqlBackupListToSchema(shoGauMySqlBacLisRst)
@@ -221,27 +224,27 @@ func (w *MysqlBackupsDSWrapper) showGaussMySqlBackupListToSchema(body *gjson.Res
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("backups", schemas.SliceToList(body.Get("backups"),
-			func(backups gjson.Result) any {
+			func(backup gjson.Result) any {
 				return map[string]any{
-					"id":            backups.Get("id").Value(),
-					"name":          backups.Get("name").Value(),
-					"instance_name": backups.Get("instance_name").Value(),
-					"instance_id":   backups.Get("instance_id").Value(),
-					"begin_time":    backups.Get("begin_time").Value(),
-					"end_time":      backups.Get("end_time").Value(),
-					"take_up_time":  backups.Get("take_up_time").Value(),
-					"type":          backups.Get("type").Value(),
-					"size":          backups.Get("size").Value(),
-					"datastore": schemas.SliceToList(backups.Get("datastore"),
-						func(dat gjson.Result) any {
+					"id":            backup.Get("id").Value(),
+					"name":          backup.Get("name").Value(),
+					"instance_name": backup.Get("instance_name").Value(),
+					"instance_id":   backup.Get("instance_id").Value(),
+					"begin_time":    backup.Get("begin_time").Value(),
+					"end_time":      backup.Get("end_time").Value(),
+					"take_up_time":  backup.Get("take_up_time").Value(),
+					"type":          backup.Get("type").Value(),
+					"size":          backup.Get("size").Value(),
+					"datastore": schemas.SliceToList(backup.Get("datastore"),
+						func(datastore gjson.Result) any {
 							return map[string]any{
-								"type":    dat.Get("type").Value(),
-								"version": dat.Get("version").Value(),
+								"type":    datastore.Get("type").Value(),
+								"version": datastore.Get("version").Value(),
 							}
 						},
 					),
-					"status":      backups.Get("status").Value(),
-					"description": backups.Get("description").Value(),
+					"status":      backup.Get("status").Value(),
+					"description": backup.Get("description").Value(),
 				}
 			},
 		)),

@@ -44,15 +44,19 @@ func testAccGaussDBRestoreonfig_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+data "huaweicloud_availability_zones" "test" {}
+
 resource "huaweicloud_gaussdb_mysql_instance" "instance" {
-  count                 = 2
-  name                  = "%[2]s_${count.index}"
-  password              = "Test@12345678"
-  flavor                = "gaussdb.mysql.4xlarge.x86.4"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
+  count                    = 2
+  name                     = "%[2]s_${count.index}"
+  password                 = "Test@12345678"
+  flavor                   = "gaussdb.mysql.4xlarge.x86.4"
+  vpc_id                   = huaweicloud_vpc.test.id
+  subnet_id                = huaweicloud_vpc_subnet.test.id
+  security_group_id        = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id    = "0"
+  master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone_mode   = "multi"
 }
 
 resource "huaweicloud_gaussdb_mysql_backup" "backup" {
@@ -73,15 +77,19 @@ func testAccGaussDBRestoreonfig_withTimestamp(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+data "huaweicloud_availability_zones" "test" {}
+
 resource "huaweicloud_gaussdb_mysql_instance" "instance" {
-  count                 = 2
-  name                  = "%[2]s_${count.index}"
-  password              = "Test@12345678"
-  flavor                = "gaussdb.mysql.4xlarge.x86.4"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
+  count                    = 2
+  name                     = "%[2]s_${count.index}"
+  password                 = "Test@12345678"
+  flavor                   = "gaussdb.mysql.4xlarge.x86.4"
+  vpc_id                   = huaweicloud_vpc.test.id
+  subnet_id                = huaweicloud_vpc_subnet.test.id
+  security_group_id        = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id    = "0"
+  master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone_mode   = "multi"
 }
 
 resource "huaweicloud_gaussdb_mysql_backup" "backup" {
