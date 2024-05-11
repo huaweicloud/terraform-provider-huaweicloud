@@ -14,7 +14,7 @@ Use this data source to get the list of HSS host groups within HuaweiCloud.
 ```hcl
 variable group_id {}
 
-data "hss_host_groups" "test" {
+data "huaweicloud_hss_host_groups" "test" {
   group_id = var.group_id
 }
 ```
