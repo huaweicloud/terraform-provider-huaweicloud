@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tidwall/gjson"
 )
 
 func TestFilter1(t *testing.T) {
@@ -373,6 +374,225 @@ func TestFilter2(t *testing.T) {
 		Where("strArr", "has", []string{"a1", "b2"}). // ok
 		Where("strArr", "hasContains", []string{"a1", "b2x"}).
 		Where("intArr", "has", 1).
+		Get()
+
+	assert.NoError(t, err)
+	assert.Equal(t, fmt.Sprintf("%v", rst), fmt.Sprintf("%v", expected))
+}
+
+func TestCustomFilter1(t *testing.T) {
+	data := map[string]interface{}{
+		"foo":    "bar",
+		"strArr": []string{"a", "b"},
+		"arr": []map[string]interface{}{
+			{
+				"str":        "bar1",
+				"strArr":     []string{"a1", "b2"},
+				"intArr":     []int{1, 2, 3, 11},
+				"boolArr":    []bool{false, false, false},
+				"strMap":     map[string]string{"a": "123", "b": "234"},
+				"intMap":     map[string]int{"a": 123, "b": 234},
+				"float32Map": map[string]float32{"a": 12.3, "b": 234},
+				"float64Map": map[string]float64{"a": 12.3, "b": 234},
+				"boolMap":    map[string]bool{"a": false, "b": true},
+			},
+			{
+				"str":     "test string",
+				"strArr":  []string{"a1", "b2"},
+				"intArr":  []int{1, 2, 3, 11},
+				"boolArr": []bool{false, false, false},
+			},
+		},
+		"node": map[string]interface{}{
+			"subNode": []map[string]interface{}{
+				{
+					"str":     "bar1",
+					"strArr":  []string{"a1", "b2"},
+					"intArr":  []int{1, 2, 3, 11},
+					"boolArr": []bool{false, false, false},
+				},
+				{
+					"str":     "test string",
+					"strArr":  []string{"a1", "b2"},
+					"intArr":  []int{1, 2, 3, 11},
+					"boolArr": []bool{false, false, false},
+				},
+			},
+		},
+	}
+
+	expected := map[string]interface{}{
+		"foo":    "bar",
+		"strArr": []string{"a", "b"},
+		"arr": []map[string]interface{}{
+			{
+				"str":        "bar1",
+				"strArr":     []string{"a1", "b2"},
+				"intArr":     []int{1, 2, 3, 11},
+				"boolArr":    []bool{false, false, false},
+				"strMap":     map[string]string{"a": "123", "b": "234"},
+				"intMap":     map[string]int{"a": 123, "b": 234},
+				"float32Map": map[string]float32{"a": 12.3, "b": 234},
+				"float64Map": map[string]float64{"a": 12.3, "b": 234},
+				"boolMap":    map[string]bool{"a": false, "b": true},
+			},
+		},
+		"node": map[string]interface{}{
+			"subNode": []map[string]interface{}{
+				{
+					"str":     "bar1",
+					"strArr":  []string{"a1", "b2"},
+					"intArr":  []int{1, 2, 3, 11},
+					"boolArr": []bool{false, false, false},
+				},
+				{
+					"str":     "test string",
+					"strArr":  []string{"a1", "b2"},
+					"intArr":  []int{1, 2, 3, 11},
+					"boolArr": []bool{false, false, false},
+				},
+			},
+		},
+	}
+
+	testCase := []struct {
+		name     string
+		filter   Filter
+		expected bool
+	}{
+		{
+			name: "test1",
+			filter: func(item gjson.Result) bool {
+				return item.Get("str").String() == "bar1"
+			},
+			expected: true,
+		}, {
+			name: "test2",
+			filter: func(item gjson.Result) bool {
+				return item.Get("str").String() == "123"
+			},
+			expected: false,
+		}, {
+			name: "test3",
+			filter: func(item gjson.Result) bool {
+				return item.Get("foo").String() == "bar"
+			},
+			expected: false,
+		},
+	}
+	fmt.Println(len(testCase))
+
+	expStr := fmt.Sprintf("%v", expected)
+	for _, tc := range testCase {
+		t.Run(tc.name, func(t *testing.T) {
+			rst, err := New().
+				Data(data).
+				From("arr").
+				Filter(tc.filter).
+				Get()
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, fmt.Sprintf("%v", rst) == expStr)
+		})
+	}
+
+	rst, err := New().
+		Data(data).
+		From("arr").
+		Where("strArr", "has", []string{"a1", "b2"}). // ok
+		Where("strArr", "hasContains", []string{"a1", "b2x"}).
+		Filter(func(item gjson.Result) bool {
+			return item.Get("str").String() == "bar1"
+		}).
+		Get()
+
+	assert.NoError(t, err)
+	assert.Equal(t, fmt.Sprintf("%v", rst), fmt.Sprintf("%v", expected))
+}
+
+func TestCustomFilter2(t *testing.T) {
+	data := map[string]interface{}{
+		"foo":    "bar",
+		"strArr": []string{"a", "b"},
+		"arr": []map[string]interface{}{
+			{
+				"str":        "bar1",
+				"strArr":     []string{"a1", "b2"},
+				"intArr":     []int{1, 2, 3, 11},
+				"boolArr":    []bool{false, false, false},
+				"strMap":     map[string]string{"a": "123", "b": "234"},
+				"intMap":     map[string]int{"a": 123, "b": 234},
+				"float32Map": map[string]float32{"a": 12.3, "b": 234},
+				"float64Map": map[string]float64{"a": 12.3, "b": 234},
+				"boolMap":    map[string]bool{"a": false, "b": true},
+			},
+			{
+				"str":     "test string",
+				"strArr":  []string{"a1", "b2"},
+				"intArr":  []int{1, 2, 3, 11},
+				"boolArr": []bool{false, false, false},
+			},
+		},
+		"node": map[string]interface{}{
+			"subNode": []map[string]interface{}{
+				{
+					"str":     "bar1",
+					"strArr":  []string{"a1", "b2"},
+					"intArr":  []int{1, 2, 3, 11},
+					"boolArr": []bool{false, false, false},
+				},
+				{
+					"str":     "test string",
+					"strArr":  []string{"a1", "b2"},
+					"intArr":  []int{1, 2, 3, 11},
+					"boolArr": []bool{false, false, false},
+				},
+			},
+		},
+	}
+
+	expected := map[string]interface{}{
+		"foo":    "bar",
+		"strArr": []string{"a", "b"},
+		"arr": []map[string]interface{}{
+			{
+				"str":        "bar1",
+				"strArr":     []string{"a1", "b2"},
+				"intArr":     []int{1, 2, 3, 11},
+				"boolArr":    []bool{false, false, false},
+				"strMap":     map[string]string{"a": "123", "b": "234"},
+				"intMap":     map[string]int{"a": 123, "b": 234},
+				"float32Map": map[string]float32{"a": 12.3, "b": 234},
+				"float64Map": map[string]float64{"a": 12.3, "b": 234},
+				"boolMap":    map[string]bool{"a": false, "b": true},
+			},
+		},
+		"node": map[string]interface{}{
+			"subNode": []map[string]interface{}{
+				{
+					"str":     "bar1",
+					"strArr":  []string{"a1", "b2"},
+					"intArr":  []int{1, 2, 3, 11},
+					"boolArr": []bool{false, false, false},
+				},
+				{
+					"str":     "test string",
+					"strArr":  []string{"a1", "b2"},
+					"intArr":  []int{1, 2, 3, 11},
+					"boolArr": []bool{false, false, false},
+				},
+			},
+		},
+	}
+
+	rst, err := New().
+		Data(data).
+		From("arr").
+		Where("strArr", "has", []string{"a1", "b2"}). // ok
+		Where("strArr", "hasContains", []string{"a1", "b2x"}).
+		Filter(func(item gjson.Result) bool {
+			return item.Get("str").String() == "bar1"
+		}).
 		Get()
 
 	assert.NoError(t, err)

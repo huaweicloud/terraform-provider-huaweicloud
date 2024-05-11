@@ -3,11 +3,15 @@ package filters
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 
 	"github.com/thedevsaddam/gojsonq"
+	"github.com/tidwall/gjson"
 )
+
+type Filter func(item gjson.Result) bool
 
 type QueryCond struct {
 	Key      string
@@ -20,6 +24,7 @@ type JsonFilter struct {
 	node     string
 	jsonData any
 	queries  []QueryCond
+	filter   Filter
 }
 
 func (f *JsonFilter) GetQ() *gojsonq.JSONQ {
@@ -32,6 +37,7 @@ func New() *JsonFilter {
 			Macro("has", has).
 			Macro("hasContains", hasContain),
 		queries: make([]QueryCond, 0),
+		filter:  nil,
 	}
 }
 
@@ -65,6 +71,11 @@ func (f *JsonFilter) Where(key, operator string, val any) *JsonFilter {
 	return f
 }
 
+func (f *JsonFilter) Filter(filter Filter) *JsonFilter {
+	f.filter = filter
+	return f
+}
+
 func (f *JsonFilter) Get() (any, error) {
 	dt := reflect.TypeOf(f.jsonData)
 	if dt.Kind() == reflect.Slice {
@@ -83,7 +94,7 @@ func (f *JsonFilter) filterSlice() (any, error) {
 	for _, q := range f.queries {
 		query = query.Where(q.Key, q.Operator, q.Value)
 	}
-	return query.Get(), nil
+	return f.applyFilter(query.Get()), nil
 }
 
 func (f *JsonFilter) filterJson() (any, error) {
@@ -108,11 +119,37 @@ func (f *JsonFilter) filterJson() (any, error) {
 
 	switch mp := f.jsonData.(type) {
 	case map[string]interface{}:
-		mp = putMap(f.node, mp, query.Get())
+		mp = putMap(f.node, mp, f.applyFilter(query.Get()))
 		return mp, nil
 	default:
 		return nil, fmt.Errorf("failed to parse object")
 	}
+}
+
+func (f *JsonFilter) applyFilter(slice any) any {
+	if f.filter == nil || reflect.TypeOf(slice).Kind() != reflect.Slice {
+		return slice
+	}
+
+	arr, ok := slice.([]any)
+	if !ok {
+		return slice
+	}
+
+	resultData := make([]any, 0)
+	for _, item := range arr {
+		b, err := json.Marshal(item)
+		if err != nil {
+			log.Printf("[ERROR] failed to apply custom filters: %s", err)
+			continue
+		}
+		j := gjson.ParseBytes(b)
+		if f.filter(j) {
+			resultData = append(resultData, item)
+		}
+	}
+
+	return resultData
 }
 
 func putMap(keyPath string, mp map[string]any, val any) map[string]any {
