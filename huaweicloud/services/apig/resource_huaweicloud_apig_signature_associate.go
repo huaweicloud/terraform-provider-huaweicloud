@@ -73,17 +73,45 @@ func ResourceSignatureAssociate() *schema.Resource {
 func signatureBindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, signId string,
 	publishIds []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		opts := buildSignBindApiListOpts(instanceId, signId)
-		resp, err := signs.ListBind(client, opts)
-		if err != nil {
-			return resp, "", err
-		}
-		bindPublishIds := flattenApiPublishIdsForSignature(resp)
-		if utils.StrSliceContainsAnother(bindPublishIds, publishIds) {
-			return resp, "COMPLETED", nil
+		var (
+			httpUrl  = "v2/{project_id}/apigw/instances/{instance_id}/sign-bindings/unbinded-apis"
+			queryUrl = "?sign_id={sign_id}"
+			offset   = 0
+			result   = make([]interface{}, 0)
+		)
+
+		listPath := client.Endpoint + httpUrl
+		listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+		listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceId)
+		queryUrl = strings.ReplaceAll(queryUrl, "{sign_id}", signId)
+		listPath += queryUrl
+
+		opt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
 		}
 
-		return resp, "PENDING", nil
+		for {
+			listPathWithOffset := fmt.Sprintf("%s&limit=100&offset=%d", listPath, offset)
+			requestResp, err := client.Request("GET", listPathWithOffset, &opt)
+			if err != nil {
+				return nil, "ERROR", fmt.Errorf("error retrieving unassociated signatures: %s", err)
+			}
+			respBody, err := utils.FlattenResponse(requestResp)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+			unbindPublishIds := utils.PathSearch("apis[*].publish_id", respBody, make([]interface{}, 0)).([]interface{})
+			if len(unbindPublishIds) < 1 {
+				break
+			}
+			result = append(result, unbindPublishIds...)
+			offset += len(unbindPublishIds)
+		}
+
+		if utils.IsSliceContainsAnyAnotherSliceElement(utils.ExpandToStringList(result), publishIds, false, true) {
+			return result, "PENDING", nil
+		}
+		return result, "COMPLETED", nil
 	}
 }
 
@@ -187,17 +215,17 @@ func resourceSignatureAssociateRead(_ context.Context, d *schema.ResourceData, m
 	return diag.FromErr(d.Set("publish_ids", flattenApiPublishIdsForSignature(resp)))
 }
 
-func signatureUnbindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, signId, bandId string) resource.StateRefreshFunc {
+func signatureUnbindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, signId string,
+	publishIds []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		opts := buildSignBindApiListOpts(instanceId, signId)
 		resp, err := signs.ListBind(client, opts)
 		if err != nil {
 			return resp, "", err
 		}
-		for _, val := range resp {
-			if val.BindId == bandId {
-				return resp, "PENDING", nil
-			}
+		bindPublishIds := flattenApiPublishIdsForSignature(resp)
+		if utils.IsSliceContainsAnyAnotherSliceElement(bindPublishIds, publishIds, false, true) {
+			return resp, "PENDING", nil
 		}
 		return resp, "COMPLETED", nil
 	}
@@ -215,34 +243,28 @@ func unbindSignatureFromApis(ctx context.Context, client *golangsdk.ServiceClien
 		return fmt.Errorf("error getting binding APIs based on signature (%s): %s", signId, err)
 	}
 
-	bindIds := make([]string, 0, len(resp))
 	for _, val := range resp {
 		if utils.StrSliceContains(rmList, val.PublishId) {
-			bindIds = append(bindIds, val.BindId)
+			err = signs.Unbind(client, instanceId, val.BindId)
+			if err != nil {
+				return fmt.Errorf("an error occurred during unbind signature: %s", err)
+			}
 		}
 	}
 
-	for _, bandId := range bindIds {
-		err = signs.Unbind(client, instanceId, bandId)
-		if err != nil {
-			return fmt.Errorf("an error occurred during unbind signature: %s", err)
-		}
-
-		stateConf := &resource.StateChangeConf{
-			Pending: []string{"PENDING"},
-			Target:  []string{"COMPLETED"},
-			Refresh: signatureUnbindingRefreshFunc(client, instanceId, signId, bandId),
-			Timeout: timeout,
-			// In most cases, the unbind operation will be completed immediately, but in a few cases, it needs to wait
-			// for a short period of time, and the polling is performed by incrementing the time here.
-			MinTimeout: 2 * time.Second,
-		}
-		_, err = stateConf.WaitForStateContext(ctx)
-		if err != nil {
-			return fmt.Errorf("error waiting for the unbind operation completed: %s", err)
-		}
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: signatureUnbindingRefreshFunc(client, instanceId, signId, rmList),
+		Timeout: timeout,
+		// In most cases, the unbind operation will be completed immediately, but in a few cases, it needs to wait
+		// for a short period of time, and the polling is performed by incrementing the time here.
+		MinTimeout: 2 * time.Second,
 	}
-
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for the unbind operation completed: %s", err)
+	}
 	return nil
 }
 
