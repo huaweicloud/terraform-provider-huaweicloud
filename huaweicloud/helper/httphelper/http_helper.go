@@ -98,6 +98,19 @@ func (c *HttpHelper) MarkerPager(dataPath, nextExp, markerKey string) *HttpHelpe
 	return c
 }
 
+func (c *HttpHelper) CustomPager(dataPath string, nextUrlFunc URLFunc) *HttpHelper {
+	timestamp, _ := uuid.GenerateUUID()
+	c.pager = func(r pagination.PageResult) pagination.Page {
+		return CustomPager{
+			PageResult:  r,
+			uuid:        timestamp,
+			DataPath:    dataPath,
+			NextURLFunc: nextUrlFunc,
+		}
+	}
+	return c
+}
+
 func (c *HttpHelper) PageSizePager(dataPath, pageNumKey, perPageKey string, perPage int) *HttpHelper {
 	if perPage > 0 {
 		c.queryExt[perPageKey] = perPage
