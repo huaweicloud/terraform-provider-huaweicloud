@@ -131,25 +131,26 @@ func (f *JsonFilter) filterJson() (any, error) {
 }
 
 func (f *JsonFilter) applyFilter(slice any) any {
-	if f.filter == nil || reflect.TypeOf(slice).Kind() != reflect.Slice {
+	if f.filter == nil || slice == nil {
 		return slice
 	}
 
-	arr, ok := slice.([]any)
-	if !ok {
+	rv := reflect.ValueOf(slice)
+	if !rv.IsValid() || rv.IsNil() || (rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array) {
 		return slice
 	}
 
 	resultData := make([]any, 0)
-	for _, item := range arr {
-		b, err := json.Marshal(item)
+	for i := 0; i < rv.Len(); i++ {
+		val := rv.Index(i).Interface()
+		b, err := json.Marshal(val)
 		if err != nil {
 			log.Printf("[ERROR] failed to apply custom filters: %s", err)
 			continue
 		}
-		j := gjson.ParseBytes(b)
-		if f.filter(j) {
-			resultData = append(resultData, item)
+
+		if f.filter(gjson.ParseBytes(b)) {
+			resultData = append(resultData, val)
 		}
 	}
 
