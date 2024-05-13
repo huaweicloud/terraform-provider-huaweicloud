@@ -245,9 +245,23 @@ In addition to all arguments above, the following attributes are exported:
 * `db_username` - Indicates the DB Administrator name.
 * `status` - Indicates the the DB instance status.
 * `port` - Indicates the database port number. The port range is 2100 to 9500.
-* `nodes` - Indicates the instance nodes information. Structure is documented below.
+* `groups` - Indicates the instance groups information.
+  The [groups](#DdsInstance_InstanceGroup) structure is documented below.
 
-The `nodes` block contains:
+<a name="DdsInstance_InstanceGroup"></a>
+The `groups` block supports:
+
+* `id` - Indicates the group ID.
+* `type` - Indicates the node type.
+* `name` - Indicates the group name.
+* `status` - Indicates the group status.
+* `size` - Indicates the disk size.
+* `used` - Indicates the disk usage.
+* `nodes` - Indicates the nodes info.
+  The [nodes](#DdsInstance_InstanceGroupNode) structure is documented below.
+
+<a name="DdsInstance_InstanceGroupNode"></a>
+The `nodes` block supports:
 
 * `id` - Indicates the node ID.
 * `name` - Indicates the node name.
