@@ -877,6 +877,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_route_ids":    vpc.DataSourceVpcRouteIdsV2(),
 			"huaweicloud_vpc_route_v2":     vpc.DataSourceVpcRouteV2(),
 			"huaweicloud_vpc_route_ids_v2": vpc.DataSourceVpcRouteIdsV2(),
+			"huaweicloud_vpc_routes":       vpc.DataSourceVpcRoutes(),
 
 			// Deprecated
 			"huaweicloud_antiddos":                      deprecated.DataSourceAntiDdosV1(),
