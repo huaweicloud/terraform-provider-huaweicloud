@@ -92,6 +92,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
 
+* `created_at` - The creation time of the asynchronous invocation, in RFC3339 format.
+
+* `updated_at` - The latest update time of the asynchronous invocation, in RFC3339 format.
+
 ## Import
 
 The configurations can be imported using their related `function_urn`, e.g.

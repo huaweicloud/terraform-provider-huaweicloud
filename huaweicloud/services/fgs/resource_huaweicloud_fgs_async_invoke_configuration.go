@@ -75,6 +75,16 @@ func ResourceAsyncInvokeConfiguration() *schema.Resource {
 				Optional:    true,
 				Description: "Whether to enable asynchronous invocation status persistence.",
 			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The creation time of the asynchronous invocation.",
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The latest update time of the asynchronous invocation.",
+			},
 		},
 	}
 }
@@ -179,6 +189,8 @@ func resourceAsyncInvokeConfigurationRead(_ context.Context, d *schema.ResourceD
 		d.Set("on_success", flattenDestinationConfig(resp.DestinationConfig.OnSuccess)),
 		d.Set("on_failure", flattenDestinationConfig(resp.DestinationConfig.OnFailure)),
 		d.Set("enable_async_status_log", resp.EnableAsyncStatusLog),
+		d.Set("created_at", resp.CreatedAt),
+		d.Set("updated_at", resp.UpdatedAt),
 	)
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error saving asynchronous invocation configuration fields: %s", mErr)

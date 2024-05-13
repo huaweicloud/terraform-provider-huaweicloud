@@ -88,6 +88,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `size` - The dependency package size in bytes.
 
+* `version` - The dependency package version.
+
 ## Import
 
 Dependencies can be imported using the `id`, e.g.:
