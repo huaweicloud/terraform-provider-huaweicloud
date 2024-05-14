@@ -263,7 +263,7 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"nodes": {
+			"groups": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -280,24 +280,33 @@ func ResourceDdsInstanceV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"role": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"private_ip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"public_ip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"status": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"size": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"used": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"nodes": {
+							Type:     schema.TypeList,
+							Elem:     ddsInstanceInstanceNodeSchema(),
+							Computed: true,
+						},
 					},
 				},
+			},
+
+			// deprecated
+			"nodes": {
+				Type:        schema.TypeList,
+				Elem:        ddsInstanceInstanceNodeSchema(),
+				Computed:    true,
+				Description: `This field is deprecated.`,
 			},
 		},
 	}
@@ -642,6 +651,7 @@ func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta
 		d.Set("status", instanceObj.Status),
 		d.Set("enterprise_project_id", instanceObj.EnterpriseProjectID),
 		d.Set("nodes", flattenDdsInstanceV3Nodes(instanceObj)),
+		d.Set("groups", flattenDdsInstanceV3Groups(instanceObj)),
 		d.Set("description", instanceObj.Remark),
 	)
 
@@ -1127,6 +1137,39 @@ func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, me
 	}
 	log.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
 	return nil
+}
+
+func flattenDdsInstanceV3Groups(dds instances.InstanceResponse) interface{} {
+	nodesList := make([]map[string]interface{}, len(dds.Groups))
+	for i, group := range dds.Groups {
+		node := map[string]interface{}{
+			"id":     group.Id,
+			"name":   group.Name,
+			"type":   group.Type,
+			"status": group.Status,
+			"size":   group.Volume.Size,
+			"used":   group.Volume.Used,
+			"nodes":  flattenDdsInstanceGroupNodes(group.Nodes),
+		}
+		nodesList[i] = node
+	}
+	return nodesList
+}
+
+func flattenDdsInstanceGroupNodes(nodes []instances.Nodes) interface{} {
+	nodesList := make([]map[string]interface{}, len(nodes))
+	for i, node := range nodes {
+		node := map[string]interface{}{
+			"id":         node.Id,
+			"name":       node.Name,
+			"role":       node.Role,
+			"status":     node.Status,
+			"private_ip": node.PrivateIP,
+			"public_ip":  node.PublicIP,
+		}
+		nodesList[i] = node
+	}
+	return nodesList
 }
 
 func flattenDdsInstanceV3Nodes(dds instances.InstanceResponse) interface{} {
