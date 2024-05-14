@@ -8,14 +8,33 @@ import (
 	"time"
 )
 
-// ConvertTimeStrToNanoTimestamp is a method that used to convert the time in RFC3339 format into the corresponding
-// timestamp (in nanosecond), e.g.
-// Before: 2007-09-02T00:00:00.00000Z
-// After:  1188691200000
-func ConvertTimeStrToNanoTimestamp(timeStr string) int64 {
-	t, err := time.Parse(time.RFC3339, timeStr)
+// ConvertTimeStrToNanoTimestamp is a method that used to convert the time string into the corresponding timestamp (in
+// nanosecond), e.g.
+// The supported time formats are as follows:
+//   - RFC3339 format:
+//     2006-01-02T15:04:05Z (default time format, if you are missing customFormat input)
+//     2006-01-02T15:04:05.000000Z
+//     2006-01-02T15:04:05Z08:00
+//   - Other time formats:
+//     2006-01-02 15:04:05
+//     2006-01-02 15:04:05+08:00
+//     2006-01-02T15:04:05
+//     ...
+//
+// Two common uses are shown below:
+// - ConvertTimeStrToNanoTimestamp("2024-01-01T00:00:00Z")
+// - ConvertTimeStrToNanoTimestamp("2024-01-01T00:00:00+08:00", "2006-01-02T15:04:05Z08:00")
+func ConvertTimeStrToNanoTimestamp(timeStr string, customFormat ...string) int64 {
+	// The default time format is RFC3339.
+	timeFormat := time.RFC3339
+	if len(customFormat) > 0 {
+		timeFormat = customFormat[0]
+	}
+	t, err := time.Parse(timeFormat, timeStr)
 	if err != nil {
-		log.Printf("error parsing time string, it's not RFC3339 format: %s", err)
+		log.Printf("error parsing the input time (%s), the time string does not match time format (%s): %s",
+			timeStr, timeFormat, err)
+		return 0
 	}
 
 	return t.UnixNano() / int64(time.Millisecond)
