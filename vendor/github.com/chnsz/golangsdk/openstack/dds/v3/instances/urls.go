@@ -53,3 +53,15 @@ func restartURL(c *golangsdk.ServiceClient, instanceId string) string {
 func maintenanceWindowURL(c *golangsdk.ServiceClient, instanceId string) string {
 	return c.ServiceURL("instances", instanceId, "maintenance-window")
 }
+
+func balancerURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "balancer")
+}
+
+func balancerSwitchURL(c *golangsdk.ServiceClient, instanceId, action string) string {
+	return c.ServiceURL("instances", instanceId, "balancer", action)
+}
+
+func balancerActiveWindowURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "balancer/active-window")
+}

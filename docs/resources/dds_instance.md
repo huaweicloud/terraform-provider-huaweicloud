@@ -151,6 +151,18 @@ The following arguments are supported:
 * `slow_log_desensitization` - (Optional, String) Specifies whether to enable slow original log.
   The value can be **on** or **off**.
 
+* `balancer_status` - (Optional, String) Specifies the status of the balancer.
+  The value can be **start** or **stop**. Defaults to **start**.
+
+* `balancer_active_begin` - (Optional, String) Specifies the start time of the balancing activity time window.
+  The format is **HH:MM**. It's required with `balancer_active_end`.
+
+* `balancer_active_end` - (Optional, String) Specifies the end time of the balancing activity time window.
+  The format is **HH:MM**. It's required with `balancer_active_begin`.
+
+-> It's only for **Sharding** mode. DDS 4.0 and later DB instances do not support to set balancer configuration.
+  The UTC time is used. Please convert the local time based on the time zone.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance.
   The valid values are as follows:
   + `prePaid`: indicates the yearly/monthly billing mode.
@@ -261,6 +273,9 @@ In addition to all arguments above, the following attributes are exported:
 * `port` - Indicates the database port number. The port range is 2100 to 9500.
 * `groups` - Indicates the instance groups information.
   The [groups](#DdsInstance_InstanceGroup) structure is documented below.
+* `created_at` - Indicates the create time.
+* `updated_at` - Indicates the update time.
+* `time_zone` - Indicates the time zone.
 
 <a name="DdsInstance_InstanceGroup"></a>
 The `groups` block supports:
