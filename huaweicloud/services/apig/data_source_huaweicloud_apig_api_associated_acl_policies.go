@@ -42,12 +42,12 @@ func DataSourceApiAssociatedAclPolicies() *schema.Resource {
 				Optional:    true,
 				Description: `The ID of the ACL policy.`,
 			},
-			"policy_name": {
+			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The name of the ACL policy.`,
 			},
-			"policy_type": {
+			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The type of the ACL policy.`,
@@ -136,7 +136,7 @@ func buildListApiAssociatedAclPoliciesParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("policy_id"); ok {
 		res = fmt.Sprintf("%s&acl_id=%v", res, v)
 	}
-	if v, ok := d.GetOk("policy_name"); ok {
+	if v, ok := d.GetOk("name"); ok {
 		res = fmt.Sprintf("%s&acl_name=%v", res, v)
 	}
 	return res
@@ -220,7 +220,7 @@ func filterAssociatedAclPolicies(all []interface{}, d *schema.ResourceData) []in
 			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("entity_type", v, nil)) {
 			continue
 		}
-		if param, ok := d.GetOk("policy_type"); ok &&
+		if param, ok := d.GetOk("type"); ok &&
 			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("type", v, nil)) {
 			continue
 		}

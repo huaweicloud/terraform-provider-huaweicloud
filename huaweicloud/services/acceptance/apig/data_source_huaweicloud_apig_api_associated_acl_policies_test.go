@@ -137,7 +137,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "filter_by_name" {
   instance_id = huaweicloud_apig_instance.test.id
   api_id      = huaweicloud_apig_api.test.id
 
-  policy_name = local.policy_name
+  name = local.policy_name
 }
 
 locals {
@@ -163,7 +163,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "filter_by_not_found_name" {
   instance_id = huaweicloud_apig_instance.test.id
   api_id      = huaweicloud_apig_api.test.id
 
-  policy_name = local.not_found_name
+  name = local.not_found_name
 }
 
 locals {
@@ -189,7 +189,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "filter_by_type" {
   instance_id = huaweicloud_apig_instance.test.id
   api_id      = huaweicloud_apig_api.test.id
 
-  policy_type = local.policy_type
+  type = local.policy_type
 }
 
 locals {
