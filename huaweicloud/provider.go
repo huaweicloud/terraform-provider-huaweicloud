@@ -401,6 +401,7 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"huaweicloud_apig_acl_policies":                       apig.DataSourceAclPolicies(),
 			"huaweicloud_apig_api_associated_acl_policies":        apig.DataSourceApiAssociatedAclPolicies(),
 			"huaweicloud_apig_api_associated_throttling_policies": apig.DataSourceApiAssociatedThrottlingPolicies(),
 			"huaweicloud_apig_environments":                       apig.DataSourceEnvironments(),
