@@ -23,7 +23,7 @@ variable "cluster_id" {}
 resource "huaweicloud_lts_cce_access" "container_stdout" {
   name           = var.name
   log_group_id   = var.log_group_id
-  log_stream_id  = var.log_group_id
+  log_stream_id  = var.log_stream_id
   host_group_ids = [var.host_group_id]
   cluster_id     = var.cluster_id
 
@@ -57,7 +57,7 @@ variable "cluster_id" {}
 resource "huaweicloud_lts_cce_access" "container_file" {
   name           = var.name
   log_group_id   = var.log_group_id
-  log_stream_id  = var.log_group_id
+  log_stream_id  = var.log_stream_id
   host_group_ids = [var.host_group_id]
   cluster_id     = var.cluster_id
 
@@ -91,7 +91,7 @@ variable "cluster_id" {}
 resource "huaweicloud_lts_cce_access" "host_file" {
   name           = var.name
   log_group_id   = var.log_group_id
-  log_stream_id  = var.log_group_id
+  log_stream_id  = var.log_stream_id
   host_group_ids = [var.host_group_id]
   cluster_id     = var.cluster_id
 

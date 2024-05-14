@@ -14,7 +14,7 @@ Use this data source to get the list of HSS hosts within HuaweiCloud.
 ```hcl
 variable host_id {}
 
-data "hss_hosts" "test" {
+data "huaweicloud_hss_hosts" "test" {
   host_id = var.host_id
 }
 ```
