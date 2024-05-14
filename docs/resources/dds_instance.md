@@ -28,6 +28,9 @@ resource "huaweicloud_dds_instance" "instance" {
   security_group_id = "{{ security_group_id }}"
   password          = var.dds_password
   mode              = "Sharding"
+  maintain_begin    = "02:00"
+  maintain_end      = "03:00"
+
   flavor {
     type      = "mongos"
     num       = 2
@@ -134,6 +137,14 @@ The following arguments are supported:
 * `ssl` - (Optional, Bool) Specifies whether to enable or disable SSL. Defaults to true.
 
 **NOTE:** The instance will be restarted in the background when switching SSL. Please operate with caution.
+
+* `maintain_begin` - (Optional, String) Specifies begin time of the time range within which you are allowed to start a
+  task that affects the running of database instances. It must be a valid value in the format of **hh:mm** in UTC+0,
+  such as **02:00**, meanwhile, this time in console displays in the format of **hh:mm** in UTC+08:00, e.g. **10:00**.
+
+* `maintain_end` - (Optional, String) Specifies end time of the time range within which you are allowed to start a
+  task that affects the running of database instances. It must be a valid value in the format of **hh:mm** in UTC+0,
+  such as **04:00**, meanwhile, this time in console displays in the format of **hh:mm** in UTC+08:00, e.g. **12:00**.
 
 * `second_level_monitoring_enabled` - (Optional, Bool) Specifies whether to enable second level monitoring.
 

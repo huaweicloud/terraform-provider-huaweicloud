@@ -49,3 +49,7 @@ func slowLogStatusURL(c *golangsdk.ServiceClient, instanceId string, status stri
 func restartURL(c *golangsdk.ServiceClient, instanceId string) string {
 	return c.ServiceURL("instances", instanceId, "restart")
 }
+
+func maintenanceWindowURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "maintenance-window")
+}

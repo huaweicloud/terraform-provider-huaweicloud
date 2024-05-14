@@ -340,6 +340,11 @@ type RemarkOpts struct {
 	Remark string `json:"remark"`
 }
 
+type ChangeMaintenanceWindowOpts struct {
+	StartTime string `json:"start_time" required:"true"`
+	EndTime   string `json:"end_time" required:"true"`
+}
+
 // UpdateReplicaSetName is a method to update the replica set name.
 func UpdateReplicaSetName(c *golangsdk.ServiceClient, instanceId string, opts ReplicaSetNameOpts) (*CommonResp, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
@@ -409,4 +414,21 @@ func RestartInstance(c *golangsdk.ServiceClient, instanceId string, opts Restart
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r, err
+}
+
+// UpdateMaintenanceWindow is a method to update maintenance time.
+func UpdateMaintenanceWindow(c *golangsdk.ServiceClient, instanceId string, opts ChangeMaintenanceWindowOpts) error {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return err
+	}
+
+	var r ChangeMaintenanceWindowOpts
+	_, err = c.Put(maintenanceWindowURL(c, instanceId), b, &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+		OkCodes: []int{
+			204,
+		},
+	})
+	return err
 }

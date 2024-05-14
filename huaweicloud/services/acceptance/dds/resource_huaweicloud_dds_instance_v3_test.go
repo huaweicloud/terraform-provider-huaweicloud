@@ -291,6 +291,8 @@ func TestAccDDSV3Instance_withConfigurationReplicaSet(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "configuration.0.type", "replica"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "02:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "03:00"),
 					resource.TestCheckResourceAttrPair(resourceName, "configuration.0.id", "huaweicloud_dds_parameter_template.replica2", "id"),
 				),
 			},
@@ -1098,6 +1100,8 @@ resource "huaweicloud_dds_instance" "instance" {
   password          = "Terraform@123"
   mode              = "ReplicaSet"
   replica_set_name  = "replicaName"
+  maintain_begin    = "02:00"
+  maintain_end      = "03:00"
 
   datastore {
     type           = "DDS-Community"
