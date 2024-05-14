@@ -93,6 +93,7 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckDDSV3InstanceFlavor(&instance, "shard", "num", 3),
+					resource.TestCheckResourceAttr(resourceName, "slow_log_desensitization", "off"),
 				),
 			},
 			{
@@ -512,13 +513,14 @@ func testAccDDSInstanceV3Config_updateFlavorNum(rName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
-  name              = "%s"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  password          = "Terraform@123"
-  mode              = "Sharding"
+  name                     = "%s"
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                   = huaweicloud_vpc.test.id
+  subnet_id                = huaweicloud_vpc_subnet.test.id
+  security_group_id        = huaweicloud_networking_secgroup.test.id
+  password                 = "Terraform@123"
+  mode                     = "Sharding"
+  slow_log_desensitization = "off"
 
   datastore {
     type           = "DDS-Community"

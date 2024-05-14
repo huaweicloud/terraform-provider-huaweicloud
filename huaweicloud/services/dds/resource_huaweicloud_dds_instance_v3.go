@@ -51,6 +51,8 @@ type ctxType string
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/replica-set/name
 // @API DDS GET /v3/{project_id}/instances/{instance_id}/replica-set/name
 // @API DDS PUT /v3/{project_id}/configurations/{config_id}/apply
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/slowlog-desensitization/{status}
+// @API DDS GET /v3/{project_id}/instances/{instance_id}/slowlog-desensitization/status
 // @API DDS POST /v3/{project_id}/instances/{instance_id}/replicaset-node
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -238,6 +240,11 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				Optional: true,
 			},
 			"replica_set_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"slow_log_desensitization": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -525,6 +532,13 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	if slowLogDesensitization := d.Get("slow_log_desensitization").(string); slowLogDesensitization == "off" {
+		err = instances.UpdateSlowLogStatus(client, instance.Id, slowLogDesensitization)
+		if err != nil {
+			return diag.Errorf("error setting slow log desensitization of the DDS instance %s: %s", instance.Id, err)
+		}
+	}
+
 	if replicaSetName, ok := d.GetOk("replica_set_name"); ok && replicaSetName.(string) != "replica" {
 		err = updateReplicaSetName(ctx, client, d.Timeout(schema.TimeoutCreate), instance.Id, replicaSetName.(string))
 		if err != nil {
@@ -691,6 +705,13 @@ func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta
 		}
 		mErr = multierror.Append(mErr, d.Set("replica_set_name", replicaSetName.Name))
 	}
+
+	// set slow log desensitization
+	slowLog, err := instances.GetSlowLogStatus(client, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	mErr = multierror.Append(mErr, d.Set("slow_log_desensitization", slowLog.Status))
 
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("Error setting dds instance fields: %s", err)
@@ -909,6 +930,26 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		})
 		if err != nil {
 			return diag.Errorf("error updating second level monitoring of the DDS instance %s: %s ", instanceId, err)
+		}
+	}
+
+	if d.HasChange("slow_log_desensitization") {
+		retryFunc := func() (interface{}, bool, error) {
+			err = instances.UpdateSlowLogStatus(client, instanceId, d.Get("slow_log_desensitization").(string))
+			retry, err := handleMultiOperationsError(err)
+			return nil, retry, err
+		}
+		_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+			WaitTarget:   []string{"normal"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			return diag.Errorf("error setting slow log desensitization of the DDS instance %s: %s", instanceId, err)
 		}
 	}
 

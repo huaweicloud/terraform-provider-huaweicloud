@@ -137,6 +137,9 @@ The following arguments are supported:
 
 * `second_level_monitoring_enabled` - (Optional, Bool) Specifies whether to enable second level monitoring.
 
+* `slow_log_desensitization` - (Optional, String) Specifies whether to enable slow original log.
+  The value can be **on** or **off**.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance.
   The valid values are as follows:
   + `prePaid`: indicates the yearly/monthly billing mode.
