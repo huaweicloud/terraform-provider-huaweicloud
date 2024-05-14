@@ -1,24 +1,9 @@
 package utils
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
-
-const (
-	greenCode  = "\033[1;32m"
-	yellowCode = "\033[1;33m"
-	resetCode  = "\033[0m"
-)
-
-func green(str interface{}) string {
-	return fmt.Sprintf("%s%#v%s", greenCode, str, resetCode)
-}
-
-func yellow(str interface{}) string {
-	return fmt.Sprintf("%s%#v%s", yellowCode, str, resetCode)
-}
 
 func TestAccFunction_RemoveNil(t *testing.T) {
 	var (
@@ -53,9 +38,9 @@ func TestAccFunction_RemoveNil(t *testing.T) {
 
 	testOutput := RemoveNil(testInput)
 	if !reflect.DeepEqual(testOutput, expected) {
-		t.Fatalf("The processing result of RemoveNil method is not as expected, want %s, but %s", green(expected), yellow(testOutput))
+		t.Fatalf("The processing result of RemoveNil method is not as expected, want %s, but %s", Green(expected), Yellow(testOutput))
 	}
-	t.Logf("The processing result of RemoveNil method meets expectation: %s", green(expected))
+	t.Logf("The processing result of RemoveNil method meets expectation: %s", Green(expected))
 }
 
 func TestAccFunction_reverse(t *testing.T) {
@@ -66,9 +51,9 @@ func TestAccFunction_reverse(t *testing.T) {
 
 	if !reflect.DeepEqual(Reverse(testInput), expected) {
 		t.Fatalf("The processing result of the function 'Reverse' is not as expected, want '%s', but got '%s'",
-			green(expected), yellow(testInput))
+			Green(expected), Yellow(testInput))
 	}
-	t.Logf("The processing result of function 'Reverse' meets expectation: %s", green(expected))
+	t.Logf("The processing result of function 'Reverse' meets expectation: %s", Green(expected))
 }
 
 func TestAccFunction_jsonStringsEqual(t *testing.T) {
@@ -79,9 +64,9 @@ func TestAccFunction_jsonStringsEqual(t *testing.T) {
 
 	if !JSONStringsEqual(jsonStr1, jsonStr2) {
 		t.Fatalf("The processing result of the function 'JSONStringsEqual' is not as expected, want '%v', "+
-			"but got '%v'", green(true), yellow(false))
+			"but got '%v'", Green(true), Yellow(false))
 	}
-	t.Logf("The processing result of function 'JSONStringsEqual' meets expectation: %s", green(true))
+	t.Logf("The processing result of function 'JSONStringsEqual' meets expectation: %s", Green(true))
 }
 
 func TestAccFunction_PasswordEncrypt(t *testing.T) {
@@ -90,14 +75,14 @@ func TestAccFunction_PasswordEncrypt(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("The encrypted string of %s is %s", password, green(encrypted))
+	t.Logf("The encrypted string of %s is %s", password, Green(encrypted))
 
 	newEncrypted, err := TryPasswordEncrypt(encrypted)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if newEncrypted != encrypted {
-		t.Fatalf("The encrypted string is not as expected, want %s, but %s", green(encrypted), yellow(newEncrypted))
+		t.Fatalf("The encrypted string is not as expected, want %s, but %s", Green(encrypted), Yellow(newEncrypted))
 	}
 }
 
@@ -111,9 +96,9 @@ func TestAccFunction_ConvertMemoryUnit(t *testing.T) {
 	for i, memory := range memories {
 		testOutput := ConvertMemoryUnit(memory, diffLevels[i])
 		if !reflect.DeepEqual(testOutput, expected[i]) {
-			t.Fatalf("The processing result of ConvertMemoryUnit method is not as expected, want %s, but %s", green(expected[i]), yellow(testOutput))
+			t.Fatalf("The processing result of ConvertMemoryUnit method is not as expected, want %s, but %s", Green(expected[i]), Yellow(testOutput))
 		}
-		t.Logf("The processing result of ConvertMemoryUnit method meets expectation: %s", green(expected[i]))
+		t.Logf("The processing result of ConvertMemoryUnit method meets expectation: %s", Green(expected[i]))
 	}
 }
 
@@ -126,8 +111,8 @@ func TestAccFunction_IsUUID(t *testing.T) {
 	for i, idInput := range ids {
 		if isValid := IsUUID(idInput); isValid != expected[i] {
 			t.Fatalf("The processing result of IsUUID method is not as expected, want %s, but %s, the ID is %s",
-				green(expected[i]), yellow(isValid), idInput)
+				Green(expected[i]), Yellow(isValid), idInput)
 		}
-		t.Logf("The processing result of IsUUID method meets expectation: %s", green(expected[i]))
+		t.Logf("The processing result of IsUUID method meets expectation: %s", Green(expected[i]))
 	}
 }
