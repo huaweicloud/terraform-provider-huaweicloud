@@ -90,6 +90,11 @@ func ResourceDependencyVersion() *schema.Resource {
 				Computed:    true,
 				Description: "The dependency size, in bytes.",
 			},
+			"dependency_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the dependency package corresponding to the version.",
+			},
 		},
 	}
 }
@@ -162,6 +167,7 @@ func resourceDependencyVersionRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("owner", resp.Owner),
 		d.Set("version", resp.Version),
 		d.Set("version_id", resp.ID),
+		d.Set("dependency_id", resp.DepId),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting resource fields of custom dependency version (%s): %s", d.Id(), err)

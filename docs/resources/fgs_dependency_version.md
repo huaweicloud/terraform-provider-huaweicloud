@@ -87,6 +87,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `size` - The dependency size, in bytes.
 
+* `dependency_id` - The ID of the dependency package.
+
 ## Import
 
 Dependency version can be imported using the resource `id`, e.g.

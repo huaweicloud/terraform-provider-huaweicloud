@@ -55,6 +55,7 @@ func TestAccDependencyVersion_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "runtime", "Python2.7"),
 					resource.TestCheckResourceAttr(resourceName, "link", pkgLocation),
+					resource.TestCheckResourceAttrSet(resourceName, "dependency_id"),
 				),
 			},
 			{
