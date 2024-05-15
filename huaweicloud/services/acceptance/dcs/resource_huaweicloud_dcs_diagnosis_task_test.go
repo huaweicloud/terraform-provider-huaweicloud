@@ -120,9 +120,9 @@ func testAccDiagnosisTask_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dcs_diagnosis_task" "test" {
   instance_id = "%s"
-  begin_time  = "2024-03-12T01:27:48.998Z"
-  end_time    = "2024-03-12T01:37:48.998Z"
-}`, acceptance.HW_DCS_INSTANCE_ID)
+  begin_time  = "%s"
+  end_time    = "%s"
+}`, acceptance.HW_DCS_INSTANCE_ID, acceptance.HW_DCS_BEGIN_TIME, acceptance.HW_DCS_END_TIME)
 }
 
 func testDiagnosisReportImportState(name string) resource.ImportStateIdFunc {
