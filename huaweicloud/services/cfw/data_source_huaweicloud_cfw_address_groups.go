@@ -50,7 +50,7 @@ func DataSourceCfwAddressGroups() *schema.Resource {
 				Description: `Specifies the address group type of the query.`,
 			},
 			"address_type": {
-				Type:        schema.TypeInt,
+				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the IP address type.`,
 			},
@@ -136,7 +136,10 @@ func dataSourceCfwAddressGroupsRead(_ context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listAddressSetsToSchema(lisAddSetRst)
@@ -174,6 +177,7 @@ func (w *AddressGroupsDSWrapper) ListAddressSets() (*gjson.Result, error) {
 			filters.New().From("data.records").
 				Where("name", "=", w.Get("name")),
 		).
+		OkCode(200).
 		Request().
 		Result()
 }
@@ -183,15 +187,15 @@ func (w *AddressGroupsDSWrapper) listAddressSetsToSchema(body *gjson.Result) err
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("address_groups", schemas.SliceToList(body.Get("data.records"),
-			func(addGro gjson.Result) any {
+			func(addressGroup gjson.Result) any {
 				return map[string]any{
-					"id":           addGro.Get("set_id").Value(),
-					"name":         addGro.Get("name").Value(),
-					"ref_count":    addGro.Get("ref_count").Value(),
-					"description":  addGro.Get("description").Value(),
-					"object_id":    addGro.Get("object_id").Value(),
-					"type":         addGro.Get("address_set_type").Value(),
-					"address_type": addGro.Get("address_type").Value(),
+					"id":           addressGroup.Get("set_id").Value(),
+					"name":         addressGroup.Get("name").Value(),
+					"ref_count":    addressGroup.Get("ref_count").Value(),
+					"description":  addressGroup.Get("description").Value(),
+					"object_id":    addressGroup.Get("object_id").Value(),
+					"type":         addressGroup.Get("address_set_type").Value(),
+					"address_type": addressGroup.Get("address_type").Value(),
 				}
 			},
 		)),

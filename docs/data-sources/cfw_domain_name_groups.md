@@ -47,7 +47,7 @@ The following arguments are supported:
   + **3**: normal.
   + **4**: configuration exception - domain group usage.
 
-* `ref_count` - (Optional, Int) Specifies the domain name group reference count.
+* `ref_count` - (Optional, String) Specifies the domain name group reference count.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 
