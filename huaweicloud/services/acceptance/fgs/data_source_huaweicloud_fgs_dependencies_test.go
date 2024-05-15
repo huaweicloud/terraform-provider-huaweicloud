@@ -44,6 +44,9 @@ func TestAccFunctionGraphDependencies_filterByName(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dcByName.CheckResourceExists(),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
+					resource.TestMatchResourceAttr(byName, "packages.0.versions.#", regexp.MustCompile(`[1-9][0-9]*`)),
+					resource.TestCheckResourceAttrSet(byName, "packages.0.versions.0.id"),
+					resource.TestCheckResourceAttrSet(byName, "packages.0.versions.0.version"),
 					dcNotFound.CheckResourceExists(),
 					resource.TestCheckOutput("not_found_validation_pass", "true"),
 				),

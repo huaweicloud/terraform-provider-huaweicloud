@@ -55,19 +55,33 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - A data source ID.
 
 * `packages` - All dependent packages that match.
+  The [packages](#dependency_packages) structure is documented below.
 
-  + `id` - Dependent package ID.
+<a name="dependency_packages"></a>
+The `packages` block supports:
 
-  + `name` - Dependent package name.
+* `id` - Dependent package ID.
 
-  + `owner` - Dependent package owner.
+* `name` - Dependent package name.
 
-  + `link` - URL of the dependent package in the OBS console.
+* `owner` - Dependent package owner.
 
-  + `etag` - Unique ID of the dependent package.
+* `link` - URL of the dependent package in the OBS console.
 
-  + `size` - Dependent package size.
+* `etag` - Unique ID of the dependent package.
 
-  + `file_name` - File name of the Dependent package.
+* `size` - Dependent package size.
 
-  + `runtime` - Dependent package runtime.
+* `file_name` - File name of the Dependent package.
+
+* `runtime` - Dependent package runtime.
+
+* `versions` - The list of the versions.
+  The [versions](#dependency_versions) structure is documented below.
+
+<a name="dependency_versions"></a>
+The `versions` block supports:
+
+* `id` - The ID of the dependency package version.
+
+* `version` - The dependency package version.

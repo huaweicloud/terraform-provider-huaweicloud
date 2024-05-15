@@ -584,6 +584,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_applications":          fgs.DataSourceFunctionGraphApplications(),
 			"huaweicloud_fgs_application_templates": fgs.DataSourceFunctionGraphApplicationTemplates(),
 			"huaweicloud_fgs_dependencies":          fgs.DataSourceFunctionGraphDependencies(),
+			"huaweicloud_fgs_dependency_versions":   fgs.DataSourceDependencieVersions(),
 			"huaweicloud_fgs_functions":             fgs.DataSourceFunctionGraphFunctions(),
 
 			"huaweicloud_ga_accelerators":       ga.DataSourceAccelerators(),
