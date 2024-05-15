@@ -131,22 +131,18 @@ func networkAclRuleSchema() *schema.Resource {
 			"source_port": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"destination_port": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"source_ip_address_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"destination_ip_address_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"rule_id": {
 				Type:     schema.TypeString,
@@ -345,17 +341,17 @@ func buildNetworkAclInsertRuleBodyParams(rules []interface{}) []map[string]inter
 	for i, v := range rules {
 		rule := v.(map[string]interface{})
 		bodyParams[i] = map[string]interface{}{
-			"action":                          rule["action"],
-			"protocol":                        rule["protocol"],
-			"ip_version":                      rule["ip_version"],
-			"description":                     rule["description"],
-			"name":                            utils.ValueIngoreEmpty(rule["name"]),
-			"source_ip_address":               utils.ValueIngoreEmpty(rule["source_ip_address"]),
-			"destination_ip_address":          utils.ValueIngoreEmpty(rule["destination_ip_address"]),
-			"source_port":                     utils.ValueIngoreEmpty(rule["source_port"]),
-			"destination_port":                utils.ValueIngoreEmpty(rule["destination_port"]),
-			"source_ip_address_group_id":      utils.ValueIngoreEmpty(rule["source_ip_address_group_id"]),
-			"destination_ip_address_group_id": utils.ValueIngoreEmpty(rule["destination_ip_address_group_id"]),
+			"action":                       rule["action"],
+			"protocol":                     rule["protocol"],
+			"ip_version":                   rule["ip_version"],
+			"description":                  rule["description"],
+			"name":                         utils.ValueIngoreEmpty(rule["name"]),
+			"source_ip_address":            utils.ValueIngoreEmpty(rule["source_ip_address"]),
+			"destination_ip_address":       utils.ValueIngoreEmpty(rule["destination_ip_address"]),
+			"source_port":                  utils.ValueIngoreEmpty(rule["source_port"]),
+			"destination_port":             utils.ValueIngoreEmpty(rule["destination_port"]),
+			"source_address_group_id":      utils.ValueIngoreEmpty(rule["source_ip_address_group_id"]),
+			"destination_address_group_id": utils.ValueIngoreEmpty(rule["destination_ip_address_group_id"]),
 		}
 	}
 
@@ -465,8 +461,8 @@ func flattenRules(rulesRaw interface{}) []map[string]interface{} {
 			"destination_ip_address":          rule["destination_ip_address"],
 			"source_port":                     rule["source_port"],
 			"destination_port":                rule["destination_port"],
-			"source_ip_address_group_id":      rule["source_ip_address_group_id"],
-			"destination_ip_address_group_id": rule["destination_ip_address_group_id"],
+			"source_ip_address_group_id":      rule["source_address_group_id"],
+			"destination_ip_address_group_id": rule["destination_address_group_id"],
 		}
 	}
 
