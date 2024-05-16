@@ -2,7 +2,8 @@
 subcategory: "Cloud Firewall (CFW)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cfw_service_groups"
-description: ""
+description: |-
+  Use this data source to get the list of CFW service groups.
 ---
 
 # huaweicloud_cfw_service_groups

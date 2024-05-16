@@ -85,7 +85,7 @@ func DataSourceCfwServiceGroups() *schema.Resource {
 							Description: `The description of the service group.`,
 						},
 						"protocols": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeInt},
 							Description: `The protocols of the service group.`,
@@ -116,7 +116,10 @@ func dataSourceCfwServiceGroupsRead(_ context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listServiceSetsToSchema(lisSerSetRst)
@@ -151,6 +154,7 @@ func (w *ServiceGroupsDSWrapper) ListServiceSets() (*gjson.Result, error) {
 			filters.New().From("data.records").
 				Where("name", "=", w.Get("name")),
 		).
+		OkCode(200).
 		Request().
 		Result()
 }
@@ -160,14 +164,14 @@ func (w *ServiceGroupsDSWrapper) listServiceSetsToSchema(body *gjson.Result) err
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("service_groups", schemas.SliceToList(body.Get("data.records"),
-			func(serGro gjson.Result) any {
+			func(serviceGroup gjson.Result) any {
 				return map[string]any{
-					"id":          serGro.Get("set_id").Value(),
-					"name":        serGro.Get("name").Value(),
-					"type":        serGro.Get("service_set_type").Value(),
-					"ref_count":   serGro.Get("ref_count").Value(),
-					"description": serGro.Get("description").Value(),
-					"protocols":   schemas.SliceToIntList(serGro.Get("protocols")),
+					"id":          serviceGroup.Get("set_id").Value(),
+					"name":        serviceGroup.Get("name").Value(),
+					"type":        serviceGroup.Get("service_set_type").Value(),
+					"ref_count":   serviceGroup.Get("ref_count").Value(),
+					"description": serviceGroup.Get("description").Value(),
+					"protocols":   schemas.SliceToIntList(serviceGroup.Get("protocols")),
 				}
 			},
 		)),
