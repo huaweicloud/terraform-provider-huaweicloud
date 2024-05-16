@@ -87,6 +87,7 @@ var (
 	HW_RAM_SHARE_INVITATION_ID       = os.Getenv("HW_RAM_SHARE_INVITATION_ID")
 
 	HW_CDN_DOMAIN_NAME              = os.Getenv("HW_CDN_DOMAIN_NAME")
+	HW_CDN_DOMAIN_URL               = os.Getenv("HW_CDN_DOMAIN_URL")
 	HW_CDN_CERT_PATH                = os.Getenv("HW_CDN_CERT_PATH")
 	HW_CDN_PRIVATE_KEY_PATH         = os.Getenv("HW_CDN_PRIVATE_KEY_PATH")
 	HW_CDN_ENABLE_FLAG              = os.Getenv("HW_CDN_ENABLE_FLAG")
@@ -1440,6 +1441,13 @@ func TestAccPreCheckCCINamespace(t *testing.T) {
 func TestAccPreCheckCDN(t *testing.T) {
 	if HW_CDN_DOMAIN_NAME == "" {
 		t.Skip("This environment does not support CDN tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCDNURL(t *testing.T) {
+	if HW_CDN_DOMAIN_URL == "" {
+		t.Skip("HW_CDN_DOMAIN_URL must be set for the acceptance test")
 	}
 }
 

@@ -1020,6 +1020,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cdn_domain":         cdn.ResourceCdnDomain(),
 			"huaweicloud_cdn_billing_option": cdn.ResourceBillingOption(),
+			"huaweicloud_cdn_cache_preheat":  cdn.ResourceCachePreheat(),
 
 			"huaweicloud_ces_alarmrule":      ces.ResourceAlarmRule(),
 			"huaweicloud_ces_resource_group": ces.ResourceResourceGroup(),
