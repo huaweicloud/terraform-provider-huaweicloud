@@ -221,11 +221,12 @@ EOF
 }
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id  = huaweicloud_apig_instance.test.id
-  name         = "%[2]s"
-  function_urn = huaweicloud_fgs_function.test.urn
-  type         = "BACKEND"
-  cache_age    = 60
+  instance_id      = huaweicloud_apig_instance.test.id
+  name             = "%[2]s"
+  function_urn     = huaweicloud_fgs_function.test.urn
+  function_version = "latest"
+  type             = "BACKEND"
+  cache_age        = 60
 }
 `, common.TestBaseComputeResources(name), name)
 }

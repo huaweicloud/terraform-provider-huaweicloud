@@ -205,12 +205,13 @@ func testAccCustomAuthorizer_front(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id  = huaweicloud_apig_instance.test.id
-  name         = "%[2]s"
-  function_urn = huaweicloud_fgs_function.test.urn
-  type         = "FRONTEND"
-  is_body_send = true
-  cache_age    = 60
+  instance_id      = huaweicloud_apig_instance.test.id
+  name             = "%[2]s"
+  function_urn     = huaweicloud_fgs_function.test.urn
+  function_version = "latest"
+  type             = "FRONTEND"
+  is_body_send     = true
+  cache_age        = 60
   
   identity {
     name     = "user_name"
@@ -225,10 +226,11 @@ func testAccCustomAuthorizer_frontUpdate(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id  = huaweicloud_apig_instance.test.id
-  name         = "%[2]s"
-  function_urn = huaweicloud_fgs_function.test.urn
-  type         = "FRONTEND"
+  instance_id      = huaweicloud_apig_instance.test.id
+  name             = "%[2]s"
+  function_urn     = huaweicloud_fgs_function.test.urn
+  function_version = "latest"
+  type             = "FRONTEND"
 }
 `, testAccCustomAuthorizer_base(name), name)
 }
@@ -238,11 +240,12 @@ func testAccCustomAuthorizer_backend(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id  = huaweicloud_apig_instance.test.id
-  name         = "%[2]s"
-  function_urn = huaweicloud_fgs_function.test.urn
-  type         = "BACKEND"
-  cache_age    = 60
+  instance_id      = huaweicloud_apig_instance.test.id
+  name             = "%[2]s"
+  function_urn     = huaweicloud_fgs_function.test.urn
+  function_version = "latest"
+  type             = "BACKEND"
+  cache_age        = 60
 }
 `, testAccCustomAuthorizer_base(name), name)
 }
@@ -252,11 +255,12 @@ func testAccCustomAuthorizer_backendUpdate(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id  = huaweicloud_apig_instance.test.id
-  name         = "%[2]s"
-  function_urn = huaweicloud_fgs_function.test.urn
-  type         = "BACKEND"
-  cache_age    = 45
+  instance_id      = huaweicloud_apig_instance.test.id
+  name             = "%[2]s"
+  function_urn     = huaweicloud_fgs_function.test.urn
+  function_version = "latest"
+  type             = "BACKEND"
+  cache_age        = 45
 }
 `, testAccCustomAuthorizer_base(name), name)
 }

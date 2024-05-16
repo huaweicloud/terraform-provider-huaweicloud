@@ -149,10 +149,11 @@ resource "huaweicloud_apig_instance" "default" {
 }
 
 resource "huaweicloud_apig_custom_authorizer" "default" {
-  instance_id  = huaweicloud_apig_instance.default.id
-  name         = var.apig_auth_name
-  function_urn = huaweicloud_fgs_function.default.urn
-  type         = "FRONTEND"
+  instance_id      = huaweicloud_apig_instance.default.id
+  name             = var.apig_auth_name
+  function_urn     = huaweicloud_fgs_function.default.urn
+  function_version = "latest"
+  type             = "FRONTEND"
 }
 
 resource "huaweicloud_apig_response" "default" {
