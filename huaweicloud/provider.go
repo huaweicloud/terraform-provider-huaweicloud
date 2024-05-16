@@ -1462,6 +1462,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_pg_plugin_update":             rds.ResourceRdsPgPluginUpdate(),
 			"huaweicloud_rds_pg_hba":                       rds.ResourcePgHba(),
 			"huaweicloud_rds_pg_sql_limit":                 rds.ResourcePgSqlLimit(),
+			"huaweicloud_rds_pg_plugin_parameter":          rds.ResourcePgPluginParameter(),
 			"huaweicloud_rds_lts_log":                      rds.ResourceRdsLtsLog(),
 			"huaweicloud_rds_recycling_policy":             rds.ResourceRecyclingPolicy(),
 
