@@ -119,6 +119,7 @@ type InstanceResponse struct {
 	TimeZone            string         `json:"time_zone"`
 	Actions             []string       `json:"actions"`
 	EnterpriseProjectID string         `json:"enterprise_project_id"`
+	PayMode             string         `json:"pay_mode"`
 }
 
 type Group struct {
@@ -189,4 +190,9 @@ type CommonResp struct {
 type SlowLogStatusResp struct {
 	// Status.
 	Status string `json:"status"`
+}
+
+type BalancerResp struct {
+	IsOpen       bool                     `json:"is_open"`
+	ActiveWindow BalancerActiveWindowOpts `json:"active_window"`
 }

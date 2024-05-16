@@ -239,6 +239,8 @@ func TestAccDDSV3Instance_withConfigurationSharding(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configuration.2.type", "config"),
 					resource.TestCheckResourceAttrPair(resourceName, "configuration.2.id", "huaweicloud_dds_parameter_template.config1", "id"),
 					testAccCheckDDSV3InstanceFlavor(&instance, "replica", "num", 3),
+					resource.TestCheckResourceAttr(resourceName, "balancer_active_begin", "00:00"),
+					resource.TestCheckResourceAttr(resourceName, "balancer_active_end", "02:00"),
 				),
 			},
 			{
@@ -253,6 +255,8 @@ func TestAccDDSV3Instance_withConfigurationSharding(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configuration.2.type", "config"),
 					resource.TestCheckResourceAttrPair(resourceName, "configuration.2.id", "huaweicloud_dds_parameter_template.config2", "id"),
 					testAccCheckDDSV3InstanceFlavor(&instance, "replica", "num", 5),
+					resource.TestCheckResourceAttr(resourceName, "balancer_active_begin", ""),
+					resource.TestCheckResourceAttr(resourceName, "balancer_status", "stop"),
 				),
 			},
 		},
@@ -896,7 +900,7 @@ resource "huaweicloud_dds_parameter_template" "%[3]s%[1]v" {
   name         = "%[2]s_%[3]s%[1]v"
   description  = "test description"
   node_type    = "%[3]s"
-  node_version = "3.4"
+  node_version = "4.0"
 
   parameter_values = {
     connPoolMaxConnsPerHost        = %[4]v
@@ -922,17 +926,19 @@ func testAccDDSInstanceV3Config_withShardingConfiguration(rName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
-  name              = "%[5]s"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  password          = "Terraform@123"
-  mode              = "Sharding"
+  name                  = "%[5]s"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  password              = "Terraform@123"
+  mode                  = "Sharding"
+  balancer_active_begin = "00:00"
+  balancer_active_end   = "02:00"
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -998,10 +1004,11 @@ resource "huaweicloud_dds_instance" "instance" {
   security_group_id = huaweicloud_networking_secgroup.test.id
   password          = "Terraform@123"
   mode              = "Sharding"
+  balancer_status   = "stop"
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 

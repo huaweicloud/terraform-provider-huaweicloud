@@ -53,6 +53,9 @@ type ctxType string
 // @API DDS PUT /v3/{project_id}/configurations/{config_id}/apply
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/slowlog-desensitization/{status}
 // @API DDS GET /v3/{project_id}/instances/{instance_id}/slowlog-desensitization/status
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/balancer/active-window
+// @API DDS PUT /v3/{project_id}/instances/{instance_id}/balancer/{action}
+// @API DDS GET /v3/{project_id}/instances/{instance_id}/balancer
 // @API DDS POST /v3/{project_id}/instances/{instance_id}/replicaset-node
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/maintenance-window
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -221,6 +224,21 @@ func ResourceDdsInstanceV3() *schema.Resource {
 					},
 				},
 			},
+			"balancer_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"balancer_active_begin": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"balancer_active_end"},
+			},
+			"balancer_active_end": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"balancer_active_begin"},
+			},
 			"maintain_begin": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -311,6 +329,18 @@ func ResourceDdsInstanceV3() *schema.Resource {
 						},
 					},
 				},
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"time_zone": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 
 			// deprecated
@@ -560,6 +590,21 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	if status, ok := d.GetOk("balancer_status"); ok && status == "stop" {
+		err = updateBalancerStatus(ctx, client, d.Timeout(schema.TimeoutCreate), instance.Id, status.(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if begin, ok := d.GetOk("balancer_active_begin"); ok {
+		err = updateBalancerActiveWindow(ctx, client, d.Timeout(schema.TimeoutCreate), instance.Id, begin.(string),
+			d.Get("balancer_active_end").(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if replicaSetName, ok := d.GetOk("replica_set_name"); ok && replicaSetName.(string) != "replica" {
 		err = updateReplicaSetName(ctx, client, d.Timeout(schema.TimeoutCreate), instance.Id, replicaSetName.(string))
 		if err != nil {
@@ -591,6 +636,84 @@ func isEqualPeriod(old, new string) bool {
 	sort.Strings(newArray)
 
 	return reflect.DeepEqual(oldArray, newArray)
+}
+
+func updateBalancerStatus(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId, action string) error {
+	retryFunc := func() (interface{}, bool, error) {
+		resp, err := instances.UpdateBalancerSwicth(client, instanceId, action)
+		retry, err := handleMultiOperationsError(err)
+		return resp, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating balancer switch: %s", err)
+	}
+	resp := r.(*instances.CommonResp)
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Running"},
+		Target:       []string{"Completed"},
+		Refresh:      JobStateRefreshFunc(client, resp.JobId),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for the job (%s) completed: %s ", resp.JobId, err)
+	}
+
+	return nil
+}
+
+func updateBalancerActiveWindow(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId, begin, end string) error {
+	opt := instances.BalancerActiveWindowOpts{
+		StartTime: begin,
+		StopTime:  end,
+	}
+	retryFunc := func() (interface{}, bool, error) {
+		resp, err := instances.UpdateBalancerActiveWindow(client, instanceId, opt)
+		retry, err := handleMultiOperationsError(err)
+		return resp, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating balancer active window: %s", err)
+	}
+	resp := r.(*instances.CommonResp)
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Running"},
+		Target:       []string{"Completed"},
+		Refresh:      JobStateRefreshFunc(client, resp.JobId),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+	}
+
+	return nil
 }
 
 func updateReplicaSetName(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
@@ -627,7 +750,7 @@ func updateReplicaSetName(ctx context.Context, client *golangsdk.ServiceClient, 
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("error waiting for the job (%s) completed: %s ", resp.JobId, err)
+		return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
 	}
 
 	return nil
@@ -676,7 +799,16 @@ func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta
 		d.Set("nodes", flattenDdsInstanceV3Nodes(instanceObj)),
 		d.Set("groups", flattenDdsInstanceV3Groups(instanceObj)),
 		d.Set("description", instanceObj.Remark),
+		d.Set("created_at", instanceObj.Created),
+		d.Set("updated_at", instanceObj.Updated),
+		d.Set("time_zone", instanceObj.TimeZone),
 	)
+
+	chargingMode := "postPaid"
+	if instanceObj.PayMode == "1" {
+		chargingMode = "prePaid"
+	}
+	mErr = multierror.Append(mErr, d.Set("charging_mode", chargingMode))
 
 	port, err := strconv.Atoi(instanceObj.Port)
 	if err != nil {
@@ -739,6 +871,23 @@ func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	mErr = multierror.Append(mErr, d.Set("second_level_monitoring_enabled", secondsLevelMonitoring.Enabled))
+
+	// save balancer
+	if d.Get("mode").(string) == "Sharding" {
+		balancer, err := instances.GetBalancer(client, d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		balancerStatus := "stop"
+		if balancer.IsOpen {
+			balancerStatus = "start"
+		}
+		mErr = multierror.Append(mErr,
+			d.Set("balancer_status", balancerStatus),
+			d.Set("balancer_active_begin", balancer.ActiveWindow.StartTime),
+			d.Set("balancer_active_end", balancer.ActiveWindow.StopTime),
+		)
+	}
 
 	// set replica set name
 	if d.Get("mode").(string) == "ReplicaSet" {
@@ -906,6 +1055,21 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 			if err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	if d.HasChange("balancer_status") {
+		err = updateBalancerStatus(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId, d.Get("balancer_status").(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("balancer_active_begin") {
+		err = updateBalancerActiveWindow(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId,
+			d.Get("balancer_active_begin").(string), d.Get("balancer_active_end").(string))
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
