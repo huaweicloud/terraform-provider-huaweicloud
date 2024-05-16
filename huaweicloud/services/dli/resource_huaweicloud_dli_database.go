@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -32,6 +34,11 @@ func ResourceDliSqlDatabaseV1() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceDatabaseImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -73,10 +80,23 @@ func ResourceDliSqlDatabaseV1() *schema.Resource {
 	}
 }
 
+func databaseCreateRefreshFunc(client *golangsdk.ServiceClient, dbName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		detail, queryErr := GetDliSQLDatabaseByName(client, dbName)
+		if queryErr != nil {
+			if _, ok := queryErr.(golangsdk.ErrDefault404); !ok {
+				return detail, "ERROR", queryErr
+			}
+			return detail, "PENDING", nil
+		}
+		return detail, "COMPLETED", nil
+	}
+}
+
 func resourceDliSQLDatabaseCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	c, err := cfg.DliV1Client(region)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
@@ -88,12 +108,28 @@ func resourceDliSQLDatabaseCreate(ctx context.Context, d *schema.ResourceData, m
 		EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
 		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
-	respBody, err := databases.Create(c, opts)
+
+	resp, err := databases.Create(client, opts)
 	if err != nil {
-		return diag.Errorf("error creating DLI database, %s", err)
-	}
-	if !respBody.IsSuccess {
-		return diag.Errorf("unable to create the database: %s", respBody.Message)
+		if _, ok := err.(golangsdk.ErrDefault408); !ok {
+			return diag.Errorf("error creating DLI database (%s): %s", dbName, err)
+		}
+
+		// Return synchronization job result times out.
+		// At this time, the job has entered the creation phase.
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
+			Refresh:      databaseCreateRefreshFunc(client, dbName),
+			Timeout:      d.Timeout(schema.TimeoutCreate),
+			PollInterval: 10 * time.Second,
+		}
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("error creating DLI database (%s): %s", dbName, err)
+		}
+	} else if resp != nil && !resp.IsSuccess {
+		return diag.Errorf("the request was sent successfully, but some errors occurred: %s", resp.Message)
 	}
 
 	// The resource ID (database name) at this time is only used as a mark the resource, and the value will be refreshed
@@ -180,18 +216,47 @@ func resourceDliSQLDatabaseUpdate(ctx context.Context, d *schema.ResourceData, m
 	return resourceDliSQLDatabaseRead(ctx, d, meta)
 }
 
-func resourceDliSQLDatabaseDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func databaseDeleteRefreshFunc(client *golangsdk.ServiceClient, dbName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		detail, queryErr := GetDliSQLDatabaseByName(client, dbName)
+		if queryErr != nil {
+			if _, ok := queryErr.(golangsdk.ErrDefault404); !ok {
+				return detail, "ERROR", queryErr
+			}
+			return detail, "COMPLETED", nil
+		}
+		return detail, "PENDING", nil
+	}
+}
+
+func resourceDliSQLDatabaseDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	c, err := cfg.DliV1Client(region)
+	client, err := cfg.DliV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DLI v1 client: %s", err)
 	}
 
 	dbName := d.Get("name").(string)
-	err = databases.Delete(c, dbName).ExtractErr()
+	err = databases.Delete(client, dbName).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting SQL database: %s", err)
+		if _, ok := err.(golangsdk.ErrDefault408); !ok {
+			return diag.Errorf("error deleting DLI database (%s): %s", dbName, err)
+		}
+
+		// Return synchronization job result times out.
+		// At this time, the job has entered the delete phase.
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
+			Refresh:      databaseDeleteRefreshFunc(client, dbName),
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			PollInterval: 10 * time.Second,
+		}
+		_, err = stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return diag.Errorf("error deleting DLI database (%s): %s", dbName, err)
+		}
 	}
 	return nil
 }
