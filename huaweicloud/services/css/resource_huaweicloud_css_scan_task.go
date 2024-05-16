@@ -352,7 +352,7 @@ func flattenScanTaskSummaryResponse(resp interface{}) []interface{} {
 	var rst []interface{}
 	curJson, err := jmespath.Search("summary", resp)
 	if err != nil {
-		log.Printf("[WARN] error parsing summary object from response: %#v", err)
+		log.Printf("[WARN] error parsing summary object from response: %v", err)
 		return rst
 	}
 

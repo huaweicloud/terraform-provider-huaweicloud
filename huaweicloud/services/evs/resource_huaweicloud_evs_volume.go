@@ -303,7 +303,7 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 		err = common.WaitOrderComplete(ctx, bssClient, job.OrderID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return diag.Errorf("the order is not completed while creating EVS volume (%s): %#v", d.Id(), err)
+			return diag.Errorf("the order is not completed while creating EVS volume (%s): %v", d.Id(), err)
 		}
 		_, err = common.WaitOrderAllResourceComplete(ctx, bssClient, job.OrderID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
@@ -566,7 +566,7 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			}
 			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
-				return diag.Errorf("the order (%s) is not completed while extending EVS volume (%s) size: %#v",
+				return diag.Errorf("the order (%s) is not completed while extending EVS volume (%s) size: %v",
 					resp.OrderID, d.Id(), err)
 			}
 		}

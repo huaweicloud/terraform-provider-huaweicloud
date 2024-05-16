@@ -186,7 +186,7 @@ func resourceForwardRuleUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	err = rules.Update(client, instanceId, advancedIp, ruleId, opts)
 	if err != nil {
-		return diag.Errorf("error updating Advanced Anti-DDoS forward rule (%s): %#v", ruleId, err)
+		return diag.Errorf("error updating Advanced Anti-DDoS forward rule (%s): %v", ruleId, err)
 	}
 	return resourceForwardRuleRead(ctx, d, meta)
 }
@@ -208,7 +208,7 @@ func resourceForwardRuleDelete(_ context.Context, d *schema.ResourceData, meta i
 	}
 	_, err = rules.BatchDelete(client, instanceId, advancedIp, opts)
 	if err != nil {
-		return diag.Errorf("error deleting Advanced Anti-DDoS forward rule (%s): %#v", ruleId, err)
+		return diag.Errorf("error deleting Advanced Anti-DDoS forward rule (%s): %v", ruleId, err)
 	}
 	return nil
 }

@@ -430,7 +430,7 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		}
 		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return diag.Errorf("the order is not completed while creating ELB LoadBalancer (%s): %#v", resp.LoadBalancerID, err)
+			return diag.Errorf("the order is not completed while creating ELB LoadBalancer (%s): %v", resp.LoadBalancerID, err)
 		}
 		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderID,
 			d.Timeout(schema.TimeoutCreate))
@@ -848,7 +848,7 @@ func updateLoadBalancer(ctx context.Context, d *schema.ResourceData, cfg *config
 		}
 		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("the order is not completed while updating ELB LoadBalancer (%s): %#v",
+			return diag.Errorf("the order is not completed while updating ELB LoadBalancer (%s): %v",
 				resp.LoadBalancerID, err)
 		}
 	} else {

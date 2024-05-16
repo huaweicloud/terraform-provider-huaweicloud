@@ -1166,7 +1166,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 			}
 			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
-				return diag.Errorf("The order (%s) is not completed while extending system disk (%s) size: %#v",
+				return diag.Errorf("The order (%s) is not completed while extending system disk (%s) size: %v",
 					resp.OrderID, serverID, err)
 			}
 		}

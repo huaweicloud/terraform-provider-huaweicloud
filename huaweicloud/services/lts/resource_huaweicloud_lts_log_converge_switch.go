@@ -52,16 +52,16 @@ func modifyLogConvergeConfigsMessageSwitch(client *golangsdk.ServiceClient, swit
 	}
 	requestResp, err := client.Request("PUT", getPath, &opts)
 	if err != nil {
-		return fmt.Errorf("failed to enable log receiving status (target: %v): %#v", switchTarget, err)
+		return fmt.Errorf("failed to enable log receiving status (target: %v): %s", switchTarget, err)
 	}
 
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
-		return fmt.Errorf("error retrieving API response body: %#v", err)
+		return fmt.Errorf("error retrieving API response body: %v", err)
 	}
 	requestResult := utils.PathSearch("result", respBody, nil)
 	if requestResult != "success" {
-		return fmt.Errorf("failed to enable log receiving status (target: %v), but the result of API request is: %#v",
+		return fmt.Errorf("failed to enable log receiving status (target: %v), but the result of API request is: %v",
 			switchTarget, requestResult)
 	}
 	return nil

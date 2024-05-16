@@ -285,7 +285,7 @@ func resourceCdmJobRead(_ context.Context, d *schema.ResourceData, meta interfac
 	}
 
 	rst, gErr := job.Get(client, clusterId, jobName, job.GetJobsOpts{})
-	log.Printf("[DEBUG] read CDM job opts: %#v", gErr)
+	log.Printf("[DEBUG] read CDM job opts: %v", gErr)
 
 	if gErr != nil {
 		return common.CheckDeletedDiag(d, parseCdmJobErrorToError404(gErr), "Error retrieving CDM job")
