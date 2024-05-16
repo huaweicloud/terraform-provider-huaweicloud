@@ -141,7 +141,7 @@ func resourceDatabasePrivilegeCreate(ctx context.Context, d *schema.ResourceData
 	return resourceDatabasePrivilegeRead(ctx, d, meta)
 }
 
-func GetObjectPrivilegesForSpecifiedUser(client *golangsdk.ServiceClient, object, userName string) (interface{}, error) {
+func GetObjectPrivilegesForSpecifiedUser(client *golangsdk.ServiceClient, object, userName string) (objectResp, privilege interface{}, err error) {
 	var (
 		filterExpression string
 		httpUrl          = "v1.0/{project_id}/authorization/privileges?object={object}"
@@ -155,23 +155,32 @@ func GetObjectPrivilegesForSpecifiedUser(client *golangsdk.ServiceClient, object
 
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return nil, ParsePrivilegesQueryError(err, errCodeDbNotFound)
+		err = ParsePrivilegesQueryError(err, errCodeDbNotFound)
+		return
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	if !utils.PathSearch("is_success", respBody, true).(bool) {
-		return nil, fmt.Errorf("unable to query the privileges: %s",
-			utils.PathSearch("message", respBody, "Message Not Found"))
+		err = fmt.Errorf("unable to query the privileges: %s", utils.PathSearch("message", respBody, "Message Not Found"))
+		return
 	}
 	filterExpression = fmt.Sprintf("privileges[?user_name=='%s']|[0]", userName)
-	privilege := utils.PathSearch(filterExpression, respBody, nil)
+	privilege = utils.PathSearch(filterExpression, respBody, nil)
 	if privilege != nil {
-		return privilege, nil
+		objectResp = utils.PathSearch("object", privilege, nil)
+		if objectResp == nil && utils.PathSearch("object_type", respBody, "type_not_found").(string) == "database" {
+			// The object value will not be included in the structure 'privileges' if the grant object type is database,
+			// but the strings that make up the object will be returned in the upper structure, which are 'object_type'
+			// and 'object_name'.
+			objectResp = fmt.Sprintf("databases.%v", utils.PathSearch("object_name", respBody, "object_not_found"))
+		}
+	} else {
+		err = golangsdk.ErrDefault404{}
 	}
-	return nil, golangsdk.ErrDefault404{}
+	return
 }
 
 func resourceDatabasePrivilegeRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -186,13 +195,13 @@ func resourceDatabasePrivilegeRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating DLI client: %s", err)
 	}
 
-	privilege, err := GetObjectPrivilegesForSpecifiedUser(client, object, userName)
+	objectResp, privilege, err := GetObjectPrivilegesForSpecifiedUser(client, object, userName)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving privileges")
 	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("object", utils.PathSearch("object", privilege, nil)),
+		d.Set("object", objectResp),
 		d.Set("user_name", utils.PathSearch("user_name", privilege, nil)),
 		d.Set("privileges", utils.PathSearch("privileges", privilege, nil)),
 	)
