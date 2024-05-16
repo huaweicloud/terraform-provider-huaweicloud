@@ -2,7 +2,8 @@
 subcategory: "Cloud Firewall (CFW)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cfw_address_groups"
-description: ""
+description: |-
+  Use this data source to get the list of CFW address groups.
 ---
 
 # huaweicloud_cfw_address_groups
@@ -36,7 +37,7 @@ The following arguments are supported:
    + **0:** indicates a custom IP address group.
    + **1:** indicates a predefined IP address group.
 
-* `address_type` - (Optional, Int) Specifies the IP address type.
+* `address_type` - (Optional, String) Specifies the IP address type.
   The value can be **0** (IPv4) or **1** (IPv6).
 
 * `address` - (Optional, String) Specifies IP address of the IP address group.

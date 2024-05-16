@@ -55,7 +55,7 @@ func DataSourceCfwDomainNameGroups() *schema.Resource {
 				Description: `Specifies the configuration status.`,
 			},
 			"ref_count": {
-				Type:        schema.TypeInt,
+				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the domain name group reference count.`,
 			},
@@ -96,7 +96,7 @@ func DataSourceCfwDomainNameGroups() *schema.Resource {
 							Description: `The domain name group description.`,
 						},
 						"ref_count": {
-							Type:        schema.TypeInt,
+							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The domain name group reference count.`,
 						},
@@ -234,7 +234,7 @@ func (w *DomainNameGroupsDSWrapper) ListDomainSets() (*gjson.Result, error) {
 			filters.New().From("data.records").
 				Where("set_id", "=", w.Get("group_id")).
 				Where("name", "=", w.Get("name")).
-				Where("ref_count", "=", w.Get("ref_count")),
+				Where("ref_count", "=", w.GetToInt("ref_count")),
 		).
 		Request().
 		Result()
@@ -274,7 +274,7 @@ func (w *DomainNameGroupsDSWrapper) flattenDomainSets(body *gjson.Result) ([]map
 
 		domainGroups = append(domainGroups, map[string]any{
 			"description":   record.Get("description").Value(),
-			"ref_count":     record.Get("ref_count").Value(),
+			"ref_count":     record.Get("ref_count").String(),
 			"type":          record.Get("domain_set_type").String(),
 			"config_status": record.Get("config_status").String(),
 			"message":       record.Get("message").Value(),
