@@ -868,7 +868,7 @@ func flattenGetDwsClusterRespBodyElb(resp interface{}) []interface{} {
 	var rst []interface{}
 	curJson, err := jmespath.Search("cluster.elb", resp)
 	if err != nil {
-		log.Printf("[WARN] error parsing elb object from response: %#v", err)
+		log.Printf("[WARN] error parsing elb object from response: %v", err)
 		return rst
 	}
 

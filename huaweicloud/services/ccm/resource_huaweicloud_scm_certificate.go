@@ -385,7 +385,7 @@ func processErr(err error) string {
 			"Bad request with: [%s %s], error message: %s", err500.Method, err500.URL, errBody)
 	} else {
 		// If 'err' is other error object, the default information will be printed.
-		log.Printf("[ERROR] Push certificate service error: %s, \n%#v", err.Error(), err)
+		log.Printf("[ERROR] Push certificate service error: %s, \n%v", err.Error(), err)
 		errMsg = fmt.Sprintf("push certificate service error: %s", err)
 	}
 	return errMsg

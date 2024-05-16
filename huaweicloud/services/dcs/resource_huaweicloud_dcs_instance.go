@@ -961,7 +961,7 @@ func waitForOrderComplete(ctx context.Context, d *schema.ResourceData, cfg *conf
 	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("[DEBUG] error the order is not completed while "+
-			"creating DCS instance. %s : %#v", d.Id(), err)
+			"creating DCS instance. %s : %v", d.Id(), err)
 	}
 	_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	return err
@@ -980,7 +980,7 @@ func waitForDcsInstanceCompleted(ctx context.Context, c *golangsdk.ServiceClient
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("[DEBUG] error while waiting to create/resize/delete DCS instance. %s : %#v",
+		return fmt.Errorf("[DEBUG] error while waiting to create/resize/delete DCS instance. %s : %v",
 			id, err)
 	}
 	return nil

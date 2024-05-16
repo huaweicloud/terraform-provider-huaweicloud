@@ -1694,7 +1694,7 @@ func deleteAllBucketObjects(obsClient *obs.ObsClient, bucket string) error {
 		return getObsError("Error deleting all objects of OBS bucket", bucket, err)
 	}
 	if len(output.Errors) > 0 {
-		return fmt.Errorf("error some objects are still exist in %s: %#v", bucket, output.Errors)
+		return fmt.Errorf("error some objects are still exist in %s: %v", bucket, output.Errors)
 	}
 	return nil
 }

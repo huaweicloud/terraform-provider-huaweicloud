@@ -223,7 +223,7 @@ func resourceDedicatedInstanceCreate(ctx context.Context, d *schema.ResourceData
 		err = updateInstanceName(client, r.Instances[0].Id, d.Get("name").(string), epsId)
 	}
 	if err != nil {
-		logp.Printf("[DEBUG] Error while waiting to create  Waf dedicated instance. %s : %#v", d.Id(), err)
+		logp.Printf("[DEBUG] Error while waiting to create  Waf dedicated instance. %s : %v", d.Id(), err)
 		return diag.FromErr(err)
 	}
 
@@ -365,7 +365,7 @@ func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		logp.Printf("[DEBUG] Error while waiting to delete Waf dedicated instance. \n%s : %#v", d.Id(), err)
+		logp.Printf("[DEBUG] Error while waiting to delete Waf dedicated instance. \n%s : %v", d.Id(), err)
 		return diag.FromErr(err)
 	}
 	d.SetId("")

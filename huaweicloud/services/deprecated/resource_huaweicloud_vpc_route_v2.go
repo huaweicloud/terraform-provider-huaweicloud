@@ -159,7 +159,7 @@ func waitForVpcRouteDelete(vpcRouteClient *golangsdk.ServiceClient, routeId stri
 		}
 
 		err = routes.Delete(vpcRouteClient, routeId).ExtractErr()
-		log.Printf("[DEBUG] Value if error: %#v", err)
+		log.Printf("[DEBUG] Value if error: %v", err)
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {

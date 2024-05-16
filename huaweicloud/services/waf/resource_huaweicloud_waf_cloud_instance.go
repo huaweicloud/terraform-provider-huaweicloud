@@ -451,7 +451,7 @@ func updateExtendedPackages(ctx context.Context, wafClient *golangsdk.ServiceCli
 
 		err = common.WaitOrderComplete(ctx, bssClient, *orderId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return fmt.Errorf("the order is not completed while creating extended packages: %#v", err)
+			return fmt.Errorf("the order is not completed while creating extended packages: %v", err)
 		}
 	}
 
@@ -463,7 +463,7 @@ func updateExtendedPackages(ctx context.Context, wafClient *golangsdk.ServiceCli
 
 		err = common.WaitOrderComplete(ctx, bssClient, *orderId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return fmt.Errorf("the order is not completed while updating extended packages: %#v", err)
+			return fmt.Errorf("the order is not completed while updating extended packages: %v", err)
 		}
 	}
 
@@ -508,7 +508,7 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 		err = common.WaitOrderComplete(ctx, bssClient, *orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return diag.Errorf("the order is not completed while updating specification code: %#v", err)
+			return diag.Errorf("the order is not completed while updating specification code: %v", err)
 		}
 	}
 
