@@ -169,8 +169,8 @@ func resourceSwrImageTriggerCreate(ctx context.Context, d *schema.ResourceData, 
 		},
 	}
 	clusterName := d.Get("cluster_name").(string)
-	if clusterName == "" {
-		clusterId := d.Get("cluster_id").(string)
+	clusterId := d.Get("cluster_id").(string)
+	if clusterName == "" && clusterId != "" {
 		clusterName, err = getClusterNameByClusterId(d, cfg, clusterId)
 		if err != nil {
 			return diag.FromErr(err)
@@ -210,7 +210,7 @@ func buildCreateSwrImageTriggerBodyParams(d *schema.ResourceData, clusterName st
 		"app_type":     utils.ValueIngoreEmpty(d.Get("workload_type")),
 		"application":  utils.ValueIngoreEmpty(d.Get("workload_name")),
 		"cluster_id":   utils.ValueIngoreEmpty(d.Get("cluster_id")),
-		"cluster_name": clusterName,
+		"cluster_name": utils.ValueIngoreEmpty(clusterName),
 		"cluster_ns":   utils.ValueIngoreEmpty(d.Get("namespace")),
 		"trigger_type": utils.ValueIngoreEmpty(d.Get("condition_type")),
 		"condition":    utils.ValueIngoreEmpty(d.Get("condition_value")),
