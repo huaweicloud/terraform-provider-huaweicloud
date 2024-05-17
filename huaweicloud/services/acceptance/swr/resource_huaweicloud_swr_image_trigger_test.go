@@ -124,6 +124,50 @@ func TestAccSwrImageTrigger_basic(t *testing.T) {
 	})
 }
 
+func TestAccSwrImageTrigger_cci(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_swr_image_trigger.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getSwrImageTriggerResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkloadType(t)
+			acceptance.TestAccPreCheckWorkloadName(t)
+			acceptance.TestAccPreCheckWorkloadNameSpace(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testSwrImageTrigger_cci(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "organization",
+						"huaweicloud_swr_organization.test", "name"),
+					resource.TestCheckResourceAttrPair(rName, "repository",
+						"huaweicloud_swr_repository.test", "name"),
+					resource.TestCheckResourceAttr(rName, "workload_type", acceptance.HW_WORKLOAD_TYPE),
+					resource.TestCheckResourceAttr(rName, "workload_name", acceptance.HW_WORKLOAD_NAME),
+					resource.TestCheckResourceAttr(rName, "namespace", acceptance.HW_WORKLOAD_NAMESPACE),
+					resource.TestCheckResourceAttr(rName, "condition_value", ".*"),
+					resource.TestCheckResourceAttr(rName, "enabled", "true"),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "type", "cci"),
+					resource.TestCheckResourceAttr(rName, "condition_type", "all"),
+				),
+			},
+		},
+	})
+}
+
 func testSwrImageTrigger_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -163,4 +207,23 @@ resource "huaweicloud_swr_image_trigger" "test" {
 }
 `, testAccSWRRepository_basic(name), acceptance.HW_WORKLOAD_TYPE, acceptance.HW_WORKLOAD_NAME,
 		acceptance.HW_CCE_CLUSTER_ID, acceptance.HW_WORKLOAD_NAMESPACE, name)
+}
+
+func testSwrImageTrigger_cci(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_swr_image_trigger" "test" {
+  organization    = huaweicloud_swr_organization.test.name
+  repository      = huaweicloud_swr_repository.test.name
+  workload_type   = "%[2]s"
+  workload_name   = "%[3]s"
+  namespace       = "%[4]s"
+  condition_value = ".*"
+  name            = "%[5]s"
+  type            = "cci"
+  condition_type  = "all"
+}
+`, testAccSWRRepository_basic(name), acceptance.HW_WORKLOAD_TYPE, acceptance.HW_WORKLOAD_NAME,
+		acceptance.HW_WORKLOAD_NAMESPACE, name)
 }
