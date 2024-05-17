@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.64.2 (May 17, 2024)
+
+BUG FIXES:
+
+* resource/huaweicloud_swr_image_trigger: Make cluster name/id optional for cci trigger [GH-4832]
+* resource/huaweicloud_vpc_network_acl: Fix the problem of updating acl rules [GH-4821]
+
 ## 1.64.1 (May 6, 2024)
 
 ENHANCEMENTS:
