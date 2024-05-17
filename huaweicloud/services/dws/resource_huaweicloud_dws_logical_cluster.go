@@ -440,6 +440,7 @@ func resourceLogicalClusterDelete(ctx context.Context, d *schema.ResourceData, m
 	deleteOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
+		OkCodes:          []int{200, 202, 204, 417},
 	}
 
 	// When the cluster is operated concurrently, the deletion operation may also fail and needs to be retried.
