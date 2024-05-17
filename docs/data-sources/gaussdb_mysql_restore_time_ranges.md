@@ -2,7 +2,8 @@
 subcategory: "GaussDB(for MySQL)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_gaussdb_mysql_restore_time_ranges"
-description: ""
+description: |-
+  Use this data source to get the list of GaussDB MySQL restore time ranges.
 ---
 
 # huaweicloud_gaussdb_mysql_restore_time_ranges
@@ -12,8 +13,11 @@ Use this data source to get the list of GaussDB MySQL restore time ranges.
 ## Example Usage
 
 ```hcl
+variable "instance_id" {}
+
 data "huaweicloud_gaussdb_mysql_restore_time_ranges" "test" {
-    date = "2024-04-07"
+    instance_id = var.instance_id
+    date        = "2024-04-07"
 }
 ```
 

@@ -80,7 +80,10 @@ func dataSourceGaussdbMysqlRestoreTimeRangesRead(_ context.Context, d *schema.Re
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.showBackupRestoreTimeToSchema(shoBacResTimRst)
@@ -98,9 +101,8 @@ func (w *MysqlRestoreTimeRangesDSWrapper) ShowBackupRestoreTime() (*gjson.Result
 		return nil, err
 	}
 
-	d := w.ResourceData
 	uri := "/v3/{project_id}/instances/{instance_id}/restore-time"
-	uri = strings.ReplaceAll(uri, "{instance_id}", d.Get("instance_id").(string))
+	uri = strings.ReplaceAll(uri, "{instance_id}", w.Get("instance_id").(string))
 	params := map[string]any{
 		"date": w.Get("date"),
 	}
@@ -118,10 +120,10 @@ func (w *MysqlRestoreTimeRangesDSWrapper) showBackupRestoreTimeToSchema(body *gj
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("restore_times", schemas.SliceToList(body.Get("restore_times"),
-			func(resTim gjson.Result) any {
+			func(restoreTimes gjson.Result) any {
 				return map[string]any{
-					"start_time": resTim.Get("start_time").Value(),
-					"end_time":   resTim.Get("end_time").Value(),
+					"start_time": restoreTimes.Get("start_time").Value(),
+					"end_time":   restoreTimes.Get("end_time").Value(),
 				}
 			},
 		)),
