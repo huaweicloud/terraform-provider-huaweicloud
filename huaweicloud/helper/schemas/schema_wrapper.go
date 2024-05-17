@@ -15,7 +15,7 @@ type ListItemGetterFun func(i int) any
 type SetItemGetterFun func(item any) any
 
 type ResourceDataWrapper struct {
-	ResourceData *schema.ResourceData
+	*schema.ResourceData
 }
 
 func NewSchemaWrapper(d *schema.ResourceData) *ResourceDataWrapper {
@@ -33,7 +33,7 @@ func (s *ResourceDataWrapper) NewClient(cfg *config.Config, serviceName string) 
 }
 
 func (s *ResourceDataWrapper) Get(key string, keepZero ...bool) any {
-	val, ok := s.ResourceData.GetOk(key)
+	val, ok := s.GetOk(key)
 	if !ok && s.keepZero(keepZero) {
 		return val
 	}
@@ -46,7 +46,7 @@ func (s *ResourceDataWrapper) Get(key string, keepZero ...bool) any {
 }
 
 func (s *ResourceDataWrapper) GetToInt(key string, keepZero ...bool) any {
-	val, ok := s.ResourceData.GetOk(key)
+	val, ok := s.GetOk(key)
 	if !ok && s.keepZero(keepZero) {
 		return 0
 	}
@@ -67,7 +67,7 @@ func (s *ResourceDataWrapper) GetToInt(key string, keepZero ...bool) any {
 }
 
 func (s *ResourceDataWrapper) GetToBool(key string, keepZero ...bool) any {
-	val, ok := s.ResourceData.GetOk(key)
+	val, ok := s.GetOk(key)
 	if !ok && s.keepZero(keepZero) {
 		return 0
 	}
@@ -89,7 +89,7 @@ func (s *ResourceDataWrapper) GetToBool(key string, keepZero ...bool) any {
 
 // PrimToArray primitive data type to Array
 func (s *ResourceDataWrapper) PrimToArray(key string, keepZero ...bool) any {
-	val, ok := s.ResourceData.GetOk(key)
+	val, ok := s.GetOk(key)
 	switch vv := val.(type) {
 	case string:
 		if !ok {
@@ -137,7 +137,7 @@ func (s *ResourceDataWrapper) PrimToArray(key string, keepZero ...bool) any {
 
 func (s *ResourceDataWrapper) ListToSlice(key string, keepZero bool, getter ListItemGetterFun) any {
 	rst := make([]any, 0)
-	v, ok := s.ResourceData.GetOk(key)
+	v, ok := s.GetOk(key)
 	if !ok {
 		if keepZero {
 			return rst
@@ -158,7 +158,7 @@ func (s *ResourceDataWrapper) ListToSlice(key string, keepZero bool, getter List
 }
 
 func (s *ResourceDataWrapper) ListToObject(key string, getter SetItemGetterFun) any {
-	v, ok := s.ResourceData.GetOk(key)
+	v, ok := s.GetOk(key)
 	if !ok {
 		return nil
 	}
@@ -173,7 +173,7 @@ func (s *ResourceDataWrapper) ListToObject(key string, getter SetItemGetterFun) 
 
 // ListToArray convert schema.TypeList to Array
 func (s *ResourceDataWrapper) ListToArray(key string, keepZero ...bool) any {
-	v, ok := s.ResourceData.GetOk(key)
+	v, ok := s.GetOk(key)
 	if !ok {
 		if s.keepZero(keepZero) {
 			return make([]any, 0)
@@ -189,7 +189,7 @@ func (s *ResourceDataWrapper) ListToArray(key string, keepZero ...bool) any {
 
 // SetToArray convert schema.Set to Array
 func (s *ResourceDataWrapper) SetToArray(key string, keepZero ...bool) any {
-	v, ok := s.ResourceData.GetOk(key)
+	v, ok := s.GetOk(key)
 	if !ok {
 		if s.keepZero(keepZero) {
 			return []any{}
@@ -214,7 +214,7 @@ func (s *ResourceDataWrapper) SetToArray(key string, keepZero ...bool) any {
 
 func (s *ResourceDataWrapper) SetToSlice(key string, getter SetItemGetterFun) []any {
 	rst := make([]any, 0)
-	v, ok := s.ResourceData.GetOk(key)
+	v, ok := s.GetOk(key)
 	if !ok {
 		return nil
 	}
@@ -251,7 +251,7 @@ func (s *ResourceDataWrapper) SetToObject(key string, getter SetItemGetterFun) a
 }
 
 func (s *ResourceDataWrapper) MapToStrMap(key string) any {
-	v, ok := s.ResourceData.GetOk(key)
+	v, ok := s.GetOk(key)
 	if !ok {
 		return nil
 	}
@@ -260,7 +260,7 @@ func (s *ResourceDataWrapper) MapToStrMap(key string) any {
 
 func (s *ResourceDataWrapper) MapToMap(key string, keepZero bool, convFun SetItemGetterFun) any {
 	rst := make(map[string]any)
-	val, ok := s.ResourceData.GetOk(key)
+	val, ok := s.GetOk(key)
 	if !ok {
 		if keepZero {
 			return rst

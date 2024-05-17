@@ -230,6 +230,10 @@ func (c *HttpHelper) appendQueryParams() {
 	}
 }
 
+func (c *HttpHelper) ErrorOrNil() error {
+	return c.result.Err
+}
+
 func (c *HttpHelper) Result() (*gjson.Result, error) {
 	if c.result.Err != nil {
 		return nil, c.result.Err
