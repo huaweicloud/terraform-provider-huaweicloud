@@ -29,7 +29,7 @@ func DataSourceRmsAdvancedQuerySchemas() *schema.Resource {
 				Description: `Specifies the type of the schema.`,
 			},
 			"schemas": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The list of schema.`,
 				Elem: &schema.Resource{
@@ -76,7 +76,10 @@ func dataSourceRmsAdvancedQuerySchemasRead(_ context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 	return nil
 }
@@ -106,10 +109,10 @@ func (w *AdvancedQuerySchemasDSWrapper) listSchemasToSchema(body *gjson.Result) 
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("schemas", schemas.SliceToList(body.Get("value"),
-			func(schemas gjson.Result) any {
+			func(schema gjson.Result) any {
 				return map[string]any{
-					"type":   schemas.Get("type").Value(),
-					"schema": w.setValueSchema(body, &schemas),
+					"type":   schema.Get("type").Value(),
+					"schema": w.setValueSchema(schema),
 				}
 			},
 		)),
@@ -117,7 +120,7 @@ func (w *AdvancedQuerySchemasDSWrapper) listSchemasToSchema(body *gjson.Result) 
 	return mErr.ErrorOrNil()
 }
 
-func (*AdvancedQuerySchemasDSWrapper) setValueSchema(_, data *gjson.Result) map[string]interface{} {
+func (*AdvancedQuerySchemasDSWrapper) setValueSchema(data gjson.Result) map[string]interface{} {
 	schemaToSet := data.Get("schema")
 	result := make(map[string]interface{})
 	for k, v := range schemaToSet.Map() {

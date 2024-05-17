@@ -45,7 +45,7 @@ func DataSourceDliElasticPools() *schema.Resource {
 				Description: `Specifies the key/value pairs to associate with the elastic resource pool.`,
 			},
 			"elastic_resource_pools": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `All elastic resource pools that match the filter parameters.`,
 				Elem: &schema.Resource{
@@ -96,7 +96,7 @@ func DataSourceDliElasticPools() *schema.Resource {
 							Description: `The enterprise project ID corresponding to the elastic resource pool.`,
 						},
 						"queues": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: `The list of queues association with the elastic resource pool.`,
@@ -157,7 +157,10 @@ func dataSourceDliElasticPoolsRead(_ context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listElasticResourcePoolsToSchema(lisElaResPooRst)
@@ -179,7 +182,7 @@ func (w *ElasticPoolsDSWrapper) ListElasticResourcePools() (*gjson.Result, error
 	params := map[string]any{
 		"name":   w.Get("name"),
 		"status": w.Get("status"),
-		"tags":   w.getTags(),
+		"tags":   w.getTag(),
 	}
 	params = utils.RemoveNil(params)
 	return httphelper.New(client).
@@ -213,7 +216,7 @@ func (w *ElasticPoolsDSWrapper) listElasticResourcePoolsToSchema(body *gjson.Res
 					"owner":                 elaResPoo.Get("owner").Value(),
 					"manager":               elaResPoo.Get("manager").Value(),
 					"fail_reason":           elaResPoo.Get("fail_reason").Value(),
-					"created_at":            w.setElaResPooCreTim(body, &elaResPoo),
+					"created_at":            w.setElaResPooCreTim(&elaResPoo),
 				}
 			},
 		)),
@@ -221,7 +224,7 @@ func (w *ElasticPoolsDSWrapper) listElasticResourcePoolsToSchema(body *gjson.Res
 	return mErr.ErrorOrNil()
 }
 
-func (w *ElasticPoolsDSWrapper) getTags() string {
+func (w *ElasticPoolsDSWrapper) getTag() string {
 	raw := w.Get("tags")
 	if raw == nil {
 		return ""
@@ -235,6 +238,6 @@ func (w *ElasticPoolsDSWrapper) getTags() string {
 	return strings.Join(tagsList, ",")
 }
 
-func (*ElasticPoolsDSWrapper) setElaResPooCreTim(_, data *gjson.Result) string {
+func (*ElasticPoolsDSWrapper) setElaResPooCreTim(data *gjson.Result) string {
 	return utils.FormatTimeStampRFC3339(data.Get("create_time").Int()/1000, false)
 }

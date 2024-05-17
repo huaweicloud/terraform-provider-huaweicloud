@@ -32,7 +32,7 @@ func DataSourceNameservers() *schema.Resource {
 				Description: `Specifies the region to which the name server belongs.`,
 			},
 			"nameservers": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `All name servers that match the filter parameters.`,
 				Elem: &schema.Resource{
@@ -48,7 +48,7 @@ func DataSourceNameservers() *schema.Resource {
 							Description: `The region where the name server is located.`,
 						},
 						"ns_records": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: `The list of name servers.`,
 							Elem: &schema.Resource{
@@ -97,7 +97,10 @@ func dataSourceNameserversRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listNameServersToSchema(lisNamSerRst)
@@ -133,16 +136,16 @@ func (w *NameserversDSWrapper) listNameServersToSchema(body *gjson.Result) error
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("nameservers", schemas.SliceToList(body.Get("nameservers"),
-			func(nam gjson.Result) any {
+			func(nameserver gjson.Result) any {
 				return map[string]any{
-					"type":   nam.Get("type").Value(),
-					"region": nam.Get("region").Value(),
-					"ns_records": schemas.SliceToList(nam.Get("ns_records"),
-						func(nsRec gjson.Result) any {
+					"type":   nameserver.Get("type").Value(),
+					"region": nameserver.Get("region").Value(),
+					"ns_records": schemas.SliceToList(nameserver.Get("ns_records"),
+						func(nsRecord gjson.Result) any {
 							return map[string]any{
-								"hostname": nsRec.Get("hostname").Value(),
-								"address":  nsRec.Get("address").Value(),
-								"priority": nsRec.Get("priority").Value(),
+								"hostname": nsRecord.Get("hostname").Value(),
+								"address":  nsRecord.Get("address").Value(),
+								"priority": nsRecord.Get("priority").Value(),
 							}
 						},
 					),

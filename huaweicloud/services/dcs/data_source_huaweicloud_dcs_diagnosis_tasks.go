@@ -59,7 +59,7 @@ func DataSourceDcsDiagnosisTasks() *schema.Resource {
 				Description: `Specifies the number of diagnosed nodes.`,
 			},
 			"diagnosis_tasks": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `Indicates the list of diagnosis reports.`,
 				Elem: &schema.Resource{
@@ -151,9 +151,8 @@ func (w *DiagnosisTasksDSWrapper) ListDiagnosisTasks() (*gjson.Result, error) {
 		return nil, err
 	}
 
-	d := w.ResourceData
 	uri := "/v2/{project_id}/instances/{instance_id}/diagnosis"
-	uri = strings.ReplaceAll(uri, "{instance_id}", d.Get("instance_id").(string))
+	uri = strings.ReplaceAll(uri, "{instance_id}", w.Get("instance_id").(string))
 	return httphelper.New(client).
 		Method("GET").
 		URI(uri).

@@ -2,7 +2,8 @@
 subcategory: "Config"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rms_advanced_query_schemas"
-description: ""
+description: |-
+  Use this data source to get the list of RMS advanced query schemas.
 ---
 
 # huaweicloud_rms_advanced_query_schemas

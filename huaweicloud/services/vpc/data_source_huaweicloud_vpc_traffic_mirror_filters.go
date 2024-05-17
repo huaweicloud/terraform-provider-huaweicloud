@@ -38,7 +38,7 @@ func DataSourceVpcTrafficMirrorFilters() *schema.Resource {
 				Description: `Specifies the name of the traffic mirror filter.`,
 			},
 			"traffic_mirror_filters": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `List of traffic mirror filters.`,
 				Elem: &schema.Resource{
@@ -158,7 +158,7 @@ func DataSourceVpcTrafficMirrorFilters() *schema.Resource {
 							},
 						},
 						"ingress_rules": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: `Inbound mirror filter rules.`,
 							Elem: &schema.Resource{
@@ -267,7 +267,10 @@ func dataSourceVpcTrafficMirrorFiltersRead(_ context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listTrafficMirrorFiltersToSchema(lisTraMirFilRst)

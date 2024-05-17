@@ -2,7 +2,8 @@
 subcategory: "Domain Name Service (DNS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dns_nameservers"
-description: ""
+description: |-
+  Use this data source to get the list of DNS name servers.
 ---
 
 # huaweicloud_dns_nameservers
@@ -20,9 +21,6 @@ data "huaweicloud_dns_nameservers" "test" {
 ## Argument Reference
 
 The following arguments are supported:
-
-* `region` - (Optional, String) Specifies the region in which to query the resource.
-  If omitted, the provider-level region will be used.
 
 * `type` - (Optional, String) Specifies the type of the name server.
   The valid values are as follows:

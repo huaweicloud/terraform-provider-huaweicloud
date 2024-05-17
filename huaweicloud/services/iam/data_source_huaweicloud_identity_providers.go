@@ -37,7 +37,7 @@ func DataSourceIamIdentityProviders() *schema.Resource {
 				Description: `Specifies the status of the identity provider. The value can be **true** or **false**`,
 			},
 			"identity_providers": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The list of identity providers.`,
 				Elem: &schema.Resource{
@@ -63,7 +63,7 @@ func DataSourceIamIdentityProviders() *schema.Resource {
 							Description: `The enabled status for the identity provider.`,
 						},
 						"remote_ids": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: `The list of federated user IDs configured for the identity provider.`,

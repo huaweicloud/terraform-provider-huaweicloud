@@ -34,7 +34,7 @@ func DataSourceRmsServices() *schema.Resource {
 				Description: `Specifies the service name.`,
 			},
 			"services": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The service details list.`,
 				Elem: &schema.Resource{
@@ -55,7 +55,7 @@ func DataSourceRmsServices() *schema.Resource {
 							Description: `The display name of the service category.`,
 						},
 						"resource_types": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: `The resource type list.`,
 							Elem: &schema.Resource{
@@ -76,7 +76,7 @@ func DataSourceRmsServices() *schema.Resource {
 										Description: `Indicates whether a resource is a global resource.`,
 									},
 									"regions": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Computed:    true,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Description: `The list of supported regions.`,
@@ -130,7 +130,10 @@ func dataSourceRmsServicesRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listProvidersToSchema(lisProRst)
@@ -171,22 +174,22 @@ func (w *ServicesDSWrapper) listProvidersToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("services", schemas.SliceToList(body.Get("resource_providers"),
-			func(ser gjson.Result) any {
+			func(service gjson.Result) any {
 				return map[string]any{
-					"name":                  ser.Get("provider").Value(),
-					"display_name":          ser.Get("display_name").Value(),
-					"category_display_name": ser.Get("category_display_name").Value(),
-					"resource_types": schemas.SliceToList(ser.Get("resource_types"),
-						func(resTyp gjson.Result) any {
+					"name":                  service.Get("provider").Value(),
+					"display_name":          service.Get("display_name").Value(),
+					"category_display_name": service.Get("category_display_name").Value(),
+					"resource_types": schemas.SliceToList(service.Get("resource_types"),
+						func(resourceType gjson.Result) any {
 							return map[string]any{
-								"name":                resTyp.Get("name").Value(),
-								"display_name":        resTyp.Get("display_name").Value(),
-								"global":              resTyp.Get("global").Value(),
-								"regions":             schemas.SliceToStrList(resTyp.Get("regions")),
-								"track":               resTyp.Get("track").Value(),
-								"console_endpoint_id": resTyp.Get("console_endpoint_id").Value(),
-								"console_detail_url":  resTyp.Get("console_detail_url").Value(),
-								"console_list_url":    resTyp.Get("console_list_url").Value(),
+								"name":                resourceType.Get("name").Value(),
+								"display_name":        resourceType.Get("display_name").Value(),
+								"global":              resourceType.Get("global").Value(),
+								"regions":             schemas.SliceToStrList(resourceType.Get("regions")),
+								"track":               resourceType.Get("track").Value(),
+								"console_endpoint_id": resourceType.Get("console_endpoint_id").Value(),
+								"console_detail_url":  resourceType.Get("console_detail_url").Value(),
+								"console_list_url":    resourceType.Get("console_list_url").Value(),
 							}
 						},
 					),

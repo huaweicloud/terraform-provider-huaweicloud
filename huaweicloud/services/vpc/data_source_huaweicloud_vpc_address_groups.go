@@ -48,7 +48,7 @@ func DataSourceVpcAddressGroups() *schema.Resource {
 				Description: `Provides supplementary information about an IP address group,`,
 			},
 			"address_groups": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The IP address groups.`,
 				Elem: &schema.Resource{

@@ -93,7 +93,7 @@ func DataSourceRdsRecyclingInstances() *schema.Resource {
 				Description: `Specifies whether the instance is a serverless instance.`,
 			},
 			"instances": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `Indicates the list of recycling RDS instances.`,
 				Elem: &schema.Resource{
