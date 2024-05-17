@@ -13,6 +13,12 @@ paths:
             tag: CBH
         PUT:
             tag: CBH
+    /v2/{project_id}/cbs/instance/{resource_id}/tags:
+        GET:
+            tag: CBH
+    /v2/{project_id}/cbs/instance/{resource_id}/tags/action:
+        POST:
+            tag: CBH
     /v2/{project_id}/cbs/instance/{server_id}/eip/bind:
         POST:
             tag: CBH

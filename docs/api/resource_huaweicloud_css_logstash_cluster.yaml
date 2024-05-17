@@ -25,6 +25,11 @@ paths:
     /v1.0/{project_id}/clusters/{cluster_id}/role_extend:
         POST:
             tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/route:
+        GET:
+            tag: CSS
+        POST:
+            tag: CSS
     /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:
         POST:
             tag: EPS

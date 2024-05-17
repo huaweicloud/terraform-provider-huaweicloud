@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rds_pg_sql_limit
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/{project_id}/instances/{instance_id}/sql-limit:
+        DELETE:
+            tag: RDS
+        GET:
+            tag: RDS
+        POST:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/sql-limit/switch:
+        PUT:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/sql-limit/update:
+        PUT:
+            tag: RDS

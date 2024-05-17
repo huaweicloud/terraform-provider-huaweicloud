@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cdn_billing_option
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CDN
+paths:
+    /v1.0/cdn/charge/charge-modes:
+        GET:
+            tag: CDN
+        PUT:
+            tag: CDN

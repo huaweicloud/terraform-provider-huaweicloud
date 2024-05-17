@@ -36,11 +36,23 @@ paths:
             tag: DDS
         PUT:
             tag: DDS
+    /v3/{project_id}/instances/{instance_id}/balancer:
+        GET:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/balancer/{action}:
+        PUT:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/balancer/active-window:
+        PUT:
+            tag: DDS
     /v3/{project_id}/instances/{instance_id}/enlarge:
         POST:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/enlarge-volume:
         POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/maintenance-window:
+        PUT:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/migrate:
         POST:
@@ -67,11 +79,20 @@ paths:
             tag: DDS
         PUT:
             tag: DDS
+    /v3/{project_id}/instances/{instance_id}/replicaset-node:
+        POST:
+            tag: DDS
     /v3/{project_id}/instances/{instance_id}/reset-password:
         PUT:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/resize:
         POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/slowlog-desensitization/{status}:
+        PUT:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/slowlog-desensitization/status:
+        GET:
             tag: DDS
     /v3/{project_id}/instances/{instance_id}/switch-ssl:
         PUT:

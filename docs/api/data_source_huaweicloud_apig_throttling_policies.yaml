@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_apig_throttling_policies
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v2/{project_id}/apigw/instances/{instance_id}/throttles:
+        GET:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/throttles/{throttle_id}/throttle-specials:
+        GET:
+            tag: APIG

@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cdn_cache_preheat
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CDN
+paths:
+    /v1.0/cdn/content/preheating-tasks:
+        POST:
+            tag: CDN
+    /v1.0/cdn/historytasks/{history_tasks_id}/detail:
+        GET:
+            tag: CDN
