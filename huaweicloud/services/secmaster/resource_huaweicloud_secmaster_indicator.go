@@ -240,7 +240,7 @@ func buildCreateIndicatorBodyParams(d *schema.ResourceData, cfg *config.Config) 
 		"name":             d.Get("name"),
 		"indicator_type":   buildIndicatorTypeOpts(d.Get("type")),
 		"verdict":          d.Get("threat_degree"),
-		"data_source":      buildIndicatorDataSourceOpts(d.Get("data_source")),
+		"data_source":      buildIndicatorDataSourceOpts(d, cfg),
 		"status":           d.Get("status"),
 		"confidence":       d.Get("confidence"),
 		"labels":           utils.ValueIngoreEmpty(d.Get("labels")),
@@ -290,24 +290,28 @@ func buildIndicatorTypeOpts(rawParams interface{}) map[string]interface{} {
 	return nil
 }
 
-func buildIndicatorDataSourceOpts(rawParams interface{}) map[string]interface{} {
-	if rawArray, ok := rawParams.([]interface{}); ok {
-		if len(rawArray) == 0 {
-			return nil
-		}
-		raw, ok := rawArray[0].(map[string]interface{})
-		if !ok {
-			return nil
-		}
-
-		params := map[string]interface{}{
-			"source_type":     utils.ValueIngoreEmpty(raw["source_type"]),
-			"product_name":    utils.ValueIngoreEmpty(raw["product_name"]),
-			"product_feature": utils.ValueIngoreEmpty(raw["product_feature"]),
-		}
-		return params
+func buildIndicatorDataSourceOpts(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	rawArray := d.Get("data_source").([]interface{})
+	if len(rawArray) == 0 {
+		return nil
 	}
-	return nil
+
+	region := cfg.GetRegion(d)
+
+	raw, ok := rawArray[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	params := map[string]interface{}{
+		"domain_id":       cfg.DomainID,
+		"project_id":      cfg.GetProjectID(region),
+		"region_id":       region,
+		"product_feature": utils.ValueIngoreEmpty(raw["product_feature"]),
+		"product_name":    utils.ValueIngoreEmpty(raw["product_name"]),
+		"source_type":     utils.ValueIngoreEmpty(raw["source_type"]),
+	}
+	return params
 }
 
 func resourceIndicatorRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
