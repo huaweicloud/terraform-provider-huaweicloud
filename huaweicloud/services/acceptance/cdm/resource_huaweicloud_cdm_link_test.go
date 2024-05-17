@@ -155,6 +155,7 @@ func TestAccResourceCdmLink_DLI(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAKAndSK(t)
+			acceptance.TestAccPreCheckProjectID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
