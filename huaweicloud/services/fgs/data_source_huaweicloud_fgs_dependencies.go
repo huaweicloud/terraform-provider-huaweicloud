@@ -2,6 +2,7 @@ package fgs
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -9,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -78,6 +80,24 @@ func DataSourceFunctionGraphDependencies() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"versions": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The ID of the dependency package version.",
+									},
+									"version": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The dependency package version.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -111,7 +131,7 @@ func dataSourceFunctionGraphDependenciesRead(_ context.Context, d *schema.Resour
 	d.SetId(randUUID)
 
 	resp, _ := dependencies.ExtractDependencies(allPages)
-	packages := flatFunctionGraphDependencies(resp.Dependencies)
+	packages := flatFunctionGraphDependencies(client, resp.Dependencies)
 	mErr := multierror.Append(
 		d.Set("packages", packages),
 	)
@@ -121,7 +141,7 @@ func dataSourceFunctionGraphDependenciesRead(_ context.Context, d *schema.Resour
 	return nil
 }
 
-func flatFunctionGraphDependencies(pkgs []dependencies.Dependency) []map[string]interface{} {
+func flatFunctionGraphDependencies(client *golangsdk.ServiceClient, pkgs []dependencies.Dependency) []map[string]interface{} {
 	packages := make([]map[string]interface{}, len(pkgs))
 
 	names := schema.NewSet(schema.HashString, nil)
@@ -136,8 +156,30 @@ func flatFunctionGraphDependencies(pkgs []dependencies.Dependency) []map[string]
 			"size":      pkg.Size,
 			"file_name": pkg.FileName,
 			"runtime":   pkg.Runtime,
+			"versions":  flattenPckVersions(client, pkg.ID),
 		}
 	}
 
 	return packages
+}
+
+func flattenPckVersions(client *golangsdk.ServiceClient, dependencyId string) []map[string]interface{} {
+	listOpts := dependencies.ListVersionsOpts{
+		DependId: dependencyId,
+	}
+	dependencyVersions, err := dependencies.ListVersions(client, listOpts)
+	if err != nil {
+		log.Printf("error retrieving versions under specified dependency package (%s): %s", dependencyId, err)
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(dependencyVersions))
+	for i, version := range dependencyVersions {
+		result[i] = map[string]interface{}{
+			"id":      version.ID,
+			"version": version.Version,
+		}
+	}
+
+	return result
 }

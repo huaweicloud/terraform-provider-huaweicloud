@@ -117,7 +117,30 @@ type DependencyVersion struct {
 }
 
 type DependencyVersionPage struct {
-	pagination.SinglePageBase
+	pagination.MarkerPageBase
+}
+
+// IsEmpty returns true if a ListResult no dependent package version.
+func (r DependencyVersionPage) IsEmpty() (bool, error) {
+	versions, err := extractDependencieVersions(r)
+	return len(versions) == 0, err
+}
+
+// extractPageInfo is a method which to extract the response of the page information.
+func extractPageInfo(r pagination.Page) (ListResp, error) {
+	var s ListResp
+	err := r.(DependencyVersionPage).Result.ExtractInto(&s)
+	return s, err
+}
+
+// LastMarker returns the last marker index in a ListResult.
+func (r DependencyVersionPage) LastMarker() (string, error) {
+	resp, err := extractPageInfo(r)
+	if err != nil {
+		return "", err
+	}
+
+	return strconv.Itoa(resp.Next), nil
 }
 
 func extractDependencieVersions(r pagination.Page) ([]DependencyVersion, error) {
