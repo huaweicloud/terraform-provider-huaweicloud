@@ -82,6 +82,32 @@ func ResourceDliQueue() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			// When the shared mode queue is offline, these parameter are mandatory for creating the exclusive mode
+			// queue and must be marked as mandatory in the document, but the ability to create a shared mode queue is
+			// retained (some regions may retain the ability to manage existing resources).
+			"elastic_resource_pool_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The name of the elastic resource pool to which the queue belongs.`,
+					utils.SchemaDescInput{
+						Required: true,
+					},
+				),
+			},
+			"resource_mode": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Description: utils.SchemaDesc(
+					`The queue resource mode.`,
+					utils.SchemaDescInput{
+						Required: true,
+					},
+				),
+			},
 
 			"name": {
 				Type:     schema.TypeString,
@@ -127,13 +153,6 @@ func ResourceDliQueue() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{queuePlatformX86, queuePlatformAARCH64}, false),
 			},
 
-			"resource_mode": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntInSlice([]int{resourceModeShared, resourceModeExclusive}),
-			},
-
 			"feature": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -154,10 +173,6 @@ func ResourceDliQueue() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-			},
-			"elastic_resource_pool_name": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 			"scaling_policies": {
 				Type:         schema.TypeSet,
