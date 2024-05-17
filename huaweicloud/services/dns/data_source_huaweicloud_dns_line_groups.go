@@ -38,7 +38,7 @@ func DataSourceLineGroups() *schema.Resource {
 				Description: `Specifies the name of the line group. Fuzzy search is supported.`,
 			},
 			"groups": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The list of the line groups.`,
 				Elem: &schema.Resource{
@@ -105,7 +105,10 @@ func dataSourceLineGroupsRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listLineGroupsToSchema(lisLinGroRst)
@@ -143,15 +146,15 @@ func (w *LineGroupsDSWrapper) listLineGroupsToSchema(body *gjson.Result) error {
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("groups", schemas.SliceToList(body.Get("linegroups"),
-			func(groups gjson.Result) any {
+			func(group gjson.Result) any {
 				return map[string]any{
-					"id":          groups.Get("line_id").Value(),
-					"name":        groups.Get("name").Value(),
-					"lines":       schemas.SliceToStrList(groups.Get("lines")),
-					"description": groups.Get("description").Value(),
-					"status":      groups.Get("status").Value(),
-					"created_at":  groups.Get("created_at").Value(),
-					"updated_at":  groups.Get("updated_at").Value(),
+					"id":          group.Get("line_id").Value(),
+					"name":        group.Get("name").Value(),
+					"lines":       schemas.SliceToStrList(group.Get("lines")),
+					"description": group.Get("description").Value(),
+					"status":      group.Get("status").Value(),
+					"created_at":  group.Get("created_at").Value(),
+					"updated_at":  group.Get("updated_at").Value(),
 				}
 			},
 		)),

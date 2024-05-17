@@ -2,7 +2,8 @@
 subcategory: "Domain Name Service (DNS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dns_line_groups"
-description: ""
+description: |-
+  Use this data source to get the list of DNS line groups.
 ---
 
 # huaweicloud_dns_line_groups

@@ -78,7 +78,7 @@ func DataSourceVpcTrafficMirrorFilterRules() *schema.Resource {
 				Description: `The destination port number range of the traffic mirror filter rule.`,
 			},
 			"traffic_mirror_filter_rules": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `List of traffic mirror filter rules.`,
 				Elem: &schema.Resource{
@@ -184,7 +184,10 @@ func dataSourceVpcTrafficMirrorFilterRulesRead(_ context.Context, d *schema.Reso
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listTrafficMirrorFilterRulesToSchema(lisTraMirFilRulRst)

@@ -34,7 +34,7 @@ func DataSourceRmsAdvancedQueries() *schema.Resource {
 				Description: `Specifies the advanced query name.`,
 			},
 			"queries": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The list of advanced queries.`,
 				Elem: &schema.Resource{
@@ -95,7 +95,10 @@ func dataSourceRmsAdvancedQueriesRead(_ context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listStoredQueriesToSchema(lisStoQueRst)

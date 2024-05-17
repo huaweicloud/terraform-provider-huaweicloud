@@ -2,7 +2,8 @@
 subcategory: "Domain Name Service (DNS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dns_floating_ptrrecords"
-description: ""
+description: |-
+  Use this data source to get the list of DNS PTR records.
 ---
 
 # huaweicloud_dns_floating_ptrrecords

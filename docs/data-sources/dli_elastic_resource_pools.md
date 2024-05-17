@@ -2,7 +2,8 @@
 subcategory: "Data Lake Insight (DLI)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dli_elastic_resource_pools"
-description: ""
+description: |-
+  Use this data source to get the list of DLI elastic resource pools within HuaweiCloud.
 ---
 
 # huaweicloud_dli_elastic_resource_pools

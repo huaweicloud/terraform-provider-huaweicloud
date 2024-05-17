@@ -2,7 +2,8 @@
 subcategory: "Config"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rms_services"
-description: ""
+description: |-
+  Use this data source to get the list of RMS services.
 ---
 
 # huaweicloud_rms_services

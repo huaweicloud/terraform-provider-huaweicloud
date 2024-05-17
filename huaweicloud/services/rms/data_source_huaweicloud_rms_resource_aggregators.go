@@ -39,11 +39,17 @@ func DataSourceRmsAggregators() *schema.Resource {
 				Description: `Specifies the resource aggregator type, which can be ACCOUNT or ORGANIZATION.`,
 			},
 			"aggregators": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The resource aggregators.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"account_ids": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The source account list being aggregated.`,
+						},
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -63,12 +69,6 @@ func DataSourceRmsAggregators() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The resource aggregator identifier.`,
-						},
-						"account_ids": {
-							Type:        schema.TypeSet,
-							Computed:    true,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-							Description: `The source account list being aggregated.`,
 						},
 						"created_at": {
 							Type:        schema.TypeString,
@@ -151,15 +151,15 @@ func (w *AggregatorsDSWrapper) listConfigurationAggregatorsToSchema(body *gjson.
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("aggregators", schemas.SliceToList(body.Get("configuration_aggregators"),
-			func(agg gjson.Result) any {
+			func(aggregator gjson.Result) any {
 				return map[string]any{
-					"name":        agg.Get("aggregator_name").Value(),
-					"id":          agg.Get("aggregator_id").Value(),
-					"type":        agg.Get("aggregator_type").Value(),
-					"urn":         agg.Get("aggregator_urn").Value(),
-					"account_ids": schemas.SliceToStrList(agg.Get("account_aggregation_sources.domain_ids")),
-					"created_at":  agg.Get("created_at").Value(),
-					"updated_at":  agg.Get("updated_at").Value(),
+					"account_ids": schemas.SliceToStrList(aggregator.Get("account_aggregation_sources.domain_ids")),
+					"name":        aggregator.Get("aggregator_name").Value(),
+					"id":          aggregator.Get("aggregator_id").Value(),
+					"type":        aggregator.Get("aggregator_type").Value(),
+					"urn":         aggregator.Get("aggregator_urn").Value(),
+					"created_at":  aggregator.Get("created_at").Value(),
+					"updated_at":  aggregator.Get("updated_at").Value(),
 				}
 			},
 		)),

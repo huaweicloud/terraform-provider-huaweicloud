@@ -61,7 +61,7 @@ func DataSourceFloatingPtrrecords() *schema.Resource {
 				Description: `Specifies the status of the PTR record.`,
 			},
 			"ptrrecords": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The list of the PTR records.`,
 				Elem: &schema.Resource{
@@ -133,7 +133,10 @@ func dataSourceFloatingPtrrecordsRead(_ context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listPtrRecordsToSchema(lisPtrRecRst)
@@ -154,7 +157,7 @@ func (w *FloatingPtrrecordsDSWrapper) ListPtrRecords() (*gjson.Result, error) {
 	uri := "/v2/reverse/floatingips"
 	params := map[string]any{
 		"enterprise_project_id": w.Get("enterprise_project_id"),
-		"tags":                  w.getTags(),
+		"tags":                  w.getTag(),
 		"status":                w.Get("status"),
 	}
 	params = utils.RemoveNil(params)
@@ -178,16 +181,16 @@ func (w *FloatingPtrrecordsDSWrapper) listPtrRecordsToSchema(body *gjson.Result)
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("ptrrecords", schemas.SliceToList(body.Get("floatingips"),
-			func(ptr gjson.Result) any {
+			func(ptrrecord gjson.Result) any {
 				return map[string]any{
-					"id":                    ptr.Get("id").Value(),
-					"public_ip":             ptr.Get("address").Value(),
-					"domain_name":           ptr.Get("ptrdname").Value(),
-					"ttl":                   ptr.Get("ttl").Value(),
-					"enterprise_project_id": ptr.Get("enterprise_project_id").Value(),
-					"tags":                  w.setFloatingipsTags(body, &ptr),
-					"description":           ptr.Get("description").Value(),
-					"status":                ptr.Get("status").Value(),
+					"id":                    ptrrecord.Get("id").Value(),
+					"public_ip":             ptrrecord.Get("address").Value(),
+					"domain_name":           ptrrecord.Get("ptrdname").Value(),
+					"ttl":                   ptrrecord.Get("ttl").Value(),
+					"enterprise_project_id": ptrrecord.Get("enterprise_project_id").Value(),
+					"tags":                  w.setFloatingipsTag(ptrrecord),
+					"description":           ptrrecord.Get("description").Value(),
+					"status":                ptrrecord.Get("status").Value(),
 				}
 			},
 		)),
@@ -195,7 +198,7 @@ func (w *FloatingPtrrecordsDSWrapper) listPtrRecordsToSchema(body *gjson.Result)
 	return mErr.ErrorOrNil()
 }
 
-func (w *FloatingPtrrecordsDSWrapper) getTags() string {
+func (w *FloatingPtrrecordsDSWrapper) getTag() string {
 	raw := w.Get("tags")
 	if raw == nil {
 		return ""
@@ -209,7 +212,7 @@ func (w *FloatingPtrrecordsDSWrapper) getTags() string {
 	return strings.Join(tagsList, "|")
 }
 
-func (*FloatingPtrrecordsDSWrapper) setFloatingipsTags(_, data *gjson.Result) map[string]string {
+func (*FloatingPtrrecordsDSWrapper) setFloatingipsTag(data gjson.Result) map[string]string {
 	tags := make(map[string]string)
 	tagList := data.Get("tags").Array()
 	for _, v := range tagList {
