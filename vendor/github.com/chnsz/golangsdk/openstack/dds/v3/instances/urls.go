@@ -65,3 +65,7 @@ func balancerSwitchURL(c *golangsdk.ServiceClient, instanceId, action string) st
 func balancerActiveWindowURL(c *golangsdk.ServiceClient, instanceId string) string {
 	return c.ServiceURL("instances", instanceId, "balancer/active-window")
 }
+
+func clientNetworkRangesURL(c *golangsdk.ServiceClient, instanceId string) string {
+	return c.ServiceURL("instances", instanceId, "client-network")
+}

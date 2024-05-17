@@ -286,6 +286,7 @@ func TestAccDDSV3Instance_withConfigurationReplicaSet(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "replica_set_name", "replicaName"),
 					resource.TestCheckResourceAttr(resourceName, "configuration.0.type", "replica"),
+					resource.TestCheckResourceAttr(resourceName, "client_network_ranges.0", "192.168.0.0/24"),
 					resource.TestCheckResourceAttrPair(resourceName, "configuration.0.id", "huaweicloud_dds_parameter_template.replica1", "id"),
 				),
 			},
@@ -1061,18 +1062,19 @@ func testAccDDSInstanceV3Config_withReplicaSetConfiguration(rName string) string
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
-  name              = "%[3]s"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  password          = "Terraform@123"
-  mode              = "ReplicaSet"
-  replica_set_name  = "replicaName"
+  name                  = "%[3]s"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  password              = "Terraform@123"
+  mode                  = "ReplicaSet"
+  replica_set_name      = "replicaName"
+  client_network_ranges = ["192.168.0.0/24"]
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
   configuration {
@@ -1112,7 +1114,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
   configuration {

@@ -350,6 +350,10 @@ type ChangeMaintenanceWindowOpts struct {
 	EndTime   string `json:"end_time" required:"true"`
 }
 
+type UpdateClientNetworkOpts struct {
+	ClientNetworkRanges *[]string `json:"client_network_ranges" required:"true"`
+}
+
 // UpdateReplicaSetName is a method to update the replica set name.
 func UpdateReplicaSetName(c *golangsdk.ServiceClient, instanceId string, opts ReplicaSetNameOpts) (*CommonResp, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
@@ -428,8 +432,7 @@ func UpdateMaintenanceWindow(c *golangsdk.ServiceClient, instanceId string, opts
 		return err
 	}
 
-	var r ChangeMaintenanceWindowOpts
-	_, err = c.Put(maintenanceWindowURL(c, instanceId), b, &r, &golangsdk.RequestOpts{
+	_, err = c.Put(maintenanceWindowURL(c, instanceId), b, nil, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 		OkCodes: []int{
 			204,
@@ -468,4 +471,26 @@ func GetBalancer(c *golangsdk.ServiceClient, instanceId string) (*BalancerResp, 
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 	return &r, err
+}
+
+// GetClientNetWorkRanges is a method to get the client network ranges.
+func GetClientNetWorkRanges(c *golangsdk.ServiceClient, instanceId string) (*UpdateClientNetworkOpts, error) {
+	var r UpdateClientNetworkOpts
+	_, err := c.Get(clientNetworkRangesURL(c, instanceId), &r, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return &r, err
+}
+
+// UpdateClientNetWorkRanges is a method to update client network ranges.
+func UpdateClientNetWorkRanges(c *golangsdk.ServiceClient, instanceId string, opts UpdateClientNetworkOpts) error {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Post(clientNetworkRangesURL(c, instanceId), b, nil, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return err
 }

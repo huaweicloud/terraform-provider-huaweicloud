@@ -134,6 +134,12 @@ The following arguments are supported:
   It must be `3` to `128` characters long and start with a letter. It is case-sensitive and can contain only letters,
   digits, and underscores (_). Default is **replica**.
 
+* `client_network_ranges` - (Optional, List) Specifies the CIDR block where the client is located. Cross-CIDR access is
+  required only when the CIDR blocks of the client and the replica set instance are different. For example, if the client
+  CIDR block is 192.168.0.0/16 and the replica set instance's CIDR block is 172.16.0.0/24, add the CIDR block
+  192.168.0.0/16 so that the client can access the replica set instance.
+  It's only for replica set instance.
+
 * `ssl` - (Optional, Bool) Specifies whether to enable or disable SSL. Defaults to true.
 
 **NOTE:** The instance will be restarted in the background when switching SSL. Please operate with caution.
