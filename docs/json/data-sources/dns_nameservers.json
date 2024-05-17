@@ -11,12 +11,12 @@
               },
               "nameservers": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {
                       "ns_records": [
-                        "set",
+                        "list",
                         [
                           "object",
                           {

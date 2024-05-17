@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdn_cache_preheat": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true,
+                "forcenew": true
+              },
+              "failed": {
+                "type": "number",
+                "description": "The number of URLs that failed to be processed.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "processing": {
+                "type": "number",
+                "description": "The number of URLs that are being processed.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The task execution result.",
+                "computed": true
+              },
+              "succeed": {
+                "type": "number",
+                "description": "The number of URLs processed.",
+                "computed": true
+              },
+              "total": {
+                "type": "number",
+                "description": "The total number of URLs in historical tasks.",
+                "computed": true
+              },
+              "urls": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the URLs that need to be preheated.",
+                "required": true,
+                "forcenew": true
+              },
+              "zh_url_encode": {
+                "type": "bool",
+                "description": "Specifies whether to encode Chinese characters in URLs before cache preheat.",
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

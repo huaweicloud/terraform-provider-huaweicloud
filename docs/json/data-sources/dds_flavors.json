@@ -9,6 +9,10 @@
                 "type": "string",
                 "required": true
               },
+              "engine_version": {
+                "type": "string",
+                "optional": true
+              },
               "flavors": {
                 "type": [
                   "list",
@@ -20,6 +24,10 @@
                         "string"
                       ],
                       "engine_name": "string",
+                      "engine_versions": [
+                        "list",
+                        "string"
+                      ],
                       "memory": "string",
                       "spec_code": "string",
                       "type": "string",

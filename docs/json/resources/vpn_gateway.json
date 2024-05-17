@@ -72,6 +72,11 @@
                 "optional": true,
                 "computed": true
               },
+              "er_attachment_id": {
+                "type": "string",
+                "description": "The ER attachment ID.",
+                "computed": true
+              },
               "er_id": {
                 "type": "string",
                 "description": "The enterprise router ID to attach with to VPN gateway.",

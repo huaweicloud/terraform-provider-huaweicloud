@@ -42,11 +42,11 @@
               },
               "memberof": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
-                "description": "Indicates the default rights of the account.",
-                "computed": true
+                "description": "Specifies  the list of default rights of a account.",
+                "optional": true
               },
               "name": {
                 "type": "string",

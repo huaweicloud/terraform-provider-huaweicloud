@@ -11,7 +11,7 @@
               },
               "identity_providers": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {
@@ -28,7 +28,7 @@
                         ]
                       ],
                       "remote_ids": [
-                        "set",
+                        "list",
                         "string"
                       ],
                       "sso_type": "string",

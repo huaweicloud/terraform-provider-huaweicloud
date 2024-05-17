@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_black_white_lists": {
+          "block": {
+            "attributes": {
+              "address": {
+                "type": "string",
+                "description": "Specifies the IP address.",
+                "optional": true
+              },
+              "address_type": {
+                "type": "string",
+                "description": "Specifies the IP address type.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true
+              },
+              "direction": {
+                "type": "string",
+                "description": "Specifies the direction of a black or white address.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall instance ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "list_id": {
+                "type": "string",
+                "description": "Specifies the blacklist/whitelist ID.",
+                "optional": true
+              },
+              "list_type": {
+                "type": "number",
+                "description": "Specifies the blacklist/whitelist type.",
+                "required": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "required": true
+              },
+              "port": {
+                "type": "string",
+                "description": "Specifies the port.",
+                "optional": true
+              },
+              "protocol": {
+                "type": "number",
+                "description": "Specifies The protocol type.",
+                "optional": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "address": "string",
+                      "address_type": "string",
+                      "description": "string",
+                      "direction": "string",
+                      "list_id": "string",
+                      "port": "string",
+                      "protocol": "number"
+                    }
+                  ]
+                ],
+                "description": "The blacklist and whitelist records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

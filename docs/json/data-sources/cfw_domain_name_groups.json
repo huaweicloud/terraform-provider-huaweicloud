@@ -1,0 +1,115 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_domain_name_groups": {
+          "block": {
+            "attributes": {
+              "config_status": {
+                "type": "string",
+                "description": "Specifies the configuration status.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall instance ID.",
+                "required": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the domain name group ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_word": {
+                "type": "string",
+                "description": "Specifies the key word.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of a domain name group.",
+                "optional": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "required": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "config_status": "string",
+                      "description": "string",
+                      "domain_names": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "domain_address_id": "string",
+                            "domain_name": "string"
+                          }
+                        ]
+                      ],
+                      "group_id": "string",
+                      "message": "string",
+                      "name": "string",
+                      "ref_count": "string",
+                      "rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The domain name group list.",
+                "computed": true
+              },
+              "ref_count": {
+                "type": "string",
+                "description": "Specifies the domain name group reference count.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the domain name group type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

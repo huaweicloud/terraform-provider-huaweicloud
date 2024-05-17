@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_diagnosis_tasks": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "description": "Specifies the start time of the diagnosis task, in RFC3339 format.",
+                "optional": true
+              },
+              "diagnosis_tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "abnormal_item_sum": "number",
+                      "begin_time": "string",
+                      "created_at": "string",
+                      "end_time": "string",
+                      "failed_item_sum": "number",
+                      "id": "string",
+                      "node_num": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of diagnosis reports.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time of the diagnosis task, in RFC3339 format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DCS instance.",
+                "required": true
+              },
+              "node_num": {
+                "type": "string",
+                "description": "Specifies the number of diagnosed nodes.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the diagnosis task.",
+                "optional": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the ID of the diagnosis task.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

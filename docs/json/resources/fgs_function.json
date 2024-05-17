@@ -191,9 +191,26 @@
               "custom_image": {
                 "block": {
                   "attributes": {
+                    "args": {
+                      "type": "string",
+                      "description": "Specifies the command line arguments used to start the SWR image.",
+                      "optional": true
+                    },
+                    "command": {
+                      "type": "string",
+                      "description": "Specifies the startup commands of the SWR image.",
+                      "optional": true
+                    },
                     "url": {
                       "type": "string",
+                      "description": "Specifies the URL of SWR image.",
                       "required": true
+                    },
+                    "working_dir": {
+                      "type": "string",
+                      "description": "Specifies the working directory of the SWR image.",
+                      "optional": true,
+                      "computed": true
                     }
                   }
                 },

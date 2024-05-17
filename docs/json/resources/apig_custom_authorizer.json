@@ -15,9 +15,20 @@
                 "description": "The creation time of the custom authorizer.",
                 "computed": true
               },
+              "function_alias_uri": {
+                "type": "string",
+                "description": "The version alias URI of the FGS function.",
+                "optional": true,
+                "computed": true
+              },
               "function_urn": {
                 "type": "string",
                 "description": "The URN of the FGS function.",
+                "required": true
+              },
+              "function_version": {
+                "type": "string",
+                "description": "The version of the FGS function.",
                 "required": true
               },
               "id": {
@@ -39,6 +50,12 @@
                 "type": "string",
                 "description": "The name of the custom authorizer.",
                 "required": true
+              },
+              "network_type": {
+                "type": "string",
+                "description": "The framework type of the function.",
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",

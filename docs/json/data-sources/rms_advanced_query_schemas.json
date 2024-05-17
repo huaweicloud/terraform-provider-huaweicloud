@@ -11,7 +11,7 @@
               },
               "schemas": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {

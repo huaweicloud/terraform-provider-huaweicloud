@@ -21,7 +21,7 @@
               },
               "records": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {

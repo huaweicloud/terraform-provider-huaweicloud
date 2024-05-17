@@ -21,7 +21,7 @@
               },
               "ptrrecords": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {

@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ga_availability_zones": {
+          "block": {
+            "attributes": {
+              "area": {
+                "type": "string",
+                "description": "The acceleration area to which the regions belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "regions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "area": "string",
+                      "endpoint_types": [
+                        "list",
+                        "string"
+                      ],
+                      "region_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The region list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

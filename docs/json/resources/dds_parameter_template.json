@@ -5,6 +5,10 @@
         "huaweicloud_dds_parameter_template": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "Specifies the parameter template description.",
@@ -60,6 +64,10 @@
                 "computed": true
               },
               "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
                 "type": "string",
                 "computed": true
               }

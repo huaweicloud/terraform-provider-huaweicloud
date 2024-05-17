@@ -1,0 +1,120 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_rules_cc_protection": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the protection policy belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the cc protection rule.",
+                "optional": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the ID of the policy to which the cc protection rules belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "Specifies the ID of the cc protection rule.",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "detail": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "block_page_type": "string",
+                                  "page_content": "string"
+                                }
+                              ]
+                            ],
+                            "protective_action": "string"
+                          }
+                        ]
+                      ],
+                      "all_waf_instances": "bool",
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content": [
+                              "list",
+                              "string"
+                            ],
+                            "field": "string",
+                            "logic": "string",
+                            "reference_table_id": "string",
+                            "subfield": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "limit_num": "number",
+                      "limit_period": "number",
+                      "lock_time": "number",
+                      "name": "string",
+                      "other_user_identifier": [
+                        "list",
+                        "string"
+                      ],
+                      "policy_id": "string",
+                      "rate_limit_mode": "string",
+                      "request_aggregation": "bool",
+                      "status": "number",
+                      "unlock_num": "number",
+                      "user_identifier": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of cc protection rules.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the cc protection rule.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

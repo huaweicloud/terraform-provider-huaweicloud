@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_elb_loadbalancers": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the CSS cluster.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_cross": {
+                "type": "bool",
+                "description": "Specifies whether to enable cross-VPC backend.",
+                "optional": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "description": "Specifies the ID of the loadbalancer.",
+                "optional": true
+              },
+              "loadbalancers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "ip_target_enable": "bool",
+                      "l7_flavor_id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the loadbalancer.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the loadbalancer.",
+                "optional": true
+              },
+              "protocol_id": {
+                "type": "string",
+                "description": "Specifies the layer 7 protocol ID of the loadbalancer.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

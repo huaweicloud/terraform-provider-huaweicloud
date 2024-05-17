@@ -12,12 +12,12 @@
               },
               "aggregators": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {
                       "account_ids": [
-                        "set",
+                        "list",
                         "string"
                       ],
                       "created_at": "string",

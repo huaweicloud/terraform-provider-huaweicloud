@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_logstash_configurations": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies ID of the CSS logstash cluster.",
+                "required": true
+              },
+              "confs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "conf_content": "string",
+                      "name": "string",
+                      "setting": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "batch_delay_ms": "number",
+                            "batch_size": "number",
+                            "queue_check_point_writes": "number",
+                            "queue_max_bytes_mb": "number",
+                            "queue_type": "string",
+                            "workers": "number"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The configuration file list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the configuration file name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the configuration file content check status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

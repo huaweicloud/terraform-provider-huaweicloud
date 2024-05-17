@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdn_billing_option": {
+          "block": {
+            "attributes": {
+              "charge_mode": {
+                "type": "string",
+                "description": "Specifies the billing option.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "current_charge_mode": {
+                "type": "string",
+                "description": "The billing option of the account.",
+                "computed": true
+              },
+              "effective_time": {
+                "type": "string",
+                "description": "The effective time of the option.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "product_type": {
+                "type": "string",
+                "description": "Specifies the product mode.",
+                "required": true
+              },
+              "service_area": {
+                "type": "string",
+                "description": "Specifies the service area.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

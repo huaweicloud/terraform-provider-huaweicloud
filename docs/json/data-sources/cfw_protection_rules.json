@@ -1,0 +1,227 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_protection_rules": {
+          "block": {
+            "attributes": {
+              "action_type": {
+                "type": "string",
+                "description": "Specifies the rule action type.",
+                "optional": true
+              },
+              "destination": {
+                "type": "string",
+                "description": "Specifies the destination address.",
+                "optional": true
+              },
+              "direction": {
+                "type": "string",
+                "description": "Specifies the rule direction.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall instance ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the rule name.",
+                "optional": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "required": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action_type": "string",
+                      "address_type": "number",
+                      "created_date": "string",
+                      "description": "string",
+                      "destination": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "address": "string",
+                            "address_group": [
+                              "list",
+                              "string"
+                            ],
+                            "address_set_id": "string",
+                            "address_set_name": "string",
+                            "address_set_type": "number",
+                            "address_type": "number",
+                            "domain_address_name": "string",
+                            "domain_set_id": "string",
+                            "domain_set_name": "string",
+                            "ip_address": [
+                              "list",
+                              "string"
+                            ],
+                            "region_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "description_cn": "string",
+                                  "description_en": "string",
+                                  "region_id": "string",
+                                  "region_type": "number"
+                                }
+                              ]
+                            ],
+                            "type": "number"
+                          }
+                        ]
+                      ],
+                      "direction": "string",
+                      "last_open_time": "string",
+                      "long_connect_enable": "number",
+                      "long_connect_time": "number",
+                      "long_connect_time_hour": "number",
+                      "long_connect_time_minute": "number",
+                      "long_connect_time_second": "number",
+                      "name": "string",
+                      "rule_id": "string",
+                      "service": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "custom_service": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "description": "string",
+                                  "dest_port": "string",
+                                  "name": "string",
+                                  "protocol": "number",
+                                  "source_port": "string"
+                                }
+                              ]
+                            ],
+                            "dest_port": "string",
+                            "protocol": "number",
+                            "protocols": [
+                              "list",
+                              "number"
+                            ],
+                            "service_group": [
+                              "list",
+                              "string"
+                            ],
+                            "service_set_id": "string",
+                            "service_set_name": "string",
+                            "service_set_type": "number",
+                            "source_port": "string",
+                            "type": "number"
+                          }
+                        ]
+                      ],
+                      "source": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "address": "string",
+                            "address_group": [
+                              "list",
+                              "string"
+                            ],
+                            "address_set_id": "string",
+                            "address_set_name": "string",
+                            "address_set_type": "number",
+                            "address_type": "number",
+                            "domain_address_name": "string",
+                            "ip_address": [
+                              "list",
+                              "string"
+                            ],
+                            "region_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "description_cn": "string",
+                                  "description_en": "string",
+                                  "region_id": "string",
+                                  "region_type": "number"
+                                }
+                              ]
+                            ],
+                            "type": "number"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The protection rule list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "Specifies the rule ID.",
+                "optional": true
+              },
+              "source": {
+                "type": "string",
+                "description": "Specifies the source address.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the rule status.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the key/value pairs to associate with the protection rule.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the rule type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

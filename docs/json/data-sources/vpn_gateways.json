@@ -60,6 +60,7 @@
                         ]
                       ],
                       "enterprise_project_id": "string",
+                      "er_attachment_id": "string",
                       "er_id": "string",
                       "flavor": "string",
                       "ha_mode": "string",

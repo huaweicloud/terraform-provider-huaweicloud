@@ -1,0 +1,150 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_clusters": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the cluster ID.",
+                "optional": true
+              },
+              "clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "actions": [
+                        "list",
+                        "string"
+                      ],
+                      "authority_enable": "bool",
+                      "backup_available": "bool",
+                      "bandwidth_resource_id": "string",
+                      "bandwidth_size": "number",
+                      "created_at": "string",
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "disk_encrypted": "bool",
+                      "elb_white_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enable_white_list": "bool",
+                            "white_list": "string"
+                          }
+                        ]
+                      ],
+                      "endpoint": "string",
+                      "enterprise_project_id": "string",
+                      "https_enable": "bool",
+                      "id": "string",
+                      "instances": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "az_code": "string",
+                            "id": "string",
+                            "ip": "string",
+                            "name": "string",
+                            "spec_code": "string",
+                            "status": "string",
+                            "type": "string",
+                            "volume": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "size": "number",
+                                  "type": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "period": "bool",
+                      "public_ip": "string",
+                      "public_kibana_resp": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bandwidth_resource_id": "string",
+                            "eip_size": "number",
+                            "elb_white_list_resp": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "enable_white_list": "bool",
+                                  "white_list": "string"
+                                }
+                              ]
+                            ],
+                            "public_kibana_ip": "string"
+                          }
+                        ]
+                      ],
+                      "security_group_id": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "updated_at": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of cluster objects.",
+                "computed": true
+              },
+              "engine_type": {
+                "type": "string",
+                "description": "Specifies the engine type. The values can be **elasticsearch** and **logstash**.",
+                "optional": true
+              },
+              "engine_version": {
+                "type": "string",
+                "description": "Specifies the engine version.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the cluster name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

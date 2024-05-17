@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_fgs_dependency_versions": {
+          "block": {
+            "attributes": {
+              "dependency_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dependency package to which the versions belong.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "runtime": {
+                "type": "string",
+                "description": "Specifies the runtime of the dependency package version.",
+                "optional": true
+              },
+              "version": {
+                "type": "number",
+                "description": "Specifies the version of the dependency package.",
+                "optional": true
+              },
+              "version_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dependency package version.",
+                "optional": true
+              },
+              "versions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dependency_id": "string",
+                      "dependency_name": "string",
+                      "description": "string",
+                      "etag": "string",
+                      "id": "string",
+                      "link": "string",
+                      "owner": "string",
+                      "runtime": "string",
+                      "size": "number",
+                      "version": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

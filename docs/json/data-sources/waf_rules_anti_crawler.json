@@ -1,0 +1,95 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_rules_anti_crawler": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the protection policies belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the anti crawler rule.",
+                "optional": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the ID of the policy to which the anti crawler rules belong.",
+                "required": true
+              },
+              "protection_mode": {
+                "type": "string",
+                "description": "Specifies the protection mode of the anti crawler rule.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "Specifies the ID of the anti crawler rule.",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content": [
+                              "list",
+                              "string"
+                            ],
+                            "field": "string",
+                            "logic": "string",
+                            "reference_table_id": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "policy_id": "string",
+                      "priority": "number",
+                      "protection_mode": "string",
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of anti crawler rules.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the anti crawler rule.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

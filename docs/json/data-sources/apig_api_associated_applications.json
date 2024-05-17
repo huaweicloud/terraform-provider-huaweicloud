@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_api_associated_applications": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "The ID of the API bound to the application.",
+                "required": true
+              },
+              "application_id": {
+                "type": "string",
+                "description": "The ID of the application.",
+                "optional": true
+              },
+              "applications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bind_id": "string",
+                      "bind_time": "string",
+                      "description": "string",
+                      "env_id": "string",
+                      "env_name": "string",
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "All applications that match the filter parameters.",
+                "computed": true
+              },
+              "env_id": {
+                "type": "string",
+                "description": "The ID of the environment where the API is published.",
+                "optional": true
+              },
+              "env_name": {
+                "type": "string",
+                "description": "The name of the environment where the API is published.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the applications belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the application.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

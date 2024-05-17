@@ -7,7 +7,7 @@
             "attributes": {
               "elastic_resource_pools": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {
@@ -25,7 +25,7 @@
                       "name": "string",
                       "owner": "string",
                       "queues": [
-                        "set",
+                        "list",
                         "string"
                       ],
                       "resource_id": "string",

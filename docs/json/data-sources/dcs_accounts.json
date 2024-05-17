@@ -22,7 +22,7 @@
               },
               "accounts": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {

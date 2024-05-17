@@ -1,0 +1,123 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_recycling_instances": {
+          "block": {
+            "attributes": {
+              "data_vip": {
+                "type": "string",
+                "description": "Specifies the floating IP address.",
+                "optional": true
+              },
+              "engine_name": {
+                "type": "string",
+                "description": "Specifies the DB engine name.",
+                "optional": true
+              },
+              "engine_version": {
+                "type": "string",
+                "description": "Specifies the DB engine version.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "ha_mode": {
+                "type": "string",
+                "description": "Specifies the instance type.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "data_vip": "string",
+                      "deleted_at": "string",
+                      "engine_name": "string",
+                      "engine_version": "string",
+                      "enterprise_project_id": "string",
+                      "ha_mode": "string",
+                      "id": "string",
+                      "is_serverless": "bool",
+                      "name": "string",
+                      "pay_model": "string",
+                      "recycle_backup_id": "string",
+                      "recycle_status": "string",
+                      "retained_until": "string",
+                      "volume_size": "number",
+                      "volume_type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of recycling RDS instances.",
+                "computed": true
+              },
+              "is_serverless": {
+                "type": "string",
+                "description": "Specifies whether the instance is a serverless instance.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the instance name.",
+                "optional": true
+              },
+              "pay_model": {
+                "type": "string",
+                "description": "Specifies the billing mode.",
+                "optional": true
+              },
+              "recycle_backup_id": {
+                "type": "string",
+                "description": "Specifies the backup ID.",
+                "optional": true
+              },
+              "recycle_status": {
+                "type": "string",
+                "description": "Specifies the backup status.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "volume_size": {
+                "type": "string",
+                "description": "Specifies the storage space in **GB**.",
+                "optional": true
+              },
+              "volume_type": {
+                "type": "string",
+                "description": "Specifies the storage type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

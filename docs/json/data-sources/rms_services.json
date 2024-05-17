@@ -16,7 +16,7 @@
               },
               "services": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {
@@ -24,7 +24,7 @@
                       "display_name": "string",
                       "name": "string",
                       "resource_types": [
-                        "set",
+                        "list",
                         [
                           "object",
                           {
@@ -35,7 +35,7 @@
                             "global": "bool",
                             "name": "string",
                             "regions": [
-                              "set",
+                              "list",
                               "string"
                             ],
                             "track": "string"

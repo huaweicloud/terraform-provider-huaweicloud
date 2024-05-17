@@ -7,7 +7,7 @@
             "attributes": {
               "groups": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {

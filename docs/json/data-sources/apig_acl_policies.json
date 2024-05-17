@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_acl_policies": {
+          "block": {
+            "attributes": {
+              "entity_type": {
+                "type": "string",
+                "description": "Specifies the entity type of the ACL policy.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the ACL policies belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the ACL policy.",
+                "optional": true
+              },
+              "policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bind_num": "number",
+                      "entity_type": "string",
+                      "id": "string",
+                      "name": "string",
+                      "type": "string",
+                      "updated_at": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "All ACL policies that match the filter parameters.",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the ID of the ACL policy.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the ACL policy.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

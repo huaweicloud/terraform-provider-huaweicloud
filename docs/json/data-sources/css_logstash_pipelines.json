@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_logstash_pipelines": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies ID of the CSS logstash cluster.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the configuration file names of the CSS logstash cluster pipeline.",
+                "optional": true
+              },
+              "pipelines": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "events": [
+                        "map",
+                        "string"
+                      ],
+                      "keep_alive": "bool",
+                      "name": "string",
+                      "status": "string",
+                      "update_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The pipeline list of the CSS logstash cluster.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

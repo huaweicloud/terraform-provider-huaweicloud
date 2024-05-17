@@ -1,0 +1,107 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_traffic_mirror_filter_rules": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "The policy of in the traffic mirror filter rule.",
+                "optional": true
+              },
+              "destination_cidr_block": {
+                "type": "string",
+                "description": "The destination IP address of the traffic mirror filter rule.",
+                "optional": true
+              },
+              "destination_port_range": {
+                "type": "string",
+                "description": "The destination port number range of the traffic mirror filter rule.",
+                "optional": true
+              },
+              "direction": {
+                "type": "string",
+                "description": "The direction of the traffic mirror filter rule.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "priority": {
+                "type": "string",
+                "description": "The priority number of the traffic mirror filter rule.",
+                "optional": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "The protocol of the traffic mirror filter rule.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "source_cidr_block": {
+                "type": "string",
+                "description": "The source IP address of the traffic mirror filter rule.",
+                "optional": true
+              },
+              "source_port_range": {
+                "type": "string",
+                "description": "The source port number range of the traffic mirror filter rule.",
+                "optional": true
+              },
+              "traffic_mirror_filter_id": {
+                "type": "string",
+                "description": "The traffic mirror filter ID used as the query filter.",
+                "optional": true
+              },
+              "traffic_mirror_filter_rule_id": {
+                "type": "string",
+                "description": "The traffic mirror filter rule ID used as the query filter.",
+                "optional": true
+              },
+              "traffic_mirror_filter_rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "destination_cidr_block": "string",
+                      "destination_port_range": "string",
+                      "direction": "string",
+                      "ethertype": "string",
+                      "id": "string",
+                      "priority": "number",
+                      "project_id": "string",
+                      "protocol": "string",
+                      "source_cidr_block": "string",
+                      "source_port_range": "string",
+                      "traffic_mirror_filter_id": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "List of traffic mirror filter rules.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

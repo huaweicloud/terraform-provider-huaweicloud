@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_service_group_members": {
+          "block": {
+            "attributes": {
+              "dest_port": {
+                "type": "string",
+                "description": "Specifies the destination port.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall instance ID.",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the service group ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "item_id": {
+                "type": "string",
+                "description": "Specifies the service group member ID.",
+                "optional": true
+              },
+              "key_word": {
+                "type": "string",
+                "description": "Specifies the key word.",
+                "optional": true
+              },
+              "protocol": {
+                "type": "number",
+                "description": "Specifies the protocol type.",
+                "optional": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "dest_port": "string",
+                      "item_id": "string",
+                      "protocol": "number",
+                      "source_port": "string"
+                    }
+                  ]
+                ],
+                "description": "The service group member list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "source_port": {
+                "type": "string",
+                "description": "Specifies the source port.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

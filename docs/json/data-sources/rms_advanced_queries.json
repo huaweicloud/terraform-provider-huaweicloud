@@ -16,7 +16,7 @@
               },
               "queries": {
                 "type": [
-                  "set",
+                  "list",
                   [
                     "object",
                     {

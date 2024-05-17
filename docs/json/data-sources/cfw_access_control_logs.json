@@ -1,0 +1,123 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_access_control_logs": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the action. The values can be **allow** and **deny**.",
+                "optional": true
+              },
+              "app": {
+                "type": "string",
+                "description": "Specifies the application protocol.",
+                "optional": true
+              },
+              "dst_ip": {
+                "type": "string",
+                "description": "Specifies the destination IP address.",
+                "optional": true
+              },
+              "dst_port": {
+                "type": "number",
+                "description": "Specifies the destination port.",
+                "optional": true
+              },
+              "dst_region_name": {
+                "type": "string",
+                "description": "Specifies the destination region name.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time. The time is in UTC.",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project id.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall instance ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "app": "string",
+                      "dst_host": "string",
+                      "dst_ip": "string",
+                      "dst_port": "number",
+                      "dst_region_id": "string",
+                      "dst_region_name": "string",
+                      "hit_time": "string",
+                      "log_id": "string",
+                      "protocol": "string",
+                      "rule_id": "string",
+                      "rule_name": "string",
+                      "src_ip": "string",
+                      "src_port": "number",
+                      "src_region_id": "string",
+                      "src_region_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The access control log records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "rule_name": {
+                "type": "string",
+                "description": "Specifies the rule name.",
+                "optional": true
+              },
+              "src_ip": {
+                "type": "string",
+                "description": "Specifies the source IP address.",
+                "optional": true
+              },
+              "src_port": {
+                "type": "number",
+                "description": "Specifies the source port.",
+                "optional": true
+              },
+              "src_region_name": {
+                "type": "string",
+                "description": "Specifies the source region name.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time. The time is in UTC.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

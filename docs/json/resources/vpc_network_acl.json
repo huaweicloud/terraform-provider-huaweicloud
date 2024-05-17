@@ -73,13 +73,11 @@
                     },
                     "destination_ip_address_group_id": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "destination_port": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "ip_version": {
                       "type": "number",
@@ -105,13 +103,11 @@
                     },
                     "source_ip_address_group_id": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "source_port": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     }
                   }
                 },
@@ -135,13 +131,11 @@
                     },
                     "destination_ip_address_group_id": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "destination_port": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "ip_version": {
                       "type": "number",
@@ -167,13 +161,11 @@
                     },
                     "source_ip_address_group_id": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "source_port": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     }
                   }
                 },

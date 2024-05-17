@@ -121,6 +121,18 @@
                 "optional": true,
                 "computed": true
               },
+              "private_dns_name_prefix": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "private_dns_names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
               "private_ips": {
                 "type": [
                   "list",
@@ -147,6 +159,16 @@
                 "type": "number",
                 "optional": true
               },
+              "seconds_level_monitoring_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "seconds_level_monitoring_interval": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
               "secret_id": {
                 "type": "string",
                 "optional": true
@@ -162,6 +184,10 @@
               "security_group_id": {
                 "type": "string",
                 "required": true
+              },
+              "slow_log_show_original_status": {
+                "type": "string",
+                "optional": true
               },
               "ssl_enable": {
                 "type": "bool",

@@ -1,0 +1,110 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dli_flinkjar_jobs": {
+          "block": {
+            "attributes": {
+              "cu_num": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "optional": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "checkpoint_path": "string",
+                      "cu_num": "number",
+                      "dependency_files": [
+                        "list",
+                        "string"
+                      ],
+                      "dependency_jars": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "string",
+                      "entrypoint": "string",
+                      "entrypoint_args": "string",
+                      "feature": "string",
+                      "flink_version": "string",
+                      "id": "string",
+                      "image": "string",
+                      "log_enabled": "bool",
+                      "main_class": "string",
+                      "manager_cu_num": "number",
+                      "name": "string",
+                      "obs_bucket": "string",
+                      "parallel_num": "number",
+                      "queue_name": "string",
+                      "restart_when_exception": "bool",
+                      "resume_checkpoint": "bool",
+                      "resume_max_num": "number",
+                      "runtime_config": [
+                        "map",
+                        "string"
+                      ],
+                      "smn_topic": "string",
+                      "status": "string",
+                      "tm_cu_num": "number",
+                      "tm_slot_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "manager_cu_num": {
+                "type": "number",
+                "optional": true
+              },
+              "parallel_num": {
+                "type": "number",
+                "optional": true
+              },
+              "queue_name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "tm_cu_num": {
+                "type": "number",
+                "optional": true
+              },
+              "tm_slot_num": {
+                "type": "number",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DLI",
+            "name": "Data Lake Insight",
+            "catalog": "Analytics",
+            "name_cn": "数据湖探索",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

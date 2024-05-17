@@ -49,7 +49,7 @@
                       "id": "string",
                       "name": "string",
                       "protocols": [
-                        "set",
+                        "list",
                         "number"
                       ],
                       "ref_count": "number",

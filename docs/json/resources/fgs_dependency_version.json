@@ -5,6 +5,11 @@
         "huaweicloud_fgs_dependency_version": {
           "block": {
             "attributes": {
+              "dependency_id": {
+                "type": "string",
+                "description": "The ID of the dependency package corresponding to the version.",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "The description of the custom dependency version.",

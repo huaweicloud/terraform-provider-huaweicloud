@@ -39,6 +39,35 @@
                       "db_username": "string",
                       "disk_encryption_id": "string",
                       "enterprise_project_id": "string",
+                      "groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "nodes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "name": "string",
+                                  "private_ip": "string",
+                                  "public_ip": "string",
+                                  "role": "string",
+                                  "status": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "size": "string",
+                            "status": "string",
+                            "type": "string",
+                            "used": "string"
+                          }
+                        ]
+                      ],
                       "id": "string",
                       "mode": "string",
                       "name": "string",

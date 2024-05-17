@@ -5,6 +5,10 @@
         "huaweicloud_cbh_flavors": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true
+              },
               "asset": {
                 "type": "number",
                 "optional": true
@@ -47,6 +51,10 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "spec_code": {
+                "type": "string",
+                "optional": true
               },
               "type": {
                 "type": "string",

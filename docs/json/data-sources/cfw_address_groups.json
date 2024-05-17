@@ -30,7 +30,7 @@
                 "computed": true
               },
               "address_type": {
-                "type": "number",
+                "type": "string",
                 "description": "Specifies the IP address type.",
                 "optional": true
               },

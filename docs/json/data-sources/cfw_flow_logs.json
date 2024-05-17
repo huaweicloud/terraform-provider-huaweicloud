@@ -1,0 +1,119 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_flow_logs": {
+          "block": {
+            "attributes": {
+              "app": {
+                "type": "string",
+                "description": "Specifies the application protocol.",
+                "optional": true
+              },
+              "direction": {
+                "type": "string",
+                "description": "Specifies the direction. The values can be **out2in** and **in2out**.",
+                "optional": true
+              },
+              "dst_ip": {
+                "type": "string",
+                "description": "Specifies the destination IP address.",
+                "optional": true
+              },
+              "dst_port": {
+                "type": "number",
+                "description": "Specifies the destination port.",
+                "optional": true
+              },
+              "dst_region_name": {
+                "type": "string",
+                "description": "Specifies the destination region name.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time. The time is in UTC.",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project id.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall instance ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app": "string",
+                      "bytes": "number",
+                      "direction": "string",
+                      "dst_host": "string",
+                      "dst_ip": "string",
+                      "dst_port": "number",
+                      "dst_region_id": "string",
+                      "dst_region_name": "string",
+                      "end_time": "string",
+                      "log_id": "string",
+                      "packets": "number",
+                      "protocol": "string",
+                      "src_ip": "string",
+                      "src_port": "number",
+                      "src_region_id": "string",
+                      "src_region_name": "string",
+                      "start_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The flow log records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "src_ip": {
+                "type": "string",
+                "description": "Specifies the source IP address.",
+                "optional": true
+              },
+              "src_port": {
+                "type": "number",
+                "description": "Specifies the source port.",
+                "optional": true
+              },
+              "src_region_name": {
+                "type": "string",
+                "description": "Specifies the source region name.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time. The time is in UTC.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

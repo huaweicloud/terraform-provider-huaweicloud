@@ -81,17 +81,20 @@
                       "type": "string",
                       "description": "Specifies the password for logging in to the associated RDS instance.",
                       "required": true,
+                      "forcenew": true,
                       "sensitive": true
                     },
                     "admin_user": {
                       "type": "string",
                       "description": "Specifies the username for logging in to the associated RDS instance.",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "id": {
                       "type": "string",
                       "description": "Specifies the ID of the RDS instance associated with the schema.",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "name": {
                       "type": "string",

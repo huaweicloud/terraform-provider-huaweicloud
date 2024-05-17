@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_pg_sql_limits": {
+          "block": {
+            "attributes": {
+              "db_name": {
+                "type": "string",
+                "description": "Specifies the name of the database.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of RDS PostgreSQL instance.",
+                "required": true
+              },
+              "is_effective": {
+                "type": "string",
+                "description": "Specifies whether the SQL limit is effective.",
+                "optional": true
+              },
+              "max_concurrency": {
+                "type": "string",
+                "description": "Specifies the number of SQL statements executed simultaneously.",
+                "optional": true
+              },
+              "max_waiting": {
+                "type": "string",
+                "description": "Specifies the max waiting time in seconds.",
+                "optional": true
+              },
+              "query_id": {
+                "type": "string",
+                "description": "Specifies the query ID.",
+                "optional": true
+              },
+              "query_string": {
+                "type": "string",
+                "description": "Specifies the text form of SQL statement.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "search_path": {
+                "type": "string",
+                "description": "Specifies the query order for names that are not schema qualified.",
+                "optional": true
+              },
+              "sql_limit_id": {
+                "type": "string",
+                "description": "Specifies the ID of SQL limit.",
+                "optional": true
+              },
+              "sql_limits": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "is_effective": "bool",
+                      "max_concurrency": "number",
+                      "max_waiting": "number",
+                      "query_id": "string",
+                      "query_string": "string",
+                      "search_path": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of SQL limits.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

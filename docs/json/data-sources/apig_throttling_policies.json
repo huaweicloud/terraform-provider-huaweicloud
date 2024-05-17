@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_throttling_policies": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the throttling policies belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the throttling policy.",
+                "optional": true
+              },
+              "policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_throttles": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "max_api_requests": "number",
+                            "throttling_object_id": "string",
+                            "throttling_object_name": "string"
+                          }
+                        ]
+                      ],
+                      "bind_num": "number",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "max_api_requests": "number",
+                      "max_app_requests": "number",
+                      "max_ip_requests": "number",
+                      "max_user_requests": "number",
+                      "name": "string",
+                      "period": "number",
+                      "period_unit": "string",
+                      "type": "string",
+                      "user_throttles": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "max_api_requests": "number",
+                            "throttling_object_id": "string",
+                            "throttling_object_name": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the ID of the throttling policy.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the throttling policy.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

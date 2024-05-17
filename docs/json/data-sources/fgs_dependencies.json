@@ -26,7 +26,17 @@
                       "name": "string",
                       "owner": "string",
                       "runtime": "string",
-                      "size": "number"
+                      "size": "number",
+                      "versions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "version": "number"
+                          }
+                        ]
+                      ]
                     }
                   ]
                 ],

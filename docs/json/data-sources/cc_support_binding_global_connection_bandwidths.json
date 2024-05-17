@@ -1,0 +1,118 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_support_binding_global_connection_bandwidths": {
+          "block": {
+            "attributes": {
+              "admin_state": {
+                "type": "string",
+                "description": "Specifies the global connection bandwidth status.",
+                "optional": true
+              },
+              "binding_service": {
+                "type": "string",
+                "description": "Specifies the binding service.",
+                "required": true
+              },
+              "charge_mode": {
+                "type": "string",
+                "description": "Specifies the billing option.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "gcb_id": {
+                "type": "string",
+                "description": "Specifies the global connection bandwidth ID.",
+                "optional": true
+              },
+              "globalconnection_bandwidths": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "admin_state": "string",
+                      "binding_service": "string",
+                      "bordercross": "bool",
+                      "charge_mode": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "enable_share": "bool",
+                      "enterprise_project_id": "string",
+                      "frozen": "bool",
+                      "id": "string",
+                      "local_area": "string",
+                      "local_site_code": "string",
+                      "name": "string",
+                      "remote_area": "string",
+                      "remote_site_code": "string",
+                      "size": "number",
+                      "sla_level": "string",
+                      "spec_code_id": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The global connection bandwidth list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "local_area": {
+                "type": "string",
+                "description": "Specifies the local access point.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the global connection bandwidth name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "remote_area": {
+                "type": "string",
+                "description": "Specifies the remote access point.",
+                "optional": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Specifies the global connection bandwidth size.",
+                "optional": true
+              },
+              "sla_level": {
+                "type": "string",
+                "description": "Specifies the class of a global connection bandwidth.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the global connection bandwidth type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -48,7 +48,9 @@
               },
               "mode": {
                 "type": "string",
-                "computed": true
+                "optional": true,
+                "forcenew": true,
+                "default": "Cluster"
               },
               "name": {
                 "type": "string",

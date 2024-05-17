@@ -10,6 +10,12 @@
                 "description": "The group description.",
                 "optional": true
               },
+              "domain_access_enabled": {
+                "type": "bool",
+                "description": "Specifies whether to use the debugging domain name to access the APIs within the group.",
+                "optional": true,
+                "default": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

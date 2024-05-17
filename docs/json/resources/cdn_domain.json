@@ -102,6 +102,11 @@
                       "type": "bool",
                       "optional": true
                     },
+                    "origin_follow302_status": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
                     "origin_protocol": {
                       "type": "string",
                       "optional": true,
@@ -182,6 +187,25 @@
                       },
                       "nesting_mode": "set"
                     },
+                    "error_code_redirect_rules": {
+                      "block": {
+                        "attributes": {
+                          "error_code": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "target_code": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "target_link": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
                     "flexible_origin": {
                       "block": {
                         "attributes": {
@@ -255,6 +279,28 @@
                           "type": {
                             "type": "string",
                             "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "hsts": {
+                      "block": {
+                        "attributes": {
+                          "enabled": {
+                            "type": "bool",
+                            "required": true
+                          },
+                          "include_subdomains": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "max_age": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
                           }
                         }
                       },
@@ -769,6 +815,11 @@
                       "optional": true,
                       "computed": true
                     },
+                    "obs_bucket_type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
                     "obs_web_hosting_enabled": {
                       "type": "bool",
                       "optional": true,
@@ -784,6 +835,11 @@
                     },
                     "retrieval_host": {
                       "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "weight": {
+                      "type": "number",
                       "optional": true,
                       "computed": true
                     }

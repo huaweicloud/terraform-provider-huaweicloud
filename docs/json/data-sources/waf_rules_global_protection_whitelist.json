@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_rules_global_protection_whitelist": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the protection policy belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the ID of the policy to which the global protection whitelist rules belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "Specifies the ID of the global protection whitelist rule.",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "advanced_content": [
+                        "list",
+                        "string"
+                      ],
+                      "advanced_field": "string",
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content": [
+                              "list",
+                              "string"
+                            ],
+                            "field": "string",
+                            "logic": "string",
+                            "subfield": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "domains": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "ignore_waf_protection": "string",
+                      "policy_id": "string",
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the global protection whitelist rules.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the global protection whitelist rule.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

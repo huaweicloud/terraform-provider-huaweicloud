@@ -1,0 +1,104 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_traffic_mirror_filters": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the traffic mirror filter.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "traffic_mirror_filter_id": {
+                "type": "string",
+                "description": "Specifies the ID of the traffic mirror filter.",
+                "optional": true
+              },
+              "traffic_mirror_filters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "egress_rules": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "action": "string",
+                            "created_at": "string",
+                            "description": "string",
+                            "destination_cidr_block": "string",
+                            "destination_port_range": "string",
+                            "direction": "string",
+                            "ethertype": "string",
+                            "id": "string",
+                            "priority": "number",
+                            "project_id": "string",
+                            "protocol": "string",
+                            "source_cidr_block": "string",
+                            "source_port_range": "string",
+                            "traffic_mirror_filter_id": "string",
+                            "updated_at": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "ingress_rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "action": "string",
+                            "created_at": "string",
+                            "description": "string",
+                            "destination_cidr_block": "string",
+                            "destination_port_range": "string",
+                            "direction": "string",
+                            "ethertype": "string",
+                            "id": "string",
+                            "priority": "number",
+                            "project_id": "string",
+                            "protocol": "string",
+                            "source_cidr_block": "string",
+                            "source_port_range": "string",
+                            "traffic_mirror_filter_id": "string",
+                            "updated_at": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "project_id": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "List of traffic mirror filters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}
