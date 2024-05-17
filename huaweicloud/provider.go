@@ -402,13 +402,14 @@ func Provider() *schema.Provider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"huaweicloud_apig_acl_policies":                       apig.DataSourceAclPolicies(),
-			"huaweicloud_apig_custom_authorizers":                 apig.DataSourceCustomAuthorizers(),
 			"huaweicloud_apig_api_associated_acl_policies":        apig.DataSourceApiAssociatedAclPolicies(),
 			"huaweicloud_apig_api_associated_applications":        apig.DataSourceApiAssociatedApplications(),
 			"huaweicloud_apig_api_associated_throttling_policies": apig.DataSourceApiAssociatedThrottlingPolicies(),
 			"huaweicloud_apig_api_basic_configurations":           apig.DataSourceApiBasicConfigurations(),
+			"huaweicloud_apig_custom_authorizers":                 apig.DataSourceCustomAuthorizers(),
 			"huaweicloud_apig_environments":                       apig.DataSourceEnvironments(),
 			"huaweicloud_apig_groups":                             apig.DataSourceGroups(),
+			"huaweicloud_apig_instances":                          apig.DataSourceInstances(),
 			"huaweicloud_apig_signatures":                         apig.DataSourceSignatures(),
 			"huaweicloud_apig_throttling_policies":                apig.DataSourceThrottlingPolicies(),
 
