@@ -126,16 +126,19 @@ func SchemaDataNodeSchema() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `Specifies the ID of the RDS instance associated with the schema.`,
 			},
 			"admin_user": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `Specifies the username for logging in to the associated RDS instance.`,
 			},
 			"admin_password": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Sensitive:   true,
 				Description: `Specifies the password for logging in to the associated RDS instance.`,
 			},

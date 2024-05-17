@@ -12,82 +12,18 @@ Manages a DDM schema resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable "instance_id" {}
+variable "rds_instance_id" {}
 variable "rds_password" {}
 
-resource "huaweicloud_vpc" "test" {
-  name = "test_vpc"
-  cidr = "192.168.0.0/24"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "test_subnet"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "test_secgroup"
-}
-
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_ddm_engines" test {
-  version = "3.0.8.5"
-}
-
-data "huaweicloud_ddm_flavors" test {
-  engine_id = data.huaweicloud_ddm_engines.test.engines[0].id
-  cpu_arch  = "X86"
-}
-
-resource "huaweicloud_ddm_instance" "test" {
-  name              = "ddm-test"
-  flavor_id         = data.huaweicloud_ddm_flavors.test.flavors[0].id
-  node_num          = 2
-  engine_id         = data.huaweicloud_ddm_engines.test.engines[0].id
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-
-  availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0]
-  ]
-}
-
-resource "huaweicloud_rds_instance" "test" {
-  name              = "rds_test"
-  flavor            = "rds.mysql.n1.large.4"
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
-  fixed_ip          = "192.168.0.58"
-
-  availability_zone = [
-    data.huaweicloud_availability_zones.test.names[0]
-  ]
-
-  db {
-    password = var.rds_password
-    type     = "MySQL"
-    version  = "5.7"
-    port     = 3306
-  }
-
-  volume {
-    type = "CLOUDSSD"
-    size = 40
-  }
-}
-
 resource "huaweicloud_ddm_schema" "test"{
-  instance_id  = huaweicloud_ddm_instance.test.id
+  instance_id  = var.instance_id
   name         = "test_schema"
   shard_mode   = "single"
   shard_number = 1
 
   data_nodes {
-    id             = huaweicloud_rds_instance.test.id
+    id             = var.rds_instance_id
     admin_user     = "root"
     admin_password = var.rds_password
   }
@@ -133,11 +69,11 @@ The following arguments are supported:
 <a name="DdmSchema_DataNode"></a>
 The `DataNode` block supports:
 
-* `id` - (Required, String) Specifies the ID of the RDS instance associated with the schema.
+* `id` - (Required, String, ForceNew) Specifies the ID of the RDS instance associated with the schema.
 
-* `admin_user` - (Required, String) Specifies the username for logging in to the associated RDS instance.
+* `admin_user` - (Required, String, ForceNew) Specifies the username for logging in to the associated RDS instance.
 
-* `admin_password` - (Required, String) Specifies the password for logging in to the associated RDS instance.
+* `admin_password` - (Required, String, ForceNew) Specifies the password for logging in to the associated RDS instance.
 
 ## Attribute Reference
 
