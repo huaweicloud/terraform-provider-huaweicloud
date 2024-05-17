@@ -102,7 +102,7 @@ func TestAccAlert_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "severity", "Medium"),
-					resource.TestCheckResourceAttr(rName, "status", "Closed"),
+					resource.TestCheckResourceAttr(rName, "status", "Open"),
 					resource.TestCheckResourceAttr(rName, "first_occurrence_time", "2023-10-29T19:33:55.000+08:00"),
 					resource.TestCheckResourceAttr(rName, "last_occurrence_time", "2023-10-30T21:50:01.000+08:00"),
 				),
@@ -142,6 +142,12 @@ resource "huaweicloud_secmaster_alert" "test" {
   status              = "Open"
   verification_status = "Unknown"
   stage               = "Preparation"
+
+  lifecycle {
+    ignore_changes = [
+      name, status,
+    ]
+  }
 }
 `, acceptance.HW_SECMASTER_WORKSPACE_ID, name)
 }
@@ -168,9 +174,15 @@ resource "huaweicloud_secmaster_alert" "test" {
   last_occurrence_time  = "2023-10-30T21:50:01.000+08:00"
 
   severity            = "Medium"
-  status              = "Closed"
+  status              = "Open"
   verification_status = "Unknown"
   stage               = "Preparation"
+
+  lifecycle {
+    ignore_changes = [
+      status,
+    ]
+  }
 }
 `, acceptance.HW_SECMASTER_WORKSPACE_ID, name)
 }
