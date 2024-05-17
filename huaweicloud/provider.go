@@ -1454,6 +1454,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_cross_region_backup_strategy": rds.ResourceBackupStrategy(),
 			"huaweicloud_rds_sql_audit":                    rds.ResourceSQLAudit(),
 			"huaweicloud_rds_pg_plugin":                    rds.ResourceRdsPgPlugin(),
+			"huaweicloud_rds_pg_plugin_update":             rds.ResourceRdsPgPluginUpdate(),
 			"huaweicloud_rds_pg_hba":                       rds.ResourcePgHba(),
 			"huaweicloud_rds_pg_sql_limit":                 rds.ResourcePgSqlLimit(),
 			"huaweicloud_rds_lts_log":                      rds.ResourceRdsLtsLog(),
