@@ -283,7 +283,8 @@ var (
 
 	HW_CC_PERMISSION_ID = os.Getenv("HW_CC_PERMISSION_ID")
 
-	HW_CSS_ELB_AGENCY = os.Getenv("HW_CSS_ELB_AGENCY")
+	HW_CSS_ELB_AGENCY         = os.Getenv("HW_CSS_ELB_AGENCY")
+	HW_CSS_LOW_ENGINE_VERSION = os.Getenv("HW_CSS_LOW_ENGINE_VERSION")
 
 	HW_CERT_BATCH_PUSH_ID     = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 	HW_CERT_BATCH_PUSH_WAF_ID = os.Getenv("HW_CERT_BATCH_PUSH_WAF_ID")
@@ -1722,5 +1723,12 @@ func TestAccPreCheckRdsBackupId(t *testing.T) {
 func TestAccPreCheckRdsTimeRange(t *testing.T) {
 	if HW_RDS_START_TIME == "" || HW_RDS_END_TIME == "" {
 		t.Skip("HW_RDS_START_TIME and HW_RDS_END_TIME must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCssLowEngineVersion(t *testing.T) {
+	if HW_CSS_LOW_ENGINE_VERSION == "" {
+		t.Skip("HW_CSS_LOW_ENGINE_VERSION must be set for CSS acceptance tests")
 	}
 }
