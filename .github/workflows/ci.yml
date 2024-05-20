@@ -63,6 +63,9 @@ jobs:
   tfproviderlint:
     runs-on: ubuntu-latest
 
+    env:
+      GOFLAGS: "-buildvcs=false"
+
     steps:
       - uses: actions/checkout@v3
 
