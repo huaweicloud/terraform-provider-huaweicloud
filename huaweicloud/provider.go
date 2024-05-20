@@ -469,6 +469,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cfw_firewalls":             cfw.DataSourceFirewalls(),
 			"huaweicloud_cfw_address_groups":        cfw.DataSourceCfwAddressGroups(),
+			"huaweicloud_cfw_address_group_members": cfw.DataSourceCfwAddressGroupMembers(),
 			"huaweicloud_cfw_black_white_lists":     cfw.DataSourceCfwBlackWhiteLists(),
 			"huaweicloud_cfw_domain_name_groups":    cfw.DataSourceCfwDomainNameGroups(),
 			"huaweicloud_cfw_protection_rules":      cfw.DataSourceCfwProtectionRules(),
