@@ -7,6 +7,7 @@ import (
 	"math"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -753,9 +754,23 @@ func updateQueueSparkDriver(client *golangsdk.ServiceClient, queueName string, m
 }
 
 func resourceQueueImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	err := d.Set("name", d.Id())
-	if err != nil {
-		return []*schema.ResourceData{d}, fmt.Errorf("error saving resource name of the DLI queue: %s", err)
+	var (
+		mErr *multierror.Error
+
+		importedId = d.Id()
+		parts      = strings.Split(importedId, "/")
+	)
+	switch len(parts) {
+	case 1:
+		mErr = multierror.Append(mErr, d.Set("name", parts[0]))
+	case 2:
+		mErr = multierror.Append(mErr,
+			d.Set("queue_type", parts[0]),
+			d.Set("name", parts[1]),
+		)
+	default:
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<queue_type>/<name>' or '<name>', but got '%s'",
+			importedId)
 	}
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

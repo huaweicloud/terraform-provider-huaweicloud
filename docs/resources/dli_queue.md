@@ -17,7 +17,7 @@ Manages DLI Queue resource within HuaweiCloud
 variable "elastic_resource_pool_name" {}
 variable "queue_name" {}
 
-resource "huaweicloud_dli_queue" "queue" {
+resource "huaweicloud_dli_queue" "test" {
   elastic_resource_pool_name = var.elastic_resource_pool_name
   resource_mode              = 1
 
@@ -37,7 +37,7 @@ resource "huaweicloud_dli_queue" "queue" {
 variable "elastic_resource_pool_name" {}
 variable "queue_name" {}
 
-resource "huaweicloud_dli_queue" "queue" {
+resource "huaweicloud_dli_queue" "test" {
   elastic_resource_pool_name = var.elastic_resource_pool_name
   resource_mode              = 1
 
@@ -181,10 +181,19 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-DLI queue can be imported by `name`. For example,
+DLI queue can be imported by `name` and `queue_type` (if omitted, the SQL type queue will be imported), separated by a
+slash, e.g.
+
+### Import a queue of the specified type (SQL type and general type)
 
 ```bash
-$ terraform import huaweicloud_dli_queue.example terraform_dli_queue_test
+$ terraform import huaweicloud_dli_queue.test <queue_type>/<name>
+```
+
+### Import a SQL type queue
+
+```bash
+$ terraform import huaweicloud_dli_queue.test <name>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the

@@ -77,15 +77,17 @@ func TestAccDliQueue_basic(t *testing.T) {
 
 func testAccQueueImportStateFunc(rName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
+		var queueType, queueName string
 		rs, ok := s.RootModule().Resources[rName]
 		if !ok {
 			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
 		}
-		name := rs.Primary.Attributes["name"]
-		if name == "" {
-			return "", fmt.Errorf("the queue name is incorrect, got '%s'", name)
+		queueType = rs.Primary.Attributes["queue_type"]
+		queueName = rs.Primary.Attributes["name"]
+		if queueType == "" || queueName == "" {
+			return "", fmt.Errorf("the queue type or queue name is missing")
 		}
-		return name, nil
+		return fmt.Sprintf("%s/%s", queueType, queueName), nil
 	}
 }
 
