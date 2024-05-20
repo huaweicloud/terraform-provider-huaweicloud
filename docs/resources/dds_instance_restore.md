@@ -1,39 +1,39 @@
 ---
 subcategory: "Document Database Service (DDS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_dds_instance_recovery"
+page_title: "HuaweiCloud: huaweicloud_dds_instance_restore"
 description: |-
-  Manages a DDS instance recovery resource within HuaweiCloud.
+  Manages a DDS instance restore resource within HuaweiCloud.
 ---
 
-# huaweicloud_dds_instance_recovery
+# huaweicloud_dds_instance_restore
 
-Manages a DDS instance recovery resource within HuaweiCloud.
+Manages a DDS instance restore resource within HuaweiCloud.
 
 ## Example Usage
 
-### Recovery insatnce by backup ID
+### Restore insatnce by backup ID
 
 ```hcl
 variable "source_id" {}
 variable "backup_id" {}
 variable "target_id" {}
 
-resource "huaweicloud_dds_instance_recovery" "test" {
+resource "huaweicloud_dds_instance_restore" "test" {
   source_id = var.source_id
   backup_id = var.backup_id
   target_id = var.target_id
 }
 ```
 
-### Recovery insatnce by time stamp
+### Restore insatnce by time stamp
 
 ```hcl
 variable "source_id" {}
 variable "restore_time" {}
 variable "target_id" {}
 
-resource "huaweicloud_dds_instance_recovery" "test" {
+resource "huaweicloud_dds_instance_restore" "test" {
   source_id    = var.source_id
   restore_time = var.restore_time
   target_id    = var.target_id

@@ -1112,7 +1112,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_instance_restart":            dds.ResourceDDSInstanceRestart(),
 			"huaweicloud_dds_instance_internal_ip_modify": dds.ResourceDDSInstanceModifyIP(),
 			"huaweicloud_dds_instance_eip_associate":      dds.ResourceDDSInstanceBindEIP(),
-			"huaweicloud_dds_instance_recovery":           dds.ResourceDDSInstanceRecovery(),
+			"huaweicloud_dds_instance_restore":            dds.ResourceDDSInstanceRestore(),
 			"huaweicloud_dds_instance_parameters_modify":  dds.ResourceDDSInstanceParametersModify(),
 
 			"huaweicloud_ddm_instance":               ddm.ResourceDdmInstance(),
@@ -1631,6 +1631,7 @@ func Provider() *schema.Provider {
 
 			// Legacy
 			"huaweicloud_networking_eip_associate": eip.ResourceEIPAssociate(),
+			"huaweicloud_dds_instance_recovery":    dds.ResourceDDSInstanceRestore(),
 
 			"huaweicloud_projectman_project": codearts.ResourceProject(),
 			"huaweicloud_codehub_repository": codearts.ResourceRepository(),

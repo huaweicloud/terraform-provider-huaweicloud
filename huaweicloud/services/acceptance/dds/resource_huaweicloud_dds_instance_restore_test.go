@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccDDSV3InstanceRecovery_basic(t *testing.T) {
+func TestAccDDSV3InstanceRestore_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 
 	// Avoid CheckDestroy
@@ -20,13 +20,13 @@ func TestAccDDSV3InstanceRecovery_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDDSInstanceRecovery_basic(rName),
+				Config: testAccDDSInstanceRestore_basic(rName),
 			},
 		},
 	})
 }
 
-func testAccDDSInstanceRecovery_basic(rName string) string {
+func testAccDDSInstanceRestore_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -41,16 +41,16 @@ resource "huaweicloud_dds_backup" "test" {
   name        = "%s"
 }
 
-resource "huaweicloud_dds_instance_recovery" "test" {
+resource "huaweicloud_dds_instance_restore" "test" {
   depends_on = [huaweicloud_dds_instance.instance1, huaweicloud_dds_backup.test]
 
   target_id = huaweicloud_dds_instance.instance1.id
   source_id = huaweicloud_dds_instance.instance2.id
   backup_id = huaweicloud_dds_backup.test.id
-}`, common.TestBaseNetwork(rName), testAccDDSInstanceRecoveryBase(rName, 1), testAccDDSInstanceRecoveryBase(rName, 2), rName)
+}`, common.TestBaseNetwork(rName), testAccDDSInstanceRestoreBase(rName, 1), testAccDDSInstanceRestoreBase(rName, 2), rName)
 }
 
-func testAccDDSInstanceRecoveryBase(rName string, i int) string {
+func testAccDDSInstanceRestoreBase(rName string, i int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dds_instance" "instance%[1]v" {
   name              = "%[2]s"

@@ -20,11 +20,11 @@ import (
 // @API DDS POST /v3/{project_id}/instances/recovery
 // @API DDS GET /v3/{project_id}/instances
 // @API DDS GET /v3/{project_id}/jobs
-func ResourceDDSInstanceRecovery() *schema.Resource {
+func ResourceDDSInstanceRestore() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDDSInstanceRecoveryCreate,
-		ReadContext:   resourceDDSInstanceRecoveryRead,
-		DeleteContext: resourceDDSInstanceRecoveryDelete,
+		CreateContext: resourceDDSInstanceRestoreCreate,
+		ReadContext:   resourceDDSInstanceRestoreRead,
+		DeleteContext: resourceDDSInstanceRestoreDelete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -62,7 +62,7 @@ func ResourceDDSInstanceRecovery() *schema.Resource {
 	}
 }
 
-func buildInstanceRecoveryBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildInstanceRestoreBodyParams(d *schema.ResourceData) map[string]interface{} {
 	source := map[string]interface{}{
 		"instance_id": d.Get("source_id"),
 	}
@@ -81,30 +81,30 @@ func buildInstanceRecoveryBodyParams(d *schema.ResourceData) map[string]interfac
 	return opts
 }
 
-func resourceDDSInstanceRecoveryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDDSInstanceRestoreCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.DdsV3Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DDS client: %s ", err)
 	}
 
-	// recovery instance
-	recoveryHttpUrl := "v3/{project_id}/instances/recovery"
-	recoveryPath := client.Endpoint + recoveryHttpUrl
-	recoveryPath = strings.ReplaceAll(recoveryPath, "{project_id}", client.ProjectID)
-	recoveryOpt := golangsdk.RequestOpts{
+	// restore instance
+	restoreHttpUrl := "v3/{project_id}/instances/recovery"
+	restorePath := client.Endpoint + restoreHttpUrl
+	restorePath = strings.ReplaceAll(restorePath, "{project_id}", client.ProjectID)
+	restoreOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildInstanceRecoveryBodyParams(d),
+		JSONBody:         buildInstanceRestoreBodyParams(d),
 	}
 
 	// retry
 	retryFunc := func() (interface{}, bool, error) {
-		resp, err := client.Request("POST", recoveryPath, &recoveryOpt)
+		resp, err := client.Request("POST", restorePath, &restoreOpt)
 		retry, err := handleMultiOperationsError(err)
 		return resp, retry, err
 	}
 	instId := d.Get("target_id").(string)
-	recoveryResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	restoreResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     ddsInstanceStateRefreshFunc(client, instId),
@@ -114,17 +114,17 @@ func resourceDDSInstanceRecoveryCreate(ctx context.Context, d *schema.ResourceDa
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return diag.Errorf("error recover to instance(%s): %s", instId, err)
+		return diag.Errorf("error restoring to instance(%s): %s", instId, err)
 	}
 
 	// get job ID
-	recoveryRespBody, err := utils.FlattenResponse(recoveryResp.(*http.Response))
+	restoreRespBody, err := utils.FlattenResponse(restoreResp.(*http.Response))
 	if err != nil {
 		return diag.Errorf("error flatten response: %s", err)
 	}
-	jobID := utils.PathSearch("job_id", recoveryRespBody, "")
+	jobID := utils.PathSearch("job_id", restoreRespBody, "")
 	if jobID.(string) == "" {
-		return diag.Errorf("error recover to instance(%s): job_id not found", instId)
+		return diag.Errorf("error restoring to instance(%s): job_id not found", instId)
 	}
 
 	// wait for job complete
@@ -146,12 +146,12 @@ func resourceDDSInstanceRecoveryCreate(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func resourceDDSInstanceRecoveryRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDDSInstanceRestoreRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceDDSInstanceRecoveryDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting recovery resource is not supported. The recovery resource is only removed from the state," +
+func resourceDDSInstanceRestoreDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := "Deleting restore resource is not supported. The restore resource is only removed from the state," +
 		" the instance remains in the cloud."
 	return diag.Diagnostics{
 		diag.Diagnostic{
