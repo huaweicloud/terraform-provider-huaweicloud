@@ -68,7 +68,7 @@ jobs:
 
       - uses: bflad/tfproviderlint-github-action@master
         with:
-          args: -R019=false -S018=false -V011=false -V012=false -V013=false -V014=false -buildvcs=false ./...
+          args: -R019=false -S018=false -V011=false -V012=false -V013=false -V014=false ./...
 
   schema-markdown-check:
     runs-on: ubuntu-latest
