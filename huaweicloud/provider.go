@@ -534,6 +534,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_flavors":                    dds.DataSourceDDSFlavorV3(),
 			"huaweicloud_dds_migrate_availability_zones": dds.DataSourceDDSMigrateAvailabilityZones(),
 			"huaweicloud_dds_instances":                  dds.DataSourceDdsInstance(),
+			"huaweicloud_dds_parameter_templates":        dds.DataSourceDdsParameterTemplates(),
 			"huaweicloud_dds_storage_types":              dds.DataSourceDdsStorageTypes(),
 			"huaweicloud_dds_restore_time_ranges":        dds.DataSourceDdsRestoreTimeRanges(),
 
