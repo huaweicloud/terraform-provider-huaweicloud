@@ -82,13 +82,17 @@ The following arguments are supported:
 
   Defaults to **200**.
 
+* `admin_state_up` - (Optional, Bool) Specifies the administrative status of the health check.
+  + **true(default)**: Health check is enabled.
+  + **false**: Health check is disabled.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The unique ID of the monitor.
 
-* `created_at` - The create time of the monitor.
+* `created_at` - The creation time of the monitor.
 
 * `updated_at` - The update time of the monitor.
 

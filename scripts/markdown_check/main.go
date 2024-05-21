@@ -273,8 +273,8 @@ func isInternalResource(resource *schema.Resource, key string) bool {
 }
 
 func isDeprecatedField(field string) bool {
-	// deprecatedFields includes the fields that shoud always be ignored.
-	var deprecatedFields = []string{"tenant_id", "admin_state_up", "auto_pay"}
+	// deprecatedFields includes the fields that should always be ignored.
+	var deprecatedFields = []string{"tenant_id", "auto_pay"}
 	for _, key := range deprecatedFields {
 		if field == key {
 			return true

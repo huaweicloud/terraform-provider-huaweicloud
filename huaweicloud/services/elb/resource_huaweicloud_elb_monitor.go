@@ -85,6 +85,11 @@ func ResourceMonitorV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"admin_state_up": {
+				Type:     schema.TypeBool,
+				Default:  true,
+				Optional: true,
+			},
 			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -104,6 +109,7 @@ func resourceMonitorV3Create(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
+	adminStateUp := d.Get("admin_state_up").(bool)
 	createOpts := monitors.CreateOpts{
 		PoolID:         d.Get("pool_id").(string),
 		Type:           d.Get("protocol").(string),
@@ -116,6 +122,7 @@ func resourceMonitorV3Create(ctx context.Context, d *schema.ResourceData, meta i
 		DomainName:     d.Get("domain_name").(string),
 		MonitorPort:    d.Get("port").(int),
 		ExpectedCodes:  d.Get("status_code").(string),
+		AdminStateUp:   &adminStateUp,
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -154,6 +161,7 @@ func resourceMonitorV3Read(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("status_code", monitor.ExpectedCodes),
 		d.Set("name", monitor.Name),
 		d.Set("max_retries_down", monitor.MaxRetriesDown),
+		d.Set("admin_state_up", monitor.AdminStateUp),
 		d.Set("created_at", monitor.CreatedAt),
 		d.Set("updated_at", monitor.UpdatedAt),
 	)
@@ -210,6 +218,10 @@ func resourceMonitorV3Update(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	if d.HasChange("max_retries_down") {
 		updateOpts.MaxRetriesDown = d.Get("max_retries_down").(int)
+	}
+	if d.HasChange("admin_state_up") {
+		adminStateUp := d.Get("admin_state_up").(bool)
+		updateOpts.AdminStateUp = &adminStateUp
 	}
 
 	log.Printf("[DEBUG] Updating monitor %s with options: %#v", d.Id(), updateOpts)

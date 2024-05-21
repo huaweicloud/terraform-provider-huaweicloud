@@ -104,9 +104,10 @@ func ResourceMonitorV2() *schema.Resource {
 			},
 
 			"admin_state_up": {
-				Type:     schema.TypeBool,
-				Default:  true,
-				Optional: true,
+				Type:       schema.TypeBool,
+				Default:    true,
+				Optional:   true,
+				Deprecated: "admin_state_up is deprecated",
 			},
 
 			"tenant_id": {

@@ -52,6 +52,7 @@ func TestAccElbV3Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "domain_name", "www.aa.com"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8000"),
 					resource.TestCheckResourceAttr(resourceName, "status_code", "200,401-500,502"),
+					resource.TestCheckResourceAttr(resourceName, "admin_state_up", "false"),
 				),
 			},
 			{
@@ -68,6 +69,7 @@ func TestAccElbV3Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "domain_name", "www.bb.com"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "status_code", "200,301,404-500,504"),
+					resource.TestCheckResourceAttr(resourceName, "admin_state_up", "true"),
 				),
 			},
 			{
@@ -95,6 +97,7 @@ resource "huaweicloud_elb_monitor" "monitor_1" {
   domain_name      = "www.aa.com"
   port             = "8000"
   status_code      = "200,401-500,502"
+  admin_state_up   = false
 }
 `, testAccElbV3PoolConfig_basic(rName), rName)
 }
@@ -115,6 +118,7 @@ resource "huaweicloud_elb_monitor" "monitor_1" {
   domain_name      = "www.bb.com"
   port             = 8888
   status_code      = "200,301,404-500,504"
+  admin_state_up   = true
 }
 `, testAccElbV3PoolConfig_basic(rName), rName)
 }

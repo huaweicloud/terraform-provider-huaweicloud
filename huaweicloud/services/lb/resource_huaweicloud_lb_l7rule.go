@@ -112,6 +112,7 @@ func ResourceL7RuleV2() *schema.Resource {
 				Default:      true,
 				Optional:     true,
 				ValidateFunc: utils.ValidateTrueOnly,
+				Deprecated:   "admin_state_up is deprecated",
 			},
 		},
 	}
