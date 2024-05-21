@@ -47,6 +47,8 @@ func TestAccDliQueue_basic(t *testing.T) {
 				Config: testAccDliQueue_basic(rName, dli.CU16),
 				Check: resource.ComposeTestCheckFunc(
 					rcForTypeSQL.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(typeSQL, "elastic_resource_pool_name",
+						"huaweicloud_dli_elastic_resource_pool.test", "name"),
 					resource.TestCheckResourceAttr(typeSQL, "name", rName+"_sql"),
 					resource.TestCheckResourceAttr(typeSQL, "queue_type", dli.QueueTypeSQL),
 					resource.TestCheckResourceAttr(typeSQL, "cu_count", fmt.Sprintf("%d", dli.CU16)),
@@ -54,6 +56,8 @@ func TestAccDliQueue_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(typeSQL, "resource_mode", "1"),
 					resource.TestCheckResourceAttrSet(typeSQL, "create_time"),
 					rcForTypeGeneral.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(typeSQL, "elastic_resource_pool_name",
+						"huaweicloud_dli_elastic_resource_pool.test", "name"),
 					resource.TestCheckResourceAttr(typeGeneral, "name", rName+"_general"),
 					resource.TestCheckResourceAttr(typeGeneral, "queue_type", dli.QueueTypeGeneral),
 					resource.TestCheckResourceAttr(typeGeneral, "cu_count", fmt.Sprintf("%d", dli.CU16)),
@@ -146,7 +150,7 @@ func TestAccDliQueue_cidr(t *testing.T) {
 		getDliQueueResourceFunc,
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { act.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -203,34 +207,31 @@ resource "huaweicloud_dli_queue" "test" {
 }
 
 func TestAccDliQueue_scalingPolicies(t *testing.T) {
-	// Creating a queue will create an elastic resource pool with the same name.
-	elasticResourcePoolName := acceptance.RandomAccResourceName()
-	queueName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dli_queue.test"
-	var obj queues.CreateOpts
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getDliQueueResourceFunc,
+	var (
+		obj          queues.CreateOpts
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_dli_queue.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDliQueueResourceFunc)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccQueue_scalingPolicies_step1(elasticResourcePoolName, queueName),
+				Config: testAccQueue_scalingPolicies_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "elastic_resource_pool_name", elasticResourcePoolName),
-					resource.TestCheckResourceAttr(resourceName, "name", queueName),
+					resource.TestCheckResourceAttrPair(resourceName, "elastic_resource_pool_name",
+						"huaweicloud_dli_elastic_resource_pool.test", "name"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policies.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policies.0.%", "5"),
 				),
 			},
 			{
-				Config: testAccQueue_scalingPolicies_step2(elasticResourcePoolName, queueName),
+				Config: testAccQueue_scalingPolicies_step2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policies.#", "1"),
@@ -252,20 +253,16 @@ func TestAccDliQueue_scalingPolicies(t *testing.T) {
 	})
 }
 
-func testAccQueue_scalingPolicies_step1(elasticResourcePoolName string, queueName string) string {
+func testAccQueue_scalingPolicies_step1(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dli_elastic_resource_pool" "test" {
-  name                  = "%[1]s"
-  max_cu                = 64
-  min_cu                = 64
-  enterprise_project_id = "0"
-}
+%[1]s
 
 resource "huaweicloud_dli_queue" "test" {
-  name                       = "%[2]s"
-  cu_count                   = 16
-  resource_mode              = 1
   elastic_resource_pool_name = huaweicloud_dli_elastic_resource_pool.test.name
+  resource_mode              = 1
+
+  name     = "%[2]s"
+  cu_count = 16
 
   scaling_policies {
     priority          = 1
@@ -282,23 +279,19 @@ resource "huaweicloud_dli_queue" "test" {
     min_cu            = 20
     max_cu            = 28
   }
-}`, elasticResourcePoolName, queueName)
+}`, testAccDliQueue_base(rName, 64), rName)
 }
 
-func testAccQueue_scalingPolicies_step2(elasticResourcePoolName string, queueName string) string {
+func testAccQueue_scalingPolicies_step2(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dli_elastic_resource_pool" "test" {
-  name                  = "%[1]s"
-  max_cu                = 64
-  min_cu                = 64
-  enterprise_project_id = "0"
-}
+%[1]s
 
 resource "huaweicloud_dli_queue" "test" {
-  name                       = "%[2]s"
-  cu_count                   = 16
-  resource_mode              = 1
   elastic_resource_pool_name = huaweicloud_dli_elastic_resource_pool.test.name
+  resource_mode              = 1
+
+  name     = "%[2]s"
+  cu_count = 16
 
   scaling_policies {
     priority          = 1
@@ -307,21 +300,18 @@ resource "huaweicloud_dli_queue" "test" {
     max_cu            = 16
     min_cu            = 16
   }
-}`, elasticResourcePoolName, queueName)
+}`, testAccDliQueue_base(rName, 64), rName)
 }
 
 func TestAccDliQueue_sparkDriver(t *testing.T) {
-	rName := act.RandomAccResourceName()
-	resourceName := "huaweicloud_dli_queue.test"
-
-	var obj queues.CreateOpts
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getDliQueueResourceFunc,
+	var (
+		obj          queues.CreateOpts
+		rName        = act.RandomAccResourceName()
+		resourceName = "huaweicloud_dli_queue.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDliQueueResourceFunc)
 	)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { act.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -330,6 +320,8 @@ func TestAccDliQueue_sparkDriver(t *testing.T) {
 				Config: testAccDliQueue_sparkDriver_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "elastic_resource_pool_name",
+						"huaweicloud_dli_elastic_resource_pool.test", "name"),
 					resource.TestCheckResourceAttr(resourceName, "spark_driver.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "spark_driver.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "spark_driver.0.max_instance", "2"),
@@ -348,7 +340,8 @@ func TestAccDliQueue_sparkDriver(t *testing.T) {
 				Config: testAccDliQueue_sparkDriver_step3(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "scaling_policies.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "spark_driver.#", "0"),
+					waitForDeletionCooldownComplete(),
 				),
 			},
 			{
@@ -364,10 +357,15 @@ func TestAccDliQueue_sparkDriver(t *testing.T) {
 	})
 }
 
-func testAccDliQueue_sparkDriver_step1(queueName string) string {
+func testAccDliQueue_sparkDriver_step1(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_dli_queue" "test" {
-  name     = "%s"
+  elastic_resource_pool_name = huaweicloud_dli_elastic_resource_pool.test.name
+  resource_mode              = 1
+
+  name     = "%[2]s"
   cu_count = 64
 
   spark_driver {
@@ -375,27 +373,37 @@ resource "huaweicloud_dli_queue" "test" {
     max_concurrent        = 1
     max_prefetch_instance = "0"
   }
-}`, queueName)
+}`, testAccDliQueue_base(rName, 64), rName)
 }
 
 // Modify "max_prefetch_instance" parameter, and remove the "max_instance" and "max_concurrent" parameters。
-func testAccDliQueue_sparkDriver_step2(queueName string) string {
+func testAccDliQueue_sparkDriver_step2(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_dli_queue" "test" {
-  name     = "%s"
+  elastic_resource_pool_name = huaweicloud_dli_elastic_resource_pool.test.name
+  resource_mode              = 1
+
+  name     = "%[2]s"
   cu_count = 64
 
   spark_driver {
     max_prefetch_instance = "4"
   }
-}`, queueName)
+}`, testAccDliQueue_base(rName, 64), rName)
 }
 
 // Remove spark_driver parameters
-func testAccDliQueue_sparkDriver_step3(queueName string) string {
+func testAccDliQueue_sparkDriver_step3(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_dli_queue" "test" {
+  elastic_resource_pool_name = huaweicloud_dli_elastic_resource_pool.test.name
+  resource_mode              = 1
+
   name     = "%s"
   cu_count = 64
-}`, queueName)
+}`, testAccDliQueue_base(rName, 64), rName)
 }
