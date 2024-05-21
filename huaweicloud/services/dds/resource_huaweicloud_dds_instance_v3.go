@@ -57,6 +57,8 @@ type ctxType string
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/balancer/{action}
 // @API DDS GET /v3/{project_id}/instances/{instance_id}/balancer
 // @API DDS POST /v3/{project_id}/instances/{instance_id}/replicaset-node
+// @API DDS POST /v3/{project_id}/instances/{instance_id}/client-network
+// @API DDS GET /v3/{project_id}/instances/{instance_id}/client-network
 // @API DDS PUT /v3/{project_id}/instances/{instance_id}/maintenance-window
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -278,6 +280,11 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+			"client_network_ranges": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
@@ -576,6 +583,13 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	if ranges, ok := d.GetOk("client_network_ranges"); ok {
+		err = updateClientNetworkRanges(ctx, client, d.Timeout(schema.TimeoutCreate), instance.Id, ranges)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if secondLevelMonitoringEnabled := d.Get("second_level_monitoring_enabled").(bool); secondLevelMonitoringEnabled {
 		_, err = instances.UpdateSecondsLevelMonitoring(client, instance.Id, secondLevelMonitoringEnabled)
 		if err != nil {
@@ -711,6 +725,33 @@ func updateBalancerActiveWindow(ctx context.Context, client *golangsdk.ServiceCl
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+	}
+
+	return nil
+}
+
+func updateClientNetworkRanges(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId string, ranges interface{}) error {
+	clientNetworkRanges := utils.ExpandToStringList(ranges.(*schema.Set).List())
+	opt := instances.UpdateClientNetworkOpts{
+		ClientNetworkRanges: &clientNetworkRanges,
+	}
+	retryFunc := func() (interface{}, bool, error) {
+		err := instances.UpdateClientNetWorkRanges(client, instanceId, opt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating client network ranges: %s", err)
 	}
 
 	return nil
@@ -889,13 +930,21 @@ func resourceDdsInstanceV3Read(ctx context.Context, d *schema.ResourceData, meta
 		)
 	}
 
-	// set replica set name
+	// set replica set name and client network
 	if d.Get("mode").(string) == "ReplicaSet" {
 		replicaSetName, err := instances.GetReplicaSetName(client, d.Id())
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		mErr = multierror.Append(mErr, d.Set("replica_set_name", replicaSetName.Name))
+		clientNetworkRanges, err := instances.GetClientNetWorkRanges(client, d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		mErr = multierror.Append(mErr,
+			d.Set("replica_set_name", replicaSetName.Name),
+			d.Set("client_network_ranges", clientNetworkRanges.ClientNetworkRanges),
+		)
 	}
 
 	// set slow log desensitization
@@ -1141,6 +1190,13 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		})
 		if err != nil {
 			return diag.Errorf("error setting maintenance window of the DDS instance %s: %s", instanceId, err)
+		}
+	}
+
+	if d.HasChange("client_network_ranges") {
+		err = updateClientNetworkRanges(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId, d.Get("client_network_ranges"))
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
