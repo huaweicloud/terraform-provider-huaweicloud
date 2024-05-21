@@ -571,6 +571,24 @@ func (c *Config) DataGetEnterpriseProjectID(d *schema.ResourceData) string {
 	return "all_granted_eps"
 }
 
+// CheckValueInterchange checks if the new value of key1 is equal to the old value of key2,
+// and the new value of key2 is equal to the old value of key1.
+func CheckValueInterchange(d *schema.ResourceDiff, key1, key2 string) (isKey1NewEqualKey2Old bool, isKey2NewEqualKey1Old bool) {
+	oldKey1Value, newKey1Value := d.GetChange(key1)
+	oldKey2Value, newKey2Value := d.GetChange(key2)
+
+	// Check if any of the values are empty strings, in which case we return false for both checks.
+	if oldKey1Value.(string) == "" || newKey1Value.(string) == "" ||
+		oldKey2Value.(string) == "" || newKey2Value.(string) == "" {
+		return false, false
+	}
+
+	isKey1NewEqualKey2Old = newKey1Value.(string) == oldKey2Value.(string)
+	isKey2NewEqualKey1Old = newKey2Value.(string) == oldKey1Value.(string)
+
+	return isKey1NewEqualKey2Old, isKey2NewEqualKey1Old
+}
+
 // ********** client for Global Service **********
 func (c *Config) IAMV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("iam", region)
