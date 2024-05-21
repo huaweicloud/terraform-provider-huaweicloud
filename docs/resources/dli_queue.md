@@ -31,23 +31,6 @@ resource "huaweicloud_dli_queue" "test" {
 }
 ```
 
-### Create an exclusive mode queue with the CIDR block
-
-```hcl
-variable "elastic_resource_pool_name" {}
-variable "queue_name" {}
-
-resource "huaweicloud_dli_queue" "test" {
-  elastic_resource_pool_name = var.elastic_resource_pool_name
-  resource_mode              = 1
-
-  name          = var.queue_name
-  cu_count      = 16
-  resource_mode = 1
-  vpc_cidr      = "172.16.0.0/14"
-}
-```
-
 ## Argument Reference
 
 The following arguments are supported:
@@ -95,14 +78,6 @@ The following arguments are supported:
   resource. The options are as follows:
   + basic: basic type (default value)
   + ai: AI-enhanced (Only the SQL x86_64 dedicated queue supports this option.)
-
-* `vpc_cidr` - (Optional, String) The CIDR block of a queue. If use DLI enhanced datasource connections, the CIDR block
-  cannot be the same as that of the data source.
-  The CIDR blocks supported by different CU specifications:
-
-    + When `cu_count` is `16` or `64`: 10.0.0.0~10.255.0.0/8~24, 172.16.0.0~172.31.0.0/12~24,
-      192.168.0.0~192.168.0.0/16~24.
-    + When `cu_count` is `256`: 10.0.0.0~10.255.0.0/8~22, 172.16.0.0~172.31.0.0/12~22, 192.168.0.0~192.168.0.0/16~22.
 
 * `tags` - (Optional, Map, ForceNew) Label of a queue. Changing this parameter will create a new resource.
 

@@ -170,11 +170,6 @@ func ResourceDliQueue() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"vpc_cidr": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"scaling_policies": {
 				Type:         schema.TypeSet,
 				Optional:     true,
@@ -246,6 +241,19 @@ func ResourceDliQueue() *schema.Resource {
 				Optional:   true,
 				ForceNew:   true,
 				Deprecated: "subnet_cidr is Deprecated",
+			},
+
+			// Deprecated parameters
+			"vpc_cidr": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The CIDR block of the queue.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 		},
 
