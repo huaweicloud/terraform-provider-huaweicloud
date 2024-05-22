@@ -492,6 +492,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_instance_remote_console": ecs.DataSourceComputeInstanceRemoteConsole(),
 
 			"huaweicloud_cts_notifications": cts.DataSourceNotifications(),
+			"huaweicloud_cts_traces":        cts.DataSourceCtsTraces(),
 
 			"huaweicloud_cdm_clusters": cdm.DataSourceCdmClusters(),
 			"huaweicloud_cdm_flavors":  cdm.DataSourceCdmFlavors(),
