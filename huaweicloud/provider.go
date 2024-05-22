@@ -470,6 +470,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_domain_certificates": cdn.DataSourceDomainCertificates(),
 			"huaweicloud_cdn_cache_url_tasks":     cdn.DataSourceCacheUrlTasks(),
 			"huaweicloud_cdn_cache_history_tasks": cdn.DataSourceCacheHistoryTasks(),
+			"huaweicloud_cdn_billing_option":      cdn.DataSourceBillingOption(),
 
 			"huaweicloud_cfw_firewalls":             cfw.DataSourceFirewalls(),
 			"huaweicloud_cfw_address_groups":        cfw.DataSourceCfwAddressGroups(),
