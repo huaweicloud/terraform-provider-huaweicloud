@@ -449,3 +449,145 @@ resource "huaweicloud_apig_api" "test" {
 }
 `, relatedConfig, name)
 }
+
+func TestAccApi_functionGraph(t *testing.T) {
+	var (
+		api apis.APIResp
+
+		rName = "huaweicloud_apig_api.test"
+		name  = acceptance.RandomAccResourceName()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&api,
+		getApiFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApi_functionGraph(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "type", "Public"),
+					resource.TestCheckResourceAttr(rName, "request_protocol", "HTTP"),
+					resource.TestCheckResourceAttr(rName, "request_method", "POST"),
+					resource.TestCheckResourceAttr(rName, "request_path", fmt.Sprintf("/test/function/%s", name)),
+					resource.TestCheckResourceAttr(rName, "func_graph.#", "1"),
+					resource.TestCheckResourceAttr(rName, "func_graph.0.invocation_type", "async"),
+					resource.TestCheckResourceAttr(rName, "func_graph.0.timeout", "6000"),
+					resource.TestCheckResourceAttrPair(rName, "func_graph.0.function_urn", "huaweicloud_fgs_function.test", "urn"),
+					resource.TestCheckResourceAttrPair(rName, "func_graph.0.version", "huaweicloud_fgs_function.test", "version"),
+					resource.TestCheckResourceAttrPair(rName, "func_graph.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttr(rName, "func_graph_policy.#", "1"),
+					resource.TestCheckResourceAttr(rName, "func_graph_policy.0.invocation_type", "async"),
+					resource.TestCheckResourceAttr(rName, "func_graph_policy.0.backend_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "func_graph_policy.0.conditions.#", "1"),
+					resource.TestCheckResourceAttr(rName, "web.#", "0"),
+					resource.TestCheckResourceAttr(rName, "web_policy.#", "0"),
+					resource.TestCheckResourceAttr(rName, "mock.#", "0"),
+					resource.TestCheckResourceAttr(rName, "mock_policy.#", "0"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccApiResourceImportStateFunc(),
+			},
+		},
+	})
+}
+
+func testAccApi_functionGraph(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_apig_instance" "test" {
+  name                  = "%[2]s"
+  edition               = "BASIC"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id = "0"
+  availability_zones    = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+}
+
+resource "huaweicloud_apig_group" "test" {
+  instance_id = huaweicloud_apig_instance.test.id
+  name        = "%[2]s"
+}
+  
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[2]s"
+  app         = "default"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python3.6"
+  code_type   = "inline"
+}
+
+resource "huaweicloud_apig_custom_authorizer" "test" {
+  instance_id      = huaweicloud_apig_instance.test.id
+  name             = "%[2]s"
+  function_urn     = huaweicloud_fgs_function.test.urn
+  function_version = "latest"
+  type             = "BACKEND"
+  cache_age        = 60
+}
+
+resource "huaweicloud_apig_api" "test" {
+  instance_id             = huaweicloud_apig_instance.test.id
+  group_id                = huaweicloud_apig_group.test.id
+  name                    = "%[2]s"
+  type                    = "Public"
+  request_protocol        = "HTTP"
+  request_method          = "POST"
+  request_path            = "/test/function/%[2]s"
+  security_authentication = "APP"
+  matching                = "Exact"
+
+  func_graph {
+    function_urn    = huaweicloud_fgs_function.test.urn
+    version         = huaweicloud_fgs_function.test.version
+    invocation_type = "async"
+    timeout         = 6000
+    authorizer_id   = huaweicloud_apig_custom_authorizer.test.id
+  }
+
+  func_graph_policy {
+    name            = "%[2]s"
+    function_urn    = huaweicloud_fgs_function.test.urn
+    invocation_type = "async"
+    timeout         = 6000
+    version         = huaweicloud_fgs_function.test.version
+    authorizer_id   = huaweicloud_apig_custom_authorizer.test.id
+
+    backend_params {
+      name        = "test_param"
+      type        = "CONSTANT"
+      location    = "QUERY"
+      value       = "%[2]s"
+      description = "created by terraform script"
+    }
+
+    conditions {
+      source   = "system"
+      type     = "Equal"
+      value    = "get"
+      sys_name = "reqPath"
+    }
+  }
+}
+`, common.TestBaseNetwork(name), name)
+}

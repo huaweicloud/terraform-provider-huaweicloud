@@ -308,7 +308,7 @@ The `func_graph_policy` block supports:
   Up to five conditions can be set.
   The [object](#apig_api_conditions) structure is documented below.
 
-* `invocation_mode` - (Optional, String) Specifies the invocation mode of the FunctionGraph function.  
+* `invocation_type` - (Optional, String) Specifies the invocation mode of the FunctionGraph function.  
   The valid values are **async** and **sync**, defaults to **sync**.
 
 * `effective_mode` - (Optional, String) Specifies the effective mode of the backend policy.  
