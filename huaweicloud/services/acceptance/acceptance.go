@@ -802,7 +802,7 @@ func TestAccPreCheckRAM(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckRAMSharedPrincipals(t *testing.T) {
+func TestAccPreCheckRAMEnableFlag(t *testing.T) {
 	if HW_RAM_ENABLE_FLAG == "" {
 		t.Skip("Skip the RAM acceptance tests.")
 	}

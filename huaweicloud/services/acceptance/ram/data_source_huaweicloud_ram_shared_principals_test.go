@@ -19,7 +19,7 @@ func TestAccDatasourceRAMSharedPrincipals_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckRAMSharedPrincipals(t)
+			acceptance.TestAccPreCheckRAMEnableFlag(t)
 			acceptance.TestAccPreCheckRAMSharedPrincipalsQueryFields(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
