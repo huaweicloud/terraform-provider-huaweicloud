@@ -997,7 +997,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbr_policy":                cbr.ResourcePolicy(),
 			"huaweicloud_cbr_vault":                 cbr.ResourceVault(),
 
-			"huaweicloud_cbh_instance": cbh.ResourceCBHInstance(),
+			"huaweicloud_cbh_instance":    cbh.ResourceCBHInstance(),
+			"huaweicloud_cbh_ha_instance": cbh.ResourceCBHHAInstance(),
 
 			"huaweicloud_cc_connection":                                     cc.ResourceCloudConnection(),
 			"huaweicloud_cc_network_instance":                               cc.ResourceNetworkInstance(),
