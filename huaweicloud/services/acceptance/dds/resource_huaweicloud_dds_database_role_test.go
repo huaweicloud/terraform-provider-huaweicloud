@@ -97,27 +97,6 @@ func testAccDatabaseRole_base(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_dds_flavors" "flavor_mongos" {
-  engine_name = "DDS-Community"
-  vcpus       = 2
-  memory      = 4
-  type        = "mongos"
-}
-
-data "huaweicloud_dds_flavors" "flavor_shared" {
-  engine_name = "DDS-Community"
-  vcpus       = 2
-  memory      = 4
-  type        = "shard"
-}
-
-data "huaweicloud_dds_flavors" "flavor_config" {
-  engine_name = "DDS-Community"
-  vcpus       = 4
-  memory      = 8
-  type        = "config"
-}
-
 resource "huaweicloud_dds_instance" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
@@ -137,21 +116,21 @@ resource "huaweicloud_dds_instance" "test" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = data.huaweicloud_dds_flavors.flavor_mongos.flavors[0].spec_code
+    spec_code = "dds.mongodb.s6.xlarge.2.mongos"
   }
   flavor {
     type      = "shard"
     num       = 2
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = data.huaweicloud_dds_flavors.flavor_shared.flavors[0].spec_code
+    spec_code = "dds.mongodb.s6.xlarge.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = data.huaweicloud_dds_flavors.flavor_config.flavors[0].spec_code
+    spec_code = "dds.mongodb.s6.xlarge.2.config"
   }
 }
 `, common.TestBaseNetwork(rName), rName)
