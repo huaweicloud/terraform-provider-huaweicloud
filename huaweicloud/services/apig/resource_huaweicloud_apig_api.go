@@ -616,7 +616,7 @@ func ResourceApigAPIV2() *schema.Resource {
 							Elem:        policyConditionSchemaResource(),
 							Description: "The policy conditions.",
 						},
-						"invocation_mode": {
+						"invocation_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  string(InvacationTypeSync),
@@ -659,6 +659,22 @@ func ResourceApigAPIV2() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "The ID of the backend custom authorization.",
+						},
+						// Deprecated arguments
+						"invocation_mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								string(InvacationTypeAsync),
+								string(InvacationTypeSync),
+							}, false),
+							Description: utils.SchemaDesc(
+								`The invocation mode of the FunctionGraph function.`,
+								utils.SchemaDescInput{
+									Required:   true,
+									Deprecated: true,
+								},
+							),
 						},
 					},
 				},
@@ -1125,6 +1141,14 @@ func buildMockPolicy(policies *schema.Set) ([]apis.PolicyMock, error) {
 	return result, nil
 }
 
+func buildInvocationType(invocationType, invocationMode string) string {
+	if invocationMode != "" {
+		return invocationMode
+	}
+
+	return invocationType
+}
+
 func buildFuncGraphPolicy(policies *schema.Set) ([]apis.PolicyFuncGraph, error) {
 	if policies.Len() < 1 {
 		return nil, nil
@@ -1141,9 +1165,10 @@ func buildFuncGraphPolicy(policies *schema.Set) ([]apis.PolicyFuncGraph, error) 
 			AuthorizerId:   utils.String(pm["authorizer_id"].(string)),
 			Name:           pm["name"].(string),
 			FunctionUrn:    pm["function_urn"].(string),
-			InvocationType: pm["invocation_mode"].(string),
+			InvocationType: buildInvocationType(pm["invocation_type"].(string), pm["invocation_mode"].(string)),
 			EffectMode:     pm["effective_mode"].(string),
 			Timeout:        pm["timeout"].(int),
+			Version:        pm["version"].(string),
 			Conditions:     buildPolicyConditions(pm["conditions"].(*schema.Set)),
 			BackendParams:  params,
 		}
@@ -1530,7 +1555,7 @@ func flattenFuncGraphPolicy(policies []apis.PolicyFuncGraphResp) []map[string]in
 			"name":            policy.Name,
 			"function_urn":    policy.FunctionUrn,
 			"version":         policy.Version,
-			"invocation_mode": policy.InvocationType,
+			"invocation_type": policy.InvocationType,
 			"effective_mode":  policy.EffectMode,
 			"timeout":         policy.Timeout,
 			"authorizer_id":   policy.AuthorizerId,
