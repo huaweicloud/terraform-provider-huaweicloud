@@ -515,6 +515,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_elb_loadbalancers":         css.DataSourceCssElbLoadbalancers(),
 			"huaweicloud_css_logstash_certificates":     css.DataSourceCssLogstashCertificates(),
 			"huaweicloud_css_logstash_pipeline_actions": css.DataSourceCssLogstashPipelineActions(),
+			"huaweicloud_css_upgrade_target_images":     css.DataSourceCssUpgradeTargetImages(),
 
 			"huaweicloud_dataarts_architecture_ds_template_optionals": dataarts.DataSourceTemplateOptionalFields(),
 			"huaweicloud_dataarts_studio_data_connections":            dataarts.DataSourceDataConnections(),
