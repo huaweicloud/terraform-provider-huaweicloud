@@ -26,6 +26,8 @@ type Dependency struct {
 	Description string `json:"description"`
 	// File name of the dependency.
 	FileName string `json:"file_name"`
+	// Dependency package version number.
+	Version int `json:"version"`
 }
 
 // ListResp is an object struct that represents the result of each page.

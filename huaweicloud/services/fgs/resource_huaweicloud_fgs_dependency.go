@@ -73,6 +73,10 @@ func ResourceFgsDependency() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"version": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -128,6 +132,7 @@ func resourceFgsDependencyRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("etag", resp.Etag),
 		d.Set("size", resp.Size),
 		d.Set("owner", resp.Owner),
+		d.Set("version", resp.Version),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting resource fields of custom dependency (%s): %s", d.Id(), err)
