@@ -384,6 +384,7 @@ func flattenSimpleAuth(authType string) bool {
 	return authType == string(AppCodeAuthTypeEnable)
 }
 
+// Formats the time according to the local computer's time.
 func flattenTimeToRFC3339(timeStr string) string {
 	return utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(timeStr)/1000, false)
 }
