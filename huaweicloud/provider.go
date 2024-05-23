@@ -772,6 +772,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rms_organizational_assignment_packages": rms.DataSourceRmsOrganizationalAssignmentPackages(),
 			"huaweicloud_rms_advanced_queries":                   rms.DataSourceRmsAdvancedQueries(),
 			"huaweicloud_rms_resource_aggregators":               rms.DataSourceRmsAggregators(),
+			"huaweicloud_rms_resources":                          rms.DataSourceResources(),
 
 			"huaweicloud_sdrs_domain": sdrs.DataSourceSDRSDomain(),
 
