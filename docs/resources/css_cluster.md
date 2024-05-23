@@ -123,12 +123,18 @@ The following arguments are supported:
   [Supported Cluster Versions](https://support.huaweicloud.com/intl/en-us/api-css/css_03_0056.html)
   Changing this parameter will create a new resource.
 
-* `security_mode` - (Optional, Bool, ForceNew) Specifies whether to enable communication encryption and security
-  authentication. Available values include *true* and *false*. security_mode is disabled by default.
-  Changing this parameter will create a new resource.
+* `security_mode` - (Optional, Bool) Specifies Whether to enable authentication.
+  The value can be **true** or **false**. Authentication is disabled by default.
+  + **true:** Authentication is enabled for the cluster.
+  + **false:** Authentication is disabled for the cluster.
 
-* `password` - (Optional, String, ForceNew) Specifies the password of the cluster administrator in security mode.
-  This parameter is mandatory only when security_mode is set to true. Changing this parameter will create a new resource.
+  -> **Note:** This parameter is supported in clusters 6.5.4 or later. Exercise caution when performing this operation.
+  The cluster will be restarted to apply the changes. Services will be interrupted for a while.
+  After the cluster is restarted, the authentication mode for invoking the cluster changes.
+  You need to adjust the authentication mode accordingly.
+
+* `password` - (Optional, String) Specifies the password of the cluster administrator in security mode.
+  This parameter is mandatory only when `security_mode` is set to true.
   The administrator password must meet the following requirements:
   + The password can contain 8 to 32 characters.
   + The password must contain at least 3 of the following character types: uppercase letters, lowercase letters, digits,

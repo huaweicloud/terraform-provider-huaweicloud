@@ -68,6 +68,8 @@ const (
 // @API CSS GET /v1.0/{project_id}/es-flavors
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/{types}/flavor
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/type/{type}/independent
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/mode/change
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/password/reset
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -119,14 +121,12 @@ func ResourceCssCluster() *schema.Resource {
 			"security_mode": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"password": {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Optional:  true,
-				ForceNew:  true,
 			},
 
 			"https_enabled": {
@@ -1062,6 +1062,11 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
+	client, err := conf.CssV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating CSS V1 client: %s", err)
+	}
+
 	nodeConfigChanges := []string{
 		"ess_node_config",
 		"master_node_config",
@@ -1100,17 +1105,17 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
-	// update kibana
-	if d.Get("security_mode").(bool) && d.HasChange("kibana_public_access") {
-		err = updateKibanaPublicAccess(ctx, d, cssV1Client)
+	// update security mode
+	if d.HasChange("security_mode") {
+		err = updateSafeMode(ctx, d, cssV1Client, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	// update public_access
-	if d.Get("security_mode").(bool) && d.HasChange("public_access") {
-		err = updatePublicAccess(ctx, d, cssV1Client)
+	// update in safe mode
+	if d.Get("security_mode").(bool) {
+		err = updateInSafeMode(ctx, d, cssV1Client, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1139,6 +1144,34 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	return resourceCssClusterRead(ctx, d, meta)
+}
+
+func updateInSafeMode(ctx context.Context, d *schema.ResourceData,
+	cssV1Client *cssv1.CssClient, client *golangsdk.ServiceClient) error {
+	// reset admin pasword
+	if d.HasChange("password") {
+		err := updateAdminPassword(d, client)
+		if err != nil {
+			return err
+		}
+	}
+
+	// update kibana
+	if d.HasChange("kibana_public_access") {
+		err := updateKibanaPublicAccess(ctx, d, cssV1Client)
+		if err != nil {
+			return err
+		}
+	}
+
+	// update public_access
+	if d.HasChange("public_access") {
+		err := updatePublicAccess(ctx, d, cssV1Client)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func updateNodeConfig(ctx context.Context, d *schema.ResourceData,
@@ -2075,6 +2108,77 @@ func addMastersOrClients(ctx context.Context, d *schema.ResourceData,
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func updateSafeMode(ctx context.Context, d *schema.ResourceData,
+	cssV1Client *cssv1.CssClient, client *golangsdk.ServiceClient) error {
+	adminPassword := d.Get("password").(string)
+	if d.Get("security_mode").(bool) && adminPassword == "" {
+		return fmt.Errorf("administrator password is required when security mode changes")
+	}
+	updateSafeModeHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/mode/change"
+	updateSafeModePath := client.Endpoint + updateSafeModeHttpUrl
+	updateSafeModePath = strings.ReplaceAll(updateSafeModePath, "{project_id}", client.ProjectID)
+	updateSafeModePath = strings.ReplaceAll(updateSafeModePath, "{cluster_id}", d.Id())
+
+	updateSafeModeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	updateSafeModeOpt.JSONBody = buildUpdateSafeModeParams(d, adminPassword)
+
+	_, err := client.Request("POST", updateSafeModePath, &updateSafeModeOpt)
+	if err != nil {
+		return fmt.Errorf("error updating CSS cluster security mode, cluster_id: %s, error: %s", d.Id(), err)
+	}
+
+	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildUpdateSafeModeParams(d *schema.ResourceData, adminPassword string) map[string]interface{} {
+	body := map[string]interface{}{
+		"authorityEnable": d.Get("security_mode").(bool),
+		"httpsEnable":     false,
+	}
+	if d.Get("security_mode").(bool) {
+		body["adminPwd"] = adminPassword
+		body["httpsEnable"] = d.Get("https_enabled").(bool)
+	}
+
+	return body
+}
+
+func updateAdminPassword(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	adminPassword := d.Get("password").(string)
+	if adminPassword == "" {
+		return fmt.Errorf("administrator password is required when security mode changes")
+	}
+	updatePasswordHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/password/reset"
+	updatePasswordPath := client.Endpoint + updatePasswordHttpUrl
+	updatePasswordPath = strings.ReplaceAll(updatePasswordPath, "{project_id}", client.ProjectID)
+	updatePasswordPath = strings.ReplaceAll(updatePasswordPath, "{cluster_id}", d.Id())
+
+	updatePasswordOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	updatePasswordOpt.JSONBody = map[string]interface{}{
+		"newpassword": adminPassword,
+	}
+
+	_, err := client.Request("POST", updatePasswordPath, &updatePasswordOpt)
+	if err != nil {
+		return fmt.Errorf("error resetting CSS cluster administrator password, cluster_id: %s, error: %s", d.Id(), err)
+	}
+
 	return nil
 }
 

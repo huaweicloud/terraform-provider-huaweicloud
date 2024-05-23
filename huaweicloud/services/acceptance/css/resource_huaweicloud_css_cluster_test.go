@@ -65,11 +65,25 @@ func TestAccCssCluster_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCssCluster_basic(rName, "Test@passw0rd", 8, "bar_update"),
+				Config: testAccCssCluster_basic(rName, "Test@passw0rd.", 8, "bar_update"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
+				),
+			},
+			{
+				Config: testAccCssCluster_safeMode(rName, 8, "bar_update"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "security_mode", "false"),
+				),
+			},
+			{
+				Config: testAccCssCluster_basic(rName, "Test@passw0rd", 8, "bar_update"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
 				),
 			},
 			{
@@ -386,6 +400,45 @@ resource "huaweicloud_css_cluster" "test" {
   }
 }
 `, testAccCssBase(rName), rName, pwd, keepDays, tag)
+}
+
+func testAccCssCluster_safeMode(rName string, keepDays int, tag string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  backup_strategy {
+    keep_days   = %[3]d
+    start_time  = "00:00 GMT+08:00"
+    prefix      = "snapshot"
+    bucket      = huaweicloud_obs_bucket.cssObs.bucket
+    agency      = "css_obs_agency"
+    backup_path = "css_repository/acctest"
+  }
+
+  tags = {
+    foo = "%[4]s"
+    key = "value"
+  }
+}
+`, testAccCssBase(rName), rName, keepDays, tag)
 }
 
 func testAccCssCluster_localDisk(rName string, nodeNum int) string {
