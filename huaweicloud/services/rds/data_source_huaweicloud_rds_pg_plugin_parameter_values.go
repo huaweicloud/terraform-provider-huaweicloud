@@ -15,16 +15,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var (
-	defaultValues = map[string][]string{
-		"shared_preload_libraries": {"passwordcheck.so", "pg_stat_statements", "pg_sql_history", "pgaudit"},
-	}
-)
-
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/parameter/{name}
-func DataSourceRdsPgPluginParameterValueRange() *schema.Resource {
+func DataSourceRdsPgPluginParameterValues() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: resourcePgPluginParameterValueRangeRead,
+		ReadContext: resourcePgPluginParameterValuesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -43,17 +37,6 @@ func DataSourceRdsPgPluginParameterValueRange() *schema.Resource {
 				Required:    true,
 				Description: `Specifies the parameter name.`,
 			},
-			"restart_required": {
-				Type:        schema.TypeBool,
-				Computed:    true,
-				Description: `Indicates whether a reboot is required.`,
-			},
-			"default_values": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: `Indicates the list of default parameter values.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
 			"values": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -64,7 +47,7 @@ func DataSourceRdsPgPluginParameterValueRange() *schema.Resource {
 	}
 }
 
-func resourcePgPluginParameterValueRangeRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePgPluginParameterValuesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -98,18 +81,9 @@ func resourcePgPluginParameterValueRangeRead(_ context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
-	valueRangeRaw := utils.PathSearch("value_range", respBody, nil)
-	if valueRangeRaw == nil {
+	valueRaw := utils.PathSearch("value", respBody, nil)
+	if valueRaw == nil {
 		return diag.Errorf("error getting RDS PostgreSQL plugin parameter values, it is empty")
-	}
-
-	valueRange := strings.Split(valueRangeRaw.(string), ",")
-	defaults := defaultValues[d.Get("name").(string)]
-	values := make([]string, 0, len(valueRange)-len(defaults))
-	for _, value := range valueRange {
-		if !utils.StrSliceContains(defaults, value) {
-			values = append(values, value)
-		}
 	}
 
 	dataSourceId, err := uuid.GenerateUUID()
@@ -118,11 +92,22 @@ func resourcePgPluginParameterValueRangeRead(_ context.Context, d *schema.Resour
 	}
 	d.SetId(dataSourceId)
 
+	valuesRaw := strings.Split(valueRaw.(string), ",")
+	defaults := defaultValues[d.Get("name").(string)]
+	defaultsMap := make(map[string]bool)
+	for _, value := range defaults {
+		defaultsMap[value] = true
+	}
+	values := make([]string, 0)
+	for _, value := range valuesRaw {
+		if !defaultsMap[value] {
+			values = append(values, value)
+		}
+	}
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("restart_required", utils.PathSearch("restart_required", respBody, nil)),
-		d.Set("default_values", defaults),
 		d.Set("values", values),
 	)
 
