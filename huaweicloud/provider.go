@@ -763,7 +763,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_slow_logs":                       rds.DataSourceRdsSlowLogs(),
 			"huaweicloud_rds_pg_sql_limits":                   rds.DataSourceRdsPgSqlLimits(),
 			"huaweicloud_rds_recycling_instances":             rds.DataSourceRdsRecyclingInstances(),
-			"huaweicloud_rds_pg_plugin_parameter_value_range": rds.DataSourceRdsPgPluginParameterValues(),
+			"huaweicloud_rds_pg_plugin_parameter_value_range": rds.DataSourceRdsPgPluginParameterValueRange(),
+			"huaweicloud_rds_pg_plugin_parameter_values":      rds.DataSourceRdsPgPluginParameterValues(),
 			"huaweicloud_rds_restore_time_ranges":             rds.DataSourceRdsRestoreTimeRanges(),
 
 			"huaweicloud_rms_policy_definitions":                 rms.DataSourcePolicyDefinitions(),
