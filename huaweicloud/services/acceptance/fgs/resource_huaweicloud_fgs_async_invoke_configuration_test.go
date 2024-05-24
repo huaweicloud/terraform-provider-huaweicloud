@@ -2,6 +2,7 @@ package fgs
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -55,6 +56,8 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "on_failure.0.destination", "SMN"),
 					resource.TestCheckResourceAttrSet(rName, "on_failure.0.param"),
 					resource.TestCheckResourceAttr(rName, "enable_async_status_log", "true"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
@@ -70,6 +73,8 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "on_failure.0.destination", "FunctionGraph"),
 					resource.TestCheckResourceAttrSet(rName, "on_failure.0.param"),
 					resource.TestCheckResourceAttr(rName, "enable_async_status_log", "false"),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
