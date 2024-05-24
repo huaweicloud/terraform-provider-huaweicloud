@@ -971,6 +971,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_environment":                 apig.ResourceApigEnvironmentV2(),
 			"huaweicloud_apig_environment_variable":        apig.ResourceEnvironmentVariable(),
 			"huaweicloud_apig_group":                       apig.ResourceApigGroupV2(),
+			"huaweicloud_apig_instance_feature":            apig.ResourceInstanceFeature(),
 			"huaweicloud_apig_instance_routes":             apig.ResourceInstanceRoutes(),
 			"huaweicloud_apig_instance":                    apig.ResourceApigInstanceV2(),
 			"huaweicloud_apig_plugin_associate":            apig.ResourcePluginAssociate(),
