@@ -46,7 +46,8 @@ labels:
   - label: "LGTM"
     sync: true
     matcher:
-      commits: "_hold_disable_this_command_"
+      branch: '_disable_this_command_'
+      commits: "_disable_this_command_"
 
   - label: "NACK"
     sync: true
@@ -54,6 +55,7 @@ labels:
       comment: "^/nack$"
 
   - label: "hold"
-    sync: true
+    sync: false
     matcher:
-      commits: "_hold_disable_this_command_"
+      branch: '_disable_this_command_'
+      commits: "_disable_this_command_"
