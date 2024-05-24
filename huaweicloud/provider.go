@@ -1461,6 +1461,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_oms_migration_task":       oms.ResourceMigrationTask(),
 			"huaweicloud_oms_migration_task_group": oms.ResourceMigrationTaskGroup(),
 
+			"huaweicloud_ram_organization":            ram.ResourceRAMOrganization(),
 			"huaweicloud_ram_resource_share":          ram.ResourceRAMShare(),
 			"huaweicloud_ram_resource_share_accepter": ram.ResourceShareAccepter(),
 
