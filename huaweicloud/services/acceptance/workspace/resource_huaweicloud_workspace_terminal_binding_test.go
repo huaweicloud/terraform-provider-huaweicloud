@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getTerminalBindingsFunc(conf *config.Config, _ *terraform.ResourceState) (interface{}, error) {
+func getTerminalBindingFunc(conf *config.Config, _ *terraform.ResourceState) (interface{}, error) {
 	client, err := conf.WorkspaceV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating Workspace v2 client: %s", err)
@@ -32,12 +32,12 @@ func getTerminalBindingsFunc(conf *config.Config, _ *terraform.ResourceState) (i
 	return nil, golangsdk.ErrDefault404{}
 }
 
-func TestAccTerminalBindings_basic(t *testing.T) {
+func TestAccTerminalBinding_basic(t *testing.T) {
 	var (
 		bindings     []terminals.TerminalBindingResp
 		resourceName = "huaweicloud_workspace_terminal_binding.test"
 		name         = acceptance.RandomAccResourceNameWithDash()
-		rc           = acceptance.InitResourceCheck(resourceName, &bindings, getTerminalBindingsFunc)
+		rc           = acceptance.InitResourceCheck(resourceName, &bindings, getTerminalBindingFunc)
 	)
 
 	resource.Test(t, resource.TestCase{
@@ -46,7 +46,7 @@ func TestAccTerminalBindings_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTerminalBindings_basic_step1(name),
+				Config: testAccTerminalBinding_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
@@ -57,7 +57,7 @@ func TestAccTerminalBindings_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccTerminalBindings_basic_step2(name),
+				Config: testAccTerminalBinding_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
@@ -68,7 +68,7 @@ func TestAccTerminalBindings_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccTerminalBindings_basic_step3(name),
+				Config: testAccTerminalBinding_basic_step3(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
@@ -88,7 +88,7 @@ func TestAccTerminalBindings_basic(t *testing.T) {
 	})
 }
 
-func testAccTerminalBindings_base(name string) string {
+func testAccTerminalBinding_base(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -171,7 +171,7 @@ resource "huaweicloud_workspace_desktop" "test2" {
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccTerminalBindings_basic_step1(name string) string {
+func testAccTerminalBinding_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -184,10 +184,10 @@ resource "huaweicloud_workspace_terminal_binding" "test" {
     mac          = "FA-16-3E-E2-3A-1D"
   }
 }
-`, testAccTerminalBindings_base(name))
+`, testAccTerminalBinding_base(name))
 }
 
-func testAccTerminalBindings_basic_step2(name string) string {
+func testAccTerminalBinding_basic_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -200,10 +200,10 @@ resource "huaweicloud_workspace_terminal_binding" "test" {
     mac          = "FA-16-3E-E2-3A-1D"
   }
 }
-`, testAccTerminalBindings_base(name))
+`, testAccTerminalBinding_base(name))
 }
 
-func testAccTerminalBindings_basic_step3(name string) string {
+func testAccTerminalBinding_basic_step3(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -216,5 +216,5 @@ resource "huaweicloud_workspace_terminal_binding" "test" {
     mac          = "FA-16-3E-E2-3A-1E"
   }
 }
-`, testAccTerminalBindings_base(name))
+`, testAccTerminalBinding_base(name))
 }
