@@ -43,7 +43,7 @@ type Spec struct {
 	// Network ID
 	NetworkID string `json:"networkID" required:"true"`
 	// Network AZ
-	AvailableZone string `json:"availableZone" required:"true"`
+	AvailableZone string `json:"availableZone,omitempty"`
 	// Network CIDR
 	Cidr string `json:"cidr,omitempty"`
 	// Subnet ID

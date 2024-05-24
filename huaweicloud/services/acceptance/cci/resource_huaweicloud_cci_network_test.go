@@ -56,8 +56,6 @@ func TestAccCciNetwork_basic(t *testing.T) {
 						"huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
 						"huaweicloud_vpc.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zone",
-						"data.huaweicloud_availability_zones.test", "names.0"),
 				),
 			},
 			{
@@ -99,11 +97,8 @@ func testAccCciNetwork_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 resource "huaweicloud_cci_network" "test" {
   name              = "%s"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   namespace         = huaweicloud_cci_namespace.test.name
   network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
