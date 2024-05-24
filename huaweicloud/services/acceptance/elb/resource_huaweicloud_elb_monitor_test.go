@@ -52,6 +52,8 @@ func TestAccElbV3Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "domain_name", "www.aa.com"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8000"),
 					resource.TestCheckResourceAttr(resourceName, "status_code", "200,401-500,502"),
+					resource.TestCheckResourceAttr(resourceName, "http_method", "GET"),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
 				),
 			},
 			{
@@ -68,6 +70,8 @@ func TestAccElbV3Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "domain_name", "www.bb.com"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "status_code", "200,301,404-500,504"),
+					resource.TestCheckResourceAttr(resourceName, "http_method", "HEAD"),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 				),
 			},
 			{
@@ -95,6 +99,7 @@ resource "huaweicloud_elb_monitor" "monitor_1" {
   domain_name      = "www.aa.com"
   port             = "8000"
   status_code      = "200,401-500,502"
+  enabled          = false
 }
 `, testAccElbV3PoolConfig_basic(rName), rName)
 }
@@ -115,6 +120,8 @@ resource "huaweicloud_elb_monitor" "monitor_1" {
   domain_name      = "www.bb.com"
   port             = 8888
   status_code      = "200,301,404-500,504"
+  http_method      = "HEAD"
+  enabled          = true
 }
 `, testAccElbV3PoolConfig_basic(rName), rName)
 }
