@@ -188,6 +188,9 @@ var (
 	HW_CFW_START_TIME         = os.Getenv("HW_CFW_START_TIME")
 	HW_CFW_END_TIME           = os.Getenv("HW_CFW_END_TIME")
 
+	HW_CTS_START_TIME = os.Getenv("HW_CTS_START_TIME")
+	HW_CTS_END_TIME   = os.Getenv("HW_CTS_END_TIME")
+
 	// The cluster ID of the CCE
 	HW_CCE_CLUSTER_ID = os.Getenv("HW_CCE_CLUSTER_ID")
 	// The absolute chart path of the CCE
@@ -1050,6 +1053,13 @@ func TestAccPreCheckCCConnectionRouteProjectID(t *testing.T) {
 func TestAccPreCheckCCConnectionRouteRegionName(t *testing.T) {
 	if HW_REGION_NAME_1 == "" || HW_REGION_NAME_2 == "" {
 		t.Skip("HW_REGION_NAME_1, HW_REGION_NAME_2 must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCtsTimeRange(t *testing.T) {
+	if HW_CTS_START_TIME == "" || HW_CTS_END_TIME == "" {
+		t.Skip("HW_CTS_START_TIME and HW_CTS_END_TIME must be set for CTS acceptance tests")
 	}
 }
 
