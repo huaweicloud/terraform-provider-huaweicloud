@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_restore": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the ID of the backup to be restored.",
+                "optional": true,
+                "forcenew": true
+              },
+              "database_name": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the databases that will be restored.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "restore_time": {
+                "type": "number",
+                "description": "Specifies the time point of data restoration in the UNIX timestamp format.",
+                "optional": true,
+                "forcenew": true
+              },
+              "source_instance_id": {
+                "type": "string",
+                "description": "Specifies the source instance ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "target_instance_id": {
+                "type": "string",
+                "description": "Specifies the target instance ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the restoration type.",
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

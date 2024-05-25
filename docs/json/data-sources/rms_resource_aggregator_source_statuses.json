@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_resource_aggregator_source_statuses": {
+          "block": {
+            "attributes": {
+              "aggregated_source_statuses": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "last_error_code": "string",
+                      "last_error_message": "string",
+                      "last_update_status": "string",
+                      "last_update_time": "string",
+                      "source_id": "string",
+                      "source_name": "string",
+                      "source_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of source statuses",
+                "computed": true
+              },
+              "aggregator_id": {
+                "type": "string",
+                "description": "Specifies the resource aggregator ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the aggregated source account.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}
