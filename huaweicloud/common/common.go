@@ -203,6 +203,9 @@ func WaitOrderResourceComplete(ctx context.Context, client *golangsdk.ServiceCli
 
 func refreshOrderResourceStatusFunc(client *golangsdk.ServiceClient, orderId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
+		if strings.TrimSpace(orderId) == "" {
+			return nil, "ERROR", fmt.Errorf("order id is empty")
+		}
 		listOpts := resources.ListOpts{
 			OrderId:          orderId,
 			OnlyMainResource: 1,
@@ -242,6 +245,9 @@ func WaitOrderAllResourceComplete(ctx context.Context, client *golangsdk.Service
 
 func refreshOrderAllResourceStatusFunc(client *golangsdk.ServiceClient, orderId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
+		if strings.TrimSpace(orderId) == "" {
+			return nil, "ERROR", fmt.Errorf("order id is empty")
+		}
 		listOpts := resources.ListOpts{
 			OrderId: orderId,
 		}
@@ -377,6 +383,9 @@ func GetEipsbyAddresses(client *golangsdk.ServiceClient, addresses []string, eps
 
 // GetResourceIDsByOrder returns resource IDs from an order.
 func GetResourceIDsByOrder(client *golangsdk.ServiceClient, orderId string, onlyMainResource int) ([]string, error) {
+	if strings.TrimSpace(orderId) == "" {
+		return nil, fmt.Errorf("order id is empty")
+	}
 	listOpts := resources.ListOpts{
 		OrderId:          orderId,
 		OnlyMainResource: onlyMainResource,
