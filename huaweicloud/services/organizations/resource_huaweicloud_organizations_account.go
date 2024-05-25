@@ -245,6 +245,11 @@ func resourceAccountRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.FromErr(err)
 	}
 
+	status := utils.PathSearch("account.status", getAccountRespBody, "").(string)
+	if status == "" || status == "pending_closure" || status == "suspended" {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	}
+
 	parentID, err := getParentIdByAccountId(getAccountClient, d.Id())
 	if err != nil {
 		return diag.FromErr(err)
@@ -323,15 +328,32 @@ func moveAccount(client *golangsdk.ServiceClient, accountId, sourceParentID, des
 	return err
 }
 
-func resourceAccountDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting Organizations account is not supported. The account is only removed from the state," +
-		" but it remains in the cloud."
-	return diag.Diagnostics{
-		diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  errorMsg,
-		},
+func resourceAccountDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	// deleteAccount: close Organizations account
+	var (
+		deleteAccountHttpUrl = "v1/organizations/accounts/{account_id}/close"
+		deleteAccountProduct = "organizations"
+	)
+	deleteAccountClient, err := cfg.NewServiceClient(deleteAccountProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating Organizations client: %s", err)
 	}
+
+	deleteAccountPath := deleteAccountClient.Endpoint + deleteAccountHttpUrl
+	deleteAccountPath = strings.ReplaceAll(deleteAccountPath, "{account_id}", d.Id())
+
+	deleteAccountOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	_, err = deleteAccountClient.Request("POST", deleteAccountPath, &deleteAccountOpt)
+	if err != nil {
+		return diag.Errorf("error deleting account: %s", err)
+	}
+
+	return nil
 }
 
 func getParentIdByAccountId(client *golangsdk.ServiceClient, accountID string) (string, error) {
