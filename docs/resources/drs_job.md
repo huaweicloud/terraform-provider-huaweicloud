@@ -324,23 +324,6 @@ The following arguments are supported:
   -> It takes effect when both `master_az` and `slave_az` are specified. Only MySQL and gaussdbv5ha-to-kafka scenarios
   are supported.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the billing mode of the job.
-  The valid values are **prePaid** and **postPaid**. Defaults to **postPaid**.
-  When `type` is **sync** or **cloudDataGuard**, **prePaid** is valid.
-  Changing this will create a new resource.
-
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the job.
-  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
-  Changing this will create a new resource.
-
-* `period` - (Optional, Int, ForceNew) Specifies the charging period of the job.
-  If `period_unit` is set to **month**, the value ranges from 1 to 9.
-  If `period_unit` is set to **year**, the value ranges from 1 to 3.
-  This parameter is mandatory if `charging_mode` is set to **prePaid**.
-  Changing this will create a new resource.
-
-* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are **true** and **false**.
-
 * `alarm_notify` - (Optional, List, ForceNew)  Specifies the information body for setting task exception notification.
   The [alarm_notify](#block--alarm_notify) structure is documented below.
 
