@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.64.4 (May 25, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_drs_job: make it possible to delete job if no order id returned [GH-4894]
+
 ## 1.64.3 (May 25, 2024)
 
 BUG FIXES:
