@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_custom_authorizers": {
+          "block": {
+            "attributes": {
+              "authorizer_id": {
+                "type": "string",
+                "description": "Specifies the ID of the custom authorizer.",
+                "optional": true
+              },
+              "authorizers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cache_age": "number",
+                      "created_at": "string",
+                      "function_alias_uri": "string",
+                      "function_type": "string",
+                      "function_urn": "string",
+                      "function_version": "string",
+                      "id": "string",
+                      "identity": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "location": "string",
+                            "name": "string",
+                            "validation": "string"
+                          }
+                        ]
+                      ],
+                      "is_body_send": "bool",
+                      "name": "string",
+                      "network_type": "string",
+                      "type": "string",
+                      "user_data": "string"
+                    }
+                  ]
+                ],
+                "description": "All custom authorizers that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the custom authorizers belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the custom authorizer.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the custom authorizer.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

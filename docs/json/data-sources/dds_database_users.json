@@ -1,0 +1,108 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_database_users": {
+          "block": {
+            "attributes": {
+              "db_name": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "db_name": "string",
+                      "inherited_privileges": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "actions": [
+                              "list",
+                              "string"
+                            ],
+                            "resources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "collection": "string",
+                                  "db_name": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "privileges": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "actions": [
+                              "list",
+                              "string"
+                            ],
+                            "resources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "collection": "string",
+                                  "db_name": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "roles": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "db_name": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

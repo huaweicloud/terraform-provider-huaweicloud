@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_logstash_certificates": {
+          "block": {
+            "attributes": {
+              "certificates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "file_location": "string",
+                      "file_name": "string",
+                      "id": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the certificates.",
+                "computed": true
+              },
+              "certs_type": {
+                "type": "string",
+                "description": "Specifies the certificate type.",
+                "optional": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies ID of the CSS logstash cluster.",
+                "required": true
+              },
+              "file_name": {
+                "type": "string",
+                "description": "Specifies the file name of the certificate.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the certificate.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

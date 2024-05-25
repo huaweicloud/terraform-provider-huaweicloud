@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_resources_summary": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region_id": {
+                "type": "string",
+                "optional": true
+              },
+              "resource_deleted": {
+                "type": "bool",
+                "optional": true
+              },
+              "resources_summary": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "service": "string",
+                      "types": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "regions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "count": "number",
+                                  "region_id": "string"
+                                }
+                              ]
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "tracked": {
+                "type": "bool",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

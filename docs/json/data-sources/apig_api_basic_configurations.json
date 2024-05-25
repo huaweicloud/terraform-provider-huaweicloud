@@ -1,0 +1,133 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_api_basic_configurations": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "Specifies the ID of the API.",
+                "optional": true
+              },
+              "backend_type": {
+                "type": "string",
+                "description": "Specifies the backend type of the API.",
+                "optional": true
+              },
+              "configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "authorizer_id": "string",
+                      "backend_type": "string",
+                      "cors": "bool",
+                      "description": "string",
+                      "env_id": "string",
+                      "env_name": "string",
+                      "group_id": "string",
+                      "group_name": "string",
+                      "group_version": "string",
+                      "id": "string",
+                      "matching": "string",
+                      "name": "string",
+                      "publish_id": "string",
+                      "published_at": "string",
+                      "registered_at": "string",
+                      "request_method": "string",
+                      "request_path": "string",
+                      "request_protocol": "string",
+                      "security_authentication": "string",
+                      "simple_authentication": "bool",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All API configurations that match the filter parameters.",
+                "computed": true
+              },
+              "env_id": {
+                "type": "string",
+                "description": "Specifies the ID of the environment where the API is published.",
+                "optional": true
+              },
+              "env_name": {
+                "type": "string",
+                "description": "Specifies the name of the environment where the API is published.",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the API group to which the APIs belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the APIs belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the API.",
+                "optional": true
+              },
+              "precise_search": {
+                "type": "string",
+                "description": "Specifies the parameter name for exact matching.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "request_method": {
+                "type": "string",
+                "description": "Specifies the request method of the API.",
+                "optional": true
+              },
+              "request_path": {
+                "type": "string",
+                "description": "Specifies the request address of the API.",
+                "optional": true
+              },
+              "request_protocol": {
+                "type": "string",
+                "description": "Specifies the request protocol of the API.",
+                "optional": true
+              },
+              "security_authentication": {
+                "type": "string",
+                "description": "Specifies the security authentication mode of the API request.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the API.",
+                "optional": true
+              },
+              "vpc_channel_name": {
+                "type": "string",
+                "description": "Specifies the name of the VPC channel.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

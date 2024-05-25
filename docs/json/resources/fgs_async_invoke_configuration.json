@@ -5,6 +5,11 @@
         "huaweicloud_fgs_async_invoke_configuration": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the asynchronous invocation.",
+                "computed": true
+              },
               "enable_async_status_log": {
                 "type": "bool",
                 "description": "Whether to enable asynchronous invocation status persistence.",
@@ -33,6 +38,11 @@
               "region": {
                 "type": "string",
                 "description": "The region in which to configure the asynchronous invocation.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the asynchronous invocation.",
                 "computed": true
               }
             },

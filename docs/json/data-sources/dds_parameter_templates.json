@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_parameter_templates": {
+          "block": {
+            "attributes": {
+              "configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "datastore_name": "string",
+                      "datastore_version": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "node_type": "string",
+                      "updated_at": "string",
+                      "user_defined": "bool"
+                    }
+                  ]
+                ],
+                "description": "DDS parameter templates list.",
+                "computed": true
+              },
+              "datastore_version": {
+                "type": "string",
+                "description": "Specifies the database (DB Engine) version.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the parameter template name.",
+                "optional": true
+              },
+              "node_type": {
+                "type": "string",
+                "description": "The the node type of parameter template.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

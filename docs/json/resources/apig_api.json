@@ -210,7 +210,7 @@
                       "description": "The URN of the FunctionGraph function.",
                       "required": true
                     },
-                    "invocation_mode": {
+                    "invocation_type": {
                       "type": "string",
                       "description": "The invocation mode of the FunctionGraph function.",
                       "optional": true,

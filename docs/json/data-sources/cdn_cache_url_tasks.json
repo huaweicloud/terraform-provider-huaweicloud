@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_cache_url_tasks": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "number",
+                "description": "Specifies the end timestamp, in milliseconds.",
+                "optional": true
+              },
+              "file_type": {
+                "type": "string",
+                "description": "Specifies the file type.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "Specifies the start timestamp, in milliseconds.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the URL status.",
+                "optional": true
+              },
+              "task_type": {
+                "type": "string",
+                "description": "Specifies the task type.",
+                "optional": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "file_type": "string",
+                      "id": "number",
+                      "mode": "string",
+                      "modify_time": "string",
+                      "status": "string",
+                      "task_id": "number",
+                      "task_type": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of URL task information.",
+                "computed": true
+              },
+              "url": {
+                "type": "string",
+                "description": "Specifies the refresh or preheat URL.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

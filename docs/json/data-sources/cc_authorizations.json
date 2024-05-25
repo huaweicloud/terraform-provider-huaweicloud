@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_authorizations": {
+          "block": {
+            "attributes": {
+              "authorization_id": {
+                "type": "string",
+                "description": "Specifies the ID of the cross-account authorization.",
+                "optional": true
+              },
+              "authorizations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_connection_domain_id": "string",
+                      "cloud_connection_id": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "instance_type": "string",
+                      "name": "string",
+                      "project_id": "string",
+                      "region_id": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The authorized instances.",
+                "computed": true
+              },
+              "cloud_connection_domain_id": {
+                "type": "string",
+                "description": "Specifies the account ID that the cloud connection belongs to.",
+                "optional": true
+              },
+              "cloud_connection_id": {
+                "type": "string",
+                "description": "Specifies the cloud connection ID.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the cross-account authorization.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the network instance ID.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the cross-account authorization.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

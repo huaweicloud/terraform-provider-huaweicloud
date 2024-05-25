@@ -1,0 +1,127 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_css_es_loadbalancer_config": {
+          "block": {
+            "attributes": {
+              "agency": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "authentication_type": {
+                "type": "string",
+                "computed": true
+              },
+              "ca_cert_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ca_cert_name": {
+                "type": "string",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "elb_enabled": {
+                "type": "bool",
+                "computed": true
+              },
+              "health_monitors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "ip": "string",
+                      "protocol_port": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "listener": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "ip_group": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enabled": "bool",
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "protocol": "string",
+                      "protocol_port": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "loadbalancer": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "ip": "string",
+                      "name": "string",
+                      "public_ip": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "protocol_port": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_cert_id": {
+                "type": "string",
+                "optional": true
+              },
+              "server_cert_name": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

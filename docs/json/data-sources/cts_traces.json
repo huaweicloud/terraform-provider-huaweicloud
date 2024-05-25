@@ -1,0 +1,142 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cts_traces": {
+          "block": {
+            "attributes": {
+              "from": {
+                "type": "string",
+                "description": "Specifies the start time.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the cloud resource ID.",
+                "optional": true
+              },
+              "resource_name": {
+                "type": "string",
+                "description": "Specifies the name of a resource.",
+                "optional": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "Specifies the type of a resource.",
+                "optional": true
+              },
+              "service_type": {
+                "type": "string",
+                "description": "Specifies the cloud service type.",
+                "optional": true
+              },
+              "to": {
+                "type": "string",
+                "description": "Specifies the end time.",
+                "required": true
+              },
+              "trace_id": {
+                "type": "string",
+                "description": "Specifies the trace ID.",
+                "optional": true
+              },
+              "trace_name": {
+                "type": "string",
+                "description": "Specifies the trace name.",
+                "optional": true
+              },
+              "trace_rating": {
+                "type": "string",
+                "description": "Specifies the trace status.",
+                "optional": true
+              },
+              "trace_type": {
+                "type": "string",
+                "description": "Specifies the trace type.",
+                "required": true
+              },
+              "traces": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "api_version": "string",
+                      "code": "string",
+                      "endpoint": "string",
+                      "location_info": "string",
+                      "message": "string",
+                      "record_time": "string",
+                      "request": "string",
+                      "request_id": "string",
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "resource_type": "string",
+                      "resource_url": "string",
+                      "response": "string",
+                      "service_type": "string",
+                      "source_ip": "string",
+                      "time": "string",
+                      "trace_id": "string",
+                      "trace_name": "string",
+                      "trace_rating": "string",
+                      "trace_type": "string",
+                      "user": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "domain": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of traces.",
+                "computed": true
+              },
+              "tracker_name": {
+                "type": "string",
+                "description": "Specifies the tracker name.",
+                "optional": true
+              },
+              "user": {
+                "type": "string",
+                "description": "Specifies the user name.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CTS",
+            "name": "Cloud Trace Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云审计服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

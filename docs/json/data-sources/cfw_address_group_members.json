@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_address_group_members": {
+          "block": {
+            "attributes": {
+              "address": {
+                "type": "string",
+                "description": "Specifies the IP address",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall instance ID.",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the IP address group.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "item_id": {
+                "type": "string",
+                "description": "Specifies the address group member ID.",
+                "optional": true
+              },
+              "key_word": {
+                "type": "string",
+                "description": "Specifies the keyword.",
+                "optional": true
+              },
+              "query_address_set_type": {
+                "type": "string",
+                "description": "Specifies the query address group type.",
+                "optional": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "address": "string",
+                      "address_type": "number",
+                      "description": "string",
+                      "item_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The IP address group member list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

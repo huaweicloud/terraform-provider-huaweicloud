@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_logstash_pipeline_actions": {
+          "block": {
+            "attributes": {
+              "action_id": {
+                "type": "string",
+                "description": "Specifies the ID of the action.",
+                "optional": true
+              },
+              "actions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "conf_content": "string",
+                      "error_msg": "string",
+                      "id": "string",
+                      "message": "string",
+                      "status": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the actions.",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the CSS logstash cluster.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the action.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the action.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

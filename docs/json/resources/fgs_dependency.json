@@ -41,6 +41,10 @@
               "size": {
                 "type": "number",
                 "computed": true
+              },
+              "version": {
+                "type": "number",
+                "computed": true
               }
             }
           },

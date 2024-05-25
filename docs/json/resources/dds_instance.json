@@ -33,6 +33,13 @@
                 "computed": true,
                 "forcenew": true
               },
+              "client_network_ranges": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
               "created_at": {
                 "type": "string",
                 "computed": true

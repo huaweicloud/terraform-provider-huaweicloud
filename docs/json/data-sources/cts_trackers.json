@@ -1,0 +1,134 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cts_trackers": {
+          "block": {
+            "attributes": {
+              "data_bucket_name": {
+                "type": "string",
+                "description": "Specifies the data bucket name.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the tracker name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the tracker status.",
+                "optional": true
+              },
+              "tracker_id": {
+                "type": "string",
+                "description": "Specifies the tracker ID.",
+                "optional": true
+              },
+              "trackers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agency_name": "string",
+                      "create_time": "string",
+                      "data_bucket": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data_bucket_name": "string",
+                            "data_event": [
+                              "list",
+                              "string"
+                            ],
+                            "search_enabled": "bool"
+                          }
+                        ]
+                      ],
+                      "detail": "string",
+                      "domain_id": "string",
+                      "group_id": "string",
+                      "id": "string",
+                      "is_organization_tracker": "bool",
+                      "is_support_trace_files_encryption": "bool",
+                      "is_support_validate": "bool",
+                      "kms_id": "string",
+                      "lts": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "is_lts_enabled": "bool",
+                            "log_group_name": "string",
+                            "log_topic_name": "string"
+                          }
+                        ]
+                      ],
+                      "management_event_selector": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "exclude_service": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "obs_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bucket_lifecycle": "number",
+                            "bucket_name": "string",
+                            "compress_type": "string",
+                            "file_prefix_name": "string",
+                            "is_authorized_bucket": "bool",
+                            "is_obs_created": "bool",
+                            "is_sort_by_service": "bool"
+                          }
+                        ]
+                      ],
+                      "project_id": "string",
+                      "status": "string",
+                      "stream_id": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "List of tracker information.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the tracker type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CTS",
+            "name": "Cloud Trace Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云审计服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_signatures": {
+          "block": {
+            "attributes": {
+              "algorithm": {
+                "type": "string",
+                "description": "Specifies the algorithm of the signature to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the signatrues belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of signature to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "signature_id": {
+                "type": "string",
+                "description": "Specifies the ID of signature to be queried.",
+                "optional": true
+              },
+              "signatures": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "algorithm": "string",
+                      "bind_num": "number",
+                      "created_at": "string",
+                      "id": "string",
+                      "key": "string",
+                      "name": "string",
+                      "secret": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All signature key that match the filter parameters.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of signature to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

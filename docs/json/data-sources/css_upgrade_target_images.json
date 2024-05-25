@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_upgrade_target_images": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the cluster to be upgraded.",
+                "required": true
+              },
+              "engine_type": {
+                "type": "string",
+                "description": "Specifies the datastore type of the target image.",
+                "optional": true
+              },
+              "engine_version": {
+                "type": "string",
+                "description": "Specifies the datastore version of the target image.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "Specifies the ID of the target image.",
+                "optional": true
+              },
+              "images": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "engine_type": "string",
+                      "engine_version": "string",
+                      "id": "string",
+                      "name": "string",
+                      "priority": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the upgrade target images.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "upgrade_type": {
+                "type": "string",
+                "description": "Specifies the upgrade type.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

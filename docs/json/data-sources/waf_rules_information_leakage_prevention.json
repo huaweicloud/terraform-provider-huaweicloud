@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_rules_information_leakage_prevention": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the protection policy belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the ID of the policy to which the information leakage prevention rules belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "Specifies the ID of the information leakage prevention rule.",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "contents": [
+                        "list",
+                        "string"
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "path": "string",
+                      "policy_id": "string",
+                      "protection_action": "string",
+                      "status": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of information leakage prevention rules.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the information leakage prevention rule.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the information leakage prevention rule.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

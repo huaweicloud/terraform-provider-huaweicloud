@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_pg_plugin_parameter": {
+          "block": {
+            "attributes": {
+              "default_values": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the default values of the plugin parameter.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of RDS instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the plugin parameter.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "restart_required": {
+                "type": "bool",
+                "description": "Indicates whether a reboot is required.",
+                "computed": true
+              },
+              "values": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the list of plugin parameter values.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

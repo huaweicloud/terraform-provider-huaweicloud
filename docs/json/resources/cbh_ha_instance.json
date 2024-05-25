@@ -1,0 +1,176 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbh_ha_instance": {
+          "block": {
+            "attributes": {
+              "attach_disk_size": {
+                "type": "number",
+                "description": "Specifies the size of the additional data disk for the CBH HA instance.",
+                "optional": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "description": "Specifies whether auto renew is enabled.",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "description": "Specifies the charging mode of the CBH HA instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "data_disk_size": {
+                "type": "number",
+                "description": "The data disk size of the CBH HA instance.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the CBH HA instance belongs.",
+                "optional": true,
+                "computed": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "Specifies the product ID of the CBH server.",
+                "required": true
+              },
+              "floating_ip": {
+                "type": "string",
+                "description": "Specifies the floating IP address of the CBH HA instance.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv6_enable": {
+                "type": "bool",
+                "description": "Specifies whether the IPv6 network is enabled.",
+                "optional": true,
+                "forcenew": true
+              },
+              "master_availability_zone": {
+                "type": "string",
+                "description": "Specifies the availability zone name of the master instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "master_id": {
+                "type": "string",
+                "description": "The ID of the master instance.",
+                "computed": true
+              },
+              "master_private_ip": {
+                "type": "string",
+                "description": "Specifies the private IP address of the master instance.",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the CBH HA instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "password": {
+                "type": "string",
+                "description": "Specifies the password for logging in to the management console.",
+                "required": true,
+                "sensitive": true
+              },
+              "period": {
+                "type": "number",
+                "description": "Specifies the charging period of the CBH HA instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "description": "Specifies the charging period unit of the CBH HA instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "public_ip": {
+                "type": "string",
+                "description": "The elastic IP address.",
+                "computed": true
+              },
+              "public_ip_id": {
+                "type": "string",
+                "description": "Specifies the ID of the elastic IP.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the CBH HA instance.",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "description": "Specifies the IDs of the security group.",
+                "required": true
+              },
+              "slave_availability_zone": {
+                "type": "string",
+                "description": "Specifies the availability zone name of the slave instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "slave_id": {
+                "type": "string",
+                "description": "The ID of the slave instance.",
+                "computed": true
+              },
+              "slave_private_ip": {
+                "type": "string",
+                "description": "Specifies the private IP address of the slave instance.",
+                "optional": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the CBH HA instance.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the ID of a subnet.",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The current version of the CBH HA instance image.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of a VPC.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBH",
+            "name": "Cloud Bastion Host",
+            "catalog": "Security & Compliance",
+            "name_cn": "云堡垒机",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
