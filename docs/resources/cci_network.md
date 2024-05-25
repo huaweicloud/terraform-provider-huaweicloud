@@ -17,10 +17,7 @@ variable "network_name" {}
 variable "vpc_network_id" {}
 variable "security_group_id" {}
 
-data "huaweicloud_availability_zones" "test" {}
-
 resource "huaweicloud_cci_network" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   namespace         = var.namespace_name
   name              = var.network_name
   network_id        = var.vpc_network_id
@@ -35,7 +32,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the CCI network.
   If omitted, the provider-level region will be used. Changing this will create a new CCI network resource.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the availability zone (AZ) to which the CCI network
+* `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone (AZ) to which the CCI network
   belongs. Changing this will create a new CCI network resource.
 
 * `namespace` - (Required, String, ForceNew) Specifies the namespace to logically divide your cloud container instances
