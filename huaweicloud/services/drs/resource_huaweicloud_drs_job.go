@@ -776,7 +776,7 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
 	}
-	if len(detailResp.Results) == 0 {
+	if len(detailResp.Results) == 0 || detailResp.Results[0].Status == "DELETED" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving DRS job")
 	}
 	detail := detailResp.Results[0]
@@ -979,6 +979,9 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 		detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
 		if err != nil {
 			return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
+		}
+		if len(detailResp.Results) == 0 || detailResp.Results[0].Status == "DELETED" {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving DRS job")
 		}
 		detail := detailResp.Results[0]
 
@@ -1214,7 +1217,7 @@ func resourceJobDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
 	}
 
-	if len(detailResp.Results) == 0 {
+	if len(detailResp.Results) == 0 || detailResp.Results[0].Status == "DELETED" {
 		return diag.Errorf("error retrieving DRS job, results is empty")
 	}
 	orderId := detailResp.Results[0].PeriodOrder.OrderId
