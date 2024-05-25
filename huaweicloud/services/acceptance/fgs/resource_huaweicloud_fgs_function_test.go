@@ -1315,3 +1315,75 @@ resource "huaweicloud_fgs_function" "test" {
 }
 `, name)
 }
+
+func TestAccFgsV2Function_funcVpcAndNetworkController(t *testing.T) {
+	var (
+		f function.Function
+
+		name         = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_fgs_function.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFunction_funcVpcAndNetworkController(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"func_code",
+				},
+			},
+		},
+	})
+}
+
+func testAccFunction_funcVpcAndNetworkController(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_function" "test" {
+  name           = "%[2]s"
+  app            = "default"
+  handler        = "bootstrap"
+  xrole          = "function_all_trust"
+  memory_size    = 128
+  timeout        = 3
+  runtime        = "Custom"
+  code_type      = "inline"
+  vpc_id         = huaweicloud_vpc.test.id
+  network_id     = huaweicloud_vpc_subnet.test.id
+  func_vpc{
+    cidr            = "192.168.0.0/24"
+    gateway         = "192.168.0.1"
+  }
+  network_controller{
+    disable_public_network = true
+    trigger_access_vpcs{
+      vpc_id   = huaweicloud_vpc.test.id
+      vpc_name = huaweicloud_vpc.test.name
+    }
+  }
+}
+`, common.TestBaseNetwork(name), name)
+}

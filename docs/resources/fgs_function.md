@@ -405,6 +405,34 @@ The `reserved_instances` block supports:
   If this parameter is enabled, reserved instances are initialized and the mode change needs some time to take effect.
   You will still be billed at the price of reserved instances for non-idle mode in this period.
 
+* `func_vpc` - (Optional, List) Specifies the configuration of function VPC.  
+  The [func_vpc](#functiongraph_func_vpc) structure is documented below.
+
+<a name="functiongraph_func_vpc"></a>
+The `func_vpc` block supports:
+
+* `cidr` - (Optional, String) Specifies the network segment on which the subnet resides.
+
+* `gateway` - (Optional, String) Specifies the gateway.
+
+* `network_controller` - (Optional, List) Specifies the function network configuration.  
+  The [network_controller](#functiongraph_network_controller) structure is documented below.
+
+<a name="functiongraph_network_controller"></a>
+The `network_controller` block supports:
+
+* `disable_public_network` - (Optional, Bool) Specifies the prohibit public network access switch.
+
+* `trigger_access_vpcs` - (Optional, List) Specifies the trigger function VPC configuration.
+  The [trigger_access_vpcs](#network_controller_trigger_access_vpcs) structure is documented below.
+
+<a name="network_controller_trigger_access_vpcs"></a>
+The `trigger_access_vpcs` block supports:
+
+* `vpc_id` - (Optional, String) Specifies the VPC ID.
+
+* `vpc_name` - (Optional, String) Specifies the VPC name.
+
 * `tactics_config` - (Optional, List) Specifies the auto scaling policies for reserved instance.
   The [tactics_config](#functiongraph_tactics_config) structure is documented below.
 
