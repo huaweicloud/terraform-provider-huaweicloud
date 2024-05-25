@@ -1,21 +1,21 @@
 ---
 subcategory: "Document Database Service (DDS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_dds_database_users"
+page_title: "HuaweiCloud: huaweicloud_dds_database_roles"
 description: |-
-  Use this data source to get the list of DDS instance database users.
+  Use this data source to get the list of DDS instance database roles.
 ---
 
-# huaweicloud_dds_database_users
+# huaweicloud_dds_database_roles
 
-Use this data source to get the list of DDS instance database users.
+Use this data source to get the list of DDS instance database roles.
 
 ## Example Usage
 
 ```hcl
 variable "instance_id" {}
 
-data "huaweicloud_dds_database_users" "test"{
+data "huaweicloud_dds_database_roles" "test"{
   instance_id = var.instance_id
 }
 ```
@@ -29,9 +29,9 @@ The following arguments are supported:
 
 * `instance_id` - (Required, String) Specifies the instance ID.
 
-* `name` - (Optional, String) Specifies the username.
+* `name` - (Optional, String) Specifies the role name.
 
-* `db_name` - (Optional, String) Specifies the database name to which the user belongs.
+* `db_name` - (Optional, String) Specifies the database name to which the role belongs.
 
 ## Attribute Reference
 
@@ -39,23 +39,23 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID in UUID format.
 
-* `users` - Indicates the user list.
-  The [users](#users_struct) structure is documented below.
+* `roles` - Indicates the role list.
+  The [roles](#roles_struct) structure is documented below.
 
-<a name="users_struct"></a>
-The `users` block supports:
+<a name="roles_struct"></a>
+The `roles` block supports:
 
-* `name` - Indicates the username.
+* `name` - Indicates the role name.
 
-* `db_name` - Indicates the database name to which the user belongs.
+* `db_name` - Indicates the database name to which the role belongs.
 
-* `roles` - Indicates the list of roles owned by the current user.
+* `roles` - Indicates the list of roles owned by the current role.
   The [roles](#dds_database_owned_roles) structure is documented below.
 
-* `privileges` - The list of database privileges owned by the current user.
+* `privileges` - The list of database privileges owned by the current role.
   The [privileges](#dds_database_privileges) structure is documented below.
 
-* `inherited_privileges` - The list of database privileges owned by the current user, includes all privileges
+* `inherited_privileges` - The list of database privileges owned by the current role, includes all privileges
   inherited by owned roles.
   The [inherited_privileges](#dds_database_privileges) structure is documented below.
 
@@ -77,6 +77,6 @@ The `resources` block supports:
 <a name="dds_database_owned_roles"></a>
 The `roles` block supports:
 
-* `name` - Indicates the name of role owned by the current user.
+* `name` - Indicates the name of role owned by the current role.
 
 * `db_name` - Indicates the database name to which this owned role belongs.
