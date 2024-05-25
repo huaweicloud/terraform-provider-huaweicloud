@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.64.3 (May 25, 2024)
+
+BUG FIXES:
+
+* resource/huaweicloud_drs_job: raise error if orderID is empty [GH-4887]
+
 ## 1.64.2 (May 17, 2024)
 
 BUG FIXES:
