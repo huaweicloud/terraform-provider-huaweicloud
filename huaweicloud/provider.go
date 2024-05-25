@@ -115,6 +115,8 @@ const (
 	prefixEuropeRegion string = "eu-west-1"
 )
 
+var Version string
+
 // Provider returns a schema.Provider for HuaweiCloud.
 func Provider() *schema.Provider {
 	provider := &schema.Provider{
@@ -2054,7 +2056,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		conf.SetServiceEndpoint("cdn", cdnEndpoint)
 	}
 
-	return &conf, nil
+	return &conf, config.CheckUpgrade(Version)
 }
 
 func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error) {
