@@ -24,10 +24,10 @@ import (
 // @API Workspace POST /v2/{project_id}/terminals/binding-desktops/config
 func ResourceTerminalBinding() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceTerminalBindingsCreate,
-		ReadContext:   resourceTerminalBindingsRead,
-		UpdateContext: resourceTerminalBindingsUpdate,
-		DeleteContext: resourceTerminalBindingsDelete,
+		CreateContext: resourceTerminalBindingCreate,
+		ReadContext:   resourceTerminalBindingRead,
+		UpdateContext: resourceTerminalBindingUpdate,
+		DeleteContext: resourceTerminalBindingDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -109,7 +109,7 @@ func isConfigFunctionEnabled(enabled bool) string {
 	return "OFF"
 }
 
-func resourceTerminalBindingsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTerminalBindingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
 	if err != nil {
@@ -139,7 +139,7 @@ func resourceTerminalBindingsCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	d.SetId(randUUID)
 
-	return resourceTerminalBindingsRead(ctx, d, meta)
+	return resourceTerminalBindingRead(ctx, d, meta)
 }
 
 func flattenTerminalBindings(bindings []terminals.TerminalBindingResp) []interface{} {
@@ -159,7 +159,7 @@ func flattenTerminalBindings(bindings []terminals.TerminalBindingResp) []interfa
 	return result
 }
 
-func resourceTerminalBindingsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTerminalBindingRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	client, err := conf.WorkspaceV2Client(region)
@@ -217,7 +217,7 @@ func deleteTerminalBindings(client *golangsdk.ServiceClient, bindings *schema.Se
 	return nil
 }
 
-func resourceTerminalBindingsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTerminalBindingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
 	if err != nil {
@@ -250,10 +250,10 @@ func resourceTerminalBindingsUpdate(ctx context.Context, d *schema.ResourceData,
 			return diag.Errorf("error updating terminal binding configuration: %s", err)
 		}
 	}
-	return resourceTerminalBindingsRead(ctx, d, meta)
+	return resourceTerminalBindingRead(ctx, d, meta)
 }
 
-func resourceTerminalBindingsDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTerminalBindingDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
 	if err != nil {
