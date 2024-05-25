@@ -776,6 +776,9 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
 	}
+	if len(detailResp.Results) == 0 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving DRS job")
+	}
 	detail := detailResp.Results[0]
 
 	// Net_type is not in detail, so query by list.
@@ -1211,10 +1214,15 @@ func resourceJobDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
 	}
 
-	if d.Get("charging_mode").(string) == "prePaid" {
+	if len(detailResp.Results) == 0 {
+		return diag.Errorf("error retrieving DRS job, results is empty")
+	}
+	orderId := detailResp.Results[0].PeriodOrder.OrderId
+
+	if d.Get("charging_mode").(string) == "prePaid" && strings.TrimSpace(orderId) != "" {
 		// unsubscribe the order
 		// resource_id is different from job_id
-		resourceIDs, err := common.GetResourceIDsByOrder(bssV2Client, detailResp.Results[0].PeriodOrder.OrderId, 1)
+		resourceIDs, err := common.GetResourceIDsByOrder(bssV2Client, orderId, 1)
 		if err != nil {
 			return diag.Errorf("error getting resource IDs: %s", err)
 		}
