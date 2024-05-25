@@ -45,6 +45,11 @@ paths:
     /v3/{project_id}/instances/{instance_id}/balancer/active-window:
         PUT:
             tag: DDS
+    /v3/{project_id}/instances/{instance_id}/client-network:
+        GET:
+            tag: DDS
+        POST:
+            tag: DDS
     /v3/{project_id}/instances/{instance_id}/enlarge:
         POST:
             tag: DDS

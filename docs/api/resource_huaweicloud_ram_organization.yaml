@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ram_organization
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RAM
+paths:
+    /v1/organization-share:
+        GET:
+            tag: RAM
+    /v1/organization-share/disable:
+        POST:
+            tag: RAM
+    /v1/organization-share/enable:
+        POST:
+            tag: RAM

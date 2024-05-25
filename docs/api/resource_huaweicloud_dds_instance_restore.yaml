@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_dds_instance_recovery
+    title: resource_huaweicloud_dds_instance_restore
     description: ""
 schemes:
     - https
