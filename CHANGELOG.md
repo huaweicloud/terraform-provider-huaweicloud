@@ -23,7 +23,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 
-* resource/huaweicloud_vpn_gateway: Add er_attachment_id support [GH-4731]
+* resource/huaweicloud_vpn_gateway: add er_attachment_id support [GH-4731]
 
 ## 1.64.0 (April 29, 2024)
 
