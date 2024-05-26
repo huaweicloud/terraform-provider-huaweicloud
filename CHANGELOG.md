@@ -78,7 +78,7 @@ ENHANCEMENTS:
 
 ENHANCEMENTS:
 
-* resource/huaweicloud_cfw_firewall: Support creating east-west firewall afterwards [GH-4703]
+* resource/huaweicloud_cfw_firewall: Add east-west firewall create afterwards support [GH-4703]
 * resource/huaweicloud_cfw_firewall: Add tags update support [GH-4693]
 * resource/huaweicloud_cfw_firewall: Add attachment_id import support [GH-4689]
 * resource/huaweicloud_rds_instance: Add read write permission support [GH-4679]
