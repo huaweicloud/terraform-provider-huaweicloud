@@ -158,7 +158,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 
-* resource/huaweicloud_lts_stream: solve the problem that eps cannot be set [GH-4527]
+* resource/huaweicloud_lts_stream: fix the problem that eps cannot be set [GH-4527]
 
 ## 1.62.1 (March 6, 2024)
 
