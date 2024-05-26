@@ -93,7 +93,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 
-* authentication: Add v5 agency assume support [GH-4690]
+* authentication: add v5 agency assume support [GH-4690]
 
 ## 1.63.1 (April 12, 2024)
 
