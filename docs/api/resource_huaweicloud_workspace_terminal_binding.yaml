@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_terminal_binding
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v2/{project_id}/terminals/binding-desktops:
+        GET:
+            tag: Workspace
+        POST:
+            tag: Workspace
+    /v2/{project_id}/terminals/binding-desktops/batch-delete:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/terminals/binding-desktops/config:
+        GET:
+            tag: Workspace
+        POST:
+            tag: Workspace
