@@ -107,7 +107,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 
-* resource/huaweicloud_cfw_address_group_member: Fix the issue of fetching member with ip range [GH-4582]
+* resource/huaweicloud_cfw_address_group_member: fix the issue of fetching member with ip range [GH-4582]
 
 ## 1.63.0 (March 30, 2024)
 
