@@ -407,6 +407,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_api_associated_acl_policies":        apig.DataSourceApiAssociatedAclPolicies(),
 			"huaweicloud_apig_api_associated_applications":        apig.DataSourceApiAssociatedApplications(),
 			"huaweicloud_apig_api_associated_plugins":             apig.DataSourceApiAssociatedPlugins(),
+			"huaweicloud_apig_api_associated_signatures":          apig.DataSourceApiAssociatedSignatures(),
 			"huaweicloud_apig_api_associated_throttling_policies": apig.DataSourceApiAssociatedThrottlingPolicies(),
 			"huaweicloud_apig_api_basic_configurations":           apig.DataSourceApiBasicConfigurations(),
 			"huaweicloud_apig_applications":                       apig.DataSourceApplications(),
