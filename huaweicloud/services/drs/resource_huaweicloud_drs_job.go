@@ -300,10 +300,42 @@ func ResourceDrsJob() *schema.Resource {
 
 			// charge info: charging_mode, period_unit, period, auto_renew
 			// once start the job, the bill will be auto paid
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, false),
+				Description: "schema: Internal",
+			},
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+				Description: "schema: Internal",
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"period_unit"},
+				ValidateFunc: validation.IntBetween(1, 9),
+				Description:  "schema: Internal",
+			},
+			"auto_renew": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+				Description: "schema: Internal",
+			},
 
 			"alarm_notify": {
 				Type:     schema.TypeList,
