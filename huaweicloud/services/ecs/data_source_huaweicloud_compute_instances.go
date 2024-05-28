@@ -38,6 +38,10 @@ func DataSourceComputeInstances() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"fixed_ip_v4": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -139,13 +143,14 @@ func DataSourceComputeInstances() *schema.Resource {
 	}
 }
 
-func buildListOptsWithoutIP(d *schema.ResourceData, conf *config.Config) *cloudservers.ListOpts {
+func buildListOpts(d *schema.ResourceData, conf *config.Config) *cloudservers.ListOpts {
 	result := cloudservers.ListOpts{
 		Limit:               100,
 		EnterpriseProjectID: conf.DataGetEnterpriseProjectID(d),
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor_id").(string),
 		Status:              d.Get("status").(string),
+		IPEqual:             d.Get("fixed_ip_v4").(string),
 	}
 
 	return &result
@@ -187,7 +192,7 @@ func dataSourceComputeInstancesRead(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating ECS client: %s", err)
 	}
 
-	opts := buildListOptsWithoutIP(d, conf)
+	opts := buildListOpts(d, conf)
 	allServers, err := queryEcsInstances(ecsClient, opts)
 	if err != nil {
 		return diag.Errorf("unable to retrieve ECS instances: %s", err)

@@ -209,7 +209,7 @@ func buildListOptsWithoutStatus(d *schema.ResourceData, conf *config.Config) *cl
 		EnterpriseProjectID: conf.DataGetEnterpriseProjectID(d),
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor_id").(string),
-		IP:                  d.Get("fixed_ip_v4").(string),
+		IPEqual:             d.Get("fixed_ip_v4").(string),
 	}
 
 	return &result
