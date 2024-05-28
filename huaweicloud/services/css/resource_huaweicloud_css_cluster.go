@@ -1150,7 +1150,7 @@ func updateInSafeMode(ctx context.Context, d *schema.ResourceData,
 	cssV1Client *cssv1.CssClient, client *golangsdk.ServiceClient) error {
 	// reset admin pasword
 	if d.HasChange("password") {
-		err := updateAdminPassword(d, client)
+		err := updateAdminPassword(ctx, d, cssV1Client, client)
 		if err != nil {
 			return err
 		}
@@ -2155,7 +2155,8 @@ func buildUpdateSafeModeParams(d *schema.ResourceData, adminPassword string) map
 	return body
 }
 
-func updateAdminPassword(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+func updateAdminPassword(ctx context.Context, d *schema.ResourceData,
+	cssV1Client *cssv1.CssClient, client *golangsdk.ServiceClient) error {
 	adminPassword := d.Get("password").(string)
 	if adminPassword == "" {
 		return fmt.Errorf("administrator password is required when security mode changes")
@@ -2177,6 +2178,11 @@ func updateAdminPassword(d *schema.ResourceData, client *golangsdk.ServiceClient
 	_, err := client.Request("POST", updatePasswordPath, &updatePasswordOpt)
 	if err != nil {
 		return fmt.Errorf("error resetting CSS cluster administrator password, cluster_id: %s, error: %s", d.Id(), err)
+	}
+
+	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
 	}
 
 	return nil
