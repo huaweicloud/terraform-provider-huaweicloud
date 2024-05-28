@@ -20,10 +20,10 @@ const (
 )
 
 type VersionConfig struct {
-	Latest  string            `json:"latest"`
-	Version map[string]string `json:"version"`
-	Warning string            `json:"warning"`
-	Message string            `json:"message"`
+	Latest  string                   `json:"latest"`
+	Version map[string]VersionConfig `json:"version"`
+	Warning string                   `json:"warning"`
+	Message string                   `json:"message"`
 }
 
 func CheckUpgrade(version string) diag.Diagnostics {
@@ -60,19 +60,29 @@ func CheckUpgrade(version string) diag.Diagnostics {
 		return nil
 	}
 
+	return buildMsg(version, verCfg)
+}
+
+func buildMsg(version string, verCfg *VersionConfig) diag.Diagnostics {
+	detail := defaultDetail
 	summary := defaultSummary
-	if verCfg.Warning != "" {
-		summary = verCfg.Warning
-		summary = strings.ReplaceAll(summary, "${latest}", verCfg.Latest)
-		summary = strings.ReplaceAll(summary, "${version}", version)
+	latest := verCfg.Latest
+
+	if v, ok := verCfg.Version[version]; ok {
+		verCfg = &v
 	}
 
-	detail := defaultDetail
+	if verCfg.Warning != "" {
+		summary = verCfg.Warning
+	}
 	if verCfg.Message != "" {
 		detail = verCfg.Message
-		detail = strings.ReplaceAll(detail, "${latest}", verCfg.Latest)
-		detail = strings.ReplaceAll(detail, "${version}", version)
 	}
+
+	summary = strings.ReplaceAll(summary, "${latest}", latest)
+	summary = strings.ReplaceAll(summary, "${version}", version)
+	detail = strings.ReplaceAll(detail, "${latest}", latest)
+	detail = strings.ReplaceAll(detail, "${version}", version)
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
