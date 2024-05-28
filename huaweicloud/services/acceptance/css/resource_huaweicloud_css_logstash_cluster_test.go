@@ -65,6 +65,14 @@ func TestAccLogstashCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "node_config.0.instance_number", "1"),
 				),
 			},
+			{
+				Config: testAccLogstashCluster_basic_update(rName+"-update", 1, "bar_update"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test_update", "id"),
+				),
+			},
 		},
 	})
 }
@@ -206,13 +214,15 @@ func testAccLogstashCluster_basic(rName string, nodeNum int, tag string) string 
 	return fmt.Sprintf(`
 %[1]s
 
+%[2]s
+
 resource "huaweicloud_css_logstash_cluster" "test" {
-  name           = "%[2]s"
+  name           = "%[3]s"
   engine_version = "7.10.0"
 
   node_config {
     flavor          = "ess.spec-4u8g"
-    instance_number = %[3]d
+    instance_number = %[4]d
     volume {
       volume_type = "HIGH"
       size        = 40
@@ -225,10 +235,41 @@ resource "huaweicloud_css_logstash_cluster" "test" {
   vpc_id            = huaweicloud_vpc.test.id
 
   tags = {
-    foo = "%[4]s"
+    foo = "%[5]s"
   }
 }
-`, testAcclogstashBase(rName), rName, nodeNum, tag)
+`, testAcclogstashBase(rName), testAccSecGroupUpdate(rName), rName, nodeNum, tag)
+}
+
+func testAccLogstashCluster_basic_update(rName string, nodeNum int, tag string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_css_logstash_cluster" "test" {
+  name           = "%[3]s"
+  engine_version = "7.10.0"
+
+  node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = %[4]d
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test_update.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  tags = {
+    foo = "%[5]s"
+  }
+}
+`, testAcclogstashBase(rName), testAccSecGroupUpdate(rName), rName, nodeNum, tag)
 }
 
 func testAccLogstashCluster_prePaid(rName string, isAutoRenew bool) string {

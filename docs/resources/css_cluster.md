@@ -160,8 +160,7 @@ The following arguments are supported:
 
 * `subnet_id` - (Required, String, ForceNew) Specifies the Subnet ID. Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required, String, ForceNew) Specifies Security group ID.
-  Changing this parameter will create a new resource.
+* `security_group_id` - (Required, String) Specifies the security group ID.
 
 * `availability_zone` - (Required, String, ForceNew) Specifies the availability zone name.
   Separate multiple AZs with commas (,), for example, az1,az2. AZs must be unique. The number of nodes must be greater
