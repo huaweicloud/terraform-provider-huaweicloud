@@ -96,6 +96,7 @@ func TestAccBlackWhiteList_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "port", "22"),
 					resource.TestCheckResourceAttr(rName, "address_type", "0"),
 					resource.TestCheckResourceAttr(rName, "address", "1.1.1.1"),
+					resource.TestCheckResourceAttr(rName, "description", "terraform test"),
 				),
 			},
 			{
@@ -108,6 +109,7 @@ func TestAccBlackWhiteList_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "port", ""),
 					resource.TestCheckResourceAttr(rName, "address_type", "0"),
 					resource.TestCheckResourceAttr(rName, "address", "2.2.2.2"),
+					resource.TestCheckResourceAttr(rName, "description", ""),
 				),
 			},
 			{
@@ -132,6 +134,7 @@ resource "huaweicloud_cfw_black_white_list" "test" {
   port         = "22"
   address_type = 0
   address      = "1.1.1.1"
+  description  = "terraform test"
 }
 `, testAccDatasourceFirewalls_basic())
 }
@@ -147,6 +150,7 @@ resource "huaweicloud_cfw_black_white_list" "test" {
   protocol     = -1
   address_type = 0
   address      = "2.2.2.2"
+  description  = ""
 }
 `, testAccDatasourceFirewalls_basic())
 }

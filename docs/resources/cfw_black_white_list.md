@@ -66,6 +66,8 @@ The following arguments are supported:
 * `port` - (Optional, String) Specifies the destination port.
   Required and only available if protocol is **TCP** or **UDP**.
 
+* `description` - (Optional, String) Specifies the description of the list.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

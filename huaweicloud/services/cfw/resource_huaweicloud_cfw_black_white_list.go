@@ -82,6 +82,11 @@ func ResourceBlackWhiteList() *schema.Resource {
 				Required:    true,
 				Description: `Specifies the address.`,
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the description.`,
+			},
 		},
 	}
 }
@@ -142,6 +147,7 @@ func buildCreateBlackWhiteListBodyParams(d *schema.ResourceData) map[string]inte
 		// address_type can be 0
 		"address_type": d.Get("address_type"),
 		"address":      utils.ValueIngoreEmpty(d.Get("address")),
+		"description":  utils.ValueIngoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -213,6 +219,7 @@ func resourceBlackWhiteListRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("port", utils.PathSearch("port", list, nil)),
 		d.Set("address_type", utils.PathSearch("address_type", list, nil)),
 		d.Set("address", utils.PathSearch("address", list, nil)),
+		d.Set("description", utils.PathSearch("description", list, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -237,6 +244,7 @@ func resourceBlackWhiteListUpdate(ctx context.Context, d *schema.ResourceData, m
 		"port",
 		"address_type",
 		"address",
+		"description",
 	}
 
 	if d.HasChanges(updateBlackWhiteListChanges...) {
@@ -280,6 +288,7 @@ func buildUpdateBlackWhiteListBodyParams(d *schema.ResourceData) map[string]inte
 		// address_type can be 0
 		"address_type": d.Get("address_type"),
 		"address":      utils.ValueIngoreEmpty(d.Get("address")),
+		"description":  d.Get("description"),
 	}
 	return bodyParams
 }
