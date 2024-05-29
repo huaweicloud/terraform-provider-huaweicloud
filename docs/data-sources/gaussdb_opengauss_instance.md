@@ -77,8 +77,9 @@ In addition to all arguments above, the following attributes are exported:
 
 The `volume` block supports:
 
-* `type` - Indicates the volume type.
-* `size` - Indicates the volume size.
+* `type` - Indicates the volume type. Value options: **ULTRAHIGH**, **ESSD**.
+* `size` - Indicates the volume size. For ECS deployment: The value is from (Number of shards x 40 GB) to (Number of
+  shards x 24 TB) and must be a multiple of (Number of shards x 4 GB).
 
 The `datastore` block supports:
 
