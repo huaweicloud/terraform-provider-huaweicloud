@@ -28,6 +28,8 @@ var (
 	HW_PROJECT_ID_2       = os.Getenv("HW_PROJECT_ID_2")
 	HW_PROJECT_ID_3       = os.Getenv("HW_PROJECT_ID_3")
 
+	HW_DEDICATED_HOST_ID = os.Getenv("HW_DEDICATED_HOST_ID")
+
 	HW_DOMAIN_ID                          = os.Getenv("HW_DOMAIN_ID")
 	HW_DOMAIN_NAME                        = os.Getenv("HW_DOMAIN_NAME")
 	HW_ENTERPRISE_PROJECT_ID_TEST         = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
@@ -1740,5 +1742,12 @@ func TestAccPreCheckRdsTimeRange(t *testing.T) {
 func TestAccPreCheckCssLowEngineVersion(t *testing.T) {
 	if HW_CSS_LOW_ENGINE_VERSION == "" {
 		t.Skip("HW_CSS_LOW_ENGINE_VERSION must be set for CSS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAsDedicatedHostId(t *testing.T) {
+	if HW_DEDICATED_HOST_ID == "" {
+		t.Skip("HW_DEDICATED_HOST_ID must be set for the acceptance test")
 	}
 }

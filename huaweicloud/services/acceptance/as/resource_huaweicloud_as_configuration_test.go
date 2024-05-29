@@ -77,6 +77,79 @@ func TestAccASConfiguration_instance(t *testing.T) {
 	})
 }
 
+func TestAccASConfiguration_DEH(t *testing.T) {
+	var asConfig configurations.Configuration
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_as_configuration.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAsDedicatedHostId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASConfigurationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccASConfiguration_DEH(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckASConfigurationExists(resourceName, &asConfig),
+					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.tenancy", "dedicated"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.dedicated_host_id", acceptance.HW_DEDICATED_HOST_ID),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.0.volume_type", "GPSSD"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.key_name",
+						"huaweicloud_kps_keypair.test", "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"instance_config.0.instance_id",
+				},
+			},
+		},
+	})
+}
+
+func TestAccASConfiguration_bandwidth_new_disk(t *testing.T) {
+	var asConfig configurations.Configuration
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_as_configuration.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASConfigurationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccASConfiguration_bandwidth_new_disk(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckASConfigurationExists(resourceName, &asConfig),
+					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.0.volume_type", "GPSSD2"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.0.iops", "8000"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.0.throughput", "125"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.1.volume_type", "ESSD2"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.1.iops", "6000"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.public_ip.0.eip.0.bandwidth.0.id",
+						"huaweicloud_vpc_bandwidth.test", "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"instance_config.0.instance_id",
+				},
+			},
+		},
+	})
+}
+
 func testAccCheckASConfigurationDestroy(s *terraform.State) error {
 	conf := acceptance.TestAccProvider.Meta().(*config.Config)
 	asClient, err := conf.AutoscalingV1Client(acceptance.HW_REGION_NAME)
@@ -221,4 +294,108 @@ resource "huaweicloud_as_configuration" "acc_as_config"{
   }
 }
 `, testAccASConfiguration_base(rName), rName, rName)
+}
+
+func testAccASConfiguration_newBase(name string) string {
+	publicKeyValue := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A" +
+		"/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmq" +
+		"kr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9Co" +
+		"WWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
+
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_images_image" "test" {
+  architecture = "x86"
+  os           = "CentOS"
+  visibility   = "public"
+  most_recent  = true
+}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[3]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+resource "huaweicloud_kps_keypair" "test" {
+  name       = "%[2]s"
+  public_key = "%[3]s"
+}
+
+resource "huaweicloud_vpc_bandwidth" "test" {
+  name = "%[2]s"
+  size = 5
+}
+`, common.TestBaseNetwork(name), name, publicKeyValue)
+}
+
+func testAccASConfiguration_DEH(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_as_configuration" "test"{
+  scaling_configuration_name = "%[2]s"
+
+  instance_config {
+    image              = data.huaweicloud_images_image.test.id
+    flavor             = data.huaweicloud_compute_flavors.test.ids[0]
+    security_group_ids = [huaweicloud_networking_secgroup.test.id]
+    key_name           = huaweicloud_kps_keypair.test.id
+    tenancy            = "dedicated"
+    dedicated_host_id  = "%[3]s"
+
+    disk {
+      size        = 40
+      volume_type = "GPSSD"
+      disk_type   = "SYS"
+    }
+  }
+}
+`, testAccASConfiguration_newBase(name), name, acceptance.HW_DEDICATED_HOST_ID)
+}
+
+func testAccASConfiguration_bandwidth_new_disk(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_as_configuration" "test"{
+  scaling_configuration_name = "%[2]s"
+
+  instance_config {
+    image              = data.huaweicloud_images_image.test.id
+    flavor             = data.huaweicloud_compute_flavors.test.ids[0]
+    security_group_ids = [huaweicloud_networking_secgroup.test.id]
+    key_name           = huaweicloud_kps_keypair.test.id
+
+    disk {
+      size        = 40
+      volume_type = "GPSSD2"
+      disk_type   = "SYS"
+      iops        = 8000
+      throughput  = 125
+    }
+
+    disk {
+      size        = 40
+      volume_type = "ESSD2"
+      disk_type   = "DATA"
+      iops        = 6000
+    }
+
+    public_ip {
+      eip {
+        ip_type = "5_bgp"
+        bandwidth {
+          share_type = "WHOLE"
+          id         = huaweicloud_vpc_bandwidth.test.id
+        }
+      }
+    }
+  }
+}
+`, testAccASConfiguration_newBase(name), name)
 }

@@ -132,12 +132,15 @@ The following arguments are supported:
   Changing this will create a new resource.
 
 * `instance_config` - (Required, List, ForceNew) Specifies the information about instance configuration.
-  The object structure is documented below. Changing this will create a new resource.
+  The [instance_config](#as_instance_config) structure is documented below.
+  Changing this will create a new resource.
 
+<a name="as_instance_config"></a>
 The `instance_config` block supports:
 
 * `instance_id` - (Optional, String, ForceNew) Specifies the ECS instance ID when using its specification
-  as the template to create AS configurations. In this case, `flavor`, `image`, and `disk` arguments do not take effect.
+  as the template to create AS configurations. In this case, `flavor`, `image`, `disk`, `security_group_ids`, `tenancy`
+  and `dedicated_host_id` arguments do not take effect.
   If this argument is not specified, `flavor`, `image`, and `disk` arguments are mandatory.
   Changing this will create a new resource.
 
@@ -147,7 +150,7 @@ The `instance_config` block supports:
 * `image` - (Optional, String, ForceNew) Specifies the ECS image ID. Changing this will create a new resource.
 
 * `disk` - (Optional, List, ForceNew) Specifies the disk group information. System disks are mandatory and
-  data disks are optional. The [object](#instance_config_disk_object) structure is documented below.
+  data disks are optional. The [disk](#instance_config_disk_object) structure is documented below.
   Changing this will create a new resource.
 
 * `key_name` - (Required, String, ForceNew) Specifies the name of the SSH key pair used to log in to the instance.
@@ -170,6 +173,17 @@ The `instance_config` block supports:
   Changing this will create a new resource.
 
 * `ecs_group_id` - (Optional, String, ForceNew) Specifies the ECS group ID. Changing this will create a new resource.
+
+* `tenancy` - (Optional, String, ForceNew) Configure this field to **dedicated** to create ECS instances on DeHs.
+  Before configuring this field, prepare DeHs. Changing this will create a new resource.
+
+* `dedicated_host_id` - (Optional, String, ForceNew) Specifies the ID of the DEH.
+  Changing this will create a new resource.
+
+  -> This parameter is valid only when `tenancy` is set to **dedicated**.
+  <br/>If this parameter is specified, ECSs will be created on a specified DeH.
+  <br/>If this parameter is not specified, the system automatically selects the DeH with the maximum available memory
+  size from the DeHs that meet specifications requirements to create the ECSs, thereby balancing load of the DeHs.
 
 * `user_data` - (Optional, String, ForceNew) Specifies the user data to provide when launching the instance.
   The file content must be encoded with Base64. Changing this will create a new resource.
@@ -195,9 +209,16 @@ The `disk` block supports:
 
 * `volume_type` - (Required, String, ForceNew) Specifies the disk type. Changing this will create a new resource.
   Available options are:
-  + `SAS`: high I/O disk type.
-  + `SSD`: ultra-high I/O disk type.
-  + `GPSSD`: general purpose SSD disk type.
+  + **SSD**: The ultra-high I/O type.
+  + **SAS**: The high I/O EVS type.
+  + **SATA**: The common I/O type.
+  + **GPSSD**: The general purpose SSD type.
+  + **ESSD**: The extreme SSD type.
+  + **GPSSD2**: The general purpose SSD V2 type.
+  + **ESSD2**: The extreme SSD V2 type.
+
+  -> Different ECS flavors support different disk types. For details about disk types, see
+  [Disk Types and Performance](https://support.huaweicloud.com/intl/en-us/productdesc-evs/en-us_topic_0014580744.html).
 
 * `disk_type` - (Required, String, ForceNew) Specifies whether the disk is a system disk or a data disk.
   Option **DATA** indicates a data disk, option **SYS** indicates a system disk.
@@ -205,6 +226,23 @@ The `disk` block supports:
 
 * `kms_id` - (Optional, String, ForceNew) Specifies the encryption KMS ID of the **DATA** disk.
   Changing this will create a new resource.
+
+* `iops` - (Optional, Int, ForceNew) Specifies the IOPS configured for an EVS disk.
+  Changing this will create a new resource.
+
+  -> This parameter is mandatory only when `volume_type` is set to **GPSSD2** or **ESSD2**.
+  <br/>For details about IOPS of GPSSD2 and ESSD2 EVS disks, see
+  [Disk Types and Performance](https://support.huaweicloud.com/intl/en-us/productdesc-evs/en-us_topic_0014580744.html).
+  <br/>Only pay-per-use billing is supported currently.
+
+* `throughput` - (Optional, Int, ForceNew) Specifies the throughput of an EVS disk. The unit is MiB/s.
+  Changing this will create a new resource.
+
+  -> This parameter is mandatory only when `volume_type` is set to **GPSSD2** and cannot be configured
+  when `volume_type` is set to other values.
+  <br/>For details about the throughput range of GPSSD2 EVS disks, see
+  [Disk Types and Performance](https://support.huaweicloud.com/intl/en-us/productdesc-evs/en-us_topic_0014580744.html).
+  <br/>Only pay-per-use billing is supported currently.
 
 <a name="instance_config_public_ip_object"></a>
 The `public_ip` block supports:
@@ -222,15 +260,26 @@ The `eip` block supports:
 
 The `bandwidth` block supports:
 
-* `share_type` - (Required, String, ForceNew) Specifies the bandwidth sharing type. The system only supports
-  **PER** (indicates exclusive bandwidth). Changing this will create a new resource.
+* `share_type` - (Required, String, ForceNew) Specifies the bandwidth sharing type.
+  The value can be **PER** (exclusive bandwidth) or **WHOLE** (shared bandwidth).
+  Changing this will create a new resource.
 
-* `charging_mode` - (Required, String, ForceNew) Specifies whether the bandwidth is billed by traffic or by bandwidth
-  size. The value can be **traffic** or **bandwidth**. Changing this creates a new resource.
+  -> If `share_type` is set to **PER**, the parameter `charging_mode` and `size` are mandatory, the parameter `id`
+  is invalid.
+  If `share_type` is set to **WHOLE**, the parameter `id` is mandatory, the parameter `charging_mode` and `size`
+  are invalid.
 
-* `size` - (Required, Int, ForceNew) Specifies the bandwidth (Mbit/s). The value range for bandwidth billed by bandwidth
+* `charging_mode` - (Optional, String, ForceNew) Specifies the bandwidth billing type.
+  Changing this creates a new resource. The valid values are as follows:
+  + **bandwidth**: Billing by bandwidth.
+  + **traffic**: Billing by traffic.
+
+* `size` - (Optional, Int, ForceNew) Specifies the bandwidth (Mbit/s). The value range for bandwidth billed by bandwidth
   is 1 to 2000 and that for bandwidth billed by traffic is 1 to 300.
   Changing this creates a new resource.
+
+* `id` - (Optional, String, ForceNew) Specifies the ID of the shared bandwidth.
+  Changing this will create a new resource.
 
 <a name="instance_config_personality_object"></a>
 The `personality` block supports:
