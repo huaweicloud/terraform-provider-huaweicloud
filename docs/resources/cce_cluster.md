@@ -116,7 +116,7 @@ resource "huaweicloud_vpc_subnet" "eni_test_2" {
 }
 
 resource "huaweicloud_cce_cluster" "test" {
-  name                   = cluster"
+  name                   = "cluster"
   flavor_id              = "cce.s1.small"
   vpc_id                 = huaweicloud_vpc.myvpc.id
   subnet_id              = huaweicloud_vpc_subnet.mysubnet.id
