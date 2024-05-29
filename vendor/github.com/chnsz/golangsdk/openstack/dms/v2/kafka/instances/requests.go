@@ -78,6 +78,9 @@ type CreateOps struct {
 	// Indicates a product ID.
 	ProductID string `json:"product_id" required:"true"`
 
+	// CPU architecture.
+	ArchType string `json:"arch_type,omitempty"`
+
 	// Indicates the username for logging in to the Kafka Manager.
 	// The username consists of 4 to 64 characters and can contain
 	//letters, digits, hyphens (-), and underscores (_).
