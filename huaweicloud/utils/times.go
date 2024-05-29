@@ -37,7 +37,12 @@ func ConvertTimeStrToNanoTimestamp(timeStr string, customFormat ...string) int64
 		return 0
 	}
 
-	return t.UnixNano() / int64(time.Millisecond)
+	timestamp := t.UnixNano() / int64(time.Millisecond)
+	// If the time is less than 1970-01-01T00:00:00Z, the timestamp is negative, such as: "0001-01-01T00:00:00Z"
+	if timestamp < 0 {
+		return 0
+	}
+	return timestamp
 }
 
 // GetTimezoneCode calculates the time zone code and returns a signed number.
