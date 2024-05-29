@@ -883,10 +883,11 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	if isMySQLDatabase(d) {
 		secondsLevelMonitoring, err := instances.GetSecondLevelMonitoring(client, instanceID).Extract()
 		if err != nil {
-			return diag.Errorf("error getting RDS seconds level monitoring: %s", err)
+			log.Printf("[WARN] fetching RDS seconds level monitoring failed: %s", err)
+		} else {
+			d.Set("seconds_level_monitoring_enabled", secondsLevelMonitoring.SwitchOption)
+			d.Set("seconds_level_monitoring_interval", secondsLevelMonitoring.Interval)
 		}
-		d.Set("seconds_level_monitoring_enabled", secondsLevelMonitoring.SwitchOption)
-		d.Set("seconds_level_monitoring_interval", secondsLevelMonitoring.Interval)
 	}
 
 	return setRdsInstanceParameters(ctx, d, client, instanceID)
