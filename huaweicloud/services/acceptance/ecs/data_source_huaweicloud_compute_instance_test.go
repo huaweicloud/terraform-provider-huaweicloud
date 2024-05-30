@@ -57,6 +57,8 @@ func TestAccComputeInstanceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "network.#"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "volume_attached.#"),
 					resource.TestCheckResourceAttrSet("data.huaweicloud_compute_instance.byID", "status"),
+					resource.TestCheckResourceAttrPair("data.huaweicloud_compute_instance.byIP", "network.0.fixed_ip_v4",
+						"huaweicloud_compute_instance.test", "network.0.fixed_ip_v4"),
 				),
 			},
 		},
@@ -85,6 +87,10 @@ data "huaweicloud_compute_instance" "this" {
 
 data "huaweicloud_compute_instance" "byID" {
   instance_id = huaweicloud_compute_instance.test.id
+}
+
+data "huaweicloud_compute_instance" "byIP" {
+  fixed_ip_v4 = huaweicloud_compute_instance.test.network[0].fixed_ip_v4
 }
 `, testAccCompute_data, rName)
 }

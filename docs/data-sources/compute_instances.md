@@ -44,6 +44,8 @@ The following arguments are supported:
 
 * `flavor_id` - (Optional, String) Specifies the flavor ID.
 
+* `fixed_ip_v4` - (Optional, String)  Specifies the IPv4 addresses of the ECS.
+
 * `availability_zone` - (Optional, String) Specifies the availability zone where the instance is located.
   Please following [reference](https://developer.huaweicloud.com/intl/en-us/endpoint?ECS) for this argument.
 

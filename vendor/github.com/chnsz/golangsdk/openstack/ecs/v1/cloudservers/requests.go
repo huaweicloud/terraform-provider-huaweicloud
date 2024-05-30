@@ -336,6 +336,10 @@ type ListOpts struct {
 	// These IP addresses are private IP addresses of the ECS.
 	IP string `q:"ip"`
 
+	// Indicates the filtering result for IPv4 addresses, which are accurate matched.
+	// These IP addresses are private IP addresses of the ECS.
+	IPEqual string `q:"ip_eq"`
+
 	// Specifies the maximum number of ECSs on one page.
 	// Each page contains 25 ECSs by default, and a maximum of 1000 ECSs are returned.
 	Limit int `q:"limit"`
