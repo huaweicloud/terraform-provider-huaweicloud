@@ -2171,7 +2171,7 @@ func flattenHstsAttrs(hsts *model.HstsQuery) []map[string]interface{} {
 	return []map[string]interface{}{hstsAttrs}
 }
 
-func flattenSourcesAttrs(sources *[]model.SourcesConfig) []map[string]interface{} {
+func flattenSourcesAttrs(sources *[]model.SourcesConfigResponseBody) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
 	}
