@@ -52,6 +52,7 @@ func TestAccKafkaInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestMatchResourceAttr(resourceName, "cross_vpc_accesses.#", regexp.MustCompile(`[1-9]\d*`)),
+					resource.TestCheckResourceAttr(resourceName, "arch_type", "X86"),
 				),
 			},
 			{
@@ -74,6 +75,9 @@ func TestAccKafkaInstance_basic(t *testing.T) {
 					"manager_password",
 					"used_storage_space",
 					"cross_vpc_accesses",
+					"security_protocol",
+					"enabled_mechanisms",
+					"arch_type",
 				},
 			},
 		},
@@ -150,7 +154,10 @@ func TestAccKafkaInstance_withEpsId(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -180,7 +187,7 @@ func TestAccKafkaInstance_compatible(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -210,7 +217,7 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -229,6 +236,7 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "storage_spec_code",
 						"data.huaweicloud_dms_kafka_flavors.test", "flavors.0.ios.0.storage_spec_code"),
 					resource.TestCheckResourceAttr(resourceName, "broker_num", "3"),
+					resource.TestCheckResourceAttr(resourceName, "arch_type", "X86"),
 
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "www.terraform-test.com"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.53"),
@@ -278,6 +286,7 @@ data "huaweicloud_dms_product" "test" {
 resource "huaweicloud_dms_kafka_instance" "test" {
   name               = "%s"
   description        = "kafka test"
+  ssl_enable         = true
   access_user        = "user"
   password           = "Kafkatest@123"
   vpc_id             = huaweicloud_vpc.test.id
@@ -289,6 +298,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   product_id        = data.huaweicloud_dms_product.test.id
   engine_version    = data.huaweicloud_dms_product.test.version
   storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
+  arch_type         = "X86"
 
   manager_user       = "kafka-user"
   manager_password   = "Kafkatest@123"
@@ -320,6 +330,7 @@ data "huaweicloud_dms_product" "test" {
 resource "huaweicloud_dms_kafka_instance" "test" {
   name               = "%s"
   description        = "kafka test update"
+  ssl_enable         = true
   access_user        = "user"
   password           = "Kafkatest@1234"
   vpc_id             = huaweicloud_vpc.test.id
@@ -331,6 +342,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   product_id        = data.huaweicloud_dms_product.test.id
   engine_version    = data.huaweicloud_dms_product.test.version
   storage_spec_code = data.huaweicloud_dms_product.test.storage_spec_code
+  arch_type         = "X86"
 
   manager_user       = "kafka-user"
   manager_password   = "Kafkatest@123"
@@ -363,6 +375,7 @@ data "huaweicloud_dms_product" "test" {
 resource "huaweicloud_dms_kafka_instance" "test" {
   name                  = "%s"
   description           = "kafka test"
+  ssl_enable            = true
   access_user           = "user"
   password              = "Kafkatest@123"
   vpc_id                = huaweicloud_vpc.test.id
@@ -420,6 +433,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   # use deprecated argument "bandwidth"
   bandwidth         = data.huaweicloud_dms_product.test.bandwidth
 
+  ssl_enable       = true
   access_user      = "user"
   password         = "Kafkatest@123"
   manager_user     = "kafka-user"
@@ -463,7 +477,9 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   engine_version = "2.7"
   storage_space  = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   broker_num     = 3
+  arch_type      = "X86"
 
+  ssl_enable         = true
   access_user        = "user"
   password           = "Kafkatest@123"
   manager_user       = "kafka-user"
@@ -519,7 +535,9 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   engine_version = "2.7"
   storage_space  = 600
   broker_num     = 4
+  arch_type      = "X86"
 
+  ssl_enable         = true
   access_user        = "user"
   password           = "Kafkatest@123"
   manager_user       = "kafka-user"

@@ -51,6 +51,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   storage_space      = 600
   broker_num         = 3
 
+  ssl_enable  = true
   access_user = "user"
   password    = var.access_password
 
@@ -115,6 +116,9 @@ The following arguments are supported:
 
   ~> The parameter behavior of `availability_zones` has been changed from `list` to `set`.
 
+* `arch_type` - (Optional, String, ForceNew) Specifies the CPU architecture. Valid value is **X86**.
+  Changing this creates a new instance resource.
+
 * `manager_user` - (Optional, String, ForceNew) Specifies the username for logging in to the Kafka Manager. The username
   consists of 4 to 64 characters and can contain letters, digits, hyphens (-), and underscores (_). Changing this
   creates a new instance resource.
@@ -144,7 +148,21 @@ The following arguments are supported:
   complexity requirements: Must be 8 to 32 characters long. Must contain at least 2 of the following character types:
   lowercase letters, uppercase letters, digits, and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
 
-  -> **NOTE:** If `access_user` and `password` are specified, the SASL_SSL is enabled for a Kafka instance.
+  -> **NOTE:** `access_user` and `password` is mandatory and available when `ssl_enable` is **true**.
+
+* `security_protocol` - (Optional, String, ForceNew) Specifies the protocol to use after SASL is enabled. Value options:
+  + **SASL_SSL**: Data is encrypted with SSL certificates for high-security transmission.
+  + **SASL_PLAINTEXT**: Data is transmitted in plaintext with username and password authentication. This protocol only
+    uses the SCRAM-SHA-512 mechanism and delivers high performance.
+  
+  Defaults to **SASL_SSL**. Changing this creates a new instance resource.
+
+* `enabled_mechanisms` - (Optional, List, ForceNew) Specifies the authentication mechanisms to use after SASL is
+  enabled. Value options:
+  + **PLAIN**: Simple username and password verification.
+  + **SCRAM-SHA-512**: User credential verification, which is more secure than **PLAIN**.
+  
+  Defaults to [**PLAIN**]. Changing this creates a new instance resource.
 
 * `description` - (Optional, String) Specifies the description of the DMS Kafka instance. It is a character string
   containing not more than 1,024 characters.
@@ -173,21 +191,6 @@ The following arguments are supported:
   | 300MB | 3 |
   | 600MB | 4 |
   | 1,200MB | 8 |
-
-* `security_protocol` - (Optional, String, ForceNew) Specifies the protocol to use after SASL is enabled (`access_user`
-  and `password` are specified). Value options:
-  + **SASL_SSL**: Data is encrypted with SSL certificates for high-security transmission.
-  + **SASL_PLAINTEXT**: Data is transmitted in plaintext with username and password authentication. This protocol only
-    uses the SCRAM-SHA-512 mechanism and delivers high performance.
-  
-  Defaults to **SASL_SSL**. Changing this creates a new instance resource.
-
-* `enabled_mechanisms` - (Optional, List, ForceNew) Specifies the authentication mechanisms to use after SASL is
-  enabled (`access_user` and `password` are specified). Value options:
-  + **PLAIN**: Simple username and password verification.
-  + **SCRAM-SHA-512**: User credential verification, which is more secure than **PLAIN**.
-  
-  Defaults to [**PLAIN**]. Changing this creates a new instance resource.
 
 * `retention_policy` - (Optional, String) Specifies the action to be taken when the memory usage reaches the disk
   capacity threshold. The valid values are as follows:
@@ -284,7 +287,7 @@ DMS Kafka instance can be imported using the instance id, e.g.
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `manager_password`, `public_ip_ids`, `security_protocol` and `enabled_mechanisms`.
+`password`, `manager_password`, `public_ip_ids`, `security_protocol`, `enabled_mechanisms` and `arch_type`.
 It is generally recommended running `terraform plan` after importing
 a DMS Kafka instance. You can then decide if changes should be applied to the instance, or the resource definition
 should be updated to align with the instance. Also you can ignore changes as below.
