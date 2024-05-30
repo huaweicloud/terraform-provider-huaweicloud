@@ -70,8 +70,7 @@ The following arguments are supported:
 * `subnet_id` - (Required, String, ForceNew) Specifies the subnet ID.
   Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required, String, ForceNew) Specifies the security group ID.
-  Changing this parameter will create a new resource.
+* `security_group_id` - (Required, String) Specifies the security group ID.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the logstash cluster.
 

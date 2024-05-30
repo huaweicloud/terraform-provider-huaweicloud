@@ -70,6 +70,7 @@ const (
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/type/{type}/independent
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/mode/change
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/password/reset
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/sg/change
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -197,7 +198,6 @@ func ResourceCssCluster() *schema.Resource {
 			"security_group_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: "schema: Required",
 			},
@@ -1116,6 +1116,14 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	// update in safe mode
 	if d.Get("security_mode").(bool) {
 		err = updateInSafeMode(ctx, d, cssV1Client, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// update security group ID
+	if d.HasChange("security_group_id") {
+		err = updateSecurityGroup(ctx, d, cssV1Client, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2178,6 +2186,35 @@ func updateAdminPassword(ctx context.Context, d *schema.ResourceData,
 	_, err := client.Request("POST", updatePasswordPath, &updatePasswordOpt)
 	if err != nil {
 		return fmt.Errorf("error resetting CSS cluster administrator password, cluster_id: %s, error: %s", d.Id(), err)
+	}
+
+	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateSecurityGroup(ctx context.Context, d *schema.ResourceData,
+	cssV1Client *cssv1.CssClient, client *golangsdk.ServiceClient) error {
+	updateSecurityGroupHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/sg/change"
+	updateSecurityGroupPath := client.Endpoint + updateSecurityGroupHttpUrl
+	updateSecurityGroupPath = strings.ReplaceAll(updateSecurityGroupPath, "{project_id}", client.ProjectID)
+	updateSecurityGroupPath = strings.ReplaceAll(updateSecurityGroupPath, "{cluster_id}", d.Id())
+
+	updateSecurityGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	updateSecurityGroupOpt.JSONBody = map[string]interface{}{
+		"security_group_ids": d.Get("security_group_id").(string),
+	}
+
+	_, err := client.Request("POST", updateSecurityGroupPath, &updateSecurityGroupOpt)
+	if err != nil {
+		return fmt.Errorf("error updating CSS cluster security group ID, cluster_id: %s, error: %s", d.Id(), err)
 	}
 
 	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))

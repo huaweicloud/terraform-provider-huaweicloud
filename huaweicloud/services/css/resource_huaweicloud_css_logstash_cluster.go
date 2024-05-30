@@ -31,6 +31,7 @@ import (
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/route
 // @API CSS GET /v1.0/{project_id}/clusters/{cluster_id}/route
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/sg/change
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -124,7 +125,6 @@ func ResourceLogstashCluster() *schema.Resource {
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
@@ -394,6 +394,11 @@ func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
+	client, err := conf.CssV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating CSS V1 client: %s", err)
+	}
+
 	// update cluster name
 	if d.HasChanges("name") {
 		_, err = cssV1Client.UpdateClusterName(&model.UpdateClusterNameRequest{
@@ -410,6 +415,14 @@ func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, 
 	// extend and shrink cluster
 	if d.HasChanges("node_config") {
 		err = modifyLogstashCluster(ctx, d, cssV1Client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// update security group ID
+	if d.HasChange("security_group_id") {
+		err = updateSecurityGroup(ctx, d, cssV1Client, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}

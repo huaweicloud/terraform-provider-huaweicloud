@@ -73,10 +73,12 @@ func TestAccCssCluster_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCssCluster_safeMode(rName, 8, "bar_update"),
+				Config: testAccCssCluster_basic_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "security_mode", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test_update", "id"),
 				),
 			},
 			{
@@ -361,15 +363,26 @@ resource "huaweicloud_obs_bucket" "cssObs" {
 `, common.TestBaseNetwork(rName), bucketName)
 }
 
+func testAccSecGroupUpdate(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_networking_secgroup" "test_update" {
+  name                 = "%s_update"
+  delete_default_rules = true
+}
+`, name)
+}
+
 func testAccCssCluster_basic(rName, pwd string, keepDays int, tag string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+%[2]s
+
 resource "huaweicloud_css_cluster" "test" {
-  name           = "%[2]s"
+  name           = "%[3]s"
   engine_version = "7.10.2"
   security_mode  = true
-  password       = "%[3]s"
+  password       = "%[4]s"
 
   ess_node_config {
     flavor          = "ess.spec-4u8g"
@@ -386,7 +399,7 @@ resource "huaweicloud_css_cluster" "test" {
   vpc_id            = huaweicloud_vpc.test.id
 
   backup_strategy {
-    keep_days   = %[4]d
+    keep_days   = %[5]d
     start_time  = "00:00 GMT+08:00"
     prefix      = "snapshot"
     bucket      = huaweicloud_obs_bucket.cssObs.bucket
@@ -395,19 +408,21 @@ resource "huaweicloud_css_cluster" "test" {
   }
 
   tags = {
-    foo = "%[5]s"
+    foo = "%[6]s"
     key = "value"
   }
 }
-`, testAccCssBase(rName), rName, pwd, keepDays, tag)
+`, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName, pwd, keepDays, tag)
 }
 
-func testAccCssCluster_safeMode(rName string, keepDays int, tag string) string {
+func testAccCssCluster_basic_update(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+%[2]s
+
 resource "huaweicloud_css_cluster" "test" {
-  name           = "%[2]s"
+  name           = "%[3]s"
   engine_version = "7.10.2"
 
   ess_node_config {
@@ -420,12 +435,12 @@ resource "huaweicloud_css_cluster" "test" {
   }
 
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test_update.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
 
   backup_strategy {
-    keep_days   = %[3]d
+    keep_days   = 8
     start_time  = "00:00 GMT+08:00"
     prefix      = "snapshot"
     bucket      = huaweicloud_obs_bucket.cssObs.bucket
@@ -434,11 +449,11 @@ resource "huaweicloud_css_cluster" "test" {
   }
 
   tags = {
-    foo = "%[4]s"
+    foo = "bar_update"
     key = "value"
   }
 }
-`, testAccCssBase(rName), rName, keepDays, tag)
+`, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName)
 }
 
 func testAccCssCluster_localDisk(rName string, nodeNum int) string {
