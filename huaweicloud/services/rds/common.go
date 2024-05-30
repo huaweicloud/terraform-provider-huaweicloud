@@ -83,9 +83,8 @@ func handleMultiOperationsError(err error) (bool, error) {
 			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
 		}
 
-		if _, ok = retryErrCodes[errorCode.(string)]; ok {
-			// The operation failed to execute and needs to be executed again, because other operations are
-			// currently in progress.
+		// if the error code is RDS.0005, it indicates that the SSL is changed, and the db is rebooted
+		if errorCode.(string) == "RDS.0005" {
 			return true, err
 		}
 	}
