@@ -180,6 +180,7 @@ func (w *PermissionsDSWrapper) ListPermissions() (*gjson.Result, error) {
 		Method("GET").
 		URI(uri).
 		Query(params).
+		MarkerPager("permissions", "page_info.next_marker", "marker").
 		Request().
 		Result()
 }
@@ -189,20 +190,20 @@ func (w *PermissionsDSWrapper) listPermissionsToSchema(body *gjson.Result) error
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("permissions", schemas.SliceToList(body.Get("permissions"),
-			func(permission gjson.Result) any {
+			func(permissions gjson.Result) any {
 				return map[string]any{
-					"id":                  permission.Get("id").Value(),
-					"name":                permission.Get("name").Value(),
-					"description":         permission.Get("description").Value(),
-					"domain_id":           permission.Get("domain_id").Value(),
-					"project_id":          permission.Get("project_id").Value(),
-					"region_id":           permission.Get("region_id").Value(),
-					"status":              permission.Get("status").Value(),
-					"created_at":          permission.Get("created_at").Value(),
-					"instance_id":         permission.Get("instance_id").Value(),
-					"instance_type":       permission.Get("instance_type").Value(),
-					"instance_domain_id":  permission.Get("instance_domain_id").Value(),
-					"cloud_connection_id": permission.Get("cloud_connection_id").Value(),
+					"id":                  permissions.Get("id").Value(),
+					"name":                permissions.Get("name").Value(),
+					"description":         permissions.Get("description").Value(),
+					"domain_id":           permissions.Get("domain_id").Value(),
+					"project_id":          permissions.Get("project_id").Value(),
+					"region_id":           permissions.Get("region_id").Value(),
+					"status":              permissions.Get("status").Value(),
+					"created_at":          permissions.Get("created_at").Value(),
+					"instance_id":         permissions.Get("instance_id").Value(),
+					"instance_type":       permissions.Get("instance_type").Value(),
+					"instance_domain_id":  permissions.Get("instance_domain_id").Value(),
+					"cloud_connection_id": permissions.Get("cloud_connection_id").Value(),
 				}
 			},
 		)),
