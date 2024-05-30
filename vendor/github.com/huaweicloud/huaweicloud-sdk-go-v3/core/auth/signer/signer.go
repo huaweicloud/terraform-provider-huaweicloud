@@ -22,6 +22,10 @@ const (
 	xSdkContentSha256 = "X-Sdk-Content-Sha256"
 )
 
+func Sign(req *request.DefaultHttpRequest, ak, sk string) (map[string]string, error) {
+	return Signer{}.Sign(req, ak, sk)
+}
+
 type Signer struct {
 }
 

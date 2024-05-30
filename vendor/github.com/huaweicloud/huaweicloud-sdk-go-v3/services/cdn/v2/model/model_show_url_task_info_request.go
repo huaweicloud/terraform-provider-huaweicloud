@@ -15,10 +15,10 @@ type ShowUrlTaskInfoRequest struct {
 	// 结束时间戳（毫秒），默认次日00:00。
 	EndTime *int64 `json:"end_time,omitempty"`
 
-	// 偏移量：特定数据字段与起始数据字段位置的距离。
+	// 偏移量：特定数据字段与起始数据字段位置的距离，默认为0。
 	Offset *int32 `json:"offset,omitempty"`
 
-	// 单次查询数据条数，上限为100。
+	// 单次查询数据条数，上限为100，默认为10。
 	Limit *int32 `json:"limit,omitempty"`
 
 	// 刷新预热url。

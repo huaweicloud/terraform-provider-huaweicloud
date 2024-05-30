@@ -12,6 +12,12 @@ type HttpPutBody struct {
 	// HTTPS证书是否启用，on：开启，off：关闭。
 	HttpsStatus *string `json:"https_status,omitempty"`
 
+	// 证书类型，server：国际证书；server_sm：国密证书。
+	CertificateType *string `json:"certificate_type,omitempty"`
+
+	// 证书来源，0：自有证书，默认值0。  > 证书开启时必传
+	CertificateSource *int32 `json:"certificate_source,omitempty"`
+
 	// 证书名字，长度限制为3-64字符。  > 当证书开启时必传。
 	CertificateName *string `json:"certificate_name,omitempty"`
 
@@ -21,11 +27,13 @@ type HttpPutBody struct {
 	// HTTPS协议使用的私钥，当证书开启时必传。  > PEM编码格式。
 	PrivateKey *string `json:"private_key,omitempty"`
 
-	// 证书来源,1：华为云托管证书,0：自有证书, 默认值0。  > 证书开启时必传
-	CertificateSource *int32 `json:"certificate_source,omitempty"`
+	// 加密证书内容，证书类型为国密证书时必传。  > PEM编码格式。
+	EncCertificateValue *string `json:"enc_certificate_value,omitempty"`
 
-	// 证书类型，server：国际证书；server_sm：国密证书。
-	CertificateType *string `json:"certificate_type,omitempty"`
+	// 加密私钥内容，证书类型为国密证书时必传。  > PEM编码格式。
+	EncPrivateKey *string `json:"enc_private_key,omitempty"`
+
+	Certificates *[]CertificatesPutBody `json:"certificates,omitempty"`
 
 	// 是否使用HTTP2.0，on：是，off：否。  > 默认关闭，https_status=off时，该值不生效。
 	Http2Status *string `json:"http2_status,omitempty"`

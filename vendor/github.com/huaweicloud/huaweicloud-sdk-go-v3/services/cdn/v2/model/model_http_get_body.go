@@ -12,6 +12,12 @@ type HttpGetBody struct {
 	// HTTPS证书是否启用，on：开启，off：关闭。
 	HttpsStatus *string `json:"https_status,omitempty"`
 
+	// 证书类型。server：国际证书；server_sm：国密证书。
+	CertificateType *string `json:"certificate_type,omitempty"`
+
+	// 证书来源，1：华为云托管证书，0：自有证书。
+	CertificateSource *int32 `json:"certificate_source,omitempty"`
+
 	// 证书名字。
 	CertificateName *string `json:"certificate_name,omitempty"`
 
@@ -21,11 +27,10 @@ type HttpGetBody struct {
 	// 证书过期时间。  > UTC时间。
 	ExpireTime *int64 `json:"expire_time,omitempty"`
 
-	// 证书来源,0：自有证书。
-	CertificateSource *int32 `json:"certificate_source,omitempty"`
+	// 国密证书加密证书内容，PEM编码格式。
+	EncCertificateValue *string `json:"enc_certificate_value,omitempty"`
 
-	// 证书类型。server：国际证书；server_sm：国密证书。
-	CertificateType *string `json:"certificate_type,omitempty"`
+	Certificates *[]CertificatesGetBody `json:"certificates,omitempty"`
 
 	// 是否使用HTTP2.0，on：是，off：否。
 	Http2Status *string `json:"http2_status,omitempty"`

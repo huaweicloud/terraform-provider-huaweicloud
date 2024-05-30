@@ -575,6 +575,92 @@ func (c *IoTDAClient) UploadBatchTaskFileInvoker(request *model.UploadBatchTaskF
 	return &UploadBatchTaskFileInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// AddBridge 创建网桥
+//
+// 应用服务器可调用此接口在物联网平台创建一个网桥，仅在创建后的网桥才可以接入物联网平台。
+// - 一个实例最多支持20个网桥。
+// - 仅**标准版实例、企业版实例**支持该接口调用，基础版不支持。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) AddBridge(request *model.AddBridgeRequest) (*model.AddBridgeResponse, error) {
+	requestDef := GenReqDefForAddBridge()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.AddBridgeResponse), nil
+	}
+}
+
+// AddBridgeInvoker 创建网桥
+func (c *IoTDAClient) AddBridgeInvoker(request *model.AddBridgeRequest) *AddBridgeInvoker {
+	requestDef := GenReqDefForAddBridge()
+	return &AddBridgeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteBridge 删除网桥
+//
+// 应用服务器可调用此接口在物联网平台上删除指定网桥。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) DeleteBridge(request *model.DeleteBridgeRequest) (*model.DeleteBridgeResponse, error) {
+	requestDef := GenReqDefForDeleteBridge()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteBridgeResponse), nil
+	}
+}
+
+// DeleteBridgeInvoker 删除网桥
+func (c *IoTDAClient) DeleteBridgeInvoker(request *model.DeleteBridgeRequest) *DeleteBridgeInvoker {
+	requestDef := GenReqDefForDeleteBridge()
+	return &DeleteBridgeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListBridges 查询网桥列表
+//
+// 应用服务器可调用此接口在物联网平台查询网桥列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ListBridges(request *model.ListBridgesRequest) (*model.ListBridgesResponse, error) {
+	requestDef := GenReqDefForListBridges()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListBridgesResponse), nil
+	}
+}
+
+// ListBridgesInvoker 查询网桥列表
+func (c *IoTDAClient) ListBridgesInvoker(request *model.ListBridgesRequest) *ListBridgesInvoker {
+	requestDef := GenReqDefForListBridges()
+	return &ListBridgesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ResetBridgeSecret 重置网桥密钥
+//
+// 应用服务器可调用此接口在物联网平台上重置网桥密钥。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ResetBridgeSecret(request *model.ResetBridgeSecretRequest) (*model.ResetBridgeSecretResponse, error) {
+	requestDef := GenReqDefForResetBridgeSecret()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ResetBridgeSecretResponse), nil
+	}
+}
+
+// ResetBridgeSecretInvoker 重置网桥密钥
+func (c *IoTDAClient) ResetBridgeSecretInvoker(request *model.ResetBridgeSecretRequest) *ResetBridgeSecretInvoker {
+	requestDef := GenReqDefForResetBridgeSecret()
+	return &ResetBridgeSecretInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // BroadcastMessage 下发广播消息
 //
 // 应用服务器可调用此接口向订阅了指定Topic的所有在线设备发布广播消息。应用将广播消息下发给平台后，平台会先返回应用响应结果，再将消息广播给设备。
@@ -680,6 +766,27 @@ func (c *IoTDAClient) ListCertificates(request *model.ListCertificatesRequest) (
 func (c *IoTDAClient) ListCertificatesInvoker(request *model.ListCertificatesRequest) *ListCertificatesInvoker {
 	requestDef := GenReqDefForListCertificates()
 	return &ListCertificatesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateCertificate 更新CA证书
+//
+// 应用服务器可调用此接口在物联网平台上更新CA证书。仅标准版实例、企业版实例支持该接口调用，基础版不支持。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) UpdateCertificate(request *model.UpdateCertificateRequest) (*model.UpdateCertificateResponse, error) {
+	requestDef := GenReqDefForUpdateCertificate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateCertificateResponse), nil
+	}
+}
+
+// UpdateCertificateInvoker 更新CA证书
+func (c *IoTDAClient) UpdateCertificateInvoker(request *model.UpdateCertificateRequest) *UpdateCertificateInvoker {
+	requestDef := GenReqDefForUpdateCertificate()
+	return &UpdateCertificateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // CreateCommand 下发设备命令
@@ -919,6 +1026,27 @@ func (c *IoTDAClient) FreezeDevice(request *model.FreezeDeviceRequest) (*model.F
 func (c *IoTDAClient) FreezeDeviceInvoker(request *model.FreezeDeviceRequest) *FreezeDeviceInvoker {
 	requestDef := GenReqDefForFreezeDevice()
 	return &FreezeDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListDeviceGroupsByDevice 查询指定设备加入的设备组列表
+//
+// 应用服务器可调用此接口查询物联网平台中的某个设备加入的设备组信息列表。仅标准版实例、企业版实例支持该接口调用，基础版不支持。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ListDeviceGroupsByDevice(request *model.ListDeviceGroupsByDeviceRequest) (*model.ListDeviceGroupsByDeviceResponse, error) {
+	requestDef := GenReqDefForListDeviceGroupsByDevice()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListDeviceGroupsByDeviceResponse), nil
+	}
+}
+
+// ListDeviceGroupsByDeviceInvoker 查询指定设备加入的设备组列表
+func (c *IoTDAClient) ListDeviceGroupsByDeviceInvoker(request *model.ListDeviceGroupsByDeviceRequest) *ListDeviceGroupsByDeviceInvoker {
+	requestDef := GenReqDefForListDeviceGroupsByDevice()
+	return &ListDeviceGroupsByDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListDevices 查询设备列表

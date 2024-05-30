@@ -353,6 +353,18 @@ func (i *DeleteSqlLimitInvoker) Invoke() (*model.DeleteSqlLimitResponse, error) 
 	}
 }
 
+type DownloadErrorlogInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DownloadErrorlogInvoker) Invoke() (*model.DownloadErrorlogResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DownloadErrorlogResponse), nil
+	}
+}
+
 type DownloadSlowlogInvoker struct {
 	*invoker.BaseInvoker
 }

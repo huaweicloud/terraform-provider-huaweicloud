@@ -67,6 +67,8 @@ type DiskOpts struct {
 	DedicatedStorageID string            `json:"dedicated_storage_id,omitempty"`
 	DataDiskImageID    string            `json:"data_disk_image_id,omitempty"`
 	SnapshotId         string            `json:"snapshot_id,omitempty"`
+	Iops               int               `json:"iops,omitempty"`
+	Throughput         int               `json:"throughput,omitempty"`
 	Metadata           map[string]string `json:"metadata,omitempty"`
 }
 

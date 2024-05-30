@@ -317,6 +317,54 @@ func (i *UploadBatchTaskFileInvoker) Invoke() (*model.UploadBatchTaskFileRespons
 	}
 }
 
+type AddBridgeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddBridgeInvoker) Invoke() (*model.AddBridgeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddBridgeResponse), nil
+	}
+}
+
+type DeleteBridgeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteBridgeInvoker) Invoke() (*model.DeleteBridgeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteBridgeResponse), nil
+	}
+}
+
+type ListBridgesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListBridgesInvoker) Invoke() (*model.ListBridgesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListBridgesResponse), nil
+	}
+}
+
+type ResetBridgeSecretInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ResetBridgeSecretInvoker) Invoke() (*model.ResetBridgeSecretResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ResetBridgeSecretResponse), nil
+	}
+}
+
 type BroadcastMessageInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -374,6 +422,18 @@ func (i *ListCertificatesInvoker) Invoke() (*model.ListCertificatesResponse, err
 		return nil, err
 	} else {
 		return result.(*model.ListCertificatesResponse), nil
+	}
+}
+
+type UpdateCertificateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateCertificateInvoker) Invoke() (*model.UpdateCertificateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateCertificateResponse), nil
 	}
 }
 
@@ -506,6 +566,18 @@ func (i *FreezeDeviceInvoker) Invoke() (*model.FreezeDeviceResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.FreezeDeviceResponse), nil
+	}
+}
+
+type ListDeviceGroupsByDeviceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListDeviceGroupsByDeviceInvoker) Invoke() (*model.ListDeviceGroupsByDeviceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListDeviceGroupsByDeviceResponse), nil
 	}
 }
 
