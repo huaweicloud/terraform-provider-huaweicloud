@@ -272,7 +272,7 @@ func buildIncidentBodyParams(d *schema.ResourceData, cfg *config.Config) (map[st
 		"severity":           utils.ValueIngoreEmpty(d.Get("level")),
 		"handle_status":      utils.ValueIngoreEmpty(d.Get("status")),
 		"owner":              utils.ValueIngoreEmpty(d.Get("owner")),
-		"data_source":        buildIncidentRequestBodyDataSource(d.Get("data_source")),
+		"data_source":        buildIncidentRequestBodyDataSource(d, cfg),
 		"verification_state": utils.ValueIngoreEmpty(d.Get("verification_status")),
 		"ipdrr_phase":        utils.ValueIngoreEmpty(d.Get("stage")),
 		"simulation":         utils.ValueIngoreEmpty(d.Get("debugging_data")),
@@ -345,20 +345,28 @@ func buildIncidentRequestBodyType(rawParams interface{}) map[string]interface{} 
 	return nil
 }
 
-func buildIncidentRequestBodyDataSource(rawParams interface{}) map[string]interface{} {
-	if rawArray, ok := rawParams.([]interface{}); ok {
-		if len(rawArray) == 0 {
-			return nil
-		}
-		raw := rawArray[0].(map[string]interface{})
-		params := map[string]interface{}{
-			"product_feature": utils.ValueIngoreEmpty(raw["product_feature"]),
-			"product_name":    utils.ValueIngoreEmpty(raw["product_name"]),
-			"source_type":     utils.ValueIngoreEmpty(raw["source_type"]),
-		}
-		return params
+func buildIncidentRequestBodyDataSource(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	rawArray := d.Get("data_source").([]interface{})
+	if len(rawArray) == 0 {
+		return nil
 	}
-	return nil
+
+	region := cfg.GetRegion(d)
+
+	raw, ok := rawArray[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	params := map[string]interface{}{
+		"domain_id":       cfg.DomainID,
+		"project_id":      cfg.GetProjectID(region),
+		"region_id":       region,
+		"product_feature": utils.ValueIngoreEmpty(raw["product_feature"]),
+		"product_name":    utils.ValueIngoreEmpty(raw["product_name"]),
+		"source_type":     utils.ValueIngoreEmpty(raw["source_type"]),
+	}
+	return params
 }
 
 func buildEnvironmentOpts(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
