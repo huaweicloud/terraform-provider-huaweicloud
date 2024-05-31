@@ -89,25 +89,25 @@ func (b *BaseInvoker) WithRetry(retryTimes int, checker RetryChecker, backoffStr
 }
 
 func (b *BaseInvoker) Invoke() (interface{}, error) {
-	if b.retryTimes != 0 && b.retryChecker != nil {
-		var execTimes int
-		var resp interface{}
-		var err error
-		for {
-			if execTimes == b.retryTimes {
-				break
-			}
-			resp, err = b.client.SyncInvokeWithExtraHeaders(b.request, b.meta, b.Exchange, b.headers)
-			execTimes += 1
-
-			if b.retryChecker(resp, err) {
-				time.Sleep(time.Duration(b.backoffStrategy.ComputeDelayBeforeNextRetry(int32(execTimes))) * time.Millisecond)
-			} else {
-				break
-			}
-		}
-		return resp, err
-	} else {
+	if b.retryTimes == 0 || b.retryChecker == nil {
 		return b.client.SyncInvokeWithExtraHeaders(b.request, b.meta, b.Exchange, b.headers)
 	}
+
+	var execTimes int
+	var resp interface{}
+	var err error
+	for {
+		resp, err = b.client.SyncInvokeWithExtraHeaders(b.request, b.meta, b.Exchange, b.headers)
+		execTimes++
+
+		if execTimes > b.retryTimes || !b.retryChecker(resp, err) {
+			break
+		}
+
+		delay := b.backoffStrategy.ComputeDelayBeforeNextRetry(int32(execTimes))
+		if delay > 0 {
+			time.Sleep(time.Duration(delay) * time.Millisecond)
+		}
+	}
+	return resp, err
 }

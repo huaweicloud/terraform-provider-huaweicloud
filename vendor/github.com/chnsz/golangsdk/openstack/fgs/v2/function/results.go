@@ -171,15 +171,26 @@ type FunctionBase struct {
 }
 
 type FuncVpc struct {
-	Id         string `json:"-"`
-	DomainId   string `json:"-" validate:"regexp=^[a-zA-Z0-9-]+$" description:"domain id"`
-	Namespace  string `json:"-"`
-	VpcName    string `json:"vpc_name,omitempty"`
-	VpcId      string `json:"vpc_id,omitempty"`
-	SubnetName string `json:"subnet_name,omitempty"`
-	SubnetId   string `json:"subnet_id,omitempty"`
-	Cidr       string `json:"cidr,omitempty"`
-	Gateway    string `json:"gateway,omitempty"`
+	Id             string   `json:"-"`
+	DomainId       string   `json:"-" validate:"regexp=^[a-zA-Z0-9-]+$" description:"domain id"`
+	Namespace      string   `json:"-"`
+	VpcName        string   `json:"vpc_name,omitempty"`
+	VpcId          string   `json:"vpc_id,omitempty"`
+	SubnetName     string   `json:"subnet_name,omitempty"`
+	SubnetId       string   `json:"subnet_id,omitempty"`
+	Cidr           string   `json:"cidr,omitempty"`
+	Gateway        string   `json:"gateway,omitempty"`
+	SecurityGroups []string `json:"security_groups,omitempty"`
+}
+
+type TriggerAccessVpcs struct {
+	VpcId   string `json:"vpc_id"`
+	VpcName string `json:"trigger_access_vpcs"`
+}
+
+type NetworkController struct {
+	DisablePublicNetwork bool                 `json:"disable_public_network"`
+	TriggerAccessVpcs    []*TriggerAccessVpcs `json:"trigger_access_vpcs"`
 }
 
 type commonResult struct {

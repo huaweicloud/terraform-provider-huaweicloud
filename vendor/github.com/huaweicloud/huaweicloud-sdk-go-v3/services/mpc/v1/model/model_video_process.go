@@ -28,6 +28,9 @@ type VideoProcess struct {
 
 	// 是否开启上采样，如支持从480P的片源转为720P，可取值为:  - 0：表示上采样关闭， - 1：表示上采样开启.
 	Upsample *int32 `json:"upsample,omitempty"`
+
+	// HLS切片类型。  取值如下所示： - mpegts：ts切片 - fmp4：fmp4切片  不设置默认为ts切片。
+	HlsSegmentType *VideoProcessHlsSegmentType `json:"hls_segment_type,omitempty"`
 }
 
 func (o VideoProcess) String() string {
@@ -119,6 +122,53 @@ func (c VideoProcessAdaptation) MarshalJSON() ([]byte, error) {
 }
 
 func (c *VideoProcessAdaptation) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type VideoProcessHlsSegmentType struct {
+	value string
+}
+
+type VideoProcessHlsSegmentTypeEnum struct {
+	MPEGTS VideoProcessHlsSegmentType
+	FMP4   VideoProcessHlsSegmentType
+}
+
+func GetVideoProcessHlsSegmentTypeEnum() VideoProcessHlsSegmentTypeEnum {
+	return VideoProcessHlsSegmentTypeEnum{
+		MPEGTS: VideoProcessHlsSegmentType{
+			value: "mpegts",
+		},
+		FMP4: VideoProcessHlsSegmentType{
+			value: "fmp4",
+		},
+	}
+}
+
+func (c VideoProcessHlsSegmentType) Value() string {
+	return c.value
+}
+
+func (c VideoProcessHlsSegmentType) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *VideoProcessHlsSegmentType) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: string")

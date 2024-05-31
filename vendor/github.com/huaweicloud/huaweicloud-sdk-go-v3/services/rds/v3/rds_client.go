@@ -626,6 +626,27 @@ func (c *RdsClient) DeleteSqlLimitInvoker(request *model.DeleteSqlLimitRequest) 
 	return &DeleteSqlLimitInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// DownloadErrorlog 获取错误日志下载链接
+//
+// 获取错误日志下载链接。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) DownloadErrorlog(request *model.DownloadErrorlogRequest) (*model.DownloadErrorlogResponse, error) {
+	requestDef := GenReqDefForDownloadErrorlog()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DownloadErrorlogResponse), nil
+	}
+}
+
+// DownloadErrorlogInvoker 获取错误日志下载链接
+func (c *RdsClient) DownloadErrorlogInvoker(request *model.DownloadErrorlogRequest) *DownloadErrorlogInvoker {
+	requestDef := GenReqDefForDownloadErrorlog()
+	return &DownloadErrorlogInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // DownloadSlowlog 获取慢日志下载链接
 //
 // 获取慢日志下载链接。

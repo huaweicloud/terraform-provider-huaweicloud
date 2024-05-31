@@ -18,6 +18,9 @@ type CreateFirewallOption struct {
 	// 功能说明：ACL企业项目ID。 取值范围：最大长度36字节，带“-”连字符的UUID格式，或者是字符串“0”。“0”表示默认企业项目。
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
+	// 功能描述：ACL资源标签
+	Tags *[]ResourceTag `json:"tags,omitempty"`
+
 	// 功能说明：ACL是否开启，默认值true 取值范围：true表示ACL开启；false表示ACL关闭
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
 }

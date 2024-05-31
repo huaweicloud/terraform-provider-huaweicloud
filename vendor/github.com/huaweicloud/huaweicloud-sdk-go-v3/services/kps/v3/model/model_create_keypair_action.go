@@ -12,7 +12,7 @@ import (
 // CreateKeypairAction 创建密钥对请求体请求参数
 type CreateKeypairAction struct {
 
-	// SSH密钥对的名称。 - 新创建的密钥对名称不能和已有密钥对的名称相同。 - SSH密钥对名称由英文字母、数字、下划线、中划线组成，长度不能超过64个字节
+	// SSH密钥对的名称。 - 新创建的密钥对名称不能和已有密钥对的名称相同。 - SSH密钥对名称由英文字母、数字、下划线、中划线组成，长度不能超过255个字节
 	Name string `json:"name"`
 
 	// SSH密钥对的类型。ssh或x509。

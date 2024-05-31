@@ -12,7 +12,7 @@ type ShowUrlTaskInfoResponse struct {
 	// 查询结果总数。
 	Total *int32 `json:"total,omitempty"`
 
-	// 当前查询到的总页数。
+	// 当前页查询到的总数。
 	Count *int32 `json:"count,omitempty"`
 
 	// url信息。

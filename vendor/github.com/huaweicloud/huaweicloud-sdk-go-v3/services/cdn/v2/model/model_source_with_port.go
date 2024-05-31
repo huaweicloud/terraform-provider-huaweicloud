@@ -21,6 +21,9 @@ type SourceWithPort struct {
 	// 源站类型，ipaddr：源站IP、 domain：源站域名、obs_bucket：OBS桶域名。
 	OriginType SourceWithPortOriginType `json:"origin_type"`
 
+	// OBS桶类型。   - private: 私有桶（除桶ACL授权外的其他用户无桶的访问权限）。   - public: 公有桶（任何用户都可以对桶内对象进行读操作）。
+	ObsBucketType *string `json:"obs_bucket_type,omitempty"`
+
 	// 主备状态（1代表主源站；0代表备源站）。
 	ActiveStandby int32 `json:"active_standby"`
 

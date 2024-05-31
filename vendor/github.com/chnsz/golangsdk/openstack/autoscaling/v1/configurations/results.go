@@ -67,6 +67,8 @@ type Disk struct {
 	DedicatedStorageID string            `json:"dedicated_storage_id"`
 	DataDiskImageID    string            `json:"data_disk_image_id"`
 	SnapshotID         string            `json:"snapshot_id"`
+	Iops               int               `json:"iops"`
+	Throughput         int               `json:"throughput"`
 	Metadata           map[string]string `json:"metadata"`
 }
 
@@ -88,6 +90,7 @@ type Bandwidth struct {
 	Size         int    `json:"size"`
 	ShareType    string `json:"share_type"`
 	ChargingMode string `json:"charging_mode"`
+	ID           string `json:"id"`
 }
 
 type SecurityGroup struct {

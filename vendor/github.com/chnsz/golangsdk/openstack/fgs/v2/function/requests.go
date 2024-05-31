@@ -48,7 +48,9 @@ type CreateOpts struct {
 	PreStopHandler string `json:"pre_stop_handler,omitempty"`
 	// Maximum duration the function can be initialized.
 	// Value range: 1s–90s.
-	PreStopTimeout int `json:"pre_stop_timeout,omitempty"`
+	PreStopTimeout    int                   `json:"pre_stop_timeout,omitempty"`
+	FuncVpc           *FuncVpc              `json:"func_vpc,omitempty"`
+	NetworkController *NetworkControlConfig `json:"network_controller,omitempty"`
 }
 
 type CustomImage struct {
@@ -195,7 +197,7 @@ type UpdateMetadataOpts struct {
 	// Function log configuration.
 	LogConfig *FuncLogConfig `json:"log_config,omitempty"`
 	// Network configuration.
-	NetworkController NetworkControlConfig `json:"network_controller,omitempty"`
+	NetworkController *NetworkControlConfig `json:"network_controller,omitempty"`
 	// Whether stateful functions are supported.
 	IsStatefulFunction bool `json:"is_stateful_function,omitempty"`
 	// Whether to enable dynamic memory allocation.

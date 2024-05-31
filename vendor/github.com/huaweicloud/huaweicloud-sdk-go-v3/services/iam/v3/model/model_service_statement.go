@@ -21,7 +21,7 @@ type ServiceStatement struct {
 	Condition map[string]map[string][]string `json:"Condition,omitempty"`
 
 	// 资源。规则如下： > - 可填 * 的五段式：<service-name>:<region>:<account-id>:<resource-type>:<resource-path>，例：\"obs:*:*:bucket:*\"。 > - region字段为*或用户可访问的region。service必须存在且resource属于对应service。
-	Resource *[]string `json:"Resource,omitempty"`
+	Resource *interface{} `json:"Resource,omitempty"`
 }
 
 func (o ServiceStatement) String() string {

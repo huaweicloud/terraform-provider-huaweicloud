@@ -98,6 +98,8 @@ type Configs struct {
 
 	// 浏览器缓存过期时间。
 	BrowserCacheRules *[]BrowserCacheRules `json:"browser_cache_rules,omitempty"`
+
+	AccessAreaFilter *[]AccessAreaFilter `json:"access_area_filter,omitempty"`
 }
 
 func (o Configs) String() string {

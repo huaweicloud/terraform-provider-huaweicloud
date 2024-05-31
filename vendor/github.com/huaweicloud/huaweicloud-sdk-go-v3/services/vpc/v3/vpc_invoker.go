@@ -569,6 +569,162 @@ func (i *UpdateFirewallRulesInvoker) Invoke() (*model.UpdateFirewallRulesRespons
 	}
 }
 
+type AddClouddcnSubnetsTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddClouddcnSubnetsTagsInvoker) Invoke() (*model.AddClouddcnSubnetsTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddClouddcnSubnetsTagsResponse), nil
+	}
+}
+
+type BatchCreateClouddcnSubnetsTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchCreateClouddcnSubnetsTagsInvoker) Invoke() (*model.BatchCreateClouddcnSubnetsTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchCreateClouddcnSubnetsTagsResponse), nil
+	}
+}
+
+type BatchDeleteClouddcnSubnetsTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchDeleteClouddcnSubnetsTagsInvoker) Invoke() (*model.BatchDeleteClouddcnSubnetsTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchDeleteClouddcnSubnetsTagsResponse), nil
+	}
+}
+
+type CreateClouddcnSubnetInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateClouddcnSubnetInvoker) Invoke() (*model.CreateClouddcnSubnetResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateClouddcnSubnetResponse), nil
+	}
+}
+
+type DeleteClouddcnSubnetInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteClouddcnSubnetInvoker) Invoke() (*model.DeleteClouddcnSubnetResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteClouddcnSubnetResponse), nil
+	}
+}
+
+type DeleteClouddcnSubnetsTagInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteClouddcnSubnetsTagInvoker) Invoke() (*model.DeleteClouddcnSubnetsTagResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteClouddcnSubnetsTagResponse), nil
+	}
+}
+
+type ListClouddcnSubnetsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListClouddcnSubnetsInvoker) Invoke() (*model.ListClouddcnSubnetsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListClouddcnSubnetsResponse), nil
+	}
+}
+
+type ListClouddcnSubnetsCountFilterTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListClouddcnSubnetsCountFilterTagsInvoker) Invoke() (*model.ListClouddcnSubnetsCountFilterTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListClouddcnSubnetsCountFilterTagsResponse), nil
+	}
+}
+
+type ListClouddcnSubnetsFilterTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListClouddcnSubnetsFilterTagsInvoker) Invoke() (*model.ListClouddcnSubnetsFilterTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListClouddcnSubnetsFilterTagsResponse), nil
+	}
+}
+
+type ListClouddcnSubnetsTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListClouddcnSubnetsTagsInvoker) Invoke() (*model.ListClouddcnSubnetsTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListClouddcnSubnetsTagsResponse), nil
+	}
+}
+
+type ShowClouddcnSubnetInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowClouddcnSubnetInvoker) Invoke() (*model.ShowClouddcnSubnetResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowClouddcnSubnetResponse), nil
+	}
+}
+
+type ShowClouddcnSubnetsTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowClouddcnSubnetsTagsInvoker) Invoke() (*model.ShowClouddcnSubnetsTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowClouddcnSubnetsTagsResponse), nil
+	}
+}
+
+type UpdateClouddcnSubnetInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateClouddcnSubnetInvoker) Invoke() (*model.UpdateClouddcnSubnetResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateClouddcnSubnetResponse), nil
+	}
+}
+
 type CreateAddressGroupInvoker struct {
 	*invoker.BaseInvoker
 }

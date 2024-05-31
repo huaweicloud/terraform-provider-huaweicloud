@@ -25,6 +25,12 @@ type UrlObject struct {
 
 	// 任务的类型， 其值可以为REFRESH：刷新任务、PREHEATING：预热任务、REFRESH_AFTER_PREHEATING：预热后刷新
 	TaskType *string `json:"task_type,omitempty"`
+
+	// 失败原因，url状态为failed时返回。   - ORIGIN_ERROR：源站错误。   - INNER_ERROR：内部错误。   - UNKNOWN_ERROR：未知错误。
+	FailClassify *string `json:"fail_classify,omitempty"`
+
+	// 刷新预热失败描述。
+	FailDesc *string `json:"fail_desc,omitempty"`
 }
 
 func (o UrlObject) String() string {
