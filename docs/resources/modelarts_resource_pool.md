@@ -104,7 +104,7 @@ The following arguments are supported:
   Including resource flavors and the number of resources of the corresponding flavors.
   The [resources](#ModelartsResourcePool_ResourceFlavor) structure is documented below.
 
-* `scope` - (Optional, List) Specifies the list of job types supported by the resource pool. It is mandatory when
+* `scope` - (Required, List) Specifies the list of job types supported by the resource pool. It is mandatory when
   `network_id` is specified and can not be specified when `vpc_id` is specified. The options are as follows:
   + **Train**: training job.
   + **Infer**: inference job.
