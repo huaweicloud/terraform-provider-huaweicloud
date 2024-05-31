@@ -49,7 +49,7 @@ func TestAccEnvironmentVariable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "value", "/stage/demo"),
 					resource.TestCheckResourceAttrPair(rName, "instance_id", "huaweicloud_apig_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "group_id", "huaweicloud_apig_group.test", "id"),
-					resource.TestCheckResourceAttrPair(rName, "environment_id", "huaweicloud_apig_environment.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "env_id", "huaweicloud_apig_environment.test", "id"),
 				),
 			},
 			{
@@ -105,11 +105,11 @@ func testAccEnvironmentVariable_basic(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_environment_variable" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
-  group_id       = huaweicloud_apig_group.test.id
-  environment_id = huaweicloud_apig_environment.test.id
-  name           = "%[2]s"
-  value          = "/stage/demo"
+  instance_id = huaweicloud_apig_instance.test.id
+  group_id    = huaweicloud_apig_group.test.id
+  env_id      = huaweicloud_apig_environment.test.id
+  name        = "%[2]s"
+  value       = "/stage/demo"
 }
 `, testAccEnvironmentVariable_base(name), name)
 }
@@ -119,11 +119,11 @@ func testAccEnvironmentVariable_update(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_environment_variable" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
-  group_id       = huaweicloud_apig_group.test.id
-  environment_id = huaweicloud_apig_environment.test.id
-  name           = "%[2]s"
-  value          = "/stage/terraform"
+  instance_id = huaweicloud_apig_instance.test.id
+  group_id    = huaweicloud_apig_group.test.id
+  env_id      = huaweicloud_apig_environment.test.id
+  name        = "%[2]s"
+  value       = "/stage/terraform"
 }
 `, testAccEnvironmentVariable_base(name), name)
 }
