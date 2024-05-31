@@ -58,11 +58,16 @@ func ResourceModelartsResourcePool() *schema.Resource {
 				Description: `The name of the resource pool.`,
 			},
 			"scope": {
-				Type:        schema.TypeList,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Computed:    true,
-				Description: `List of job types supported by the resource pool.`,
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`List of job types supported by the resource pool.`,
+					utils.SchemaDescInput{
+						Required: true,
+					},
+				),
 			},
 			"resources": {
 				Type:        schema.TypeList,
@@ -305,6 +310,42 @@ func modelartsResourcePoolUserLoginSchema() *schema.Resource {
 	return &sc
 }
 
+func scopeStatusRefreshFunc(cfg *config.Config, region string, d *schema.ResourceData, scopes []interface{}) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getResourcePoolRespBody, err := queryResourcePool(cfg, region, d)
+		if err != nil {
+			return getResourcePoolRespBody, "ERROR", err
+		}
+
+		for _, scope := range scopes {
+			scopeStatus := fmt.Sprintf("status.scope[?scopeType=='%s']|[0].state", scope)
+			if utils.PathSearch(scopeStatus, getResourcePoolRespBody, "").(string) != "Enabled" {
+				return "No matches found", "PENDING", nil
+			}
+		}
+		return "Matched", "COMPLETED", nil
+	}
+}
+
+func createResourcePoolWaitingForScopesCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, timeout time.Duration) error {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: scopeStatusRefreshFunc(cfg, region, d, d.Get("scope").(*schema.Set).List()),
+		Timeout: timeout,
+		// In most cases, the bind operation will be completed immediately, but in a few cases, it needs to wait
+		// for a short period of time, and the polling is performed by incrementing the time here.
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for the scope statuses are both completed: %s", err)
+	}
+	return nil
+}
+
 func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -376,6 +417,11 @@ func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.Resource
 	if err != nil {
 		return diag.Errorf("error waiting for the Modelarts resource pool (%s) creation to complete: %s", d.Id(), err)
 	}
+
+	err = createResourcePoolWaitingForScopesCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.Errorf("error waiting for the Modelarts resource pool (%s) creation to complete: %s", d.Id(), err)
+	}
 	return resourceModelartsResourcePoolRead(ctx, d, meta)
 }
 
@@ -429,7 +475,7 @@ func buildCreateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData
 func buildCreateResourcePoolSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
 		"type":      "Dedicate",
-		"scope":     utils.ValueIngoreEmpty(d.Get("scope")),
+		"scope":     utils.ValueIngoreEmpty(d.Get("scope").(*schema.Set).List()),
 		"resources": buildResourcePoolSpecResources(d),
 		"userLogin": buildCreateResourcePoolSpecUserLoginBodyParams(d),
 		"network":   buildCreateResourcePoolSpecNetworkBodyParams(d),
@@ -842,7 +888,7 @@ func buildUpdateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData
 
 func buildUpdateResourcePoolSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"scope":     utils.ValueIngoreEmpty(d.Get("scope")),
+		"scope":     utils.ValueIngoreEmpty(d.Get("scope").(*schema.Set).List()),
 		"resources": buildResourcePoolSpecResources(d),
 	}
 	return params
@@ -937,8 +983,8 @@ func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 			}
 
 			// check if the resource pool is in the process of changing scope
-			if rawArray, ok := d.Get("scope").([]string); ok {
-				for _, v := range rawArray {
+			if rawArray, ok := d.GetOk("scope"); ok {
+				for _, v := range rawArray.(*schema.Set).List() {
 					scopeStatus := fmt.Sprintf("status.scope[?scopeType=='%s']|[0].state", v)
 					log.Println("scopeStatus: ", scopeStatus)
 					if utils.PathSearch(scopeStatus, getResourcePoolRespBody, "").(string) != "Enabled" {

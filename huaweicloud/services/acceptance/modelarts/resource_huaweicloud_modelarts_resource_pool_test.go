@@ -270,7 +270,7 @@ func testModelartsResourcePool_basic_update(name string) string {
 resource "huaweicloud_modelarts_resource_pool" "test" {
   name        = "%s"
   description = "This is a demo update"
-  scope       = ["Train", "Infer"]
+  scope       = ["Infer", "Train"]
   network_id  = huaweicloud_modelarts_network.test.id
 
   resources {
