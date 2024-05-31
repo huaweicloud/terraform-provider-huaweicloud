@@ -85,6 +85,8 @@ func TestAccListener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "description", "Terraform test update"),
 					resource.TestCheckResourceAttr(rName, "port_ranges.0.from_port", "5000"),
 					resource.TestCheckResourceAttr(rName, "port_ranges.0.to_port", "5200"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 				),
 			},
 			{
@@ -135,8 +137,8 @@ resource "huaweicloud_ga_listener" "test" {
   }
 
   tags = {
-    foo = "bar"
-    key = "value"
+    key   = "value"
+    owner = "terraform"
   }
 }
 `, testAccelerator_basic(name), name)

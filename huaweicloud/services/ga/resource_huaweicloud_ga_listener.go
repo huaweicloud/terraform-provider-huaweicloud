@@ -30,6 +30,8 @@ import (
 // @API GA DELETE /v1/listeners/{listener_id}
 // @API GA GET /v1/listeners/{listener_id}
 // @API GA PUT /v1/listeners/{listener_id}
+// @API GA POST /v1/{resource_type}/{resource_id}/tags/create
+// @API GA DELETE /v1/{resource_type}/{resource_id}/tags/delete
 func ResourceListener() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceListenerCreate,
@@ -110,7 +112,7 @@ func ResourceListener() *schema.Resource {
 					validation.StringLenBetween(0, 255),
 				),
 			},
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 
 			"status": {
 				Type:     schema.TypeString,
@@ -420,6 +422,33 @@ func resourceListenerUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			return diag.Errorf("error waiting for the Update of Listener (%s) to complete: %s", d.Id(), err)
 		}
 	}
+
+	// update tags
+	if d.HasChange("tags") {
+		client, err := conf.NewServiceClient("ga", region)
+		if err != nil {
+			return diag.Errorf("error creating GA Client: %s", err)
+		}
+
+		oldRaw, newRaw := d.GetChange("tags")
+		oldMap := oldRaw.(map[string]interface{})
+		newMap := newRaw.(map[string]interface{})
+
+		// remove old tags
+		if len(oldMap) > 0 {
+			if err = deleteTags(client, "ga-listeners", d.Id(), oldMap); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		// set new tags
+		if len(newMap) > 0 {
+			if err := createTags(client, "ga-listeners", d.Id(), newMap); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	return resourceListenerRead(ctx, d, meta)
 }
 
