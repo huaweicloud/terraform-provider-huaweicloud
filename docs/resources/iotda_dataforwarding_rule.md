@@ -125,6 +125,10 @@ The `targets` block supports:
   + **DMS_KAFKA_FORWARDING**: Distributed Message Service (DMS) for Kafka features high throughput, concurrency, and
    scalability. It is suitable for real-time data transmission, stream data processing, system decoupling,
    and traffic balancing.
+  + **FUNCTIONGRAPH_FORWARDING**: By forwarding data to FunctionGraph service, you only need to write your business
+    function code and set the conditions for execution in FunctionGraph. There is no need to configure and manage
+    servers or other infrastructure. Functions will run in an elastic, maintenance-free, and highly reliable manner.
+    Currently, only standard and enterprise edition IoTDA instances are supported.
 
 * `http_forwarding` - (Optional, List) Specifies the detail of the HTTP forwards. It is required when type
   is `HTTP_FORWARDING`. The [http_forwarding](#IoTDA_http_forwarding) structure is documented below.
@@ -140,6 +144,9 @@ The `targets` block supports:
 
 * `kafka_forwarding` - (Optional, List) Specifies the detail of the KAFKA forwards. It is required when type
   is `DMS_KAFKA_FORWARDING`. The [properties](#IoTDA_kafka_forwarding) structure is documented below.
+
+* `fgs_forwarding` - (Optional, List) Specifies the detail of the FunctionGraph forwards. It is required when
+  type is **FUNCTIONGRAPH_FORWARDING**. The [fgs_forwarding](#IoTDA_fgs_forwarding) structure is documented below.
 
 <a name="IoTDA_http_forwarding"></a>
 The `http_forwarding` block supports:
@@ -194,6 +201,13 @@ If omitted, the default project in the region will be used.
 * `user_name` - (Optional, String) Specifies the SASL user name.
 
 * `password` - (Optional, String) Specifies the password.
+
+<a name="IoTDA_fgs_forwarding"></a>
+The `fgs_forwarding` block supports:
+
+* `func_urn` - (Required, String) Specifies the function URN.
+
+* `func_name` - (Required, String) Specifies the function name.
 
 <a name="IoTDA_forwarding_addresses"></a>
 The `addresses` block supports:
