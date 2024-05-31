@@ -544,6 +544,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.#", "2"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.access_area_filter.#", "2"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "white"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.ua_list.#", "3"),
 
@@ -664,6 +666,13 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.0.target_code", "301"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.0.target_link", "http://example.com"),
 
+					resource.TestCheckResourceAttr(resourceName, "configs.0.access_area_filter.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.access_area_filter.0.area", "HK,TW,AE,LB"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.access_area_filter.0.content_type", "file_directory"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.access_area_filter.0.content_value", "/sdf/wer/ww/qq"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.access_area_filter.0.exception_ip", "3.5.6.8,32.4.3.12,11.23.44.32"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.access_area_filter.0.type", "white"),
+
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName,
 						"configs.0.remote_auth.0.remote_auth_rules.0.auth_failed_status", "503"),
@@ -715,6 +724,8 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "off"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.#", "0"),
+
+					resource.TestCheckResourceAttr(resourceName, "configs.0.access_area_filter.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.remote_auth_rules.#", "0"),
@@ -926,6 +937,19 @@ resource "huaweicloud_cdn_domain" "test" {
       target_link = "https://xxx.cn/"
     }
 
+    access_area_filter {
+      area          = "HK,TW,AE,LB,TJ,MY"
+      content_type  = "file_directory"
+      content_value = "/sdf/wer/ww"
+      exception_ip  = "3.5.6.8,32.4.3.12,11.23.44.32,102.34.4.12,192.68.1.2"
+      type          = "white"
+    }
+    access_area_filter {
+      area         = "MO,HK,TW,AE,MY,BN,TR"
+      content_type = "all"
+      type         = "black"
+    }
+
     remote_auth {
       enabled = true
 
@@ -1099,6 +1123,14 @@ resource "huaweicloud_cdn_domain" "test" {
       error_code  = 416
       target_code = 301
       target_link = "http://example.com"
+    }
+
+    access_area_filter {
+      area          = "HK,TW,AE,LB"
+      content_type  = "file_directory"
+      content_value = "/sdf/wer/ww/qq"
+      exception_ip  = "3.5.6.8,32.4.3.12,11.23.44.32"
+      type          = "white"
     }
 
     remote_auth {

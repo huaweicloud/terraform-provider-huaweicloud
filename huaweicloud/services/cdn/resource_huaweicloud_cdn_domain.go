@@ -718,6 +718,43 @@ var hsts = schema.Schema{
 	},
 }
 
+var accessAreaFilters = schema.Schema{
+	Type:        schema.TypeSet,
+	Optional:    true,
+	Description: "schema: Internal; Specifies the geographic access control rules.",
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "schema: Internal; Specifies the the blacklist and whitelist rule type.",
+			},
+			"content_type": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "schema: Internal; Specifies the content type.",
+			},
+			"area": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "schema: Internal; Specifies the areas, separated by commas.",
+			},
+			"content_value": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Internal; Specifies the content value.",
+			},
+			"exception_ip": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Internal; Specifies the IP addresses exception in access control, separated by commas.",
+			},
+		},
+	},
+}
+
 // @API CDN POST /v1.0/cdn/domains
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}
 // @API CDN PUT /v1.0/cdn/domains/{domainId}/disable
@@ -885,6 +922,7 @@ func ResourceCdnDomain() *schema.Resource {
 						"user_agent_filter":          &userAgentFilter,
 						"error_code_redirect_rules":  &errorCodeRedirectRules,
 						"hsts":                       &hsts,
+						"access_area_filter":         &accessAreaFilters,
 					},
 				},
 			},
@@ -1446,6 +1484,28 @@ func buildHstsOpts(rawHsts []interface{}) *model.Hsts {
 	return &hstsOpts
 }
 
+func buildAccessAreaFilters(accessAreaFilters []interface{}) *[]model.AccessAreaFilter {
+	if len(accessAreaFilters) < 1 {
+		// Define an empty array to clear all access area filters
+		rst := make([]model.AccessAreaFilter, 0)
+		return &rst
+	}
+
+	accessAreaFiltersOpts := make([]model.AccessAreaFilter, len(accessAreaFilters))
+	for i, v := range accessAreaFilters {
+		filterMap := v.(map[string]interface{})
+		filterOpt := model.AccessAreaFilter{
+			Type:         utils.String(filterMap["type"].(string)),
+			ContentType:  utils.String(filterMap["content_type"].(string)),
+			Area:         utils.String(filterMap["area"].(string)),
+			ContentValue: utils.StringIgnoreEmpty(filterMap["content_value"].(string)),
+			ExceptionIp:  utils.StringIgnoreEmpty(filterMap["exception_ip"].(string)),
+		}
+		accessAreaFiltersOpts[i] = filterOpt
+	}
+	return &accessAreaFiltersOpts
+}
+
 func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
 	if len(rawSources) < 1 {
 		return nil
@@ -1615,6 +1675,10 @@ func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[st
 	}
 	if d.HasChange("configs.0.hsts") {
 		configsOpts.Hsts = buildHstsOpts(configs["hsts"].([]interface{}))
+	}
+	if d.HasChange("configs.0.access_area_filter") {
+		accessAreaFilters := configs["access_area_filter"].(*schema.Set).List()
+		configsOpts.AccessAreaFilter = buildAccessAreaFilters(accessAreaFilters)
 	}
 }
 
@@ -2171,6 +2235,24 @@ func flattenHstsAttrs(hsts *model.HstsQuery) []map[string]interface{} {
 	return []map[string]interface{}{hstsAttrs}
 }
 
+func flattenAccessAreaFiltersAttrs(accessAreaFilters *[]model.AccessAreaFilter) []map[string]interface{} {
+	if accessAreaFilters == nil || len(*accessAreaFilters) == 0 {
+		return nil
+	}
+
+	accessAreaFiltersAttrs := make([]map[string]interface{}, len(*accessAreaFilters))
+	for i, v := range *accessAreaFilters {
+		accessAreaFiltersAttrs[i] = map[string]interface{}{
+			"type":          v.Type,
+			"content_type":  v.ContentType,
+			"area":          v.Area,
+			"content_value": v.ContentValue,
+			"exception_ip":  v.ExceptionIp,
+		}
+	}
+	return accessAreaFiltersAttrs
+}
+
 func flattenSourcesAttrs(sources *[]model.SourcesConfigResponseBody) []map[string]interface{} {
 	if sources == nil || len(*sources) == 0 {
 		return nil
@@ -2233,6 +2315,7 @@ func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceDat
 		"user_agent_filter":             flattenUserAgentFilterAttrs(configsResp.UserAgentFilter),
 		"error_code_redirect_rules":     flattenErrorCodeRedirectRulesAttrs(configsResp.ErrorCodeRedirectRules),
 		"hsts":                          flattenHstsAttrs(configsResp.Hsts),
+		"access_area_filter":            flattenAccessAreaFiltersAttrs(configsResp.AccessAreaFilter),
 	}
 	return []map[string]interface{}{configsAttrs}
 }
