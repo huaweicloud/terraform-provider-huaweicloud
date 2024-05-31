@@ -165,7 +165,7 @@ func DataSourceDmsRabbitmqExtendFlavors() *schema.Resource {
 										Computed:    true,
 										Description: `Indicates the step length.`,
 									},
-									"product_alias": {
+									"flavor_alias": {
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: `Indicates the alias of **flavor_id**.`,
@@ -290,7 +290,7 @@ func (w *RabbitmqExtendFlavorsDSWrapper) showEngineInstanceExtendProductInfoToSc
 								"max_queue_per_broker":      properties.Get("max_queue_per_broker").Value(),
 								"max_connection_per_broker": properties.Get("max_connection_per_broker").Value(),
 								"step_length":               properties.Get("step_length").Value(),
-								"product_alias":             properties.Get("product_alias").Value(),
+								"flavor_alias":              properties.Get("product_alias").Value(),
 							}
 						},
 					),

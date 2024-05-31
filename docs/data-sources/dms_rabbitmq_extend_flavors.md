@@ -103,7 +103,7 @@ The `properties` block supports:
 
 * `step_length` - Indicates the step length.
 
-* `product_alias` - Indicates the alias of **flavor_id**.
+* `flavor_alias` - Indicates the alias of **flavor_id**.
 
 <a name="flavors_support_features_struct"></a>
 The `support_features` block supports:
