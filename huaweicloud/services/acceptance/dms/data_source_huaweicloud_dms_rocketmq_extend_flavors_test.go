@@ -9,8 +9,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceDmsRabbitmqExtendFlavors_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_dms_rabbitmq_extend_flavors.all"
+func TestAccDataSourceDmsRocketmqExtendFlavors_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_dms_rocketmq_extend_flavors.test"
 	rName := acceptance.RandomAccResourceName()
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
@@ -21,7 +21,7 @@ func TestAccDataSourceDmsRabbitmqExtendFlavors_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceDmsRabbitmqExtendFlavors_basic(rName),
+				Config: testDataSourceDataSourceDmsRocketmqExtendFlavors_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "versions.#"),
@@ -36,29 +36,29 @@ func TestAccDataSourceDmsRabbitmqExtendFlavors_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceDmsRabbitmqExtendFlavors_basic(name string) string {
+func testDataSourceDataSourceDmsRocketmqExtendFlavors_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_dms_rabbitmq_extend_flavors" "all" {
-  depends_on = [huaweicloud_dms_rabbitmq_instance.test]
+data "huaweicloud_dms_rocketmq_extend_flavors" "all" {
+  depends_on = [huaweicloud_dms_rocketmq_instance.test]
 
-  instance_id = huaweicloud_dms_rabbitmq_instance.test.id
+  instance_id = huaweicloud_dms_rocketmq_instance.test.id
 }
 
-data "huaweicloud_dms_rabbitmq_extend_flavors" "test" {
-  depends_on = [huaweicloud_dms_rabbitmq_instance.test]
+data "huaweicloud_dms_rocketmq_extend_flavors" "test" {
+  depends_on = [huaweicloud_dms_rocketmq_instance.test]
 
-  instance_id       = huaweicloud_dms_rabbitmq_instance.test.id
-  type              = local.test_refer.type
-  arch_type         = local.test_refer.arch_types[0]
-  charging_mode     = local.test_refer.charging_modes[0]
-  storage_spec_code = local.test_refer.ios[0].storage_spec_code
+  instance_id        = huaweicloud_dms_rocketmq_instance.test.id
+  type               = local.test_refer.type
+  arch_type          = local.test_refer.arch_types[0]
+  charging_mode      = local.test_refer.charging_modes[0]
+  storage_spec_code  = local.test_refer.ios[0].storage_spec_code
 }
 
 locals {
-  test_refer   = data.huaweicloud_dms_rabbitmq_extend_flavors.all.flavors[0]
-  test_results = data.huaweicloud_dms_rabbitmq_extend_flavors.test
+  test_refer   = data.huaweicloud_dms_rocketmq_extend_flavors.all.flavors[0]
+  test_results = data.huaweicloud_dms_rocketmq_extend_flavors.test
 }
 
 output "type_validation" {
@@ -77,5 +77,5 @@ output "storage_spec_code_validation" {
   value = alltrue([for ios in local.test_results.flavors[*].ios :
     alltrue([for io in ios : io.storage_spec_code == local.test_refer.ios[0].storage_spec_code])])
 }
-`, testAccDmsRabbitmqInstance_newFormat_single(name))
+`, testDmsRocketMQInstance_basic(name))
 }
