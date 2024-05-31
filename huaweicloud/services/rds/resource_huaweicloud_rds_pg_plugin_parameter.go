@@ -21,6 +21,7 @@ import (
 
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/parameter/{name}
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/parameter/{name}
+// @API RDS GET /v3/{project_id}/instances
 func ResourcePgPluginParameter() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePgPluginParameterCreateOrUpdate,

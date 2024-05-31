@@ -17,6 +17,7 @@ import (
 )
 
 // @API RDS POST /v3.1/{project_id}/instances/recovery
+// @API RDS GET /v3/{project_id}/instances
 func ResourceRdsRestore() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsRestoreCreate,
