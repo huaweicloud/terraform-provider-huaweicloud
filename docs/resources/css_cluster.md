@@ -317,9 +317,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `endpoint` - The IP address and port number.
 
-* `created` - Time when a cluster is created. The format is ISO8601:
-  CCYY-MM-DDThh:mm:ss.
-
 * `status` - The cluster status
   + **100:** The operation, such as instance creation, is in progress.
   + **200:** The cluster is available.
@@ -335,6 +332,18 @@ In addition to all arguments above, the following attributes are exported:
 * `public_access/public_ip` - The public IP address.
 
 * `kibana_public_access/public_ip` - The Kibana public IP address.
+
+* `created_at` - Time when a cluster is created. The format is ISO8601: CCYY-MM-DDThh:mm:ss.
+
+* `updated_at` - Time when a cluster is updated. The format is ISO8601: CCYY-MM-DDThh:mm:ss.
+
+* `bandwidth_resource_id` - The resource ID of bandwidth.
+
+* `is_period` - Whether a cluster is billed on the yearly/monthly mode.
+
+* `backup_available` - Whether the snapshot function is enabled.
+
+* `disk_encrypted` - Whether disks are encrypted.
 
 <a name="Css_nodes_attr"></a>
 The `nodes` block supports:
@@ -354,6 +363,10 @@ The `nodes` block supports:
 * `status` - Instance status.
 
 * `spec_code` - Instance specification code.
+
+* `ip` - Instance IP address.
+
+* `resource_id` - The resource ID of this instance.
 
 ## Timeouts
 

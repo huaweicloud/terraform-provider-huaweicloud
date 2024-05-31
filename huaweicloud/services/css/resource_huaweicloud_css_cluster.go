@@ -98,13 +98,11 @@ func ResourceCssCluster() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"engine_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -112,24 +110,20 @@ func ResourceCssCluster() *schema.Resource {
 				Default:      "elasticsearch",
 				ValidateFunc: validation.StringInSlice([]string{"elasticsearch", "logstash"}, false),
 			},
-
 			"engine_version": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"security_mode": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-
 			"password": {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Optional:  true,
 			},
-
 			"https_enabled": {
 				Type:         schema.TypeBool,
 				Optional:     true,
@@ -137,7 +131,6 @@ func ResourceCssCluster() *schema.Resource {
 				ForceNew:     true,
 				RequiredWith: []string{"security_mode"},
 			},
-
 			"ess_node_config": {
 				Type:          schema.TypeList,
 				Optional:      true,
@@ -148,28 +141,24 @@ func ResourceCssCluster() *schema.Resource {
 				Elem:          essOrColdNodeSchema(1, 200),
 				Description:   "schema: Required",
 			},
-
 			"master_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
 				Elem:     masterOrClientNodeSchema(3, 10),
 			},
-
 			"client_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
 				Elem:     masterOrClientNodeSchema(1, 32),
 			},
-
 			"cold_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
 				Elem:     essOrColdNodeSchema(1, 32),
 			},
-
 			"availability_zone": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -178,7 +167,6 @@ func ResourceCssCluster() *schema.Resource {
 				Computed:     true,
 				Description:  "schema: Required",
 			},
-
 			"vpc_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -186,7 +174,6 @@ func ResourceCssCluster() *schema.Resource {
 				Computed:    true,
 				Description: "schema: Required",
 			},
-
 			"subnet_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -194,14 +181,12 @@ func ResourceCssCluster() *schema.Resource {
 				Computed:    true,
 				Description: "schema: Required",
 			},
-
 			"security_group_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: "schema: Required",
 			},
-
 			"backup_strategy": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -212,31 +197,26 @@ func ResourceCssCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-
 						"keep_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  7,
 						},
-
 						"prefix": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "snapshot",
 						},
-
 						"bucket": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
-
 						"backup_path": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
-
 						"agency": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -245,7 +225,6 @@ func ResourceCssCluster() *schema.Resource {
 					},
 				},
 			},
-
 			"public_access": {
 				Type:         schema.TypeList,
 				Optional:     true,
@@ -257,17 +236,14 @@ func ResourceCssCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
-
 						"whitelist_enabled": {
 							Type:     schema.TypeBool,
 							Required: true,
 						},
-
 						"whitelist": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-
 						"public_ip": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -275,7 +251,6 @@ func ResourceCssCluster() *schema.Resource {
 					},
 				},
 			},
-
 			"vpcep_endpoint": { // none query API
 				Type:     schema.TypeList,
 				Optional: true,
@@ -286,7 +261,6 @@ func ResourceCssCluster() *schema.Resource {
 							Type:     schema.TypeBool,
 							Required: true,
 						},
-
 						"whitelist": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -295,7 +269,6 @@ func ResourceCssCluster() *schema.Resource {
 					},
 				},
 			},
-
 			"kibana_public_access": {
 				Type:         schema.TypeList,
 				Optional:     true,
@@ -307,17 +280,14 @@ func ResourceCssCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
-
 						"whitelist_enabled": {
 							Type:     schema.TypeBool,
 							Required: true,
 						},
-
 						"whitelist": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-
 						"public_ip": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -325,27 +295,22 @@ func ResourceCssCluster() *schema.Resource {
 					},
 				},
 			},
-
 			"tags": common.TagsSchema(),
-
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
 			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
-
 			"expect_node_num": {
 				Type:       schema.TypeInt,
 				Optional:   true,
 				Deprecated: "please use ess_node_config.instance_number instead",
 				Computed:   true,
 			},
-
 			"node_config": {
 				Type:          schema.TypeList,
 				Optional:      true,
@@ -361,7 +326,6 @@ func ResourceCssCluster() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
-
 						"volume": {
 							Type:     schema.TypeList,
 							Required: true,
@@ -373,7 +337,6 @@ func ResourceCssCluster() *schema.Resource {
 										Type:     schema.TypeInt,
 										Required: true,
 									},
-
 									"volume_type": {
 										Type:     schema.TypeString,
 										Required: true,
@@ -382,7 +345,6 @@ func ResourceCssCluster() *schema.Resource {
 								},
 							},
 						},
-
 						"network_info": {
 							Type:     schema.TypeList,
 							Required: true,
@@ -395,13 +357,11 @@ func ResourceCssCluster() *schema.Resource {
 										Required: true,
 										ForceNew: true,
 									},
-
 									"subnet_id": {
 										Type:     schema.TypeString,
 										Required: true,
 										ForceNew: true,
 									},
-
 									"vpc_id": {
 										Type:     schema.TypeString,
 										Required: true,
@@ -410,7 +370,6 @@ func ResourceCssCluster() *schema.Resource {
 								},
 							},
 						},
-
 						"availability_zone": {
 							Type:     schema.TypeString,
 							Required: true,
@@ -419,7 +378,6 @@ func ResourceCssCluster() *schema.Resource {
 					},
 				},
 			},
-
 			"nodes": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -429,58 +387,81 @@ func ResourceCssCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-
 						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-
 						"type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-
 						"availability_zone": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-
 						"status": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-
 						"spec_code": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"resource_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
 				},
 			},
-
-			"created": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"endpoint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"vpcep_endpoint_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"vpcep_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"bandwidth_resource_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_period": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"backup_available": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"disk_encrypted": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"created": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "schema: Deprecated; use created_at instead",
 			},
 		},
 	}
@@ -831,6 +812,12 @@ func resourceCssClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("security_mode", flattenSecurity(clusterDetail.AuthorityEnable)),
 		d.Set("https_enabled", clusterDetail.HttpsEnable),
 		setClusterBackupStrategy(d, cssV1Client),
+		d.Set("created_at", clusterDetail.Created),
+		d.Set("updated_at", clusterDetail.Updated),
+		d.Set("bandwidth_resource_id", clusterDetail.BandwidthResourceId),
+		d.Set("is_period", clusterDetail.Period),
+		d.Set("backup_available", clusterDetail.BackupAvailable),
+		d.Set("disk_encrypted", clusterDetail.DiskEncrypted),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -850,6 +837,8 @@ func flattenClusterNodes(s *[]model.ClusterDetailInstances) []interface{} {
 			"availability_zone": v.AzCode,
 			"status":            v.Status,
 			"spec_code":         v.SpecCode,
+			"ip":                v.Ip,
+			"resource_id":       v.ResourceId,
 		}
 	}
 	return rst
