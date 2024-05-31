@@ -78,6 +78,8 @@ func TestAccAccelerator_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
 					resource.TestCheckResourceAttr(rName, "description", "terraform test update"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 				),
 			},
 			{
@@ -118,8 +120,8 @@ resource "huaweicloud_ga_accelerator" "test" {
   }
 
   tags = {
-    foo = "bar"
-    key = "value"
+    foo   = "bar"
+    owner = "terraform"
   }
 }
 `, name)

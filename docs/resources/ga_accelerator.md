@@ -51,9 +51,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the global accelerator.
-
-  Changing this parameter will create a new resource.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the global accelerator.
 
 <a name="Accelerator_AccelerateIp"></a>
 The `AccelerateIp` block supports:
