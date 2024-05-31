@@ -409,6 +409,50 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Optional:    true,
 				Description: "schema: Internal; Specifies the maximum duration that the function can be initialized.",
 			},
+			"func_vpc": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cidr": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"gateway": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"network_controller": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disable_public_network": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"trigger_access_vpcs": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"vpc_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"vpc_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -497,6 +541,45 @@ func buildCustomImage(imageConfig []interface{}) *function.CustomImage {
 	}
 }
 
+func buildFuncVpc(funcVpcConfig []interface{}) *function.FuncVpc {
+	if len(funcVpcConfig) < 1 {
+		return nil
+	}
+
+	cfg := funcVpcConfig[0].(map[string]interface{})
+	return &function.FuncVpc{
+		Cidr:    cfg["cidr"].(string),
+		Gateway: cfg["gateway"].(string),
+	}
+}
+
+func buildNetworkController(networkControllerConfig []interface{}) *function.NetworkControlConfig {
+	if len(networkControllerConfig) < 1 {
+		return nil
+	}
+
+	cfg := networkControllerConfig[0].(map[string]interface{})
+	return &function.NetworkControlConfig{
+		DisablePublicNetwork: cfg["disable_public_network"].(bool),
+		TriggerAccessVpcs:    buildTriggerAccessVpcs(cfg["trigger_access_vpcs"].([]interface{})),
+	}
+}
+
+func buildTriggerAccessVpcs(vpcConfig []interface{}) []function.VpcConfig {
+	if len(vpcConfig) < 1 {
+		return nil
+	}
+	result := make([]function.VpcConfig, len(vpcConfig))
+	for i, val := range vpcConfig {
+		cfg := val.(map[string]interface{})
+		result[i] = function.VpcConfig{
+			VpcId:   cfg["vpc_id"].(string),
+			VpcName: cfg["vpc_name"].(string),
+		}
+	}
+	return result
+}
+
 func buildFgsFunctionParameters(d *schema.ResourceData, cfg *config.Config) (function.CreateOpts, error) {
 	// check app and package
 	app, appOk := d.GetOk("app")
@@ -539,6 +622,8 @@ func buildFgsFunctionParameters(d *schema.ResourceData, cfg *config.Config) (fun
 		GPUType:             d.Get("gpu_type").(string),
 		PreStopHandler:      d.Get("pre_stop_handler").(string),
 		PreStopTimeout:      d.Get("pre_stop_timeout").(int),
+		FuncVpc:             buildFuncVpc(d.Get("func_vpc").([]interface{})),
+		NetworkController:   buildNetworkController(d.Get("network_controller").([]interface{})),
 	}
 	if v, ok := d.GetOk("func_code"); ok {
 		funcCode := function.FunctionCodeOpts{
@@ -674,9 +759,45 @@ func setFgsFunctionAgency(d *schema.ResourceData, agency string) error {
 }
 
 func setFgsFunctionVpcAccess(d *schema.ResourceData, funcVpc function.FuncVpc) error {
+	result := []map[string]interface{}{
+		{
+			"cidr":    funcVpc.Cidr,
+			"gateway": funcVpc.Gateway,
+		},
+	}
+
 	mErr := multierror.Append(
 		d.Set("vpc_id", funcVpc.VpcId),
 		d.Set("network_id", funcVpc.SubnetId),
+		d.Set("func_vpc", result),
+	)
+	if err := mErr.ErrorOrNil(); err != nil {
+		return fmt.Errorf("error setting vault fields: %s", err)
+	}
+	return nil
+}
+
+func setTriggerAccessVpcs(vpcConfigs []function.VpcConfig) interface{} {
+	result := make([]map[string]interface{}, len(vpcConfigs))
+	for i, val := range vpcConfigs {
+		result[i] = map[string]interface{}{
+			"vpc_id":   val.VpcId,
+			"vpc_name": val.VpcName,
+		}
+	}
+	return result
+}
+
+func setNetworkController(d *schema.ResourceData, networkController function.NetworkControlConfig) error {
+	result := []map[string]interface{}{
+		{
+			"disable_public_network": networkController.DisablePublicNetwork,
+			"trigger_access_vpcs":    setTriggerAccessVpcs(networkController.TriggerAccessVpcs),
+		},
+	}
+
+	mErr := multierror.Append(
+		d.Set("network_controller", result),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return fmt.Errorf("error setting vault fields: %s", err)
@@ -901,6 +1022,7 @@ func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("gpu_type", f.GPUType),
 		d.Set("pre_stop_handler", f.PreStopHandler),
 		d.Set("pre_stop_timeout", f.PreStopTimeout),
+		setNetworkController(d, f.NetworkController),
 	)
 
 	reservedInstances, err := getReservedInstanceConfig(fgsClient, d)
@@ -1267,6 +1389,8 @@ func resourceFgsFunctionMetadataUpdate(fgsClient *golangsdk.ServiceClient, urn s
 		GPUType:            d.Get("gpu_type").(string),
 		PreStopHandler:     d.Get("pre_stop_handler").(string),
 		PreStopTimeout:     d.Get("pre_stop_timeout").(int),
+		FuncVpc:            buildFuncVpc(d.Get("func_vpc").([]interface{})),
+		NetworkController:  buildNetworkController(d.Get("network_controller").([]interface{})),
 	}
 
 	if _, ok := d.GetOk("vpc_id"); ok {
