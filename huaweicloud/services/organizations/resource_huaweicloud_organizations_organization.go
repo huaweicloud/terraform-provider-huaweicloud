@@ -39,7 +39,6 @@ const (
 // @API Organizations POST /v1/organizations/{resource_type}/{resource_id}/tags/delete
 // @API Organizations POST /v1/organizations/policies/enable
 // @API Organizations GET /v1/organizations
-// @API Organizations GET /v1/organizations/roots
 // @API Organizations GET /v1/organizations/{resource_type}/{resource_id}/tags
 // @API Organizations POST /v1/organizations/policies/disable
 // @API Organizations DELETE /v1/organizations

@@ -27,11 +27,13 @@ import (
 
 // @API Organizations POST /v1/organizations/accounts
 // @API Organizations GET /v1/organizations/accounts/{account_id}
+// @API Organizations GET /v1/organizations/{resource_type}/{resource_id}/tags
 // @API Organizations POST /v1/organizations/accounts/{account_id}/move
 // @API Organizations GET /v1/organizations/entities
 // @API Organizations GET /v1/organizations/create-account-status/{create_account_status_id}
 // @API Organizations POST /v1/organizations/{resource_type}/{resource_id}/tags/delete
 // @API Organizations POST /v1/organizations/{resource_type}/{resource_id}/tags/create
+// @API Organizations POST /v1/organizations/accounts/{account_id}/close
 func ResourceAccount() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAccountCreate,
