@@ -109,6 +109,18 @@ The following arguments are supported:
   -> 1. Storage expansion is a high-risk operation, with a certain risk of failure.
   <br/>2. Expansion failure may affect the usability of the instance. Please ensure to back up your data.
 
+* `power_action` - (Optional, String) Specifies the power action after the CBH instance is created.
+  The valid values are as follows:
+  + **start**: Startup instance.
+  + **stop**: Shutdown instance.
+  + **soft-reboot**: Normal reboot, shut down virtual machine service.
+  + **hard-reboot**: Force reboot, reboot virtual machine.
+
+  -> The usage of `power_action` has some limitations:
+    <br/>1. The **start** operation can only be performed when the instance status is **SHUTOFF**.
+    <br/>2. The **stop**, **soft-reboot**, and **hard-reboot** operations can only be performed when the instance status
+    is **ACTIVE**.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBH instance.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the CBH instance
@@ -149,7 +161,7 @@ $ terraform import huaweicloud_cbh_instance.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `charging_mode`, `period`, `period_unit`,
-`auto_renew`, `password`, `ipv6_enable`, `attach_disk_size`.
+`auto_renew`, `password`, `ipv6_enable`, `attach_disk_size`, `power_action`.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated
 to align with the instance. Also, you can ignore changes as below.
@@ -160,7 +172,7 @@ resource "huaweicloud_cbh_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      charging_mode, period, period_unit, auto_renew, password, ipv6_enable, attach_disk_size,
+      charging_mode, period, period_unit, auto_renew, password, ipv6_enable, attach_disk_size, power_action,
     ]
   }
 }

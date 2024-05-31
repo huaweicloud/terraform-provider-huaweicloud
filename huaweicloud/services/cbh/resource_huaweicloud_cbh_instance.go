@@ -23,6 +23,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// Power action constants.
+const (
+	Start      = "start"
+	Stop       = "stop"
+	SoftReboot = "soft-reboot"
+	HardReboot = "hard-reboot"
+)
+
 // @API CBH POST /v2/{project_id}/cbs/instance/{server_id}/eip/bind
 // @API CBH POST /v2/{project_id}/cbs/instance/{server_id}/eip/unbind
 // @API CBH POST /v2/{project_id}/cbs/instance
@@ -32,6 +40,9 @@ import (
 // @API CBH PUT /v2/{project_id}/cbs/instance
 // @API CBH POST /v2/{project_id}/cbs/instance/{resource_id}/tags/action
 // @API CBH GET /v2/{project_id}/cbs/instance/{resource_id}/tags
+// @API CBH POST /v2/{project_id}/cbs/instance/start
+// @API CBH POST /v2/{project_id}/cbs/instance/stop
+// @API CBH POST /v2/{project_id}/cbs/instance/reboot
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -152,6 +163,11 @@ func ResourceCBHInstance() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the size of the additional data disk for the CBH instance.`,
 			},
+			"power_action": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the power action after the CBH instance is created.`,
+			},
 			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
@@ -242,6 +258,17 @@ func resourceCBHInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	if len(sgIDs) > 1 {
 		if err := updateSecurityGroup(client, d.Id(), sgIDs); err != nil {
 			return diag.Errorf("error updating the security group after successful creation of CBH instance (%s): %s", d.Id(), err)
+		}
+	}
+
+	// Create an instance in the shutdown state.
+	if action, ok := d.GetOk("power_action"); ok {
+		if action.(string) == Stop {
+			if err = doPowerAction(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
+				return diag.FromErr(err)
+			}
+		} else {
+			log.Printf("[WARN] the power action (%s) is invalid after CBH instance created", action)
 		}
 	}
 
@@ -409,6 +436,106 @@ func getCBHInstanceList(client *golangsdk.ServiceClient) ([]interface{}, error) 
 	return instances, nil
 }
 
+func convertPowerActionValue(action string) string {
+	switch action {
+	case SoftReboot:
+		return "SOFT"
+	case HardReboot:
+		return "HARD"
+	default:
+		return action
+	}
+}
+
+// doPowerAction is a method for CBH instance power doing startup, shutdown and reboot actions.
+func doPowerAction(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout time.Duration) error {
+	doActionInstancePath := client.Endpoint + "v2/{project_id}/cbs/instance/{action}"
+	doActionInstancePath = strings.ReplaceAll(doActionInstancePath, "{project_id}", client.ProjectID)
+	var (
+		id          = d.Id()
+		action      = d.Get("power_action").(string)
+		jsonBodyMap = map[string]interface{}{
+			"server_id": id,
+		}
+	)
+
+	if action == SoftReboot || action == HardReboot {
+		doActionInstancePath = strings.ReplaceAll(doActionInstancePath, "{action}", "reboot")
+		jsonBodyMap["reboot_type"] = convertPowerActionValue(action)
+	} else {
+		doActionInstancePath = strings.ReplaceAll(doActionInstancePath, "{action}", action)
+	}
+
+	doActionInstanceOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         jsonBodyMap,
+	}
+	_, err := client.Request("POST", doActionInstancePath, &doActionInstanceOpt)
+	if err != nil {
+		return fmt.Errorf("doing power action (%s) for CBH instance (%s) failed: %s", action, id, err)
+	}
+
+	if err := waitingForCBHInstanceTaskCompleted(ctx, client, d, timeout); err != nil {
+		return fmt.Errorf("error waiting for CBH instance (%s) doing action (%s) task to complete: %s", id, action, err)
+	}
+
+	if action == Start || action == SoftReboot || action == HardReboot {
+		if err := waitingForCBHInstanceActive(ctx, client, d, timeout); err != nil {
+			return fmt.Errorf("error waiting for CBH instance (%s) doing action (%s) to active: %s", id, action, err)
+		}
+	}
+
+	if action == Stop {
+		if err := waitingForCBHInstanceShutoff(ctx, client, d, timeout); err != nil {
+			return fmt.Errorf("error waiting for CBH instance (%s) doing action (%s) to shutoff: %s", id, action, err)
+		}
+	}
+
+	return nil
+}
+
+func waitingForCBHInstanceShutoff(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration) error {
+	expression := fmt.Sprintf("[?server_id == '%s']|[0]", d.Id())
+	unexpectedStatus := []string{"DELETING", "DELETED", "ERROR", "FROZEN"}
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			instances, err := getCBHInstanceList(client)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			instance := utils.PathSearch(expression, instances, nil)
+			if instance == nil {
+				return nil, "ERROR", golangsdk.ErrDefault404{}
+			}
+
+			status := utils.PathSearch("status_info.status", instance, "").(string)
+			if status == "SHUTOFF" {
+				return instance, "COMPLETED", nil
+			}
+
+			if status == "" {
+				return instance, "ERROR", fmt.Errorf("status is not found in list API response")
+			}
+
+			if utils.StrSliceContains(unexpectedStatus, status) {
+				return instance, status, nil
+			}
+
+			return instance, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
 func waitingForCBHInstanceActive(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
 	timeout time.Duration) error {
 	expression := fmt.Sprintf("[?server_id == '%s']|[0]", d.Id())
@@ -502,6 +629,15 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	client, err := cfg.NewServiceClient(updateCBHInstanceProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CBH client: %s", err)
+	}
+
+	// Update instance can only be performed when the instance status is active.
+	// Therefore, if `power_action` is start, it must be done in the first step of the update function.
+	action := d.Get("power_action").(string)
+	if d.HasChanges("power_action") && action == Start {
+		if err = doPowerAction(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	if d.HasChanges("security_group_id") {
@@ -645,6 +781,14 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 			if err := doActionInstanceTags(resourceId, "create", client, nMap); err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	// The stop and reboot operations should be performed after the instance updated other parameters.
+	// Therefore, they must be performed at the end of the update function.
+	if d.HasChange("power_action") && (action == Stop || action == SoftReboot || action == HardReboot) {
+		if err = doPowerAction(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

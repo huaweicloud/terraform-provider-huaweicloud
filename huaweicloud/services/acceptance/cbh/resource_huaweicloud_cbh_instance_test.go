@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbh"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -158,14 +159,14 @@ func TestAccCBHInstance_epsId_migrate(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testCBHInstance_epsId_basic(name, defaultEpsId),
+				Config: testCBHInstance_epsId_config(name, defaultEpsId),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", defaultEpsId),
 				),
 			},
 			{
-				Config: testCBHInstance_epsId_basic(name, migrateEpsId),
+				Config: testCBHInstance_epsId_config(name, migrateEpsId),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", migrateEpsId),
@@ -180,6 +181,70 @@ func TestAccCBHInstance_epsId_migrate(t *testing.T) {
 					"password",
 					"period",
 					"period_unit",
+				},
+			},
+		},
+	})
+}
+
+func TestAccCBHInstance_WithPowerAction(t *testing.T) {
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceName()
+		rName = "huaweicloud_cbh_instance.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getCBHInstanceResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testCBHInstance_doAction_config(name, cbh.Stop),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "SHUTOFF"),
+				),
+			},
+			{
+				Config: testCBHInstance_doAction_config(name, cbh.Start),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testCBHInstance_doAction_config(name, cbh.SoftReboot),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testCBHInstance_doAction_config(name, cbh.HardReboot),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"charging_mode",
+					"password",
+					"period",
+					"period_unit",
+					"power_action",
 				},
 			},
 		},
@@ -253,7 +318,7 @@ resource "huaweicloud_cbh_instance" "test" {
 `, testCBHInstance_base(name), name)
 }
 
-func testCBHInstance_epsId_basic(name, epsId string) string {
+func testCBHInstance_epsId_config(name, epsId string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -271,4 +336,24 @@ resource "huaweicloud_cbh_instance" "test" {
   enterprise_project_id = "%[3]s"
 }
 `, testCBHInstance_base(name), name, epsId)
+}
+
+func testCBHInstance_doAction_config(name, action string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbh_instance" "test" {
+  flavor_id             = "cbh.basic.10"
+  name                  = "%[2]s"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  password              = "test_123456"
+  charging_mode         = "prePaid"
+  period_unit           = "month"
+  period                = 1
+  power_action          = "%[3]s"
+}
+`, testCBHInstance_base(name), name, action)
 }
