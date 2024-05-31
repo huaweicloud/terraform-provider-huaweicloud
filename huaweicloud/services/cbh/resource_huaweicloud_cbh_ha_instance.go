@@ -142,24 +142,6 @@ func ResourceCBHHAInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the charging period of the CBH HA instance.`,
 			},
-			"master_private_ip": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Specifies the private IP address of the master instance.`,
-			},
-			"slave_private_ip": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Specifies the private IP address of the slave instance.`,
-			},
-			"floating_ip": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Specifies the floating IP address of the CBH HA instance.`,
-			},
 			"auto_renew": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -180,6 +162,27 @@ func ResourceCBHHAInstance() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: `Specifies the size of the additional data disk for the CBH HA instance.`,
+			},
+			"master_private_ip": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `Specifies the private IP address of the master instance.`,
+			},
+			"slave_private_ip": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `Specifies the private IP address of the slave instance.`,
+			},
+			"floating_ip": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `Specifies the floating IP address of the CBH HA instance.`,
 			},
 			"tags": common.TagsSchema(),
 			"enterprise_project_id": {

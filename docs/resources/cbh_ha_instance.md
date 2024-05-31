@@ -98,21 +98,6 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `master_private_ip` - (Optional, String, ForceNew) Specifies the private IP address of the master instance.
-
-  Changing this parameter will create a new resource.
-
-* `slave_private_ip` - (Optional, String, ForceNew) Specifies the private IP address of the slave instance.
-
-  Changing this parameter will create a new resource.
-
-* `floating_ip` - (Optional, String, ForceNew) Specifies the floating IP address of the CBH HA instance.
-
-  Changing this parameter will create a new resource.
-
--> For the parameters `master_private_ip`, `slave_private_ip`, and `floating_ip`, if none of them are specified,
-  a new IP address will be assigned to each. If one is specified, then the other two must also be specified.
-
 * `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled.
   Valid values are **true** and **false**. Defaults to **false**.
 
@@ -128,6 +113,21 @@ The following arguments are supported:
 
   -> 1. Storage expansion is a high-risk operation, with a certain risk of failure.
   <br/>2. Expansion failure may affect the usability of the instance. Please ensure to back up your data.
+
+* `master_private_ip` - (Optional, String, ForceNew) Specifies the private IP address of the master instance.
+
+  Changing this parameter will create a new resource.
+
+* `slave_private_ip` - (Optional, String, ForceNew) Specifies the private IP address of the slave instance.
+
+  Changing this parameter will create a new resource.
+
+* `floating_ip` - (Optional, String, ForceNew) Specifies the floating IP address of the CBH HA instance.
+
+  Changing this parameter will create a new resource.
+
+-> For the parameters `master_private_ip`, `slave_private_ip`, and `floating_ip`, if none of them are specified,
+a new IP address will be assigned to each. If one is specified, then the other two must also be specified.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBH HA instance.
 
