@@ -83,6 +83,8 @@ type VolumeRes struct {
 	MountPath string `json:"mount_path"`
 	Ownership string `json:"ownership"`
 	Status    string `json:"status"`
+	URI       string `json:"uri"`
+	ID        string `json:"id"`
 }
 
 type ListNotebooks struct {

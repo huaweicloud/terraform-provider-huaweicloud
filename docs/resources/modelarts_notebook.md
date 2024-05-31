@@ -11,21 +11,52 @@ Manages ModelArts notebook resource within HuaweiCloud.
 
 ## Example Usage
 
+### Create a notebook with the EVS storage type
+
 ```hcl
 variable "notebook_name" {}
 variable "key_pair_name" {}
-variable "ip" {}
+variable "image_id" {}
+variable "allowed_ip_addresses" {
+  type = list(string)
+}
+variable "key_pair_name" {}
 
-resource "huaweicloud_modelarts_notebook" "notebook" {
+resource "huaweicloud_modelarts_notebook" "test" {
   name      = var.notebook_name
   flavor_id = "modelarts.vm.cpu.2u"
-  image_id  = "e1a07296-22a8-4f05-8bc8-e936c8e54090"
+  image_id  = var.image_id
 
-  allowed_access_ips = [var.ip]
+  allowed_access_ips = var.allowed_ip_addresses
   key_pair           = var.key_pair_name
 
   volume {
-    type = "EFS"
+    type = "EVS"
+    size = 5
+  }
+}
+```
+
+### Create a notebook with the EFS storage type
+
+```hcl
+variable "notebook_name" {} 
+variable "image_id" {}
+variable "resource_pool_id" {}
+variable "sfs_export_location" {}
+variable "sfs_turbo_id" {}
+
+resource "huaweicloud_modelarts_notebook" "test" {
+  name      = var.notebook_name
+  flavor_id = "modelarts.vm.cpu.2u"
+  image_id  = var.image_id
+  pool_id   = var.resource_pool_id
+
+  volume {
+    type      = "EFS"
+    ownership = "DEDICATED"
+    uri       = var.sfs_export_location
+    id        = var.sfs_turbo_id
   }
 }
 ```
@@ -89,8 +120,12 @@ The `volume` block supports:
 
  Changing this parameter will create a new resource.
 
-* `uri` - (Optional, String, ForceNew) Specifies the uri of dedicated storage disk, which is mandatory when the `type`
+* `uri` - (Optional, String, ForceNew) Specifies the URL of dedicated storage disk, which is mandatory when the `type`
  is `EFS` and the `ownership` is `DEDICATED`. Example: `192.168.0.1:/user-9sfdsdgdfgh5ea4d56871e75d6966aa274/mount/`.
+ Changing this parameter will create a new resource.
+
+* `id` - (Optional, String, ForceNew) Specifies the ID of dedicated storage disk, which is mandatory when the `type`
+ is `EFS` and the `ownership` is `DEDICATED`.
  Changing this parameter will create a new resource.
 
 ## Attribute Reference
