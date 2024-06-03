@@ -141,6 +141,10 @@ a new IP address will be assigned to each. If one is specified, then the other t
   <br/>2. The **stop**, **soft-reboot**, and **hard-reboot** operations can only be performed when the instance status
   is **ACTIVE**.
 
+* `reset_admin_login` - (Optional, String) Specifies whether to reset the CBH HA instance administrator login method.
+  The values can be **true** or **false**. The administrator login method can only be reset when the instance status is
+  **ACTIVE**.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBH HA instance.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the CBH HA instance belongs.
@@ -183,7 +187,7 @@ $ terraform import huaweicloud_cbh_ha_instance.test <master_id>/<slave_id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `charging_mode`, `period`, `period_unit`,
-`auto_renew`, `password`, `ipv6_enable`, `attach_disk_size`, `power_action`.
+`auto_renew`, `password`, `ipv6_enable`, `attach_disk_size`, `power_action`, `reset_admin_login`.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated
 to align with the instance. Also, you can ignore changes as below.
@@ -195,6 +199,7 @@ resource "huaweicloud_cbh_ha_instance" "test" {
   lifecycle {
     ignore_changes = [
       charging_mode, period, period_unit, auto_renew, password, ipv6_enable, attach_disk_size, power_action,
+      reset_admin_login,
     ]
   }
 }

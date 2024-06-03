@@ -35,6 +35,7 @@ import (
 // @API CBH POST /v2/{project_id}/cbs/instance/start
 // @API CBH POST /v2/{project_id}/cbs/instance/stop
 // @API CBH POST /v2/{project_id}/cbs/instance/reboot
+// @API CBH PUT /v2/{project_id}/cbs/instance/login-method
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -191,6 +192,11 @@ func ResourceCBHHAInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the power action after the CBH HA instance is created.`,
+			},
+			"reset_admin_login": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies whether to reset the CBH HA instance administrator login method.`,
 			},
 			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
@@ -802,6 +808,13 @@ func resourceHAInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			if err := doActionInstanceTags(masterResourceId, "create", client, nMap); err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	isReset, ok := d.GetOk("reset_admin_login")
+	if d.HasChange("reset_admin_login") && (ok && isReset.(string) == "true") {
+		if err := resetInstanceAdminLoginMethod(client, masterId); err != nil {
+			return diag.Errorf("err resetting administrator login method for CBH HA instance (%s): %s", id, err)
 		}
 	}
 
