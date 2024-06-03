@@ -1261,6 +1261,9 @@ func resourceJobDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 		if err != nil {
 			return diag.Errorf("error getting resource IDs: %s", err)
 		}
+		if len(resourceIDs) != 1 {
+			return diag.Errorf("error getting resource IDs, more than 1 resources are get by order (%s)", orderId)
+		}
 		err = common.UnsubscribePrePaidResource(d, conf, resourceIDs)
 		if err != nil {
 			return diag.Errorf("error unsubscribing DRS job: %s", err)
