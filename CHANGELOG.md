@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## 1.65.0 (June 3, 2024)
+
+* **New Resource:**
+  + `huaweicloud_apig_application_quota` [GH-4922]
+  + `huaweicloud_apig_endpoint_connection_management` [GH-4921]
+  + `huaweicloud_css_cluster_restart` [GH-4916]
+  + `huaweicloud_hss_quota` [GH-4881]
+
+* **New Data Source:**
+  + `huaweicloud_apig_channels` [GH-4892]
+  + `huaweicloud_rms_resource_aggregation_pending_requests` [GH-4893]
+  + `huaweicloud_dms_rabbitmq_extend_flavors` [GH-4888]
+  + `huaweicloud_cts_trackers` [GH-4880]
+  + `huaweicloud_rms_resources` [GH-4879]
+  + `huaweicloud_dds_database_roles` [GH-4876]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cdn_domain: add access_area_filter support [GH-4939]
+* resource/huaweicloud_dms_kafka_instance: add arch_type support [GH-4919]
+* resource/huaweicloud_organizations_account: add delete support [GH-4889]
+
 ## 1.64.4 (May 26, 2024)
 
 ENHANCEMENTS:
