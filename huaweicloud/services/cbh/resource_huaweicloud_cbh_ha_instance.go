@@ -32,6 +32,9 @@ import (
 // @API CBH PUT /v2/{project_id}/cbs/instance
 // @API CBH POST /v2/{project_id}/cbs/instance/{resource_id}/tags/action
 // @API CBH GET /v2/{project_id}/cbs/instance/{resource_id}/tags
+// @API CBH POST /v2/{project_id}/cbs/instance/start
+// @API CBH POST /v2/{project_id}/cbs/instance/stop
+// @API CBH POST /v2/{project_id}/cbs/instance/reboot
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -184,6 +187,11 @@ func ResourceCBHHAInstance() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies the floating IP address of the CBH HA instance.`,
 			},
+			"power_action": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the power action after the CBH HA instance is created.`,
+			},
 			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
@@ -309,6 +317,17 @@ func resourceHAInstanceCreate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
+	// Create an instance in the shutdown state.
+	if action, ok := d.GetOk("power_action"); ok {
+		if action.(string) == Stop {
+			if err = doHAInstancePowerAction(ctx, client, d, d.Timeout(schema.TimeoutCreate), masterId); err != nil {
+				return diag.FromErr(err)
+			}
+		} else {
+			log.Printf("[WARN] the power action (%s) is invalid after CBH HA instance created", action)
+		}
+	}
+
 	return resourceHAInstanceRead(ctx, d, meta)
 }
 
@@ -403,6 +422,103 @@ func buildCreateHAInstanceNetworkPrivateIpBodyParam(d *schema.ResourceData) inte
 	}
 
 	return privateIPBodyParam
+}
+
+// doPowerAction is a method for CBH HA instance power doing startup, shutdown and reboot actions.
+func doHAInstancePowerAction(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, masterId string) error {
+	doActionInstancePath := client.Endpoint + "v2/{project_id}/cbs/instance/{action}"
+	doActionInstancePath = strings.ReplaceAll(doActionInstancePath, "{project_id}", client.ProjectID)
+	var (
+		id          = d.Id()
+		ids         = strings.Split(id, "/")
+		action      = d.Get("power_action").(string)
+		jsonBodyMap = map[string]interface{}{
+			"server_id": masterId,
+		}
+	)
+
+	if action == SoftReboot || action == HardReboot {
+		doActionInstancePath = strings.ReplaceAll(doActionInstancePath, "{action}", "reboot")
+		jsonBodyMap["reboot_type"] = convertPowerActionValue(action)
+	} else {
+		doActionInstancePath = strings.ReplaceAll(doActionInstancePath, "{action}", action)
+	}
+
+	doActionInstanceOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         jsonBodyMap,
+	}
+	_, err := client.Request("POST", doActionInstancePath, &doActionInstanceOpt)
+	if err != nil {
+		return fmt.Errorf("doing power action (%s) for CBH HA instance (%s) failed: %s", action, id, err)
+	}
+
+	if err := waitingForHAInstanceTaskCompleted(ctx, client, ids, timeout); err != nil {
+		return fmt.Errorf("error waiting for CBH HA instance (%s) doing action (%s) task to complete: %s", id, action, err)
+	}
+
+	if action == Start || action == SoftReboot || action == HardReboot {
+		if err := waitingForHAInstanceActive(ctx, client, ids, timeout); err != nil {
+			return fmt.Errorf("error waiting for CBH HA instance (%s) doing action (%s) to active: %s", id, action, err)
+		}
+	}
+
+	if action == Stop {
+		if err := waitingForHAInstanceShutoff(ctx, client, ids, timeout); err != nil {
+			return fmt.Errorf("error waiting for CBH HA instance (%s) doing action (%s) to shutoff: %s", id, action, err)
+		}
+	}
+
+	return nil
+}
+
+func waitingForHAInstanceShutoff(ctx context.Context, client *golangsdk.ServiceClient, ids []string,
+	timeout time.Duration) error {
+	for _, serverId := range ids {
+		expression := fmt.Sprintf("[?server_id == '%s']|[0]", serverId)
+		unexpectedStatus := []string{"DELETING", "DELETED", "ERROR", "FROZEN"}
+		stateConf := &resource.StateChangeConf{
+			Pending: []string{"PENDING"},
+			Target:  []string{"COMPLETED"},
+			Refresh: func() (interface{}, string, error) {
+				instances, err := getCBHInstanceList(client)
+				if err != nil {
+					return nil, "ERROR", err
+				}
+
+				instance := utils.PathSearch(expression, instances, nil)
+				if instance == nil {
+					return nil, "ERROR", golangsdk.ErrDefault404{}
+				}
+
+				status := utils.PathSearch("status_info.status", instance, "").(string)
+				if status == "SHUTOFF" {
+					return instance, "COMPLETED", nil
+				}
+
+				if status == "" {
+					return instance, "ERROR", fmt.Errorf("status is not found in list API response")
+				}
+
+				if utils.StrSliceContains(unexpectedStatus, status) {
+					return instance, status, nil
+				}
+
+				return instance, "PENDING", nil
+			},
+			Timeout:      timeout,
+			Delay:        10 * time.Second,
+			PollInterval: 10 * time.Second,
+		}
+
+		_, err := stateConf.WaitForStateContext(ctx)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func waitingForHAInstanceActive(ctx context.Context, client *golangsdk.ServiceClient, ids []string,
@@ -534,6 +650,15 @@ func resourceHAInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	if masterId == "" {
 		return diag.Errorf("error updating CBH HA instance: the master instance is not found in the list API response")
+	}
+
+	// Update instance can only be performed when the instance status is active.
+	// Therefore, if `power_action` is start, it must be done in the first step of the update function.
+	action := d.Get("power_action").(string)
+	if d.HasChanges("power_action") && action == Start {
+		if err = doHAInstancePowerAction(ctx, client, d, d.Timeout(schema.TimeoutUpdate), masterId); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	if d.HasChanges("security_group_id") {
@@ -677,6 +802,14 @@ func resourceHAInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			if err := doActionInstanceTags(masterResourceId, "create", client, nMap); err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	// The stop and reboot operations should be performed after the instance updated other parameters.
+	// Therefore, they must be performed at the end of the update function.
+	if d.HasChange("power_action") && (action == Stop || action == SoftReboot || action == HardReboot) {
+		if err = doHAInstancePowerAction(ctx, client, d, d.Timeout(schema.TimeoutUpdate), masterId); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

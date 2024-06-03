@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbh"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -224,4 +225,89 @@ resource "huaweicloud_cbh_ha_instance" "test" {
   }
 }
 `, testCBHInstance_base(name), name, epsId)
+}
+
+func TestAccCBHHAInstance_WithPowerAction(t *testing.T) {
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceName()
+		rName = "huaweicloud_cbh_ha_instance.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getCBHHAInstanceResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testCBHHAInstance_doAction_config(name, cbh.Stop),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "SHUTOFF"),
+				),
+			},
+			{
+				Config: testCBHHAInstance_doAction_config(name, cbh.Start),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testCBHHAInstance_doAction_config(name, cbh.SoftReboot),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testCBHHAInstance_doAction_config(name, cbh.HardReboot),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"charging_mode",
+					"password",
+					"period",
+					"period_unit",
+					"power_action",
+				},
+			},
+		},
+	})
+}
+
+func testCBHHAInstance_doAction_config(name, action string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cbh_ha_instance" "test" {
+  name                     = "%[2]s"
+  flavor_id                = "cbh.basic.10"
+  vpc_id                   = huaweicloud_vpc.test.id
+  subnet_id                = huaweicloud_vpc_subnet.test.id
+  security_group_id        = huaweicloud_networking_secgroup.test.id
+  master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  slave_availability_zone  = data.huaweicloud_availability_zones.test.names[1]
+  password                 = "test_123456"
+  charging_mode            = "prePaid"
+  period_unit              = "month"
+  period                   = 1
+  power_action             = "%[3]s"
+}
+`, testCBHInstance_base(name), name, action)
 }
