@@ -25,22 +25,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-type Edition string      // The edition of the dedicated instance.
-type ProviderType string // The type of the loadbalancer provider.
-
-const (
-	// IPv4 Editions
-	EditionBasic        Edition = "BASIC"        // Basic Edition instance.
-	EditionProfessional Edition = "PROFESSIONAL" // Professional Edition instance.
-	EditionEnterprise   Edition = "ENTERPRISE"   // Enterprise Edition instance.
-	EditionPlatinum     Edition = "PLATINUM"     // Platinum Edition instance.
-	// IPv6 Editions
-	Ipv6EditionBasic        Edition = "BASIC_IPv6"        // IPv6 instance of the Basic Edition.
-	Ipv6EditionProfessional Edition = "PROFESSIONAL_IPv6" // IPv6 instance of the Professional Edition.
-	Ipv6EditionEnterprise   Edition = "ENTERPRISE_IPv6"   // IPv6 instance of the Enterprise Edition.
-	Ipv6EditionPlatinum     Edition = "PLATINUM_IPv6"     // IPv6 instance of the Platinum Edition.
-)
-
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/eip
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/eip
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
@@ -81,30 +65,14 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Description: `The region in which to create the dedicated instance resource.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z-_0-9]*)$"),
-						"The name can only contain letters, digits, hyphens (-) and underscore (_), and must start "+
-							"with a letter."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: `The name of the dedicated instance.`,
 			},
 			"edition": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(EditionBasic),
-					string(EditionProfessional),
-					string(EditionEnterprise),
-					string(EditionPlatinum),
-					string(Ipv6EditionBasic),
-					string(Ipv6EditionProfessional),
-					string(Ipv6EditionEnterprise),
-					string(Ipv6EditionPlatinum),
-				}, false),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 				Description: `The edition of the dedicated instance.`,
 			},
 			"vpc_id": {
@@ -133,13 +101,8 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Description: `schema: Required; The name list of availability zones for the dedicated instance.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
-						"The description cannot contain the angle brackets (< and >)."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: `The description of the dedicated instance.`,
 			},
 			"enterprise_project_id": {
@@ -149,10 +112,9 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Description: `The enterprise project ID to which the dedicated instance belongs.`,
 			},
 			"bandwidth_size": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntBetween(0, 2000),
-				Description:  `The egress bandwidth size of the dedicated instance.`,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The egress bandwidth size of the dedicated instance.`,
 			},
 			"ipv6_enable": {
 				Type:        schema.TypeBool,
