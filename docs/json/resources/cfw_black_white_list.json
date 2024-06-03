@@ -15,6 +15,11 @@
                 "description": "Specifies the IP address type.",
                 "required": true
               },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true
+              },
               "direction": {
                 "type": "number",
                 "description": "Specifies the address direction.",

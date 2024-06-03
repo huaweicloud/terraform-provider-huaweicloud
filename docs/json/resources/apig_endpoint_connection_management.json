@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_endpoint_connection_management": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the operation type endpoint connection.",
+                "required": true
+              },
+              "endpoint_id": {
+                "type": "string",
+                "description": "Specifies the ID of the endpoint connection.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the endpoint connection belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current ststus of the endpoint connection.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

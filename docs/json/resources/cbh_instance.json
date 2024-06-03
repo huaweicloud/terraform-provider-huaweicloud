@@ -77,6 +77,11 @@
                 "required": true,
                 "forcenew": true
               },
+              "power_action": {
+                "type": "string",
+                "description": "Specifies the power action after the CBH instance is created.",
+                "optional": true
+              },
               "private_ip": {
                 "type": "string",
                 "description": "Indicates the private IP of the instance.",

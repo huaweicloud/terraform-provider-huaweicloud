@@ -65,12 +65,11 @@
               },
               "scope": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "description": "List of job types supported by the resource pool.",
-                "optional": true,
-                "computed": true
+                "required": true
               },
               "status": {
                 "type": "string",

@@ -10,6 +10,11 @@
                 "optional": true,
                 "forcenew": true
               },
+              "arch_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "auto_renew": {
                 "type": "string",
                 "optional": true

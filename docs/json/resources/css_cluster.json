@@ -79,7 +79,6 @@
               "password": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true,
                 "sensitive": true
               },
               "period": {
@@ -98,13 +97,11 @@
               },
               "security_group_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "security_mode": {
                 "type": "bool",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "status": {
                 "type": "string",

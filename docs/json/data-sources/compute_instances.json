@@ -13,6 +13,10 @@
                 "type": "string",
                 "optional": true
               },
+              "fixed_ip_v4": {
+                "type": "string",
+                "optional": true
+              },
               "flavor_id": {
                 "type": "string",
                 "optional": true

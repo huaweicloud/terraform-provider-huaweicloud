@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_environment_variables": {
+          "block": {
+            "attributes": {
+              "env_id": {
+                "type": "string",
+                "description": "Specifies the ID of the environment to which the environment variables belong.",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the group to which the environment variables belong.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the environment variables belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the environment variable.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "variables": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "env_id": "string",
+                      "group_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "All environment variables that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

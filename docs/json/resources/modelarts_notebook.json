@@ -113,6 +113,11 @@
               "volume": {
                 "block": {
                   "attributes": {
+                    "id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "mount_path": {
                       "type": "string",
                       "computed": true

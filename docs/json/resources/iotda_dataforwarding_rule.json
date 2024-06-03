@@ -92,6 +92,22 @@
                       "nesting_mode": "list",
                       "max_items": 1
                     },
+                    "fgs_forwarding": {
+                      "block": {
+                        "attributes": {
+                          "func_name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "func_urn": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
                     "http_forwarding": {
                       "block": {
                         "attributes": {

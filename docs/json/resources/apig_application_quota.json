@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_application_quota": {
+          "block": {
+            "attributes": {
+              "bind_num": {
+                "type": "number",
+                "description": "The number of bound APPs.",
+                "computed": true
+              },
+              "call_limits": {
+                "type": "number",
+                "description": "Specifies the access limit of the application quota.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the application quota, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the application quota.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the application quota belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the application quota.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "time_interval": {
+                "type": "number",
+                "description": "Specifies the limited time value for flow control of the application quota.",
+                "required": true
+              },
+              "time_unit": {
+                "type": "string",
+                "description": "Specifies the limited time unit of the application quota.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

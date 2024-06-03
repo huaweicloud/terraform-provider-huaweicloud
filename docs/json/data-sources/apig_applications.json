@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_applications": {
+          "block": {
+            "attributes": {
+              "app_key": {
+                "type": "string",
+                "description": "Specifies the key of the application to be queried.",
+                "optional": true
+              },
+              "application_id": {
+                "type": "string",
+                "description": "Specifies the ID of the application to be queried.",
+                "optional": true
+              },
+              "applications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_key": "string",
+                      "app_secret": "string",
+                      "app_type": "string",
+                      "bind_num": "number",
+                      "created_at": "string",
+                      "created_by": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "status": "number",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "Specifies the creator of the application to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the applications belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the application to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the data source.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

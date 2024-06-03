@@ -83,8 +83,7 @@
               },
               "security_group_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "status": {
                 "type": "string",

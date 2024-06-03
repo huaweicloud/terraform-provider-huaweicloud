@@ -1,0 +1,102 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_channels": {
+          "block": {
+            "attributes": {
+              "channel_id": {
+                "type": "string",
+                "description": "Specifies the VPC channel ID of the to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the channels belong.",
+                "required": true
+              },
+              "member_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the member group to be queried.",
+                "optional": true
+              },
+              "member_group_name": {
+                "type": "string",
+                "description": "Specifies the name of the member group to be queried.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the channel to be queried.",
+                "optional": true
+              },
+              "precise_search": {
+                "type": "string",
+                "description": "Specifies the parameter name for exact matching to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_channels": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "balance_strategy": "number",
+                      "created_at": "string",
+                      "id": "string",
+                      "member_group": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "id": "string",
+                            "microservice_labels": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "microservice_port": "number",
+                            "microservice_version": "string",
+                            "name": "string",
+                            "weight": "number"
+                          }
+                        ]
+                      ],
+                      "member_type": "string",
+                      "name": "string",
+                      "port": "number",
+                      "type": "number"
+                    }
+                  ]
+                ],
+                "description": "All VPC channels that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}
