@@ -110,6 +110,9 @@ The following arguments are supported:
 
   Defaults to **false**.
 
+* `anti_affinity` - (Optional, Bool, ForceNew) Specifies whether to enable anti-affinity. This field is valid only
+  when `res_tenant` is set to **true**. Changing this will create a new instance.
+
 ## Attribute Reference
 
 The following attributes are exported:
@@ -155,9 +158,9 @@ $ terraform import huaweicloud_waf_dedicated_instance.test <id>/<enterprise_proj
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include: `res_tenant`. It is generally recommended running `terraform plan` after
-importing the resource. You can then decide if changes should be applied to the resource, or the resource
-definition should be updated to align with the resource. Also, you can ignore changes as below.
+API response. The missing attributes include: `res_tenant`, `anti_affinity`. It is generally recommended running
+`terraform plan` after importing the resource. You can then decide if changes should be applied to the resource,
+or the resource definition should be updated to align with the resource. Also, you can ignore changes as below.
 
 ```
 resource "huaweicloud_waf_dedicated_instance" "test" {
@@ -165,7 +168,7 @@ resource "huaweicloud_waf_dedicated_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      res_tenant,
+      res_tenant, anti_affinity,
     ]
   }
 }

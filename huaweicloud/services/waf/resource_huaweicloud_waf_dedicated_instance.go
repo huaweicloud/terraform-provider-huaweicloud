@@ -118,6 +118,11 @@ func ResourceWafDedicatedInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"anti_affinity": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -170,6 +175,11 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 		PoolId:        d.Get("group_id").(string),
 		ResTenant:     utils.Bool(d.Get("res_tenant").(bool)),
 	}
+	if d.Get("res_tenant").(bool) {
+		// `anti_affinity` is valid only when `res_tenant` is true
+		createOpts.AntiAffinity = utils.Bool(d.Get("anti_affinity").(bool))
+	}
+
 	return &createOpts
 }
 

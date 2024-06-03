@@ -211,6 +211,7 @@ func TestAccWafDedicatedInstance_resourceTenant(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "access_status", "0"),
 					resource.TestCheckResourceAttr(resourceName, "upgradable", "0"),
 					resource.TestCheckResourceAttr(resourceName, "res_tenant", "true"),
+					resource.TestCheckResourceAttr(resourceName, "anti_affinity", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "server_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "subnet_id"),
@@ -222,7 +223,7 @@ func TestAccWafDedicatedInstance_resourceTenant(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"res_tenant"},
+				ImportStateVerifyIgnore: []string{"res_tenant", "anti_affinity"},
 			},
 		},
 	})
@@ -322,6 +323,7 @@ resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   vpc_id             = huaweicloud_vpc.test.id
   subnet_id          = huaweicloud_vpc_subnet.test.id
   res_tenant         = true
+  anti_affinity      = true
 
   security_group = [
     huaweicloud_networking_secgroup.test.id
