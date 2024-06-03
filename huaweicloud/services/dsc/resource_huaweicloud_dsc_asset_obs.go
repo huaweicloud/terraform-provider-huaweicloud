@@ -135,10 +135,10 @@ func resourceAssetObsCreate(ctx context.Context, d *schema.ResourceData, meta in
 func buildCreateAssetObsBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"buckets": []map[string]interface{}{{
-			"asset_name":    utils.ValueIngoreEmpty(d.Get("name")),
+			"asset_name":    utils.ValueIgnoreEmpty(d.Get("name")),
 			"location":      cfg.GetRegion(d),
-			"bucket_name":   utils.ValueIngoreEmpty(d.Get("bucket_name")),
-			"bucket_policy": utils.ValueIngoreEmpty(d.Get("bucket_policy")),
+			"bucket_name":   utils.ValueIgnoreEmpty(d.Get("bucket_name")),
+			"bucket_policy": utils.ValueIgnoreEmpty(d.Get("bucket_policy")),
 		},
 		},
 	}
@@ -250,7 +250,7 @@ func resourceAssetObsUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 func buildUpdateAssetObsBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name": utils.ValueIngoreEmpty(d.Get("name")),
+		"name": utils.ValueIgnoreEmpty(d.Get("name")),
 	}
 	return bodyParams
 }

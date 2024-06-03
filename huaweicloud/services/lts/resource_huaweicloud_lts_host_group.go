@@ -121,9 +121,9 @@ func resourceHostGroupCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 func buildCreateHostGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"host_group_name": utils.ValueIngoreEmpty(d.Get("name")),
-		"host_group_type": utils.ValueIngoreEmpty(d.Get("type")),
-		"host_id_list":    utils.ValueIngoreEmpty(d.Get("host_ids").(*schema.Set).List()),
+		"host_group_name": utils.ValueIgnoreEmpty(d.Get("name")),
+		"host_group_type": utils.ValueIgnoreEmpty(d.Get("type")),
+		"host_id_list":    utils.ValueIgnoreEmpty(d.Get("host_ids").(*schema.Set).List()),
 		"host_group_tag":  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	return bodyParams

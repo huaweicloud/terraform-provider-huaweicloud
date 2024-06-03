@@ -173,10 +173,10 @@ func buildCreateOrUpdateArchitectureProcessBodyParams(d *schema.ResourceData) ma
 	return map[string]interface{}{
 		"name":        d.Get("name"),
 		"owner":       d.Get("owner"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"parent_id":   utils.ValueIngoreEmpty(d.Get("parent_id")),
-		"prev_id":     utils.ValueIngoreEmpty(d.Get("prev_id")),
-		"next_id":     utils.ValueIngoreEmpty(d.Get("next_id")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"parent_id":   utils.ValueIgnoreEmpty(d.Get("parent_id")),
+		"prev_id":     utils.ValueIgnoreEmpty(d.Get("prev_id")),
+		"next_id":     utils.ValueIgnoreEmpty(d.Get("next_id")),
 	}
 }
 

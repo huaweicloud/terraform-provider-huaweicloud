@@ -191,9 +191,9 @@ func resourceBackupCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 func buildCreateBackupBodyParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"instance_id": utils.ValueIngoreEmpty(d.Get("instance_id")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"instance_id": utils.ValueIgnoreEmpty(d.Get("instance_id")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"databases":   buildCreateBackupDatabasesChildBody(d),
 	}
 	return bodyParams
@@ -209,7 +209,7 @@ func buildCreateBackupDatabasesChildBody(d *schema.ResourceData) []map[string]in
 	for i, v := range rawParams {
 		raw := v.(map[string]interface{})
 		params[i] = map[string]interface{}{
-			"name": utils.ValueIngoreEmpty(raw["name"]),
+			"name": utils.ValueIgnoreEmpty(raw["name"]),
 		}
 	}
 

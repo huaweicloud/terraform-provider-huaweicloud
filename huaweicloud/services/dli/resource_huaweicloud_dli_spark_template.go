@@ -300,9 +300,9 @@ func resourceSparkTemplateCreate(ctx context.Context, d *schema.ResourceData, me
 func buildSparkTemplateRequestBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"type":        "SPARK",
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"group":       utils.ValueIngoreEmpty(d.Get("group")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"group":       utils.ValueIgnoreEmpty(d.Get("group")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"body":        buildSparkTemplateContent(d.Get("body")),
 	}
 	return bodyParams
@@ -315,27 +315,27 @@ func buildSparkTemplateContent(rawParams interface{}) map[string]interface{} {
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"queue":           utils.ValueIngoreEmpty(raw["queue_name"]),
-			"name":            utils.ValueIngoreEmpty(raw["name"]),
-			"file":            utils.ValueIngoreEmpty(raw["app_name"]),
-			"className":       utils.ValueIngoreEmpty(raw["main_class"]),
-			"args":            utils.ValueIngoreEmpty(raw["app_parameters"]),
-			"sc_type":         utils.ValueIngoreEmpty(raw["specification"]),
-			"jars":            utils.ValueIngoreEmpty(raw["jars"]),
-			"pyFiles":         utils.ValueIngoreEmpty(raw["python_files"]),
-			"files":           utils.ValueIngoreEmpty(raw["files"]),
-			"modules":         utils.ValueIngoreEmpty(raw["modules"]),
+			"queue":           utils.ValueIgnoreEmpty(raw["queue_name"]),
+			"name":            utils.ValueIgnoreEmpty(raw["name"]),
+			"file":            utils.ValueIgnoreEmpty(raw["app_name"]),
+			"className":       utils.ValueIgnoreEmpty(raw["main_class"]),
+			"args":            utils.ValueIgnoreEmpty(raw["app_parameters"]),
+			"sc_type":         utils.ValueIgnoreEmpty(raw["specification"]),
+			"jars":            utils.ValueIgnoreEmpty(raw["jars"]),
+			"pyFiles":         utils.ValueIgnoreEmpty(raw["python_files"]),
+			"files":           utils.ValueIgnoreEmpty(raw["files"]),
+			"modules":         utils.ValueIgnoreEmpty(raw["modules"]),
 			"resources":       buildSparkTemplateResource(raw["resources"]),
 			"groups":          buildSparkTemplateGroup(raw["dependent_packages"]),
-			"conf":            utils.ValueIngoreEmpty(raw["configurations"]),
-			"driverMemory":    utils.ValueIngoreEmpty(raw["driver_memory"]),
-			"driverCores":     utils.ValueIngoreEmpty(raw["driver_cores"]),
-			"executorMemory":  utils.ValueIngoreEmpty(raw["executor_memory"]),
-			"executorCores":   utils.ValueIngoreEmpty(raw["executor_cores"]),
-			"numExecutors":    utils.ValueIngoreEmpty(raw["num_executors"]),
-			"obs_bucket":      utils.ValueIngoreEmpty(raw["obs_bucket"]),
-			"auto_recovery":   utils.ValueIngoreEmpty(raw["auto_recovery"]),
-			"max_retry_times": utils.ValueIngoreEmpty(raw["max_retry_times"]),
+			"conf":            utils.ValueIgnoreEmpty(raw["configurations"]),
+			"driverMemory":    utils.ValueIgnoreEmpty(raw["driver_memory"]),
+			"driverCores":     utils.ValueIgnoreEmpty(raw["driver_cores"]),
+			"executorMemory":  utils.ValueIgnoreEmpty(raw["executor_memory"]),
+			"executorCores":   utils.ValueIgnoreEmpty(raw["executor_cores"]),
+			"numExecutors":    utils.ValueIgnoreEmpty(raw["num_executors"]),
+			"obs_bucket":      utils.ValueIgnoreEmpty(raw["obs_bucket"]),
+			"auto_recovery":   utils.ValueIgnoreEmpty(raw["auto_recovery"]),
+			"max_retry_times": utils.ValueIgnoreEmpty(raw["max_retry_times"]),
 		}
 		return params
 	}
@@ -352,8 +352,8 @@ func buildSparkTemplateResource(rawParams interface{}) []map[string]interface{} 
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name": utils.ValueIngoreEmpty(raw["name"]),
-				"type": utils.ValueIngoreEmpty(raw["type"]),
+				"name": utils.ValueIgnoreEmpty(raw["name"]),
+				"type": utils.ValueIgnoreEmpty(raw["type"]),
 			}
 		}
 		return rst
@@ -371,7 +371,7 @@ func buildSparkTemplateGroup(rawParams interface{}) []map[string]interface{} {
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name":      utils.ValueIngoreEmpty(raw["name"]),
+				"name":      utils.ValueIgnoreEmpty(raw["name"]),
 				"resources": buildSparkTemplateResource(raw["resources"]),
 			}
 		}

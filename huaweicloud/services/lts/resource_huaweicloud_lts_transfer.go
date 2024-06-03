@@ -321,7 +321,7 @@ func resourceLtsTransferCreate(ctx context.Context, d *schema.ResourceData, meta
 
 func buildCreateTransferBodyParams(d *schema.ResourceData, domainID, projectID string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"log_group_id":      utils.ValueIngoreEmpty(d.Get("log_group_id")),
+		"log_group_id":      utils.ValueIgnoreEmpty(d.Get("log_group_id")),
 		"log_streams":       buildCreateTransferRequestBodyLogStreams(d.Get("log_streams")),
 		"log_transfer_info": buildCreateTransferRequestBodyLogTransferInfo(d.Get("log_transfer_info"), domainID, projectID),
 	}
@@ -338,8 +338,8 @@ func buildCreateTransferRequestBodyLogStreams(rawParams interface{}) []map[strin
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"log_stream_id":   utils.ValueIngoreEmpty(raw["log_stream_id"]),
-				"log_stream_name": utils.ValueIngoreEmpty(raw["log_stream_name"]),
+				"log_stream_id":   utils.ValueIgnoreEmpty(raw["log_stream_id"]),
+				"log_stream_name": utils.ValueIgnoreEmpty(raw["log_stream_name"]),
 			}
 		}
 		return rst
@@ -354,10 +354,10 @@ func buildCreateTransferRequestBodyLogTransferInfo(rawParams interface{}, domain
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"log_transfer_type":   utils.ValueIngoreEmpty(raw["log_transfer_type"]),
-			"log_transfer_mode":   utils.ValueIngoreEmpty(raw["log_transfer_mode"]),
-			"log_storage_format":  utils.ValueIngoreEmpty(raw["log_storage_format"]),
-			"log_transfer_status": utils.ValueIngoreEmpty(raw["log_transfer_status"]),
+			"log_transfer_type":   utils.ValueIgnoreEmpty(raw["log_transfer_type"]),
+			"log_transfer_mode":   utils.ValueIgnoreEmpty(raw["log_transfer_mode"]),
+			"log_storage_format":  utils.ValueIgnoreEmpty(raw["log_storage_format"]),
+			"log_transfer_status": utils.ValueIgnoreEmpty(raw["log_transfer_status"]),
 			"log_agency_transfer": buildLogTransferInfoLogAgency(raw["log_agency_transfer"], domainID, projectID),
 			"log_transfer_detail": buildLogTransferInfoLogTransferDetail(raw["log_transfer_detail"]),
 		}
@@ -373,10 +373,10 @@ func buildLogTransferInfoLogAgency(rawParams interface{}, domainID, projectID st
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"agency_domain_id":     utils.ValueIngoreEmpty(raw["agency_domain_id"]),
-			"agency_domain_name":   utils.ValueIngoreEmpty(raw["agency_domain_name"]),
-			"agency_name":          utils.ValueIngoreEmpty(raw["agency_name"]),
-			"agency_project_id":    utils.ValueIngoreEmpty(raw["agency_project_id"]),
+			"agency_domain_id":     utils.ValueIgnoreEmpty(raw["agency_domain_id"]),
+			"agency_domain_name":   utils.ValueIgnoreEmpty(raw["agency_domain_name"]),
+			"agency_name":          utils.ValueIgnoreEmpty(raw["agency_name"]),
+			"agency_project_id":    utils.ValueIgnoreEmpty(raw["agency_project_id"]),
 			"be_agency_domain_id":  domainID,
 			"be_agency_project_id": projectID,
 		}
@@ -392,22 +392,22 @@ func buildLogTransferInfoLogTransferDetail(rawParams interface{}) map[string]int
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"obs_period":           utils.ValueIngoreEmpty(raw["obs_period"]),
-			"obs_period_unit":      utils.ValueIngoreEmpty(raw["obs_period_unit"]),
-			"obs_bucket_name":      utils.ValueIngoreEmpty(raw["obs_bucket_name"]),
-			"obs_transfer_path":    utils.ValueIngoreEmpty(raw["obs_transfer_path"]),
-			"obs_dir_pre_fix_name": utils.ValueIngoreEmpty(raw["obs_dir_prefix_name"]),
-			"obs_prefix_name":      utils.ValueIngoreEmpty(raw["obs_prefix_name"]),
-			"obs_eps_id":           utils.ValueIngoreEmpty(raw["obs_eps_id"]),
-			"obs_encrypted_enable": utils.ValueIngoreEmpty(raw["obs_encrypted_enable"]),
-			"obs_encrypted_id":     utils.ValueIngoreEmpty(raw["obs_encrypted_id"]),
-			"obs_time_zone":        utils.ValueIngoreEmpty(raw["obs_time_zone"]),
-			"obs_time_zone_id":     utils.ValueIngoreEmpty(raw["obs_time_zone_id"]),
-			"dis_id":               utils.ValueIngoreEmpty(raw["dis_id"]),
-			"dis_name":             utils.ValueIngoreEmpty(raw["dis_name"]),
-			"kafka_id":             utils.ValueIngoreEmpty(raw["kafka_id"]),
-			"kafka_topic":          utils.ValueIngoreEmpty(raw["kafka_topic"]),
-			"tags":                 utils.ValueIngoreEmpty(raw["delivery_tags"]),
+			"obs_period":           utils.ValueIgnoreEmpty(raw["obs_period"]),
+			"obs_period_unit":      utils.ValueIgnoreEmpty(raw["obs_period_unit"]),
+			"obs_bucket_name":      utils.ValueIgnoreEmpty(raw["obs_bucket_name"]),
+			"obs_transfer_path":    utils.ValueIgnoreEmpty(raw["obs_transfer_path"]),
+			"obs_dir_pre_fix_name": utils.ValueIgnoreEmpty(raw["obs_dir_prefix_name"]),
+			"obs_prefix_name":      utils.ValueIgnoreEmpty(raw["obs_prefix_name"]),
+			"obs_eps_id":           utils.ValueIgnoreEmpty(raw["obs_eps_id"]),
+			"obs_encrypted_enable": utils.ValueIgnoreEmpty(raw["obs_encrypted_enable"]),
+			"obs_encrypted_id":     utils.ValueIgnoreEmpty(raw["obs_encrypted_id"]),
+			"obs_time_zone":        utils.ValueIgnoreEmpty(raw["obs_time_zone"]),
+			"obs_time_zone_id":     utils.ValueIgnoreEmpty(raw["obs_time_zone_id"]),
+			"dis_id":               utils.ValueIgnoreEmpty(raw["dis_id"]),
+			"dis_name":             utils.ValueIgnoreEmpty(raw["dis_name"]),
+			"kafka_id":             utils.ValueIgnoreEmpty(raw["kafka_id"]),
+			"kafka_topic":          utils.ValueIgnoreEmpty(raw["kafka_topic"]),
+			"tags":                 utils.ValueIgnoreEmpty(raw["delivery_tags"]),
 		}
 		return params
 	}
@@ -598,7 +598,7 @@ func resourceLtsTransferUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 func buildUpdateTransferBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"log_transfer_id":   utils.ValueIngoreEmpty(d.Id()),
+		"log_transfer_id":   utils.ValueIgnoreEmpty(d.Id()),
 		"log_transfer_info": buildUpdateTransferRequestBodyLogTransferInfoUpdate(d.Get("log_transfer_info")),
 	}
 	return bodyParams
@@ -611,8 +611,8 @@ func buildUpdateTransferRequestBodyLogTransferInfoUpdate(rawParams interface{}) 
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"log_storage_format":  utils.ValueIngoreEmpty(raw["log_storage_format"]),
-			"log_transfer_status": utils.ValueIngoreEmpty(raw["log_transfer_status"]),
+			"log_storage_format":  utils.ValueIgnoreEmpty(raw["log_storage_format"]),
+			"log_transfer_status": utils.ValueIgnoreEmpty(raw["log_transfer_status"]),
 			"log_transfer_detail": buildLogTransferInfoLogTransferDetail(raw["log_transfer_detail"]),
 		}
 		return params

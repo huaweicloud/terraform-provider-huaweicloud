@@ -397,23 +397,23 @@ func buildCreateModelBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"model_docs":         buildCreateModelReqBodyModelDocs(d.Get("model_docs")),
 		"template":           buildCreateModelReqBodyTemplate(d.Get("template")),
-		"model_version":      utils.ValueIngoreEmpty(d.Get("version")),
-		"source_job_version": utils.ValueIngoreEmpty(d.Get("source_job_version")),
-		"source_location":    utils.ValueIngoreEmpty(d.Get("source_location")),
-		"source_copy":        utils.ValueIngoreEmpty(d.Get("source_copy")),
-		"initial_config":     utils.ValueIngoreEmpty(d.Get("initial_config")),
-		"execution_code":     utils.ValueIngoreEmpty(d.Get("execution_code")),
-		"source_job_id":      utils.ValueIngoreEmpty(d.Get("source_job_id")),
-		"model_type":         utils.ValueIngoreEmpty(d.Get("model_type")),
-		"description":        utils.ValueIngoreEmpty(d.Get("description")),
-		"runtime":            utils.ValueIngoreEmpty(d.Get("runtime")),
-		"model_metrics":      utils.ValueIngoreEmpty(d.Get("metrics")),
-		"source_type":        utils.ValueIngoreEmpty(d.Get("source_type")),
+		"model_version":      utils.ValueIgnoreEmpty(d.Get("version")),
+		"source_job_version": utils.ValueIgnoreEmpty(d.Get("source_job_version")),
+		"source_location":    utils.ValueIgnoreEmpty(d.Get("source_location")),
+		"source_copy":        utils.ValueIgnoreEmpty(d.Get("source_copy")),
+		"initial_config":     utils.ValueIgnoreEmpty(d.Get("initial_config")),
+		"execution_code":     utils.ValueIgnoreEmpty(d.Get("execution_code")),
+		"source_job_id":      utils.ValueIgnoreEmpty(d.Get("source_job_id")),
+		"model_type":         utils.ValueIgnoreEmpty(d.Get("model_type")),
+		"description":        utils.ValueIgnoreEmpty(d.Get("description")),
+		"runtime":            utils.ValueIgnoreEmpty(d.Get("runtime")),
+		"model_metrics":      utils.ValueIgnoreEmpty(d.Get("metrics")),
+		"source_type":        utils.ValueIgnoreEmpty(d.Get("source_type")),
 		"dependencies":       buildCreateModelReqBodyDependency(d.Get("dependencies")),
-		"workspace_id":       utils.ValueIngoreEmpty(d.Get("workspace_id")),
-		"model_algorithm":    utils.ValueIngoreEmpty(d.Get("model_algorithm")),
-		"model_name":         utils.ValueIngoreEmpty(d.Get("name")),
-		"install_type":       utils.ValueIngoreEmpty(d.Get("install_type")),
+		"workspace_id":       utils.ValueIgnoreEmpty(d.Get("workspace_id")),
+		"model_algorithm":    utils.ValueIgnoreEmpty(d.Get("model_algorithm")),
+		"model_name":         utils.ValueIgnoreEmpty(d.Get("name")),
+		"install_type":       utils.ValueIgnoreEmpty(d.Get("install_type")),
 	}
 	return bodyParams
 }
@@ -428,8 +428,8 @@ func buildCreateModelReqBodyModelDocs(rawParams interface{}) []map[string]interf
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"doc_url":  utils.ValueIngoreEmpty(raw["doc_url"]),
-				"doc_name": utils.ValueIngoreEmpty(raw["doc_name"]),
+				"doc_url":  utils.ValueIgnoreEmpty(raw["doc_url"]),
+				"doc_name": utils.ValueIgnoreEmpty(raw["doc_name"]),
 			}
 		}
 		return rst
@@ -444,8 +444,8 @@ func buildCreateModelReqBodyTemplate(rawParams interface{}) map[string]interface
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"infer_format":    utils.ValueIngoreEmpty(raw["infer_format"]),
-			"template_id":     utils.ValueIngoreEmpty(raw["template_id"]),
+			"infer_format":    utils.ValueIgnoreEmpty(raw["infer_format"]),
+			"template_id":     utils.ValueIgnoreEmpty(raw["template_id"]),
 			"template_inputs": buildTemplateTemplateInput(raw["template_inputs"]),
 		}
 		return params
@@ -463,8 +463,8 @@ func buildTemplateTemplateInput(rawParams interface{}) []map[string]interface{} 
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"input":    utils.ValueIngoreEmpty(raw["input"]),
-				"input_id": utils.ValueIngoreEmpty(raw["input_id"]),
+				"input":    utils.ValueIgnoreEmpty(raw["input"]),
+				"input_id": utils.ValueIgnoreEmpty(raw["input_id"]),
 			}
 		}
 		return rst
@@ -482,7 +482,7 @@ func buildCreateModelReqBodyDependency(rawParams interface{}) []map[string]inter
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"installer": utils.ValueIngoreEmpty(raw["installer"]),
+				"installer": utils.ValueIgnoreEmpty(raw["installer"]),
 				"packages":  buildDependencypackage(raw["packages"]),
 			}
 		}
@@ -501,9 +501,9 @@ func buildDependencypackage(rawParams interface{}) []map[string]interface{} {
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"package_version": utils.ValueIngoreEmpty(raw["package_version"]),
-				"package_name":    utils.ValueIngoreEmpty(raw["package_name"]),
-				"restraint":       utils.ValueIngoreEmpty(raw["restraint"]),
+				"package_version": utils.ValueIgnoreEmpty(raw["package_version"]),
+				"package_name":    utils.ValueIgnoreEmpty(raw["package_name"]),
+				"restraint":       utils.ValueIgnoreEmpty(raw["restraint"]),
 			}
 		}
 		return rst

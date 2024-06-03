@@ -123,7 +123,7 @@ func resourceWorkLoadPlanCreate(ctx context.Context, d *schema.ResourceData, met
 func buildCreateWorkLoadPlanBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"plan_name":            d.Get("name").(string),
-		"logical_cluster_name": utils.ValueIngoreEmpty(d.Get("logical_cluster_name").(string)),
+		"logical_cluster_name": utils.ValueIgnoreEmpty(d.Get("logical_cluster_name").(string)),
 	}
 }
 

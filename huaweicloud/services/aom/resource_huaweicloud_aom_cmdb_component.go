@@ -82,7 +82,7 @@ func buildCreateComponentBodyParams(d *schema.ResourceData) map[string]interface
 		"name":        d.Get("name"),
 		"model_id":    d.Get("model_id"),
 		"model_type":  d.Get("model_type"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

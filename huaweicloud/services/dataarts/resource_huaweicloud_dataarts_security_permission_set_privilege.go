@@ -170,13 +170,13 @@ func buildCreatePermissionSetPrivilegeBodyParams(d *schema.ResourceData) map[str
 		"permission_type":    d.Get("type"),
 		"permission_actions": utils.ExpandToStringList(d.Get("actions").(*schema.Set).List()),
 		"cluster_name":       d.Get("cluster_name"),
-		"cluster_id":         utils.ValueIngoreEmpty(d.Get("cluster_id")),
-		"dw_id":              utils.ValueIngoreEmpty(d.Get("connection_id")),
-		"url":                utils.ValueIngoreEmpty(d.Get("database_url")),
-		"database_name":      utils.ValueIngoreEmpty(d.Get("database_name")),
-		"table_name":         utils.ValueIngoreEmpty(d.Get("table_name")),
-		"column_name":        utils.ValueIngoreEmpty(d.Get("column_name")),
-		"schema_name":        utils.ValueIngoreEmpty(d.Get("schema_name")),
+		"cluster_id":         utils.ValueIgnoreEmpty(d.Get("cluster_id")),
+		"dw_id":              utils.ValueIgnoreEmpty(d.Get("connection_id")),
+		"url":                utils.ValueIgnoreEmpty(d.Get("database_url")),
+		"database_name":      utils.ValueIgnoreEmpty(d.Get("database_name")),
+		"table_name":         utils.ValueIgnoreEmpty(d.Get("table_name")),
+		"column_name":        utils.ValueIgnoreEmpty(d.Get("column_name")),
+		"schema_name":        utils.ValueIgnoreEmpty(d.Get("schema_name")),
 	}
 	return bodyParams
 }
@@ -284,7 +284,7 @@ func resourceSecurityPermissionSetPrivilegeUpdate(ctx context.Context, d *schema
 
 func buildUpdatePermissionSetPrivilegeBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"dw_id":              utils.ValueIngoreEmpty(d.Get("connection_id")),
+		"dw_id":              utils.ValueIgnoreEmpty(d.Get("connection_id")),
 		"permission_actions": utils.ExpandToStringList(d.Get("actions").(*schema.Set).List()),
 	}
 	return bodyParams

@@ -307,7 +307,7 @@ func buildGetFlavorsBodyParams(d *schema.ResourceData, projectId, region string)
 	params["resource_spec"] = d.Get("resource_spec_code")
 	params["region"] = region
 	params["period_type"] = periodType
-	params["period_num"] = utils.ValueIngoreEmpty(d.Get("period"))
+	params["period_num"] = utils.ValueIgnoreEmpty(d.Get("period"))
 	params["subscription_num"] = "1"
 
 	bodyParams := map[string]interface{}{
@@ -364,19 +364,19 @@ func buildPayOrderBodyParams(orderId string) map[string]interface{} {
 func buildCreateInstanceBodyParams(d *schema.ResourceData, productId string, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"region":                cfg.GetRegion(d),
-		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-		"comment":               utils.ValueIngoreEmpty(d.Get("description")),
-		"availability_zone":     utils.ValueIngoreEmpty(d.Get("availability_zone")),
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"comment":               utils.ValueIgnoreEmpty(d.Get("description")),
+		"availability_zone":     utils.ValueIgnoreEmpty(d.Get("availability_zone")),
 		"cloud_service_type":    "hws.service.type.dbss",
-		"flavor_ref":            utils.ValueIngoreEmpty(d.Get("flavor")),
-		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
+		"flavor_ref":            utils.ValueIgnoreEmpty(d.Get("flavor")),
+		"vpc_id":                utils.ValueIgnoreEmpty(d.Get("vpc_id")),
 		"nics":                  buildCreateInstanceNicsRequestBody(d),
 		"security_groups":       buildCreateInstanceSecurityGroupsRequestBody(d),
 		"product_infos":         buildCreateInstanceProductInfosRequestBody(d, productId),
 		"subscription_num":      1,
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
-		"period_num":            utils.ValueIngoreEmpty(d.Get("period")),
+		"period_num":            utils.ValueIgnoreEmpty(d.Get("period")),
 	}
 
 	chargingMode := d.Get("charging_mode").(string)
@@ -403,8 +403,8 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, productId string, cfg
 func buildCreateInstanceNicsRequestBody(d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"ip_address": utils.ValueIngoreEmpty(d.Get("ip_address")),
-			"subnet_id":  utils.ValueIngoreEmpty(d.Get("subnet_id")),
+			"ip_address": utils.ValueIgnoreEmpty(d.Get("ip_address")),
+			"subnet_id":  utils.ValueIgnoreEmpty(d.Get("subnet_id")),
 		},
 	}
 }
@@ -412,7 +412,7 @@ func buildCreateInstanceNicsRequestBody(d *schema.ResourceData) []map[string]int
 func buildCreateInstanceSecurityGroupsRequestBody(d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
+			"id": utils.ValueIgnoreEmpty(d.Get("security_group_id")),
 		},
 	}
 }
@@ -422,8 +422,8 @@ func buildCreateInstanceProductInfosRequestBody(d *schema.ResourceData, productI
 		{
 			"cloud_service_type": "hws.service.type.dbss",
 			"product_id":         productId,
-			"product_spec_desc":  utils.ValueIngoreEmpty(d.Get("resource_spec_code")),
-			"resource_spec_code": utils.ValueIngoreEmpty(d.Get("resource_spec_code")),
+			"product_spec_desc":  utils.ValueIgnoreEmpty(d.Get("resource_spec_code")),
+			"resource_spec_code": utils.ValueIgnoreEmpty(d.Get("resource_spec_code")),
 			"resource_type":      "hws.resource.type.dbss",
 		},
 	}

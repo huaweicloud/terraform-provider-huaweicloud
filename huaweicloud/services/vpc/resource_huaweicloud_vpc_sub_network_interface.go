@@ -107,12 +107,12 @@ func buildCreateSubNetworkInterfaceBodyParams(d *schema.ResourceData) map[string
 		"sub_network_interface": map[string]interface{}{
 			"virsubnet_id":       d.Get("subnet_id"),
 			"parent_id":          d.Get("parent_id"),
-			"security_groups":    utils.ValueIngoreEmpty(d.Get("security_group_ids")),
-			"description":        utils.ValueIngoreEmpty(d.Get("description")),
-			"vlan_id":            utils.ValueIngoreEmpty(d.Get("vlan_id")),
-			"private_ip_address": utils.ValueIngoreEmpty(d.Get("ip_address")),
-			"ipv6_enable":        utils.ValueIngoreEmpty(d.Get("ipv6_enable")),
-			"ipv6_ip_address":    utils.ValueIngoreEmpty(d.Get("ipv6_ip_address")),
+			"security_groups":    utils.ValueIgnoreEmpty(d.Get("security_group_ids")),
+			"description":        utils.ValueIgnoreEmpty(d.Get("description")),
+			"vlan_id":            utils.ValueIgnoreEmpty(d.Get("vlan_id")),
+			"private_ip_address": utils.ValueIgnoreEmpty(d.Get("ip_address")),
+			"ipv6_enable":        utils.ValueIgnoreEmpty(d.Get("ipv6_enable")),
+			"ipv6_ip_address":    utils.ValueIgnoreEmpty(d.Get("ipv6_ip_address")),
 		},
 	}
 	return bodyParams
@@ -221,7 +221,7 @@ func buildUpdateSubNetworkInterfaceBodyParams(d *schema.ResourceData) map[string
 	bodyParams := map[string]interface{}{
 		"sub_network_interface": map[string]interface{}{
 			"description":     d.Get("description"),
-			"security_groups": utils.ValueIngoreEmpty(d.Get("security_group_ids")),
+			"security_groups": utils.ValueIgnoreEmpty(d.Get("security_group_ids")),
 		},
 	}
 	return bodyParams

@@ -174,11 +174,11 @@ func buildCreateCustomerGatewayBodyParams(d *schema.ResourceData) map[string]int
 
 func buildCreateCustomerGatewayCustomerGatewayChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":       utils.ValueIngoreEmpty(d.Get("name")),
-		"ip":         utils.ValueIngoreEmpty(d.Get("ip")),
-		"bgp_asn":    utils.ValueIngoreEmpty(d.Get("asn")),
-		"route_mode": utils.ValueIngoreEmpty(d.Get("route_mode")),
-		"tags":       utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+		"name":       utils.ValueIgnoreEmpty(d.Get("name")),
+		"ip":         utils.ValueIgnoreEmpty(d.Get("ip")),
+		"bgp_asn":    utils.ValueIgnoreEmpty(d.Get("asn")),
+		"route_mode": utils.ValueIgnoreEmpty(d.Get("route_mode")),
+		"tags":       utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	if certificateContent, ok := d.GetOk("certificate_content"); ok {
 		params["ca_certificate"] = map[string]interface{}{
@@ -305,7 +305,7 @@ func buildUpdateCustomerGatewayBodyParams(d *schema.ResourceData) map[string]int
 
 func buildUpdateCustomerGatewayCustomerGatewayChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name": utils.ValueIngoreEmpty(d.Get("name")),
+		"name": utils.ValueIgnoreEmpty(d.Get("name")),
 	}
 	if certificateContent, ok := d.GetOk("certificate_content"); ok {
 		params["ca_certificate"] = map[string]interface{}{

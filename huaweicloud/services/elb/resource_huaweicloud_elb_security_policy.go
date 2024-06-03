@@ -160,11 +160,11 @@ func buildCreateSecurityPolicyBodyParams(d *schema.ResourceData, cfg *config.Con
 
 func buildCreateSecurityPolicyChildBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	return map[string]interface{}{
-		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
-		"protocols":             utils.ValueIngoreEmpty(d.Get("protocols")),
-		"ciphers":               utils.ValueIngoreEmpty(d.Get("ciphers")),
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"protocols":             utils.ValueIgnoreEmpty(d.Get("protocols")),
+		"ciphers":               utils.ValueIgnoreEmpty(d.Get("ciphers")),
 	}
 }
 
@@ -316,9 +316,9 @@ func buildUpdateSecurityPolicyBodyParams(d *schema.ResourceData, cfg *config.Con
 
 func buildUpdateSecurityPolicyChildBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	return map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"protocols":   utils.ValueIngoreEmpty(d.Get("protocols")),
-		"ciphers":     utils.ValueIngoreEmpty(d.Get("ciphers")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"protocols":   utils.ValueIgnoreEmpty(d.Get("protocols")),
+		"ciphers":     utils.ValueIgnoreEmpty(d.Get("ciphers")),
 	}
 }

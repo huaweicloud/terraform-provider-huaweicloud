@@ -242,8 +242,8 @@ func resourceEsLoadbalancerConfigCreate(ctx context.Context, d *schema.ResourceD
 func buildCreateEsListenerBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"protocol_port":  d.Get("protocol_port").(int),
-		"server_cert_id": utils.ValueIngoreEmpty(d.Get("server_cert_id")),
-		"ca_cert_id":     utils.ValueIngoreEmpty(d.Get("ca_cert_id")),
+		"server_cert_id": utils.ValueIgnoreEmpty(d.Get("server_cert_id")),
+		"ca_cert_id":     utils.ValueIgnoreEmpty(d.Get("ca_cert_id")),
 		"protocol":       "HTTP",
 	}
 	if _, ok := d.GetOk("server_cert_id"); ok {

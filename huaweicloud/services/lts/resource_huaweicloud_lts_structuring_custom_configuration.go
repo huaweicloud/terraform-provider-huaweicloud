@@ -208,10 +208,10 @@ func buildCreateOrUpdateStructCustomConfigBodyParams(d *schema.ResourceData) map
 		"log_stream_id": d.Get("log_stream_id"),
 		"content":       d.Get("content"),
 		"parse_type":    buildStructCustomConfigParseType(d),
-		"regex_rules":   utils.ValueIngoreEmpty(d.Get("regex_rules")),
-		"layers":        utils.ValueIngoreEmpty(d.Get("layers")),
-		"tokenizer":     utils.ValueIngoreEmpty(d.Get("tokenizer")),
-		"log_format":    utils.ValueIngoreEmpty(d.Get("log_format")),
+		"regex_rules":   utils.ValueIgnoreEmpty(d.Get("regex_rules")),
+		"layers":        utils.ValueIgnoreEmpty(d.Get("layers")),
+		"tokenizer":     utils.ValueIgnoreEmpty(d.Get("tokenizer")),
+		"log_format":    utils.ValueIgnoreEmpty(d.Get("log_format")),
 		"tag_fields":    buildStructCustomConfigFields(d.Get("tag_fields")),
 		"demo_fields":   buildStructCustomConfigFields(d.Get("demo_fields")),
 	}
@@ -241,10 +241,10 @@ func buildStructCustomConfigFields(rawParams interface{}) []map[string]interface
 	for _, v := range rawArray {
 		if raw, isMap := v.(map[string]interface{}); isMap {
 			rst = append(rst, map[string]interface{}{
-				"fieldName":  utils.ValueIngoreEmpty(raw["field_name"]),
-				"isAnalysis": utils.ValueIngoreEmpty(raw["is_analysis"]),
-				"content":    utils.ValueIngoreEmpty(raw["content"]),
-				"type":       utils.ValueIngoreEmpty(raw["type"]),
+				"fieldName":  utils.ValueIgnoreEmpty(raw["field_name"]),
+				"isAnalysis": utils.ValueIgnoreEmpty(raw["is_analysis"]),
+				"content":    utils.ValueIgnoreEmpty(raw["content"]),
+				"type":       utils.ValueIgnoreEmpty(raw["type"]),
 			})
 		}
 	}

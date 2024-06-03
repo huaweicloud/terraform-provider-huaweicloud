@@ -179,11 +179,11 @@ func resourceEndpointGroupCreate(ctx context.Context, d *schema.ResourceData, me
 func buildCreateEndpointGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"endpoint_group": map[string]interface{}{
-			"description":             utils.ValueIngoreEmpty(d.Get("description")),
+			"description":             utils.ValueIgnoreEmpty(d.Get("description")),
 			"listeners":               buildCreateEndpointGroupRequestBodyId(d.Get("listeners")),
-			"name":                    utils.ValueIngoreEmpty(d.Get("name")),
-			"region_id":               utils.ValueIngoreEmpty(d.Get("region_id")),
-			"traffic_dial_percentage": utils.ValueIngoreEmpty(d.Get("traffic_dial_percentage")),
+			"name":                    utils.ValueIgnoreEmpty(d.Get("name")),
+			"region_id":               utils.ValueIgnoreEmpty(d.Get("region_id")),
+			"traffic_dial_percentage": utils.ValueIgnoreEmpty(d.Get("traffic_dial_percentage")),
 		},
 	}
 	return bodyParams
@@ -199,7 +199,7 @@ func buildCreateEndpointGroupRequestBodyId(rawParams interface{}) []map[string]i
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"id": utils.ValueIngoreEmpty(raw["id"]),
+				"id": utils.ValueIgnoreEmpty(raw["id"]),
 			}
 		}
 		return rst
@@ -387,8 +387,8 @@ func buildUpdateEndpointGroupBodyParams(d *schema.ResourceData) map[string]inter
 	bodyParams := map[string]interface{}{
 		"endpoint_group": map[string]interface{}{
 			"description":             d.Get("description"),
-			"name":                    utils.ValueIngoreEmpty(d.Get("name")),
-			"traffic_dial_percentage": utils.ValueIngoreEmpty(d.Get("traffic_dial_percentage")),
+			"name":                    utils.ValueIgnoreEmpty(d.Get("name")),
+			"traffic_dial_percentage": utils.ValueIgnoreEmpty(d.Get("traffic_dial_percentage")),
 		},
 	}
 	return bodyParams

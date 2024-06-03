@@ -753,9 +753,9 @@ func buildPolicyConfig(rawArray []interface{}) map[string]interface{} {
 	}
 	raw := rawArray[0].(map[string]interface{})
 	rst := map[string]interface{}{
-		"filter_ddl_policy": utils.ValueIngoreEmpty(raw["filter_ddl_policy"]),
-		"conflict_policy":   utils.ValueIngoreEmpty(raw["conflict_policy"]),
-		"index_trans":       utils.ValueIngoreEmpty(raw["index_trans"]),
+		"filter_ddl_policy": utils.ValueIgnoreEmpty(raw["filter_ddl_policy"]),
+		"conflict_policy":   utils.ValueIgnoreEmpty(raw["conflict_policy"]),
+		"index_trans":       utils.ValueIgnoreEmpty(raw["index_trans"]),
 	}
 	return rst
 }
@@ -768,9 +768,9 @@ func buildAlarmNotify(rawArray []interface{}) map[string]interface{} {
 	rst := map[string]interface{}{
 		"alarm_to_user": true,
 		"topic_urn":     raw["topic_urn"],
-		"delay_time":    utils.ValueIngoreEmpty(raw["delay_time"]),
-		"rpo_delay":     utils.ValueIngoreEmpty(raw["rpo_delay"]),
-		"rto_delay":     utils.ValueIngoreEmpty(raw["rto_delay"]),
+		"delay_time":    utils.ValueIgnoreEmpty(raw["delay_time"]),
+		"rpo_delay":     utils.ValueIgnoreEmpty(raw["rpo_delay"]),
+		"rto_delay":     utils.ValueIgnoreEmpty(raw["rto_delay"]),
 	}
 	return rst
 }
@@ -1188,11 +1188,11 @@ func buildExecuteJobActionBodyParams(d *schema.ResourceData) map[string]interfac
 	switch action {
 	case "stop":
 		return map[string]interface{}{
-			"pause_mode": utils.ValueIngoreEmpty(d.Get("pause_mode")),
+			"pause_mode": utils.ValueIgnoreEmpty(d.Get("pause_mode")),
 		}
 	case "restart":
 		return map[string]interface{}{
-			"is_sync_re_edit": utils.ValueIngoreEmpty(d.Get("is_sync_re_edit")),
+			"is_sync_re_edit": utils.ValueIgnoreEmpty(d.Get("is_sync_re_edit")),
 		}
 	case "reset":
 		return map[string]interface{}{}

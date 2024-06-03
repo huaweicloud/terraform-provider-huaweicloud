@@ -127,14 +127,14 @@ func resourceAddressGroupMemberCreate(ctx context.Context, d *schema.ResourceDat
 
 func buildCreateAddressGroupMemberBodyParams(d *schema.ResourceData) map[string]interface{} {
 	item := map[string]interface{}{
-		"name":         utils.ValueIngoreEmpty(d.Get("name")),
-		"address":      utils.ValueIngoreEmpty(d.Get("address")),
-		"address_type": utils.ValueIngoreEmpty(d.Get("address_type")),
-		"description":  utils.ValueIngoreEmpty(d.Get("description")),
+		"name":         utils.ValueIgnoreEmpty(d.Get("name")),
+		"address":      utils.ValueIgnoreEmpty(d.Get("address")),
+		"address_type": utils.ValueIgnoreEmpty(d.Get("address_type")),
+		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 
 	bodyParams := map[string]interface{}{
-		"set_id":        utils.ValueIngoreEmpty(d.Get("group_id")),
+		"set_id":        utils.ValueIgnoreEmpty(d.Get("group_id")),
 		"address_items": []map[string]interface{}{item},
 	}
 	return bodyParams

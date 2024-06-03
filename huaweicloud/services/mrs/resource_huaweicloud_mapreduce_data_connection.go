@@ -152,8 +152,8 @@ func resourceDataConnectionCreate(ctx context.Context, d *schema.ResourceData, m
 func buildDataConnectionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"data_connector": map[string]interface{}{
-			"connector_name": utils.ValueIngoreEmpty(d.Get("name")),
-			"source_type":    utils.ValueIngoreEmpty(d.Get("source_type")),
+			"connector_name": utils.ValueIgnoreEmpty(d.Get("name")),
+			"source_type":    utils.ValueIgnoreEmpty(d.Get("source_type")),
 			"source_info":    buildDataConnectionRequestBodySourceInfo(d.Get("source_info")),
 		},
 	}
@@ -164,10 +164,10 @@ func buildDataConnectionRequestBodySourceInfo(rawParams interface{}) string {
 	if rawArray, ok := rawParams.([]interface{}); ok {
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"rds_instance_id": utils.ValueIngoreEmpty(raw["db_instance_id"]),
-			"db_name":         utils.ValueIngoreEmpty(raw["db_name"]),
-			"user_name":       utils.ValueIngoreEmpty(raw["user_name"]),
-			"password":        utils.ValueIngoreEmpty(raw["password"]),
+			"rds_instance_id": utils.ValueIgnoreEmpty(raw["db_instance_id"]),
+			"db_name":         utils.ValueIgnoreEmpty(raw["db_name"]),
+			"user_name":       utils.ValueIgnoreEmpty(raw["user_name"]),
+			"password":        utils.ValueIgnoreEmpty(raw["password"]),
 		}
 
 		data, _ := json.Marshal(params)

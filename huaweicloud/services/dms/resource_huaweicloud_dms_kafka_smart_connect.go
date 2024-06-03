@@ -149,7 +149,7 @@ func buildCreateKafkaSmartConnectBodyParams(d *schema.ResourceData) map[string]i
 	bodyParams := map[string]interface{}{
 		"spec_code":     d.Get("storage_spec_code"),
 		"specification": d.Get("bandwidth"),
-		"node_cnt":      utils.ValueIngoreEmpty(d.Get("node_count")),
+		"node_cnt":      utils.ValueIgnoreEmpty(d.Get("node_count")),
 	}
 	return bodyParams
 }

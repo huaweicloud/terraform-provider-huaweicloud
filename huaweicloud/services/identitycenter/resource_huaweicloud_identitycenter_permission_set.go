@@ -121,10 +121,10 @@ func resourcePermissionSetCreate(ctx context.Context, d *schema.ResourceData, me
 
 func buildCreatePermissionSetBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":             utils.ValueIngoreEmpty(d.Get("name")),
-		"session_duration": utils.ValueIngoreEmpty(d.Get("session_duration")),
-		"description":      utils.ValueIngoreEmpty(d.Get("description")),
-		"relay_state":      utils.ValueIngoreEmpty(d.Get("relay_state")),
+		"name":             utils.ValueIgnoreEmpty(d.Get("name")),
+		"session_duration": utils.ValueIgnoreEmpty(d.Get("session_duration")),
+		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
+		"relay_state":      utils.ValueIgnoreEmpty(d.Get("relay_state")),
 	}
 	return bodyParams
 }
@@ -242,8 +242,8 @@ func resourcePermissionSetUpdate(ctx context.Context, d *schema.ResourceData, me
 
 func buildUpdatePermissionSetBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"session_duration": utils.ValueIngoreEmpty(d.Get("session_duration")),
-		"relay_state":      utils.ValueIngoreEmpty(d.Get("relay_state")),
+		"session_duration": utils.ValueIgnoreEmpty(d.Get("session_duration")),
+		"relay_state":      utils.ValueIgnoreEmpty(d.Get("relay_state")),
 		// the description parameter can be cleared
 		"description": d.Get("description"),
 	}

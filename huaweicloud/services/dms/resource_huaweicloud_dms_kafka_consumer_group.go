@@ -117,7 +117,7 @@ func resourceDmsKafkaConsumerGroupCreate(ctx context.Context, d *schema.Resource
 func buildCreateKafkaConsumerGroupBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"group_name": d.Get("name"),
-		"group_desc": utils.ValueIngoreEmpty(d.Get("description")),
+		"group_desc": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

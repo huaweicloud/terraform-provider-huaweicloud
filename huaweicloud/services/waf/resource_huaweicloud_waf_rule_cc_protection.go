@@ -238,16 +238,16 @@ func resourceRuleCCProtectionCreate(ctx context.Context, d *schema.ResourceData,
 
 func buildCreateOrUpdateRuleCCProtectionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":               utils.ValueIngoreEmpty(d.Get("name")),
-		"tag_type":           utils.ValueIngoreEmpty(d.Get("rate_limit_mode")),
-		"tag_index":          utils.ValueIngoreEmpty(d.Get("user_identifier")),
-		"limit_num":          utils.ValueIngoreEmpty(d.Get("limit_num")),
-		"limit_period":       utils.ValueIngoreEmpty(d.Get("limit_period")),
-		"unlock_num":         utils.ValueIngoreEmpty(d.Get("unlock_num")),
-		"lock_time":          utils.ValueIngoreEmpty(d.Get("lock_time")),
-		"domain_aggregation": utils.ValueIngoreEmpty(d.Get("request_aggregation")),
-		"region_aggregation": utils.ValueIngoreEmpty(d.Get("all_waf_instances")),
-		"description":        utils.ValueIngoreEmpty(d.Get("description")),
+		"name":               utils.ValueIgnoreEmpty(d.Get("name")),
+		"tag_type":           utils.ValueIgnoreEmpty(d.Get("rate_limit_mode")),
+		"tag_index":          utils.ValueIgnoreEmpty(d.Get("user_identifier")),
+		"limit_num":          utils.ValueIgnoreEmpty(d.Get("limit_num")),
+		"limit_period":       utils.ValueIgnoreEmpty(d.Get("limit_period")),
+		"unlock_num":         utils.ValueIgnoreEmpty(d.Get("unlock_num")),
+		"lock_time":          utils.ValueIgnoreEmpty(d.Get("lock_time")),
+		"domain_aggregation": utils.ValueIgnoreEmpty(d.Get("request_aggregation")),
+		"region_aggregation": utils.ValueIgnoreEmpty(d.Get("all_waf_instances")),
+		"description":        utils.ValueIgnoreEmpty(d.Get("description")),
 		"conditions":         buildRuleCCProtectionConditions(d.Get("conditions")),
 		"action":             buildRuleCCProtectionAction(d),
 		"tag_condition":      buildRuleCCProtectionTagCondition(d),
@@ -266,11 +266,11 @@ func buildRuleCCProtectionConditions(rawParams interface{}) []map[string]interfa
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"category":        utils.ValueIngoreEmpty(raw["field"]),
-				"logic_operation": utils.ValueIngoreEmpty(raw["logic"]),
-				"index":           utils.ValueIngoreEmpty(raw["subfield"]),
+				"category":        utils.ValueIgnoreEmpty(raw["field"]),
+				"logic_operation": utils.ValueIgnoreEmpty(raw["logic"]),
+				"index":           utils.ValueIgnoreEmpty(raw["subfield"]),
 				"contents":        buildCCProtectionContents(raw),
-				"value_list_id":   utils.ValueIngoreEmpty(raw["reference_table_id"]),
+				"value_list_id":   utils.ValueIgnoreEmpty(raw["reference_table_id"]),
 			}
 		}
 		return rst
@@ -306,7 +306,7 @@ func buildRuleCCProtectionTagCondition(d *schema.ResourceData) map[string]interf
 
 func buildCCProtectionContents(raw map[string]interface{}) []string {
 	var contents []string
-	if content := utils.ValueIngoreEmpty(raw["content"]); content != nil {
+	if content := utils.ValueIgnoreEmpty(raw["content"]); content != nil {
 		contents = append(contents, content.(string))
 	}
 	return contents

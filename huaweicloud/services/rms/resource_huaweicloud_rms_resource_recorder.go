@@ -169,8 +169,8 @@ func buildRecorderChannelConfigRequest(d *schema.ResourceData) (map[string]inter
 	}
 
 	bodyParams := map[string]interface{}{
-		"obs": utils.ValueIngoreEmpty(obsOpts),
-		"smn": utils.ValueIngoreEmpty(smnOpts),
+		"obs": utils.ValueIgnoreEmpty(obsOpts),
+		"smn": utils.ValueIgnoreEmpty(smnOpts),
 	}
 	return bodyParams, nil
 }

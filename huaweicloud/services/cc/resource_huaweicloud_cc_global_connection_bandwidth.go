@@ -188,13 +188,13 @@ func buildCreateGCBParams(d *schema.ResourceData, epsID string) map[string]inter
 		"size":                  d.Get("size"),
 		"charge_mode":           d.Get("charge_mode"),
 		"bordercross":           d.Get("bordercross"),
-		"enterprise_project_id": utils.ValueIngoreEmpty(epsID),
-		"sla_level":             utils.ValueIngoreEmpty(d.Get("sla_level")),
-		"local_area":            utils.ValueIngoreEmpty(d.Get("local_area")),
-		"remote_area":           utils.ValueIngoreEmpty(d.Get("remote_area")),
-		"spec_code_id":          utils.ValueIngoreEmpty(d.Get("spec_code_id")),
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
-		"tags":                  utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(epsID),
+		"sla_level":             utils.ValueIgnoreEmpty(d.Get("sla_level")),
+		"local_area":            utils.ValueIgnoreEmpty(d.Get("local_area")),
+		"remote_area":           utils.ValueIgnoreEmpty(d.Get("remote_area")),
+		"spec_code_id":          utils.ValueIgnoreEmpty(d.Get("spec_code_id")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+		"tags":                  utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	return params
 }
@@ -372,9 +372,9 @@ func buildUpdateGCBParams(d *schema.ResourceData) map[string]interface{} {
 		"name":            d.Get("name"),
 		"size":            d.Get("size"),
 		"charge_mode":     d.Get("charge_mode"),
-		"sla_level":       utils.ValueIngoreEmpty(d.Get("sla_level")),
-		"binding_service": utils.ValueIngoreEmpty(d.Get("binding_service")),
-		"spec_code_id":    utils.ValueIngoreEmpty(d.Get("spec_code_id")),
+		"sla_level":       utils.ValueIgnoreEmpty(d.Get("sla_level")),
+		"binding_service": utils.ValueIgnoreEmpty(d.Get("binding_service")),
+		"spec_code_id":    utils.ValueIgnoreEmpty(d.Get("spec_code_id")),
 		"description":     d.Get("description"),
 	}
 	return params

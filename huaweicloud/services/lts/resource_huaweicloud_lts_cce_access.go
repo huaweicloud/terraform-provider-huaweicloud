@@ -294,8 +294,8 @@ func buildCreateCceAccessConfigBodyParams(d *schema.ResourceData) map[string]int
 		"host_group_info":      buildHostGroupInfoRequestBody(d),
 		"access_config_tag":    utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		"cluster_id":           d.Get("cluster_id"),
-		"binary_collect":       utils.ValueIngoreEmpty(d.Get("binary_collect")),
-		"log_split":            utils.ValueIngoreEmpty(d.Get("log_split")),
+		"binary_collect":       utils.ValueIgnoreEmpty(d.Get("binary_collect")),
+		"log_split":            utils.ValueIgnoreEmpty(d.Get("log_split")),
 	}
 	return bodyParams
 }
@@ -315,15 +315,15 @@ func buildCceAccessConfigDeatilRequestBody(rawParams interface{}) map[string]int
 
 	params := map[string]interface{}{
 		"pathType":           raw["path_type"],
-		"paths":              utils.ValueIngoreEmpty(raw["paths"]),
-		"black_paths":        utils.ValueIngoreEmpty(raw["black_paths"]),
+		"paths":              utils.ValueIgnoreEmpty(raw["paths"]),
+		"black_paths":        utils.ValueIgnoreEmpty(raw["black_paths"]),
 		"format":             buildHostAccessConfigFormatRequestBody(raw),
 		"windows_log_info":   buildHostAccessConfigWindowsLogInfoRequestBody(raw["windows_log_info"]),
-		"stdout":             utils.ValueIngoreEmpty(raw["stdout"]),
-		"stderr":             utils.ValueIngoreEmpty(raw["stderr"]),
-		"namespaceRegex":     utils.ValueIngoreEmpty(raw["name_space_regex"]),
-		"podNameRegex":       utils.ValueIngoreEmpty(raw["pod_name_regex"]),
-		"containerNameRegex": utils.ValueIngoreEmpty(raw["container_name_regex"]),
+		"stdout":             utils.ValueIgnoreEmpty(raw["stdout"]),
+		"stderr":             utils.ValueIgnoreEmpty(raw["stderr"]),
+		"namespaceRegex":     utils.ValueIgnoreEmpty(raw["name_space_regex"]),
+		"podNameRegex":       utils.ValueIgnoreEmpty(raw["pod_name_regex"]),
+		"containerNameRegex": utils.ValueIgnoreEmpty(raw["container_name_regex"]),
 		"logLabels":          raw["log_labels"],
 		"includeLabels":      raw["include_labels"],
 		"excludeLabels":      raw["exclude_labels"],
@@ -467,8 +467,8 @@ func buildUpdateCceAccessConfigBodyParams(d *schema.ResourceData) map[string]int
 		"host_group_info":      buildHostGroupInfoRequestBody(d),
 		"access_config_tag":    utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		"cluster_id":           d.Get("cluster_id"),
-		"binary_collect":       utils.ValueIngoreEmpty(d.Get("binary_collect")),
-		"log_split":            utils.ValueIngoreEmpty(d.Get("log_split")),
+		"binary_collect":       utils.ValueIgnoreEmpty(d.Get("binary_collect")),
+		"log_split":            utils.ValueIgnoreEmpty(d.Get("log_split")),
 	}
 	return bodyParams
 }

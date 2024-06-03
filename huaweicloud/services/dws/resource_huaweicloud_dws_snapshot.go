@@ -143,9 +143,9 @@ func resourceDwsSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta
 func buildCreateDwsSnapshotBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"snapshot": map[string]interface{}{
-			"name":        utils.ValueIngoreEmpty(d.Get("name")),
-			"cluster_id":  utils.ValueIngoreEmpty(d.Get("cluster_id")),
-			"description": utils.ValueIngoreEmpty(d.Get("description")),
+			"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+			"cluster_id":  utils.ValueIgnoreEmpty(d.Get("cluster_id")),
+			"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		},
 	}
 	return bodyParams

@@ -243,7 +243,7 @@ func buildCreateIndicatorBodyParams(d *schema.ResourceData, cfg *config.Config) 
 		"data_source":      buildIndicatorDataSourceOpts(d, cfg),
 		"status":           d.Get("status"),
 		"confidence":       d.Get("confidence"),
-		"labels":           utils.ValueIngoreEmpty(d.Get("labels")),
+		"labels":           utils.ValueIgnoreEmpty(d.Get("labels")),
 		"granular_marking": d.Get("granularity"),
 		"value":            d.Get("value"),
 		"environment":      buildEnvironmentOpts(d, cfg),
@@ -281,9 +281,9 @@ func buildIndicatorTypeOpts(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"category":       utils.ValueIngoreEmpty(raw["category"]),
-			"indicator_type": utils.ValueIngoreEmpty(raw["indicator_type"]),
-			"id":             utils.ValueIngoreEmpty(raw["id"]),
+			"category":       utils.ValueIgnoreEmpty(raw["category"]),
+			"indicator_type": utils.ValueIgnoreEmpty(raw["indicator_type"]),
+			"id":             utils.ValueIgnoreEmpty(raw["id"]),
 		}
 		return params
 	}
@@ -307,9 +307,9 @@ func buildIndicatorDataSourceOpts(d *schema.ResourceData, cfg *config.Config) ma
 		"domain_id":       cfg.DomainID,
 		"project_id":      cfg.GetProjectID(region),
 		"region_id":       region,
-		"product_feature": utils.ValueIngoreEmpty(raw["product_feature"]),
-		"product_name":    utils.ValueIngoreEmpty(raw["product_name"]),
-		"source_type":     utils.ValueIngoreEmpty(raw["source_type"]),
+		"product_feature": utils.ValueIgnoreEmpty(raw["product_feature"]),
+		"product_name":    utils.ValueIgnoreEmpty(raw["product_name"]),
+		"source_type":     utils.ValueIgnoreEmpty(raw["source_type"]),
 	}
 	return params
 }
@@ -502,7 +502,7 @@ func buildUpdateIndicatorBodyParams(d *schema.ResourceData, cfg *config.Config) 
 		"verdict":          d.Get("threat_degree"),
 		"status":           d.Get("status"),
 		"confidence":       d.Get("confidence"),
-		"labels":           utils.ValueIngoreEmpty(d.Get("labels")),
+		"labels":           utils.ValueIgnoreEmpty(d.Get("labels")),
 		"granular_marking": d.Get("granularity"),
 		"value":            d.Get("value"),
 		"environment":      buildEnvironmentOpts(d, cfg),

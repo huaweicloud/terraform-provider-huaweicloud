@@ -384,8 +384,8 @@ func resourceCustomTemplateUpdate(ctx context.Context, d *schema.ResourceData, m
 
 func buildUpdateCustomTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"params":      buildUpdateCustomTemplateRequestBodyParam(d.Get("params").(*schema.Set).List()),
 	}
 	return bodyParams

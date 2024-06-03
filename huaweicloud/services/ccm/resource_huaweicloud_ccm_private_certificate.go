@@ -289,7 +289,7 @@ func buildCreateCertificateBodyParams(d *schema.ResourceData, cfg *config.Config
 		"signature_algorithm":       d.Get("signature_algorithm"),
 		"distinguished_name":        buildCertDistinguishedName(d.Get("distinguished_name")),
 		"validity":                  buildValidity(d.Get("validity")),
-		"enterprise_project_id":     utils.ValueIngoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"enterprise_project_id":     utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"key_usage":                 d.Get("key_usage"),
 		"extended_key_usage":        buildExtendedKeyUsage(d),
 		"customized_extension":      buildCustomizedExtension(d),
@@ -318,7 +318,7 @@ func buildValidity(rawParams interface{}) map[string]interface{} {
 	params := map[string]interface{}{
 		"type":       raw["type"],
 		"value":      raw["value"],
-		"start_from": utils.ValueIngoreEmpty(raw["start_at"]),
+		"start_from": utils.ValueIgnoreEmpty(raw["start_at"]),
 	}
 	return params
 }

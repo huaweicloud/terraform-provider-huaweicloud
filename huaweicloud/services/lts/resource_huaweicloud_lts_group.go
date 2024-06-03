@@ -102,8 +102,8 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta inter
 func buildCreateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"log_group_name": d.Get("group_name"),
-		"ttl_in_days":    utils.ValueIngoreEmpty(d.Get("ttl_in_days")),
-		"tags":           utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+		"ttl_in_days":    utils.ValueIgnoreEmpty(d.Get("ttl_in_days")),
+		"tags":           utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	return bodyParams
 }

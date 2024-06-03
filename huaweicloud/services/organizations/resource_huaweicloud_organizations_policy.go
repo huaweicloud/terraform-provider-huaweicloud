@@ -117,10 +117,10 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 func buildCreatePolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"content":     utils.ValueIngoreEmpty(d.Get("content")),
-		"type":        utils.ValueIngoreEmpty(d.Get("type")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"content":     utils.ValueIgnoreEmpty(d.Get("content")),
+		"type":        utils.ValueIgnoreEmpty(d.Get("type")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"tags":        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	return bodyParams
@@ -226,8 +226,8 @@ func resourcePolicyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 
 func buildUpdatePolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"content":     utils.ValueIngoreEmpty(d.Get("content")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"content":     utils.ValueIgnoreEmpty(d.Get("content")),
 		"description": d.Get("description"),
 	}
 	return bodyParams

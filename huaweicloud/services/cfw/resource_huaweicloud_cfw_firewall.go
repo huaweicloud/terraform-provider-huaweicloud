@@ -364,17 +364,17 @@ func buildCreateFirewallBodyParams(d *schema.ResourceData, cfg *config.Config) m
 		"flavor":                buildCreateFirewallRequestBodyFlavor(d.Get("flavor")),
 		"tags":                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		"charge_info":           buildCreateFirewallRequestBodyChargeInfo(d),
-		"enterprise_project_id": utils.ValueIngoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	return bodyParams
 }
 
 func buildCreateFirewallRequestBodyChargeInfo(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"charge_mode":   utils.ValueIngoreEmpty(d.Get("charging_mode")),
-		"period_type":   utils.ValueIngoreEmpty(d.Get("period_unit")),
-		"period_num":    utils.ValueIngoreEmpty(d.Get("period")),
-		"is_auto_renew": utils.ValueIngoreEmpty(d.Get("auto_renew")),
+		"charge_mode":   utils.ValueIgnoreEmpty(d.Get("charging_mode")),
+		"period_type":   utils.ValueIgnoreEmpty(d.Get("period_unit")),
+		"period_num":    utils.ValueIgnoreEmpty(d.Get("period")),
+		"is_auto_renew": utils.ValueIgnoreEmpty(d.Get("auto_renew")),
 		"is_auto_pay":   true,
 	}
 	return params
@@ -392,9 +392,9 @@ func buildCreateFirewallRequestBodyFlavor(rawParams interface{}) map[string]inte
 
 		params := map[string]interface{}{
 			"version":          raw["version"],
-			"extend_eip_count": utils.ValueIngoreEmpty(raw["extend_eip_count"]),
-			"extend_bandwidth": utils.ValueIngoreEmpty(raw["extend_bandwidth"]),
-			"extend_vpc_count": utils.ValueIngoreEmpty(raw["extend_vpc_count"]),
+			"extend_eip_count": utils.ValueIgnoreEmpty(raw["extend_eip_count"]),
+			"extend_bandwidth": utils.ValueIgnoreEmpty(raw["extend_bandwidth"]),
+			"extend_vpc_count": utils.ValueIgnoreEmpty(raw["extend_vpc_count"]),
 		}
 		return params
 	}
@@ -437,9 +437,9 @@ func createEastWestFirewall(ctx context.Context, d *schema.ResourceData, meta in
 
 func buildCreateEastWestFirewallBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"er_id":           utils.ValueIngoreEmpty(d.Get("east_west_firewall_er_id")),
-		"inspection_cidr": utils.ValueIngoreEmpty(d.Get("east_west_firewall_inspection_cidr")),
-		"mode":            utils.ValueIngoreEmpty(d.Get("east_west_firewall_mode")),
+		"er_id":           utils.ValueIgnoreEmpty(d.Get("east_west_firewall_er_id")),
+		"inspection_cidr": utils.ValueIgnoreEmpty(d.Get("east_west_firewall_inspection_cidr")),
+		"mode":            utils.ValueIgnoreEmpty(d.Get("east_west_firewall_mode")),
 	}
 	return bodyParams
 }

@@ -95,7 +95,7 @@ func buildCreateAccountBodyParams(d *schema.ResourceData) map[string]interface{}
 		"account_name":     d.Get("account_name"),
 		"account_role":     d.Get("account_role"),
 		"account_password": d.Get("account_password"),
-		"description":      utils.ValueIngoreEmpty(d.Get("description")),
+		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

@@ -483,12 +483,12 @@ func resourceClusterExtendParams(extendParamsRaw []interface{}) map[string]inter
 
 	if extendParams, ok := extendParamsRaw[0].(map[string]interface{}); ok {
 		res := map[string]interface{}{
-			"clusterAZ":                      utils.ValueIngoreEmpty(extendParams["cluster_az"]),
-			"dssMasterVolumes":               utils.ValueIngoreEmpty(extendParams["dss_master_volumes"]),
-			"alpha.cce/fixPoolMask":          utils.ValueIngoreEmpty(extendParams["fix_pool_mask"]),
-			"decMasterFlavor":                utils.ValueIngoreEmpty(extendParams["dec_master_flavor"]),
-			"dockerUmaskMode":                utils.ValueIngoreEmpty(extendParams["docker_umask_mode"]),
-			"kubernetes.io/cpuManagerPolicy": utils.ValueIngoreEmpty(extendParams["cpu_manager_policy"]),
+			"clusterAZ":                      utils.ValueIgnoreEmpty(extendParams["cluster_az"]),
+			"dssMasterVolumes":               utils.ValueIgnoreEmpty(extendParams["dss_master_volumes"]),
+			"alpha.cce/fixPoolMask":          utils.ValueIgnoreEmpty(extendParams["fix_pool_mask"]),
+			"decMasterFlavor":                utils.ValueIgnoreEmpty(extendParams["dec_master_flavor"]),
+			"dockerUmaskMode":                utils.ValueIgnoreEmpty(extendParams["docker_umask_mode"]),
+			"kubernetes.io/cpuManagerPolicy": utils.ValueIgnoreEmpty(extendParams["cpu_manager_policy"]),
 		}
 
 		return res

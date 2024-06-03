@@ -615,9 +615,9 @@ func buildCreateJobBodyParams(d *schema.ResourceData) map[string]interface{} {
 		"nodes":       buildCreateJobRequestBodyNode(d.Get("nodes")),
 		"schedule":    buildCreateJobRequestBodySchedule(d.Get("schedule")),
 		"params":      buildCreateJobRequestBodyParam(d.Get("params")),
-		"directory":   utils.ValueIngoreEmpty(d.Get("directory")),
+		"directory":   utils.ValueIgnoreEmpty(d.Get("directory")),
 		"processType": d.Get("process_type"),
-		"logPath":     utils.ValueIngoreEmpty(d.Get("log_path")),
+		"logPath":     utils.ValueIgnoreEmpty(d.Get("log_path")),
 		"basicConfig": buildCreateJobRequestBodyBasicConfig(d.Get("basic_config")),
 	}
 	return bodyParams
@@ -633,17 +633,17 @@ func buildCreateJobRequestBodyNode(rawParams interface{}) []map[string]interface
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name":             utils.ValueIngoreEmpty(raw["name"]),
-				"type":             utils.ValueIngoreEmpty(raw["type"]),
+				"name":             utils.ValueIgnoreEmpty(raw["name"]),
+				"type":             utils.ValueIgnoreEmpty(raw["type"]),
 				"location":         buildNodeLocation(raw["location"]),
-				"preNodeName":      utils.ValueIngoreEmpty(raw["pre_node_name"]),
+				"preNodeName":      utils.ValueIgnoreEmpty(raw["pre_node_name"]),
 				"conditions":       buildNodeCondition(raw["conditions"]),
 				"properties":       buildNodeProperty(raw["properties"]),
-				"pollingInterval":  utils.ValueIngoreEmpty(raw["polling_interval"]),
-				"maxExecutionTime": utils.ValueIngoreEmpty(raw["max_execution_time"]),
-				"retryTimes":       utils.ValueIngoreEmpty(raw["retry_times"]),
-				"retryInterval":    utils.ValueIngoreEmpty(raw["retry_interval"]),
-				"failPolicy":       utils.ValueIngoreEmpty(raw["fail_policy"]),
+				"pollingInterval":  utils.ValueIgnoreEmpty(raw["polling_interval"]),
+				"maxExecutionTime": utils.ValueIgnoreEmpty(raw["max_execution_time"]),
+				"retryTimes":       utils.ValueIgnoreEmpty(raw["retry_times"]),
+				"retryInterval":    utils.ValueIgnoreEmpty(raw["retry_interval"]),
+				"failPolicy":       utils.ValueIgnoreEmpty(raw["fail_policy"]),
 				"eventTrigger":     buildNodeEventTrigger(raw["event_trigger"]),
 				"cronTrigger":      buildNodeCronTrigger(raw["cron_trigger"]),
 			}
@@ -664,8 +664,8 @@ func buildNodeLocation(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"x": utils.ValueIngoreEmpty(raw["x"]),
-			"y": utils.ValueIngoreEmpty(raw["y"]),
+			"x": utils.ValueIgnoreEmpty(raw["x"]),
+			"y": utils.ValueIgnoreEmpty(raw["y"]),
 		}
 		return params
 	}
@@ -682,8 +682,8 @@ func buildNodeCondition(rawParams interface{}) []map[string]interface{} {
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"preNodeName": utils.ValueIngoreEmpty(raw["pre_node_name"]),
-				"expression":  utils.ValueIngoreEmpty(raw["expression"]),
+				"preNodeName": utils.ValueIgnoreEmpty(raw["pre_node_name"]),
+				"expression":  utils.ValueIgnoreEmpty(raw["expression"]),
 			}
 		}
 		return rst
@@ -701,8 +701,8 @@ func buildNodeProperty(rawParams interface{}) []map[string]interface{} {
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name":  utils.ValueIngoreEmpty(raw["name"]),
-				"value": utils.ValueIngoreEmpty(raw["value"]),
+				"name":  utils.ValueIgnoreEmpty(raw["name"]),
+				"value": utils.ValueIgnoreEmpty(raw["value"]),
 			}
 		}
 		return rst
@@ -721,11 +721,11 @@ func buildNodeEventTrigger(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"eventType":  utils.ValueIngoreEmpty(raw["event_type"]),
-			"channel":    utils.ValueIngoreEmpty(raw["channel"]),
-			"failPolicy": utils.ValueIngoreEmpty(raw["fail_policy"]),
-			"concurrent": utils.ValueIngoreEmpty(raw["concurrent"]),
-			"readPolicy": utils.ValueIngoreEmpty(raw["read_policy"]),
+			"eventType":  utils.ValueIgnoreEmpty(raw["event_type"]),
+			"channel":    utils.ValueIgnoreEmpty(raw["channel"]),
+			"failPolicy": utils.ValueIgnoreEmpty(raw["fail_policy"]),
+			"concurrent": utils.ValueIgnoreEmpty(raw["concurrent"]),
+			"readPolicy": utils.ValueIgnoreEmpty(raw["read_policy"]),
 		}
 		return params
 	}
@@ -743,14 +743,14 @@ func buildNodeCronTrigger(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"startTime":          utils.ValueIngoreEmpty(raw["start_time"]),
-			"endTime":            utils.ValueIngoreEmpty(raw["end_time"]),
-			"expression":         utils.ValueIngoreEmpty(raw["expression"]),
-			"expressionTimeZone": utils.ValueIngoreEmpty(raw["expression_time_zone"]),
-			"period":             utils.ValueIngoreEmpty(raw["period"]),
-			"dependPrePeriod":    utils.ValueIngoreEmpty(raw["depend_pre_period"]),
+			"startTime":          utils.ValueIgnoreEmpty(raw["start_time"]),
+			"endTime":            utils.ValueIgnoreEmpty(raw["end_time"]),
+			"expression":         utils.ValueIgnoreEmpty(raw["expression"]),
+			"expressionTimeZone": utils.ValueIgnoreEmpty(raw["expression_time_zone"]),
+			"period":             utils.ValueIgnoreEmpty(raw["period"]),
+			"dependPrePeriod":    utils.ValueIgnoreEmpty(raw["depend_pre_period"]),
 			"dependJobs":         buildCronTriggerDependJobs(raw["depend_jobs"]),
-			"concurrent":         utils.ValueIngoreEmpty(raw["concurrent"]),
+			"concurrent":         utils.ValueIgnoreEmpty(raw["concurrent"]),
 		}
 		return params
 	}
@@ -768,9 +768,9 @@ func buildCronTriggerDependJobs(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"jobs":             utils.ValueIngoreEmpty(raw["jobs"]),
-			"dependPeriod":     utils.ValueIngoreEmpty(raw["depend_period"]),
-			"dependFailPolicy": utils.ValueIngoreEmpty(raw["depend_fail_policy"]),
+			"jobs":             utils.ValueIgnoreEmpty(raw["jobs"]),
+			"dependPeriod":     utils.ValueIgnoreEmpty(raw["depend_period"]),
+			"dependFailPolicy": utils.ValueIgnoreEmpty(raw["depend_fail_policy"]),
 		}
 		return params
 	}
@@ -788,7 +788,7 @@ func buildCreateJobRequestBodySchedule(rawParams interface{}) map[string]interfa
 		}
 
 		params := map[string]interface{}{
-			"type":  utils.ValueIngoreEmpty(raw["type"]),
+			"type":  utils.ValueIgnoreEmpty(raw["type"]),
 			"cron":  buildScheduleCron(raw["cron"]),
 			"event": buildScheduleEvent(raw["event"]),
 		}
@@ -808,11 +808,11 @@ func buildScheduleCron(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"startTime":          utils.ValueIngoreEmpty(raw["start_time"]),
-			"endTime":            utils.ValueIngoreEmpty(raw["end_time"]),
-			"expression":         utils.ValueIngoreEmpty(raw["expression"]),
-			"expressionTimeZone": utils.ValueIngoreEmpty(raw["expression_time_zone"]),
-			"dependPrePeriod":    utils.ValueIngoreEmpty(raw["depend_pre_period"]),
+			"startTime":          utils.ValueIgnoreEmpty(raw["start_time"]),
+			"endTime":            utils.ValueIgnoreEmpty(raw["end_time"]),
+			"expression":         utils.ValueIgnoreEmpty(raw["expression"]),
+			"expressionTimeZone": utils.ValueIgnoreEmpty(raw["expression_time_zone"]),
+			"dependPrePeriod":    utils.ValueIgnoreEmpty(raw["depend_pre_period"]),
 			"dependJobs":         buildCronDependJobs(raw["depend_jobs"]),
 		}
 		return params
@@ -831,9 +831,9 @@ func buildCronDependJobs(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"jobs":             utils.ValueIngoreEmpty(raw["jobs"]),
-			"dependPeriod":     utils.ValueIngoreEmpty(raw["depend_period"]),
-			"dependFailPolicy": utils.ValueIngoreEmpty(raw["depend_fail_policy"]),
+			"jobs":             utils.ValueIgnoreEmpty(raw["jobs"]),
+			"dependPeriod":     utils.ValueIgnoreEmpty(raw["depend_period"]),
+			"dependFailPolicy": utils.ValueIgnoreEmpty(raw["depend_fail_policy"]),
 		}
 		return params
 	}
@@ -851,11 +851,11 @@ func buildScheduleEvent(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"eventType":  utils.ValueIngoreEmpty(raw["event_type"]),
-			"channel":    utils.ValueIngoreEmpty(raw["channel"]),
-			"failPolicy": utils.ValueIngoreEmpty(raw["fail_policy"]),
-			"concurrent": utils.ValueIngoreEmpty(raw["concurrent"]),
-			"readPolicy": utils.ValueIngoreEmpty(raw["read_policy"]),
+			"eventType":  utils.ValueIgnoreEmpty(raw["event_type"]),
+			"channel":    utils.ValueIgnoreEmpty(raw["channel"]),
+			"failPolicy": utils.ValueIgnoreEmpty(raw["fail_policy"]),
+			"concurrent": utils.ValueIgnoreEmpty(raw["concurrent"]),
+			"readPolicy": utils.ValueIgnoreEmpty(raw["read_policy"]),
 		}
 		return params
 	}
@@ -872,9 +872,9 @@ func buildCreateJobRequestBodyParam(rawParams interface{}) []map[string]interfac
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name":  utils.ValueIngoreEmpty(raw["name"]),
-				"value": utils.ValueIngoreEmpty(raw["value"]),
-				"type":  utils.ValueIngoreEmpty(raw["type"]),
+				"name":  utils.ValueIgnoreEmpty(raw["name"]),
+				"value": utils.ValueIgnoreEmpty(raw["value"]),
+				"type":  utils.ValueIgnoreEmpty(raw["type"]),
 			}
 		}
 		return rst
@@ -893,11 +893,11 @@ func buildCreateJobRequestBodyBasicConfig(rawParams interface{}) map[string]inte
 		}
 
 		params := map[string]interface{}{
-			"owner":           utils.ValueIngoreEmpty(raw["owner"]),
-			"priority":        utils.ValueIngoreEmpty(raw["priority"]),
-			"executeUser":     utils.ValueIngoreEmpty(raw["execute_user"]),
-			"instanceTimeout": utils.ValueIngoreEmpty(raw["instance_timeout"]),
-			"customFields":    utils.ValueIngoreEmpty(raw["custom_fields"]),
+			"owner":           utils.ValueIgnoreEmpty(raw["owner"]),
+			"priority":        utils.ValueIgnoreEmpty(raw["priority"]),
+			"executeUser":     utils.ValueIgnoreEmpty(raw["execute_user"]),
+			"instanceTimeout": utils.ValueIgnoreEmpty(raw["instance_timeout"]),
+			"customFields":    utils.ValueIgnoreEmpty(raw["custom_fields"]),
 		}
 		return params
 	}
@@ -1271,9 +1271,9 @@ func buildUpdateJobBodyParams(d *schema.ResourceData) map[string]interface{} {
 		"nodes":       buildCreateJobRequestBodyNode(d.Get("nodes")),
 		"schedule":    buildCreateJobRequestBodySchedule(d.Get("schedule")),
 		"params":      buildCreateJobRequestBodyParam(d.Get("params")),
-		"directory":   utils.ValueIngoreEmpty(d.Get("directory")),
+		"directory":   utils.ValueIgnoreEmpty(d.Get("directory")),
 		"processType": d.Get("process_type"),
-		"logPath":     utils.ValueIngoreEmpty(d.Get("log_path")),
+		"logPath":     utils.ValueIgnoreEmpty(d.Get("log_path")),
 		"basicConfig": buildCreateJobRequestBodyBasicConfig(d.Get("basic_config")),
 	}
 	return bodyParams

@@ -256,10 +256,10 @@ func buildCreateAcceleratorBodyParams(d *schema.ResourceData, conf *config.Confi
 
 func buildCreateAcceleratorAcceleratorChildBody(d *schema.ResourceData, conf *config.Config) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"ip_sets":               buildCreateAcceleratorIpSetsChildBody(d),
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, conf)),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, conf)),
 		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 	}
 	return params
@@ -273,9 +273,9 @@ func buildCreateAcceleratorIpSetsChildBody(d *schema.ResourceData) []map[string]
 
 	raw := rawParams[0].(map[string]interface{})
 	params := map[string]interface{}{
-		"area":       utils.ValueIngoreEmpty(raw["area"]),
-		"ip_address": utils.ValueIngoreEmpty(raw["ip_address"]),
-		"ip_type":    utils.ValueIngoreEmpty(raw["ip_type"]),
+		"area":       utils.ValueIgnoreEmpty(raw["area"]),
+		"ip_address": utils.ValueIgnoreEmpty(raw["ip_address"]),
+		"ip_type":    utils.ValueIgnoreEmpty(raw["ip_type"]),
 	}
 
 	return []map[string]interface{}{params}
@@ -497,8 +497,8 @@ func buildUpdateAcceleratorBodyParams(d *schema.ResourceData) map[string]interfa
 
 func buildUpdateAcceleratorAcceleratorChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return params
 }

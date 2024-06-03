@@ -162,9 +162,9 @@ func buildCreateClusterActionRequestBodyRestart(rawParams interface{}) map[strin
 		}
 
 		params := map[string]interface{}{
-			"restartDelayTime": utils.ValueIngoreEmpty(raw["delay_time"]),
-			"restartMode":      utils.ValueIngoreEmpty(raw["mode"]),
-			"restartLevel":     utils.ValueIngoreEmpty(raw["level"]),
+			"restartDelayTime": utils.ValueIgnoreEmpty(raw["delay_time"]),
+			"restartMode":      utils.ValueIgnoreEmpty(raw["mode"]),
+			"restartLevel":     utils.ValueIgnoreEmpty(raw["level"]),
 			"type":             "cdm",
 			"instance":         "",
 			"group":            "",

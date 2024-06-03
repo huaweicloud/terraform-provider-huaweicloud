@@ -237,8 +237,8 @@ func buildGEIPAssociateRequestBodyAssociateInstance(rawParams interface{}) map[s
 		"project_id":    raw["project_id"],
 		"instance_id":   raw["instance_id"],
 		"instance_type": raw["instance_type"],
-		"service_id":    utils.ValueIngoreEmpty(raw["service_id"]),
-		"service_type":  utils.ValueIngoreEmpty(raw["service_type"]),
+		"service_id":    utils.ValueIgnoreEmpty(raw["service_id"]),
+		"service_type":  utils.ValueIgnoreEmpty(raw["service_type"]),
 	}
 	return params
 }
@@ -255,9 +255,9 @@ func buildGEIPAssociateRequestBodyGCB(rawParams interface{}, epsID string) map[s
 			"name":                  raw["name"],
 			"charge_mode":           "bwd",
 			"size":                  raw["size"],
-			"description":           utils.ValueIngoreEmpty(raw["description"]),
-			"tags":                  utils.ValueIngoreEmpty(utils.ExpandResourceTags(raw["tags"].(map[string]interface{}))),
-			"enterprise_project_id": utils.ValueIngoreEmpty(epsID),
+			"description":           utils.ValueIgnoreEmpty(raw["description"]),
+			"tags":                  utils.ValueIgnoreEmpty(utils.ExpandResourceTags(raw["tags"].(map[string]interface{}))),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(epsID),
 		}
 	}
 	return map[string]interface{}{

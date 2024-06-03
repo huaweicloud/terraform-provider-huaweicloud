@@ -139,8 +139,8 @@ func buildGlobalConnectionBandwidthAssociateBodyParams(resources *schema.Set) ma
 		gcbBindingResources = append(gcbBindingResources, map[string]interface{}{
 			"resource_id":   resourceMap["resource_id"],
 			"resource_type": resourceMap["resource_type"],
-			"region_id":     utils.ValueIngoreEmpty(resourceMap["region_id"]),
-			"project_id":    utils.ValueIngoreEmpty(resourceMap["project_id"]),
+			"region_id":     utils.ValueIgnoreEmpty(resourceMap["region_id"]),
+			"project_id":    utils.ValueIgnoreEmpty(resourceMap["project_id"]),
 		})
 	}
 

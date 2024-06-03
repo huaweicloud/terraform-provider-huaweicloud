@@ -118,7 +118,7 @@ func buildConfigurationItemsBodyParams(items *schema.Set) []interface{} {
 	for _, v := range items.List() {
 		result = append(result, map[string]interface{}{
 			"type": utils.PathSearch("type", v, nil),
-			"data": utils.ValueIngoreEmpty(unmarshalJsonFormatParamster("Component configuration",
+			"data": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("Component configuration",
 				utils.PathSearch("data", v, "").(string))),
 		})
 	}

@@ -154,7 +154,7 @@ func buildLogMappingStreamConfigsBodyParams(streamConfigs *schema.Set) []interfa
 			"target_log_stream_name": utils.PathSearch("target_log_stream_name", streamConfig, nil),
 			"target_log_stream_ttl":  utils.PathSearch("target_log_stream_ttl", streamConfig, nil),
 			// Optional parameters
-			"target_log_stream_id": utils.ValueIngoreEmpty(utils.PathSearch("target_log_stream_id", streamConfig, nil)),
+			"target_log_stream_id": utils.ValueIgnoreEmpty(utils.PathSearch("target_log_stream_id", streamConfig, nil)),
 		})
 	}
 	return result
@@ -172,7 +172,7 @@ func buildLogMappingConfigsBodyParams(mappingConfigs *schema.Set) []interface{} 
 			"source_log_group_id":   utils.PathSearch("source_log_group_id", groupConfig, nil),
 			"target_log_group_name": utils.PathSearch("target_log_group_name", groupConfig, nil),
 			// Optional parameters
-			"target_log_group_id": utils.ValueIngoreEmpty(utils.PathSearch("target_log_group_id", groupConfig, nil)),
+			"target_log_group_id": utils.ValueIgnoreEmpty(utils.PathSearch("target_log_group_id", groupConfig, nil)),
 			"log_stream_config": buildLogMappingStreamConfigsBodyParams(utils.PathSearch("log_stream_config",
 				groupConfig, schema.NewSet(schema.HashString, nil)).(*schema.Set)),
 		})

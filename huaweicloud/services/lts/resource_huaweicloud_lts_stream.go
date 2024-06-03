@@ -121,7 +121,7 @@ func resourceStreamCreate(ctx context.Context, d *schema.ResourceData, meta inte
 func buildCreateStreamBodyParams(cfg *config.Config, d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"log_stream_name": d.Get("stream_name"),
-		"ttl_in_days":     utils.ValueIngoreEmpty(d.Get("ttl_in_days")),
+		"ttl_in_days":     utils.ValueIgnoreEmpty(d.Get("ttl_in_days")),
 	}
 
 	userNoPermission := []string{"EPS.0004"}

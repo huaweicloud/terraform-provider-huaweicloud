@@ -174,13 +174,13 @@ func resourcePgDatabaseCreate(ctx context.Context, d *schema.ResourceData, meta 
 func buildCreatePgDatabaseBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":                       d.Get("name"),
-		"owner":                      utils.ValueIngoreEmpty(d.Get("owner")),
-		"template":                   utils.ValueIngoreEmpty(d.Get("template")),
-		"character_set":              utils.ValueIngoreEmpty(d.Get("character_set")),
-		"lc_collate":                 utils.ValueIngoreEmpty(d.Get("lc_collate")),
-		"lc_ctype":                   utils.ValueIngoreEmpty(d.Get("lc_ctype")),
-		"is_revoke_public_privilege": utils.ValueIngoreEmpty(d.Get("is_revoke_public_privilege")),
-		"comment":                    utils.ValueIngoreEmpty(d.Get("description")),
+		"owner":                      utils.ValueIgnoreEmpty(d.Get("owner")),
+		"template":                   utils.ValueIgnoreEmpty(d.Get("template")),
+		"character_set":              utils.ValueIgnoreEmpty(d.Get("character_set")),
+		"lc_collate":                 utils.ValueIgnoreEmpty(d.Get("lc_collate")),
+		"lc_ctype":                   utils.ValueIgnoreEmpty(d.Get("lc_ctype")),
+		"is_revoke_public_privilege": utils.ValueIgnoreEmpty(d.Get("is_revoke_public_privilege")),
+		"comment":                    utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

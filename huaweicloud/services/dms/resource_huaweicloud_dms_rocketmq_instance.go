@@ -471,24 +471,24 @@ func rocketMQInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID st
 func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, cfg *config.Config,
 	availableZones []string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-		"enable_acl":            utils.ValueIngoreEmpty(d.Get("enable_acl")),
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"enable_acl":            utils.ValueIgnoreEmpty(d.Get("enable_acl")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 		"engine":                "reliability",
-		"engine_version":        utils.ValueIngoreEmpty(d.Get("engine_version")),
-		"storage_space":         utils.ValueIngoreEmpty(d.Get("storage_space")),
-		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"subnet_id":             utils.ValueIngoreEmpty(d.Get("subnet_id")),
-		"security_group_id":     utils.ValueIngoreEmpty(d.Get("security_group_id")),
+		"engine_version":        utils.ValueIgnoreEmpty(d.Get("engine_version")),
+		"storage_space":         utils.ValueIgnoreEmpty(d.Get("storage_space")),
+		"vpc_id":                utils.ValueIgnoreEmpty(d.Get("vpc_id")),
+		"subnet_id":             utils.ValueIgnoreEmpty(d.Get("subnet_id")),
+		"security_group_id":     utils.ValueIgnoreEmpty(d.Get("security_group_id")),
 		"available_zones":       availableZones,
-		"product_id":            utils.ValueIngoreEmpty(d.Get("flavor_id")),
-		"ssl_enable":            utils.ValueIngoreEmpty(d.Get("ssl_enable")),
-		"storage_spec_code":     utils.ValueIngoreEmpty(d.Get("storage_spec_code")),
-		"ipv6_enable":           utils.ValueIngoreEmpty(d.Get("ipv6_enable")),
-		"enable_publicip":       utils.ValueIngoreEmpty(d.Get("enable_publicip")),
-		"publicip_id":           utils.ValueIngoreEmpty(d.Get("publicip_id")),
-		"broker_num":            utils.ValueIngoreEmpty(d.Get("broker_num")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"product_id":            utils.ValueIgnoreEmpty(d.Get("flavor_id")),
+		"ssl_enable":            utils.ValueIgnoreEmpty(d.Get("ssl_enable")),
+		"storage_spec_code":     utils.ValueIgnoreEmpty(d.Get("storage_spec_code")),
+		"ipv6_enable":           utils.ValueIgnoreEmpty(d.Get("ipv6_enable")),
+		"enable_publicip":       utils.ValueIgnoreEmpty(d.Get("enable_publicip")),
+		"publicip_id":           utils.ValueIgnoreEmpty(d.Get("publicip_id")),
+		"broker_num":            utils.ValueIgnoreEmpty(d.Get("broker_num")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 	}
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
 		bodyParams["bss_param"] = buildCreateRocketmqInstanceBodyBssParams(d)
@@ -503,9 +503,9 @@ func buildCreateRocketmqInstanceBodyBssParams(d *schema.ResourceData) map[string
 	}
 	isAutoPay := true
 	bodyParams := map[string]interface{}{
-		"charging_mode": utils.ValueIngoreEmpty(d.Get("charging_mode")),
-		"period_type":   utils.ValueIngoreEmpty(d.Get("period_unit")),
-		"period_num":    utils.ValueIngoreEmpty(d.Get("period")),
+		"charging_mode": utils.ValueIgnoreEmpty(d.Get("charging_mode")),
+		"period_type":   utils.ValueIgnoreEmpty(d.Get("period_unit")),
+		"period_num":    utils.ValueIgnoreEmpty(d.Get("period")),
 		"is_auto_renew": &autoRenew,
 		"is_auto_pay":   &isAutoPay,
 	}
@@ -623,26 +623,26 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 
 func buildUpdateRocketmqInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"description":       utils.ValueIngoreEmpty(d.Get("description")),
-		"security_group_id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
+		"description":       utils.ValueIgnoreEmpty(d.Get("description")),
+		"security_group_id": utils.ValueIgnoreEmpty(d.Get("security_group_id")),
 	}
 
 	if d.HasChange("enable_acl") {
-		bodyParams["enable_acl"] = utils.ValueIngoreEmpty(d.Get("enable_acl"))
+		bodyParams["enable_acl"] = utils.ValueIgnoreEmpty(d.Get("enable_acl"))
 	} else if d.HasChange("retention_policy") {
-		bodyParams["enable_acl"] = utils.ValueIngoreEmpty(d.Get("retention_policy"))
+		bodyParams["enable_acl"] = utils.ValueIgnoreEmpty(d.Get("retention_policy"))
 	}
 
 	if d.HasChange("name") {
-		bodyParams["name"] = utils.ValueIngoreEmpty(d.Get("name"))
+		bodyParams["name"] = utils.ValueIgnoreEmpty(d.Get("name"))
 	}
 
 	if d.HasChange("enable_publicip") {
-		bodyParams["enable_publicip"] = utils.ValueIngoreEmpty(d.Get("enable_publicip"))
+		bodyParams["enable_publicip"] = utils.ValueIgnoreEmpty(d.Get("enable_publicip"))
 	}
 
 	if d.HasChange("publicip_id") {
-		bodyParams["publicip_id"] = utils.ValueIngoreEmpty(d.Get("publicip_id"))
+		bodyParams["publicip_id"] = utils.ValueIgnoreEmpty(d.Get("publicip_id"))
 	}
 	return bodyParams
 }

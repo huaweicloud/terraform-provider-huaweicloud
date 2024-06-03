@@ -210,10 +210,10 @@ func resourceDatasourceConnectionCreate(ctx context.Context, d *schema.ResourceD
 
 func buildCreateDatasourceConnectionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":            utils.ValueIngoreEmpty(d.Get("name")),
-		"dest_vpc_id":     utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"dest_network_id": utils.ValueIngoreEmpty(d.Get("subnet_id")),
-		"routetable_id":   utils.ValueIngoreEmpty(d.Get("route_table_id")),
+		"name":            utils.ValueIgnoreEmpty(d.Get("name")),
+		"dest_vpc_id":     utils.ValueIgnoreEmpty(d.Get("vpc_id")),
+		"dest_network_id": utils.ValueIgnoreEmpty(d.Get("subnet_id")),
+		"routetable_id":   utils.ValueIgnoreEmpty(d.Get("route_table_id")),
 		"queues":          d.Get("queues").(*schema.Set).List(),
 		"hosts":           buildCreateDatasourceConnectionRequestBodyHost(d.Get("hosts")),
 		"tags":            utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
@@ -231,8 +231,8 @@ func buildCreateDatasourceConnectionRequestBodyHost(rawParams interface{}) []map
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name": utils.ValueIngoreEmpty(raw["name"]),
-				"ip":   utils.ValueIngoreEmpty(raw["ip"]),
+				"name": utils.ValueIgnoreEmpty(raw["name"]),
+				"ip":   utils.ValueIgnoreEmpty(raw["ip"]),
 			}
 		}
 		return rst
@@ -585,8 +585,8 @@ func buildUpdateDatasourceConnectionHostsRequestBodyHost(rawParams interface{}) 
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name": utils.ValueIngoreEmpty(raw["name"]),
-				"ip":   utils.ValueIngoreEmpty(raw["ip"]),
+				"name": utils.ValueIgnoreEmpty(raw["name"]),
+				"ip":   utils.ValueIgnoreEmpty(raw["ip"]),
 			}
 		}
 		return rst

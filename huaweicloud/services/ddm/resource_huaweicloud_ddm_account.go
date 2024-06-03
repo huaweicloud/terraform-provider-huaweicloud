@@ -197,10 +197,10 @@ func resourceDdmAccountCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 func buildCreateAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":           utils.ValueIngoreEmpty(d.Get("name")),
-		"password":       utils.ValueIngoreEmpty(d.Get("password")),
-		"base_authority": utils.ValueIngoreEmpty(d.Get("permissions")),
-		"description":    utils.ValueIngoreEmpty(d.Get("description")),
+		"name":           utils.ValueIgnoreEmpty(d.Get("name")),
+		"password":       utils.ValueIgnoreEmpty(d.Get("password")),
+		"base_authority": utils.ValueIgnoreEmpty(d.Get("permissions")),
+		"description":    utils.ValueIgnoreEmpty(d.Get("description")),
 		"databases":      buildCreateAccountSchemasChildBody(d),
 	}
 	params := map[string]interface{}{
@@ -344,8 +344,8 @@ func updateAccountPassword(ctx context.Context, d *schema.ResourceData, cfg *con
 
 func buildUpdateAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"base_authority": utils.ValueIngoreEmpty(d.Get("permissions")),
-		"description":    utils.ValueIngoreEmpty(d.Get("description")),
+		"base_authority": utils.ValueIgnoreEmpty(d.Get("permissions")),
+		"description":    utils.ValueIgnoreEmpty(d.Get("description")),
 		"databases":      buildUpdateAccountSchemasChildBody(d),
 	}
 	bodyParams := map[string]interface{}{
@@ -370,7 +370,7 @@ func buildUpdateAccountSchemasChildBody(d *schema.ResourceData) []map[string]int
 
 func buildUpdateAccountPasswordBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"password": utils.ValueIngoreEmpty(d.Get("password")),
+		"password": utils.ValueIgnoreEmpty(d.Get("password")),
 	}
 	return bodyParams
 }

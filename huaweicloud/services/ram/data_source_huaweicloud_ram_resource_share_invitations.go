@@ -150,9 +150,9 @@ func dataSourceResourceShareInvitationssRead(_ context.Context, d *schema.Resour
 
 func buildGetResourceShareInvitationsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"resource_share_ids":            utils.ValueIngoreEmpty(d.Get("resource_share_ids")),
-		"resource_share_invitation_ids": utils.ValueIngoreEmpty(d.Get("resource_share_invitation_ids")),
-		"status":                        utils.ValueIngoreEmpty(d.Get("status")),
+		"resource_share_ids":            utils.ValueIgnoreEmpty(d.Get("resource_share_ids")),
+		"resource_share_invitation_ids": utils.ValueIgnoreEmpty(d.Get("resource_share_invitation_ids")),
+		"status":                        utils.ValueIgnoreEmpty(d.Get("status")),
 		"limit":                         pageLimitCount,
 	}
 	return bodyParams

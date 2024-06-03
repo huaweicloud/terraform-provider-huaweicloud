@@ -185,13 +185,13 @@ func resourceDwsExtDataSourceCreate(ctx context.Context, d *schema.ResourceData,
 
 func buildCreateDwsExtDataSourceBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"data_source_name": utils.ValueIngoreEmpty(d.Get("name")),
-		"type":             utils.ValueIngoreEmpty(d.Get("type")),
-		"data_source_id":   utils.ValueIngoreEmpty(d.Get("data_source_id")),
-		"user_name":        utils.ValueIngoreEmpty(d.Get("user_name")),
-		"user_pwd":         utils.ValueIngoreEmpty(d.Get("user_pwd")),
-		"connect_info":     utils.ValueIngoreEmpty(d.Get("connect_info")),
-		"description":      utils.ValueIngoreEmpty(d.Get("description")),
+		"data_source_name": utils.ValueIgnoreEmpty(d.Get("name")),
+		"type":             utils.ValueIgnoreEmpty(d.Get("type")),
+		"data_source_id":   utils.ValueIgnoreEmpty(d.Get("data_source_id")),
+		"user_name":        utils.ValueIgnoreEmpty(d.Get("user_name")),
+		"user_pwd":         utils.ValueIgnoreEmpty(d.Get("user_pwd")),
+		"connect_info":     utils.ValueIgnoreEmpty(d.Get("connect_info")),
+		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -324,8 +324,8 @@ func resourceDwsExtDataSourceUpdate(ctx context.Context, d *schema.ResourceData,
 func buildUpdateDwsExtDataSourceBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"reconfigure": map[string]interface{}{
-			"reboot":    utils.ValueIngoreEmpty(d.Get("reboot")),
-			"user_name": utils.ValueIngoreEmpty(d.Get("user_name")),
+			"reboot":    utils.ValueIgnoreEmpty(d.Get("reboot")),
+			"user_name": utils.ValueIgnoreEmpty(d.Get("user_name")),
 		},
 	}
 	return bodyParams

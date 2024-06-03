@@ -101,10 +101,10 @@ func buildTrafficMirrorFilterRuleBodyParams(d *schema.ResourceData) map[string]i
 		"ethertype":              d.Get("ethertype"),
 		"action":                 d.Get("action"),
 		"priority":               d.Get("priority"),
-		"source_cidr_block":      utils.ValueIngoreEmpty(d.Get("source_cidr_block")),
-		"destination_cidr_block": utils.ValueIngoreEmpty(d.Get("destination_cidr_block")),
-		"source_port_range":      utils.ValueIngoreEmpty(d.Get("source_port_range")),
-		"destination_port_range": utils.ValueIngoreEmpty(d.Get("destination_port_range")),
+		"source_cidr_block":      utils.ValueIgnoreEmpty(d.Get("source_cidr_block")),
+		"destination_cidr_block": utils.ValueIgnoreEmpty(d.Get("destination_cidr_block")),
+		"source_port_range":      utils.ValueIgnoreEmpty(d.Get("source_port_range")),
+		"destination_port_range": utils.ValueIgnoreEmpty(d.Get("destination_port_range")),
 		"description":            d.Get("description"),
 	}
 	if d.Id() == "" {

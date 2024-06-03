@@ -578,21 +578,21 @@ func buildCreateDwsClusterBodyParams(d *schema.ResourceData, cfg *config.Config)
 	availabilityZones := strings.Split(d.Get("availability_zone").(string), ",")
 	bodyParams := map[string]interface{}{
 		"cluster": map[string]interface{}{
-			"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-			"flavor":                utils.ValueIngoreEmpty(d.Get("node_type")),
-			"num_node":              utils.ValueIngoreEmpty(d.Get("number_of_node")),
-			"num_cn":                utils.ValueIngoreEmpty(d.Get("number_of_cn")),
-			"db_name":               utils.ValueIngoreEmpty(d.Get("user_name")),
-			"db_password":           utils.ValueIngoreEmpty(d.Get("user_pwd")),
-			"db_port":               utils.ValueIngoreEmpty(d.Get("port")),
+			"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+			"flavor":                utils.ValueIgnoreEmpty(d.Get("node_type")),
+			"num_node":              utils.ValueIgnoreEmpty(d.Get("number_of_node")),
+			"num_cn":                utils.ValueIgnoreEmpty(d.Get("number_of_cn")),
+			"db_name":               utils.ValueIgnoreEmpty(d.Get("user_name")),
+			"db_password":           utils.ValueIgnoreEmpty(d.Get("user_pwd")),
+			"db_port":               utils.ValueIgnoreEmpty(d.Get("port")),
 			"availability_zones":    availabilityZones,
-			"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
-			"subnet_id":             utils.ValueIngoreEmpty(d.Get("network_id")),
-			"security_group_id":     utils.ValueIngoreEmpty(d.Get("security_group_id")),
-			"datastore_version":     utils.ValueIngoreEmpty(d.Get("version")),
-			"dss_pool_id":           utils.ValueIngoreEmpty(d.Get("dss_pool_id")),
-			"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
-			"master_key_id":         utils.ValueIngoreEmpty(d.Get("kms_key_id")),
+			"vpc_id":                utils.ValueIgnoreEmpty(d.Get("vpc_id")),
+			"subnet_id":             utils.ValueIgnoreEmpty(d.Get("network_id")),
+			"security_group_id":     utils.ValueIgnoreEmpty(d.Get("security_group_id")),
+			"datastore_version":     utils.ValueIgnoreEmpty(d.Get("version")),
+			"dss_pool_id":           utils.ValueIgnoreEmpty(d.Get("dss_pool_id")),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			"master_key_id":         utils.ValueIgnoreEmpty(d.Get("kms_key_id")),
 			"public_ip":             buildCreateDwsClusterReqBodyPublicIp(d.Get("public_ip")),
 			"volume":                buildCreateDwsClusterReqBodyVolume(d.Get("volume")),
 			"tags":                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
@@ -604,18 +604,18 @@ func buildCreateDwsClusterBodyParams(d *schema.ResourceData, cfg *config.Config)
 func buildCreateDwsClusterBodyParamsV1(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"cluster": map[string]interface{}{
-			"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-			"node_type":             utils.ValueIngoreEmpty(d.Get("node_type")),
-			"number_of_node":        utils.ValueIngoreEmpty(d.Get("number_of_node")),
-			"number_of_cn":          utils.ValueIngoreEmpty(d.Get("number_of_cn")),
-			"user_name":             utils.ValueIngoreEmpty(d.Get("user_name")),
-			"user_pwd":              utils.ValueIngoreEmpty(d.Get("user_pwd")),
-			"port":                  utils.ValueIngoreEmpty(d.Get("port")),
-			"availability_zone":     utils.ValueIngoreEmpty(d.Get("availability_zone")),
-			"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
-			"subnet_id":             utils.ValueIngoreEmpty(d.Get("network_id")),
-			"security_group_id":     utils.ValueIngoreEmpty(d.Get("security_group_id")),
-			"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+			"node_type":             utils.ValueIgnoreEmpty(d.Get("node_type")),
+			"number_of_node":        utils.ValueIgnoreEmpty(d.Get("number_of_node")),
+			"number_of_cn":          utils.ValueIgnoreEmpty(d.Get("number_of_cn")),
+			"user_name":             utils.ValueIgnoreEmpty(d.Get("user_name")),
+			"user_pwd":              utils.ValueIgnoreEmpty(d.Get("user_pwd")),
+			"port":                  utils.ValueIgnoreEmpty(d.Get("port")),
+			"availability_zone":     utils.ValueIgnoreEmpty(d.Get("availability_zone")),
+			"vpc_id":                utils.ValueIgnoreEmpty(d.Get("vpc_id")),
+			"subnet_id":             utils.ValueIgnoreEmpty(d.Get("network_id")),
+			"security_group_id":     utils.ValueIgnoreEmpty(d.Get("security_group_id")),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 			"public_ip":             buildCreateDwsClusterReqBodyPublicIp(d.Get("public_ip")),
 			"tags":                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		},
@@ -630,8 +630,8 @@ func buildCreateDwsClusterReqBodyPublicIp(rawParams interface{}) map[string]inte
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"public_bind_type": utils.ValueIngoreEmpty(raw["public_bind_type"]),
-			"eip_id":           utils.ValueIngoreEmpty(raw["eip_id"]),
+			"public_bind_type": utils.ValueIgnoreEmpty(raw["public_bind_type"]),
+			"eip_id":           utils.ValueIgnoreEmpty(raw["eip_id"]),
 		}
 		return params
 	}
@@ -645,8 +645,8 @@ func buildCreateDwsClusterReqBodyVolume(rawParams interface{}) map[string]interf
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"volume":   utils.ValueIngoreEmpty(raw["type"]),
-			"capacity": utils.ValueIngoreEmpty(raw["capacity"]),
+			"volume":   utils.ValueIgnoreEmpty(raw["type"]),
+			"capacity": utils.ValueIgnoreEmpty(raw["capacity"]),
 		}
 		return params
 	}
@@ -1054,14 +1054,14 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 func buildExpandInstanceStorageBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"new_size": utils.ValueIngoreEmpty(d.Get("volume.0.capacity")),
+		"new_size": utils.ValueIgnoreEmpty(d.Get("volume.0.capacity")),
 	}
 	return bodyParams
 }
 
 func buildResetPasswordOfClusterBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"new_password": utils.ValueIngoreEmpty(d.Get("user_pwd")),
+		"new_password": utils.ValueIgnoreEmpty(d.Get("user_pwd")),
 	}
 	return bodyParams
 }

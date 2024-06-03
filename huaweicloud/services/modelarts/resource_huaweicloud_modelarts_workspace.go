@@ -158,8 +158,8 @@ func buildCreateWorkspaceBodyParams(d *schema.ResourceData, cfg *config.Config) 
 	bodyParams := map[string]interface{}{
 		"name":                  d.Get("name"),
 		"description":           d.Get("description"),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
-		"auth_type":             utils.ValueIngoreEmpty(d.Get("auth_type")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"auth_type":             utils.ValueIgnoreEmpty(d.Get("auth_type")),
 		"grants":                buildCreateWorkspaceRequestBodyGrants(d.Get("grants")),
 	}
 	return bodyParams
@@ -175,8 +175,8 @@ func buildCreateWorkspaceRequestBodyGrants(rawParams interface{}) []map[string]i
 		for i, v := range rawArray {
 			if raw, ok := v.(map[string]interface{}); ok {
 				rst[i] = map[string]interface{}{
-					"user_id":   utils.ValueIngoreEmpty(raw["user_id"]),
-					"user_name": utils.ValueIngoreEmpty(raw["user_name"]),
+					"user_id":   utils.ValueIgnoreEmpty(raw["user_id"]),
+					"user_name": utils.ValueIgnoreEmpty(raw["user_name"]),
 				}
 			}
 		}
@@ -300,7 +300,7 @@ func buildUpdateWorkspaceBodyParams(d *schema.ResourceData) map[string]interface
 	bodyParams := map[string]interface{}{
 		"name":        d.Get("name"),
 		"description": d.Get("description"),
-		"auth_type":   utils.ValueIngoreEmpty(d.Get("auth_type")),
+		"auth_type":   utils.ValueIgnoreEmpty(d.Get("auth_type")),
 		"grants":      buildUpdateWorkspaceRequestBodyGrants(d.Get("grants")),
 	}
 	return bodyParams
@@ -316,8 +316,8 @@ func buildUpdateWorkspaceRequestBodyGrants(rawParams interface{}) []map[string]i
 		for i, v := range rawArray {
 			if raw, ok := v.(map[string]interface{}); ok {
 				rst[i] = map[string]interface{}{
-					"user_id":   utils.ValueIngoreEmpty(raw["user_id"]),
-					"user_name": utils.ValueIngoreEmpty(raw["user_name"]),
+					"user_id":   utils.ValueIgnoreEmpty(raw["user_id"]),
+					"user_name": utils.ValueIgnoreEmpty(raw["user_name"]),
 				}
 			}
 		}

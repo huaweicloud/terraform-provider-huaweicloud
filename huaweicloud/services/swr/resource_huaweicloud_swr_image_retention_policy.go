@@ -150,10 +150,10 @@ func resourceSwrImageRetentionPolicyCreate(ctx context.Context, d *schema.Resour
 }
 
 func buildSwrImageRetentionPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
-	template := utils.ValueIngoreEmpty(d.Get("type"))
-	number := utils.ValueIngoreEmpty(d.Get("number")).(int)
+	template := utils.ValueIgnoreEmpty(d.Get("type"))
+	number := utils.ValueIgnoreEmpty(d.Get("number")).(int)
 	param := map[string]interface{}{
-		"template":      utils.ValueIngoreEmpty(d.Get("type")),
+		"template":      utils.ValueIgnoreEmpty(d.Get("type")),
 		"tag_selectors": buildSwrImageRetentionPolicyTagSelectorsChildBody(d),
 	}
 	if template == "date_rule" {
@@ -182,8 +182,8 @@ func buildSwrImageRetentionPolicyTagSelectorsChildBody(d *schema.ResourceData) [
 	for _, rawParam := range rawParams {
 		raw := rawParam.(map[string]interface{})
 		param := map[string]interface{}{
-			"kind":    utils.ValueIngoreEmpty(raw["kind"]),
-			"pattern": utils.ValueIngoreEmpty(raw["pattern"]),
+			"kind":    utils.ValueIgnoreEmpty(raw["kind"]),
+			"pattern": utils.ValueIgnoreEmpty(raw["pattern"]),
 		}
 		params = append(params, param)
 	}

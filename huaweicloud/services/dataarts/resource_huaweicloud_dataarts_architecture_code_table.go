@@ -186,7 +186,7 @@ func buildCreateCodeTableParams(d *schema.ResourceData) map[string]interface{} {
 		"name_en":           d.Get("code"),
 		"directory_id":      d.Get("directory_id"),
 		"code_table_fields": buildCreateCodeTableFieldParams(d),
-		"description":       utils.ValueIngoreEmpty(d.Get("description")),
+		"description":       utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 }
 
@@ -200,7 +200,7 @@ func buildCreateCodeTableFieldParams(d *schema.ResourceData) []map[string]interf
 			"name_ch":     fieldMap["name"].(string),
 			"name_en":     fieldMap["code"].(string),
 			"data_type":   fieldMap["type"].(string),
-			"description": utils.ValueIngoreEmpty(fieldMap["description"].(string)),
+			"description": utils.ValueIgnoreEmpty(fieldMap["description"].(string)),
 		}
 		fields[i] = field
 	}
@@ -308,7 +308,7 @@ func buildUpdateCodeTableParams(d *schema.ResourceData) map[string]interface{} {
 		"name_en":           d.Get("code"),
 		"directory_id":      d.Get("directory_id"),
 		"code_table_fields": buildUpdateCodeTableFieldParams(d),
-		"description":       utils.ValueIngoreEmpty(d.Get("description")),
+		"description":       utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 }
 
@@ -324,7 +324,7 @@ func buildUpdateCodeTableFieldParams(d *schema.ResourceData) []map[string]interf
 			"name_ch":       fieldMap["name"].(string),
 			"name_en":       fieldMap["code"].(string),
 			"data_type":     fieldMap["type"].(string),
-			"description":   utils.ValueIngoreEmpty(fieldMap["description"].(string)),
+			"description":   utils.ValueIgnoreEmpty(fieldMap["description"].(string)),
 		}
 		fields[i] = field
 	}

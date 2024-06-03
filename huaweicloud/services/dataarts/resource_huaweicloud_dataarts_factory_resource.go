@@ -126,8 +126,8 @@ func buildCreateOrUpdateResourceBodyParams(d *schema.ResourceData) map[string]in
 		"type":            d.Get("type"),
 		"location":        d.Get("location"),
 		"directory":       d.Get("directory"),
-		"depend_packages": utils.ValueIngoreEmpty(buildDependPackagesParams(d)),
-		"desc":            utils.ValueIngoreEmpty(d.Get("description")),
+		"depend_packages": utils.ValueIgnoreEmpty(buildDependPackagesParams(d)),
+		"desc":            utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 }
 

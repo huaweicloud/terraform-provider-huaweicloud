@@ -110,9 +110,9 @@ func resourceServiceGroupCreate(ctx context.Context, d *schema.ResourceData, met
 
 func buildCreateServiceGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"object_id":   utils.ValueIngoreEmpty(d.Get("object_id")),
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"object_id":   utils.ValueIgnoreEmpty(d.Get("object_id")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -208,8 +208,8 @@ func resourceServiceGroupUpdate(ctx context.Context, d *schema.ResourceData, met
 
 func buildUpdateServiceGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

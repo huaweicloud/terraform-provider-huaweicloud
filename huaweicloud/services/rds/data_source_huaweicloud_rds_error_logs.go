@@ -139,9 +139,9 @@ func buildGetErrorLogsParams(d *schema.ResourceData, lineNum string, limit int) 
 	bodyParams := map[string]interface{}{
 		"start_time": d.Get("start_time").(string),
 		"end_time":   d.Get("end_time").(string),
-		"line_num":   utils.ValueIngoreEmpty(lineNum),
+		"line_num":   utils.ValueIgnoreEmpty(lineNum),
 		"limit":      limit,
-		"level":      utils.ValueIngoreEmpty(d.Get("level").(string)),
+		"level":      utils.ValueIgnoreEmpty(d.Get("level").(string)),
 	}
 	return bodyParams
 }

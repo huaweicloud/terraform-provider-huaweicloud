@@ -79,9 +79,9 @@ func ResourceCmdbApplication() *schema.Resource {
 func buildCreateApplicationBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":         d.Get("name"),
-		"description":  utils.ValueIngoreEmpty(d.Get("description")),
-		"display_name": utils.ValueIngoreEmpty(d.Get("display_name")),
-		"eps_id":       utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
+		"display_name": utils.ValueIgnoreEmpty(d.Get("display_name")),
+		"eps_id":       utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 	}
 	return bodyParams
 }
@@ -173,8 +173,8 @@ func buildUpdateApplicationBodyParams(d *schema.ResourceData, cfg *config.Config
 	bodyParams := map[string]interface{}{
 		"name":         d.Get("name"),
 		"description":  d.Get("description"),
-		"display_name": utils.ValueIngoreEmpty(d.Get("display_name")),
-		"eps_id":       utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"display_name": utils.ValueIgnoreEmpty(d.Get("display_name")),
+		"eps_id":       utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 	}
 	return bodyParams
 }

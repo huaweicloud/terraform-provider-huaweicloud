@@ -144,8 +144,8 @@ func buildCreateArchitectureDirectoryBodyParams(d *schema.ResourceData) map[stri
 	bodyParams := map[string]interface{}{
 		"name":        d.Get("name"),
 		"type":        d.Get("type"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"parent_id":   utils.ValueIngoreEmpty(d.Get("parent_id")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"parent_id":   utils.ValueIgnoreEmpty(d.Get("parent_id")),
 	}
 	return bodyParams
 }
@@ -271,8 +271,8 @@ func buildUpdateArchitectureDirectoryBodyParams(d *schema.ResourceData) map[stri
 		"id":          d.Id(),
 		"name":        d.Get("name"),
 		"type":        d.Get("type"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"parent_id":   utils.ValueIngoreEmpty(d.Get("parent_id")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"parent_id":   utils.ValueIgnoreEmpty(d.Get("parent_id")),
 	}
 	return bodyParams
 }

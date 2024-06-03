@@ -228,7 +228,7 @@ func resourceSQLAuditDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 func buildUpdateSQLAuditBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"keep_days":   utils.ValueIngoreEmpty(d.Get("keep_days")),
+		"keep_days":   utils.ValueIgnoreEmpty(d.Get("keep_days")),
 		"audit_types": d.Get("audit_types").(*schema.Set).List(),
 	}
 	return bodyParams
@@ -237,7 +237,7 @@ func buildUpdateSQLAuditBodyParams(d *schema.ResourceData) map[string]interface{
 func buildDeleteSQLAuditBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"keep_days":         0,
-		"reserve_auditlogs": utils.ValueIngoreEmpty(d.Get("reserve_auditlogs")),
+		"reserve_auditlogs": utils.ValueIgnoreEmpty(d.Get("reserve_auditlogs")),
 	}
 	return bodyParams
 }

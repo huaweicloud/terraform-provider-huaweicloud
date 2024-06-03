@@ -81,7 +81,7 @@ func resourceTrustedServiceCreate(ctx context.Context, d *schema.ResourceData, m
 
 func buildTrustedServiceBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"service_principal": utils.ValueIngoreEmpty(d.Get("service")),
+		"service_principal": utils.ValueIgnoreEmpty(d.Get("service")),
 	}
 	return bodyParams
 }

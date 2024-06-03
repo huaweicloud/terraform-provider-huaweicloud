@@ -169,13 +169,13 @@ func resourceHealthCheckCreate(ctx context.Context, d *schema.ResourceData, meta
 func buildCreateHealthCheckBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"health_check": map[string]interface{}{
-			"enabled":           utils.ValueIngoreEmpty(d.Get("enabled")),
-			"endpoint_group_id": utils.ValueIngoreEmpty(d.Get("endpoint_group_id")),
-			"interval":          utils.ValueIngoreEmpty(d.Get("interval")),
-			"max_retries":       utils.ValueIngoreEmpty(d.Get("max_retries")),
-			"port":              utils.ValueIngoreEmpty(d.Get("port")),
-			"protocol":          utils.ValueIngoreEmpty(d.Get("protocol")),
-			"timeout":           utils.ValueIngoreEmpty(d.Get("timeout")),
+			"enabled":           utils.ValueIgnoreEmpty(d.Get("enabled")),
+			"endpoint_group_id": utils.ValueIgnoreEmpty(d.Get("endpoint_group_id")),
+			"interval":          utils.ValueIgnoreEmpty(d.Get("interval")),
+			"max_retries":       utils.ValueIgnoreEmpty(d.Get("max_retries")),
+			"port":              utils.ValueIgnoreEmpty(d.Get("port")),
+			"protocol":          utils.ValueIgnoreEmpty(d.Get("protocol")),
+			"timeout":           utils.ValueIgnoreEmpty(d.Get("timeout")),
 		},
 	}
 	return bodyParams
@@ -352,11 +352,11 @@ func buildUpdateHealthCheckBodyParams(d *schema.ResourceData) map[string]interfa
 	bodyParams := map[string]interface{}{
 		"health_check": map[string]interface{}{
 			"enabled":     d.Get("enabled"),
-			"interval":    utils.ValueIngoreEmpty(d.Get("interval")),
-			"max_retries": utils.ValueIngoreEmpty(d.Get("max_retries")),
-			"port":        utils.ValueIngoreEmpty(d.Get("port")),
-			"protocol":    utils.ValueIngoreEmpty(d.Get("protocol")),
-			"timeout":     utils.ValueIngoreEmpty(d.Get("timeout")),
+			"interval":    utils.ValueIgnoreEmpty(d.Get("interval")),
+			"max_retries": utils.ValueIgnoreEmpty(d.Get("max_retries")),
+			"port":        utils.ValueIgnoreEmpty(d.Get("port")),
+			"protocol":    utils.ValueIgnoreEmpty(d.Get("protocol")),
+			"timeout":     utils.ValueIgnoreEmpty(d.Get("timeout")),
 		},
 	}
 	return bodyParams

@@ -120,10 +120,10 @@ func resourceVPCInternetGatewayCreate(ctx context.Context, d *schema.ResourceDat
 func buildCreateIGWBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"vpc_id":      d.Get("vpc_id"),
-		"network_id":  utils.ValueIngoreEmpty(d.Get("subnet_id")),
-		"add_route":   utils.ValueIngoreEmpty(d.Get("add_route")),
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"enable_ipv6": utils.ValueIngoreEmpty(d.Get("enable_ipv6")),
+		"network_id":  utils.ValueIgnoreEmpty(d.Get("subnet_id")),
+		"add_route":   utils.ValueIgnoreEmpty(d.Get("add_route")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"enable_ipv6": utils.ValueIgnoreEmpty(d.Get("enable_ipv6")),
 	}
 	return bodyParams
 }
@@ -260,8 +260,8 @@ func resourceVPCInternetGatewayUpdate(ctx context.Context, d *schema.ResourceDat
 			KeepResponseBody: true,
 			JSONBody: map[string]interface{}{
 				"vpc_igw": utils.RemoveNil(map[string]interface{}{
-					"enable_ipv6": utils.ValueIngoreEmpty(d.Get("enable_ipv6")),
-					"name":        utils.ValueIngoreEmpty(d.Get("name")),
+					"enable_ipv6": utils.ValueIgnoreEmpty(d.Get("enable_ipv6")),
+					"name":        utils.ValueIgnoreEmpty(d.Get("name")),
 				}),
 			},
 		}

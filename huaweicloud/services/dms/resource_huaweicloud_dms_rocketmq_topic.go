@@ -167,10 +167,10 @@ func resourceDmsRocketMQTopicCreate(ctx context.Context, d *schema.ResourceData,
 
 func buildCreateRocketmqTopicBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":       utils.ValueIngoreEmpty(d.Get("name")),
+		"name":       utils.ValueIgnoreEmpty(d.Get("name")),
 		"brokers":    buildCreateRocketmqTopicBrokersChildBody(d),
-		"queue_num":  utils.ValueIngoreEmpty(d.Get("queue_num")),
-		"permission": utils.ValueIngoreEmpty(d.Get("permission")),
+		"queue_num":  utils.ValueIgnoreEmpty(d.Get("queue_num")),
+		"permission": utils.ValueIgnoreEmpty(d.Get("permission")),
 	}
 	return bodyParams
 }
@@ -236,9 +236,9 @@ func resourceDmsRocketMQTopicUpdate(ctx context.Context, d *schema.ResourceData,
 
 func buildUpdateRocketmqTopicBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"read_queue_num":  utils.ValueIngoreEmpty(d.Get("total_read_queue_num")),
-		"write_queue_num": utils.ValueIngoreEmpty(d.Get("total_write_queue_num")),
-		"permission":      utils.ValueIngoreEmpty(d.Get("permission")),
+		"read_queue_num":  utils.ValueIgnoreEmpty(d.Get("total_read_queue_num")),
+		"write_queue_num": utils.ValueIgnoreEmpty(d.Get("total_write_queue_num")),
+		"permission":      utils.ValueIgnoreEmpty(d.Get("permission")),
 	}
 	return bodyParams
 }

@@ -387,7 +387,7 @@ func buildSwrImagePermissionsUsersChildBody(d *schema.ResourceData, cfg *config.
 	}
 	for _, rawParam := range rawParams {
 		raw := rawParam.(map[string]interface{})
-		userId := utils.ValueIngoreEmpty(raw["user_id"]).(string)
+		userId := utils.ValueIgnoreEmpty(raw["user_id"]).(string)
 		userName := raw["user_name"].(string)
 		if userName == "" {
 			user, err := users.Get(iamClient, userId).Extract()

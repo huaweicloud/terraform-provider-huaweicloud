@@ -221,15 +221,15 @@ func buildCreateAutoLaunchGroupBodyParams(d *schema.ResourceData, region string)
 	bodyParams := map[string]interface{}{
 		"name":                               d.Get("name"),
 		"target_capacity":                    d.Get("target_capacity"),
-		"stable_capacity":                    utils.ValueIngoreEmpty(d.Get("stable_capacity")),
-		"excess_fulfilled_capacity_behavior": utils.ValueIngoreEmpty(d.Get("excess_fulfilled_capacity_behavior")),
-		"type":                               utils.ValueIngoreEmpty(d.Get("type")),
-		"instances_behavior_with_expiration": utils.ValueIngoreEmpty(d.Get("instances_behavior_with_expiration")),
-		"valid_since":                        utils.ValueIngoreEmpty(d.Get("valid_since")),
-		"valid_until":                        utils.ValueIngoreEmpty(d.Get("valid_until")),
-		"allocation_strategy":                utils.ValueIngoreEmpty(d.Get("allocation_strategy")),
-		"supply_option":                      utils.ValueIngoreEmpty(d.Get("supply_option")),
-		"spot_price":                         utils.ValueIngoreEmpty(d.Get("spot_price")),
+		"stable_capacity":                    utils.ValueIgnoreEmpty(d.Get("stable_capacity")),
+		"excess_fulfilled_capacity_behavior": utils.ValueIgnoreEmpty(d.Get("excess_fulfilled_capacity_behavior")),
+		"type":                               utils.ValueIgnoreEmpty(d.Get("type")),
+		"instances_behavior_with_expiration": utils.ValueIgnoreEmpty(d.Get("instances_behavior_with_expiration")),
+		"valid_since":                        utils.ValueIgnoreEmpty(d.Get("valid_since")),
+		"valid_until":                        utils.ValueIgnoreEmpty(d.Get("valid_until")),
+		"allocation_strategy":                utils.ValueIgnoreEmpty(d.Get("allocation_strategy")),
+		"supply_option":                      utils.ValueIgnoreEmpty(d.Get("supply_option")),
+		"spot_price":                         utils.ValueIgnoreEmpty(d.Get("spot_price")),
 		"region_specs":                       buildAutoLaunchGroupRequestBodyRegionSpecs(d, region),
 	}
 	return bodyParams
@@ -263,9 +263,9 @@ func buildAutoLaunchGroupRequestBodyRegionSpecsOverrides(rawParams *schema.Set) 
 		params := map[string]interface{}{
 			"availability_zone_id": raw["availability_zone"],
 			"flavor_id":            raw["flavor_id"],
-			"spot_price":           utils.ValueIngoreEmpty(raw["spot_price"]),
-			"priority":             utils.ValueIngoreEmpty(raw["priority"]),
-			"weighted_capacity":    utils.ValueIngoreEmpty(raw["weighted_capacity"]),
+			"spot_price":           utils.ValueIgnoreEmpty(raw["spot_price"]),
+			"priority":             utils.ValueIgnoreEmpty(raw["priority"]),
+			"weighted_capacity":    utils.ValueIgnoreEmpty(raw["weighted_capacity"]),
 		}
 		overrides[i] = params
 	}
@@ -390,11 +390,11 @@ func resourceAutoLaunchGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 func buildUpdateAutoLaunchGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":                               d.Get("name"),
-		"target_capacity":                    utils.ValueIngoreEmpty(d.Get("target_capacity")),
-		"stable_capacity":                    utils.ValueIngoreEmpty(d.Get("stable_capacity")),
-		"excess_fulfilled_capacity_behavior": utils.ValueIngoreEmpty(d.Get("excess_fulfilled_capacity_behavior")),
-		"instances_behavior_with_expiration": utils.ValueIngoreEmpty(d.Get("instances_behavior_with_expiration")),
-		"spot_price":                         utils.ValueIngoreEmpty(d.Get("spot_price")),
+		"target_capacity":                    utils.ValueIgnoreEmpty(d.Get("target_capacity")),
+		"stable_capacity":                    utils.ValueIgnoreEmpty(d.Get("stable_capacity")),
+		"excess_fulfilled_capacity_behavior": utils.ValueIgnoreEmpty(d.Get("excess_fulfilled_capacity_behavior")),
+		"instances_behavior_with_expiration": utils.ValueIgnoreEmpty(d.Get("instances_behavior_with_expiration")),
+		"spot_price":                         utils.ValueIgnoreEmpty(d.Get("spot_price")),
 	}
 	return bodyParams
 }
@@ -416,7 +416,7 @@ func resourceAutoLaunchGroupDelete(ctx context.Context, d *schema.ResourceData, 
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 		JSONBody: utils.RemoveNil(map[string]interface{}{
-			"delete_instances": utils.ValueIngoreEmpty(d.Get("delete_instances")),
+			"delete_instances": utils.ValueIgnoreEmpty(d.Get("delete_instances")),
 		}),
 	}
 

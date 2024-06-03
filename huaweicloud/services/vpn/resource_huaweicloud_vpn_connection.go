@@ -416,20 +416,20 @@ func buildCreateConnectionBodyParams(d *schema.ResourceData) map[string]interfac
 
 func buildCreateConnectionVpnConnectionChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":                 utils.ValueIngoreEmpty(d.Get("name")),
-		"vgw_id":               utils.ValueIngoreEmpty(d.Get("gateway_id")),
-		"vgw_ip":               utils.ValueIngoreEmpty(d.Get("gateway_ip")),
-		"style":                utils.ValueIngoreEmpty(d.Get("vpn_type")),
-		"cgw_id":               utils.ValueIngoreEmpty(d.Get("customer_gateway_id")),
-		"peer_subnets":         utils.ValueIngoreEmpty(d.Get("peer_subnets")),
-		"psk":                  utils.ValueIngoreEmpty(d.Get("psk")),
-		"tunnel_local_address": utils.ValueIngoreEmpty(d.Get("tunnel_local_address")),
-		"tunnel_peer_address":  utils.ValueIngoreEmpty(d.Get("tunnel_peer_address")),
+		"name":                 utils.ValueIgnoreEmpty(d.Get("name")),
+		"vgw_id":               utils.ValueIgnoreEmpty(d.Get("gateway_id")),
+		"vgw_ip":               utils.ValueIgnoreEmpty(d.Get("gateway_ip")),
+		"style":                utils.ValueIgnoreEmpty(d.Get("vpn_type")),
+		"cgw_id":               utils.ValueIgnoreEmpty(d.Get("customer_gateway_id")),
+		"peer_subnets":         utils.ValueIgnoreEmpty(d.Get("peer_subnets")),
+		"psk":                  utils.ValueIgnoreEmpty(d.Get("psk")),
+		"tunnel_local_address": utils.ValueIgnoreEmpty(d.Get("tunnel_local_address")),
+		"tunnel_peer_address":  utils.ValueIgnoreEmpty(d.Get("tunnel_peer_address")),
 		"ikepolicy":            buildCreateConnectionIkepolicyChildBody(d),
 		"ipsecpolicy":          buildCreateConnectionIpsecpolicyChildBody(d),
 		"policy_rules":         buildCreateConnectionPolicyRulesChildBody(d),
-		"tags":                 utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
-		"ha_role":              utils.ValueIngoreEmpty(d.Get("ha_role")),
+		"tags":                 utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+		"ha_role":              utils.ValueIgnoreEmpty(d.Get("ha_role")),
 	}
 
 	if enableNqa, ok := d.GetOk("enable_nqa"); ok {
@@ -447,18 +447,18 @@ func buildCreateConnectionIkepolicyChildBody(d *schema.ResourceData) map[string]
 
 	if raw, ok := rawParams[0].(map[string]interface{}); ok {
 		params := map[string]interface{}{
-			"authentication_algorithm": utils.ValueIngoreEmpty(raw["authentication_algorithm"]),
-			"encryption_algorithm":     utils.ValueIngoreEmpty(raw["encryption_algorithm"]),
-			"pfs":                      utils.ValueIngoreEmpty(raw["pfs"]),
-			"ike_version":              utils.ValueIngoreEmpty(raw["ike_version"]),
-			"lifetime_seconds":         utils.ValueIngoreEmpty(raw["lifetime_seconds"]),
-			"local_id_type":            utils.ValueIngoreEmpty(raw["local_id_type"]),
-			"local_id":                 utils.ValueIngoreEmpty(raw["local_id"]),
-			"peer_id_type":             utils.ValueIngoreEmpty(raw["peer_id_type"]),
-			"peer_id":                  utils.ValueIngoreEmpty(raw["peer_id"]),
-			"phase1_negotiation_mode":  utils.ValueIngoreEmpty(raw["phase1_negotiation_mode"]),
-			"authentication_method":    utils.ValueIngoreEmpty(raw["authentication_method"]),
-			"dh_group":                 utils.ValueIngoreEmpty(raw["dh_group"]),
+			"authentication_algorithm": utils.ValueIgnoreEmpty(raw["authentication_algorithm"]),
+			"encryption_algorithm":     utils.ValueIgnoreEmpty(raw["encryption_algorithm"]),
+			"pfs":                      utils.ValueIgnoreEmpty(raw["pfs"]),
+			"ike_version":              utils.ValueIgnoreEmpty(raw["ike_version"]),
+			"lifetime_seconds":         utils.ValueIgnoreEmpty(raw["lifetime_seconds"]),
+			"local_id_type":            utils.ValueIgnoreEmpty(raw["local_id_type"]),
+			"local_id":                 utils.ValueIgnoreEmpty(raw["local_id"]),
+			"peer_id_type":             utils.ValueIgnoreEmpty(raw["peer_id_type"]),
+			"peer_id":                  utils.ValueIgnoreEmpty(raw["peer_id"]),
+			"phase1_negotiation_mode":  utils.ValueIgnoreEmpty(raw["phase1_negotiation_mode"]),
+			"authentication_method":    utils.ValueIgnoreEmpty(raw["authentication_method"]),
+			"dh_group":                 utils.ValueIgnoreEmpty(raw["dh_group"]),
 			"dpd":                      buildCreateConnectionDPDChildBody(raw["dpd"]),
 		}
 
@@ -476,9 +476,9 @@ func buildCreateConnectionDPDChildBody(dpd interface{}) map[string]interface{} {
 
 	if raw, ok := rawParams[0].(map[string]interface{}); ok {
 		params := map[string]interface{}{
-			"timeout":  utils.ValueIngoreEmpty(raw["timeout"]),
-			"interval": utils.ValueIngoreEmpty(raw["interval"]),
-			"msg":      utils.ValueIngoreEmpty(raw["msg"]),
+			"timeout":  utils.ValueIgnoreEmpty(raw["timeout"]),
+			"interval": utils.ValueIgnoreEmpty(raw["interval"]),
+			"msg":      utils.ValueIgnoreEmpty(raw["msg"]),
 		}
 
 		return params
@@ -494,12 +494,12 @@ func buildCreateConnectionIpsecpolicyChildBody(d *schema.ResourceData) map[strin
 
 	if raw, ok := rawParams[0].(map[string]interface{}); ok {
 		params := map[string]interface{}{
-			"authentication_algorithm": utils.ValueIngoreEmpty(raw["authentication_algorithm"]),
-			"encryption_algorithm":     utils.ValueIngoreEmpty(raw["encryption_algorithm"]),
-			"pfs":                      utils.ValueIngoreEmpty(raw["pfs"]),
-			"lifetime_seconds":         utils.ValueIngoreEmpty(raw["lifetime_seconds"]),
-			"transform_protocol":       utils.ValueIngoreEmpty(raw["transform_protocol"]),
-			"encapsulation_mode":       utils.ValueIngoreEmpty(raw["encapsulation_mode"]),
+			"authentication_algorithm": utils.ValueIgnoreEmpty(raw["authentication_algorithm"]),
+			"encryption_algorithm":     utils.ValueIgnoreEmpty(raw["encryption_algorithm"]),
+			"pfs":                      utils.ValueIgnoreEmpty(raw["pfs"]),
+			"lifetime_seconds":         utils.ValueIgnoreEmpty(raw["lifetime_seconds"]),
+			"transform_protocol":       utils.ValueIgnoreEmpty(raw["transform_protocol"]),
+			"encapsulation_mode":       utils.ValueIgnoreEmpty(raw["encapsulation_mode"]),
 		}
 
 		return params
@@ -518,9 +518,9 @@ func buildCreateConnectionPolicyRulesChildBody(d *schema.ResourceData) []map[str
 	for i, raw := range rawParams {
 		if rawMap, ok := raw.(map[string]interface{}); ok {
 			params[i] = map[string]interface{}{
-				"rule_index":  utils.ValueIngoreEmpty(rawMap["rule_index"]),
-				"source":      utils.ValueIngoreEmpty(rawMap["source"]),
-				"destination": utils.ValueIngoreEmpty(rawMap["destination"]),
+				"rule_index":  utils.ValueIgnoreEmpty(rawMap["rule_index"]),
+				"source":      utils.ValueIgnoreEmpty(rawMap["source"]),
+				"destination": utils.ValueIgnoreEmpty(rawMap["destination"]),
 			}
 		}
 	}
@@ -808,12 +808,12 @@ func buildUpdateConnectionBodyParams(d *schema.ResourceData) map[string]interfac
 
 func buildUpdateConnectionVpnConnectionChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"cgw_id":               utils.ValueIngoreEmpty(d.Get("customer_gateway_id")),
-		"name":                 utils.ValueIngoreEmpty(d.Get("name")),
-		"peer_subnets":         utils.ValueIngoreEmpty(d.Get("peer_subnets")),
-		"psk":                  utils.ValueIngoreEmpty(d.Get("psk")),
-		"tunnel_local_address": utils.ValueIngoreEmpty(d.Get("tunnel_local_address")),
-		"tunnel_peer_address":  utils.ValueIngoreEmpty(d.Get("tunnel_peer_address")),
+		"cgw_id":               utils.ValueIgnoreEmpty(d.Get("customer_gateway_id")),
+		"name":                 utils.ValueIgnoreEmpty(d.Get("name")),
+		"peer_subnets":         utils.ValueIgnoreEmpty(d.Get("peer_subnets")),
+		"psk":                  utils.ValueIgnoreEmpty(d.Get("psk")),
+		"tunnel_local_address": utils.ValueIgnoreEmpty(d.Get("tunnel_local_address")),
+		"tunnel_peer_address":  utils.ValueIgnoreEmpty(d.Get("tunnel_peer_address")),
 		"ikepolicy":            buildUpdateConnectionIkepolicyChildBody(d),
 		"ipsecpolicy":          buildUpdateConnectionIpsecpolicyChildBody(d),
 		"policy_rules":         buildCreateConnectionPolicyRulesChildBody(d),
@@ -834,25 +834,25 @@ func buildUpdateConnectionIkepolicyChildBody(d *schema.ResourceData) map[string]
 
 	raw := rawParams[0].(map[string]interface{})
 	params := map[string]interface{}{
-		"authentication_algorithm": utils.ValueIngoreEmpty(raw["authentication_algorithm"]),
-		"encryption_algorithm":     utils.ValueIngoreEmpty(raw["encryption_algorithm"]),
-		"ike_version":              utils.ValueIngoreEmpty(raw["ike_version"]),
-		"lifetime_seconds":         utils.ValueIngoreEmpty(raw["lifetime_seconds"]),
-		"local_id_type":            utils.ValueIngoreEmpty(raw["local_id_type"]),
-		"peer_id_type":             utils.ValueIngoreEmpty(raw["peer_id_type"]),
-		"pfs":                      utils.ValueIngoreEmpty(raw["pfs"]),
-		"phase1_negotiation_mode":  utils.ValueIngoreEmpty(raw["phase1_negotiation_mode"]),
-		"dh_group":                 utils.ValueIngoreEmpty(raw["dh_group"]),
+		"authentication_algorithm": utils.ValueIgnoreEmpty(raw["authentication_algorithm"]),
+		"encryption_algorithm":     utils.ValueIgnoreEmpty(raw["encryption_algorithm"]),
+		"ike_version":              utils.ValueIgnoreEmpty(raw["ike_version"]),
+		"lifetime_seconds":         utils.ValueIgnoreEmpty(raw["lifetime_seconds"]),
+		"local_id_type":            utils.ValueIgnoreEmpty(raw["local_id_type"]),
+		"peer_id_type":             utils.ValueIgnoreEmpty(raw["peer_id_type"]),
+		"pfs":                      utils.ValueIgnoreEmpty(raw["pfs"]),
+		"phase1_negotiation_mode":  utils.ValueIgnoreEmpty(raw["phase1_negotiation_mode"]),
+		"dh_group":                 utils.ValueIgnoreEmpty(raw["dh_group"]),
 		"dpd":                      buildCreateConnectionDPDChildBody(raw["dpd"]),
 	}
 
 	// if the id type is ip, the id must be empty
 	if raw["local_id_type"] != "ip" {
-		params["local_id"] = utils.ValueIngoreEmpty(raw["local_id"])
+		params["local_id"] = utils.ValueIgnoreEmpty(raw["local_id"])
 	}
 
 	if raw["peer_id_type"] != "ip" {
-		params["peer_id"] = utils.ValueIngoreEmpty(raw["peer_id"])
+		params["peer_id"] = utils.ValueIgnoreEmpty(raw["peer_id"])
 	}
 
 	return params
@@ -866,12 +866,12 @@ func buildUpdateConnectionIpsecpolicyChildBody(d *schema.ResourceData) map[strin
 
 	raw := rawParams[0].(map[string]interface{})
 	params := map[string]interface{}{
-		"authentication_algorithm": utils.ValueIngoreEmpty(raw["authentication_algorithm"]),
-		"encapsulation_mode":       utils.ValueIngoreEmpty(raw["encapsulation_mode"]),
-		"encryption_algorithm":     utils.ValueIngoreEmpty(raw["encryption_algorithm"]),
-		"lifetime_seconds":         utils.ValueIngoreEmpty(raw["lifetime_seconds"]),
-		"pfs":                      utils.ValueIngoreEmpty(raw["pfs"]),
-		"transform_protocol":       utils.ValueIngoreEmpty(raw["transform_protocol"]),
+		"authentication_algorithm": utils.ValueIgnoreEmpty(raw["authentication_algorithm"]),
+		"encapsulation_mode":       utils.ValueIgnoreEmpty(raw["encapsulation_mode"]),
+		"encryption_algorithm":     utils.ValueIgnoreEmpty(raw["encryption_algorithm"]),
+		"lifetime_seconds":         utils.ValueIgnoreEmpty(raw["lifetime_seconds"]),
+		"pfs":                      utils.ValueIgnoreEmpty(raw["pfs"]),
+		"transform_protocol":       utils.ValueIgnoreEmpty(raw["transform_protocol"]),
 	}
 
 	return params

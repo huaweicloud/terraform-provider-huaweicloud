@@ -318,19 +318,19 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) m
 
 func buildCreateInstanceInstanceChildBody(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-		"flavor_id":             utils.ValueIngoreEmpty(d.Get("flavor_id")),
-		"node_num":              utils.ValueIngoreEmpty(d.Get("node_num")),
-		"engine_id":             utils.ValueIngoreEmpty(d.Get("engine_id")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"flavor_id":             utils.ValueIgnoreEmpty(d.Get("flavor_id")),
+		"node_num":              utils.ValueIgnoreEmpty(d.Get("node_num")),
+		"engine_id":             utils.ValueIgnoreEmpty(d.Get("engine_id")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 		"available_zones":       d.Get("availability_zones").(*schema.Set).List(), // The ordering of the AZ list returned by the API is unknown.
-		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"security_group_id":     utils.ValueIngoreEmpty(d.Get("security_group_id")),
-		"subnet_id":             utils.ValueIngoreEmpty(d.Get("subnet_id")),
-		"param_group_id":        utils.ValueIngoreEmpty(d.Get("param_group_id")),
-		"time_zone":             utils.ValueIngoreEmpty(d.Get("time_zone")),
-		"admin_user_name":       utils.ValueIngoreEmpty(d.Get("admin_user")),
-		"admin_user_password":   utils.ValueIngoreEmpty(d.Get("admin_password")),
+		"vpc_id":                utils.ValueIgnoreEmpty(d.Get("vpc_id")),
+		"security_group_id":     utils.ValueIgnoreEmpty(d.Get("security_group_id")),
+		"subnet_id":             utils.ValueIgnoreEmpty(d.Get("subnet_id")),
+		"param_group_id":        utils.ValueIgnoreEmpty(d.Get("param_group_id")),
+		"time_zone":             utils.ValueIgnoreEmpty(d.Get("time_zone")),
+		"admin_user_name":       utils.ValueIgnoreEmpty(d.Get("admin_user")),
+		"admin_user_password":   utils.ValueIgnoreEmpty(d.Get("admin_password")),
 	}
 
 	return params
@@ -338,9 +338,9 @@ func buildCreateInstanceInstanceChildBody(d *schema.ResourceData, cfg *config.Co
 
 func buildCreateInstanceExtendParamChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"charge_mode":   utils.ValueIngoreEmpty(d.Get("charging_mode")),
-		"period_type":   utils.ValueIngoreEmpty(d.Get("period_unit")),
-		"period_num":    utils.ValueIngoreEmpty(d.Get("period")),
+		"charge_mode":   utils.ValueIgnoreEmpty(d.Get("charging_mode")),
+		"period_type":   utils.ValueIgnoreEmpty(d.Get("period_unit")),
+		"period_num":    utils.ValueIgnoreEmpty(d.Get("period")),
 		"is_auto_renew": d.Get("auto_renew"),
 		"is_auto_pay":   "true",
 	}
@@ -565,8 +565,8 @@ func updateInstanceFlavor(ctx context.Context, d *schema.ResourceData, cfg *conf
 		},
 	}
 
-	flavorId := utils.ValueIngoreEmpty(d.Get("flavor_id"))
-	engineId := utils.ValueIngoreEmpty(d.Get("engine_id"))
+	flavorId := utils.ValueIgnoreEmpty(d.Get("flavor_id"))
+	engineId := utils.ValueIgnoreEmpty(d.Get("engine_id"))
 	specCode, getSpecCodeErr := getSpecCodeByFlavorId(updateInstanceFlavorClient, flavorId.(string), engineId.(string))
 	if err != nil {
 		return getSpecCodeErr
@@ -716,22 +716,22 @@ func updateInstanceAdminPassword(_ context.Context, d *schema.ResourceData, cfg 
 
 func buildUpdateInstanceNameBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name": utils.ValueIngoreEmpty(d.Get("name")),
+		"name": utils.ValueIgnoreEmpty(d.Get("name")),
 	}
 	return bodyParams
 }
 
 func buildUpdateInstanceSecurityGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"security_group_id": utils.ValueIngoreEmpty(d.Get("security_group_id")),
+		"security_group_id": utils.ValueIgnoreEmpty(d.Get("security_group_id")),
 	}
 	return bodyParams
 }
 
 func buildUpdateInstanceNodeNumBodyParams(d *schema.ResourceData, nodeNumber int) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"flavor_id":   utils.ValueIngoreEmpty(d.Get("flavor_id")),
-		"group_id":    utils.ValueIngoreEmpty(d.Get("param_group_id")),
+		"flavor_id":   utils.ValueIgnoreEmpty(d.Get("flavor_id")),
+		"group_id":    utils.ValueIgnoreEmpty(d.Get("param_group_id")),
 		"node_number": nodeNumber,
 		"is_auto_pay": true,
 	}
@@ -741,7 +741,7 @@ func buildUpdateInstanceNodeNumBodyParams(d *schema.ResourceData, nodeNumber int
 func buildUpdateInstanceFlavorBodyParams(d *schema.ResourceData, specCode string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"spec_code":   specCode,
-		"group_id":    utils.ValueIngoreEmpty(d.Get("param_group_id")),
+		"group_id":    utils.ValueIgnoreEmpty(d.Get("param_group_id")),
 		"is_auto_pay": true,
 	}
 	return bodyParams
@@ -749,8 +749,8 @@ func buildUpdateInstanceFlavorBodyParams(d *schema.ResourceData, specCode string
 
 func buildUpdateInstanceAdminPasswordBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":     utils.ValueIngoreEmpty(d.Get("admin_user")),
-		"password": utils.ValueIngoreEmpty(d.Get("admin_password")),
+		"name":     utils.ValueIgnoreEmpty(d.Get("admin_user")),
+		"password": utils.ValueIgnoreEmpty(d.Get("admin_password")),
 	}
 	return bodyParams
 }

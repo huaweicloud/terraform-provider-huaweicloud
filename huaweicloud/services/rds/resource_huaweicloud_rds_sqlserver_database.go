@@ -128,7 +128,7 @@ func resourceSQLServerDatabaseCreate(ctx context.Context, d *schema.ResourceData
 
 func buildCreateSQLServerDatabaseBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name": utils.ValueIngoreEmpty(d.Get("name")),
+		"name": utils.ValueIgnoreEmpty(d.Get("name")),
 	}
 	return bodyParams
 }

@@ -156,13 +156,13 @@ func datasourceRAMSharedResourcesRead(_ context.Context, d *schema.ResourceData,
 
 func buildgetRAMSharedResourcesBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"principal":          utils.ValueIngoreEmpty(d.Get("principal")),
-		"resource_urns":      utils.ValueIngoreEmpty(d.Get("resource_urns")),
-		"resource_ids":       utils.ValueIngoreEmpty(d.Get("resource_ids")),
+		"principal":          utils.ValueIgnoreEmpty(d.Get("principal")),
+		"resource_urns":      utils.ValueIgnoreEmpty(d.Get("resource_urns")),
+		"resource_ids":       utils.ValueIgnoreEmpty(d.Get("resource_ids")),
 		"resource_owner":     d.Get("resource_owner"),
-		"resource_share_ids": utils.ValueIngoreEmpty(d.Get("resource_share_ids")),
-		"resource_type":      utils.ValueIngoreEmpty(d.Get("resource_type")),
-		"resource_region":    utils.ValueIngoreEmpty(d.Get("resource_region")),
+		"resource_share_ids": utils.ValueIgnoreEmpty(d.Get("resource_share_ids")),
+		"resource_type":      utils.ValueIgnoreEmpty(d.Get("resource_type")),
+		"resource_region":    utils.ValueIgnoreEmpty(d.Get("resource_region")),
 		"limit":              pageLimit,
 	}
 	return bodyParams

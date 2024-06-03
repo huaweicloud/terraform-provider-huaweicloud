@@ -230,13 +230,13 @@ func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData
 
 func buildCreateBandwidthPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"scaling_policy_name":   utils.ValueIngoreEmpty(d.Get("scaling_policy_name")),
-		"scaling_policy_type":   utils.ValueIngoreEmpty(d.Get("scaling_policy_type")),
-		"scaling_resource_id":   utils.ValueIngoreEmpty(d.Get("bandwidth_id")),
+		"scaling_policy_name":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_name")),
+		"scaling_policy_type":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_type")),
+		"scaling_resource_id":   utils.ValueIgnoreEmpty(d.Get("bandwidth_id")),
 		"scaling_resource_type": "BANDWIDTH",
-		"alarm_id":              utils.ValueIngoreEmpty(d.Get("alarm_id")),
-		"cool_down_time":        utils.ValueIngoreEmpty(d.Get("cool_down_time")),
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
+		"alarm_id":              utils.ValueIgnoreEmpty(d.Get("alarm_id")),
+		"cool_down_time":        utils.ValueIgnoreEmpty(d.Get("cool_down_time")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 		"scaling_policy_action": buildCreateBandwidthPolicyScalingPolicyActionChildBody(d),
 		"scheduled_policy":      buildCreateBandwidthPolicyScheduledPolicyChildBody(d),
 	}
@@ -251,9 +251,9 @@ func buildCreateBandwidthPolicyScalingPolicyActionChildBody(d *schema.ResourceDa
 
 	raw := rawParams[0].(map[string]interface{})
 	params := map[string]interface{}{
-		"operation": utils.ValueIngoreEmpty(raw["operation"]),
-		"size":      utils.ValueIngoreEmpty(raw["size"]),
-		"limits":    utils.ValueIngoreEmpty(raw["limits"]),
+		"operation": utils.ValueIgnoreEmpty(raw["operation"]),
+		"size":      utils.ValueIgnoreEmpty(raw["size"]),
+		"limits":    utils.ValueIgnoreEmpty(raw["limits"]),
 	}
 
 	return params
@@ -267,11 +267,11 @@ func buildCreateBandwidthPolicyScheduledPolicyChildBody(d *schema.ResourceData) 
 
 	raw := rawParams[0].(map[string]interface{})
 	params := map[string]interface{}{
-		"launch_time":      utils.ValueIngoreEmpty(raw["launch_time"]),
-		"recurrence_type":  utils.ValueIngoreEmpty(raw["recurrence_type"]),
-		"recurrence_value": utils.ValueIngoreEmpty(raw["recurrence_value"]),
-		"start_time":       utils.ValueIngoreEmpty(raw["start_time"]),
-		"end_time":         utils.ValueIngoreEmpty(raw["end_time"]),
+		"launch_time":      utils.ValueIgnoreEmpty(raw["launch_time"]),
+		"recurrence_type":  utils.ValueIgnoreEmpty(raw["recurrence_type"]),
+		"recurrence_value": utils.ValueIgnoreEmpty(raw["recurrence_value"]),
+		"start_time":       utils.ValueIgnoreEmpty(raw["start_time"]),
+		"end_time":         utils.ValueIgnoreEmpty(raw["end_time"]),
 	}
 
 	return params
@@ -417,13 +417,13 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 
 func buildUpdateBandwidthPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"scaling_policy_name":   utils.ValueIngoreEmpty(d.Get("scaling_policy_name")),
-		"scaling_policy_type":   utils.ValueIngoreEmpty(d.Get("scaling_policy_type")),
-		"scaling_resource_id":   utils.ValueIngoreEmpty(d.Get("bandwidth_id")),
-		"scaling_resource_type": utils.ValueIngoreEmpty(d.Get("scaling_resource_type")),
-		"alarm_id":              utils.ValueIngoreEmpty(d.Get("alarm_id")),
-		"cool_down_time":        utils.ValueIngoreEmpty(d.Get("cool_down_time")),
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
+		"scaling_policy_name":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_name")),
+		"scaling_policy_type":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_type")),
+		"scaling_resource_id":   utils.ValueIgnoreEmpty(d.Get("bandwidth_id")),
+		"scaling_resource_type": utils.ValueIgnoreEmpty(d.Get("scaling_resource_type")),
+		"alarm_id":              utils.ValueIgnoreEmpty(d.Get("alarm_id")),
+		"cool_down_time":        utils.ValueIgnoreEmpty(d.Get("cool_down_time")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 		"scaling_policy_action": buildUpdateBandwidthPolicyScalingPolicyActionChildBody(d),
 		"scheduled_policy":      buildUpdateBandwidthPolicyScheduledPolicyChildBody(d),
 	}
@@ -438,9 +438,9 @@ func buildUpdateBandwidthPolicyScalingPolicyActionChildBody(d *schema.ResourceDa
 
 	raw := rawParams[0].(map[string]interface{})
 	params := map[string]interface{}{
-		"operation": utils.ValueIngoreEmpty(raw["operation"]),
-		"size":      utils.ValueIngoreEmpty(raw["size"]),
-		"limits":    utils.ValueIngoreEmpty(raw["limits"]),
+		"operation": utils.ValueIgnoreEmpty(raw["operation"]),
+		"size":      utils.ValueIgnoreEmpty(raw["size"]),
+		"limits":    utils.ValueIgnoreEmpty(raw["limits"]),
 	}
 
 	return params
@@ -454,11 +454,11 @@ func buildUpdateBandwidthPolicyScheduledPolicyChildBody(d *schema.ResourceData) 
 
 	raw := rawParams[0].(map[string]interface{})
 	params := map[string]interface{}{
-		"launch_time":      utils.ValueIngoreEmpty(raw["launch_time"]),
-		"recurrence_type":  utils.ValueIngoreEmpty(raw["recurrence_type"]),
-		"recurrence_value": utils.ValueIngoreEmpty(raw["recurrence_value"]),
-		"start_time":       utils.ValueIngoreEmpty(raw["start_time"]),
-		"end_time":         utils.ValueIngoreEmpty(raw["end_time"]),
+		"launch_time":      utils.ValueIgnoreEmpty(raw["launch_time"]),
+		"recurrence_type":  utils.ValueIgnoreEmpty(raw["recurrence_type"]),
+		"recurrence_value": utils.ValueIgnoreEmpty(raw["recurrence_value"]),
+		"start_time":       utils.ValueIgnoreEmpty(raw["start_time"]),
+		"end_time":         utils.ValueIgnoreEmpty(raw["end_time"]),
 	}
 
 	return params

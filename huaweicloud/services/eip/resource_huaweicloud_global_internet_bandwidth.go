@@ -150,12 +150,12 @@ func buildCreateInternetBandwidthBodyParams(d *schema.ResourceData, epsID string
 		"access_site":           d.Get("access_site"),
 		"charge_mode":           d.Get("charge_mode"),
 		"size":                  d.Get("size"),
-		"ingress_size":          utils.ValueIngoreEmpty(d.Get("ingress_size")),
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
-		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-		"type":                  utils.ValueIngoreEmpty(d.Get("type")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(epsID),
-		"tags":                  utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+		"ingress_size":          utils.ValueIgnoreEmpty(d.Get("ingress_size")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"type":                  utils.ValueIgnoreEmpty(d.Get("type")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(epsID),
+		"tags":                  utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	return bodyParams
 }
@@ -265,11 +265,11 @@ func buildUpdateInternetBandwidthBodyParams(d *schema.ResourceData) map[string]i
 		"charge_mode": d.Get("charge_mode"),
 		"size":        d.Get("size"),
 		"description": d.Get("description"),
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
 	}
 
 	if d.Get("charge_mode").(string) != "95peak_guar" {
-		bodyParams["ingress_size"] = utils.ValueIngoreEmpty(d.Get("ingress_size"))
+		bodyParams["ingress_size"] = utils.ValueIgnoreEmpty(d.Get("ingress_size"))
 	}
 
 	return bodyParams

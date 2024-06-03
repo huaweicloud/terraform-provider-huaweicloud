@@ -319,7 +319,7 @@ func buildCreateDiagnosisTaskBodyParams(d *schema.ResourceData) (map[string]inte
 	bodyParams := map[string]interface{}{
 		"begin_time":   beginTimeUnix,
 		"end_time":     endTimeUnix,
-		"node_ip_list": utils.ValueIngoreEmpty(d.Get("node_ip_list").(*schema.Set).List()),
+		"node_ip_list": utils.ValueIgnoreEmpty(d.Get("node_ip_list").(*schema.Set).List()),
 	}
 	return bodyParams, nil
 }

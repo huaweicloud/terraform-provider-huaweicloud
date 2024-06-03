@@ -354,24 +354,24 @@ func resourceGesGraphCreate(ctx context.Context, d *schema.ResourceData, meta in
 func buildCreateGraphBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"graph": map[string]interface{}{
-			"name":                   utils.ValueIngoreEmpty(d.Get("name")),
-			"graph_size_type_index":  utils.ValueIngoreEmpty(d.Get("graph_size_type_index")),
-			"arch":                   utils.ValueIngoreEmpty(d.Get("cpu_arch")),
-			"vpc_id":                 utils.ValueIngoreEmpty(d.Get("vpc_id")),
-			"subnet_id":              utils.ValueIngoreEmpty(d.Get("subnet_id")),
-			"security_group_id":      utils.ValueIngoreEmpty(d.Get("security_group_id")),
+			"name":                   utils.ValueIgnoreEmpty(d.Get("name")),
+			"graph_size_type_index":  utils.ValueIgnoreEmpty(d.Get("graph_size_type_index")),
+			"arch":                   utils.ValueIgnoreEmpty(d.Get("cpu_arch")),
+			"vpc_id":                 utils.ValueIgnoreEmpty(d.Get("vpc_id")),
+			"subnet_id":              utils.ValueIgnoreEmpty(d.Get("subnet_id")),
+			"security_group_id":      utils.ValueIgnoreEmpty(d.Get("security_group_id")),
 			"public_ip":              buildCreateGraphReqBodyPublicIp(d.Get("public_ip")),
-			"enable_multi_az":        utils.ValueIngoreEmpty(d.Get("enable_multi_az")),
+			"enable_multi_az":        utils.ValueIgnoreEmpty(d.Get("enable_multi_az")),
 			"encryption":             buildCreateGraphReqBodyEncryption(d.Get("encryption")),
 			"lts_operation_trace":    buildCreateGraphReqBodyLtsOperationTrace(d.Get("lts_operation_trace")),
 			"sys_tags":               utils.BuildSysTags(common.GetEnterpriseProjectID(d, cfg)),
 			"tags":                   utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
-			"enable_rbac":            utils.ValueIngoreEmpty(d.Get("enable_rbac")),
-			"enable_full_text_index": utils.ValueIngoreEmpty(d.Get("enable_full_text_index")),
-			"enable_hyg":             utils.ValueIngoreEmpty(d.Get("enable_hyg")),
-			"crypt_algorithm":        utils.ValueIngoreEmpty(d.Get("crypt_algorithm")),
-			"enable_https":           utils.ValueIngoreEmpty(d.Get("enable_https")),
-			"product_type":           utils.ValueIngoreEmpty(d.Get("product_type")),
+			"enable_rbac":            utils.ValueIgnoreEmpty(d.Get("enable_rbac")),
+			"enable_full_text_index": utils.ValueIgnoreEmpty(d.Get("enable_full_text_index")),
+			"enable_hyg":             utils.ValueIgnoreEmpty(d.Get("enable_hyg")),
+			"crypt_algorithm":        utils.ValueIgnoreEmpty(d.Get("crypt_algorithm")),
+			"enable_https":           utils.ValueIgnoreEmpty(d.Get("enable_https")),
+			"product_type":           utils.ValueIgnoreEmpty(d.Get("product_type")),
 			"vertex_id_type":         buildCreateGraphReqBodyvertexIdType(d.Get("vertex_id_type")),
 		},
 	}
@@ -385,8 +385,8 @@ func buildCreateGraphReqBodyPublicIp(rawParams interface{}) map[string]interface
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"public_bind_type": utils.ValueIngoreEmpty(raw["public_bind_type"]),
-			"eip_id":           utils.ValueIngoreEmpty(raw["eip_id"]),
+			"public_bind_type": utils.ValueIgnoreEmpty(raw["public_bind_type"]),
+			"eip_id":           utils.ValueIgnoreEmpty(raw["eip_id"]),
 		}
 		return params
 	}
@@ -400,8 +400,8 @@ func buildCreateGraphReqBodyEncryption(rawParams interface{}) map[string]interfa
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"enable":        utils.ValueIngoreEmpty(raw["enable"]),
-			"master_key_id": utils.ValueIngoreEmpty(raw["master_key_id"]),
+			"enable":        utils.ValueIgnoreEmpty(raw["enable"]),
+			"master_key_id": utils.ValueIgnoreEmpty(raw["master_key_id"]),
 		}
 		return params
 	}
@@ -415,8 +415,8 @@ func buildCreateGraphReqBodyLtsOperationTrace(rawParams interface{}) map[string]
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"enable_audit":         utils.ValueIngoreEmpty(raw["enable_audit"]),
-			"audit_log_group_name": utils.ValueIngoreEmpty(raw["audit_log_group_name"]),
+			"enable_audit":         utils.ValueIgnoreEmpty(raw["enable_audit"]),
+			"audit_log_group_name": utils.ValueIgnoreEmpty(raw["audit_log_group_name"]),
 		}
 		return params
 	}
@@ -430,8 +430,8 @@ func buildCreateGraphReqBodyvertexIdType(rawParams interface{}) map[string]inter
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"id_type":   utils.ValueIngoreEmpty(raw["id_type"]),
-			"id_length": utils.ValueIngoreEmpty(raw["id_length"]),
+			"id_type":   utils.ValueIgnoreEmpty(raw["id_type"]),
+			"id_length": utils.ValueIgnoreEmpty(raw["id_length"]),
 		}
 		return params
 	}
@@ -700,7 +700,7 @@ func resourceGesGraphUpdate(ctx context.Context, d *schema.ResourceData, meta in
 func buildExpandGraphReplicationBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"expand": map[string]interface{}{
-			"replication": utils.ValueIngoreEmpty(d.Get("replication")),
+			"replication": utils.ValueIgnoreEmpty(d.Get("replication")),
 		},
 	}
 	return bodyParams
@@ -709,7 +709,7 @@ func buildExpandGraphReplicationBodyParams(d *schema.ResourceData) map[string]in
 func buildResizeGraphBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"resize": map[string]interface{}{
-			"graph_size_type_index": utils.ValueIngoreEmpty(d.Get("graph_size_type_index")),
+			"graph_size_type_index": utils.ValueIgnoreEmpty(d.Get("graph_size_type_index")),
 		},
 	}
 	return bodyParams
@@ -756,7 +756,7 @@ func resourceGesGraphDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 func buildDeleteGraphBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"keep_backup": utils.ValueIngoreEmpty(d.Get("keep_backup")),
+		"keep_backup": utils.ValueIgnoreEmpty(d.Get("keep_backup")),
 	}
 	return bodyParams
 }

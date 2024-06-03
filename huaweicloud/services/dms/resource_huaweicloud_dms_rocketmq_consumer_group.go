@@ -146,11 +146,11 @@ func buildCreateRocketmqConsumerGroupBodyParams(d *schema.ResourceData, _ *confi
 	}
 	bodyParams := map[string]interface{}{
 		"enabled":        enabled,
-		"broadcast":      utils.ValueIngoreEmpty(d.Get("broadcast")),
-		"brokers":        utils.ValueIngoreEmpty(d.Get("brokers")),
-		"name":           utils.ValueIngoreEmpty(d.Get("name")),
-		"retry_max_time": utils.ValueIngoreEmpty(d.Get("retry_max_times")),
-		"group_desc":     utils.ValueIngoreEmpty(d.Get("description")),
+		"broadcast":      utils.ValueIgnoreEmpty(d.Get("broadcast")),
+		"brokers":        utils.ValueIgnoreEmpty(d.Get("brokers")),
+		"name":           utils.ValueIgnoreEmpty(d.Get("name")),
+		"retry_max_time": utils.ValueIgnoreEmpty(d.Get("retry_max_times")),
+		"group_desc":     utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -208,11 +208,11 @@ func resourceDmsRocketMQConsumerGroupUpdate(ctx context.Context, d *schema.Resou
 
 func buildUpdateRocketmqConsumerGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"broadcast":      utils.ValueIngoreEmpty(d.Get("broadcast")),
-		"retry_max_time": utils.ValueIngoreEmpty(d.Get("retry_max_times")),
-		"group_desc":     utils.ValueIngoreEmpty(d.Get("description")),
+		"broadcast":      utils.ValueIgnoreEmpty(d.Get("broadcast")),
+		"retry_max_time": utils.ValueIgnoreEmpty(d.Get("retry_max_times")),
+		"group_desc":     utils.ValueIgnoreEmpty(d.Get("description")),
 	}
-	enabled := utils.ValueIngoreEmpty(d.Get("enabled"))
+	enabled := utils.ValueIgnoreEmpty(d.Get("enabled"))
 	if enabled != nil {
 		bodyParams["enabled"] = enabled
 	}

@@ -269,8 +269,8 @@ func buildHostAccessConfigDeatilRequestBody(rawParams interface{}) map[string]in
 		}
 
 		params := map[string]interface{}{
-			"paths":            utils.ValueIngoreEmpty(raw["paths"]),
-			"black_paths":      utils.ValueIngoreEmpty(raw["black_paths"]),
+			"paths":            utils.ValueIgnoreEmpty(raw["paths"]),
+			"black_paths":      utils.ValueIgnoreEmpty(raw["black_paths"]),
 			"format":           buildHostAccessConfigFormatRequestBody(raw),
 			"windows_log_info": buildHostAccessConfigWindowsLogInfoRequestBody(raw["windows_log_info"]),
 		}

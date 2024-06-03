@@ -300,11 +300,11 @@ func buildCreateScalingPolicyRequestBodyResourcesPlan(rawParams interface{}) []m
 		for i, v := range rawArray {
 			if raw, ok := v.(map[string]interface{}); ok {
 				rst[i] = map[string]interface{}{
-					"period_type":  utils.ValueIngoreEmpty(raw["period_type"]),
-					"start_time":   utils.ValueIngoreEmpty(raw["start_time"]),
-					"end_time":     utils.ValueIngoreEmpty(raw["end_time"]),
-					"min_capacity": utils.ValueIngoreEmpty(raw["min_capacity"]),
-					"max_capacity": utils.ValueIngoreEmpty(raw["max_capacity"]),
+					"period_type":  utils.ValueIgnoreEmpty(raw["period_type"]),
+					"start_time":   utils.ValueIgnoreEmpty(raw["start_time"]),
+					"end_time":     utils.ValueIgnoreEmpty(raw["end_time"]),
+					"min_capacity": utils.ValueIgnoreEmpty(raw["min_capacity"]),
+					"max_capacity": utils.ValueIgnoreEmpty(raw["max_capacity"]),
 				}
 			}
 		}
@@ -323,12 +323,12 @@ func buildCreateScalingPolicyRequestBodyRule(rawParams interface{}) []map[string
 		for i, v := range rawArray {
 			if raw, ok := v.(map[string]interface{}); ok {
 				rst[i] = map[string]interface{}{
-					"name":               utils.ValueIngoreEmpty(raw["name"]),
-					"adjustment_type":    utils.ValueIngoreEmpty(raw["adjustment_type"]),
-					"cool_down_minutes":  utils.ValueIngoreEmpty(raw["cool_down_minutes"]),
-					"scaling_adjustment": utils.ValueIngoreEmpty(raw["scaling_adjustment"]),
+					"name":               utils.ValueIgnoreEmpty(raw["name"]),
+					"adjustment_type":    utils.ValueIgnoreEmpty(raw["adjustment_type"]),
+					"cool_down_minutes":  utils.ValueIgnoreEmpty(raw["cool_down_minutes"]),
+					"scaling_adjustment": utils.ValueIgnoreEmpty(raw["scaling_adjustment"]),
 					"trigger":            buildRuleTrigger(raw["trigger"]),
-					"description":        utils.ValueIngoreEmpty(raw["description"]),
+					"description":        utils.ValueIgnoreEmpty(raw["description"]),
 				}
 			}
 		}
@@ -348,10 +348,10 @@ func buildRuleTrigger(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"metric_name":         utils.ValueIngoreEmpty(raw["metric_name"]),
-			"metric_value":        utils.ValueIngoreEmpty(raw["metric_value"]),
-			"comparison_operator": utils.ValueIngoreEmpty(raw["comparison_operator"]),
-			"evaluation_periods":  utils.ValueIngoreEmpty(raw["evaluation_periods"]),
+			"metric_name":         utils.ValueIgnoreEmpty(raw["metric_name"]),
+			"metric_value":        utils.ValueIgnoreEmpty(raw["metric_value"]),
+			"comparison_operator": utils.ValueIgnoreEmpty(raw["comparison_operator"]),
+			"evaluation_periods":  utils.ValueIgnoreEmpty(raw["evaluation_periods"]),
 		}
 		return params
 	}
@@ -369,13 +369,13 @@ func buildCreateScalingPolicyRequestBodyExecScript(rawParams interface{}) []map[
 		for i, v := range rawArray {
 			if raw, ok := v.(map[string]interface{}); ok {
 				rst[i] = map[string]interface{}{
-					"name":          utils.ValueIngoreEmpty(raw["name"]),
-					"uri":           utils.ValueIngoreEmpty(raw["uri"]),
-					"parameters":    utils.ValueIngoreEmpty(raw["parameters"]),
-					"nodes":         utils.ValueIngoreEmpty(raw["nodes"]),
-					"active_master": utils.ValueIngoreEmpty(raw["active_master"]),
-					"action_stage":  utils.ValueIngoreEmpty(raw["action_stage"]),
-					"fail_action":   utils.ValueIngoreEmpty(raw["fail_action"]),
+					"name":          utils.ValueIgnoreEmpty(raw["name"]),
+					"uri":           utils.ValueIgnoreEmpty(raw["uri"]),
+					"parameters":    utils.ValueIgnoreEmpty(raw["parameters"]),
+					"nodes":         utils.ValueIgnoreEmpty(raw["nodes"]),
+					"active_master": utils.ValueIgnoreEmpty(raw["active_master"]),
+					"action_stage":  utils.ValueIgnoreEmpty(raw["action_stage"]),
+					"fail_action":   utils.ValueIgnoreEmpty(raw["fail_action"]),
 				}
 			}
 		}

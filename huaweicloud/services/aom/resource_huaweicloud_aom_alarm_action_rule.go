@@ -138,11 +138,11 @@ func resourceAlarmActionRuleCreate(ctx context.Context, d *schema.ResourceData, 
 
 func buildAlarmActionRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"rule_name":             utils.ValueIngoreEmpty(d.Get("name")),
-		"desc":                  utils.ValueIngoreEmpty(d.Get("description")),
-		"type":                  utils.ValueIngoreEmpty(d.Get("type")),
+		"rule_name":             utils.ValueIgnoreEmpty(d.Get("name")),
+		"desc":                  utils.ValueIgnoreEmpty(d.Get("description")),
+		"type":                  utils.ValueIgnoreEmpty(d.Get("type")),
 		"smn_topics":            buildAlarmActionRuleRequestBodySmnTopics(d.Get("smn_topics")),
-		"notification_template": utils.ValueIngoreEmpty(d.Get("notification_template")),
+		"notification_template": utils.ValueIgnoreEmpty(d.Get("notification_template")),
 	}
 	return bodyParams
 }
@@ -157,7 +157,7 @@ func buildAlarmActionRuleRequestBodySmnTopics(rawParams interface{}) []map[strin
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"topic_urn": utils.ValueIngoreEmpty(raw["topic_urn"]),
+				"topic_urn": utils.ValueIgnoreEmpty(raw["topic_urn"]),
 			}
 
 			if raw["name"] != "" {

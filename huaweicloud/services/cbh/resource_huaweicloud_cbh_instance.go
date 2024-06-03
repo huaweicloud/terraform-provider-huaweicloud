@@ -313,12 +313,12 @@ func buildCreateCBHInstanceBodyParam(d *schema.ResourceData, region string, epsI
 		"availability_zone":     d.Get("availability_zone"),
 		"charging_mode":         buildCreateChargingModeParam(d),
 		"period_type":           buildCreatePeriodTypeParam(d),
-		"period_num":            utils.ValueIngoreEmpty(d.Get("period")),
+		"period_num":            utils.ValueIgnoreEmpty(d.Get("period")),
 		"is_auto_renew":         buildCreateIsAutoRenewParam(d),
 		"is_auto_pay":           1,
 		"network":               buildCreateNetworkBodyParam(d, publicIp),
-		"attach_disk_size":      utils.ValueIngoreEmpty(d.Get("attach_disk_size")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(epsId),
+		"attach_disk_size":      utils.ValueIgnoreEmpty(d.Get("attach_disk_size")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(epsId),
 	}
 	// The default value of the field `ipv6_enable` is false
 	if d.Get("ipv6_enable").(bool) {

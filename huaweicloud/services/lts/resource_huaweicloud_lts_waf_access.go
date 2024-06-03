@@ -134,8 +134,8 @@ func buildModifyWAFAccessBodyParams(d *schema.ResourceData) map[string]interface
 func buildWAFAccessLTSInfoBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"ltsGroupId":        d.Get("lts_group_id"),
-		"ltsAttackStreamID": utils.ValueIngoreEmpty(d.Get("lts_attack_stream_id")),
-		"ltsAccessStreamID": utils.ValueIngoreEmpty(d.Get("lts_access_stream_id")),
+		"ltsAttackStreamID": utils.ValueIgnoreEmpty(d.Get("lts_attack_stream_id")),
+		"ltsAccessStreamID": utils.ValueIgnoreEmpty(d.Get("lts_access_stream_id")),
 	}
 }
 

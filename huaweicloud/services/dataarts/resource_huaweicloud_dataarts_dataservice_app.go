@@ -139,8 +139,8 @@ func resourceDataServiceAppCreate(ctx context.Context, d *schema.ResourceData, m
 func buildCreateAppBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":        d.Get("name"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"app_type":    utils.ValueIngoreEmpty(d.Get("app_type")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"app_type":    utils.ValueIgnoreEmpty(d.Get("app_type")),
 	}
 	return bodyParams
 }

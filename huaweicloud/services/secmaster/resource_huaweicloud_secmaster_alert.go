@@ -257,11 +257,11 @@ func buildCreateAlertBodyParams(d *schema.ResourceData, cfg *config.Config) (map
 		"handle_status":      d.Get("status"),
 		"ipdrr_phase":        d.Get("stage"),
 		"verification_state": d.Get("verification_status"),
-		"owner":              utils.ValueIngoreEmpty(d.Get("owner")),
-		"simulation":         utils.ValueIngoreEmpty(d.Get("debugging_data")),
-		"labels":             utils.ValueIngoreEmpty(d.Get("labels")),
-		"close_reason":       utils.ValueIngoreEmpty(d.Get("close_reason")),
-		"close_comment":      utils.ValueIngoreEmpty(d.Get("close_comment")),
+		"owner":              utils.ValueIgnoreEmpty(d.Get("owner")),
+		"simulation":         utils.ValueIgnoreEmpty(d.Get("debugging_data")),
+		"labels":             utils.ValueIgnoreEmpty(d.Get("labels")),
+		"close_reason":       utils.ValueIgnoreEmpty(d.Get("close_reason")),
+		"close_comment":      utils.ValueIgnoreEmpty(d.Get("close_comment")),
 		"environment":        buildEnvironmentOpts(d, cfg),
 		"domain_id":          cfg.DomainID,
 		"region_id":          cfg.GetRegion(d),
@@ -302,8 +302,8 @@ func buildAlertTypeOpts(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"category":   utils.ValueIngoreEmpty(raw["category"]),
-			"alert_type": utils.ValueIngoreEmpty(raw["alert_type"]),
+			"category":   utils.ValueIgnoreEmpty(raw["category"]),
+			"alert_type": utils.ValueIgnoreEmpty(raw["alert_type"]),
 		}
 		return params
 	}
@@ -327,9 +327,9 @@ func buildAlertDataSourceOpts(d *schema.ResourceData, cfg *config.Config) map[st
 		"domain_id":       cfg.DomainID,
 		"project_id":      cfg.GetProjectID(region),
 		"region_id":       region,
-		"product_feature": utils.ValueIngoreEmpty(raw["product_feature"]),
-		"product_name":    utils.ValueIngoreEmpty(raw["product_name"]),
-		"source_type":     utils.ValueIngoreEmpty(raw["source_type"]),
+		"product_feature": utils.ValueIgnoreEmpty(raw["product_feature"]),
+		"product_name":    utils.ValueIgnoreEmpty(raw["product_name"]),
+		"source_type":     utils.ValueIgnoreEmpty(raw["source_type"]),
 	}
 	return params
 }
@@ -493,10 +493,10 @@ func buildUpdateAlertBodyParams(d *schema.ResourceData, cfg *config.Config) (map
 		"handle_status":      d.Get("status"),
 		"ipdrr_phase":        d.Get("stage"),
 		"verification_state": d.Get("verification_status"),
-		"owner":              utils.ValueIngoreEmpty(d.Get("owner")),
-		"labels":             utils.ValueIngoreEmpty(d.Get("labels")),
-		"close_reason":       utils.ValueIngoreEmpty(d.Get("close_reason")),
-		"close_comment":      utils.ValueIngoreEmpty(d.Get("close_comment")),
+		"owner":              utils.ValueIgnoreEmpty(d.Get("owner")),
+		"labels":             utils.ValueIgnoreEmpty(d.Get("labels")),
+		"close_reason":       utils.ValueIgnoreEmpty(d.Get("close_reason")),
+		"close_comment":      utils.ValueIgnoreEmpty(d.Get("close_comment")),
 		"domain_id":          cfg.DomainID,
 		"region_id":          cfg.GetRegion(d),
 	}

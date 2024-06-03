@@ -223,7 +223,7 @@ func buildCreateDscInstanceBodyParams(d *schema.ResourceData, cfg *config.Config
 	bodyParams := map[string]interface{}{
 		"regionId":         cfg.GetRegion(d),
 		"cloudServiceType": cloudServiceType,
-		"periodNum":        utils.ValueIngoreEmpty(d.Get("period")),
+		"periodNum":        utils.ValueIgnoreEmpty(d.Get("period")),
 		"productInfos":     productInfos,
 	}
 
@@ -265,7 +265,7 @@ func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData, cfg *
 				"cloudServiceType":      cloudServiceType,
 				"resourceType":          resourceTypeObs,
 				"resourceSpecCode":      resourceSpecCodeStandardObs,
-				"resourceSize":          utils.ValueIngoreEmpty(size),
+				"resourceSize":          utils.ValueIgnoreEmpty(size),
 				"resourceSizeMeasureId": resourceSizeMeasureIdObs,
 			})
 		}
@@ -275,7 +275,7 @@ func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData, cfg *
 				"cloudServiceType":      cloudServiceType,
 				"resourceType":          resourceTypeDB,
 				"resourceSpecCode":      resourceSpecCodeStandardDB,
-				"resourceSize":          utils.ValueIngoreEmpty(size),
+				"resourceSize":          utils.ValueIgnoreEmpty(size),
 				"resourceSizeMeasureId": resourceSizeMeasureIdDB,
 			})
 		}
@@ -291,7 +291,7 @@ func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData, cfg *
 				"cloudServiceType":      cloudServiceType,
 				"resourceType":          resourceTypeObs,
 				"resourceSpecCode":      resourceSpecCodeProObs,
-				"resourceSize":          utils.ValueIngoreEmpty(size),
+				"resourceSize":          utils.ValueIgnoreEmpty(size),
 				"resourceSizeMeasureId": resourceSizeMeasureIdObs,
 			})
 		}
@@ -301,7 +301,7 @@ func buildCreateDscInstanceRequestBodyProductInfos(d *schema.ResourceData, cfg *
 				"cloudServiceType":      cloudServiceType,
 				"resourceType":          resourceTypeDB,
 				"resourceSpecCode":      resourceSpecCodeProDB,
-				"resourceSize":          utils.ValueIngoreEmpty(size),
+				"resourceSize":          utils.ValueIgnoreEmpty(size),
 				"resourceSizeMeasureId": resourceSizeMeasureIdDB,
 			})
 		}

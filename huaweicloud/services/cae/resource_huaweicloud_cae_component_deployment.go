@@ -97,7 +97,7 @@ func buildCreateComponentDeploymentBodyParams(d *schema.ResourceData) map[string
 			"annotations": d.Get("metadata.0.annotations"),
 			"name":        d.Get("metadata.0.name"),
 		},
-		"spec": utils.ValueIngoreEmpty(unmarshalJsonFormatParamster("Specification detail", d.Get("spec").(string))),
+		"spec": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("Specification detail", d.Get("spec").(string))),
 	}
 }
 

@@ -131,7 +131,7 @@ func datasourceRAMSharedPrincipalsRead(_ context.Context, d *schema.ResourceData
 
 func buildgetRAMSharedPrincipalsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"resource_urn":   utils.ValueIngoreEmpty(d.Get("resource_urn")),
+		"resource_urn":   utils.ValueIgnoreEmpty(d.Get("resource_urn")),
 		"resource_owner": d.Get("resource_owner"),
 		"limit":          pageLimit,
 	}

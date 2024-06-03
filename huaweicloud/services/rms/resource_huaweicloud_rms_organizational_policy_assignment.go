@@ -175,12 +175,12 @@ func buildOrganizationalPolicyFilter(filters []interface{}) map[string]interface
 	}
 	filter := filters[0].(map[string]interface{})
 	return map[string]interface{}{
-		"region_id":         utils.ValueIngoreEmpty(filter["region"]),
-		"resource_provider": utils.ValueIngoreEmpty(filter["resource_provider"]),
-		"resource_type":     utils.ValueIngoreEmpty(filter["resource_type"]),
-		"resource_id":       utils.ValueIngoreEmpty(filter["resource_id"]),
-		"tag_key":           utils.ValueIngoreEmpty(filter["tag_key"]),
-		"tag_value":         utils.ValueIngoreEmpty(filter["tag_value"]),
+		"region_id":         utils.ValueIgnoreEmpty(filter["region"]),
+		"resource_provider": utils.ValueIgnoreEmpty(filter["resource_provider"]),
+		"resource_type":     utils.ValueIgnoreEmpty(filter["resource_type"]),
+		"resource_id":       utils.ValueIgnoreEmpty(filter["resource_id"]),
+		"tag_key":           utils.ValueIgnoreEmpty(filter["tag_key"]),
+		"tag_value":         utils.ValueIgnoreEmpty(filter["tag_value"]),
 	}
 }
 
@@ -206,9 +206,9 @@ func buildOrganizationalPolicyAssignmentCreateOpts(d *schema.ResourceData) (map[
 	metadata := map[string]interface{}{
 		"description":          d.Get("description").(string),
 		"policy_filter":        buildOrganizationalPolicyFilter(d.Get("policy_filter").([]interface{})),
-		"policy_definition_id": utils.ValueIngoreEmpty(d.Get("policy_definition_id").(string)),
-		"period":               utils.ValueIngoreEmpty(d.Get("period").(string)),
-		"function_urn":         utils.ValueIngoreEmpty(d.Get("function_urn").(string)),
+		"policy_definition_id": utils.ValueIgnoreEmpty(d.Get("policy_definition_id").(string)),
+		"period":               utils.ValueIgnoreEmpty(d.Get("period").(string)),
+		"function_urn":         utils.ValueIgnoreEmpty(d.Get("function_urn").(string)),
 	}
 
 	parameters, err := buildOrganizationalRuleParameters(d.Get("parameters").(map[string]interface{}))

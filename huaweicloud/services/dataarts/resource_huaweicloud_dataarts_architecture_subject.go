@@ -150,9 +150,9 @@ func buildCreateArchitectureSubjectBodyParams(d *schema.ResourceData) map[string
 		"name_en":         d.Get("code"),
 		"data_owner_list": d.Get("owner"),
 		"level":           d.Get("level"),
-		"data_owner":      utils.ValueIngoreEmpty(d.Get("department")),
-		"description":     utils.ValueIngoreEmpty(d.Get("description")),
-		"parent_id":       utils.ValueIngoreEmpty(d.Get("parent_id")),
+		"data_owner":      utils.ValueIgnoreEmpty(d.Get("department")),
+		"description":     utils.ValueIgnoreEmpty(d.Get("description")),
+		"parent_id":       utils.ValueIgnoreEmpty(d.Get("parent_id")),
 	}
 	return bodyParams
 }
@@ -287,9 +287,9 @@ func buildUpdateArchitectureSubjectBodyParams(d *schema.ResourceData) map[string
 		"name_en":         d.Get("code"),
 		"data_owner_list": d.Get("owner"),
 		"level":           d.Get("level"),
-		"data_owner":      utils.ValueIngoreEmpty(d.Get("department")),
-		"description":     utils.ValueIngoreEmpty(d.Get("description")),
-		"parent_id":       utils.ValueIngoreEmpty(d.Get("parent_id")),
+		"data_owner":      utils.ValueIgnoreEmpty(d.Get("department")),
+		"description":     utils.ValueIgnoreEmpty(d.Get("description")),
+		"parent_id":       utils.ValueIgnoreEmpty(d.Get("parent_id")),
 	}
 	return bodyParams
 }

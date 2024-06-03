@@ -446,15 +446,15 @@ func buildCreateResourcePoolMetaDataBodyParams(d *schema.ResourceData) map[strin
 func buildCreateResourcePoolMetaDataLabelsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
 		"os.modelarts/name":         d.Get("name"),
-		"os.modelarts/node.prefix":  utils.ValueIngoreEmpty(d.Get("prefix")),
-		"os.modelarts/workspace.id": utils.ValueIngoreEmpty(d.Get("workspace_id")),
+		"os.modelarts/node.prefix":  utils.ValueIgnoreEmpty(d.Get("prefix")),
+		"os.modelarts/workspace.id": utils.ValueIgnoreEmpty(d.Get("workspace_id")),
 	}
 	return params
 }
 
 func buildCreateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"os.modelarts/description": utils.ValueIngoreEmpty(d.Get("description")),
+		"os.modelarts/description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	if d.Get("charging_mode") == "prePaid" {
 		params["os.modelarts/billing.mode"] = "1"
@@ -475,7 +475,7 @@ func buildCreateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData
 func buildCreateResourcePoolSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
 		"type":      "Dedicate",
-		"scope":     utils.ValueIngoreEmpty(d.Get("scope").(*schema.Set).List()),
+		"scope":     utils.ValueIgnoreEmpty(d.Get("scope").(*schema.Set).List()),
 		"resources": buildResourcePoolSpecResources(d),
 		"userLogin": buildCreateResourcePoolSpecUserLoginBodyParams(d),
 		"network":   buildCreateResourcePoolSpecNetworkBodyParams(d),
@@ -490,8 +490,8 @@ func buildCreateResourcePoolSpecUserLoginBodyParams(d *schema.ResourceData) map[
 		return nil
 	}
 	return map[string]interface{}{
-		"password":    utils.ValueIngoreEmpty(d.Get("user_login.0.password")),
-		"keyPairName": utils.ValueIngoreEmpty(d.Get("user_login.0.key_pair_name")),
+		"password":    utils.ValueIgnoreEmpty(d.Get("user_login.0.password")),
+		"keyPairName": utils.ValueIgnoreEmpty(d.Get("user_login.0.key_pair_name")),
 	}
 }
 
@@ -530,15 +530,15 @@ func buildResourcePoolSpecResources(d *schema.ResourceData) []map[string]interfa
 		for i, v := range rawArray {
 			if raw, ok := v.(map[string]interface{}); ok {
 				rst[i] = map[string]interface{}{
-					"flavor":       utils.ValueIngoreEmpty(raw["flavor_id"]),
-					"count":        utils.ValueIngoreEmpty(raw["count"]),
-					"nodePool":     utils.ValueIngoreEmpty(raw["node_pool"]),
-					"maxCount":     utils.ValueIngoreEmpty(raw["max_count"]),
+					"flavor":       utils.ValueIgnoreEmpty(raw["flavor_id"]),
+					"count":        utils.ValueIgnoreEmpty(raw["count"]),
+					"nodePool":     utils.ValueIgnoreEmpty(raw["node_pool"]),
+					"maxCount":     utils.ValueIgnoreEmpty(raw["max_count"]),
 					"azs":          buildResourcePoolResourcesAzs(raw["azs"]),
 					"network":      buildResourcePoolSpecResourcesNetworkBodyParams(raw),
 					"taints":       buildResourcePoolResourcesTaints(raw["taints"]),
 					"tags":         utils.ExpandResourceTags(raw["tags"].(map[string]interface{})),
-					"labels":       utils.ValueIngoreEmpty(raw["labels"]),
+					"labels":       utils.ValueIgnoreEmpty(raw["labels"]),
 					"extendParams": buildCreateResourcePoolSpecResourcesPostInstallBodyParams(raw),
 				}
 			}
@@ -551,9 +551,9 @@ func buildResourcePoolSpecResources(d *schema.ResourceData) []map[string]interfa
 func buildResourcePoolSpecResourcesNetworkBodyParams(rawParam map[string]interface{}) map[string]interface{} {
 	if vpcId := rawParam["vpc_id"]; len(vpcId.(string)) > 0 {
 		return map[string]interface{}{
-			"vpc":            utils.ValueIngoreEmpty(rawParam["vpc_id"]),
-			"subnet":         utils.ValueIngoreEmpty(rawParam["subnet_id"]),
-			"securityGroups": utils.ValueIngoreEmpty(rawParam["security_group_ids"]),
+			"vpc":            utils.ValueIgnoreEmpty(rawParam["vpc_id"]),
+			"subnet":         utils.ValueIgnoreEmpty(rawParam["subnet_id"]),
+			"securityGroups": utils.ValueIgnoreEmpty(rawParam["security_group_ids"]),
 		}
 	}
 	return nil
@@ -877,7 +877,7 @@ func buildUpdateResourcePoolMetaDataBodyParams(d *schema.ResourceData) map[strin
 
 func buildUpdateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"os.modelarts/description": utils.ValueIngoreEmpty(d.Get("description")),
+		"os.modelarts/description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	if d.Get("charging_mode") == "prePaid" {
 		params["os.modelarts/order.id"] = ""
@@ -888,7 +888,7 @@ func buildUpdateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData
 
 func buildUpdateResourcePoolSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"scope":     utils.ValueIngoreEmpty(d.Get("scope").(*schema.Set).List()),
+		"scope":     utils.ValueIgnoreEmpty(d.Get("scope").(*schema.Set).List()),
 		"resources": buildResourcePoolSpecResources(d),
 	}
 	return params
@@ -904,8 +904,8 @@ func buildResourcePoolResourcesAzs(rawParams interface{}) []map[string]interface
 		for i, v := range rawArray {
 			if raw, ok := v.(map[string]interface{}); ok {
 				rst[i] = map[string]interface{}{
-					"az":    utils.ValueIngoreEmpty(raw["az"]),
-					"count": utils.ValueIngoreEmpty(raw["count"]),
+					"az":    utils.ValueIgnoreEmpty(raw["az"]),
+					"count": utils.ValueIgnoreEmpty(raw["count"]),
 				}
 			}
 		}
@@ -924,9 +924,9 @@ func buildResourcePoolResourcesTaints(rawParams interface{}) []map[string]interf
 		for i, v := range rawArray {
 			if raw, ok := v.(map[string]interface{}); ok {
 				rst[i] = map[string]interface{}{
-					"key":    utils.ValueIngoreEmpty(raw["key"]),
-					"effect": utils.ValueIngoreEmpty(raw["effect"]),
-					"value":  utils.ValueIngoreEmpty(raw["value"]),
+					"key":    utils.ValueIgnoreEmpty(raw["key"]),
+					"effect": utils.ValueIgnoreEmpty(raw["effect"]),
+					"value":  utils.ValueIgnoreEmpty(raw["value"]),
 				}
 			}
 		}
@@ -969,8 +969,8 @@ func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 
 				for _, v := range rawArray {
 					raw := v.(map[string]interface{})
-					flavor := utils.ValueIngoreEmpty(raw["flavor_id"])
-					count := utils.ValueIngoreEmpty(raw["count"])
+					flavor := utils.ValueIgnoreEmpty(raw["flavor_id"])
+					count := utils.ValueIgnoreEmpty(raw["count"])
 
 					searchActiveJsonPath := fmt.Sprintf("length(status.resources.available[?flavor=='%s' && count==`%d`])",
 						flavor, count)

@@ -489,14 +489,14 @@ func buildCreateActiveStandbyPoolBodyParams(d *schema.ResourceData) map[string]i
 	bodyParams := map[string]interface{}{
 		"lb_algorithm":    "ROUND_ROBIN",
 		"protocol":        d.Get("protocol"),
-		"name":            utils.ValueIngoreEmpty(d.Get("name")),
-		"loadbalancer_id": utils.ValueIngoreEmpty(d.Get("loadbalancer_id")),
-		"listener_id":     utils.ValueIngoreEmpty(d.Get("listener_id")),
-		"type":            utils.ValueIngoreEmpty(d.Get("type")),
-		"any_port_enable": utils.ValueIngoreEmpty(d.Get("any_port_enable")),
-		"vpc_id":          utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"description":     utils.ValueIngoreEmpty(d.Get("description")),
-		"ip_version":      utils.ValueIngoreEmpty(d.Get("ip_version")),
+		"name":            utils.ValueIgnoreEmpty(d.Get("name")),
+		"loadbalancer_id": utils.ValueIgnoreEmpty(d.Get("loadbalancer_id")),
+		"listener_id":     utils.ValueIgnoreEmpty(d.Get("listener_id")),
+		"type":            utils.ValueIgnoreEmpty(d.Get("type")),
+		"any_port_enable": utils.ValueIgnoreEmpty(d.Get("any_port_enable")),
+		"vpc_id":          utils.ValueIgnoreEmpty(d.Get("vpc_id")),
+		"description":     utils.ValueIgnoreEmpty(d.Get("description")),
+		"ip_version":      utils.ValueIgnoreEmpty(d.Get("ip_version")),
 		"members":         buildActiveStandbyPoolMembers(d.Get("members").(*schema.Set).List()),
 		"healthmonitor":   buildActiveStandbyPoolHealthMonitor(d.Get("healthmonitor")),
 	}
@@ -513,9 +513,9 @@ func buildActiveStandbyPoolMembers(rawMembers []interface{}) []map[string]interf
 			members = append(members, map[string]interface{}{
 				"address":        v["address"],
 				"role":           v["role"],
-				"protocol_port":  utils.ValueIngoreEmpty(v["protocol_port"]),
-				"name":           utils.ValueIngoreEmpty(v["name"]),
-				"subnet_cidr_id": utils.ValueIngoreEmpty(v["subnet_id"]),
+				"protocol_port":  utils.ValueIgnoreEmpty(v["protocol_port"]),
+				"name":           utils.ValueIgnoreEmpty(v["name"]),
+				"subnet_cidr_id": utils.ValueIgnoreEmpty(v["subnet_id"]),
 			})
 		}
 	}
@@ -536,12 +536,12 @@ func buildActiveStandbyPoolHealthMonitor(h interface{}) map[string]interface{} {
 			"max_retries":      raw["max_retries"],
 			"timeout":          raw["timeout"],
 			"type":             raw["type"],
-			"domain_name":      utils.ValueIngoreEmpty(raw["domain_name"]),
-			"expected_codes":   utils.ValueIngoreEmpty(raw["expected_codes"]),
-			"max_retries_down": utils.ValueIngoreEmpty(raw["max_retries_down"]),
-			"monitor_port":     utils.ValueIngoreEmpty(raw["monitor_port"]),
-			"name":             utils.ValueIngoreEmpty(raw["name"]),
-			"url_path":         utils.ValueIngoreEmpty(raw["url_path"]),
+			"domain_name":      utils.ValueIgnoreEmpty(raw["domain_name"]),
+			"expected_codes":   utils.ValueIgnoreEmpty(raw["expected_codes"]),
+			"max_retries_down": utils.ValueIgnoreEmpty(raw["max_retries_down"]),
+			"monitor_port":     utils.ValueIgnoreEmpty(raw["monitor_port"]),
+			"name":             utils.ValueIgnoreEmpty(raw["name"]),
+			"url_path":         utils.ValueIgnoreEmpty(raw["url_path"]),
 		}
 		return params
 	}

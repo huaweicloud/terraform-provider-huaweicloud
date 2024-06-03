@@ -154,9 +154,9 @@ func buildCreateOrUpdateDNSLineGroupBodyParams(d *schema.ResourceData) map[strin
 	dnsLines := d.Get("lines").(*schema.Set).List()
 
 	return map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"lines":       utils.ValueIngoreEmpty(dnsLines),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"lines":       utils.ValueIgnoreEmpty(dnsLines),
 	}
 }
 

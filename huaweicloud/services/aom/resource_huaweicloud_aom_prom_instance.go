@@ -124,7 +124,7 @@ func buildCreatePrometheusInstanceBodyParams(d *schema.ResourceData, cfg *config
 		"prom_name":             d.Get("prom_name"),
 		"prom_type":             d.Get("prom_type"),
 		"prom_version":          d.Get("prom_version"),
-		"enterprise_project_id": utils.ValueIngoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	return bodyParams
 }

@@ -89,7 +89,7 @@ func buildCreateEnvironmentBodyParams(d *schema.ResourceData, region string) map
 		"env_name":     d.Get("name"),
 		"env_type":     d.Get("type"),
 		"os_type":      d.Get("os_type"),
-		"description":  utils.ValueIngoreEmpty(d.Get("description")),
+		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

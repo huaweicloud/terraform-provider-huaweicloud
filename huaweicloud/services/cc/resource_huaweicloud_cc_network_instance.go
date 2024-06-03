@@ -177,15 +177,15 @@ func buildCreateNetworkInstanceBodyParams(d *schema.ResourceData) map[string]int
 
 func buildCreateNetworkInstanceNetworkInstanceChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":                utils.ValueIngoreEmpty(d.Get("name")),
-		"description":         utils.ValueIngoreEmpty(d.Get("description")),
-		"type":                utils.ValueIngoreEmpty(d.Get("type")),
-		"instance_id":         utils.ValueIngoreEmpty(d.Get("instance_id")),
-		"instance_domain_id":  utils.ValueIngoreEmpty(d.Get("instance_domain_id")),
-		"project_id":          utils.ValueIngoreEmpty(d.Get("project_id")),
-		"region_id":           utils.ValueIngoreEmpty(d.Get("region_id")),
-		"cloud_connection_id": utils.ValueIngoreEmpty(d.Get("cloud_connection_id")),
-		"cidrs":               utils.ValueIngoreEmpty(d.Get("cidrs")),
+		"name":                utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":         utils.ValueIgnoreEmpty(d.Get("description")),
+		"type":                utils.ValueIgnoreEmpty(d.Get("type")),
+		"instance_id":         utils.ValueIgnoreEmpty(d.Get("instance_id")),
+		"instance_domain_id":  utils.ValueIgnoreEmpty(d.Get("instance_domain_id")),
+		"project_id":          utils.ValueIgnoreEmpty(d.Get("project_id")),
+		"region_id":           utils.ValueIgnoreEmpty(d.Get("region_id")),
+		"cloud_connection_id": utils.ValueIgnoreEmpty(d.Get("cloud_connection_id")),
+		"cidrs":               utils.ValueIgnoreEmpty(d.Get("cidrs")),
 	}
 	return params
 }
@@ -297,9 +297,9 @@ func buildUpdateNetworkInstanceBodyParams(d *schema.ResourceData) map[string]int
 
 func buildUpdateNetworkInstanceNetworkInstanceChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
 		"description": d.Get("description"),
-		"cidrs":       utils.ValueIngoreEmpty(d.Get("cidrs")),
+		"cidrs":       utils.ValueIgnoreEmpty(d.Get("cidrs")),
 	}
 	return params
 }

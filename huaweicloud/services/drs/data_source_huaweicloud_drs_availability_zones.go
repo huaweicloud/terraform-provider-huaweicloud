@@ -73,7 +73,7 @@ func dataSourceAvailabilityZonesRead(_ context.Context, d *schema.ResourceData, 
 			"db_use_type":   d.Get("type"),
 			"job_direction": d.Get("direction"),
 			"node_type":     d.Get("node_type"),
-			"multi_write":   utils.ValueIngoreEmpty(d.Get("multi_write")),
+			"multi_write":   utils.ValueIgnoreEmpty(d.Get("multi_write")),
 		}),
 	}
 

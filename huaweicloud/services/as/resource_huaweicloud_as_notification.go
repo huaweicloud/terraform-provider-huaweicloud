@@ -114,7 +114,7 @@ func resourceAsNotificationPut(ctx context.Context, d *schema.ResourceData, meta
 func buildCreateOrUpdateASNotificationBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"topic_urn":   d.Get("topic_urn"),
-		"topic_scene": utils.ValueIngoreEmpty(d.Get("events")),
+		"topic_scene": utils.ValueIgnoreEmpty(d.Get("events")),
 	}
 	return bodyParams
 }

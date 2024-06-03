@@ -242,17 +242,17 @@ func buildCreateInspectorWebsiteScanBodyParams(d *schema.ResourceData) map[strin
 	return map[string]interface{}{
 		"task_name":    d.Get("task_name"),
 		"url":          d.Get("url"),
-		"task_type":    utils.ValueIngoreEmpty(d.Get("task_type")),
-		"timer":        utils.ValueIngoreEmpty(d.Get("timer")),
-		"trigger_time": utils.ValueIngoreEmpty(d.Get("trigger_time")),
-		"task_period":  utils.ValueIngoreEmpty(d.Get("task_period")),
+		"task_type":    utils.ValueIgnoreEmpty(d.Get("task_type")),
+		"timer":        utils.ValueIgnoreEmpty(d.Get("timer")),
+		"trigger_time": utils.ValueIgnoreEmpty(d.Get("trigger_time")),
+		"task_period":  utils.ValueIgnoreEmpty(d.Get("task_period")),
 		"task_config":  buildCreateInspectorWebsiteScanTaskConfig(d),
 	}
 }
 
 func buildCreateInspectorWebsiteScanTaskConfig(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
-		"scan_mode":      utils.ValueIngoreEmpty(d.Get("scan_mode")),
+		"scan_mode":      utils.ValueIgnoreEmpty(d.Get("scan_mode")),
 		"port_scan":      d.Get("port_scan"),
 		"weak_pwd_scan":  d.Get("weak_pwd_scan"),
 		"cve_check":      d.Get("cve_check"),

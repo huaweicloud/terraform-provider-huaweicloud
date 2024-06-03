@@ -190,10 +190,10 @@ func buildGetSlowLogsParams(d *schema.ResourceData, lineNum string, limit int) m
 	bodyParams := map[string]interface{}{
 		"start_time": d.Get("start_time").(string),
 		"end_time":   d.Get("end_time").(string),
-		"line_num":   utils.ValueIngoreEmpty(lineNum),
+		"line_num":   utils.ValueIgnoreEmpty(lineNum),
 		"limit":      limit,
-		"type":       utils.ValueIngoreEmpty(d.Get("type").(string)),
-		"database":   utils.ValueIngoreEmpty(d.Get("database").(string)),
+		"type":       utils.ValueIgnoreEmpty(d.Get("type").(string)),
+		"database":   utils.ValueIgnoreEmpty(d.Get("database").(string)),
 	}
 	return bodyParams
 }

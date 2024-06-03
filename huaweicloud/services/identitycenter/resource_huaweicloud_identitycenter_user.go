@@ -131,17 +131,17 @@ func resourceIdentityCenterUserCreate(ctx context.Context, d *schema.ResourceDat
 
 func buildCreateIdentityCenterUserBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"user_name":     utils.ValueIngoreEmpty(d.Get("user_name")),
-		"password_mode": utils.ValueIngoreEmpty(d.Get("password_mode")),
-		"display_name":  utils.ValueIngoreEmpty(d.Get("display_name")),
+		"user_name":     utils.ValueIgnoreEmpty(d.Get("user_name")),
+		"password_mode": utils.ValueIgnoreEmpty(d.Get("password_mode")),
+		"display_name":  utils.ValueIgnoreEmpty(d.Get("display_name")),
 		"emails": []map[string]interface{}{{
 			"primary": true,
 			"type":    "Work",
-			"value":   utils.ValueIngoreEmpty(d.Get("email")),
+			"value":   utils.ValueIgnoreEmpty(d.Get("email")),
 		}},
 		"name": map[string]interface{}{
-			"family_name": utils.ValueIngoreEmpty(d.Get("family_name")),
-			"given_name":  utils.ValueIngoreEmpty(d.Get("given_name")),
+			"family_name": utils.ValueIgnoreEmpty(d.Get("family_name")),
+			"given_name":  utils.ValueIgnoreEmpty(d.Get("given_name")),
 		},
 	}
 	return bodyParams
@@ -231,8 +231,8 @@ func buildUpdateIdentityCenterUserBodyParams(d *schema.ResourceData) map[string]
 	operations := make([]map[string]interface{}, 0)
 	if d.HasChanges("family_name", "given_name") {
 		updateValue := map[string]interface{}{
-			"family_name": utils.ValueIngoreEmpty(d.Get("family_name")),
-			"given_name":  utils.ValueIngoreEmpty(d.Get("given_name")),
+			"family_name": utils.ValueIgnoreEmpty(d.Get("family_name")),
+			"given_name":  utils.ValueIgnoreEmpty(d.Get("given_name")),
 		}
 		updateValueJson, _ := json.Marshal(updateValue)
 		operations = append(operations, map[string]interface{}{
@@ -250,7 +250,7 @@ func buildUpdateIdentityCenterUserBodyParams(d *schema.ResourceData) map[string]
 		updateValue := []map[string]interface{}{{
 			"primary": true,
 			"type":    "Work",
-			"value":   utils.ValueIngoreEmpty(d.Get("email")),
+			"value":   utils.ValueIgnoreEmpty(d.Get("email")),
 		}}
 		updateValueJson, _ := json.Marshal(updateValue)
 		operations = append(operations, map[string]interface{}{
