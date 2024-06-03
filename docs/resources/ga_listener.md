@@ -57,9 +57,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the information about the listener.
   The value can contain 0 to 255 characters. The following characters are not allowed: <>
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the listener.
-
-  Changing this parameter will create a new resource.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the listener.
 
 <a name="Listener_PortRange"></a>
 The `PortRange` block supports:
