@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_apig_endpoint_connection_management
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v2/{project_id}/apigw/instances/{instance_id}/vpc-endpoint/connections:
+        GET:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/vpc-endpoint/connections/action:
+        POST:
+            tag: APIG

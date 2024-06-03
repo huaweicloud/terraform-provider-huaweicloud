@@ -30,6 +30,9 @@ paths:
             tag: CSS
         POST:
             tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/sg/change:
+        POST:
+            tag: CSS
     /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate:
         POST:
             tag: EPS

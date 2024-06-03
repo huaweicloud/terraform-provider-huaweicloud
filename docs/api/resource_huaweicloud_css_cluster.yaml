@@ -36,6 +36,12 @@ paths:
     /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/setting:
         POST:
             tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/mode/change:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/password/reset:
+        POST:
+            tag: CSS
     /v1.0/{project_id}/clusters/{cluster_id}/public/bandwidth:
         POST:
             tag: CSS
@@ -67,6 +73,9 @@ paths:
         POST:
             tag: CSS
     /v1.0/{project_id}/clusters/{cluster_id}/role_extend:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/sg/change:
         POST:
             tag: CSS
     /v1.0/{project_id}/clusters/{cluster_id}/type/{type}/independent:

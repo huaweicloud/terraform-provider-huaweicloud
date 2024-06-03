@@ -11,3 +11,6 @@ paths:
     /v3.1/{project_id}/instances/recovery:
         POST:
             tag: RDS
+    /v3/{project_id}/instances:
+        GET:
+            tag: RDS
