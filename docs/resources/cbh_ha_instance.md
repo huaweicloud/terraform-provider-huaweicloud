@@ -98,21 +98,6 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `master_private_ip` - (Optional, String, ForceNew) Specifies the private IP address of the master instance.
-
-  Changing this parameter will create a new resource.
-
-* `slave_private_ip` - (Optional, String, ForceNew) Specifies the private IP address of the slave instance.
-
-  Changing this parameter will create a new resource.
-
-* `floating_ip` - (Optional, String, ForceNew) Specifies the floating IP address of the CBH HA instance.
-
-  Changing this parameter will create a new resource.
-
--> For the parameters `master_private_ip`, `slave_private_ip`, and `floating_ip`, if none of them are specified,
-  a new IP address will be assigned to each. If one is specified, then the other two must also be specified.
-
 * `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled.
   Valid values are **true** and **false**. Defaults to **false**.
 
@@ -128,6 +113,33 @@ The following arguments are supported:
 
   -> 1. Storage expansion is a high-risk operation, with a certain risk of failure.
   <br/>2. Expansion failure may affect the usability of the instance. Please ensure to back up your data.
+
+* `master_private_ip` - (Optional, String, ForceNew) Specifies the private IP address of the master instance.
+
+  Changing this parameter will create a new resource.
+
+* `slave_private_ip` - (Optional, String, ForceNew) Specifies the private IP address of the slave instance.
+
+  Changing this parameter will create a new resource.
+
+* `floating_ip` - (Optional, String, ForceNew) Specifies the floating IP address of the CBH HA instance.
+
+  Changing this parameter will create a new resource.
+
+-> For the parameters `master_private_ip`, `slave_private_ip`, and `floating_ip`, if none of them are specified,
+a new IP address will be assigned to each. If one is specified, then the other two must also be specified.
+
+* `power_action` - (Optional, String) Specifies the power action after the CBH HA instance is created.
+  The valid values are as follows:
+  + **start**: Startup instance.
+  + **stop**: Shutdown instance.
+  + **soft-reboot**: Normal reboot, shut down virtual machine service.
+  + **hard-reboot**: Force reboot, reboot virtual machine.
+
+  -> The usage of `power_action` has some limitations:
+  <br/>1. The **start** operation can only be performed when the instance status is **SHUTOFF**.
+  <br/>2. The **stop**, **soft-reboot**, and **hard-reboot** operations can only be performed when the instance status
+  is **ACTIVE**.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBH HA instance.
 
@@ -171,7 +183,7 @@ $ terraform import huaweicloud_cbh_ha_instance.test <master_id>/<slave_id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `charging_mode`, `period`, `period_unit`,
-`auto_renew`, `password`, `ipv6_enable`, `attach_disk_size`.
+`auto_renew`, `password`, `ipv6_enable`, `attach_disk_size`, `power_action`.
 It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated
 to align with the instance. Also, you can ignore changes as below.
@@ -182,7 +194,7 @@ resource "huaweicloud_cbh_ha_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      charging_mode, period, period_unit, auto_renew, password, ipv6_enable, attach_disk_size,
+      charging_mode, period, period_unit, auto_renew, password, ipv6_enable, attach_disk_size, power_action,
     ]
   }
 }
