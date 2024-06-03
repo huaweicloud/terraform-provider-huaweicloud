@@ -43,6 +43,7 @@ const (
 // @API CBH POST /v2/{project_id}/cbs/instance/start
 // @API CBH POST /v2/{project_id}/cbs/instance/stop
 // @API CBH POST /v2/{project_id}/cbs/instance/reboot
+// @API CBH PUT /v2/{project_id}/cbs/instance/login-method
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -167,6 +168,11 @@ func ResourceCBHInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the power action after the CBH instance is created.`,
+			},
+			"reset_admin_login": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies whether to reset the instance administrator login method.`,
 			},
 			"tags": common.TagsSchema(),
 			"enterprise_project_id": {
@@ -784,6 +790,13 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	isReset, ok := d.GetOk("reset_admin_login")
+	if d.HasChange("reset_admin_login") && (ok && isReset.(string) == "true") {
+		if err := resetInstanceAdminLoginMethod(client, ID); err != nil {
+			return diag.Errorf("err resetting administrator login method for CBH instance (%s): %s", ID, err)
+		}
+	}
+
 	// The stop and reboot operations should be performed after the instance updated other parameters.
 	// Therefore, they must be performed at the end of the update function.
 	if d.HasChange("power_action") && (action == Stop || action == SoftReboot || action == HardReboot) {
@@ -793,6 +806,22 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	return resourceCBHInstanceRead(ctx, d, meta)
+}
+
+func resetInstanceAdminLoginMethod(client *golangsdk.ServiceClient, id string) error {
+	resetInstanceAdminLoginPath := client.Endpoint + "v2/{project_id}/cbs/instance/login-method"
+	resetInstanceAdminLoginPath = strings.ReplaceAll(resetInstanceAdminLoginPath, "{project_id}", client.ProjectID)
+	jsonBodyMap := map[string]interface{}{
+		"server_id": id,
+	}
+
+	resetInstanceAdminLoginOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         jsonBodyMap,
+	}
+	_, err := client.Request("PUT", resetInstanceAdminLoginPath, &resetInstanceAdminLoginOpt)
+
+	return err
 }
 
 func doActionInstanceTags(resourceId, action string, client *golangsdk.ServiceClient, tagsMap map[string]interface{}) error {

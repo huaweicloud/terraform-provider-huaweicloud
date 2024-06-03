@@ -129,6 +129,7 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					"auto_renew",
 					"ipv6_enable",
 					"attach_disk_size",
+					"reset_admin_login",
 				},
 			},
 		},
@@ -309,6 +310,7 @@ resource "huaweicloud_cbh_instance" "test" {
   auto_renew        = "true"
   period            = 1
   attach_disk_size  = 2
+  reset_admin_login = "true"
 
   tags = {
     foo = "bar_update"
