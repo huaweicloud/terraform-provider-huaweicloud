@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 )
 
 func getInstanceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -20,7 +21,7 @@ func getInstanceFunc(cfg *config.Config, state *terraform.ResourceState) (interf
 		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
 	}
 
-	return instances.Get(client, state.Primary.ID).Extract()
+	return apig.QueryInstanceDetail(client, state.Primary.ID)
 }
 
 func TestAccInstance_basic(t *testing.T) {
@@ -181,7 +182,7 @@ func TestAccInstance_egress(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "3"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "5"),
 					resource.TestCheckResourceAttrSet(resourceName, "egress_address"),
 				),
 			},
@@ -191,7 +192,7 @@ func TestAccInstance_egress(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "5"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "10"),
 					resource.TestCheckResourceAttrSet(resourceName, "egress_address"),
 				),
 			},
@@ -321,7 +322,7 @@ resource "huaweicloud_apig_instance" "test" {
   edition               = "BASIC"
   name                  = "%[2]s"
   enterprise_project_id = "%[3]s"
-  bandwidth_size        = 3
+  bandwidth_size        = 5 # The bandwidth value must be greater than or equal to 5
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -341,7 +342,7 @@ resource "huaweicloud_apig_instance" "test" {
   edition               = "BASIC"
   name                  = "%[2]s"
   enterprise_project_id = "%[3]s"
-  bandwidth_size        = 5
+  bandwidth_size        = 10
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
