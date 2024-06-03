@@ -366,7 +366,7 @@ func buildCreateSQLServerDatabasePrivilegeRequestBodyCreateUser(rawParams interf
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
 				"name":     raw["name"],
-				"readonly": utils.ValueIngoreEmpty(raw["readonly"]),
+				"readonly": utils.ValueIgnoreEmpty(raw["readonly"]),
 			}
 		}
 		return rst

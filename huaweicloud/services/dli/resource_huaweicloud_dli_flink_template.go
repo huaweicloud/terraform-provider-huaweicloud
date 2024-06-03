@@ -128,10 +128,10 @@ func resourceFlinkTemplateCreate(ctx context.Context, d *schema.ResourceData, me
 
 func buildCreateFlinkTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":     utils.ValueIngoreEmpty(d.Get("name")),
-		"sql_body": utils.ValueIngoreEmpty(d.Get("sql")),
-		"desc":     utils.ValueIngoreEmpty(d.Get("description")),
-		"job_type": utils.ValueIngoreEmpty(d.Get("type")),
+		"name":     utils.ValueIgnoreEmpty(d.Get("name")),
+		"sql_body": utils.ValueIgnoreEmpty(d.Get("sql")),
+		"desc":     utils.ValueIgnoreEmpty(d.Get("description")),
+		"job_type": utils.ValueIgnoreEmpty(d.Get("type")),
 		"tags":     utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	return bodyParams
@@ -257,9 +257,9 @@ func resourceFlinkTemplateUpdate(ctx context.Context, d *schema.ResourceData, me
 
 func buildUpdateFlinkTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":     utils.ValueIngoreEmpty(d.Get("name")),
-		"sql_body": utils.ValueIngoreEmpty(d.Get("sql")),
-		"desc":     utils.ValueIngoreEmpty(d.Get("description")),
+		"name":     utils.ValueIgnoreEmpty(d.Get("name")),
+		"sql_body": utils.ValueIgnoreEmpty(d.Get("sql")),
+		"desc":     utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

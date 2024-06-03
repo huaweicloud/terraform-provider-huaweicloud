@@ -152,10 +152,10 @@ func resourcePlaybookActionCreate(ctx context.Context, d *schema.ResourceData, m
 func buildCreatePlaybookActionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"action_id":   d.Get("action_id"),
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"action_type": utils.ValueIngoreEmpty(d.Get("action_type")),
-		"sort_order":  utils.ValueIngoreEmpty(d.Get("sort_order")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"action_type": utils.ValueIgnoreEmpty(d.Get("action_type")),
+		"sort_order":  utils.ValueIgnoreEmpty(d.Get("sort_order")),
 	}
 	return bodyParams
 }
@@ -271,11 +271,11 @@ func resourcePlaybookActionUpdate(ctx context.Context, d *schema.ResourceData, m
 
 func buildUpdatePlaybookActionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
 		"description": d.Get("description"),
-		"action_type": utils.ValueIngoreEmpty(d.Get("action_type")),
-		"sort_order":  utils.ValueIngoreEmpty(d.Get("sort_order")),
-		"action_id":   utils.ValueIngoreEmpty(d.Get("action_id")),
+		"action_type": utils.ValueIgnoreEmpty(d.Get("action_type")),
+		"sort_order":  utils.ValueIgnoreEmpty(d.Get("sort_order")),
+		"action_id":   utils.ValueIgnoreEmpty(d.Get("action_id")),
 	}
 	return bodyParams
 }

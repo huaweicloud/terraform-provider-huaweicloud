@@ -344,29 +344,29 @@ func resourceCphServerCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 func buildCreateCphServerBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"server_name":       utils.ValueIngoreEmpty(d.Get("name")),
-		"server_model_name": utils.ValueIngoreEmpty(d.Get("server_flavor")),
-		"phone_model_name":  utils.ValueIngoreEmpty(d.Get("phone_flavor")),
-		"image_id":          utils.ValueIngoreEmpty(d.Get("image_id")),
+		"server_name":       utils.ValueIgnoreEmpty(d.Get("name")),
+		"server_model_name": utils.ValueIgnoreEmpty(d.Get("server_flavor")),
+		"phone_model_name":  utils.ValueIgnoreEmpty(d.Get("phone_flavor")),
+		"image_id":          utils.ValueIgnoreEmpty(d.Get("image_id")),
 		"count":             1,
-		"tenant_vpc_id":     utils.ValueIngoreEmpty(d.Get("vpc_id")),
+		"tenant_vpc_id":     utils.ValueIgnoreEmpty(d.Get("vpc_id")),
 		"nics": []map[string]interface{}{
 			{
-				"subnet_id": utils.ValueIngoreEmpty(d.Get("subnet_id")),
+				"subnet_id": utils.ValueIgnoreEmpty(d.Get("subnet_id")),
 			},
 		},
 		"public_ip":         buildCreateCphServerRequestBodyPublicIp(d),
 		"band_width":        buildCreateCphServerRequestBodyBandWidth(d.Get("bandwidth")),
-		"keypair_name":      utils.ValueIngoreEmpty(d.Get("keypair_name")),
-		"availability_zone": utils.ValueIngoreEmpty(d.Get("availability_zone")),
+		"keypair_name":      utils.ValueIgnoreEmpty(d.Get("keypair_name")),
+		"availability_zone": utils.ValueIgnoreEmpty(d.Get("availability_zone")),
 		"ports":             buildCreateCphServerRequestBodyApplicationPort(d.Get("ports")),
 	}
 
 	extendParam := map[string]interface{}{
 		"charging_mode":         0,
 		"is_auto_pay":           1,
-		"period_num":            utils.ValueIngoreEmpty(d.Get("period")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"period_num":            utils.ValueIgnoreEmpty(d.Get("period")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 	}
 
 	periodUnit := d.Get("period_unit").(string)
@@ -395,14 +395,14 @@ func buildCreateCphServerRequestBodyBandWidth(rawParams interface{}) map[string]
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"band_width_id":   utils.ValueIngoreEmpty(raw["id"]),
-			"band_width_size": utils.ValueIngoreEmpty(raw["size"]),
+			"band_width_id":   utils.ValueIgnoreEmpty(raw["id"]),
+			"band_width_size": utils.ValueIgnoreEmpty(raw["size"]),
 		}
 
-		shareType, _ := strconv.Atoi(utils.ValueIngoreEmpty(raw["share_type"]).(string))
+		shareType, _ := strconv.Atoi(utils.ValueIgnoreEmpty(raw["share_type"]).(string))
 		params["band_width_share_type"] = shareType
 
-		chargeMode := utils.ValueIngoreEmpty(raw["charge_mode"]).(string)
+		chargeMode := utils.ValueIgnoreEmpty(raw["charge_mode"]).(string)
 		if len(chargeMode) > 0 {
 			chargeModeInteger, _ := strconv.Atoi(chargeMode)
 			params["band_width_charge_mode"] = chargeModeInteger
@@ -417,7 +417,7 @@ func buildCreateCphServerRequestBodyPublicIp(d *schema.ResourceData) map[string]
 	params := make(map[string]interface{})
 	if value, ok := d.GetOk("eip_type"); ok {
 		params["eip"] = map[string]interface{}{
-			"type": utils.ValueIngoreEmpty(value),
+			"type": utils.ValueIgnoreEmpty(value),
 		}
 	}
 	if value, ok := d.GetOk("eip_id"); ok {
@@ -436,9 +436,9 @@ func buildCreateCphServerRequestBodyApplicationPort(rawParams interface{}) []map
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name":                utils.ValueIngoreEmpty(raw["name"]),
-				"listen_port":         utils.ValueIngoreEmpty(raw["listen_port"]),
-				"internet_accessible": utils.ValueIngoreEmpty(raw["internet_accessible"]),
+				"name":                utils.ValueIgnoreEmpty(raw["name"]),
+				"listen_port":         utils.ValueIgnoreEmpty(raw["listen_port"]),
+				"internet_accessible": utils.ValueIgnoreEmpty(raw["internet_accessible"]),
 			}
 		}
 		return rst
@@ -650,7 +650,7 @@ func resourceCphServerUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 func buildUpdateCphServerNameBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"server_name": utils.ValueIngoreEmpty(d.Get("name")),
+		"server_name": utils.ValueIgnoreEmpty(d.Get("name")),
 	}
 	return bodyParams
 }

@@ -376,8 +376,8 @@ func buildCreateMysqlDatabasePrivilegeRequestBodyUser(rawParams interface{}) []m
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name":     utils.ValueIngoreEmpty(raw["name"]),
-				"readonly": utils.ValueIngoreEmpty(raw["readonly"]),
+				"name":     utils.ValueIgnoreEmpty(raw["name"]),
+				"readonly": utils.ValueIgnoreEmpty(raw["readonly"]),
 			}
 		}
 		return rst
@@ -395,7 +395,7 @@ func buildDeleteMysqlDatabasePrivilegeRequestBodyDeleteUser(rawParams interface{
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name": utils.ValueIngoreEmpty(raw["name"]),
+				"name": utils.ValueIgnoreEmpty(raw["name"]),
 			}
 		}
 		return rst

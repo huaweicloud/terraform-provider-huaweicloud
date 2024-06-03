@@ -138,7 +138,7 @@ func resourceFleetCreate(ctx context.Context, d *schema.ResourceData, meta inter
 func buildCreateFleetBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"metadata": map[string]interface{}{
-			"name": utils.ValueIngoreEmpty(d.Get("name")),
+			"name": utils.ValueIgnoreEmpty(d.Get("name")),
 		},
 		"spec": buildCreateFleetSpecOpts(d),
 	}
@@ -147,7 +147,7 @@ func buildCreateFleetBodyParams(d *schema.ResourceData) map[string]interface{} {
 
 func buildCreateFleetSpecOpts(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 
 	return bodyParams
@@ -309,8 +309,8 @@ func buildUpdateFleetPermissionsRequestBodyPolicy(rawParams interface{}) []map[s
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"ruleIDs":    utils.ValueIngoreEmpty(raw["policy_ids"]),
-				"namespaces": utils.ValueIngoreEmpty(raw["namespaces"]),
+				"ruleIDs":    utils.ValueIgnoreEmpty(raw["policy_ids"]),
+				"namespaces": utils.ValueIgnoreEmpty(raw["namespaces"]),
 			}
 		}
 		return rst

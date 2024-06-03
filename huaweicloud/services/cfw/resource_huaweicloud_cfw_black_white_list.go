@@ -138,16 +138,16 @@ func resourceBlackWhiteListCreate(ctx context.Context, d *schema.ResourceData, m
 
 func buildCreateBlackWhiteListBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"object_id": utils.ValueIngoreEmpty(d.Get("object_id")),
-		"list_type": utils.ValueIngoreEmpty(d.Get("list_type")),
+		"object_id": utils.ValueIgnoreEmpty(d.Get("object_id")),
+		"list_type": utils.ValueIgnoreEmpty(d.Get("list_type")),
 		// direction can be 0
 		"direction": d.Get("direction"),
-		"protocol":  utils.ValueIngoreEmpty(d.Get("protocol")),
-		"port":      utils.ValueIngoreEmpty(d.Get("port")),
+		"protocol":  utils.ValueIgnoreEmpty(d.Get("protocol")),
+		"port":      utils.ValueIgnoreEmpty(d.Get("port")),
 		// address_type can be 0
 		"address_type": d.Get("address_type"),
-		"address":      utils.ValueIngoreEmpty(d.Get("address")),
-		"description":  utils.ValueIngoreEmpty(d.Get("description")),
+		"address":      utils.ValueIgnoreEmpty(d.Get("address")),
+		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -280,14 +280,14 @@ func resourceBlackWhiteListUpdate(ctx context.Context, d *schema.ResourceData, m
 
 func buildUpdateBlackWhiteListBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"list_type": utils.ValueIngoreEmpty(d.Get("list_type")),
+		"list_type": utils.ValueIgnoreEmpty(d.Get("list_type")),
 		// direction can be 0
 		"direction": d.Get("direction"),
-		"protocol":  utils.ValueIngoreEmpty(d.Get("protocol")),
-		"port":      utils.ValueIngoreEmpty(d.Get("port")),
+		"protocol":  utils.ValueIgnoreEmpty(d.Get("protocol")),
+		"port":      utils.ValueIgnoreEmpty(d.Get("port")),
 		// address_type can be 0
 		"address_type": d.Get("address_type"),
-		"address":      utils.ValueIngoreEmpty(d.Get("address")),
+		"address":      utils.ValueIgnoreEmpty(d.Get("address")),
 		"description":  d.Get("description"),
 	}
 	return bodyParams

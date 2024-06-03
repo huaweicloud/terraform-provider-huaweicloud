@@ -84,7 +84,7 @@ func buildModifyDatabasePrivilegeBodyParams(d *schema.ResourceData, action strin
 	}
 
 	return map[string]interface{}{
-		"user_name": utils.ValueIngoreEmpty(d.Get("user_name")),
+		"user_name": utils.ValueIgnoreEmpty(d.Get("user_name")),
 		"action":    action,
 		"privileges": []map[string]interface{}{
 			{

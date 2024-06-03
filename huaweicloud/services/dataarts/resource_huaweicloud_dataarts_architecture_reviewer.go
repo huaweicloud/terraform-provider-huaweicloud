@@ -110,8 +110,8 @@ func buildCreateReviewerParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"approver_name": d.Get("user_name"),
 		"user_id":       d.Get("user_id"),
-		"email":         utils.ValueIngoreEmpty(d.Get("email")),
-		"phone_number":  utils.ValueIngoreEmpty(d.Get("phone_number")),
+		"email":         utils.ValueIgnoreEmpty(d.Get("email")),
+		"phone_number":  utils.ValueIgnoreEmpty(d.Get("phone_number")),
 		"email_notify":  isFieldExist(d, "email"),
 		"sms_notify":    isFieldExist(d, "phone_number"),
 	}

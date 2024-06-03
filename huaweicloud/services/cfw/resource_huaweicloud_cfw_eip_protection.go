@@ -116,8 +116,8 @@ func buildProtectedEipBodyAndIds(rawParams *schema.Set) ([]map[string]interface{
 		raw := v.(map[string]interface{})
 		requestParams[i] = map[string]interface{}{
 			"id":          raw["id"],
-			"public_ip":   utils.ValueIngoreEmpty(raw["public_ipv4"]),
-			"public_ipv6": utils.ValueIngoreEmpty(raw["public_ipv6"]),
+			"public_ip":   utils.ValueIgnoreEmpty(raw["public_ipv4"]),
+			"public_ipv6": utils.ValueIgnoreEmpty(raw["public_ipv6"]),
 		}
 		protectedEipIds[i] = raw["id"].(string)
 	}

@@ -182,9 +182,9 @@ func buildCreateSqlLimitBodyParams(d *schema.ResourceData) map[string]interface{
 		"db_name":         d.Get("db_name"),
 		"max_concurrency": d.Get("max_concurrency"),
 		"max_waiting":     d.Get("max_waiting"),
-		"query_id":        utils.ValueIngoreEmpty(d.Get("query_id")),
-		"query_string":    utils.ValueIngoreEmpty(d.Get("query_string")),
-		"search_path":     utils.ValueIngoreEmpty(d.Get("search_path")),
+		"query_id":        utils.ValueIgnoreEmpty(d.Get("query_id")),
+		"query_string":    utils.ValueIgnoreEmpty(d.Get("query_string")),
+		"search_path":     utils.ValueIgnoreEmpty(d.Get("search_path")),
 	}
 	return bodyParams
 }

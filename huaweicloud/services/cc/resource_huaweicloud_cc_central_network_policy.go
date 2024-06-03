@@ -268,10 +268,10 @@ func buildCentralNetworkPolicyPlaneAssociateErTableDocument(rawParams interface{
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"project_id":                 utils.ValueIngoreEmpty(raw["project_id"]),
-				"region_id":                  utils.ValueIngoreEmpty(raw["region_id"]),
-				"enterprise_router_id":       utils.ValueIngoreEmpty(raw["enterprise_router_id"]),
-				"enterprise_router_table_id": utils.ValueIngoreEmpty(raw["enterprise_router_table_id"]),
+				"project_id":                 utils.ValueIgnoreEmpty(raw["project_id"]),
+				"region_id":                  utils.ValueIgnoreEmpty(raw["region_id"]),
+				"enterprise_router_id":       utils.ValueIgnoreEmpty(raw["enterprise_router_id"]),
+				"enterprise_router_table_id": utils.ValueIgnoreEmpty(raw["enterprise_router_table_id"]),
 			}
 		}
 		return rst
@@ -289,9 +289,9 @@ func buildCentralNetworkPolicyPlaneExcludeErConnections(rawParams interface{}) [
 			for j, erInstanceRaw := range erInstancesRaw {
 				v := erInstanceRaw.(map[string]interface{})
 				erInstances[j] = map[string]interface{}{
-					"project_id":           utils.ValueIngoreEmpty(v["project_id"]),
-					"region_id":            utils.ValueIngoreEmpty(v["region_id"]),
-					"enterprise_router_id": utils.ValueIngoreEmpty(v["enterprise_router_id"]),
+					"project_id":           utils.ValueIgnoreEmpty(v["project_id"]),
+					"region_id":            utils.ValueIgnoreEmpty(v["region_id"]),
+					"enterprise_router_id": utils.ValueIgnoreEmpty(v["enterprise_router_id"]),
 				}
 			}
 			connections[i] = erInstances
@@ -311,9 +311,9 @@ func buildCreateCentralNetworkPolicyRequestBodyAssociateErInstanceDocument(rawPa
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"project_id":           utils.ValueIngoreEmpty(raw["project_id"]),
-				"region_id":            utils.ValueIngoreEmpty(raw["region_id"]),
-				"enterprise_router_id": utils.ValueIngoreEmpty(raw["enterprise_router_id"]),
+				"project_id":           utils.ValueIgnoreEmpty(raw["project_id"]),
+				"region_id":            utils.ValueIgnoreEmpty(raw["region_id"]),
+				"enterprise_router_id": utils.ValueIgnoreEmpty(raw["enterprise_router_id"]),
 			}
 		}
 		return rst

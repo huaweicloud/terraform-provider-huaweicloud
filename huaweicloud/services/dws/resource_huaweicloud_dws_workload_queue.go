@@ -113,7 +113,7 @@ func buildCreateWorkloadQueueBodyParams(d *schema.ResourceData) map[string]inter
 		"workload_queue": map[string]interface{}{
 			"workload_queue_name":         d.Get("name"),
 			"workload_resource_item_list": buildCreateConfigurationBodyParams(d),
-			"logical_cluster_name":        utils.ValueIngoreEmpty(d.Get("logical_cluster_name")),
+			"logical_cluster_name":        utils.ValueIgnoreEmpty(d.Get("logical_cluster_name")),
 		},
 	}
 }

@@ -158,7 +158,7 @@ func buildConfigInstanceFeatureParams(featrueName string, enabled, cfg interface
 	return map[string]interface{}{
 		"name":   featrueName,
 		"enable": enabled.(bool),
-		"config": utils.ValueIngoreEmpty(cfg.(string)),
+		"config": utils.ValueIgnoreEmpty(cfg.(string)),
 	}
 }
 

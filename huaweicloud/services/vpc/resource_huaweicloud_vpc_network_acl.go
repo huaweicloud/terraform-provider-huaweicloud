@@ -319,7 +319,7 @@ func buildCreateNetworkAclBodyParams(d *schema.ResourceData) map[string]interfac
 		"firewall": map[string]interface{}{
 			"name":                  d.Get("name"),
 			"enterprise_project_id": d.Get("enterprise_project_id"),
-			"description":           utils.ValueIngoreEmpty(d.Get("description")),
+			"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 			"admin_state_up":        d.Get("enabled"),
 		},
 	}
@@ -345,13 +345,13 @@ func buildNetworkAclInsertRuleBodyParams(rules []interface{}) []map[string]inter
 			"protocol":                     rule["protocol"],
 			"ip_version":                   rule["ip_version"],
 			"description":                  rule["description"],
-			"name":                         utils.ValueIngoreEmpty(rule["name"]),
-			"source_ip_address":            utils.ValueIngoreEmpty(rule["source_ip_address"]),
-			"destination_ip_address":       utils.ValueIngoreEmpty(rule["destination_ip_address"]),
-			"source_port":                  utils.ValueIngoreEmpty(rule["source_port"]),
-			"destination_port":             utils.ValueIngoreEmpty(rule["destination_port"]),
-			"source_address_group_id":      utils.ValueIngoreEmpty(rule["source_ip_address_group_id"]),
-			"destination_address_group_id": utils.ValueIngoreEmpty(rule["destination_ip_address_group_id"]),
+			"name":                         utils.ValueIgnoreEmpty(rule["name"]),
+			"source_ip_address":            utils.ValueIgnoreEmpty(rule["source_ip_address"]),
+			"destination_ip_address":       utils.ValueIgnoreEmpty(rule["destination_ip_address"]),
+			"source_port":                  utils.ValueIgnoreEmpty(rule["source_port"]),
+			"destination_port":             utils.ValueIgnoreEmpty(rule["destination_port"]),
+			"source_address_group_id":      utils.ValueIgnoreEmpty(rule["source_ip_address_group_id"]),
+			"destination_address_group_id": utils.ValueIgnoreEmpty(rule["destination_ip_address_group_id"]),
 		}
 	}
 

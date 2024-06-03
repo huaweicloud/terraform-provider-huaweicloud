@@ -120,7 +120,7 @@ func buildCreateIpAddressGroupBodyParams(d *schema.ResourceData) map[string]inte
 	bodyParams := map[string]interface{}{
 		"ip_group": map[string]interface{}{
 			"name":        d.Get("name"),
-			"description": utils.ValueIngoreEmpty(d.Get("description")),
+			"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		},
 	}
 	return bodyParams
@@ -285,7 +285,7 @@ func resourceIpAddressGroupRead(_ context.Context, d *schema.ResourceData, meta 
 func buildUpdateIpAddressGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"ip_group": map[string]interface{}{
-			"name":        utils.ValueIngoreEmpty(d.Get("name")),
+			"name":        utils.ValueIgnoreEmpty(d.Get("name")),
 			"description": d.Get("description"),
 		},
 	}
@@ -384,7 +384,7 @@ func addIps(ctx context.Context, d *schema.ResourceData, meta interface{}, clien
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
 				"cidr":        raw["cidr"],
-				"description": utils.ValueIngoreEmpty(raw["description"]),
+				"description": utils.ValueIgnoreEmpty(raw["description"]),
 			}
 		}
 

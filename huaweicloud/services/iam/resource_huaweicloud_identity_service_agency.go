@@ -142,9 +142,9 @@ func buildCreateAgencyBodyParams(d *schema.ResourceData) map[string]interface{} 
 	bodyParams := map[string]interface{}{
 		"agency_name":          d.Get("name"),
 		"trust_policy":         buildTrustPolicy(d.Get("delegated_service_name").(string)),
-		"path":                 utils.ValueIngoreEmpty(d.Get("path")),
-		"max_session_duration": utils.ValueIngoreEmpty(d.Get("duration")),
-		"description":          utils.ValueIngoreEmpty(d.Get("description")),
+		"path":                 utils.ValueIgnoreEmpty(d.Get("path")),
+		"max_session_duration": utils.ValueIgnoreEmpty(d.Get("duration")),
+		"description":          utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

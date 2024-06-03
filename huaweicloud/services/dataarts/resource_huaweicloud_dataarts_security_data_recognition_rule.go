@@ -126,13 +126,13 @@ func buildCreateOrUpdateSecurityRuleBodyParams(d *schema.ResourceData) map[strin
 		"rule_type":          d.Get("rule_type").(string),
 		"secrecy_level_id":   d.Get("secrecy_level_id").(string),
 		"name":               d.Get("name").(string),
-		"method":             utils.ValueIngoreEmpty(d.Get("method").(string)),
-		"content_expression": utils.ValueIngoreEmpty(d.Get("content_expression").(string)),
-		"column_expression":  utils.ValueIngoreEmpty(d.Get("column_expression").(string)),
-		"commit_expression":  utils.ValueIngoreEmpty(d.Get("comment_expression").(string)),
-		"builtin_rule_id":    utils.ValueIngoreEmpty(d.Get("builtin_rule_id").(string)),
-		"description":        utils.ValueIngoreEmpty(d.Get("description").(string)),
-		"category_id":        utils.ValueIngoreEmpty(d.Get("category_id").(string)),
+		"method":             utils.ValueIgnoreEmpty(d.Get("method").(string)),
+		"content_expression": utils.ValueIgnoreEmpty(d.Get("content_expression").(string)),
+		"column_expression":  utils.ValueIgnoreEmpty(d.Get("column_expression").(string)),
+		"commit_expression":  utils.ValueIgnoreEmpty(d.Get("comment_expression").(string)),
+		"builtin_rule_id":    utils.ValueIgnoreEmpty(d.Get("builtin_rule_id").(string)),
+		"description":        utils.ValueIgnoreEmpty(d.Get("description").(string)),
+		"category_id":        utils.ValueIgnoreEmpty(d.Get("category_id").(string)),
 	}
 	return bodyParams
 }

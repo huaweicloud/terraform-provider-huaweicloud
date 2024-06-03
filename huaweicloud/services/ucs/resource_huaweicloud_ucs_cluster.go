@@ -187,23 +187,23 @@ func buildCreateClusterBodyParams(d *schema.ResourceData) map[string]interface{}
 
 func buildCreateClusterMetadataBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"uid":         utils.ValueIngoreEmpty(d.Get("cluster_id")),
-		"name":        utils.ValueIngoreEmpty(d.Get("cluster_name")),
-		"labels":      utils.ValueIngoreEmpty(d.Get("cluster_labels")),
-		"annotations": utils.ValueIngoreEmpty(d.Get("annotations")),
+		"uid":         utils.ValueIgnoreEmpty(d.Get("cluster_id")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("cluster_name")),
+		"labels":      utils.ValueIgnoreEmpty(d.Get("cluster_labels")),
+		"annotations": utils.ValueIgnoreEmpty(d.Get("annotations")),
 	}
 	return bodyParams
 }
 
 func buildCreateClusterSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"category":  utils.ValueIngoreEmpty(d.Get("category")),
-		"type":      utils.ValueIngoreEmpty(d.Get("cluster_type")),
-		"region":    utils.ValueIngoreEmpty(d.Get("cluster_region")),
-		"projectID": utils.ValueIngoreEmpty(d.Get("cluster_project_id")),
-		"provider":  utils.ValueIngoreEmpty(d.Get("service_provider")),
-		"country":   utils.ValueIngoreEmpty(d.Get("country")),
-		"city":      utils.ValueIngoreEmpty(d.Get("city")),
+		"category":  utils.ValueIgnoreEmpty(d.Get("category")),
+		"type":      utils.ValueIgnoreEmpty(d.Get("cluster_type")),
+		"region":    utils.ValueIgnoreEmpty(d.Get("cluster_region")),
+		"projectID": utils.ValueIgnoreEmpty(d.Get("cluster_project_id")),
+		"provider":  utils.ValueIgnoreEmpty(d.Get("service_provider")),
+		"country":   utils.ValueIgnoreEmpty(d.Get("country")),
+		"city":      utils.ValueIgnoreEmpty(d.Get("city")),
 	}
 
 	if v, ok := d.GetOk("fleet_id"); ok {
@@ -373,8 +373,8 @@ func buildUpdateClusterBodyParams(d *schema.ResourceData) map[string]interface{}
 
 func buildUpdateClusterSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"country": utils.ValueIngoreEmpty(d.Get("country")),
-		"city":    utils.ValueIngoreEmpty(d.Get("city")),
+		"country": utils.ValueIgnoreEmpty(d.Get("country")),
+		"city":    utils.ValueIgnoreEmpty(d.Get("city")),
 	}
 	return bodyParams
 }

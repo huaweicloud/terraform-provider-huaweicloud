@@ -204,23 +204,23 @@ func buildUserName(d *schema.ResourceData) interface{} {
 		userName = d.Get("username")
 	}
 
-	return utils.ValueIngoreEmpty(userName)
+	return utils.ValueIgnoreEmpty(userName)
 }
 
 func buildCreateDatasourceAuthBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"auth_info_name":       utils.ValueIngoreEmpty(d.Get("name")),
-		"datasource_type":      utils.ValueIngoreEmpty(d.Get("type")),
+		"auth_info_name":       utils.ValueIgnoreEmpty(d.Get("name")),
+		"datasource_type":      utils.ValueIgnoreEmpty(d.Get("type")),
 		"user_name":            buildUserName(d),
-		"password":             utils.ValueIngoreEmpty(d.Get("password")),
-		"certificate_location": utils.ValueIngoreEmpty(d.Get("certificate_location")),
-		"truststore_location":  utils.ValueIngoreEmpty(d.Get("truststore_location")),
-		"truststore_password":  utils.ValueIngoreEmpty(d.Get("truststore_password")),
-		"keystore_location":    utils.ValueIngoreEmpty(d.Get("keystore_location")),
-		"keystore_password":    utils.ValueIngoreEmpty(d.Get("keystore_password")),
-		"key_password":         utils.ValueIngoreEmpty(d.Get("key_password")),
-		"krb5_conf":            utils.ValueIngoreEmpty(d.Get("krb5_conf")),
-		"keytab":               utils.ValueIngoreEmpty(d.Get("keytab")),
+		"password":             utils.ValueIgnoreEmpty(d.Get("password")),
+		"certificate_location": utils.ValueIgnoreEmpty(d.Get("certificate_location")),
+		"truststore_location":  utils.ValueIgnoreEmpty(d.Get("truststore_location")),
+		"truststore_password":  utils.ValueIgnoreEmpty(d.Get("truststore_password")),
+		"keystore_location":    utils.ValueIgnoreEmpty(d.Get("keystore_location")),
+		"keystore_password":    utils.ValueIgnoreEmpty(d.Get("keystore_password")),
+		"key_password":         utils.ValueIgnoreEmpty(d.Get("key_password")),
+		"krb5_conf":            utils.ValueIgnoreEmpty(d.Get("krb5_conf")),
+		"keytab":               utils.ValueIgnoreEmpty(d.Get("keytab")),
 	}
 	return bodyParams
 }
@@ -355,15 +355,15 @@ func resourceDatasourceAuthUpdate(ctx context.Context, d *schema.ResourceData, m
 
 func buildUpdateDatasourceAuthBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"auth_info_name":      utils.ValueIngoreEmpty(d.Get("name")),
+		"auth_info_name":      utils.ValueIgnoreEmpty(d.Get("name")),
 		"user_name":           buildUserName(d),
-		"password":            utils.ValueIngoreEmpty(d.Get("password")),
-		"truststore_location": utils.ValueIngoreEmpty(d.Get("truststore_location")),
-		"truststore_password": utils.ValueIngoreEmpty(d.Get("truststore_password")),
-		"keystore_location":   utils.ValueIngoreEmpty(d.Get("keystore_location")),
-		"keystore_password":   utils.ValueIngoreEmpty(d.Get("keystore_password")),
-		"krb5_conf":           utils.ValueIngoreEmpty(d.Get("krb5_conf")),
-		"keytab":              utils.ValueIngoreEmpty(d.Get("keytab")),
+		"password":            utils.ValueIgnoreEmpty(d.Get("password")),
+		"truststore_location": utils.ValueIgnoreEmpty(d.Get("truststore_location")),
+		"truststore_password": utils.ValueIgnoreEmpty(d.Get("truststore_password")),
+		"keystore_location":   utils.ValueIgnoreEmpty(d.Get("keystore_location")),
+		"keystore_password":   utils.ValueIgnoreEmpty(d.Get("keystore_password")),
+		"krb5_conf":           utils.ValueIgnoreEmpty(d.Get("krb5_conf")),
+		"keytab":              utils.ValueIgnoreEmpty(d.Get("keytab")),
 	}
 	return bodyParams
 }

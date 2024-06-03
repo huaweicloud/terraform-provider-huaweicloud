@@ -441,14 +441,14 @@ func resourceModelartsServiceCreate(ctx context.Context, d *schema.ResourceData,
 
 func buildCreateServiceBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"workspace_id":          utils.ValueIngoreEmpty(d.Get("workspace_id")),
+		"workspace_id":          utils.ValueIgnoreEmpty(d.Get("workspace_id")),
 		"service_name":          d.Get("name"),
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 		"infer_type":            d.Get("infer_type"),
-		"pool_name":             utils.ValueIngoreEmpty(d.Get("pool_name")),
-		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"subnet_network_id":     utils.ValueIngoreEmpty(d.Get("subnet_id")),
-		"security_group_id":     utils.ValueIngoreEmpty(d.Get("security_group_id")),
+		"pool_name":             utils.ValueIgnoreEmpty(d.Get("pool_name")),
+		"vpc_id":                utils.ValueIgnoreEmpty(d.Get("vpc_id")),
+		"subnet_network_id":     utils.ValueIgnoreEmpty(d.Get("subnet_id")),
+		"security_group_id":     utils.ValueIgnoreEmpty(d.Get("security_group_id")),
 		"schedule":              buildServiceRequestBodySchedule(d.Get("schedule")),
 		"config":                buildServiceRequestBodyConfig(d.Get("config")),
 		"additional_properties": buildServiceRequestBodyAdditionalProperty(d.Get("additional_properties")),
@@ -466,9 +466,9 @@ func buildServiceRequestBodySchedule(rawParams interface{}) []map[string]interfa
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"duration":  utils.ValueIngoreEmpty(raw["duration"]),
-				"time_unit": utils.ValueIngoreEmpty(raw["time_unit"]),
-				"type":      utils.ValueIngoreEmpty(raw["type"]),
+				"duration":  utils.ValueIgnoreEmpty(raw["duration"]),
+				"time_unit": utils.ValueIgnoreEmpty(raw["time_unit"]),
+				"type":      utils.ValueIgnoreEmpty(raw["type"]),
 			}
 		}
 		return rst
@@ -487,19 +487,19 @@ func buildServiceRequestBodyConfig(rawParams interface{}) []map[string]interface
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
 				"custom_spec":    buildConfigCustomSpec(raw["custom_spec"]),
-				"envs":           utils.ValueIngoreEmpty(raw["envs"]),
-				"specification":  utils.ValueIngoreEmpty(raw["specification"]),
-				"weight":         utils.ValueIngoreEmpty(raw["weight"]),
-				"model_id":       utils.ValueIngoreEmpty(raw["model_id"]),
-				"src_path":       utils.ValueIngoreEmpty(raw["src_path"]),
-				"req_uri":        utils.ValueIngoreEmpty(raw["req_uri"]),
-				"mapping_type":   utils.ValueIngoreEmpty(raw["mapping_type"]),
-				"pool_name":      utils.ValueIngoreEmpty(raw["pool_name"]),
-				"nodes":          utils.ValueIngoreEmpty(raw["nodes"]),
-				"mapping_rule":   utils.ValueIngoreEmpty(raw["mapping_rule"]),
-				"src_type":       utils.ValueIngoreEmpty(raw["src_type"]),
-				"dest_path":      utils.ValueIngoreEmpty(raw["dest_path"]),
-				"instance_count": utils.ValueIngoreEmpty(raw["instance_count"]),
+				"envs":           utils.ValueIgnoreEmpty(raw["envs"]),
+				"specification":  utils.ValueIgnoreEmpty(raw["specification"]),
+				"weight":         utils.ValueIgnoreEmpty(raw["weight"]),
+				"model_id":       utils.ValueIgnoreEmpty(raw["model_id"]),
+				"src_path":       utils.ValueIgnoreEmpty(raw["src_path"]),
+				"req_uri":        utils.ValueIgnoreEmpty(raw["req_uri"]),
+				"mapping_type":   utils.ValueIgnoreEmpty(raw["mapping_type"]),
+				"pool_name":      utils.ValueIgnoreEmpty(raw["pool_name"]),
+				"nodes":          utils.ValueIgnoreEmpty(raw["nodes"]),
+				"mapping_rule":   utils.ValueIgnoreEmpty(raw["mapping_rule"]),
+				"src_type":       utils.ValueIgnoreEmpty(raw["src_type"]),
+				"dest_path":      utils.ValueIgnoreEmpty(raw["dest_path"]),
+				"instance_count": utils.ValueIgnoreEmpty(raw["instance_count"]),
 			}
 		}
 		return rst
@@ -514,10 +514,10 @@ func buildConfigCustomSpec(rawParams interface{}) map[string]interface{} {
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"memory":      utils.ValueIngoreEmpty(raw["memory"]),
-			"cpu":         utils.ValueIngoreEmpty(raw["cpu"]),
-			"gpu_p4":      utils.ValueIngoreEmpty(raw["gpu_p4"]),
-			"ascend_a310": utils.ValueIngoreEmpty(raw["ascend_a310"]),
+			"memory":      utils.ValueIgnoreEmpty(raw["memory"]),
+			"cpu":         utils.ValueIgnoreEmpty(raw["cpu"]),
+			"gpu_p4":      utils.ValueIgnoreEmpty(raw["gpu_p4"]),
+			"ascend_a310": utils.ValueIgnoreEmpty(raw["ascend_a310"]),
 		}
 		return params
 	}
@@ -546,8 +546,8 @@ func buildAdditionalPropertySmnNotification(rawParams interface{}) map[string]in
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"topic_urn": utils.ValueIngoreEmpty(raw["topic_urn"]),
-			"events":    utils.ValueIngoreEmpty(raw["events"]),
+			"topic_urn": utils.ValueIgnoreEmpty(raw["topic_urn"]),
+			"events":    utils.ValueIgnoreEmpty(raw["events"]),
 		}
 		return params
 	}
@@ -564,7 +564,7 @@ func buildAdditionalPropertyLogReportChannel(rawParams interface{}) []map[string
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"type": utils.ValueIngoreEmpty(raw["type"]),
+				"type": utils.ValueIgnoreEmpty(raw["type"]),
 			}
 		}
 		return rst
@@ -884,7 +884,7 @@ func resourceModelartsServiceUpdate(ctx context.Context, d *schema.ResourceData,
 
 func buildUpdateServiceBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 		"schedule":              buildServiceRequestBodySchedule(d.Get("schedule")),
 		"config":                buildServiceRequestBodyConfig(d.Get("config")),
 		"additional_properties": buildServiceRequestBodyAdditionalProperty(d.Get("additional_properties")),
@@ -894,7 +894,7 @@ func buildUpdateServiceBodyParams(d *schema.ResourceData) map[string]interface{}
 
 func buildChangeStateParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"status": utils.ValueIngoreEmpty(d.Get("change_status_to")),
+		"status": utils.ValueIgnoreEmpty(d.Get("change_status_to")),
 	}
 	return bodyParams
 }

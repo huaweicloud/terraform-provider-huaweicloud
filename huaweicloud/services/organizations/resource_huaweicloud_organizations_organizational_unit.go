@@ -113,8 +113,8 @@ func resourceOrganizationalUnitCreate(ctx context.Context, d *schema.ResourceDat
 
 func buildCreateOrganizationalUnitBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":      utils.ValueIngoreEmpty(d.Get("name")),
-		"parent_id": utils.ValueIngoreEmpty(d.Get("parent_id")),
+		"name":      utils.ValueIgnoreEmpty(d.Get("name")),
+		"parent_id": utils.ValueIgnoreEmpty(d.Get("parent_id")),
 		"tags":      utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	return bodyParams
@@ -225,7 +225,7 @@ func resourceOrganizationalUnitUpdate(ctx context.Context, d *schema.ResourceDat
 
 func buildUpdateOrganizationalUnitBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name": utils.ValueIngoreEmpty(d.Get("name")),
+		"name": utils.ValueIgnoreEmpty(d.Get("name")),
 	}
 	return bodyParams
 }

@@ -123,7 +123,7 @@ func resourceSecurityDataSecrecyLevelCreate(ctx context.Context, d *schema.Resou
 func buildCreateDataSecrecyLevelBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"name":        d.Get("name"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 }
 

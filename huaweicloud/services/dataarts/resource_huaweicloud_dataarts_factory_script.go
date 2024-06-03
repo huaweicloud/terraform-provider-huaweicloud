@@ -276,13 +276,13 @@ func buildCreateOrUpdateScriptBodyParams(d *schema.ResourceData) map[string]inte
 		"type":           d.Get("type"),
 		"content":        d.Get("content"),
 		"connectionName": d.Get("connection_name"),
-		"directory":      utils.ValueIngoreEmpty(d.Get("directory")),
-		"database":       utils.ValueIngoreEmpty(d.Get("database")),
-		"queueName":      utils.ValueIngoreEmpty(d.Get("queue_name")),
-		"configuration":  utils.ValueIngoreEmpty(d.Get("configuration")),
-		"description":    utils.ValueIngoreEmpty(d.Get("description")),
-		"targetStatus":   utils.ValueIngoreEmpty(d.Get("target_status")),
-		"approvers":      utils.ValueIngoreEmpty(d.Get("approvers")),
+		"directory":      utils.ValueIgnoreEmpty(d.Get("directory")),
+		"database":       utils.ValueIgnoreEmpty(d.Get("database")),
+		"queueName":      utils.ValueIgnoreEmpty(d.Get("queue_name")),
+		"configuration":  utils.ValueIgnoreEmpty(d.Get("configuration")),
+		"description":    utils.ValueIgnoreEmpty(d.Get("description")),
+		"targetStatus":   utils.ValueIgnoreEmpty(d.Get("target_status")),
+		"approvers":      utils.ValueIgnoreEmpty(d.Get("approvers")),
 	}
 }
 

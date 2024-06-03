@@ -381,8 +381,8 @@ func buildCreatePrivateCABodyParams(d *schema.ResourceData, cfg *config.Config) 
 		"key_algorithm":         d.Get("key_algorithm"),
 		"signature_algorithm":   d.Get("signature_algorithm"),
 		"validity":              buildPrivateCARequestBodyValidity(d.Get("validity")),
-		"issuer_id":             utils.ValueIngoreEmpty(d.Get("issuer_id")),
-		"path_length":           utils.ValueIngoreEmpty(d.Get("path_length")),
+		"issuer_id":             utils.ValueIgnoreEmpty(d.Get("issuer_id")),
+		"path_length":           utils.ValueIgnoreEmpty(d.Get("path_length")),
 		"key_usages":            buildPrivateCARequestBodyKeyUsages(d.Get("type"), d.Get("key_usages")),
 		"crl_configuration":     buildPrivateCARequestBodyCrlConfiguration(d.Get("crl_configuration")),
 		"enterprise_project_id": cfg.GetEnterpriseProjectID(d),
@@ -410,7 +410,7 @@ func buildPrivateCARequestBodyValidity(rawParams interface{}) map[string]interfa
 	params := map[string]interface{}{
 		"type":       raw["type"],
 		"value":      raw["value"],
-		"start_from": utils.ValueIngoreEmpty(raw["started_at"]),
+		"start_from": utils.ValueIgnoreEmpty(raw["started_at"]),
 	}
 	return params
 }

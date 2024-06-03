@@ -136,10 +136,10 @@ func resourceParameterTemplateCreate(ctx context.Context, d *schema.ResourceData
 
 func buildCreateParameterTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":             utils.ValueIngoreEmpty(d.Get("name")),
-		"description":      utils.ValueIngoreEmpty(d.Get("description")),
+		"name":             utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
 		"datastore":        buildCreateParameterTemplateDatastoreChildBody(d),
-		"parameter_values": utils.ValueIngoreEmpty(d.Get("parameter_values")),
+		"parameter_values": utils.ValueIgnoreEmpty(d.Get("parameter_values")),
 	}
 	return bodyParams
 }
@@ -150,8 +150,8 @@ func buildCreateParameterTemplateDatastoreChildBody(d *schema.ResourceData) map[
 		return nil
 	}
 	params := map[string]interface{}{
-		"type":    utils.ValueIngoreEmpty(datastoreEngine),
-		"version": utils.ValueIngoreEmpty(d.Get("datastore_version")),
+		"type":    utils.ValueIgnoreEmpty(datastoreEngine),
+		"version": utils.ValueIgnoreEmpty(d.Get("datastore_version")),
 	}
 	return params
 }
@@ -265,9 +265,9 @@ func resourceParameterTemplateUpdate(ctx context.Context, d *schema.ResourceData
 
 func buildUpdateParameterTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":             utils.ValueIngoreEmpty(d.Get("name")),
-		"description":      utils.ValueIngoreEmpty(d.Get("description")),
-		"parameter_values": utils.ValueIngoreEmpty(d.Get("parameter_values")),
+		"name":             utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
+		"parameter_values": utils.ValueIgnoreEmpty(d.Get("parameter_values")),
 	}
 	return bodyParams
 }

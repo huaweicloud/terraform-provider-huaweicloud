@@ -136,23 +136,23 @@ func resourceLiveSnapshotCreate(ctx context.Context, d *schema.ResourceData, met
 
 func buildCreateLiveSnapshotBodyParams(d *schema.ResourceData, region string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"domain":            utils.ValueIngoreEmpty(d.Get("domain_name")),
-		"app_name":          utils.ValueIngoreEmpty(d.Get("app_name")),
-		"time_interval":     utils.ValueIngoreEmpty(d.Get("frequency")),
-		"object_write_mode": utils.ValueIngoreEmpty(d.Get("storage_mode")),
+		"domain":            utils.ValueIgnoreEmpty(d.Get("domain_name")),
+		"app_name":          utils.ValueIgnoreEmpty(d.Get("app_name")),
+		"time_interval":     utils.ValueIgnoreEmpty(d.Get("frequency")),
+		"object_write_mode": utils.ValueIgnoreEmpty(d.Get("storage_mode")),
 		"obs_location":      buildLiveSnapshotObsLocationChildBody(d, region),
-		"call_back_enable":  utils.ValueIngoreEmpty(d.Get("call_back_enabled")),
-		"call_back_url":     utils.ValueIngoreEmpty(d.Get("call_back_url")),
-		"auth_key":          utils.ValueIngoreEmpty(d.Get("call_back_auth_key")),
+		"call_back_enable":  utils.ValueIgnoreEmpty(d.Get("call_back_enabled")),
+		"call_back_url":     utils.ValueIgnoreEmpty(d.Get("call_back_url")),
+		"auth_key":          utils.ValueIgnoreEmpty(d.Get("call_back_auth_key")),
 	}
 	return bodyParams
 }
 
 func buildLiveSnapshotObsLocationChildBody(d *schema.ResourceData, region string) map[string]interface{} {
 	params := map[string]interface{}{
-		"bucket":   utils.ValueIngoreEmpty(d.Get("storage_bucket")),
+		"bucket":   utils.ValueIgnoreEmpty(d.Get("storage_bucket")),
 		"location": region,
-		"object":   utils.ValueIngoreEmpty(d.Get("storage_path")),
+		"object":   utils.ValueIgnoreEmpty(d.Get("storage_path")),
 	}
 	return params
 }
@@ -275,14 +275,14 @@ func resourceLiveSnapshotUpdate(ctx context.Context, d *schema.ResourceData, met
 
 func buildUpdateLiveSnapshotBodyParams(d *schema.ResourceData, region string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"domain":            utils.ValueIngoreEmpty(d.Get("domain_name")),
-		"app_name":          utils.ValueIngoreEmpty(d.Get("app_name")),
-		"time_interval":     utils.ValueIngoreEmpty(d.Get("frequency")),
-		"object_write_mode": utils.ValueIngoreEmpty(d.Get("storage_mode")),
+		"domain":            utils.ValueIgnoreEmpty(d.Get("domain_name")),
+		"app_name":          utils.ValueIgnoreEmpty(d.Get("app_name")),
+		"time_interval":     utils.ValueIgnoreEmpty(d.Get("frequency")),
+		"object_write_mode": utils.ValueIgnoreEmpty(d.Get("storage_mode")),
 		"obs_location":      buildLiveSnapshotObsLocationChildBody(d, region),
-		"call_back_enable":  utils.ValueIngoreEmpty(d.Get("call_back_enabled")),
-		"call_back_url":     utils.ValueIngoreEmpty(d.Get("call_back_url")),
-		"auth_key":          utils.ValueIngoreEmpty(d.Get("call_back_auth_key")),
+		"call_back_enable":  utils.ValueIgnoreEmpty(d.Get("call_back_enabled")),
+		"call_back_url":     utils.ValueIgnoreEmpty(d.Get("call_back_url")),
+		"auth_key":          utils.ValueIgnoreEmpty(d.Get("call_back_auth_key")),
 	}
 	return bodyParams
 }

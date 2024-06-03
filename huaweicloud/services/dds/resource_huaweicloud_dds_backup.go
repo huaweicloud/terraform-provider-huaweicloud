@@ -233,9 +233,9 @@ func resourceDdsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 func buildCreateBackupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"instance_id": utils.ValueIngoreEmpty(d.Get("instance_id")),
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"instance_id": utils.ValueIgnoreEmpty(d.Get("instance_id")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	params := map[string]interface{}{
 		"backup": bodyParams,

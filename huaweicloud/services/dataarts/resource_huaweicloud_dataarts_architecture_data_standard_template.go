@@ -260,9 +260,9 @@ func buildCreateDataStandardTemplateRequestBodyCustomField(rawParams interface{}
 				rst = append(rst, map[string]interface{}{
 					"fd_name":         raw["fd_name"],
 					"actived":         true,
-					"optional_values": utils.ValueIngoreEmpty(raw["optional_values"]),
-					"required":        utils.ValueIngoreEmpty(raw["required"]),
-					"searchable":      utils.ValueIngoreEmpty(raw["searchable"]),
+					"optional_values": utils.ValueIgnoreEmpty(raw["optional_values"]),
+					"required":        utils.ValueIgnoreEmpty(raw["required"]),
+					"searchable":      utils.ValueIgnoreEmpty(raw["searchable"]),
 				})
 			}
 		}

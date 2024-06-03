@@ -127,11 +127,11 @@ func buildCreateTrafficMirrorSessionBodyParams(d *schema.ResourceData) map[strin
 			"traffic_mirror_sources":     d.Get("traffic_mirror_sources"),
 			"traffic_mirror_target_id":   d.Get("traffic_mirror_target_id"),
 			"traffic_mirror_target_type": d.Get("traffic_mirror_target_type"),
-			"virtual_network_id":         utils.ValueIngoreEmpty(d.Get("virtual_network_id")),
-			"packet_length":              utils.ValueIngoreEmpty(d.Get("packet_length")),
-			"priority":                   utils.ValueIngoreEmpty(d.Get("priority")),
-			"enabled":                    utils.ValueIngoreEmpty(d.Get("enabled")),
-			"type":                       utils.ValueIngoreEmpty(d.Get("type")),
+			"virtual_network_id":         utils.ValueIgnoreEmpty(d.Get("virtual_network_id")),
+			"packet_length":              utils.ValueIgnoreEmpty(d.Get("packet_length")),
+			"priority":                   utils.ValueIgnoreEmpty(d.Get("priority")),
+			"enabled":                    utils.ValueIgnoreEmpty(d.Get("enabled")),
+			"type":                       utils.ValueIgnoreEmpty(d.Get("type")),
 		},
 	}
 	return bodyParams

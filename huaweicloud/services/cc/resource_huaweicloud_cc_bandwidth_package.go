@@ -196,20 +196,20 @@ func buildCreateBandwidthPackageBodyParams(d *schema.ResourceData, cfg *config.C
 	}
 	bodyParams := map[string]interface{}{
 		"bandwidth_package": map[string]interface{}{
-			"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-			"description":           utils.ValueIngoreEmpty(d.Get("description")),
-			"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
-			"local_area_id":         utils.ValueIngoreEmpty(d.Get("local_area_id")),
-			"remote_area_id":        utils.ValueIngoreEmpty(d.Get("remote_area_id")),
-			"charge_mode":           utils.ValueIngoreEmpty(d.Get("charge_mode")),
-			"billing_mode":          utils.ValueIngoreEmpty(d.Get("billing_mode")),
-			"bandwidth":             utils.ValueIngoreEmpty(d.Get("bandwidth")),
+			"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+			"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			"local_area_id":         utils.ValueIgnoreEmpty(d.Get("local_area_id")),
+			"remote_area_id":        utils.ValueIgnoreEmpty(d.Get("remote_area_id")),
+			"charge_mode":           utils.ValueIgnoreEmpty(d.Get("charge_mode")),
+			"billing_mode":          utils.ValueIgnoreEmpty(d.Get("billing_mode")),
+			"bandwidth":             utils.ValueIgnoreEmpty(d.Get("bandwidth")),
 			"project_id":            projectId,
-			"resource_id":           utils.ValueIngoreEmpty(d.Get("resource_id")),
-			"resource_type":         utils.ValueIngoreEmpty(d.Get("resource_type")),
+			"resource_id":           utils.ValueIgnoreEmpty(d.Get("resource_id")),
+			"resource_type":         utils.ValueIgnoreEmpty(d.Get("resource_type")),
 			"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
-			"interflow_mode":        utils.ValueIngoreEmpty(d.Get("interflow_mode")),
-			"spec_code":             utils.ValueIngoreEmpty(d.Get("spec_code")),
+			"interflow_mode":        utils.ValueIgnoreEmpty(d.Get("interflow_mode")),
+			"spec_code":             utils.ValueIgnoreEmpty(d.Get("spec_code")),
 		},
 	}
 
@@ -374,8 +374,8 @@ func associateBandwidthPackage(client *golangsdk.ServiceClient, domainId, id, re
 
 	bodyParams := map[string]interface{}{
 		"bandwidth_package": map[string]interface{}{
-			"resource_id":   utils.ValueIngoreEmpty(resourceId),
-			"resource_type": utils.ValueIngoreEmpty(resourceType),
+			"resource_id":   utils.ValueIgnoreEmpty(resourceId),
+			"resource_type": utils.ValueIgnoreEmpty(resourceType),
 		},
 	}
 
@@ -408,8 +408,8 @@ func disassociateBandwidthPackage(client *golangsdk.ServiceClient, domainId, id,
 
 	bodyParams := map[string]interface{}{
 		"bandwidth_package": map[string]interface{}{
-			"resource_id":   utils.ValueIngoreEmpty(resourceId),
-			"resource_type": utils.ValueIngoreEmpty(resourceType),
+			"resource_id":   utils.ValueIgnoreEmpty(resourceId),
+			"resource_type": utils.ValueIgnoreEmpty(resourceType),
 		},
 	}
 
@@ -491,9 +491,9 @@ func updateBandwidthPackageTags(client *golangsdk.ServiceClient, d *schema.Resou
 func buildUpdateBandwidthPackageBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"bandwidth_package": map[string]interface{}{
-			"name":        utils.ValueIngoreEmpty(d.Get("name")),
-			"description": utils.ValueIngoreEmpty(d.Get("description")),
-			"bandwidth":   utils.ValueIngoreEmpty(d.Get("bandwidth")),
+			"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+			"description": utils.ValueIgnoreEmpty(d.Get("description")),
+			"bandwidth":   utils.ValueIgnoreEmpty(d.Get("bandwidth")),
 		},
 	}
 	return bodyParams
@@ -502,7 +502,7 @@ func buildUpdateBandwidthPackageBodyParams(d *schema.ResourceData) map[string]in
 func buildUpdateBandwidthPackageBillingModeParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"bandwidth_package": map[string]interface{}{
-			"billing_mode": utils.ValueIngoreEmpty(d.Get("billing_mode")),
+			"billing_mode": utils.ValueIgnoreEmpty(d.Get("billing_mode")),
 		},
 	}
 	return bodyParams

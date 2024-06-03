@@ -175,12 +175,12 @@ func resourceDmsKafkaUserClientQuotaCreate(ctx context.Context, d *schema.Resour
 
 func buildKafkaUserClientQuotaBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"user":               utils.ValueIngoreEmpty(d.Get("user")),
-		"user-default":       utils.ValueIngoreEmpty(d.Get("user_default")),
-		"client":             utils.ValueIngoreEmpty(d.Get("client")),
-		"client-default":     utils.ValueIngoreEmpty(d.Get("client_default")),
-		"producer-byte-rate": utils.ValueIngoreEmpty(d.Get("producer_byte_rate")),
-		"consumer-byte-rate": utils.ValueIngoreEmpty(d.Get("consumer_byte_rate")),
+		"user":               utils.ValueIgnoreEmpty(d.Get("user")),
+		"user-default":       utils.ValueIgnoreEmpty(d.Get("user_default")),
+		"client":             utils.ValueIgnoreEmpty(d.Get("client")),
+		"client-default":     utils.ValueIgnoreEmpty(d.Get("client_default")),
+		"producer-byte-rate": utils.ValueIgnoreEmpty(d.Get("producer_byte_rate")),
+		"consumer-byte-rate": utils.ValueIgnoreEmpty(d.Get("consumer_byte_rate")),
 	}
 	return bodyParams
 }

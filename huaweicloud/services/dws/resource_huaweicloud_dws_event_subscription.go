@@ -148,16 +148,16 @@ func resourceDwsEventSubsCreate(ctx context.Context, d *schema.ResourceData, met
 
 func buildCreateDwsEventSubsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":                     utils.ValueIngoreEmpty(d.Get("name")),
-		"source_id":                utils.ValueIngoreEmpty(d.Get("source_id")),
-		"source_type":              utils.ValueIngoreEmpty(d.Get("source_type")),
-		"category":                 utils.ValueIngoreEmpty(d.Get("category")),
-		"severity":                 utils.ValueIngoreEmpty(d.Get("severity")),
+		"name":                     utils.ValueIgnoreEmpty(d.Get("name")),
+		"source_id":                utils.ValueIgnoreEmpty(d.Get("source_id")),
+		"source_type":              utils.ValueIgnoreEmpty(d.Get("source_type")),
+		"category":                 utils.ValueIgnoreEmpty(d.Get("category")),
+		"severity":                 utils.ValueIgnoreEmpty(d.Get("severity")),
 		"enable":                   utils.StringToInt(utils.String(d.Get("enable").(string))),
-		"notification_target":      utils.ValueIngoreEmpty(d.Get("notification_target")),
-		"notification_target_name": utils.ValueIngoreEmpty(d.Get("notification_target_name")),
-		"notification_target_type": utils.ValueIngoreEmpty(d.Get("notification_target_type")),
-		"time_zone":                utils.ValueIngoreEmpty(d.Get("time_zone")),
+		"notification_target":      utils.ValueIgnoreEmpty(d.Get("notification_target")),
+		"notification_target_name": utils.ValueIgnoreEmpty(d.Get("notification_target_name")),
+		"notification_target_type": utils.ValueIgnoreEmpty(d.Get("notification_target_type")),
+		"time_zone":                utils.ValueIgnoreEmpty(d.Get("time_zone")),
 	}
 	return bodyParams
 }
@@ -271,15 +271,15 @@ func resourceDwsEventSubsUpdate(ctx context.Context, d *schema.ResourceData, met
 
 func buildUpdateDwsEventSubsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":                     utils.ValueIngoreEmpty(d.Get("name")),
-		"source_id":                utils.ValueIngoreEmpty(d.Get("source_id")),
-		"source_type":              utils.ValueIngoreEmpty(d.Get("source_type")),
-		"category":                 utils.ValueIngoreEmpty(d.Get("category")),
-		"severity":                 utils.ValueIngoreEmpty(d.Get("severity")),
+		"name":                     utils.ValueIgnoreEmpty(d.Get("name")),
+		"source_id":                utils.ValueIgnoreEmpty(d.Get("source_id")),
+		"source_type":              utils.ValueIgnoreEmpty(d.Get("source_type")),
+		"category":                 utils.ValueIgnoreEmpty(d.Get("category")),
+		"severity":                 utils.ValueIgnoreEmpty(d.Get("severity")),
 		"enable":                   utils.StringToInt(utils.String(d.Get("enable").(string))),
-		"notification_target":      utils.ValueIngoreEmpty(d.Get("notification_target")),
-		"notification_target_name": utils.ValueIngoreEmpty(d.Get("notification_target_name")),
-		"notification_target_type": utils.ValueIngoreEmpty(d.Get("notification_target_type")),
+		"notification_target":      utils.ValueIgnoreEmpty(d.Get("notification_target")),
+		"notification_target_name": utils.ValueIgnoreEmpty(d.Get("notification_target_name")),
+		"notification_target_type": utils.ValueIgnoreEmpty(d.Get("notification_target_type")),
 	}
 	return bodyParams
 }

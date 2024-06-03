@@ -150,9 +150,9 @@ func buildCreatePermissionSetBodyParams(d *schema.ResourceData) map[string]inter
 		"name":         d.Get("name"),
 		"parent_id":    d.Get("parent_id"),
 		"manager_id":   d.Get("manager_id"),
-		"manager_name": utils.ValueIngoreEmpty(d.Get("manager_name")),
-		"manager_type": utils.ValueIngoreEmpty(d.Get("manager_type")),
-		"description":  utils.ValueIngoreEmpty(d.Get("description")),
+		"manager_name": utils.ValueIgnoreEmpty(d.Get("manager_name")),
+		"manager_type": utils.ValueIgnoreEmpty(d.Get("manager_type")),
+		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -255,9 +255,9 @@ func buildUpdatePermissionSetBodyParams(d *schema.ResourceData) map[string]inter
 	bodyParams := map[string]interface{}{
 		"name":         d.Get("name"),
 		"manager_id":   d.Get("manager_id"),
-		"manager_name": utils.ValueIngoreEmpty(d.Get("manager_name")),
-		"manager_type": utils.ValueIngoreEmpty(d.Get("manager_type")),
-		"description":  utils.ValueIngoreEmpty(d.Get("description")),
+		"manager_name": utils.ValueIgnoreEmpty(d.Get("manager_name")),
+		"manager_type": utils.ValueIgnoreEmpty(d.Get("manager_type")),
+		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

@@ -168,9 +168,9 @@ func buildCreateCloudConnectionBodyParams(d *schema.ResourceData, conf *config.C
 
 func buildCreateCloudConnectionCloudConnectionChildBody(d *schema.ResourceData, conf *config.Config) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, conf)),
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, conf)),
 	}
 	return params
 }
@@ -299,8 +299,8 @@ func buildUpdateCloudConnectionBodyParams(d *schema.ResourceData) map[string]int
 
 func buildUpdateCloudConnectionCloudConnectionChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return params
 }

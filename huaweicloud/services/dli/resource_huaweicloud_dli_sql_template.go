@@ -123,10 +123,10 @@ func resourceSQLTemplateCreate(ctx context.Context, d *schema.ResourceData, meta
 
 func buildSQLTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"sql_name":    utils.ValueIngoreEmpty(d.Get("name")),
-		"sql":         utils.ValueIngoreEmpty(d.Get("sql")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"group":       utils.ValueIngoreEmpty(d.Get("group")),
+		"sql_name":    utils.ValueIgnoreEmpty(d.Get("name")),
+		"sql":         utils.ValueIgnoreEmpty(d.Get("sql")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"group":       utils.ValueIgnoreEmpty(d.Get("group")),
 	}
 	return bodyParams
 }

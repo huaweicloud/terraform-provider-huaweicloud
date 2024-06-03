@@ -266,19 +266,19 @@ func resourceIncidentCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 func buildIncidentBodyParams(d *schema.ResourceData, cfg *config.Config) (map[string]interface{}, error) {
 	dataObject := map[string]interface{}{
-		"title":              utils.ValueIngoreEmpty(d.Get("name")),
-		"description":        utils.ValueIngoreEmpty(d.Get("description")),
+		"title":              utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":        utils.ValueIgnoreEmpty(d.Get("description")),
 		"incident_type":      buildIncidentRequestBodyType(d.Get("type")),
-		"severity":           utils.ValueIngoreEmpty(d.Get("level")),
-		"handle_status":      utils.ValueIngoreEmpty(d.Get("status")),
-		"owner":              utils.ValueIngoreEmpty(d.Get("owner")),
+		"severity":           utils.ValueIgnoreEmpty(d.Get("level")),
+		"handle_status":      utils.ValueIgnoreEmpty(d.Get("status")),
+		"owner":              utils.ValueIgnoreEmpty(d.Get("owner")),
 		"data_source":        buildIncidentRequestBodyDataSource(d, cfg),
-		"verification_state": utils.ValueIngoreEmpty(d.Get("verification_status")),
-		"ipdrr_phase":        utils.ValueIngoreEmpty(d.Get("stage")),
-		"simulation":         utils.ValueIngoreEmpty(d.Get("debugging_data")),
-		"labels":             utils.ValueIngoreEmpty(d.Get("labels")),
-		"close_reason":       utils.ValueIngoreEmpty(d.Get("close_reason")),
-		"close_comment":      utils.ValueIngoreEmpty(d.Get("close_comment")),
+		"verification_state": utils.ValueIgnoreEmpty(d.Get("verification_status")),
+		"ipdrr_phase":        utils.ValueIgnoreEmpty(d.Get("stage")),
+		"simulation":         utils.ValueIgnoreEmpty(d.Get("debugging_data")),
+		"labels":             utils.ValueIgnoreEmpty(d.Get("labels")),
+		"close_reason":       utils.ValueIgnoreEmpty(d.Get("close_reason")),
+		"close_comment":      utils.ValueIgnoreEmpty(d.Get("close_comment")),
 		"environment":        buildEnvironmentOpts(d, cfg),
 		"domain_id":          cfg.DomainID,
 		"region_id":          cfg.GetRegion(d),
@@ -337,8 +337,8 @@ func buildIncidentRequestBodyType(rawParams interface{}) map[string]interface{} 
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"category":      utils.ValueIngoreEmpty(raw["category"]),
-			"incident_type": utils.ValueIngoreEmpty(raw["incident_type"]),
+			"category":      utils.ValueIgnoreEmpty(raw["category"]),
+			"incident_type": utils.ValueIgnoreEmpty(raw["incident_type"]),
 		}
 		return params
 	}
@@ -362,9 +362,9 @@ func buildIncidentRequestBodyDataSource(d *schema.ResourceData, cfg *config.Conf
 		"domain_id":       cfg.DomainID,
 		"project_id":      cfg.GetProjectID(region),
 		"region_id":       region,
-		"product_feature": utils.ValueIngoreEmpty(raw["product_feature"]),
-		"product_name":    utils.ValueIngoreEmpty(raw["product_name"]),
-		"source_type":     utils.ValueIngoreEmpty(raw["source_type"]),
+		"product_feature": utils.ValueIgnoreEmpty(raw["product_feature"]),
+		"product_name":    utils.ValueIgnoreEmpty(raw["product_name"]),
+		"source_type":     utils.ValueIgnoreEmpty(raw["source_type"]),
 	}
 	return params
 }
@@ -591,7 +591,7 @@ func resourceIncidentDelete(_ context.Context, d *schema.ResourceData, meta inte
 
 func buildDeleteIncidentBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"batch_ids": utils.ValueIngoreEmpty(d.Id()),
+		"batch_ids": utils.ValueIgnoreEmpty(d.Id()),
 	}
 	return bodyParams
 }

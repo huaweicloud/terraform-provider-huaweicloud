@@ -153,8 +153,8 @@ func resourceCNADAdvancedPolicyCreate(ctx context.Context, d *schema.ResourceDat
 
 func buildCreatePolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"package_id": utils.ValueIngoreEmpty(d.Get("instance_id")),
-		"name":       utils.ValueIngoreEmpty(d.Get("name")),
+		"package_id": utils.ValueIgnoreEmpty(d.Get("instance_id")),
+		"name":       utils.ValueIgnoreEmpty(d.Get("name")),
 	}
 	return bodyParams
 }
@@ -241,9 +241,9 @@ func updatePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData) error
 
 func buildUpdatePolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":      utils.ValueIngoreEmpty(d.Get("name")),
-		"threshold": utils.ValueIngoreEmpty(d.Get("threshold")),
-		"udp":       utils.ValueIngoreEmpty(d.Get("udp")),
+		"name":      utils.ValueIgnoreEmpty(d.Get("name")),
+		"threshold": utils.ValueIgnoreEmpty(d.Get("threshold")),
+		"udp":       utils.ValueIgnoreEmpty(d.Get("udp")),
 	}
 	return bodyParams
 }

@@ -206,9 +206,9 @@ func accountStateRefreshFunc(client *golangsdk.ServiceClient, accountStatusId st
 func buildCreateAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":        d.Get("name"),
-		"email":       utils.ValueIngoreEmpty(d.Get("email")),
-		"phone":       utils.ValueIngoreEmpty(d.Get("phone")),
-		"agency_name": utils.ValueIngoreEmpty(d.Get("agency_name")),
+		"email":       utils.ValueIgnoreEmpty(d.Get("email")),
+		"phone":       utils.ValueIgnoreEmpty(d.Get("phone")),
+		"agency_name": utils.ValueIgnoreEmpty(d.Get("agency_name")),
 		"tags":        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	return bodyParams

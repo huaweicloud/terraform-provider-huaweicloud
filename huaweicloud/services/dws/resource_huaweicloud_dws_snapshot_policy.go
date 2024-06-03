@@ -143,10 +143,10 @@ func buildCreateDwsSnapshotPolicyBodyParams(d *schema.ResourceData) map[string]i
 	bodyParams := map[string]interface{}{
 		"backup_strategies": []map[string]interface{}{
 			{
-				"policy_name":     utils.ValueIngoreEmpty(d.Get("name")),
-				"cluster_id":      utils.ValueIngoreEmpty(d.Get("cluster_id")),
-				"backup_type":     utils.ValueIngoreEmpty(d.Get("type")),
-				"backup_strategy": utils.ValueIngoreEmpty(d.Get("strategy")),
+				"policy_name":     utils.ValueIgnoreEmpty(d.Get("name")),
+				"cluster_id":      utils.ValueIgnoreEmpty(d.Get("cluster_id")),
+				"backup_type":     utils.ValueIgnoreEmpty(d.Get("type")),
+				"backup_strategy": utils.ValueIgnoreEmpty(d.Get("strategy")),
 				"backup_level":    "cluster",
 			},
 		},

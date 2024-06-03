@@ -130,7 +130,7 @@ func resourceDcsRestoreCreate(ctx context.Context, d *schema.ResourceData, meta 
 func buildCreateRestoreBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"backup_id": d.Get("backup_id"),
-		"remark":    utils.ValueIngoreEmpty(d.Get("description")),
+		"remark":    utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

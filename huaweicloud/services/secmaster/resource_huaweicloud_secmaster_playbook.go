@@ -185,8 +185,8 @@ func resourcePlaybookCreate(ctx context.Context, d *schema.ResourceData, meta in
 func buildCreatePlaybookBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":        d.Get("name"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"enabled":     utils.ValueIngoreEmpty(d.Get("enabled")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"enabled":     utils.ValueIgnoreEmpty(d.Get("enabled")),
 	}
 	return bodyParams
 }
@@ -321,10 +321,10 @@ func resourcePlaybookUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 func buildUpdatePlaybookBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":              utils.ValueIngoreEmpty(d.Get("name")),
+		"name":              utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":       d.Get("description"),
-		"enabled":           utils.ValueIngoreEmpty(d.Get("enabled")),
-		"active_version_id": utils.ValueIngoreEmpty(d.Get("active_version_id")),
+		"enabled":           utils.ValueIgnoreEmpty(d.Get("enabled")),
+		"active_version_id": utils.ValueIgnoreEmpty(d.Get("active_version_id")),
 	}
 	return bodyParams
 }

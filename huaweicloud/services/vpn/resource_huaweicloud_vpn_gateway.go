@@ -512,12 +512,12 @@ func buildCreateGatewayCertificateBodyParams(certificateContent interface{}) map
 	certificateMap := certificateContent.(map[string]interface{})
 	bodyParams := map[string]interface{}{
 		"certificate": map[string]interface{}{
-			"name":              utils.ValueIngoreEmpty(certificateMap["name"].(string)),
-			"certificate":       utils.ValueIngoreEmpty(certificateMap["content"].(string)),
-			"private_key":       utils.ValueIngoreEmpty(certificateMap["private_key"].(string)),
-			"certificate_chain": utils.ValueIngoreEmpty(certificateMap["certificate_chain"].(string)),
-			"enc_certificate":   utils.ValueIngoreEmpty(certificateMap["enc_certificate"].(string)),
-			"enc_private_key":   utils.ValueIngoreEmpty(certificateMap["enc_private_key"].(string)),
+			"name":              utils.ValueIgnoreEmpty(certificateMap["name"].(string)),
+			"certificate":       utils.ValueIgnoreEmpty(certificateMap["content"].(string)),
+			"private_key":       utils.ValueIgnoreEmpty(certificateMap["private_key"].(string)),
+			"certificate_chain": utils.ValueIgnoreEmpty(certificateMap["certificate_chain"].(string)),
+			"enc_certificate":   utils.ValueIgnoreEmpty(certificateMap["enc_certificate"].(string)),
+			"enc_private_key":   utils.ValueIgnoreEmpty(certificateMap["enc_private_key"].(string)),
 		},
 	}
 	return bodyParams
@@ -540,27 +540,27 @@ func buildCreateGatewayVpnGatewayChildBody(d *schema.ResourceData, cfg *config.C
 		haMode = "active-standby"
 	}
 	params := map[string]interface{}{
-		"attachment_type":       utils.ValueIngoreEmpty(d.Get("attachment_type")),
-		"availability_zone_ids": utils.ValueIngoreEmpty(d.Get("availability_zones")),
-		"bgp_asn":               utils.ValueIngoreEmpty(d.Get("asn")),
-		"connect_subnet":        utils.ValueIngoreEmpty(d.Get("connect_subnet")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
-		"flavor":                utils.ValueIngoreEmpty(d.Get("flavor")),
-		"local_subnets":         utils.ValueIngoreEmpty(d.Get("local_subnets")),
-		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-		"vpc_id":                utils.ValueIngoreEmpty(d.Get("vpc_id")),
-		"ha_mode":               utils.ValueIngoreEmpty(haMode),
+		"attachment_type":       utils.ValueIgnoreEmpty(d.Get("attachment_type")),
+		"availability_zone_ids": utils.ValueIgnoreEmpty(d.Get("availability_zones")),
+		"bgp_asn":               utils.ValueIgnoreEmpty(d.Get("asn")),
+		"connect_subnet":        utils.ValueIgnoreEmpty(d.Get("connect_subnet")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"flavor":                utils.ValueIgnoreEmpty(d.Get("flavor")),
+		"local_subnets":         utils.ValueIgnoreEmpty(d.Get("local_subnets")),
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"vpc_id":                utils.ValueIgnoreEmpty(d.Get("vpc_id")),
+		"ha_mode":               utils.ValueIgnoreEmpty(haMode),
 		"eip1":                  buildCreateGatewayEIPChildBody(d, "eip1"),
 		"master_eip":            masterEIP,
 		"eip2":                  buildCreateGatewayEIPChildBody(d, "eip2"),
 		"slave_eip":             slaveEIP,
-		"access_vpc_id":         utils.ValueIngoreEmpty(d.Get("access_vpc_id")),
-		"access_subnet_id":      utils.ValueIngoreEmpty(d.Get("access_subnet_id")),
-		"er_id":                 utils.ValueIngoreEmpty(d.Get("er_id")),
-		"network_type":          utils.ValueIngoreEmpty(d.Get("network_type")),
-		"access_private_ip_1":   utils.ValueIngoreEmpty(d.Get("access_private_ip_1")),
-		"access_private_ip_2":   utils.ValueIngoreEmpty(d.Get("access_private_ip_2")),
-		"tags":                  utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+		"access_vpc_id":         utils.ValueIgnoreEmpty(d.Get("access_vpc_id")),
+		"access_subnet_id":      utils.ValueIgnoreEmpty(d.Get("access_subnet_id")),
+		"er_id":                 utils.ValueIgnoreEmpty(d.Get("er_id")),
+		"network_type":          utils.ValueIgnoreEmpty(d.Get("network_type")),
+		"access_private_ip_1":   utils.ValueIgnoreEmpty(d.Get("access_private_ip_1")),
+		"access_private_ip_2":   utils.ValueIgnoreEmpty(d.Get("access_private_ip_2")),
+		"tags":                  utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 
 	return params
@@ -578,11 +578,11 @@ func buildCreateGatewayEIPChildBody(d *schema.ResourceData, param string) map[st
 		}
 
 		params := map[string]interface{}{
-			"bandwidth_name": utils.ValueIngoreEmpty(raw["bandwidth_name"]),
-			"bandwidth_size": utils.ValueIngoreEmpty(raw["bandwidth_size"]),
-			"charge_mode":    utils.ValueIngoreEmpty(raw["charge_mode"]),
-			"id":             utils.ValueIngoreEmpty(raw["id"]),
-			"type":           utils.ValueIngoreEmpty(raw["type"]),
+			"bandwidth_name": utils.ValueIgnoreEmpty(raw["bandwidth_name"]),
+			"bandwidth_size": utils.ValueIgnoreEmpty(raw["bandwidth_size"]),
+			"charge_mode":    utils.ValueIgnoreEmpty(raw["charge_mode"]),
+			"id":             utils.ValueIgnoreEmpty(raw["id"]),
+			"type":           utils.ValueIgnoreEmpty(raw["type"]),
 		}
 		return params
 	}
@@ -961,12 +961,12 @@ func buildUpdateGatewayCertificateBodyParams(certificateContent interface{}) map
 	certificateMap := certificateContent.(map[string]interface{})
 	return map[string]interface{}{
 		"certificate": map[string]interface{}{
-			"name":              utils.ValueIngoreEmpty(certificateMap["name"].(string)),
-			"certificate":       utils.ValueIngoreEmpty(certificateMap["content"].(string)),
-			"private_key":       utils.ValueIngoreEmpty(certificateMap["private_key"].(string)),
-			"certificate_chain": utils.ValueIngoreEmpty(certificateMap["certificate_chain"].(string)),
-			"enc_certificate":   utils.ValueIngoreEmpty(certificateMap["enc_certificate"].(string)),
-			"enc_private_key":   utils.ValueIngoreEmpty(certificateMap["enc_private_key"].(string)),
+			"name":              utils.ValueIgnoreEmpty(certificateMap["name"].(string)),
+			"certificate":       utils.ValueIgnoreEmpty(certificateMap["content"].(string)),
+			"private_key":       utils.ValueIgnoreEmpty(certificateMap["private_key"].(string)),
+			"certificate_chain": utils.ValueIgnoreEmpty(certificateMap["certificate_chain"].(string)),
+			"enc_certificate":   utils.ValueIgnoreEmpty(certificateMap["enc_certificate"].(string)),
+			"enc_private_key":   utils.ValueIgnoreEmpty(certificateMap["enc_private_key"].(string)),
 		},
 	}
 }
@@ -980,8 +980,8 @@ func buildUpdateGatewayBodyParams(d *schema.ResourceData) map[string]interface{}
 
 func buildUpdateGatewayVpnGatewayChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"local_subnets": utils.ValueIngoreEmpty(d.Get("local_subnets")),
-		"name":          utils.ValueIngoreEmpty(d.Get("name")),
+		"local_subnets": utils.ValueIgnoreEmpty(d.Get("local_subnets")),
+		"name":          utils.ValueIgnoreEmpty(d.Get("name")),
 	}
 	return params
 }

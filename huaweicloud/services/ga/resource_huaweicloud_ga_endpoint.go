@@ -166,10 +166,10 @@ func resourceEndpointCreate(ctx context.Context, d *schema.ResourceData, meta in
 func buildCreateEndpointBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"endpoint": map[string]interface{}{
-			"ip_address":    utils.ValueIngoreEmpty(d.Get("ip_address")),
-			"resource_id":   utils.ValueIngoreEmpty(d.Get("resource_id")),
-			"resource_type": utils.ValueIngoreEmpty(d.Get("resource_type")),
-			"weight":        utils.ValueIngoreEmpty(d.Get("weight")),
+			"ip_address":    utils.ValueIgnoreEmpty(d.Get("ip_address")),
+			"resource_id":   utils.ValueIgnoreEmpty(d.Get("resource_id")),
+			"resource_type": utils.ValueIgnoreEmpty(d.Get("resource_type")),
+			"weight":        utils.ValueIgnoreEmpty(d.Get("weight")),
 		},
 	}
 	return bodyParams
@@ -341,7 +341,7 @@ func resourceEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta in
 func buildUpdateEndpointBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"endpoint": map[string]interface{}{
-			"weight": utils.ValueIngoreEmpty(d.Get("weight")),
+			"weight": utils.ValueIgnoreEmpty(d.Get("weight")),
 		},
 	}
 	return bodyParams

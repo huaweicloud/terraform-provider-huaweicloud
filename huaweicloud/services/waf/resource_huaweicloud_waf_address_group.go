@@ -161,9 +161,9 @@ func buildWAFAddressGroupBodyParams(d *schema.ResourceData) map[string]interface
 	}
 
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
 		"ips":         strings.Join(addresses, ","),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

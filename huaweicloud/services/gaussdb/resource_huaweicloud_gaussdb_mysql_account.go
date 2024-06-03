@@ -160,9 +160,9 @@ func resourceGaussDBAccountCreate(ctx context.Context, d *schema.ResourceData, m
 
 func buildCreateGaussDBAccountBodyParams(d *schema.ResourceData, host string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":     utils.ValueIngoreEmpty(d.Get("name")),
-		"comment":  utils.ValueIngoreEmpty(d.Get("description")),
-		"password": utils.ValueIngoreEmpty(d.Get("password")),
+		"name":     utils.ValueIgnoreEmpty(d.Get("name")),
+		"comment":  utils.ValueIgnoreEmpty(d.Get("description")),
+		"password": utils.ValueIgnoreEmpty(d.Get("password")),
 		"hosts":    []interface{}{host},
 	}
 	param := map[string]interface{}{
@@ -384,9 +384,9 @@ func updateGaussDBAccountPassword(ctx context.Context, d *schema.ResourceData, c
 
 func buildUpdateGaussDBAccountDescriptionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":    utils.ValueIngoreEmpty(d.Get("name")),
-		"host":    utils.ValueIngoreEmpty(d.Get("host")),
-		"comment": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":    utils.ValueIgnoreEmpty(d.Get("name")),
+		"host":    utils.ValueIgnoreEmpty(d.Get("host")),
+		"comment": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	param := map[string]interface{}{
 		"users": []interface{}{bodyParams},
@@ -396,9 +396,9 @@ func buildUpdateGaussDBAccountDescriptionBodyParams(d *schema.ResourceData) map[
 
 func buildUpdateGaussDBAccountPasswordBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":     utils.ValueIngoreEmpty(d.Get("name")),
-		"host":     utils.ValueIngoreEmpty(d.Get("host")),
-		"password": utils.ValueIngoreEmpty(d.Get("password")),
+		"name":     utils.ValueIgnoreEmpty(d.Get("name")),
+		"host":     utils.ValueIgnoreEmpty(d.Get("host")),
+		"password": utils.ValueIgnoreEmpty(d.Get("password")),
 	}
 	param := map[string]interface{}{
 		"users": []interface{}{bodyParams},
@@ -473,7 +473,7 @@ func buildDeleteGaussDBAccountBodyParams(d *schema.ResourceData) map[string]inte
 		host = h
 	}
 	bodyParams := map[string]interface{}{
-		"name": utils.ValueIngoreEmpty(d.Get("name")),
+		"name": utils.ValueIgnoreEmpty(d.Get("name")),
 		"host": host,
 	}
 	param := map[string]interface{}{

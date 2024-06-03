@@ -171,12 +171,12 @@ func resourceDmsRocketMQUserCreate(ctx context.Context, d *schema.ResourceData, 
 
 func buildCreateRocketmqUserBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"access_key":           utils.ValueIngoreEmpty(d.Get("access_key")),
-		"secret_key":           utils.ValueIngoreEmpty(d.Get("secret_key")),
-		"white_remote_address": utils.ValueIngoreEmpty(d.Get("white_remote_address")),
-		"admin":                utils.ValueIngoreEmpty(d.Get("admin")),
-		"default_topic_perm":   utils.ValueIngoreEmpty(d.Get("default_topic_perm")),
-		"default_group_perm":   utils.ValueIngoreEmpty(d.Get("default_group_perm")),
+		"access_key":           utils.ValueIgnoreEmpty(d.Get("access_key")),
+		"secret_key":           utils.ValueIgnoreEmpty(d.Get("secret_key")),
+		"white_remote_address": utils.ValueIgnoreEmpty(d.Get("white_remote_address")),
+		"admin":                utils.ValueIgnoreEmpty(d.Get("admin")),
+		"default_topic_perm":   utils.ValueIgnoreEmpty(d.Get("default_topic_perm")),
+		"default_group_perm":   utils.ValueIgnoreEmpty(d.Get("default_group_perm")),
 		"topic_perms":          buildRocketmqUserPermsChildBody(d, "topic_perms"),
 		"group_perms":          buildRocketmqUserPermsChildBody(d, "group_perms"),
 	}
@@ -238,10 +238,10 @@ func buildUpdateRocketmqUserBodyParams(d *schema.ResourceData) map[string]interf
 	bodyParams := map[string]interface{}{
 		"access_key":           fmt.Sprintf("%v", d.Get("access_key")),
 		"secret_key":           fmt.Sprintf("%v", d.Get("secret_key")),
-		"white_remote_address": utils.ValueIngoreEmpty(d.Get("white_remote_address")),
-		"admin":                utils.ValueIngoreEmpty(d.Get("admin")),
-		"default_topic_perm":   utils.ValueIngoreEmpty(d.Get("default_topic_perm")),
-		"default_group_perm":   utils.ValueIngoreEmpty(d.Get("default_group_perm")),
+		"white_remote_address": utils.ValueIgnoreEmpty(d.Get("white_remote_address")),
+		"admin":                utils.ValueIgnoreEmpty(d.Get("admin")),
+		"default_topic_perm":   utils.ValueIgnoreEmpty(d.Get("default_topic_perm")),
+		"default_group_perm":   utils.ValueIgnoreEmpty(d.Get("default_group_perm")),
 		"topic_perms":          buildRocketmqUserPermsChildBody(d, "topic_perms"),
 		"group_perms":          buildRocketmqUserPermsChildBody(d, "group_perms"),
 	}

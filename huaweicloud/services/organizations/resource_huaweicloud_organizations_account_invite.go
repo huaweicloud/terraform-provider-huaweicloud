@@ -140,7 +140,7 @@ func buildCreateAccountInviteBodyParams(d *schema.ResourceData) map[string]inter
 func buildCreateAccountInviteTargetChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
 		"type":   "account",
-		"entity": utils.ValueIngoreEmpty(d.Get("account_id")),
+		"entity": utils.ValueIgnoreEmpty(d.Get("account_id")),
 	}
 	return params
 }

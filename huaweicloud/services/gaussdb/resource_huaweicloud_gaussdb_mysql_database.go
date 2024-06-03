@@ -151,9 +151,9 @@ func resourceGaussDBDatabaseCreate(ctx context.Context, d *schema.ResourceData, 
 
 func buildCreateGaussDBDatabaseBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":          utils.ValueIngoreEmpty(d.Get("name")),
-		"comment":       utils.ValueIngoreEmpty(d.Get("description")),
-		"character_set": utils.ValueIngoreEmpty(d.Get("character_set")),
+		"name":          utils.ValueIgnoreEmpty(d.Get("name")),
+		"comment":       utils.ValueIgnoreEmpty(d.Get("description")),
+		"character_set": utils.ValueIgnoreEmpty(d.Get("character_set")),
 	}
 	bodyParams := map[string]interface{}{
 		"databases": []interface{}{params},
@@ -328,8 +328,8 @@ func resourceGaussDBDatabaseUpdate(ctx context.Context, d *schema.ResourceData, 
 
 func buildUpdateGaussDBDatabaseBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":    utils.ValueIngoreEmpty(d.Get("name")),
-		"comment": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":    utils.ValueIgnoreEmpty(d.Get("name")),
+		"comment": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	bodyParams := map[string]interface{}{
 		"databases": []interface{}{params},
@@ -403,7 +403,7 @@ func resourceGaussDBDatabaseDelete(ctx context.Context, d *schema.ResourceData, 
 
 func buildDeleteGaussDBDatabaseBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"databases": []interface{}{utils.ValueIngoreEmpty(d.Get("name"))},
+		"databases": []interface{}{utils.ValueIgnoreEmpty(d.Get("name"))},
 	}
 	return bodyParams
 }

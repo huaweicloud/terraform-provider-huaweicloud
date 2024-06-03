@@ -371,8 +371,8 @@ func resourceGaussDBAccountPrivilegeDelete(ctx context.Context, d *schema.Resour
 
 func buildDeleteGaussDBAccountPrivilegeBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":      utils.ValueIngoreEmpty(d.Get("account_name")),
-		"host":      utils.ValueIngoreEmpty(d.Get("host")),
+		"name":      utils.ValueIgnoreEmpty(d.Get("account_name")),
+		"host":      utils.ValueIgnoreEmpty(d.Get("host")),
 		"databases": buildCreateGaussDBAccountPrivilegeDatabaseNamesChildBody(d),
 	}
 	params := map[string]interface{}{

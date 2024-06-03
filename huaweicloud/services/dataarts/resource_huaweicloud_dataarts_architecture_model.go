@@ -96,9 +96,9 @@ func buildCreateModelParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":        d.Get("name"),
 		"type":        d.Get("type"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"dw_type":     d.Get("dw_type"),
-		"level":       utils.ValueIngoreEmpty(d.Get("level")),
+		"level":       utils.ValueIgnoreEmpty(d.Get("level")),
 		"is_physical": d.Get("physical"),
 	}
 	return bodyParams
@@ -278,9 +278,9 @@ func buildUpdateModelBodyParams(d *schema.ResourceData) map[string]interface{} {
 		"name":        d.Get("name"),
 		"type":        d.Get("type"),
 		"dw_type":     d.Get("dw_type"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"level":       utils.ValueIngoreEmpty(d.Get("level")),
-		"is_physical": utils.ValueIngoreEmpty(d.Get("physical")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"level":       utils.ValueIgnoreEmpty(d.Get("level")),
+		"is_physical": utils.ValueIgnoreEmpty(d.Get("physical")),
 	}
 	return bodyParams
 }

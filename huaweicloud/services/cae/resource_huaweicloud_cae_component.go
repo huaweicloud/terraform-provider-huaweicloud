@@ -218,7 +218,7 @@ func buildSource(source []interface{}) map[string]interface{} {
 	return map[string]interface{}{
 		"type":     raw["type"],
 		"url":      raw["url"],
-		"sub_type": utils.ValueIngoreEmpty(raw["sub_type"]),
+		"sub_type": utils.ValueIgnoreEmpty(raw["sub_type"]),
 		"code":     buildCode(raw["code"].([]interface{})),
 	}
 }

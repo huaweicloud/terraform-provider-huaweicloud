@@ -203,7 +203,7 @@ func resourcePgAccountCreate(ctx context.Context, d *schema.ResourceData, meta i
 func buildCreatePgAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":    d.Get("name"),
-		"comment": utils.ValueIngoreEmpty(d.Get("description")),
+		"comment": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

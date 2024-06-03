@@ -100,9 +100,9 @@ func resourceAdvancedQueryCreate(ctx context.Context, d *schema.ResourceData, me
 
 func buildCreateAdvancedQueryBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"expression":  utils.ValueIngoreEmpty(d.Get("expression")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"expression":  utils.ValueIgnoreEmpty(d.Get("expression")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -191,9 +191,9 @@ func resourceAdvancedQueryUpdate(ctx context.Context, d *schema.ResourceData, me
 
 func buildUpdateAdvancedQueryBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"expression":  utils.ValueIngoreEmpty(d.Get("expression")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"expression":  utils.ValueIgnoreEmpty(d.Get("expression")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

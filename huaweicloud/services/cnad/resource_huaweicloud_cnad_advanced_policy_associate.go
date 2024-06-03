@@ -287,7 +287,7 @@ func bindObjectsToPolicy(client *golangsdk.ServiceClient, d *schema.ResourceData
 		},
 		KeepResponseBody: true,
 		JSONBody: map[string]interface{}{
-			"package_id": utils.ValueIngoreEmpty(d.Get("instance_id")),
+			"package_id": utils.ValueIgnoreEmpty(d.Get("instance_id")),
 			"id_list":    idList,
 		},
 	}
@@ -310,7 +310,7 @@ func unbindObjectsToPolicy(client *golangsdk.ServiceClient, d *schema.ResourceDa
 		},
 		KeepResponseBody: true,
 		JSONBody: map[string]interface{}{
-			"package_id": utils.ValueIngoreEmpty(d.Get("instance_id")),
+			"package_id": utils.ValueIgnoreEmpty(d.Get("instance_id")),
 			"id_list":    idList,
 		},
 	}

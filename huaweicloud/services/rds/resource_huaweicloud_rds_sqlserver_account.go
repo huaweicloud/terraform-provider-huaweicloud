@@ -256,8 +256,8 @@ func resourceSQLServerAccountUpdate(ctx context.Context, d *schema.ResourceData,
 
 func buildUpdateSQLServerAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":     utils.ValueIngoreEmpty(d.Get("name")),
-		"password": utils.ValueIngoreEmpty(d.Get("password")),
+		"name":     utils.ValueIgnoreEmpty(d.Get("name")),
+		"password": utils.ValueIgnoreEmpty(d.Get("password")),
 	}
 	return bodyParams
 }

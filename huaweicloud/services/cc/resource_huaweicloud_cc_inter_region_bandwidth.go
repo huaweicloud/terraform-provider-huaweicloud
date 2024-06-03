@@ -150,10 +150,10 @@ func resourceInterRegionBandwidthCreate(ctx context.Context, d *schema.ResourceD
 func buildCreateInterRegionBandwidthBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"inter_region_bandwidth": map[string]interface{}{
-			"cloud_connection_id":  utils.ValueIngoreEmpty(d.Get("cloud_connection_id")),
-			"bandwidth_package_id": utils.ValueIngoreEmpty(d.Get("bandwidth_package_id")),
-			"bandwidth":            utils.ValueIngoreEmpty(d.Get("bandwidth")),
-			"inter_region_ids":     utils.ValueIngoreEmpty(d.Get("inter_region_ids")),
+			"cloud_connection_id":  utils.ValueIgnoreEmpty(d.Get("cloud_connection_id")),
+			"bandwidth_package_id": utils.ValueIgnoreEmpty(d.Get("bandwidth_package_id")),
+			"bandwidth":            utils.ValueIgnoreEmpty(d.Get("bandwidth")),
+			"inter_region_ids":     utils.ValueIgnoreEmpty(d.Get("inter_region_ids")),
 		},
 	}
 	return bodyParams
@@ -268,7 +268,7 @@ func resourceInterRegionBandwidthUpdate(ctx context.Context, d *schema.ResourceD
 func buildUpdateInterRegionBandwidthBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"inter_region_bandwidth": map[string]interface{}{
-			"bandwidth": utils.ValueIngoreEmpty(d.Get("bandwidth")),
+			"bandwidth": utils.ValueIgnoreEmpty(d.Get("bandwidth")),
 		},
 	}
 	return bodyParams

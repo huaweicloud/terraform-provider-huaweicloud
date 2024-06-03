@@ -206,16 +206,16 @@ func buildCreateSwrImageTriggerBodyParams(d *schema.ResourceData, clusterName st
 	}
 	bodyParams := map[string]interface{}{
 		"action":       "update",
-		"name":         utils.ValueIngoreEmpty(d.Get("name")),
-		"app_type":     utils.ValueIngoreEmpty(d.Get("workload_type")),
-		"application":  utils.ValueIngoreEmpty(d.Get("workload_name")),
-		"cluster_id":   utils.ValueIngoreEmpty(d.Get("cluster_id")),
-		"cluster_name": utils.ValueIngoreEmpty(clusterName),
-		"cluster_ns":   utils.ValueIngoreEmpty(d.Get("namespace")),
-		"trigger_type": utils.ValueIngoreEmpty(d.Get("condition_type")),
-		"condition":    utils.ValueIngoreEmpty(d.Get("condition_value")),
-		"container":    utils.ValueIngoreEmpty(d.Get("container")),
-		"trigger_mode": utils.ValueIngoreEmpty(d.Get("type")),
+		"name":         utils.ValueIgnoreEmpty(d.Get("name")),
+		"app_type":     utils.ValueIgnoreEmpty(d.Get("workload_type")),
+		"application":  utils.ValueIgnoreEmpty(d.Get("workload_name")),
+		"cluster_id":   utils.ValueIgnoreEmpty(d.Get("cluster_id")),
+		"cluster_name": utils.ValueIgnoreEmpty(clusterName),
+		"cluster_ns":   utils.ValueIgnoreEmpty(d.Get("namespace")),
+		"trigger_type": utils.ValueIgnoreEmpty(d.Get("condition_type")),
+		"condition":    utils.ValueIgnoreEmpty(d.Get("condition_value")),
+		"container":    utils.ValueIgnoreEmpty(d.Get("container")),
+		"trigger_mode": utils.ValueIgnoreEmpty(d.Get("type")),
 		"enable":       enabled,
 	}
 	return bodyParams
@@ -336,7 +336,7 @@ func resourceSwrImageTriggerUpdate(ctx context.Context, d *schema.ResourceData, 
 
 func buildUpdateSwrImageTriggerBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"enable": utils.ValueIngoreEmpty(d.Get("enabled")),
+		"enable": utils.ValueIgnoreEmpty(d.Get("enabled")),
 	}
 	return bodyParams
 }

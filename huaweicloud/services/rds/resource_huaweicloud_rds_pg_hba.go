@@ -124,7 +124,7 @@ func buildPgHbaBodyParams(rawParams interface{}) []map[string]interface{} {
 				"user":     raw["user"],
 				"address":  raw["address"],
 				"method":   raw["method"],
-				"mask":     utils.ValueIngoreEmpty(raw["mask"]),
+				"mask":     utils.ValueIgnoreEmpty(raw["mask"]),
 			}
 		}
 		return rst

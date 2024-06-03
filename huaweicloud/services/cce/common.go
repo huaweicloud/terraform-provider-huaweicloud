@@ -126,16 +126,16 @@ func buildResourceNodeExtendParams(extendParamsRaw []interface{}) map[string]int
 
 	if extendParams, ok := extendParamsRaw[0].(map[string]interface{}); ok {
 		res := map[string]interface{}{
-			"maxPods":               utils.ValueIngoreEmpty(extendParams["max_pods"]),
-			"dockerBaseSize":        utils.ValueIngoreEmpty(extendParams["docker_base_size"]),
-			"alpha.cce/preInstall":  utils.ValueIngoreEmpty(utils.TryBase64EncodeString(extendParams["preinstall"].(string))),
-			"alpha.cce/postInstall": utils.ValueIngoreEmpty(utils.TryBase64EncodeString(extendParams["postinstall"].(string))),
-			"alpha.cce/NodeImageID": utils.ValueIngoreEmpty(extendParams["node_image_id"]),
-			"nicMultiqueue":         utils.ValueIngoreEmpty(extendParams["node_multi_queue"]),
-			"nicThreshold":          utils.ValueIngoreEmpty(extendParams["nic_threshold"]),
-			"agency_name":           utils.ValueIngoreEmpty(extendParams["agency_name"]),
-			"kube-reserved-mem":     utils.ValueIngoreEmpty(extendParams["kube_reserved_mem"]),
-			"system-reserved-mem":   utils.ValueIngoreEmpty(extendParams["system_reserved_mem"]),
+			"maxPods":               utils.ValueIgnoreEmpty(extendParams["max_pods"]),
+			"dockerBaseSize":        utils.ValueIgnoreEmpty(extendParams["docker_base_size"]),
+			"alpha.cce/preInstall":  utils.ValueIgnoreEmpty(utils.TryBase64EncodeString(extendParams["preinstall"].(string))),
+			"alpha.cce/postInstall": utils.ValueIgnoreEmpty(utils.TryBase64EncodeString(extendParams["postinstall"].(string))),
+			"alpha.cce/NodeImageID": utils.ValueIgnoreEmpty(extendParams["node_image_id"]),
+			"nicMultiqueue":         utils.ValueIgnoreEmpty(extendParams["node_multi_queue"]),
+			"nicThreshold":          utils.ValueIgnoreEmpty(extendParams["nic_threshold"]),
+			"agency_name":           utils.ValueIgnoreEmpty(extendParams["agency_name"]),
+			"kube-reserved-mem":     utils.ValueIgnoreEmpty(extendParams["kube_reserved_mem"]),
+			"system-reserved-mem":   utils.ValueIgnoreEmpty(extendParams["system_reserved_mem"]),
 		}
 
 		return res

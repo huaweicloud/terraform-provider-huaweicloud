@@ -687,34 +687,34 @@ func buildCreateOrUpdateTableModelBodyParams(d *schema.ResourceData) map[string]
 		"attributes":                     buildTableModelRequestBodyAttributes(d.Get("attributes").(*schema.Set)),
 		"relations":                      buildTableModelRequestBodyRelations(d.Get("relations")),
 		"mappings":                       buildTableModelRequestBodyMappings(d.Get("mappings")),
-		"configs":                        utils.ValueIngoreEmpty(d.Get("configs")),
-		"dw_id":                          utils.ValueIngoreEmpty(d.Get("dw_id")),
-		"parent_table_id":                utils.ValueIngoreEmpty(d.Get("parent_table_id")),
-		"related_logic_table_id":         utils.ValueIngoreEmpty(d.Get("related_logic_table_model_id")),
-		"related_logic_table_model_id":   utils.ValueIngoreEmpty(d.Get("related_logic_model_id")),
-		"parent_table_name":              utils.ValueIngoreEmpty(d.Get("parent_table_name")),
-		"related_logic_table_name":       utils.ValueIngoreEmpty(d.Get("related_logic_table_model_name")),
-		"related_logic_table_model_name": utils.ValueIngoreEmpty(d.Get("related_logic_model_name")),
-		"dw_name":                        utils.ValueIngoreEmpty(d.Get("dw_name")),
-		"owner":                          utils.ValueIngoreEmpty(d.Get("owner")),
-		"table_type":                     utils.ValueIngoreEmpty(d.Get("table_type")),
-		"compression":                    utils.ValueIngoreEmpty(d.Get("compression")),
-		"code":                           utils.ValueIngoreEmpty(d.Get("code")),
-		"distribute":                     utils.ValueIngoreEmpty(d.Get("distribute")),
-		"distribute_column":              utils.ValueIngoreEmpty(d.Get("distribute_column")),
-		"data_format":                    utils.ValueIngoreEmpty(d.Get("data_format")),
-		"dlf_task_id":                    utils.ValueIngoreEmpty(d.Get("dlf_task_id")),
-		"use_recently_partition":         utils.ValueIngoreEmpty(d.Get("use_recently_partition")),
-		"reversed":                       utils.ValueIngoreEmpty(d.Get("reversed")),
-		"db_name":                        utils.ValueIngoreEmpty(d.Get("db_name")),
-		"queue_name":                     utils.ValueIngoreEmpty(d.Get("queue_name")),
-		"schema":                         utils.ValueIngoreEmpty(d.Get("schema")),
-		"obs_location":                   utils.ValueIngoreEmpty(d.Get("obs_location")),
-		"dirty_out_switch":               utils.ValueIngoreEmpty(d.Get("dirty_out_switch")),
-		"dirty_out_database":             utils.ValueIngoreEmpty(d.Get("dirty_out_database")),
-		"dirty_out_prefix":               utils.ValueIngoreEmpty(d.Get("dirty_out_prefix")),
-		"dirty_out_suffix":               utils.ValueIngoreEmpty(d.Get("dirty_out_suffix")),
-		"partition_conf":                 utils.ValueIngoreEmpty(d.Get("partition_conf")),
+		"configs":                        utils.ValueIgnoreEmpty(d.Get("configs")),
+		"dw_id":                          utils.ValueIgnoreEmpty(d.Get("dw_id")),
+		"parent_table_id":                utils.ValueIgnoreEmpty(d.Get("parent_table_id")),
+		"related_logic_table_id":         utils.ValueIgnoreEmpty(d.Get("related_logic_table_model_id")),
+		"related_logic_table_model_id":   utils.ValueIgnoreEmpty(d.Get("related_logic_model_id")),
+		"parent_table_name":              utils.ValueIgnoreEmpty(d.Get("parent_table_name")),
+		"related_logic_table_name":       utils.ValueIgnoreEmpty(d.Get("related_logic_table_model_name")),
+		"related_logic_table_model_name": utils.ValueIgnoreEmpty(d.Get("related_logic_model_name")),
+		"dw_name":                        utils.ValueIgnoreEmpty(d.Get("dw_name")),
+		"owner":                          utils.ValueIgnoreEmpty(d.Get("owner")),
+		"table_type":                     utils.ValueIgnoreEmpty(d.Get("table_type")),
+		"compression":                    utils.ValueIgnoreEmpty(d.Get("compression")),
+		"code":                           utils.ValueIgnoreEmpty(d.Get("code")),
+		"distribute":                     utils.ValueIgnoreEmpty(d.Get("distribute")),
+		"distribute_column":              utils.ValueIgnoreEmpty(d.Get("distribute_column")),
+		"data_format":                    utils.ValueIgnoreEmpty(d.Get("data_format")),
+		"dlf_task_id":                    utils.ValueIgnoreEmpty(d.Get("dlf_task_id")),
+		"use_recently_partition":         utils.ValueIgnoreEmpty(d.Get("use_recently_partition")),
+		"reversed":                       utils.ValueIgnoreEmpty(d.Get("reversed")),
+		"db_name":                        utils.ValueIgnoreEmpty(d.Get("db_name")),
+		"queue_name":                     utils.ValueIgnoreEmpty(d.Get("queue_name")),
+		"schema":                         utils.ValueIgnoreEmpty(d.Get("schema")),
+		"obs_location":                   utils.ValueIgnoreEmpty(d.Get("obs_location")),
+		"dirty_out_switch":               utils.ValueIgnoreEmpty(d.Get("dirty_out_switch")),
+		"dirty_out_database":             utils.ValueIgnoreEmpty(d.Get("dirty_out_database")),
+		"dirty_out_prefix":               utils.ValueIgnoreEmpty(d.Get("dirty_out_prefix")),
+		"dirty_out_suffix":               utils.ValueIgnoreEmpty(d.Get("dirty_out_suffix")),
+		"partition_conf":                 utils.ValueIgnoreEmpty(d.Get("partition_conf")),
 	}
 	return bodyParams
 }
@@ -730,20 +730,20 @@ func buildTableModelRequestBodyAttributes(rawParams *schema.Set) []map[string]in
 			"name_ch":                    raw["name"],
 			"name_en":                    raw["name_en"],
 			"data_type":                  raw["data_type"],
-			"data_type_extend":           utils.ValueIngoreEmpty(raw["data_type_extend"]),
-			"description":                utils.ValueIngoreEmpty(raw["description"]),
-			"stand_row_id":               utils.ValueIngoreEmpty(raw["stand_row_id"]),
-			"related_logic_attr_id":      utils.ValueIngoreEmpty(raw["related_logic_attr_id"]),
-			"stand_row_name":             utils.ValueIngoreEmpty(raw["stand_row_name"]),
-			"related_logic_attr_name":    utils.ValueIngoreEmpty(raw["related_logic_attr_name"]),
-			"related_logic_attr_name_en": utils.ValueIngoreEmpty(raw["related_logic_attr_name_en"]),
-			"ordinal":                    utils.ValueIngoreEmpty(raw["ordinal"]),
-			"is_partition_key":           utils.ValueIngoreEmpty(raw["is_partition_key"]),
-			"is_primary_key":             utils.ValueIngoreEmpty(raw["is_primary_key"]),
-			"is_foreign_key":             utils.ValueIngoreEmpty(raw["is_foreign_key"]),
-			"extend_field":               utils.ValueIngoreEmpty(raw["extend_field"]),
-			"not_null":                   utils.ValueIngoreEmpty(raw["not_null"]),
-			"code":                       utils.ValueIngoreEmpty(raw["code"]),
+			"data_type_extend":           utils.ValueIgnoreEmpty(raw["data_type_extend"]),
+			"description":                utils.ValueIgnoreEmpty(raw["description"]),
+			"stand_row_id":               utils.ValueIgnoreEmpty(raw["stand_row_id"]),
+			"related_logic_attr_id":      utils.ValueIgnoreEmpty(raw["related_logic_attr_id"]),
+			"stand_row_name":             utils.ValueIgnoreEmpty(raw["stand_row_name"]),
+			"related_logic_attr_name":    utils.ValueIgnoreEmpty(raw["related_logic_attr_name"]),
+			"related_logic_attr_name_en": utils.ValueIgnoreEmpty(raw["related_logic_attr_name_en"]),
+			"ordinal":                    utils.ValueIgnoreEmpty(raw["ordinal"]),
+			"is_partition_key":           utils.ValueIgnoreEmpty(raw["is_partition_key"]),
+			"is_primary_key":             utils.ValueIgnoreEmpty(raw["is_primary_key"]),
+			"is_foreign_key":             utils.ValueIgnoreEmpty(raw["is_foreign_key"]),
+			"extend_field":               utils.ValueIgnoreEmpty(raw["extend_field"]),
+			"not_null":                   utils.ValueIgnoreEmpty(raw["not_null"]),
+			"code":                       utils.ValueIgnoreEmpty(raw["code"]),
 		}
 		attributes = append(attributes, params)
 	}
@@ -760,13 +760,13 @@ func buildTableModelRequestBodyRelations(rawParams interface{}) []map[string]int
 		raw := val.(map[string]interface{})
 		params := map[string]interface{}{
 			"name":              raw["name"],
-			"source_table_id":   utils.ValueIngoreEmpty(raw["source_table_id"]),
-			"source_table_name": utils.ValueIngoreEmpty(raw["source_table_name"]),
-			"source_type":       utils.ValueIngoreEmpty(raw["source_type"]),
-			"target_table_id":   utils.ValueIngoreEmpty(raw["target_table_id"]),
-			"target_table_name": utils.ValueIngoreEmpty(raw["target_table_name"]),
-			"target_type":       utils.ValueIngoreEmpty(raw["target_type"]),
-			"role":              utils.ValueIngoreEmpty(raw["role"]),
+			"source_table_id":   utils.ValueIgnoreEmpty(raw["source_table_id"]),
+			"source_table_name": utils.ValueIgnoreEmpty(raw["source_table_name"]),
+			"source_type":       utils.ValueIgnoreEmpty(raw["source_type"]),
+			"target_table_id":   utils.ValueIgnoreEmpty(raw["target_table_id"]),
+			"target_table_name": utils.ValueIgnoreEmpty(raw["target_table_name"]),
+			"target_type":       utils.ValueIgnoreEmpty(raw["target_type"]),
+			"role":              utils.ValueIgnoreEmpty(raw["role"]),
 			"mappings":          buildTableModelRequestBodyRelationsMappings(raw["mappings"]),
 		}
 		relations = append(relations, params)
@@ -783,10 +783,10 @@ func buildTableModelRequestBodyRelationsMappings(rawParams interface{}) []map[st
 	for _, val := range rawArray {
 		raw := val.(map[string]interface{})
 		mapping := map[string]interface{}{
-			"source_field_id":   utils.ValueIngoreEmpty(raw["source_field_id"]),
-			"source_field_name": utils.ValueIngoreEmpty(raw["source_field_name"]),
-			"target_field_id":   utils.ValueIngoreEmpty(raw["target_field_id"]),
-			"target_field_name": utils.ValueIngoreEmpty(raw["target_field_name"]),
+			"source_field_id":   utils.ValueIgnoreEmpty(raw["source_field_id"]),
+			"source_field_name": utils.ValueIgnoreEmpty(raw["source_field_name"]),
+			"target_field_id":   utils.ValueIgnoreEmpty(raw["target_field_id"]),
+			"target_field_name": utils.ValueIgnoreEmpty(raw["target_field_name"]),
 		}
 		mappings = append(mappings, mapping)
 	}
@@ -804,8 +804,8 @@ func buildTableModelRequestBodyMappings(rawParams interface{}) []map[string]inte
 		params := map[string]interface{}{
 			"name":           raw["name"],
 			"src_model_id":   raw["src_model_id"],
-			"src_model_name": utils.ValueIngoreEmpty(raw["src_model_name"]),
-			"view_text":      utils.ValueIngoreEmpty(raw["view_text"]),
+			"src_model_name": utils.ValueIgnoreEmpty(raw["src_model_name"]),
+			"view_text":      utils.ValueIgnoreEmpty(raw["view_text"]),
 			"source_tables":  buildTableModelRequestBodyMappingsSourceTables(raw["source_tables"]),
 			"source_fields":  buildTableModelRequestBodyMappingsSourceFields(raw["source_fields"]),
 		}
@@ -823,11 +823,11 @@ func buildTableModelRequestBodyMappingsSourceTables(rawParams interface{}) []map
 	for _, val := range rawArray {
 		raw := val.(map[string]interface{})
 		sourceTable := map[string]interface{}{
-			"join_type":     utils.ValueIngoreEmpty(raw["join_type"]),
-			"table1_id":     utils.ValueIngoreEmpty(raw["table1_id"]),
-			"table2_id":     utils.ValueIngoreEmpty(raw["table2_id"]),
-			"table1_name":   utils.ValueIngoreEmpty(raw["table1_name"]),
-			"table2_name":   utils.ValueIngoreEmpty(raw["table2_name"]),
+			"join_type":     utils.ValueIgnoreEmpty(raw["join_type"]),
+			"table1_id":     utils.ValueIgnoreEmpty(raw["table1_id"]),
+			"table2_id":     utils.ValueIgnoreEmpty(raw["table2_id"]),
+			"table1_name":   utils.ValueIgnoreEmpty(raw["table1_name"]),
+			"table2_name":   utils.ValueIgnoreEmpty(raw["table2_name"]),
 			"source_tables": buildTableModelRequestBodyMappingsSourceTablesJoinFields(raw["source_tables"]),
 		}
 		sourceTables = append(sourceTables, sourceTable)
@@ -844,10 +844,10 @@ func buildTableModelRequestBodyMappingsSourceTablesJoinFields(rawParams interfac
 	for _, val := range rawArray {
 		raw := val.(map[string]interface{})
 		joinField := map[string]interface{}{
-			"field1_id":   utils.ValueIngoreEmpty(raw["field1_id"]),
-			"field2_id":   utils.ValueIngoreEmpty(raw["field2_id"]),
-			"field1_name": utils.ValueIngoreEmpty(raw["field1_name"]),
-			"field2_name": utils.ValueIngoreEmpty(raw["field2_name"]),
+			"field1_id":   utils.ValueIgnoreEmpty(raw["field1_id"]),
+			"field2_id":   utils.ValueIgnoreEmpty(raw["field2_id"]),
+			"field1_name": utils.ValueIgnoreEmpty(raw["field1_name"]),
+			"field2_name": utils.ValueIgnoreEmpty(raw["field2_name"]),
 		}
 		joinFields = append(joinFields, joinField)
 	}
@@ -863,10 +863,10 @@ func buildTableModelRequestBodyMappingsSourceFields(rawParams interface{}) []map
 	for _, val := range rawArray {
 		raw := val.(map[string]interface{})
 		sourceField := map[string]interface{}{
-			"field_ids":            utils.ValueIngoreEmpty(raw["field_ids"]),
-			"field_names":          utils.ValueIngoreEmpty(raw["field_names"]),
-			"target_field_name":    utils.ValueIngoreEmpty(raw["target_field_name"]),
-			"transform_expression": utils.ValueIngoreEmpty(raw["transform_expression"]),
+			"field_ids":            utils.ValueIgnoreEmpty(raw["field_ids"]),
+			"field_names":          utils.ValueIgnoreEmpty(raw["field_names"]),
+			"target_field_name":    utils.ValueIgnoreEmpty(raw["target_field_name"]),
+			"transform_expression": utils.ValueIgnoreEmpty(raw["transform_expression"]),
 		}
 		sourceFileds = append(sourceFileds, sourceField)
 	}
@@ -1190,7 +1190,7 @@ func resourceTableModelDelete(_ context.Context, d *schema.ResourceData, meta in
 		MoreHeaders:      map[string]string{"workspace": d.Get("workspace_id").(string)},
 		JSONBody: utils.RemoveNil(map[string]interface{}{
 			"ids":      []string{d.Id()},
-			"del_type": utils.ValueIngoreEmpty(d.Get("del_type")),
+			"del_type": utils.ValueIgnoreEmpty(d.Get("del_type")),
 		}),
 	}
 

@@ -253,12 +253,12 @@ func updateInspectorWebsiteSettings(client *golangsdk.ServiceClient, d *schema.R
 func buildUpdateInspectorWebsiteBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"domain_id":      d.Id(),
-		"login_url":      utils.ValueIngoreEmpty(d.Get("login_url")),
-		"login_username": utils.ValueIngoreEmpty(d.Get("login_username")),
-		"login_password": utils.ValueIngoreEmpty(d.Get("login_password")),
-		"login_cookies":  utils.ValueIngoreEmpty(d.Get("login_cookie")),
-		"verify_url":     utils.ValueIngoreEmpty(d.Get("verify_url")),
-		"http_headers":   utils.ValueIngoreEmpty(d.Get("http_headers")),
+		"login_url":      utils.ValueIgnoreEmpty(d.Get("login_url")),
+		"login_username": utils.ValueIgnoreEmpty(d.Get("login_username")),
+		"login_password": utils.ValueIgnoreEmpty(d.Get("login_password")),
+		"login_cookies":  utils.ValueIgnoreEmpty(d.Get("login_cookie")),
+		"verify_url":     utils.ValueIgnoreEmpty(d.Get("verify_url")),
+		"http_headers":   utils.ValueIgnoreEmpty(d.Get("http_headers")),
 	}
 }
 

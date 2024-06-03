@@ -205,12 +205,12 @@ func resourceListenerCreate(ctx context.Context, d *schema.ResourceData, meta in
 func buildCreateListenerBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"listener": map[string]interface{}{
-			"accelerator_id":  utils.ValueIngoreEmpty(d.Get("accelerator_id")),
-			"client_affinity": utils.ValueIngoreEmpty(d.Get("client_affinity")),
-			"description":     utils.ValueIngoreEmpty(d.Get("description")),
-			"name":            utils.ValueIngoreEmpty(d.Get("name")),
+			"accelerator_id":  utils.ValueIgnoreEmpty(d.Get("accelerator_id")),
+			"client_affinity": utils.ValueIgnoreEmpty(d.Get("client_affinity")),
+			"description":     utils.ValueIgnoreEmpty(d.Get("description")),
+			"name":            utils.ValueIgnoreEmpty(d.Get("name")),
 			"port_ranges":     buildCreateListenerRequestBodyPortRange(d.Get("port_ranges")),
-			"protocol":        utils.ValueIngoreEmpty(d.Get("protocol")),
+			"protocol":        utils.ValueIgnoreEmpty(d.Get("protocol")),
 			"tags":            utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 		},
 	}
@@ -227,8 +227,8 @@ func buildCreateListenerRequestBodyPortRange(rawParams interface{}) []map[string
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"from_port": utils.ValueIngoreEmpty(raw["from_port"]),
-				"to_port":   utils.ValueIngoreEmpty(raw["to_port"]),
+				"from_port": utils.ValueIgnoreEmpty(raw["from_port"]),
+				"to_port":   utils.ValueIgnoreEmpty(raw["to_port"]),
 			}
 		}
 		return rst
@@ -426,9 +426,9 @@ func resourceListenerUpdate(ctx context.Context, d *schema.ResourceData, meta in
 func buildUpdateListenerBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"listener": map[string]interface{}{
-			"client_affinity": utils.ValueIngoreEmpty(d.Get("client_affinity")),
+			"client_affinity": utils.ValueIgnoreEmpty(d.Get("client_affinity")),
 			"description":     d.Get("description"),
-			"name":            utils.ValueIngoreEmpty(d.Get("name")),
+			"name":            utils.ValueIgnoreEmpty(d.Get("name")),
 			"port_ranges":     buildUpdateListenerRequestBodyPortRange(d.Get("port_ranges")),
 		},
 	}
@@ -445,8 +445,8 @@ func buildUpdateListenerRequestBodyPortRange(rawParams interface{}) []map[string
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"from_port": utils.ValueIngoreEmpty(raw["from_port"]),
-				"to_port":   utils.ValueIngoreEmpty(raw["to_port"]),
+				"from_port": utils.ValueIgnoreEmpty(raw["from_port"]),
+				"to_port":   utils.ValueIgnoreEmpty(raw["to_port"]),
 			}
 		}
 		return rst

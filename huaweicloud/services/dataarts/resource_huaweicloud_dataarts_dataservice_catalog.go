@@ -116,8 +116,8 @@ func ResourceDatatServiceCatalog() *schema.Resource {
 func buildCreateDatatServiceCatalogBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":        d.Get("name"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
-		"pid":         utils.ValueIngoreEmpty(d.Get("parent_id")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"pid":         utils.ValueIgnoreEmpty(d.Get("parent_id")),
 	}
 	return bodyParams
 }

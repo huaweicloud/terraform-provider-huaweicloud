@@ -159,14 +159,14 @@ func resourceEventAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, m
 
 func buildEventAlarmRuleBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":              utils.ValueIngoreEmpty(d.Get("name")),
-		"description":       utils.ValueIngoreEmpty(d.Get("description")),
-		"alarm_type":        utils.ValueIngoreEmpty(d.Get("alarm_type")),
-		"action_rule":       utils.ValueIngoreEmpty(d.Get("action_rule")),
-		"route_group_rule":  utils.ValueIngoreEmpty(d.Get("grouping_rule")),
-		"enable":            utils.ValueIngoreEmpty(d.Get("enabled")),
-		"resource_provider": utils.ValueIngoreEmpty(d.Get("alarm_source")),
-		"metadata":          utils.ValueIngoreEmpty(d.Get("select_object")),
+		"name":              utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":       utils.ValueIgnoreEmpty(d.Get("description")),
+		"alarm_type":        utils.ValueIgnoreEmpty(d.Get("alarm_type")),
+		"action_rule":       utils.ValueIgnoreEmpty(d.Get("action_rule")),
+		"route_group_rule":  utils.ValueIgnoreEmpty(d.Get("grouping_rule")),
+		"enable":            utils.ValueIgnoreEmpty(d.Get("enabled")),
+		"resource_provider": utils.ValueIgnoreEmpty(d.Get("alarm_source")),
+		"metadata":          utils.ValueIgnoreEmpty(d.Get("select_object")),
 		"trigger_policies":  buildEventAlarmRuleTriggerPolicies(d),
 		"user_id":           cfg.GetProjectID(cfg.GetRegion(d)),
 	}
@@ -175,10 +175,10 @@ func buildEventAlarmRuleBodyParams(d *schema.ResourceData, cfg *config.Config) m
 
 func buildEventAlarmRuleTriggerPolicies(d *schema.ResourceData) []map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"trigger_type": utils.ValueIngoreEmpty(d.Get("trigger_type")),
-		"count":        utils.ValueIngoreEmpty(d.Get("trigger_count")),
-		"operator":     utils.ValueIngoreEmpty(d.Get("comparison_operator")),
-		"period":       utils.ValueIngoreEmpty(d.Get("period")),
+		"trigger_type": utils.ValueIgnoreEmpty(d.Get("trigger_type")),
+		"count":        utils.ValueIgnoreEmpty(d.Get("trigger_count")),
+		"operator":     utils.ValueIgnoreEmpty(d.Get("comparison_operator")),
+		"period":       utils.ValueIgnoreEmpty(d.Get("period")),
 	}
 
 	return []map[string]interface{}{bodyParams}

@@ -265,7 +265,7 @@ func buildCreateEventStreamBodyParams(d *schema.ResourceData) map[string]interfa
 		"sink":        buildEventStreamSink(d.Get("sink").([]interface{})),
 		"rule_config": buildEventStreamRuleConfig(d.Get("rule_config").([]interface{})),
 		"option":      buildEventStreamRunOption(d.Get("option").([]interface{})),
-		"description": utils.ValueIngoreEmpty(d.Get("description").(string)),
+		"description": utils.ValueIgnoreEmpty(d.Get("description").(string)),
 	}
 }
 
@@ -276,13 +276,13 @@ func buildEventStreamSource(eventSources []interface{}) interface{} {
 	newSource := eventSources[0]
 	return map[string]interface{}{
 		"name": utils.PathSearch("name", newSource, "").(string),
-		"source_kafka": utils.ValueIngoreEmpty(unmarshalJsonFormatParamster("Kafka configuration",
+		"source_kafka": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("Kafka configuration",
 			utils.PathSearch("kafka", newSource, "").(string))),
-		"source_mobile_rocketmq": utils.ValueIngoreEmpty(unmarshalJsonFormatParamster("mobile RocketMQ configuration",
+		"source_mobile_rocketmq": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("mobile RocketMQ configuration",
 			utils.PathSearch("mobile_rocketmq", newSource, "").(string))),
-		"sourcesource_community_rocketmq_kafka": utils.ValueIngoreEmpty(unmarshalJsonFormatParamster("community RocketMQ configuration",
+		"sourcesource_community_rocketmq_kafka": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("community RocketMQ configuration",
 			utils.PathSearch("community_rocketmq", newSource, "").(string))),
-		"source_dms_rocketmq": utils.ValueIngoreEmpty(unmarshalJsonFormatParamster("DMS RocketMQ configuration",
+		"source_dms_rocketmq": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("DMS RocketMQ configuration",
 			utils.PathSearch("dms_rocketmq", newSource, "").(string))),
 	}
 }
@@ -294,9 +294,9 @@ func buildEventStreamSink(eventSinks []interface{}) interface{} {
 	newSink := eventSinks[0]
 	return map[string]interface{}{
 		"name": utils.PathSearch("name", newSink, ""),
-		"sink_fg": utils.ValueIngoreEmpty(unmarshalJsonFormatParamster("FunctionGraph configuration",
+		"sink_fg": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("FunctionGraph configuration",
 			utils.PathSearch("functiongraph", newSink, "").(string))),
-		"sink_kafka": utils.ValueIngoreEmpty(unmarshalJsonFormatParamster("DMS Kafka",
+		"sink_kafka": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("DMS Kafka",
 			utils.PathSearch("kafka", newSink, "").(string))),
 	}
 }
@@ -308,7 +308,7 @@ func buildEventStreamRuleConfig(ruleConfigs []interface{}) interface{} {
 	ruleConfig := ruleConfigs[0]
 	return map[string]interface{}{
 		"transform": buildEventStreamTransform(utils.PathSearch("transform", ruleConfig, make([]interface{}, 0)).([]interface{})),
-		"filter":    utils.ValueIngoreEmpty(unmarshalJsonFormatParamster("filter rule", utils.PathSearch("filter", ruleConfig, "").(string))),
+		"filter":    utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("filter rule", utils.PathSearch("filter", ruleConfig, "").(string))),
 	}
 }
 
@@ -319,8 +319,8 @@ func buildEventStreamTransform(transforms []interface{}) interface{} {
 	transform := transforms[0]
 	return map[string]interface{}{
 		"type":     utils.PathSearch("type", transform, nil),
-		"value":    utils.ValueIngoreEmpty(utils.PathSearch("value", transform, nil)),
-		"template": utils.ValueIngoreEmpty(utils.PathSearch("template", transform, nil)),
+		"value":    utils.ValueIgnoreEmpty(utils.PathSearch("value", transform, nil)),
+		"template": utils.ValueIgnoreEmpty(utils.PathSearch("template", transform, nil)),
 	}
 }
 

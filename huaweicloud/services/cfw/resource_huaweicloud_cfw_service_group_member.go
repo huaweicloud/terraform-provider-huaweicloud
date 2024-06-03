@@ -130,15 +130,15 @@ func resourceServiceGroupMemberCreate(ctx context.Context, d *schema.ResourceDat
 
 func buildCreateServiceGroupMemberBodyParams(d *schema.ResourceData) map[string]interface{} {
 	item := map[string]interface{}{
-		"protocol":    utils.ValueIngoreEmpty(d.Get("protocol")),
-		"source_port": utils.ValueIngoreEmpty(d.Get("source_port")),
-		"dest_port":   utils.ValueIngoreEmpty(d.Get("dest_port")),
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"protocol":    utils.ValueIgnoreEmpty(d.Get("protocol")),
+		"source_port": utils.ValueIgnoreEmpty(d.Get("source_port")),
+		"dest_port":   utils.ValueIgnoreEmpty(d.Get("dest_port")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 
 	bodyParams := map[string]interface{}{
-		"set_id":        utils.ValueIngoreEmpty(d.Get("group_id")),
+		"set_id":        utils.ValueIgnoreEmpty(d.Get("group_id")),
 		"service_items": []map[string]interface{}{item},
 	}
 	return bodyParams

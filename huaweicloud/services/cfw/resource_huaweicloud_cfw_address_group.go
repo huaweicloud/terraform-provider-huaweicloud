@@ -118,10 +118,10 @@ func resourceAddressGroupCreate(ctx context.Context, d *schema.ResourceData, met
 
 func buildCreateAddressGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"object_id":    utils.ValueIngoreEmpty(d.Get("object_id")),
-		"name":         utils.ValueIngoreEmpty(d.Get("name")),
-		"address_type": utils.ValueIngoreEmpty(d.Get("address_type")),
-		"description":  utils.ValueIngoreEmpty(d.Get("description")),
+		"object_id":    utils.ValueIgnoreEmpty(d.Get("object_id")),
+		"name":         utils.ValueIgnoreEmpty(d.Get("name")),
+		"address_type": utils.ValueIgnoreEmpty(d.Get("address_type")),
+		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -218,7 +218,7 @@ func resourceAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, met
 
 func buildUpdateAddressGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
 		"description": d.Get("description"),
 	}
 	return bodyParams

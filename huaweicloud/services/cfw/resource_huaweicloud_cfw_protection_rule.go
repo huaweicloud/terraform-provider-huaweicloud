@@ -409,7 +409,7 @@ func resourceProtectionRuleCreate(ctx context.Context, d *schema.ResourceData, m
 
 func buildCreateProtectionRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"object_id": utils.ValueIngoreEmpty(d.Get("object_id")),
+		"object_id": utils.ValueIgnoreEmpty(d.Get("object_id")),
 		"type":      d.Get("type"),
 		"rules":     buildCreateProtectionRulesOpts(d),
 	}
@@ -420,13 +420,13 @@ func buildCreateProtectionRulesOpts(d *schema.ResourceData) []map[string]interfa
 	params := map[string]interface{}{
 		"action_type":              d.Get("action_type"),
 		"address_type":             d.Get("address_type"),
-		"description":              utils.ValueIngoreEmpty(d.Get("description")),
+		"description":              utils.ValueIgnoreEmpty(d.Get("description")),
 		"direction":                d.Get("direction"),
 		"long_connect_enable":      d.Get("long_connect_enable"),
-		"long_connect_time_hour":   utils.ValueIngoreEmpty(d.Get("long_connect_time_hour")),
-		"long_connect_time_minute": utils.ValueIngoreEmpty(d.Get("long_connect_time_minute")),
-		"long_connect_time_second": utils.ValueIngoreEmpty(d.Get("long_connect_time_second")),
-		"name":                     utils.ValueIngoreEmpty(d.Get("name")),
+		"long_connect_time_hour":   utils.ValueIgnoreEmpty(d.Get("long_connect_time_hour")),
+		"long_connect_time_minute": utils.ValueIgnoreEmpty(d.Get("long_connect_time_minute")),
+		"long_connect_time_second": utils.ValueIgnoreEmpty(d.Get("long_connect_time_second")),
+		"name":                     utils.ValueIgnoreEmpty(d.Get("name")),
 		"sequence":                 buildCreateProtectionRuleRequestBodyOrderRuleAclDto(d.Get("sequence")),
 		"service":                  buildCreateProtectionRuleRequestBodyRuleServiceDto(d.Get("service")),
 		"source":                   buildCreateProtectionRuleRequestBodyRuleAddressDto(d.Get("source")),
@@ -445,7 +445,7 @@ func buildCreateProtectionRuleRequestBodyOrderRuleAclDto(rawParams interface{}) 
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"dest_rule_id": utils.ValueIngoreEmpty(raw["dest_rule_id"]),
+			"dest_rule_id": utils.ValueIgnoreEmpty(raw["dest_rule_id"]),
 			"top":          raw["top"],
 		}
 		return params
@@ -460,12 +460,12 @@ func buildCreateProtectionRuleRequestBodyRuleServiceDto(rawParams interface{}) m
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"dest_port":        utils.ValueIngoreEmpty(raw["dest_port"]),
-			"protocol":         utils.ValueIngoreEmpty(raw["protocol"]),
-			"service_set_id":   utils.ValueIngoreEmpty(raw["service_set_id"]),
-			"service_set_name": utils.ValueIngoreEmpty(raw["service_set_name"]),
-			"source_port":      utils.ValueIngoreEmpty(raw["source_port"]),
-			"service_group":    utils.ValueIngoreEmpty(utils.ExpandToStringList(raw["service_group"].([]interface{}))),
+			"dest_port":        utils.ValueIgnoreEmpty(raw["dest_port"]),
+			"protocol":         utils.ValueIgnoreEmpty(raw["protocol"]),
+			"service_set_id":   utils.ValueIgnoreEmpty(raw["service_set_id"]),
+			"service_set_name": utils.ValueIgnoreEmpty(raw["service_set_name"]),
+			"source_port":      utils.ValueIgnoreEmpty(raw["source_port"]),
+			"service_group":    utils.ValueIgnoreEmpty(utils.ExpandToStringList(raw["service_group"].([]interface{}))),
 			"custom_service":   buildProtectionRuleRequestBodyRuleCustomService(raw["custom_service"]),
 			"type":             raw["type"],
 		}
@@ -498,17 +498,17 @@ func buildCreateProtectionRuleRequestBodyRuleAddressDto(rawParams interface{}) m
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"address":             utils.ValueIngoreEmpty(raw["address"]),
-			"address_set_id":      utils.ValueIngoreEmpty(raw["address_set_id"]),
-			"address_set_name":    utils.ValueIngoreEmpty(raw["address_set_name"]),
-			"address_type":        utils.ValueIngoreEmpty(raw["address_type"]),
-			"domain_address_name": utils.ValueIngoreEmpty(raw["domain_address_name"]),
+			"address":             utils.ValueIgnoreEmpty(raw["address"]),
+			"address_set_id":      utils.ValueIgnoreEmpty(raw["address_set_id"]),
+			"address_set_name":    utils.ValueIgnoreEmpty(raw["address_set_name"]),
+			"address_type":        utils.ValueIgnoreEmpty(raw["address_type"]),
+			"domain_address_name": utils.ValueIgnoreEmpty(raw["domain_address_name"]),
 			"type":                raw["type"],
 			"region_list":         buildCreateProtectionRuleRequestBodyIpRegionDto(raw["region_list"]),
-			"domain_set_id":       utils.ValueIngoreEmpty(raw["domain_set_id"]),
-			"domain_set_name":     utils.ValueIngoreEmpty(raw["domain_set_name"]),
-			"ip_address":          utils.ValueIngoreEmpty(utils.ExpandToStringList(raw["ip_address"].([]interface{}))),
-			"address_group":       utils.ValueIngoreEmpty(utils.ExpandToStringList(raw["address_group"].([]interface{}))),
+			"domain_set_id":       utils.ValueIgnoreEmpty(raw["domain_set_id"]),
+			"domain_set_name":     utils.ValueIgnoreEmpty(raw["domain_set_name"]),
+			"ip_address":          utils.ValueIgnoreEmpty(utils.ExpandToStringList(raw["ip_address"].([]interface{}))),
+			"address_group":       utils.ValueIgnoreEmpty(utils.ExpandToStringList(raw["address_group"].([]interface{}))),
 		}
 		return params
 	}
@@ -523,8 +523,8 @@ func buildCreateProtectionRuleRequestBodyIpRegionDto(rawParams interface{}) []ma
 			param := map[string]interface{}{
 				"region_id":      region["region_id"],
 				"region_type":    region["region_type"],
-				"description_cn": utils.ValueIngoreEmpty(region["description_cn"]),
-				"description_en": utils.ValueIngoreEmpty(region["description_en"]),
+				"description_cn": utils.ValueIgnoreEmpty(region["description_cn"]),
+				"description_en": utils.ValueIgnoreEmpty(region["description_en"]),
 			}
 			params = append(params, param)
 		}
@@ -905,13 +905,13 @@ func buildUpdateProtectionRuleBodyParams(d *schema.ResourceData) map[string]inte
 	bodyParams := map[string]interface{}{
 		"action_type":              d.Get("action_type"),
 		"address_type":             d.Get("address_type"),
-		"description":              utils.ValueIngoreEmpty(d.Get("description")),
+		"description":              utils.ValueIgnoreEmpty(d.Get("description")),
 		"direction":                d.Get("direction"),
 		"long_connect_enable":      d.Get("long_connect_enable"),
-		"long_connect_time_hour":   utils.ValueIngoreEmpty(d.Get("long_connect_time_hour")),
-		"long_connect_time_minute": utils.ValueIngoreEmpty(d.Get("long_connect_time_minute")),
-		"long_connect_time_second": utils.ValueIngoreEmpty(d.Get("long_connect_time_second")),
-		"name":                     utils.ValueIngoreEmpty(d.Get("name")),
+		"long_connect_time_hour":   utils.ValueIgnoreEmpty(d.Get("long_connect_time_hour")),
+		"long_connect_time_minute": utils.ValueIgnoreEmpty(d.Get("long_connect_time_minute")),
+		"long_connect_time_second": utils.ValueIgnoreEmpty(d.Get("long_connect_time_second")),
+		"name":                     utils.ValueIgnoreEmpty(d.Get("name")),
 		"service":                  buildUpdateProtectionRuleRequestBodyRuleServiceDto(d.Get("service")),
 		"source":                   buildUpdateProtectionRuleRequestBodyRuleAddressDto(d.Get("source")),
 		"destination":              buildUpdateProtectionRuleRequestBodyRuleAddressDto(d.Get("destination")),
@@ -929,7 +929,7 @@ func buildUpdateProtectionRuleRequestBodyOrderRuleAclDto(rawParams interface{}) 
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"dest_rule_id": utils.ValueIngoreEmpty(raw["dest_rule_id"]),
+			"dest_rule_id": utils.ValueIgnoreEmpty(raw["dest_rule_id"]),
 			"top":          raw["top"],
 		}
 		return params
@@ -944,12 +944,12 @@ func buildUpdateProtectionRuleRequestBodyRuleServiceDto(rawParams interface{}) m
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"dest_port":        utils.ValueIngoreEmpty(raw["dest_port"]),
-			"protocol":         utils.ValueIngoreEmpty(raw["protocol"]),
-			"service_set_id":   utils.ValueIngoreEmpty(raw["service_set_id"]),
-			"service_set_name": utils.ValueIngoreEmpty(raw["service_set_name"]),
-			"source_port":      utils.ValueIngoreEmpty(raw["source_port"]),
-			"service_group":    utils.ValueIngoreEmpty(utils.ExpandToStringList(raw["service_group"].([]interface{}))),
+			"dest_port":        utils.ValueIgnoreEmpty(raw["dest_port"]),
+			"protocol":         utils.ValueIgnoreEmpty(raw["protocol"]),
+			"service_set_id":   utils.ValueIgnoreEmpty(raw["service_set_id"]),
+			"service_set_name": utils.ValueIgnoreEmpty(raw["service_set_name"]),
+			"source_port":      utils.ValueIgnoreEmpty(raw["source_port"]),
+			"service_group":    utils.ValueIgnoreEmpty(utils.ExpandToStringList(raw["service_group"].([]interface{}))),
 			"custom_service":   buildProtectionRuleRequestBodyRuleCustomService(raw["custom_service"]),
 			"type":             raw["type"],
 		}
@@ -965,17 +965,17 @@ func buildUpdateProtectionRuleRequestBodyRuleAddressDto(rawParams interface{}) m
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"address":             utils.ValueIngoreEmpty(raw["address"]),
-			"address_set_id":      utils.ValueIngoreEmpty(raw["address_set_id"]),
-			"address_set_name":    utils.ValueIngoreEmpty(raw["address_set_name"]),
-			"address_type":        utils.ValueIngoreEmpty(raw["address_type"]),
-			"domain_address_name": utils.ValueIngoreEmpty(raw["domain_address_name"]),
+			"address":             utils.ValueIgnoreEmpty(raw["address"]),
+			"address_set_id":      utils.ValueIgnoreEmpty(raw["address_set_id"]),
+			"address_set_name":    utils.ValueIgnoreEmpty(raw["address_set_name"]),
+			"address_type":        utils.ValueIgnoreEmpty(raw["address_type"]),
+			"domain_address_name": utils.ValueIgnoreEmpty(raw["domain_address_name"]),
 			"type":                raw["type"],
 			"region_list":         buildUpdateProtectionRuleRequestBodyIpRegionDto(raw["region_list"]),
-			"domain_set_id":       utils.ValueIngoreEmpty(raw["domain_set_id"]),
-			"domain_set_name":     utils.ValueIngoreEmpty(raw["domain_set_name"]),
-			"ip_address":          utils.ValueIngoreEmpty(utils.ExpandToStringList(raw["ip_address"].([]interface{}))),
-			"address_group":       utils.ValueIngoreEmpty(utils.ExpandToStringList(raw["address_group"].([]interface{}))),
+			"domain_set_id":       utils.ValueIgnoreEmpty(raw["domain_set_id"]),
+			"domain_set_name":     utils.ValueIgnoreEmpty(raw["domain_set_name"]),
+			"ip_address":          utils.ValueIgnoreEmpty(utils.ExpandToStringList(raw["ip_address"].([]interface{}))),
+			"address_group":       utils.ValueIgnoreEmpty(utils.ExpandToStringList(raw["address_group"].([]interface{}))),
 		}
 		return params
 	}
@@ -990,8 +990,8 @@ func buildUpdateProtectionRuleRequestBodyIpRegionDto(rawParams interface{}) []ma
 			param := map[string]interface{}{
 				"region_id":      region["region_id"],
 				"region_type":    region["region_type"],
-				"description_cn": utils.ValueIngoreEmpty(region["description_cn"]),
-				"description_en": utils.ValueIngoreEmpty(region["description_en"]),
+				"description_cn": utils.ValueIgnoreEmpty(region["description_cn"]),
+				"description_en": utils.ValueIgnoreEmpty(region["description_en"]),
 			}
 			params = append(params, param)
 		}

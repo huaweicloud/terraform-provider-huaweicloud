@@ -232,8 +232,8 @@ func resourceCesAlarmTemplateUpdate(ctx context.Context, d *schema.ResourceData,
 
 func buildAlarmTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"template_name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"template_description": utils.ValueIngoreEmpty(d.Get("description")),
+		"template_name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"template_description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"policies":             buildAlarmTemplatePoliciesChildBody(d),
 	}
 	return bodyParams
@@ -249,16 +249,16 @@ func buildAlarmTemplatePoliciesChildBody(d *schema.ResourceData) []map[string]in
 	for _, rawParam := range rawParams {
 		raw := rawParam.(map[string]interface{})
 		param := map[string]interface{}{
-			"namespace":           utils.ValueIngoreEmpty(raw["namespace"]),
-			"dimension_name":      utils.ValueIngoreEmpty(raw["dimension_name"]),
-			"metric_name":         utils.ValueIngoreEmpty(raw["metric_name"]),
-			"period":              utils.ValueIngoreEmpty(raw["period"]),
-			"filter":              utils.ValueIngoreEmpty(raw["filter"]),
-			"comparison_operator": utils.ValueIngoreEmpty(raw["comparison_operator"]),
+			"namespace":           utils.ValueIgnoreEmpty(raw["namespace"]),
+			"dimension_name":      utils.ValueIgnoreEmpty(raw["dimension_name"]),
+			"metric_name":         utils.ValueIgnoreEmpty(raw["metric_name"]),
+			"period":              utils.ValueIgnoreEmpty(raw["period"]),
+			"filter":              utils.ValueIgnoreEmpty(raw["filter"]),
+			"comparison_operator": utils.ValueIgnoreEmpty(raw["comparison_operator"]),
 			"value":               raw["value"],
-			"unit":                utils.ValueIngoreEmpty(raw["unit"]),
-			"count":               utils.ValueIngoreEmpty(raw["count"]),
-			"alarm_level":         utils.ValueIngoreEmpty(raw["alarm_level"]),
+			"unit":                utils.ValueIgnoreEmpty(raw["unit"]),
+			"count":               utils.ValueIgnoreEmpty(raw["count"]),
+			"alarm_level":         utils.ValueIgnoreEmpty(raw["alarm_level"]),
 			"suppress_duration":   raw["suppress_duration"],
 		}
 		params = append(params, param)
@@ -381,7 +381,7 @@ func resourceCesAlarmTemplateDelete(_ context.Context, d *schema.ResourceData, m
 func buildDeleteAlarmTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"template_ids":           []interface{}{d.Id()},
-		"delete_associate_alarm": utils.ValueIngoreEmpty(d.Get("delete_associate_alarm")),
+		"delete_associate_alarm": utils.ValueIgnoreEmpty(d.Get("delete_associate_alarm")),
 	}
 	return bodyParams
 }

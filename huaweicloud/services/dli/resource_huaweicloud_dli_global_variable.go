@@ -112,9 +112,9 @@ func resourceGlobalVariableCreate(ctx context.Context, d *schema.ResourceData, m
 
 func buildCreateGlobalVariableBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"var_name":     utils.ValueIngoreEmpty(d.Get("name")),
-		"var_value":    utils.ValueIngoreEmpty(d.Get("value")),
-		"is_sensitive": utils.ValueIngoreEmpty(d.Get("is_sensitive")),
+		"var_name":     utils.ValueIgnoreEmpty(d.Get("name")),
+		"var_value":    utils.ValueIgnoreEmpty(d.Get("value")),
+		"is_sensitive": utils.ValueIgnoreEmpty(d.Get("is_sensitive")),
 	}
 	return bodyParams
 }
@@ -227,7 +227,7 @@ func resourceGlobalVariableUpdate(ctx context.Context, d *schema.ResourceData, m
 
 func buildUpdateGlobalVariableBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"var_value": utils.ValueIngoreEmpty(d.Get("value")),
+		"var_value": utils.ValueIgnoreEmpty(d.Get("value")),
 	}
 	return bodyParams
 }

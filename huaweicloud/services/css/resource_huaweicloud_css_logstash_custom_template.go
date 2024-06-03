@@ -89,7 +89,7 @@ func resourceLogstashCustomTemplateCreate(ctx context.Context, d *schema.Resourc
 		"name": d.Get("configuration_name").(string),
 		"template": map[string]interface{}{
 			"templateName": d.Get("name").(string),
-			"desc":         utils.ValueIngoreEmpty(d.Get("description")),
+			"desc":         utils.ValueIgnoreEmpty(d.Get("description")),
 		},
 	})
 	_, err = cssV1Client.Request("POST", addCustomTemplatePath, &addCustomTemplateOpt)

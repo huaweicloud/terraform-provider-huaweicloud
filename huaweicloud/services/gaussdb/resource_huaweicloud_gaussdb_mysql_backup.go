@@ -198,7 +198,7 @@ func buildCreateGaussDBBackupBodyParams(d *schema.ResourceData) map[string]inter
 	bodyParams := map[string]interface{}{
 		"instance_id": d.Get("instance_id"),
 		"name":        d.Get("name"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

@@ -135,8 +135,8 @@ func buildCreateRestoreBodyParams(d *schema.ResourceData) map[string]interface{}
 		"target_instance_id": d.Get("target_instance_id"),
 		"source_instance_id": d.Get("source_instance_id"),
 		"type":               d.Get("type"),
-		"backup_id":          utils.ValueIngoreEmpty(d.Get("backup_id")),
-		"restore_time":       utils.ValueIngoreEmpty(d.Get("restore_time")),
+		"backup_id":          utils.ValueIgnoreEmpty(d.Get("backup_id")),
+		"restore_time":       utils.ValueIgnoreEmpty(d.Get("restore_time")),
 	}
 	return bodyParams
 }

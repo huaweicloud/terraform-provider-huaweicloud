@@ -84,7 +84,7 @@ func resourceLiveBucketAuthorizationCreate(ctx context.Context, d *schema.Resour
 
 func buildLiveBucketAuthorizationBodyParams(d *schema.ResourceData, operation int) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"bucket":    utils.ValueIngoreEmpty(d.Get("bucket")),
+		"bucket":    utils.ValueIgnoreEmpty(d.Get("bucket")),
 		"operation": operation,
 	}
 	return bodyParams

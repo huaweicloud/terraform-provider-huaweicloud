@@ -258,13 +258,13 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 func buildCreateRepositoryBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":             utils.ValueIngoreEmpty(d.Get("name")),
-		"project_uuid":     utils.ValueIngoreEmpty(d.Get("project_id")),
+		"name":             utils.ValueIgnoreEmpty(d.Get("name")),
+		"project_uuid":     utils.ValueIgnoreEmpty(d.Get("project_id")),
 		"visibility_level": d.Get("visibility_level"),
-		"description":      utils.ValueIngoreEmpty(d.Get("description")),
-		"import_url":       utils.ValueIngoreEmpty(d.Get("import_url")),
-		"gitignore_id":     utils.ValueIngoreEmpty(d.Get("gitignore_id")),
-		"license_id":       utils.ValueIngoreEmpty(d.Get("license_id")),
+		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
+		"import_url":       utils.ValueIgnoreEmpty(d.Get("import_url")),
+		"gitignore_id":     utils.ValueIgnoreEmpty(d.Get("gitignore_id")),
+		"license_id":       utils.ValueIgnoreEmpty(d.Get("license_id")),
 		"enable_readme":    d.Get("enable_readme"),
 		"import_members":   d.Get("import_members"),
 	}

@@ -194,8 +194,8 @@ func buildCreateConnectionBodyParams(d *schema.ResourceData) map[string]interfac
 		"name":         d.Get("name"),
 		"vpc_id":       d.Get("vpc_id"),
 		"subnet_id":    d.Get("subnet_id"),
-		"description":  utils.ValueIngoreEmpty(d.Get("description")),
-		"type":         utils.ValueIngoreEmpty(d.Get("type")),
+		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
+		"type":         utils.ValueIgnoreEmpty(d.Get("type")),
 		"kafka_detail": buildCreateConnectionRequestBodyKafkaDetail(d.Get("kafka_detail")),
 	}
 	return bodyParams
@@ -212,9 +212,9 @@ func buildCreateConnectionRequestBodyKafkaDetail(rawParams interface{}) map[stri
 		}
 
 		params := map[string]interface{}{
-			"instance_id": utils.ValueIngoreEmpty(raw["instance_id"]),
-			"addr":        utils.ValueIngoreEmpty(raw["connect_address"]),
-			"acks":        utils.ValueIngoreEmpty(raw["acks"]),
+			"instance_id": utils.ValueIgnoreEmpty(raw["instance_id"]),
+			"addr":        utils.ValueIgnoreEmpty(raw["connect_address"]),
+			"acks":        utils.ValueIgnoreEmpty(raw["acks"]),
 		}
 
 		if raw["user_name"].(string) != "" {

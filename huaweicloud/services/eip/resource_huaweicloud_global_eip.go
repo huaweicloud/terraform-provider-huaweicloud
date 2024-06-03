@@ -194,10 +194,10 @@ func buildCreateGEIPBodyParams(d *schema.ResourceData, epsID string) map[string]
 		"access_site":           d.Get("access_site"),
 		"geip_pool_name":        d.Get("geip_pool_name"),
 		"internet_bandwidth_id": d.Get("internet_bandwidth_id"),
-		"description":           utils.ValueIngoreEmpty(d.Get("description")),
-		"name":                  utils.ValueIngoreEmpty(d.Get("name")),
-		"enterprise_project_id": utils.ValueIngoreEmpty(epsID),
-		"tags":                  utils.ValueIngoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(epsID),
+		"tags":                  utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	return bodyParams
 }
@@ -314,7 +314,7 @@ func resourceGlobalEIPUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			JSONBody: map[string]interface{}{
 				"global_eip": utils.RemoveNil(map[string]interface{}{
 					"description": d.Get("description"),
-					"name":        utils.ValueIngoreEmpty(d.Get("name")),
+					"name":        utils.ValueIgnoreEmpty(d.Get("name")),
 				}),
 			},
 		}

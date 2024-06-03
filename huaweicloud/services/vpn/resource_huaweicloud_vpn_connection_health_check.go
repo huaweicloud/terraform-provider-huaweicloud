@@ -113,7 +113,7 @@ func resourceConnectionHealthCheckCreate(ctx context.Context, d *schema.Resource
 func buildCreateConnectionHealthCheckBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"connection_monitor": map[string]interface{}{
-			"vpn_connection_id": utils.ValueIngoreEmpty(d.Get("connection_id")),
+			"vpn_connection_id": utils.ValueIgnoreEmpty(d.Get("connection_id")),
 		},
 	}
 	return bodyParams

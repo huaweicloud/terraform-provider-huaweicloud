@@ -236,14 +236,14 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) m
 
 func buildCreateInstanceInstanceChildBody(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":                           utils.ValueIngoreEmpty(d.Get("name")),
-		"availability_zone_ids":          utils.ValueIngoreEmpty(d.Get("availability_zones")),
-		"asn":                            utils.ValueIngoreEmpty(d.Get("asn")),
-		"description":                    utils.ValueIngoreEmpty(d.Get("description")),
-		"enterprise_project_id":          utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
-		"enable_default_propagation":     utils.ValueIngoreEmpty(d.Get("enable_default_propagation")),
-		"enable_default_association":     utils.ValueIngoreEmpty(d.Get("enable_default_association")),
-		"auto_accept_shared_attachments": utils.ValueIngoreEmpty(d.Get("auto_accept_shared_attachments")),
+		"name":                           utils.ValueIgnoreEmpty(d.Get("name")),
+		"availability_zone_ids":          utils.ValueIgnoreEmpty(d.Get("availability_zones")),
+		"asn":                            utils.ValueIgnoreEmpty(d.Get("asn")),
+		"description":                    utils.ValueIgnoreEmpty(d.Get("description")),
+		"enterprise_project_id":          utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enable_default_propagation":     utils.ValueIgnoreEmpty(d.Get("enable_default_propagation")),
+		"enable_default_association":     utils.ValueIgnoreEmpty(d.Get("enable_default_association")),
+		"auto_accept_shared_attachments": utils.ValueIgnoreEmpty(d.Get("auto_accept_shared_attachments")),
 	}
 	return params
 }
@@ -257,8 +257,8 @@ func buildUpdateInstanceDefaultRouteTablesBodyParams(d *schema.ResourceData) map
 
 func buildUpdateInstanceDefaultRouteTablesInstanceChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"default_propagation_route_table_id": utils.ValueIngoreEmpty(d.Get("default_propagation_route_table_id")),
-		"default_association_route_table_id": utils.ValueIngoreEmpty(d.Get("default_association_route_table_id")),
+		"default_propagation_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_propagation_route_table_id")),
+		"default_association_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_association_route_table_id")),
 	}
 	return params
 }
@@ -483,20 +483,20 @@ func buildUpdateInstanceBodyParams(d *schema.ResourceData) map[string]interface{
 
 func buildUpdateInstanceInstanceChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":                               utils.ValueIngoreEmpty(d.Get("name")),
-		"description":                        utils.ValueIngoreEmpty(d.Get("description")),
-		"enable_default_propagation":         utils.ValueIngoreEmpty(d.Get("enable_default_propagation")),
-		"enable_default_association":         utils.ValueIngoreEmpty(d.Get("enable_default_association")),
-		"default_propagation_route_table_id": utils.ValueIngoreEmpty(d.Get("default_propagation_route_table_id")),
-		"default_association_route_table_id": utils.ValueIngoreEmpty(d.Get("default_association_route_table_id")),
-		"auto_accept_shared_attachments":     utils.ValueIngoreEmpty(d.Get("auto_accept_shared_attachments")),
+		"name":                               utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":                        utils.ValueIgnoreEmpty(d.Get("description")),
+		"enable_default_propagation":         utils.ValueIgnoreEmpty(d.Get("enable_default_propagation")),
+		"enable_default_association":         utils.ValueIgnoreEmpty(d.Get("enable_default_association")),
+		"default_propagation_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_propagation_route_table_id")),
+		"default_association_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_association_route_table_id")),
+		"auto_accept_shared_attachments":     utils.ValueIgnoreEmpty(d.Get("auto_accept_shared_attachments")),
 	}
 	return params
 }
 
 func buildUpdateInstanceAvailabilityZonesBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"availability_zone_ids": utils.ValueIngoreEmpty(d.Get("availability_zones")),
+		"availability_zone_ids": utils.ValueIgnoreEmpty(d.Get("availability_zones")),
 	}
 	return bodyParams
 }

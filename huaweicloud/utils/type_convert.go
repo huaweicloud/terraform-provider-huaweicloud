@@ -98,8 +98,8 @@ func StringValue(v *string) string {
 	return *v
 }
 
-// ValueIngoreEmpty returns to the string value. if v is empty, return nil
-func ValueIngoreEmpty(v interface{}) interface{} {
+// ValueIgnoreEmpty returns to the string value. if v is empty, return nil
+func ValueIgnoreEmpty(v interface{}) interface{} {
 	vl := reflect.ValueOf(v)
 	if (vl.Kind() != reflect.Bool) && vl.IsZero() {
 		return nil

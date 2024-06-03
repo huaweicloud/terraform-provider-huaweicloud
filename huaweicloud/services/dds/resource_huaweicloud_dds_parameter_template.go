@@ -179,14 +179,14 @@ func resourceDdsParameterTemplateCreate(ctx context.Context, d *schema.ResourceD
 
 func buildCreateParameterTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	datastoreParams := map[string]interface{}{
-		"node_type": utils.ValueIngoreEmpty(d.Get("node_type")),
-		"version":   utils.ValueIngoreEmpty(d.Get("node_version")),
+		"node_type": utils.ValueIgnoreEmpty(d.Get("node_type")),
+		"version":   utils.ValueIgnoreEmpty(d.Get("node_version")),
 	}
 	bodyParams := map[string]interface{}{
-		"name": utils.ValueIngoreEmpty(d.Get("name")),
+		"name": utils.ValueIgnoreEmpty(d.Get("name")),
 		// this param can be empty
 		"parameter_values": d.Get("parameter_values"),
-		"description":      utils.ValueIngoreEmpty(d.Get("description")),
+		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
 		"datastore":        datastoreParams,
 	}
 	return bodyParams
@@ -236,9 +236,9 @@ func resourceDdsParameterTemplateUpdate(ctx context.Context, d *schema.ResourceD
 
 func buildUpdateParameterTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":             utils.ValueIngoreEmpty(d.Get("name")),
-		"parameter_values": utils.ValueIngoreEmpty(d.Get("parameter_values")),
-		"description":      utils.ValueIngoreEmpty(d.Get("description")),
+		"name":             utils.ValueIgnoreEmpty(d.Get("name")),
+		"parameter_values": utils.ValueIgnoreEmpty(d.Get("parameter_values")),
+		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

@@ -260,7 +260,7 @@ func resourceScanTaskDelete(_ context.Context, d *schema.ResourceData, meta inte
 func buildcreateScanTaskBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":        d.Get("name"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"alarm":       buildcreateScanTaskAlarmBodyParams(d.Get("alarm")),
 	}
 	return bodyParams

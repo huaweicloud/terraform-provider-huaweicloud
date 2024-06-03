@@ -194,10 +194,10 @@ func resourceAlarmSilenceRuleCreate(ctx context.Context, d *schema.ResourceData,
 
 func buildAlarmSilenceRuleBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"desc":        utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"desc":        utils.ValueIgnoreEmpty(d.Get("description")),
 		"user_id":     cfg.GetProjectID(cfg.GetRegion(d)),
-		"timezone":    utils.ValueIngoreEmpty(d.Get("time_zone")),
+		"timezone":    utils.ValueIgnoreEmpty(d.Get("time_zone")),
 		"mute_config": buildAlarmSilenceRuleRequestBodyMuteConfig(d.Get("silence_time")),
 		"match":       buildAlarmSilenceRuleSilenceConditions(d.Get("silence_conditions")),
 	}
@@ -211,10 +211,10 @@ func buildAlarmSilenceRuleRequestBodyMuteConfig(rawParams interface{}) map[strin
 		}
 		raw := rawArray[0].(map[string]interface{})
 		params := map[string]interface{}{
-			"type":      utils.ValueIngoreEmpty(raw["type"]),
+			"type":      utils.ValueIgnoreEmpty(raw["type"]),
 			"starts_at": raw["starts_at"],
-			"ends_at":   utils.ValueIngoreEmpty(raw["ends_at"]),
-			"scope":     utils.ValueIngoreEmpty(raw["scope"]),
+			"ends_at":   utils.ValueIgnoreEmpty(raw["ends_at"]),
+			"scope":     utils.ValueIgnoreEmpty(raw["scope"]),
 		}
 		return params
 	}
@@ -247,9 +247,9 @@ func buildAlarmSilenceRuleconditions(rawParams interface{}) []map[string]interfa
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"key":     utils.ValueIngoreEmpty(raw["key"]),
-				"operate": utils.ValueIngoreEmpty(raw["operate"]),
-				"value":   utils.ValueIngoreEmpty(raw["value"]),
+				"key":     utils.ValueIgnoreEmpty(raw["key"]),
+				"operate": utils.ValueIgnoreEmpty(raw["operate"]),
+				"value":   utils.ValueIgnoreEmpty(raw["value"]),
 			}
 		}
 		return rst

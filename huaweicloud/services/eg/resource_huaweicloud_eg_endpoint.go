@@ -143,7 +143,7 @@ func buildCreateEndpointBodyParams(d *schema.ResourceData) map[string]interface{
 		"name":        d.Get("name"),
 		"vpc_id":      d.Get("vpc_id"),
 		"subnet_id":   d.Get("subnet_id"),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

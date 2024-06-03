@@ -373,17 +373,17 @@ func resourceKeywordsAlarmRuleCreate(ctx context.Context, d *schema.ResourceData
 func buildCreateKeywordsAlarmRuleBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"keywords_alarm_rule_name":        d.Get("name"),
-		"keywords_alarm_rule_description": utils.ValueIngoreEmpty(d.Get("description")),
+		"keywords_alarm_rule_description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"keywords_requests":               buildKeywordsAlarmRuleRequestBodyKeywordsRequests(d.Get("keywords_requests")),
 		"frequency":                       buildKeywordsAlarmRuleRequestBodyFrequency(d.Get("frequency")),
 		"keywords_alarm_level":            d.Get("alarm_level"),
-		"keywords_alarm_send":             utils.ValueIngoreEmpty(d.Get("send_notifications")),
+		"keywords_alarm_send":             utils.ValueIgnoreEmpty(d.Get("send_notifications")),
 		"domain_id":                       cfg.DomainID,
 		"notification_rule":               buildKeywordsAlarmRuleRequestBodyNotificationRule(d.Get("notification_rule")),
-		"trigger_condition_count":         utils.ValueIngoreEmpty(d.Get("trigger_condition_count")),
-		"trigger_condition_frequency":     utils.ValueIngoreEmpty(d.Get("trigger_condition_frequency")),
-		"whether_recovery_policy":         utils.ValueIngoreEmpty(d.Get("send_recovery_notifications")),
-		"recovery_policy":                 utils.ValueIngoreEmpty(d.Get("recovery_frequency")),
+		"trigger_condition_count":         utils.ValueIgnoreEmpty(d.Get("trigger_condition_count")),
+		"trigger_condition_frequency":     utils.ValueIgnoreEmpty(d.Get("trigger_condition_frequency")),
+		"whether_recovery_policy":         utils.ValueIgnoreEmpty(d.Get("send_recovery_notifications")),
+		"recovery_policy":                 utils.ValueIgnoreEmpty(d.Get("recovery_frequency")),
 	}
 	return bodyParams
 }
@@ -398,13 +398,13 @@ func buildKeywordsAlarmRuleRequestBodyKeywordsRequests(rawParams interface{}) []
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"keywords":               utils.ValueIngoreEmpty(raw["keywords"]),
-				"condition":              utils.ValueIngoreEmpty(raw["condition"]),
-				"number":                 utils.ValueIngoreEmpty(raw["number"]),
-				"log_stream_id":          utils.ValueIngoreEmpty(raw["log_stream_id"]),
-				"log_group_id":           utils.ValueIngoreEmpty(raw["log_group_id"]),
-				"search_time_range_unit": utils.ValueIngoreEmpty(raw["search_time_range_unit"]),
-				"search_time_range":      utils.ValueIngoreEmpty(raw["search_time_range"]),
+				"keywords":               utils.ValueIgnoreEmpty(raw["keywords"]),
+				"condition":              utils.ValueIgnoreEmpty(raw["condition"]),
+				"number":                 utils.ValueIgnoreEmpty(raw["number"]),
+				"log_stream_id":          utils.ValueIgnoreEmpty(raw["log_stream_id"]),
+				"log_group_id":           utils.ValueIgnoreEmpty(raw["log_group_id"]),
+				"search_time_range_unit": utils.ValueIgnoreEmpty(raw["search_time_range_unit"]),
+				"search_time_range":      utils.ValueIgnoreEmpty(raw["search_time_range"]),
 			}
 		}
 		return rst
@@ -423,12 +423,12 @@ func buildKeywordsAlarmRuleRequestBodyFrequency(rawParams interface{}) map[strin
 		}
 
 		params := map[string]interface{}{
-			"type":            utils.ValueIngoreEmpty(raw["type"]),
-			"cron_expr":       utils.ValueIngoreEmpty(raw["cron_expression"]),
-			"hour_of_day":     utils.ValueIngoreEmpty(raw["hour_of_day"]),
-			"day_of_week":     utils.ValueIngoreEmpty(raw["day_of_week"]),
-			"fixed_rate_unit": utils.ValueIngoreEmpty(raw["fixed_rate_unit"]),
-			"fixed_rate":      utils.ValueIngoreEmpty(raw["fixed_rate"]),
+			"type":            utils.ValueIgnoreEmpty(raw["type"]),
+			"cron_expr":       utils.ValueIgnoreEmpty(raw["cron_expression"]),
+			"hour_of_day":     utils.ValueIgnoreEmpty(raw["hour_of_day"]),
+			"day_of_week":     utils.ValueIgnoreEmpty(raw["day_of_week"]),
+			"fixed_rate_unit": utils.ValueIgnoreEmpty(raw["fixed_rate_unit"]),
+			"fixed_rate":      utils.ValueIgnoreEmpty(raw["fixed_rate"]),
 		}
 		return params
 	}
@@ -446,11 +446,11 @@ func buildKeywordsAlarmRuleRequestBodyNotificationRule(rawParams interface{}) ma
 		}
 
 		params := map[string]interface{}{
-			"template_name": utils.ValueIngoreEmpty(raw["template_name"]),
-			"user_name":     utils.ValueIngoreEmpty(raw["user_name"]),
+			"template_name": utils.ValueIgnoreEmpty(raw["template_name"]),
+			"user_name":     utils.ValueIgnoreEmpty(raw["user_name"]),
 			"topics":        buildKeywordsNotificationRuleTopic(raw["topics"]),
-			"timezone":      utils.ValueIngoreEmpty(raw["timezone"]),
-			"language":      utils.ValueIngoreEmpty(raw["language"]),
+			"timezone":      utils.ValueIgnoreEmpty(raw["timezone"]),
+			"language":      utils.ValueIgnoreEmpty(raw["language"]),
 		}
 		return params
 	}
@@ -467,10 +467,10 @@ func buildKeywordsNotificationRuleTopic(rawParams interface{}) []map[string]inte
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"name":         utils.ValueIngoreEmpty(raw["name"]),
-				"topic_urn":    utils.ValueIngoreEmpty(raw["topic_urn"]),
-				"display_name": utils.ValueIngoreEmpty(raw["display_name"]),
-				"push_policy":  utils.ValueIngoreEmpty(raw["push_policy"]),
+				"name":         utils.ValueIgnoreEmpty(raw["name"]),
+				"topic_urn":    utils.ValueIgnoreEmpty(raw["topic_urn"]),
+				"display_name": utils.ValueIgnoreEmpty(raw["display_name"]),
+				"push_policy":  utils.ValueIgnoreEmpty(raw["push_policy"]),
 			}
 		}
 		return rst
@@ -675,13 +675,13 @@ func buildUpdateKeywordsAlarmRuleBodyParams(d *schema.ResourceData, cfg *config.
 		"keywords_requests":               buildKeywordsAlarmRuleRequestBodyKeywordsRequests(d.Get("keywords_requests")),
 		"frequency":                       buildKeywordsAlarmRuleRequestBodyFrequency(d.Get("frequency")),
 		"keywords_alarm_level":            d.Get("alarm_level"),
-		"keywords_alarm_send":             utils.ValueIngoreEmpty(d.Get("send_notifications")),
+		"keywords_alarm_send":             utils.ValueIgnoreEmpty(d.Get("send_notifications")),
 		"keywords_alarm_send_code":        0,
 		"domain_id":                       cfg.DomainID,
-		"trigger_condition_count":         utils.ValueIngoreEmpty(d.Get("trigger_condition_count")),
-		"trigger_condition_frequency":     utils.ValueIngoreEmpty(d.Get("trigger_condition_frequency")),
-		"whether_recovery_policy":         utils.ValueIngoreEmpty(d.Get("send_recovery_notifications")),
-		"recovery_policy":                 utils.ValueIngoreEmpty(d.Get("recovery_frequency")),
+		"trigger_condition_count":         utils.ValueIgnoreEmpty(d.Get("trigger_condition_count")),
+		"trigger_condition_frequency":     utils.ValueIgnoreEmpty(d.Get("trigger_condition_frequency")),
+		"whether_recovery_policy":         utils.ValueIgnoreEmpty(d.Get("send_recovery_notifications")),
+		"recovery_policy":                 utils.ValueIgnoreEmpty(d.Get("recovery_frequency")),
 	}
 	return bodyParams
 }
@@ -690,7 +690,7 @@ func buildUpdateKeywordsAlarmRuleStatusBodyParams(d *schema.ResourceData) map[st
 	bodyParams := map[string]interface{}{
 		"alarm_rule_id": d.Id(),
 		"type":          "keywords",
-		"status":        utils.ValueIngoreEmpty(d.Get("status")),
+		"status":        utils.ValueIgnoreEmpty(d.Get("status")),
 	}
 	return bodyParams
 }

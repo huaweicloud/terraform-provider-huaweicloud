@@ -69,7 +69,7 @@ func buildAggregatorBodyParams(d *schema.ResourceData) map[string]interface{} {
 		"aggregator_name": d.Get("name"),
 		"aggregator_type": d.Get("type"),
 		"account_aggregation_sources": map[string]interface{}{
-			"domain_ids": utils.ValueIngoreEmpty(d.Get("account_ids").(*schema.Set).List()),
+			"domain_ids": utils.ValueIgnoreEmpty(d.Get("account_ids").(*schema.Set).List()),
 		},
 	}
 	return bodyParams

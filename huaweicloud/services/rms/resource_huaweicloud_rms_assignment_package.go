@@ -188,10 +188,10 @@ func resourceAssignmentPackageCreate(ctx context.Context, d *schema.ResourceData
 func buildCreateAssignmentPackageBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":           d.Get("name"),
-		"agency_name":    utils.ValueIngoreEmpty(d.Get("agency_name")),
-		"template_key":   utils.ValueIngoreEmpty(d.Get("template_key")),
-		"template_body":  utils.ValueIngoreEmpty(d.Get("template_body")),
-		"template_uri":   utils.ValueIngoreEmpty(d.Get("template_uri")),
+		"agency_name":    utils.ValueIgnoreEmpty(d.Get("agency_name")),
+		"template_key":   utils.ValueIgnoreEmpty(d.Get("template_key")),
+		"template_body":  utils.ValueIgnoreEmpty(d.Get("template_body")),
+		"template_uri":   utils.ValueIgnoreEmpty(d.Get("template_uri")),
 		"vars_structure": buildCreateAssignmentPackageRequestBodyParameter(d.Get("vars_structure")),
 	}
 	return bodyParams
@@ -207,8 +207,8 @@ func buildCreateAssignmentPackageRequestBodyParameter(rawParams interface{}) []m
 	for i, v := range rawArray {
 		if raw, ok := v.(map[string]interface{}); ok {
 			rst[i] = map[string]interface{}{
-				"var_key":   utils.ValueIngoreEmpty(raw["var_key"]),
-				"var_value": utils.ValueIngoreEmpty(raw["var_value"]),
+				"var_key":   utils.ValueIgnoreEmpty(raw["var_key"]),
+				"var_value": utils.ValueIgnoreEmpty(raw["var_value"]),
 			}
 		}
 	}

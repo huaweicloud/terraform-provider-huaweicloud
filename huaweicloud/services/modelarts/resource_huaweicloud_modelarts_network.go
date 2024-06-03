@@ -157,7 +157,7 @@ func buildCreateNetworkBodyParams(d *schema.ResourceData) map[string]interface{}
 		"metadata": map[string]interface{}{
 			"labels": map[string]interface{}{
 				"os.modelarts/name":         d.Get("name"),
-				"os.modelarts/workspace.id": utils.ValueIngoreEmpty(d.Get("workspace_id")),
+				"os.modelarts/workspace.id": utils.ValueIgnoreEmpty(d.Get("workspace_id")),
 			},
 		},
 		"spec": map[string]interface{}{
@@ -180,8 +180,8 @@ func buildNetworkRequestBodyPeerConnection(rawParams interface{}) []map[string]i
 		for i, v := range rawArray {
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
-				"peerVpcId":    utils.ValueIngoreEmpty(raw["vpc_id"]),
-				"peerSubnetId": utils.ValueIngoreEmpty(raw["subnet_id"]),
+				"peerVpcId":    utils.ValueIgnoreEmpty(raw["vpc_id"]),
+				"peerSubnetId": utils.ValueIgnoreEmpty(raw["subnet_id"]),
 			}
 		}
 		return rst
@@ -389,8 +389,8 @@ func updateNetworkWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 				// in `status.connectionStatus.peerConnectionStatus` and the status is `Active`
 				for _, v := range rawArray {
 					raw := v.(map[string]interface{})
-					peerVpcId := utils.ValueIngoreEmpty(raw["vpc_id"])
-					peerSubnetId := utils.ValueIngoreEmpty(raw["subnet_id"])
+					peerVpcId := utils.ValueIgnoreEmpty(raw["vpc_id"])
+					peerSubnetId := utils.ValueIgnoreEmpty(raw["subnet_id"])
 
 					searchAbnormalJsonPath := fmt.Sprintf(`length(status.connectionStatus.peerConnectionStatus[?peerVpcId=='%s'
                      && peerSubnetId=='%s' && phase=='Abnormal'])`, peerVpcId, peerSubnetId)

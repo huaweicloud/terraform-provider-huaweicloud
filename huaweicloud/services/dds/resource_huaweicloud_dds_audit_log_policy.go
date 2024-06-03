@@ -198,9 +198,9 @@ func ddsInstanceAuditLogPolicyRefreshFunc(client *golangsdk.ServiceClient, insta
 
 func buildSetAuditLogPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"keep_days":   utils.ValueIngoreEmpty(d.Get("keep_days")),
-		"audit_scope": utils.ValueIngoreEmpty(d.Get("audit_scope")),
-		"audit_types": utils.ValueIngoreEmpty(d.Get("audit_types")),
+		"keep_days":   utils.ValueIgnoreEmpty(d.Get("keep_days")),
+		"audit_scope": utils.ValueIgnoreEmpty(d.Get("audit_scope")),
+		"audit_types": utils.ValueIgnoreEmpty(d.Get("audit_types")),
 	}
 	return bodyParams
 }
@@ -314,7 +314,7 @@ func resourceDdsAuditLogPolicyDelete(ctx context.Context, d *schema.ResourceData
 func buildDeleteAuditLogPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"keep_days":         0,
-		"reserve_auditlogs": utils.ValueIngoreEmpty(d.Get("reserve_auditlogs")),
+		"reserve_auditlogs": utils.ValueIgnoreEmpty(d.Get("reserve_auditlogs")),
 	}
 	return bodyParams
 }

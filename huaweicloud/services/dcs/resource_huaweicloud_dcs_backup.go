@@ -185,8 +185,8 @@ func resourceDcsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 func buildCreateBackupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"remark":        utils.ValueIngoreEmpty(d.Get("description")),
-		"backup_format": utils.ValueIngoreEmpty(d.Get("backup_format")),
+		"remark":        utils.ValueIgnoreEmpty(d.Get("description")),
+		"backup_format": utils.ValueIgnoreEmpty(d.Get("backup_format")),
 	}
 	return bodyParams
 }

@@ -131,8 +131,8 @@ func buildCreateAuthorizationBodyParams(d *schema.ResourceData, cfg *config.Conf
 	region := cfg.GetRegion(d)
 	bodyParams := map[string]interface{}{
 		"authorisation": map[string]interface{}{
-			"name":                       utils.ValueIngoreEmpty(d.Get("name")),
-			"description":                utils.ValueIngoreEmpty(d.Get("description")),
+			"name":                       utils.ValueIgnoreEmpty(d.Get("name")),
+			"description":                utils.ValueIgnoreEmpty(d.Get("description")),
 			"instance_type":              d.Get("instance_type"),
 			"instance_id":                d.Get("instance_id"),
 			"project_id":                 cfg.GetProjectID(region),
@@ -246,8 +246,8 @@ func resourceAuthorizationUpdate(ctx context.Context, d *schema.ResourceData, me
 func buildUpdateAuthorizationBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"authorisation": map[string]interface{}{
-			"name":        utils.ValueIngoreEmpty(d.Get("name")),
-			"description": utils.ValueIngoreEmpty(d.Get("description")),
+			"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+			"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		},
 	}
 	return bodyParams

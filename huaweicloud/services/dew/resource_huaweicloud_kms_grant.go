@@ -146,12 +146,12 @@ func resourceKmsGrantCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 func buildCreateGrantBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":                   utils.ValueIngoreEmpty(d.Get("name")),
-		"key_id":                 utils.ValueIngoreEmpty(d.Get("key_id")),
-		"grantee_principal_type": utils.ValueIngoreEmpty(d.Get("type")),
-		"grantee_principal":      utils.ValueIngoreEmpty(d.Get("grantee_principal")),
-		"operations":             utils.ValueIngoreEmpty(d.Get("operations")),
-		"retiring_principal":     utils.ValueIngoreEmpty(d.Get("retiring_principal")),
+		"name":                   utils.ValueIgnoreEmpty(d.Get("name")),
+		"key_id":                 utils.ValueIgnoreEmpty(d.Get("key_id")),
+		"grantee_principal_type": utils.ValueIgnoreEmpty(d.Get("type")),
+		"grantee_principal":      utils.ValueIgnoreEmpty(d.Get("grantee_principal")),
+		"operations":             utils.ValueIgnoreEmpty(d.Get("operations")),
+		"retiring_principal":     utils.ValueIgnoreEmpty(d.Get("retiring_principal")),
 	}
 	return bodyParams
 }

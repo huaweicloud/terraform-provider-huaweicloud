@@ -170,11 +170,11 @@ func resourceRAMShareCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 func buildCreateRAMShareBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":           utils.ValueIngoreEmpty(d.Get("name")),
-		"description":    utils.ValueIngoreEmpty(d.Get("description")),
-		"permission_ids": utils.ValueIngoreEmpty(d.Get("permission_ids").(*schema.Set).List()),
-		"principals":     utils.ValueIngoreEmpty(d.Get("principals").(*schema.Set).List()),
-		"resource_urns":  utils.ValueIngoreEmpty(d.Get("resource_urns").(*schema.Set).List()),
+		"name":           utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":    utils.ValueIgnoreEmpty(d.Get("description")),
+		"permission_ids": utils.ValueIgnoreEmpty(d.Get("permission_ids").(*schema.Set).List()),
+		"principals":     utils.ValueIgnoreEmpty(d.Get("principals").(*schema.Set).List()),
+		"resource_urns":  utils.ValueIgnoreEmpty(d.Get("resource_urns").(*schema.Set).List()),
 		"tags":           utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 	}
 	return bodyParams
@@ -445,8 +445,8 @@ func updateRAMShareTags(client *golangsdk.ServiceClient, d *schema.ResourceData)
 
 func buildUpdateRAMShareBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
-		"description": utils.ValueIngoreEmpty(d.Get("description")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

@@ -118,7 +118,7 @@ func buildCreateFlowLogBodyParams(d *schema.ResourceData) map[string]interface{}
 			"resource_type":  d.Get("resource_type"),
 			"resource_id":    d.Get("resource_id"),
 			"name":           d.Get("name"),
-			"description":    utils.ValueIngoreEmpty(d.Get("description")),
+			"description":    utils.ValueIgnoreEmpty(d.Get("description")),
 		},
 	}
 	return bodyParams
@@ -261,7 +261,7 @@ func updateFlowLogState(client *golangsdk.ServiceClient, d *schema.ResourceData,
 
 func buildUpdateFlowLogBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIngoreEmpty(d.Get("name")),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
 		"description": d.Get("description"),
 	}
 	return bodyParams

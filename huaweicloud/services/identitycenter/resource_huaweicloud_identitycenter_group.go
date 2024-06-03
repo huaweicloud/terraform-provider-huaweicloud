@@ -119,8 +119,8 @@ func resourceIdentityCenterGroupCreate(ctx context.Context, d *schema.ResourceDa
 
 func buildCreateIdentityCenterGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"display_name": utils.ValueIngoreEmpty(d.Get("name")),
-		"description":  utils.ValueIngoreEmpty(d.Get("description")),
+		"display_name": utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }

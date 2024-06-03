@@ -137,8 +137,8 @@ func buildCreateCentralNetworkBodyParams(d *schema.ResourceData, cfg *config.Con
 	bodyParams := map[string]interface{}{
 		"central_network": map[string]interface{}{
 			"name":                  d.Get("name"),
-			"description":           utils.ValueIngoreEmpty(d.Get("description")),
-			"enterprise_project_id": utils.ValueIngoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
 			"tags":                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		},
 	}
@@ -318,8 +318,8 @@ func resourceCentralNetworkUpdate(ctx context.Context, d *schema.ResourceData, m
 func buildUpdateCentralNetworkBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"central_network": map[string]interface{}{
-			"name":        utils.ValueIngoreEmpty(d.Get("name")),
-			"description": utils.ValueIngoreEmpty(d.Get("description")),
+			"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+			"description": utils.ValueIgnoreEmpty(d.Get("description")),
 			"tags":        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		},
 	}

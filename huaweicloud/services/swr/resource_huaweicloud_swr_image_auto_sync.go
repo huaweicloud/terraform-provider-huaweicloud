@@ -128,10 +128,10 @@ func resourceSwrImageAutoSyncCreate(ctx context.Context, d *schema.ResourceData,
 
 func buildCreateSwrImageAutoSyncBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"remoteRegionId":  utils.ValueIngoreEmpty(d.Get("target_region")),
-		"remoteNamespace": utils.ValueIngoreEmpty(d.Get("target_organization")),
+		"remoteRegionId":  utils.ValueIgnoreEmpty(d.Get("target_region")),
+		"remoteNamespace": utils.ValueIgnoreEmpty(d.Get("target_organization")),
 		"syncAuto":        true,
-		"override":        utils.ValueIngoreEmpty(d.Get("override")),
+		"override":        utils.ValueIgnoreEmpty(d.Get("override")),
 	}
 	return bodyParams
 }
@@ -244,8 +244,8 @@ func resourceSwrImageAutoSyncDelete(_ context.Context, d *schema.ResourceData, m
 
 func buildDeleteSwrImageAutoSyncBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"remoteRegionId":  utils.ValueIngoreEmpty(d.Get("target_region")),
-		"remoteNamespace": utils.ValueIngoreEmpty(d.Get("target_organization")),
+		"remoteRegionId":  utils.ValueIgnoreEmpty(d.Get("target_region")),
+		"remoteNamespace": utils.ValueIgnoreEmpty(d.Get("target_organization")),
 	}
 	return bodyParams
 }

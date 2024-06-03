@@ -178,7 +178,7 @@ func buildDNSResolutionConfigurationBodyParams(d *schema.ResourceData, defaultDN
 
 	return map[string]interface{}{
 		"dns_server":               buildDNSServersBodyParams(userDefaultServers, differenceServers, userCustomServers),
-		"health_check_domain_name": utils.ValueIngoreEmpty(d.Get("health_check_domain_name")),
+		"health_check_domain_name": utils.ValueIgnoreEmpty(d.Get("health_check_domain_name")),
 	}
 }
 

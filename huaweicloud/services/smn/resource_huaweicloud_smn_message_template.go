@@ -116,9 +116,9 @@ func resourceSmnMessageTemplateCreate(ctx context.Context, d *schema.ResourceDat
 
 func buildCreateMessageTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"message_template_name": utils.ValueIngoreEmpty(d.Get("name")),
-		"protocol":              utils.ValueIngoreEmpty(d.Get("protocol")),
-		"content":               utils.ValueIngoreEmpty(d.Get("content")),
+		"message_template_name": utils.ValueIgnoreEmpty(d.Get("name")),
+		"protocol":              utils.ValueIgnoreEmpty(d.Get("protocol")),
+		"content":               utils.ValueIgnoreEmpty(d.Get("content")),
 	}
 	return bodyParams
 }
@@ -164,7 +164,7 @@ func resourceSmnMessageTemplateUpdate(ctx context.Context, d *schema.ResourceDat
 
 func buildUpdateMessageTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"content": utils.ValueIngoreEmpty(d.Get("content")),
+		"content": utils.ValueIgnoreEmpty(d.Get("content")),
 	}
 	return bodyParams
 }

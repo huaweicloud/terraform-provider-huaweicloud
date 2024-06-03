@@ -254,9 +254,9 @@ func resourceDdmSchemaCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 func buildCreateSchemaBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":         utils.ValueIngoreEmpty(d.Get("name")),
-		"shard_mode":   utils.ValueIngoreEmpty(d.Get("shard_mode")),
-		"shard_number": utils.ValueIngoreEmpty(d.Get("shard_number")),
+		"name":         utils.ValueIgnoreEmpty(d.Get("name")),
+		"shard_mode":   utils.ValueIgnoreEmpty(d.Get("shard_mode")),
+		"shard_number": utils.ValueIgnoreEmpty(d.Get("shard_number")),
 		"used_rds":     buildCreateSchemaUsedRdsChildBody(d),
 	}
 	params := map[string]interface{}{

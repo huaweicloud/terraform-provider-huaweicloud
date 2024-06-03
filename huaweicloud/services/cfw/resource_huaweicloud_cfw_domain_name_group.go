@@ -183,7 +183,7 @@ func buildCreateDomainNameGroupBodyParams(d *schema.ResourceData) map[string]int
 		"name":            d.Get("name"),
 		"domain_set_type": d.Get("type"),
 		"domain_names":    buildCreateDomainNameGroupRequestBodyDomainNames(d.Get("domain_names")),
-		"description":     utils.ValueIngoreEmpty(d.Get("description")),
+		"description":     utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -195,7 +195,7 @@ func buildCreateDomainNameGroupRequestBodyDomainNames(rawParams interface{}) []m
 			raw := v.(map[string]interface{})
 			rst[i] = map[string]interface{}{
 				"domain_name": raw["domain_name"],
-				"description": utils.ValueIngoreEmpty(raw["description"]),
+				"description": utils.ValueIgnoreEmpty(raw["description"]),
 			}
 		}
 		return rst

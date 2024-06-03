@@ -130,13 +130,13 @@ func resourceDwsAlarmSubsCreate(ctx context.Context, d *schema.ResourceData, met
 
 func buildCreateDwsAlarmSubsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":                     utils.ValueIngoreEmpty(d.Get("name")),
-		"alarm_level":              utils.ValueIngoreEmpty(d.Get("alarm_level")),
+		"name":                     utils.ValueIgnoreEmpty(d.Get("name")),
+		"alarm_level":              utils.ValueIgnoreEmpty(d.Get("alarm_level")),
 		"enable":                   d.Get("enable"),
-		"notification_target":      utils.ValueIngoreEmpty(d.Get("notification_target")),
-		"notification_target_name": utils.ValueIngoreEmpty(d.Get("notification_target_name")),
-		"notification_target_type": utils.ValueIngoreEmpty(d.Get("notification_target_type")),
-		"time_zone":                utils.ValueIngoreEmpty(d.Get("time_zone")),
+		"notification_target":      utils.ValueIgnoreEmpty(d.Get("notification_target")),
+		"notification_target_name": utils.ValueIgnoreEmpty(d.Get("notification_target_name")),
+		"notification_target_type": utils.ValueIgnoreEmpty(d.Get("notification_target_type")),
+		"time_zone":                utils.ValueIgnoreEmpty(d.Get("time_zone")),
 	}
 	return bodyParams
 }
@@ -244,12 +244,12 @@ func resourceDwsAlarmSubsUpdate(ctx context.Context, d *schema.ResourceData, met
 
 func buildUpdateDwsAlarmSubsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":                     utils.ValueIngoreEmpty(d.Get("name")),
-		"alarm_level":              utils.ValueIngoreEmpty(d.Get("alarm_level")),
+		"name":                     utils.ValueIgnoreEmpty(d.Get("name")),
+		"alarm_level":              utils.ValueIgnoreEmpty(d.Get("alarm_level")),
 		"enable":                   d.Get("enable"),
-		"notification_target":      utils.ValueIngoreEmpty(d.Get("notification_target")),
-		"notification_target_name": utils.ValueIngoreEmpty(d.Get("notification_target_name")),
-		"notification_target_type": utils.ValueIngoreEmpty(d.Get("notification_target_type")),
+		"notification_target":      utils.ValueIgnoreEmpty(d.Get("notification_target")),
+		"notification_target_name": utils.ValueIgnoreEmpty(d.Get("notification_target_name")),
+		"notification_target_type": utils.ValueIgnoreEmpty(d.Get("notification_target_type")),
 	}
 	return bodyParams
 }
