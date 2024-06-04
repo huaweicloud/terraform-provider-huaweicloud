@@ -46,8 +46,6 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the remarks of the DB account. The parameter must be 1 to 512 characters.
 
-* `memberof` - (Optional, List) Specifies the list of default rights of an account.
-
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

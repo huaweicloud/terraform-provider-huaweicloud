@@ -74,12 +74,6 @@ func ResourcePgAccount() *schema.Resource {
 				Sensitive:   true,
 				Description: `Specifies the password of the DB account.`,
 			},
-			"memberof": {
-				Type:        schema.TypeSet,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Description: `Specifies  the list of default rights of a account.`,
-			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -90,6 +84,12 @@ func ResourcePgAccount() *schema.Resource {
 				Elem:        pgAccountAttributesSchema(),
 				Computed:    true,
 				Description: `Indicates the permission attributes of the account.`,
+			},
+			"memberof": {
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Description: `schema: Deprecated`,
 			},
 		},
 	}
