@@ -180,6 +180,55 @@ func TestAccWafDedicatedInstance_elb_model(t *testing.T) {
 	})
 }
 
+func TestAccWafDedicatedInstance_resourceTenant(t *testing.T) {
+	var instance instances.DedicatedInstance
+	resourceName := "huaweicloud_waf_dedicated_instance.instance_1"
+	name := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getWafDedicatedInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWafDedicatedInstanceV1_resourceTenant(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "cpu_architecture", "x86"),
+					resource.TestCheckResourceAttr(resourceName, "specification_code", "waf.instance.professional"),
+					resource.TestCheckResourceAttr(resourceName, "security_group.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "run_status", "1"),
+					resource.TestCheckResourceAttr(resourceName, "access_status", "0"),
+					resource.TestCheckResourceAttr(resourceName, "upgradable", "0"),
+					resource.TestCheckResourceAttr(resourceName, "res_tenant", "true"),
+					resource.TestCheckResourceAttr(resourceName, "anti_affinity", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "server_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "subnet_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "vpc_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "available_zone"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"res_tenant", "anti_affinity"},
+			},
+		},
+	})
+}
+
 func testAccWafDedicatedInstanceV1_conf(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -256,6 +305,26 @@ resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   subnet_id          = huaweicloud_vpc_subnet.test.id
   group_id           = huaweicloud_waf_instance_group.group_1.id
   
+  security_group = [
+    huaweicloud_networking_secgroup.test.id
+  ]
+}
+`, common.TestBaseComputeResources(name), name)
+}
+
+func testAccWafDedicatedInstanceV1_resourceTenant(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_dedicated_instance" "instance_1" {
+  name               = "%s"
+  available_zone     = data.huaweicloud_availability_zones.test.names[1]
+  specification_code = "waf.instance.professional"
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  res_tenant         = true
+  anti_affinity      = true
+
   security_group = [
     huaweicloud_networking_secgroup.test.id
   ]

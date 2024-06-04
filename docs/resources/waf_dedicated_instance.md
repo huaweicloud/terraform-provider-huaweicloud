@@ -11,6 +11,8 @@ Manages a WAF dedicated instance resource within HuaweiCloud.
 
 ## Example Usage
 
+### Creating with common tenant
+
 ```hcl
 variable az_name {}
 variable ecs_flavor_id {}
@@ -27,6 +29,30 @@ resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   vpc_id                = var.vpc_id
   subnet_id             = var.subnet_id
   enterprise_project_id = var.enterprise_project_id
+
+  security_group = [
+    var.security_group_id
+  ]
+}
+```
+
+### Creating with resource tenant
+
+```hcl
+variable az_name {}
+variable vpc_id {}
+variable subnet_id {}
+variable security_group_id {}
+variable enterprise_project_id {}
+
+resource "huaweicloud_waf_dedicated_instance" "instance_1" {
+  name                  = "instance_1"
+  available_zone        = var.az_name
+  specification_code    = "waf.instance.professional"
+  vpc_id                = var.vpc_id
+  subnet_id             = var.subnet_id
+  enterprise_project_id = var.enterprise_project_id
+  res_tenant            = true
 
   security_group = [
     var.security_group_id
@@ -52,12 +78,6 @@ The following arguments are supported:
   + `waf.instance.professional` - The professional edition, throughput: 100 Mbit/s; QPS: 2,000 (Reference only).
   + `waf.instance.enterprise` - The enterprise edition, throughput: 500 Mbit/s; QPS: 10,000 (Reference only).
 
-* `ecs_flavor` - (Required, String, ForceNew) The flavor of the ECS used by the WAF instance. Flavors can be obtained
-  through this data source `huaweicloud_compute_flavors`. Changing this will create a new instance.
-
-  -> **NOTE:** If the instance specification is the professional edition, the ECS specification should be 2U4G. If the
-  instance specification is the enterprise edition, the ECS specification should be 8U16G.
-
 * `vpc_id` - (Required, String, ForceNew) The VPC id of WAF dedicated instance. Changing this will create a new
   instance.
 
@@ -73,8 +93,25 @@ The following arguments are supported:
 * `cpu_architecture` - (Optional, String, ForceNew) The ECS cpu architecture of instance, Default value is `x86`.
   Changing this will create a new instance.
 
+* `ecs_flavor` - (Optional, String, ForceNew) Specifies the flavor of the ECS used by the WAF instance. Flavors can be
+  obtained through this data source `huaweicloud_compute_flavors`. Changing this will create a new instance.
+  This field is valid and required only when `res_tenant` is set to **false**.
+
+  -> **NOTE:** If the instance specification is the professional edition, the ECS specification should be 2U4G. If the
+  instance specification is the enterprise edition, the ECS specification should be 8U16G.
+
 * `group_id` - (Optional, String, ForceNew) The instance group ID used by the WAF dedicated instance in ELB mode.
   Changing this will create a new instance.
+
+* `res_tenant` - (Optional, Bool, ForceNew) Specifies whether this is resource tenant.
+  Changing this will create a new instance.
+  + **false**: Common tenant.
+  + **true**: Resource tenant.
+
+  Defaults to **false**.
+
+* `anti_affinity` - (Optional, Bool, ForceNew) Specifies whether to enable anti-affinity. This field is valid only
+  when `res_tenant` is set to **true**. Changing this will create a new instance.
 
 ## Attribute Reference
 
@@ -118,4 +155,21 @@ $ terraform import huaweicloud_waf_dedicated_instance.test <id>
 
 ```bash
 $ terraform import huaweicloud_waf_dedicated_instance.test <id>/<enterprise_project_id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response. The missing attributes include: `res_tenant`, `anti_affinity`. It is generally recommended running
+`terraform plan` after importing the resource. You can then decide if changes should be applied to the resource,
+or the resource definition should be updated to align with the resource. Also, you can ignore changes as below.
+
+```
+resource "huaweicloud_waf_dedicated_instance" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      res_tenant, anti_affinity,
+    ]
+  }
+}
 ```

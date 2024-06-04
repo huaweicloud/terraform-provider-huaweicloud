@@ -22,7 +22,6 @@ type CreateInstanceOpts struct {
 	Arch          string   `json:"arch" required:"true"`
 	NamePrefix    string   `json:"instancename" required:"true"`
 	Specification string   `json:"specification" required:"true"`
-	CpuFlavor     string   `json:"cpu_flavor" required:"true"`
 	VpcId         string   `json:"vpc_id" required:"true"`
 	SubnetId      string   `json:"subnet_id" required:"true"`
 	SecurityGroup []string `json:"security_group" required:"true"`
@@ -32,6 +31,8 @@ type CreateInstanceOpts struct {
 	ClusterId     string   `json:"cluster_id,omitempty"`
 	PoolId        string   `json:"pool_id,omitempty"`
 	ResTenant     *bool    `json:"res_tenant,omitempty"`
+	CpuFlavor     string   `json:"cpu_flavor,omitempty"`
+	AntiAffinity  *bool    `json:"anti_affinity,omitempty"`
 }
 
 // ListInstanceOpts the parameters in the querying request.

@@ -80,17 +80,6 @@ func ResourceWafDedicatedInstance() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"cpu_architecture": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "x86",
-				ForceNew: true,
-			},
-			"ecs_flavor": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -107,16 +96,32 @@ func ResourceWafDedicatedInstance() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"cpu_architecture": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "x86",
+				ForceNew: true,
+			},
+			"ecs_flavor": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 			"res_tenant": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "schema: Internal; Specifies whether this is resource tenant.",
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"anti_affinity": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -170,6 +175,11 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 		PoolId:        d.Get("group_id").(string),
 		ResTenant:     utils.Bool(d.Get("res_tenant").(bool)),
 	}
+	if d.Get("res_tenant").(bool) {
+		// `anti_affinity` is valid only when `res_tenant` is true
+		createOpts.AntiAffinity = utils.Bool(d.Get("anti_affinity").(bool))
+	}
+
 	return &createOpts
 }
 
