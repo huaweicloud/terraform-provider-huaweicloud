@@ -154,6 +154,18 @@ func ResourceASConfiguration() *schema.Resource {
 										Computed: true,
 										ForceNew: true,
 									},
+									"iops": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+									"throughput": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
 								},
 							},
 						},
@@ -207,7 +219,8 @@ func ResourceASConfiguration() *schema.Resource {
 														Schema: map[string]*schema.Schema{
 															"size": {
 																Type:         schema.TypeInt,
-																Required:     true,
+																Optional:     true,
+																Computed:     true,
 																ForceNew:     true,
 																ValidateFunc: validation.IntBetween(1, 2000),
 															},
@@ -219,9 +232,16 @@ func ResourceASConfiguration() *schema.Resource {
 															},
 															"charging_mode": {
 																Type:         schema.TypeString,
-																Required:     true,
+																Optional:     true,
+																Computed:     true,
 																ForceNew:     true,
 																ValidateFunc: validation.StringInSlice(ValidChargingModes, false),
+															},
+															"id": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+																ForceNew: true,
 															},
 														},
 													},
@@ -231,6 +251,18 @@ func ResourceASConfiguration() *schema.Resource {
 									},
 								},
 							},
+						},
+						"tenancy": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+						"dedicated_host_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
 						},
 						"user_data": {
 							Type:     schema.TypeString,
@@ -265,11 +297,15 @@ func buildDiskOpts(diskMeta []interface{}) []configurations.DiskOpts {
 		size := disk["size"].(int)
 		volumeType := disk["volume_type"].(string)
 		diskType := disk["disk_type"].(string)
+		iops := disk["iops"].(int)
+		throughput := disk["throughput"].(int)
 
 		diskOpts := configurations.DiskOpts{
 			Size:       size,
 			VolumeType: volumeType,
 			DiskType:   diskType,
+			Iops:       iops,
+			Throughput: throughput,
 		}
 		kmsId := disk["kms_id"].(string)
 		if kmsId != "" {
@@ -308,6 +344,7 @@ func buildPublicIpOpts(publicIpMeta map[string]interface{}) configurations.Publi
 		Size:         bandWidthMap["size"].(int),
 		ShareType:    bandWidthMap["share_type"].(string),
 		ChargingMode: bandWidthMap["charging_mode"].(string),
+		ID:           bandWidthMap["id"].(string),
 	}
 
 	eipOpts := configurations.EipOpts{
@@ -347,6 +384,8 @@ func buildInstanceConfig(configDataMap map[string]interface{}) configurations.In
 		SSHKey:               configDataMap["key_name"].(string),
 		FlavorPriorityPolicy: configDataMap["flavor_priority_policy"].(string),
 		ServerGroupID:        configDataMap["ecs_group_id"].(string),
+		Tenancy:              configDataMap["tenancy"].(string),
+		DedicatedHostID:      configDataMap["dedicated_host_id"].(string),
 		UserData:             []byte(configDataMap["user_data"].(string)),
 		Metadata:             configDataMap["metadata"].(map[string]interface{}),
 		SecurityGroups:       buildSecurityGroupIDsOpts(configDataMap["security_group_ids"].([]interface{})),
@@ -486,6 +525,8 @@ func flattenInstanceConfig(instanceConfig configurations.InstanceConfig) []map[s
 			"key_name":               instanceConfig.SSHKey,
 			"flavor_priority_policy": instanceConfig.FlavorPriorityPolicy,
 			"ecs_group_id":           instanceConfig.ServerGroupID,
+			"tenancy":                instanceConfig.Tenancy,
+			"dedicated_host_id":      instanceConfig.DedicatedHostID,
 			"user_data":              instanceConfig.UserData,
 			"metadata":               instanceConfig.Metadata,
 			"disk":                   flattenInstanceDisks(instanceConfig.Disk),
@@ -507,6 +548,8 @@ func flattenInstanceDisks(disks []configurations.Disk) []map[string]interface{} 
 			"volume_type": item.VolumeType,
 			"size":        item.Size,
 			"disk_type":   item.DiskType,
+			"iops":        item.Iops,
+			"throughput":  item.Throughput,
 		}
 
 		if kms, ok := item.Metadata["__system__cmkid"]; ok {
@@ -526,6 +569,7 @@ func flattenInstancePublicIP(eipObject configurations.Eip) []map[string]interfac
 			"share_type":    eipObject.Bandwidth.ShareType,
 			"size":          eipObject.Bandwidth.Size,
 			"charging_mode": eipObject.Bandwidth.ChargingMode,
+			"id":            eipObject.Bandwidth.ID,
 		},
 	}
 
