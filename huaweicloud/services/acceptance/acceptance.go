@@ -183,6 +183,7 @@ var (
 	HW_DC_RESOURCE_TENANT_ID   = os.Getenv("HW_DC_RESOURCE_TENANT_ID")
 	HW_DC_HOSTTING_ID          = os.Getenv("HW_DC_HOSTTING_ID")
 	HW_DC_TARGET_TENANT_VGW_ID = os.Getenv("HW_DC_TARGET_TENANT_VGW_ID")
+	HW_DC_VIRTUAL_INTERFACE_ID = os.Getenv("HW_DC_VIRTUAL_INTERFACE_ID")
 
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID        = os.Getenv("HW_CFW_INSTANCE_ID")
@@ -1120,6 +1121,13 @@ func TestAccPreCheckDcResourceTenant(t *testing.T) {
 func TestAccPreCheckTargetTenantDcVGW(t *testing.T) {
 	if HW_DC_TARGET_TENANT_VGW_ID == "" {
 		t.Skip("HW_DC_TARGET_TENANT_VGW_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDCVirtualInterfaceID(t *testing.T) {
+	if HW_DC_VIRTUAL_INTERFACE_ID == "" {
+		t.Skip("HW_DC_VIRTUAL_INTERFACE_ID must be set for this acceptance test")
 	}
 }
 
