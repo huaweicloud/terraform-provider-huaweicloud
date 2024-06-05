@@ -21,6 +21,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apigateway"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/as"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/asm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cae"
@@ -1046,6 +1047,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_policy":           as.ResourceASPolicy(),
 			"huaweicloud_as_bandwidth_policy": as.ResourceASBandWidthPolicy(),
 			"huaweicloud_as_planned_task":     as.ResourcePlannedTask(),
+
+			"huaweicloud_asm_mesh": asm.ResourceAsmMesh(),
 
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": bcs.ResourceInstance(),
