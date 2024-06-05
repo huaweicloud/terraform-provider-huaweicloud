@@ -11,28 +11,18 @@ Manages DLI Queue resource within HuaweiCloud
 
 ## Example Usage
 
-### Create a queue
+### Create an exclusive mode queue
 
 ```hcl
-resource "huaweicloud_dli_queue" "queue" {
-  name     = "terraform_dli_queue_test"
+variable "elastic_resource_pool_name" {}
+variable "queue_name" {}
+
+resource "huaweicloud_dli_queue" "test" {
+  elastic_resource_pool_name = var.elastic_resource_pool_name
+  resource_mode              = 1
+
+  name     = var.queue_name
   cu_count = 16
-
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
-```
-
-### Create a queue with CIDR Block
-
-```hcl
-resource "huaweicloud_dli_queue" "queue" {
-  name          = "terraform_dli_queue_test"
-  cu_count      = 16
-  resource_mode = 1
-  vpc_cidr      = "172.16.0.0/14"
 
   tags = {
     foo = "bar"
@@ -47,6 +37,17 @@ The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the dli queue resource. If omitted,
   the provider-level region will be used. Changing this will create a new VPC channel resource.
+
+* `elastic_resource_pool_name` - (Required, String) Specifies the name of the elastic resource pool to which the queue
+  belongs.
+
+  ~> This parameter cannot be updated and will not trigger ForceNew(, only an error will be thrown).
+
+* `resource_mode` - (Required, Int, ForceNew) Specifies the queue resource mode.  
+  The valid value is as follows:
+  + 1: indicates the exclusive resource mode.
+
+  Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Name of a queue. Name of a newly created resource queue. The name can contain
   only digits, letters, and underscores (\_), but cannot contain only digits or start with an underscore (_). Length
@@ -73,28 +74,12 @@ The following arguments are supported:
   + x86_64 : default value
   + aarch64
 
-* `resource_mode` - (Optional, Int, ForceNew) Queue resource mode. Changing this parameter will create a new
-  resource. The options are as follows:
-  + 0: indicates the shared resource mode.
-  + 1: indicates the exclusive resource mode.
-
 * `feature` - (Optional, String, ForceNew)Indicates the queue feature. Changing this parameter will create a new
   resource. The options are as follows:
   + basic: basic type (default value)
   + ai: AI-enhanced (Only the SQL x86_64 dedicated queue supports this option.)
 
-* `vpc_cidr` - (Optional, String) The CIDR block of a queue. If use DLI enhanced datasource connections, the CIDR block
-  cannot be the same as that of the data source.
-  The CIDR blocks supported by different CU specifications:
-
-    + When `cu_count` is `16` or `64`: 10.0.0.0~10.255.0.0/8~24, 172.16.0.0~172.31.0.0/12~24,
-      192.168.0.0~192.168.0.0/16~24.
-    + When `cu_count` is `256`: 10.0.0.0~10.255.0.0/8~22, 172.16.0.0~172.31.0.0/12~22, 192.168.0.0~192.168.0.0/16~22.
-
 * `tags` - (Optional, Map, ForceNew) Label of a queue. Changing this parameter will create a new resource.
-
-* `elastic_resource_pool_name` - (Optional, String) The name of the elastic resource pool.
-  This parameter is only available if `resource_mode` is set to `1`.
 
 * `scaling_policies` - (Optional, List) Specifies the list of scaling policies of the queue associated with
   an elastic resource pool.
@@ -171,10 +156,19 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-DLI queue can be imported by `name`. For example,
+DLI queue can be imported by `name` and `queue_type` (if omitted, the SQL type queue will be imported), separated by a
+slash, e.g.
+
+### Import a queue of the specified type (SQL type and general type)
 
 ```bash
-terraform import huaweicloud_dli_queue.example terraform_dli_queue_test
+$ terraform import huaweicloud_dli_queue.test <queue_type>/<name>
+```
+
+### Import a SQL type queue
+
+```bash
+$ terraform import huaweicloud_dli_queue.test <name>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
