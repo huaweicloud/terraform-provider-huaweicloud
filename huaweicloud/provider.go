@@ -1521,6 +1521,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_lts_log":                      rds.ResourceRdsLtsLog(),
 			"huaweicloud_rds_recycling_policy":             rds.ResourceRecyclingPolicy(),
 			"huaweicloud_rds_primary_standby_switch":       rds.ResourceRdsInstanceSwitch(),
+			"huaweicloud_rds_database_logs_shrinking":      rds.ResourceRdsDbLogsShrinking(),
 
 			"huaweicloud_rms_policy_assignment":                  rms.ResourcePolicyAssignment(),
 			"huaweicloud_rms_resource_aggregator":                rms.ResourceAggregator(),
