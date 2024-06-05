@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/dc/v3/interfaces"
@@ -18,28 +16,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-type (
-	InterfaceType string
-	ServiceType   string
-	RouteMode     string
-	AddressType   string
-)
-
-const (
-	InterfaceTypePrivate InterfaceType = "private"
-
-	ServiceTypeVpc  ServiceType = "VPC"
-	ServiceTypeVgw  ServiceType = "VGW"
-	ServiceTypeGdww ServiceType = "GDWW"
-	ServiceTypeLgw  ServiceType = "LGW"
-
-	RouteModeStatic RouteMode = "static"
-	RouteModeBgp    RouteMode = "bgp"
-
-	AddressTypeIpv4 AddressType = "ipv4"
-	AddressTypeIpv6 AddressType = "ipv6"
 )
 
 // @API DC DELETE /v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}
@@ -78,41 +54,27 @@ func ResourceVirtualInterface() *schema.Resource {
 				Description: "The ID of the virtual gateway to which the virtual interface is connected.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5\\w-.]*$"),
-						"Only chinese and english letters, digits, hyphens (-), underscores (_) and dots (.) are "+
-							"allowed."),
-					validation.StringLenBetween(1, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The name of the virtual interface.",
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(InterfaceTypePrivate),
-				}, false),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 				Description: "The type of the virtual interface.",
 			},
 			"route_mode": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(RouteModeStatic),
-					string(RouteModeBgp),
-				}, false),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 				Description: "The route mode of the virtual interface.",
 			},
 			"vlan": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(0, 3999),
-				Description:  "The VLAN for constom side.",
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The VLAN for constom side.",
 			},
 			"bandwidth": {
 				Type:        schema.TypeInt,
@@ -126,26 +88,15 @@ func ResourceVirtualInterface() *schema.Resource {
 				Description: "The CIDR list of remote subnets.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-						"The angle brackets (< and >) are not allowed."),
-					validation.StringLenBetween(0, 128),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The description of the virtual interface.",
 			},
 			"service_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ServiceTypeVpc),
-					string(ServiceTypeVgw),
-					string(ServiceTypeGdww),
-					string(ServiceTypeLgw),
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 				Description: "The service type of the virtual interface.",
 			},
 			"local_gateway_v4_ip": {
@@ -163,13 +114,9 @@ func ResourceVirtualInterface() *schema.Resource {
 				Description:   "The IPv4 address of the virtual interface in client side.",
 			},
 			"address_family": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(AddressTypeIpv4),
-					string(AddressTypeIpv6),
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
 				Description: "The address family type of the virtual interface.",
 			},
 			"local_gateway_v6_ip": {
@@ -187,12 +134,11 @@ func ResourceVirtualInterface() *schema.Resource {
 				Description: "The IPv6 address of the virtual interface in client side.",
 			},
 			"asn": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntNotInSlice([]int{64512}),
-				Description:  "The local BGP ASN in client side.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The local BGP ASN in client side.",
 			},
 			"bgp_md5": {
 				Type:        schema.TypeString,
