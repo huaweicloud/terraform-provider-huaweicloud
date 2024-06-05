@@ -1499,6 +1499,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_mysql_binlog":                 rds.ResourceMysqlBinlog(),
 			"huaweicloud_rds_mysql_database":               rds.ResourceMysqlDatabase(),
 			"huaweicloud_rds_mysql_database_privilege":     rds.ResourceMysqlDatabasePrivilege(),
+			"huaweicloud_rds_mysql_database_table_restore": rds.ResourceMysqlDatabaseTableRestore(),
 			"huaweicloud_rds_pg_account":                   rds.ResourcePgAccount(),
 			"huaweicloud_rds_pg_account_roles":             rds.ResourcePgAccountRoles(),
 			"huaweicloud_rds_pg_database":                  rds.ResourcePgDatabase(),
