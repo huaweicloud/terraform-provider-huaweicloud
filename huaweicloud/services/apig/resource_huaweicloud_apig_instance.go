@@ -16,45 +16,25 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/instances"
 	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
-	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-type Edition string      // The edition of the dedicated instance.
-type ProviderType string // The type of the loadbalancer provider.
-
-const (
-	// IPv4 Editions
-	EditionBasic        Edition = "BASIC"        // Basic Edition instance.
-	EditionProfessional Edition = "PROFESSIONAL" // Professional Edition instance.
-	EditionEnterprise   Edition = "ENTERPRISE"   // Enterprise Edition instance.
-	EditionPlatinum     Edition = "PLATINUM"     // Platinum Edition instance.
-	// IPv6 Editions
-	Ipv6EditionBasic        Edition = "BASIC_IPv6"        // IPv6 instance of the Basic Edition.
-	Ipv6EditionProfessional Edition = "PROFESSIONAL_IPv6" // IPv6 instance of the Professional Edition.
-	Ipv6EditionEnterprise   Edition = "ENTERPRISE_IPv6"   // IPv6 instance of the Enterprise Edition.
-	Ipv6EditionPlatinum     Edition = "PLATINUM_IPv6"     // IPv6 instance of the Platinum Edition.
-)
-
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/eip
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/eip
-// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
-// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
+// @API APIG POST /v2/{project_id}/apigw/instances
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}
-// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/instance-tags/action
-// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/instance-tags
-// @API APIG POST /v2/{project_id}/apigw/instances
-// @API EIP GET /v1/{project_id}/publicips
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/eip
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/eip
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
+// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/nat-eip
 // @API APIG POST /v2/{project_id}/apigw/instances{instance_id}/ingress-eip
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/ingress-eip
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/instance-tags
 func ResourceApigInstanceV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,
@@ -81,30 +61,14 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Description: `The region in which to create the dedicated instance resource.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z-_0-9]*)$"),
-						"The name can only contain letters, digits, hyphens (-) and underscore (_), and must start "+
-							"with a letter."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: `The name of the dedicated instance.`,
 			},
 			"edition": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(EditionBasic),
-					string(EditionProfessional),
-					string(EditionEnterprise),
-					string(EditionPlatinum),
-					string(Ipv6EditionBasic),
-					string(Ipv6EditionProfessional),
-					string(Ipv6EditionEnterprise),
-					string(Ipv6EditionPlatinum),
-				}, false),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 				Description: `The edition of the dedicated instance.`,
 			},
 			"vpc_id": {
@@ -133,13 +97,8 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Description: `schema: Required; The name list of availability zones for the dedicated instance.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
-						"The description cannot contain the angle brackets (< and >)."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: `The description of the dedicated instance.`,
 			},
 			"enterprise_project_id": {
@@ -149,10 +108,9 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Description: `The enterprise project ID to which the dedicated instance belongs.`,
 			},
 			"bandwidth_size": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntBetween(0, 2000),
-				Description:  `The egress bandwidth size of the dedicated instance.`,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The egress bandwidth size of the dedicated instance.`,
 			},
 			"ipv6_enable": {
 				Type:        schema.TypeBool,
@@ -273,119 +231,141 @@ func ResourceApigInstanceV2() *schema.Resource {
 	}
 }
 
-func buildMaintainEndTime(maintainStart string) (string, error) {
+// buildMaintainEndTime is a method that used to calculate the end time based on the start time, with a 4-hour interval
+// between two time strings.
+func buildMaintainEndTime(maintainStart string) string {
 	result := regexp.MustCompile("^(02|06|10|14|18|22):00:00$").FindStringSubmatch(maintainStart)
 	if len(result) < 2 {
-		return "", fmt.Errorf("the hour is missing")
+		log.Printf("the time format of the maintain window (%s) is incorrect", maintainStart)
+		return ""
 	}
 	num, err := strconv.Atoi(result[1])
 	if err != nil {
-		return "", fmt.Errorf("the number (%s) cannot be converted to string", result[1])
+		log.Printf("the maintain window time (%s) cannot convet to number from a string", result[1])
+		return ""
 	}
-	return fmt.Sprintf("%02d:00:00", (num+4)%24), nil
+	return fmt.Sprintf("%02d:00:00", (num+4)%24)
 }
 
-func buildInstanceAvailabilityZones(d *schema.ResourceData) ([]string, error) {
+func buildInstanceAvailabilityZones(d *schema.ResourceData) interface{} {
 	if v, ok := d.GetOk("availability_zones"); ok {
-		return utils.ExpandToStringList(v.([]interface{})), nil
+		return v.([]interface{})
 	}
 
 	// When 'availability_zones' is omitted, the deprecated parameter 'available_zones' is used.
 	if v, ok := d.GetOk("available_zones"); ok {
-		return utils.ExpandToStringList(v.([]interface{})), nil
+		return v.([]interface{})
 	}
 
-	return nil, fmt.Errorf("The parameter 'availability_zones' must be specified")
+	return nil
 }
 
-func buildInstanceCreateOpts(d *schema.ResourceData, cfg *config.Config) (instances.CreateOpts, error) {
-	result := instances.CreateOpts{
-		Name:                        d.Get("name").(string),
-		Edition:                     d.Get("edition").(string),
-		VpcId:                       d.Get("vpc_id").(string),
-		SubnetId:                    d.Get("subnet_id").(string),
-		SecurityGroupId:             d.Get("security_group_id").(string),
-		Description:                 d.Get("description").(string),
-		EipId:                       d.Get("eip_id").(string),
-		BandwidthSize:               d.Get("bandwidth_size").(int), // Bandwidth 0 means turn off the egress access.
-		EnterpriseProjectId:         common.GetEnterpriseProjectID(d, cfg),
-		Ipv6Enable:                  d.Get("ipv6_enable").(bool),
-		LoadbalancerProvider:        d.Get("loadbalancer_provider").(string),
-		Tags:                        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
-		VpcepServiceName:            d.Get("vpcep_service_name").(string),
-		IngressBandwithSize:         d.Get("ingress_bandwidth_size").(int), // BandWidth must be greater than or equal to 5.
-		IngressBandwithChargingMode: d.Get("ingress_bandwidth_charging_mode").(string),
+func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	result := map[string]interface{}{
+		"instance_name":                   d.Get("name"),
+		"spec_id":                         d.Get("edition"),
+		"vpc_id":                          d.Get("vpc_id"),
+		"subnet_id":                       d.Get("subnet_id"),
+		"security_group_id":               d.Get("security_group_id"),
+		"available_zone_ids":              utils.ValueIgnoreEmpty(buildInstanceAvailabilityZones(d)),
+		"description":                     utils.ValueIgnoreEmpty(d.Get("description")),
+		"bandwidth_size":                  d.Get("bandwidth_size"), // Bandwidth 0 means turn off the egress access.
+		"enterprise_project_id":           common.GetEnterpriseProjectID(d, cfg),
+		"eip_id":                          utils.ValueIgnoreEmpty(d.Get("eip_id")),
+		"ipv6_enable":                     utils.ValueIgnoreEmpty(d.Get("ipv6_enable")),
+		"loadbalancer_provider":           utils.ValueIgnoreEmpty(d.Get("loadbalancer_provider")),
+		"tags":                            utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+		"vpcep_service_name":              utils.ValueIgnoreEmpty(d.Get("vpcep_service_name")),
+		"ingress_bandwidth_size":          utils.ValueIgnoreEmpty(d.Get("ingress_bandwidth_size")), // BandWidth must be greater than or equal to 5.
+		"ingress_bandwidth_charging_mode": utils.ValueIgnoreEmpty(d.Get("ingress_bandwidth_charging_mode")),
+		"maintain_begin":                  utils.ValueIgnoreEmpty(d.Get("maintain_begin")),
+		"maintain_end":                    utils.ValueIgnoreEmpty(buildMaintainEndTime(d.Get("maintain_begin").(string))),
+	}
+	log.Printf("[DEBUG] The request body of the create method for the dedicated instance is: %#v", result)
+	return result
+}
+
+func QueryInstanceDetail(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	azList, err := buildInstanceAvailabilityZones(d)
+	requestResp, err := client.Request("GET", createPath, &opt)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
-	result.AvailableZoneIds = azList
-
-	if v, ok := d.GetOk("maintain_begin"); ok {
-		startTime := v.(string)
-		result.MaintainBegin = startTime
-		endTime, err := buildMaintainEndTime(startTime)
-		if err != nil {
-			return result, err
-		}
-		result.MaintainEnd = endTime
-	}
-
-	log.Printf("[DEBUG] Create options of the dedicated instance is: %#v", result)
-	return result, nil
+	return utils.FlattenResponse(requestResp)
 }
 
-func buildTagsUpdateOpts(tags map[string]interface{}, instanceId, action string) *instances.TagsUpdateOpts {
-	if len(tags) < 1 {
-		return nil
-	}
-	return &instances.TagsUpdateOpts{
-		InstanceId: instanceId,
-		Action:     action,
-		Tags:       utils.ExpandResourceTags(tags),
+func instanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceId string, targets []string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		respBody, err := QueryInstanceDetail(client, instanceId)
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
+				return "not_found", "COMPLETED", nil
+			}
+			return respBody, "ERROR", err
+		}
+
+		statusResp := utils.PathSearch("status", respBody, "").(string)
+		if utils.StrSliceContains([]string{"CreateFail", "InitingFailed", "RegisterFailed", "InstallFailed",
+			"UpdateFailed", "RollbackFailed", "UnRegisterFailed", "DeleteFailed", "RestartFail", "ResizeFailed"},
+			statusResp) {
+			return respBody, "ERROR", fmt.Errorf("unexpect status (%s)", statusResp)
+		}
+
+		if utils.StrSliceContains(targets, statusResp) {
+			return respBody, "COMPLETED", nil
+		}
+		return "continue", "PENDING", nil
 	}
 }
 
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		httpUrl = "v2/{project_id}/apigw/instances"
+	)
+	client, err := cfg.NewServiceClient("apig", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	opts, err := buildInstanceCreateOpts(d, cfg)
-	if err != nil {
-		return diag.Errorf("error creating the dedicated instance options: %s", err)
-	}
-	log.Printf("[DEBUG] The CreateOpts of the dedicated instance is: %#v", opts)
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 
-	resp, err := instances.Create(client, opts).Extract()
-	if err != nil {
-		return diag.Errorf("error creating the dedicated instance: %s", err)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateInstanceBodyParams(d, cfg)),
 	}
-	d.SetId(resp.Id)
 
-	instanceId := d.Id()
+	requestResp, err := client.Request("POST", createPath, &opt)
+	if err != nil {
+		return diag.Errorf("error creating dedicated instance: %s", err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	instanceId := utils.PathSearch("instance_id", respBody, "").(string)
+	d.SetId(instanceId)
+
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      InstanceStateRefreshFunc(client, instanceId, []string{"Running"}),
+		Refresh:      instanceStateRefreshFunc(client, instanceId, []string{"Running"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        20 * time.Second,
+		Delay:        1 * time.Minute,
 		PollInterval: 20 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for the dedicated instance (%s) to become running: %s", instanceId, err)
-	}
-
-	if tagsRaw, ok := d.GetOk("tags"); ok {
-		err = instances.UpdateTags(client, buildTagsUpdateOpts(tagsRaw.(map[string]interface{}), instanceId, "create"))
-		if err != nil {
-			return diag.Errorf("error creating instance tags: %s", err)
-		}
+		return diag.Errorf("error waiting for the status of dedicated instance (%s) to become running: %s", instanceId, err)
 	}
 
 	return resourceInstanceRead(ctx, d, meta)
@@ -401,42 +381,6 @@ func parseInstanceAvailabilityZones(azStr string) []string {
 	return strings.Split(codesStr, ",")
 }
 
-// The response of ingress access does not contain EIP ID, just the IP address.
-func parseInstanceIngressAccess(cfg *config.Config, region, publicAddress string) (*string, error) {
-	if publicAddress == "" {
-		return nil, nil
-	}
-
-	client, err := cfg.NetworkingV1Client(region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating VPC v1 client: %s", err)
-	}
-
-	opt := eips.ListOpts{
-		PublicIp:            []string{publicAddress},
-		EnterpriseProjectId: "all_granted_eps",
-	}
-	allPages, err := eips.List(client, opt).AllPages()
-	if err != nil {
-		return nil, err
-	}
-	publicIps, err := eips.ExtractPublicIPs(allPages)
-	if err != nil {
-		return nil, err
-	}
-	if len(publicIps) > 0 {
-		return &publicIps[0].ID, nil
-	}
-
-	log.Printf("[WARN] The instance does not synchronize EIP information, got (%s), but not found on the server",
-		publicAddress)
-	return nil, nil
-}
-
-func parseInstanceIpv6Enable(ipv6Address string) bool {
-	return ipv6Address != ""
-}
-
 func parseVpcepServiceName(serviceName string) string {
 	// The format of the service endpoint is the '{region}.{vpcep_service_name}.{service_id}'
 	regexExp := `^[\w-]+\.(.*)\.[a-f0-9-]+$`
@@ -450,203 +394,275 @@ func parseVpcepServiceName(serviceName string) string {
 	return result[1]
 }
 
-func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.ApigV2Client(region)
+func queryInstanceTags(client *golangsdk.ServiceClient, instanceId string) interface{} {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/instance-tags"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	requestResp, err := client.Request("GET", createPath, &opt)
 	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
+		log.Printf("[WARN] error qeurying tag list of the dedicated instance (%s): %s", instanceId, err)
+		return nil
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		log.Printf("[ERROR] error retrieving tag list: %s", err)
+		return nil
+	}
+	return utils.PathSearch("tags", respBody, make([]interface{}, 0))
+}
+
+func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+	client, err := cfg.NewServiceClient("apig", region)
+	if err != nil {
+		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
 	instanceId := d.Id()
-	resp, err := instances.Get(client, instanceId).Extract()
+	respBody, err := QueryInstanceDetail(client, instanceId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error getting instance (%s) details form server", instanceId))
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error qeurying dedicated instance (%s) detail", instanceId))
 	}
-	log.Printf("[DEBUG] Retrieved the dedicated instance (%s): %#v", instanceId, resp)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("name", resp.Name),
-		d.Set("edition", resp.Edition),
-		d.Set("vpc_id", resp.VpcId),
-		d.Set("subnet_id", resp.SubnetId),
-		d.Set("security_group_id", resp.SecurityGroupId),
-		d.Set("description", resp.Description),
-		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
-		d.Set("bandwidth_size", resp.BandwidthSize),
-		d.Set("ipv6_enable", parseInstanceIpv6Enable(resp.Ipv6IngressEipAddress)),
-		d.Set("loadbalancer_provider", resp.LoadbalancerProvider),
-		d.Set("availability_zones", parseInstanceAvailabilityZones(resp.AvailableZoneIds)),
-		d.Set("maintain_begin", resp.MaintainBegin),
-		d.Set("ingress_bandwidth_charging_mode", resp.IngressBandwidthChargingMode),
+		d.Set("name", utils.PathSearch("instance_name", respBody, nil)),
+		d.Set("edition", utils.PathSearch("spec", respBody, nil)),
+		d.Set("vpc_id", utils.PathSearch("vpc_id", respBody, nil)),
+		d.Set("subnet_id", utils.PathSearch("subnet_id", respBody, nil)),
+		d.Set("security_group_id", utils.PathSearch("security_group_id", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", respBody, nil)),
+		d.Set("bandwidth_size", utils.PathSearch("bandwidth_size", respBody, nil)),
+		d.Set("ipv6_enable", utils.PathSearch("!!eip_ipv6_address", respBody, nil)),
+		d.Set("loadbalancer_provider", utils.PathSearch("loadbalancer_provider", respBody, nil)),
+		d.Set("availability_zones", parseInstanceAvailabilityZones(utils.PathSearch("available_zone_ids", respBody, "").(string))),
+		d.Set("maintain_begin", utils.PathSearch("maintain_begin", respBody, nil)),
+		d.Set("vpcep_service_name", parseVpcepServiceName(utils.PathSearch("endpoint_services[0].service_name", respBody, "").(string))),
+		d.Set("ingress_bandwidth_charging_mode", utils.PathSearch("ingress_bandwidth_charging_mode", respBody, nil)),
+		d.Set("ingress_bandwidth_size", utils.PathSearch("publicips[0].bandwidth_size", respBody, nil)),
 		// Attributes
-		d.Set("maintain_end", resp.MaintainEnd),
-		d.Set("vpc_ingress_address", resp.Ipv4VpcIngressAddress),
-		d.Set("egress_address", resp.Ipv4EgressAddress),
-		d.Set("supported_features", resp.SupportedFeatures),
-		d.Set("status", resp.Status),
-		d.Set("created_at", utils.FormatTimeStampRFC3339(resp.CreateTimestamp, false)),
+		d.Set("maintain_end", utils.PathSearch("maintain_end", respBody, nil)),
+		d.Set("vpc_ingress_address", utils.PathSearch("ingress_ip", respBody, nil)),
+		d.Set("egress_address", utils.PathSearch("nat_eip_address", respBody, nil)),
+		d.Set("supported_features", utils.PathSearch("supported_features", respBody, nil)),
+		d.Set("status", utils.PathSearch("status", respBody, nil)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", respBody, float64(0)).(float64))/1000, false)),
+		d.Set("vpcep_service_address", utils.PathSearch("endpoint_services[0].service_name", respBody, nil)),
+		d.Set("ingress_address", utils.PathSearch("eip_address||publicips[0].ip_address", respBody, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(queryInstanceTags(client, instanceId))),
 		// Deprecated
-		d.Set("create_time", utils.FormatTimeStampRFC3339(resp.CreateTimestamp, false)),
+		d.Set("create_time", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", respBody, float64(0)).(float64))/1000, false)),
 	)
-
-	if eipId, err := parseInstanceIngressAccess(cfg, region, resp.Ipv4IngressEipAddress); err != nil {
-		mErr = multierror.Append(mErr, err)
-	} else {
-		mErr = multierror.Append(d.Set("eip_id", eipId))
-	}
-
-	if len(resp.EndpointServices) > 0 {
-		mErr = multierror.Append(mErr,
-			d.Set("vpcep_service_name", parseVpcepServiceName(resp.EndpointServices[0].ServiceName)),
-			d.Set("vpcep_service_address", resp.EndpointServices[0].ServiceName),
-		)
-	}
-
-	var (
-		ingressBandwidthSize int
-		ingressPublicIp      string
-	)
-	if len(resp.PublicIps) > 0 {
-		ingressBandwidthSize = resp.PublicIps[0].BandwidthSize
-		ingressPublicIp = resp.PublicIps[0].IpAddress
-	} else {
-		ingressPublicIp = resp.Ipv4IngressEipAddress
-	}
-
-	mErr = multierror.Append(mErr,
-		d.Set("ingress_bandwidth_size", ingressBandwidthSize),
-		d.Set("ingress_address", ingressPublicIp),
-	)
-
-	if tagList, err := instances.GetTags(client, instanceId); err != nil {
-		log.Printf("[WARN] error querying instance tags: %s", err)
-	} else {
-		mErr = multierror.Append(d.Set("tags", utils.TagsToMap(tagList)))
-	}
 
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error saving resource fields of the dedicated instance: %s", mErr)
 	}
-
 	return nil
 }
 
-func buildInstanceUpdateOpts(d *schema.ResourceData) (instances.UpdateOpts, error) {
-	result := instances.UpdateOpts{}
-	if d.HasChange("name") {
-		result.Name = d.Get("name").(string)
+func buildUpdateInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
+	result := map[string]interface{}{
+		"instance_name":      d.Get("name"),
+		"description":        d.Get("description"),
+		"security_group_id":  d.Get("security_group_id"),
+		"vpcep_service_name": d.Get("vpcep_service_name"),
+		"maintain_begin":     utils.ValueIgnoreEmpty(d.Get("maintain_begin")),
+		"maintain_end":       utils.ValueIgnoreEmpty(buildMaintainEndTime(d.Get("maintain_begin").(string))),
 	}
-	if d.HasChange("description") {
-		result.Description = utils.String(d.Get("description").(string))
-	}
-	if d.HasChange("security_group_id") {
-		result.SecurityGroupId = d.Get("security_group_id").(string)
-	}
-	if d.HasChange("vpcep_service_name") {
-		result.VpcepServiceName = d.Get("vpcep_service_name").(string)
-	}
-	if d.HasChange("maintain_begin") {
-		startTime := d.Get("maintain_begin").(string)
-		result.MaintainBegin = startTime
-		endTime, err := buildMaintainEndTime(startTime)
-		if err != nil {
-			return result, err
-		}
-		result.MaintainEnd = endTime
-	}
-
-	log.Printf("[DEBUG] Update options of the dedicated instance is: %#v", result)
-	return result, nil
+	log.Printf("[DEBUG] The request body of the update method for the dedicated instance is: %#v", result)
+	return result
 }
 
-func updateApigInstanceEgressAccess(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	oldVal, newVal := d.GetChange("bandwidth_size")
+func updateInstanceBasicConfiguration(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		httpUrl    = "v2/{project_id}/apigw/instances/{instance_id}"
+		instanceId = d.Id()
+	)
+
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildUpdateInstanceBodyParams(d),
+	}
+
+	_, err := client.Request("PUT", createPath, &opt)
+	if err != nil {
+		return fmt.Errorf("error updating dedicated instance: %s", err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      instanceStateRefreshFunc(client, instanceId, []string{"Running"}),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for the status of dedicated instance (%s) to become running: %s", instanceId, err)
+	}
+	return nil
+}
+
+func updateInstanceEgressAccess(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		err            error
+		oldVal, newVal = d.GetChange("bandwidth_size")
+		instanceId     = d.Id()
+		httpUrl        = "v2/{project_id}/apigw/instances/{instance_id}/nat-eip"
+		generalPath    = client.Endpoint + httpUrl
+	)
+	generalPath = strings.ReplaceAll(generalPath, "{project_id}", client.ProjectID)
+	generalPath = strings.ReplaceAll(generalPath, "{instance_id}", instanceId)
+
 	// Enable the egress access.
 	if oldVal.(int) == 0 {
-		size := d.Get("bandwidth_size").(int)
-		opts := instances.EgressAccessOpts{
-			BandwidthSize: strconv.Itoa(size),
+		opt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody: map[string]interface{}{
+				"bandwidth_size": newVal,
+			},
 		}
-		egress, err := instances.EnableEgressAccess(client, d.Id(), opts).Extract()
+
+		_, err = client.Request("POST", generalPath, &opt)
 		if err != nil {
 			return fmt.Errorf("unable to enable egress bandwidth of the dedicated instance (%s): %s", d.Id(), err)
 		}
-		if egress.BandwidthSize != size {
-			return fmt.Errorf("the egress bandwidth size change failed, want '%d', but '%d'", size, egress.BandwidthSize)
-		}
-	}
-	// Disable the egress access.
-	if newVal.(int) == 0 {
-		err := instances.DisableEgressAccess(client, d.Id()).ExtractErr()
-		if err != nil {
-			return fmt.Errorf("unable to disable egress bandwidth of the dedicated instance (%s)", d.Id())
-		}
+		// After bandwidth enabled, the update process is completed.
 		return nil
 	}
-	// Update the egress nat.
-	size := d.Get("bandwidth_size").(int)
-	opts := instances.EgressAccessOpts{
-		BandwidthSize: strconv.Itoa(size),
+
+	// Disable the egress access.
+	if newVal.(int) == 0 {
+		opt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		_, err = client.Request("DELETE", generalPath, &opt)
+		if err != nil {
+			return fmt.Errorf("unable to disable egress bandwidth of the dedicated instance (%s): %s", d.Id(), err)
+		}
+		// After bandwidth disabled, the update process is completed.
+		return nil
 	}
-	egress, err := instances.UpdateEgressBandwidth(client, d.Id(), opts).Extract()
+
+	// Update the egress NAT.
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"bandwidth_size": newVal,
+		},
+	}
+	_, err = client.Request("PUT", generalPath, &opt)
 	if err != nil {
 		return fmt.Errorf("unable to update egress bandwidth of the dedicated instance (%s): %s", d.Id(), err)
-	}
-	if egress.BandwidthSize != size {
-		return fmt.Errorf("the egress bandwidth size change failed, want '%d', but '%d'", size, egress.BandwidthSize)
 	}
 	return nil
 }
 
-func updateInstanceIngressAccess(d *schema.ResourceData, client *golangsdk.ServiceClient) (err error) {
-	oldVal, newVal := d.GetChange("eip_id")
+func updateInstanceIngressAccess(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		err            error
+		oldVal, newVal = d.GetChange("eip_id")
+		instanceId     = d.Id()
+		httpUrl        = "v2/{project_id}/apigw/instances/{instance_id}/eip"
+		generalPath    = client.Endpoint + httpUrl
+	)
+	generalPath = strings.ReplaceAll(generalPath, "{project_id}", client.ProjectID)
+	generalPath = strings.ReplaceAll(generalPath, "{instance_id}", instanceId)
+
 	// Disable the ingress access.
-	// The update logic is to disable first and then enable. Update means thar both oldVal and newVal exist.
+	// The update logic is to disable first and then enable. Update means that both oldVal and newVal exist.
 	if oldVal.(string) != "" {
-		err = instances.DisableIngressAccess(client, d.Id()).ExtractErr()
-		if err != nil || newVal.(string) == "" {
-			return
+		opt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		_, err = client.Request("DELETE", generalPath, &opt)
+		if err != nil {
+			return fmt.Errorf("unable to disassociate the ingress EIP: %s", err)
+		}
+		if newVal.(string) == "" {
+			return nil
 		}
 	}
 	// Enable the ingress access.
-	updateOpts := instances.IngressAccessOpts{
-		EipId: d.Get("eip_id").(string),
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"eip_id": newVal,
+		},
 	}
-	_, err = instances.EnableIngressAccess(client, d.Id(), updateOpts).Extract()
-	return
+	_, err = client.Request("PUT", generalPath, &opt)
+	if err != nil {
+		return fmt.Errorf("unable to associate the ingress EIP: %s", err)
+	}
+	return nil
 }
 
 func updateInstanceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	var (
-		err              error
-		instanceId       = d.Id()
-		oldRaws, newRaws = d.GetChange("tags")
-		rmTags           = oldRaws.(map[string]interface{})
-		addTags          = newRaws.(map[string]interface{})
+		err            error
+		oldVal, newVal = d.GetChange("tags")
+		rmTags         = oldVal.(map[string]interface{})
+		addTags        = newVal.(map[string]interface{})
+		instanceId     = d.Id()
+		httpUrl        = "v2/{project_id}/apigw/instances/{instance_id}/instance-tags/action"
+		generalPath    = client.Endpoint + httpUrl
 	)
+	generalPath = strings.ReplaceAll(generalPath, "{project_id}", client.ProjectID)
+	generalPath = strings.ReplaceAll(generalPath, "{instance_id}", instanceId)
+
 	if len(rmTags) > 0 {
-		err := instances.UpdateTags(client, buildTagsUpdateOpts(rmTags, instanceId, "delete"))
+		opt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody: map[string]interface{}{
+				"action": "delete",
+				"tags":   utils.ExpandResourceTagsMap(rmTags),
+			},
+			OkCodes: []int{204},
+		}
+		_, err = client.Request("POST", generalPath, &opt)
 		if err != nil {
-			return fmt.Errorf("error deleting instance tags: %s", err)
+			return fmt.Errorf("unable to remove the instance tags: %s", err)
 		}
 	}
 	if len(addTags) > 0 {
-		err = instances.UpdateTags(client, buildTagsUpdateOpts(addTags, instanceId, "create"))
+		opt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody: map[string]interface{}{
+				"action": "create",
+				"tags":   utils.ExpandResourceTagsMap(addTags),
+			},
+			OkCodes: []int{204},
+		}
+		_, err = client.Request("POST", generalPath, &opt)
 		if err != nil {
-			return fmt.Errorf("[WARN] error creating instance tags: %s", err)
+			return fmt.Errorf("unable to add the instance tags: %s", err)
 		}
 	}
 	return nil
 }
 
-func waitForUpdateIngressEIPCompleted(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, action string) error {
+func waitForElbIngressAccessCompleted(ctx context.Context, client *golangsdk.ServiceClient, instanceId, action string,
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      refreshInstanceFunc(client, d, action),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Refresh:      refreshInstanceFunc(client, instanceId, action),
+		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 		// When changing the bandwidth billing type, there will be a delay between the EIP unbinding and EIP binding.
@@ -659,36 +675,45 @@ func waitForUpdateIngressEIPCompleted(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func refreshInstanceFunc(client *golangsdk.ServiceClient, d *schema.ResourceData, action string) resource.StateRefreshFunc {
+func refreshInstanceFunc(client *golangsdk.ServiceClient, instanceId, action string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := instances.Get(client, d.Id()).Extract()
+		respBody, err := QueryInstanceDetail(client, instanceId)
 		if err != nil {
-			return resp, "", err
+			return respBody, "ERROR", err
 		}
 
-		disabledSucc := action == "disabled" && len(resp.PublicIps) == 0
-		enabledSucc := action == "enabled" && len(resp.PublicIps) > 0
-		if enabledSucc || disabledSucc {
-			return resp, "COMPLETED", nil
+		if action == "disabled" && utils.PathSearch("length(publicips)", respBody, float64(0)).(float64) < 1 ||
+			action == "enabled" && utils.PathSearch("length(publicips)", respBody, float64(0)).(float64) > 0 {
+			return "matched", "COMPLETED", nil
 		}
-
-		return resp, "PENDING", nil
+		return "continue", "PENDING", nil
 	}
 }
 
 func updateElbInstanceIngressAccess(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	oldSizeVal, newSizeVal := d.GetChange("ingress_bandwidth_size")
-	oldModeVal, newModeVal := d.GetChange("ingress_bandwidth_charging_mode")
-	instanceId := d.Id()
+	var (
+		err                    error
+		oldSizeVal, newSizeVal = d.GetChange("ingress_bandwidth_size")
+		oldModeVal, newModeVal = d.GetChange("ingress_bandwidth_charging_mode")
+		instanceId             = d.Id()
+		httpUrl                = "v2/{project_id}/apigw/instances/{instance_id}/ingress-eip"
+		generalPath            = client.Endpoint + httpUrl
+	)
+	generalPath = strings.ReplaceAll(generalPath, "{project_id}", client.ProjectID)
+	generalPath = strings.ReplaceAll(generalPath, "{instance_id}", instanceId)
+
 	if oldSizeVal.(int) != 0 || oldModeVal.(string) != "" {
-		err := instances.DisableElbIngressAccess(client, instanceId)
+		opt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		_, err = client.Request("DELETE", generalPath, &opt)
 		if err != nil {
-			return fmt.Errorf("error unbinding ingress EIP of the dedicated instance: %s", err)
+			return fmt.Errorf("unable to disable the ingress EIP: %s", err)
 		}
 
-		err = waitForUpdateIngressEIPCompleted(ctx, d, client, "disabled")
+		err = waitForElbIngressAccessCompleted(ctx, client, instanceId, "disabled", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return fmt.Errorf("error waiting for unbinding ingress EIP completed: %s", err)
+			return fmt.Errorf("error waiting for ingress EIP unbinding completed: %s", err)
 		}
 	}
 
@@ -696,69 +721,61 @@ func updateElbInstanceIngressAccess(ctx context.Context, d *schema.ResourceData,
 		return nil
 	}
 
-	opts := instances.ElbIngressAccessOpts{
-		InstanceId:                  instanceId,
-		IngressBandwithSize:         newSizeVal.(int),
-		IngressBandwithChargingMode: newModeVal.(string),
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"bandwidth_size":          newSizeVal,
+			"bandwidth_charging_mode": newModeVal,
+		},
 	}
-	_, err := instances.EnableElbIngressAccess(client, opts)
+	_, err = client.Request("POST", generalPath, &opt)
 	if err != nil {
-		return fmt.Errorf("error enabled ingress bandwidth of the dedicated instance: %s", err)
+		return fmt.Errorf("unable to enable the ingress EIP: %s", err)
 	}
 
-	err = waitForUpdateIngressEIPCompleted(ctx, d, client, "enabled")
+	err = waitForElbIngressAccessCompleted(ctx, client, instanceId, "enabled", d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
-		return fmt.Errorf("error waiting for enabling ingress EIP completed: %s", err)
+		return fmt.Errorf("error waiting for ingress EIP enabling completed: %s", err)
 	}
 	return nil
 }
 
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.ApigV2Client(region)
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		instanceId = d.Id()
+	)
+	client, err := cfg.NewServiceClient("apig", region)
 	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	instanceId := d.Id()
-
-	// Update egress access
-	if d.HasChange("bandwidth_size") {
-		if err = updateApigInstanceEgressAccess(d, client); err != nil {
-			return diag.Errorf("update egress access failed: %s", err)
-		}
-	}
-	// Update ingerss access
-	if d.HasChange("eip_id") {
-		if err = updateInstanceIngressAccess(d, client); err != nil {
-			return diag.Errorf("update ingress access failed: %s", err)
-		}
-	}
-	// Update instance name, maintain window, description, security group ID and vpcep service name.
-	updateOpts, err := buildInstanceUpdateOpts(d)
-	if err != nil {
-		return diag.Errorf("unable to get the update options of the dedicated instance: %s", err)
-	}
-	if updateOpts != (instances.UpdateOpts{}) {
-		_, err = instances.Update(client, instanceId, updateOpts).Extract()
-		if err != nil {
-			return diag.Errorf("error updating the dedicated instance: %s", err)
-		}
-
-		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"PENDING"},
-			Target:       []string{"COMPLETED"},
-			Refresh:      InstanceStateRefreshFunc(client, instanceId, []string{"Running"}),
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			Delay:        20 * time.Second,
-			PollInterval: 20 * time.Second,
-		}
-		_, err = stateConf.WaitForStateContext(ctx)
-		if err != nil {
+	if d.HasChanges("instance_name", "description", "security_group_id", "vpcep_service_name", "maintain_begin", "maintain_end") {
+		if err = updateInstanceBasicConfiguration(ctx, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
+
+	// Update egress access
+	if d.HasChange("bandwidth_size") {
+		if err = updateInstanceEgressAccess(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Update ingerss access
+	if d.HasChanges("ingress_bandwidth_size", "ingress_bandwidth_charging_mode") {
+		if err = updateElbInstanceIngressAccess(ctx, d, client); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	if d.HasChange("eip_id") {
+		if err = updateInstanceIngressAccess(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("tags") {
 		if err = updateInstanceTags(client, d); err != nil {
 			return diag.FromErr(err)
@@ -777,59 +794,43 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
-	if d.HasChanges("ingress_bandwidth_size", "ingress_bandwidth_charging_mode") {
-		if err = updateElbInstanceIngressAccess(ctx, d, client); err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
 	return resourceInstanceRead(ctx, d, meta)
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		httpUrl    = "v2/{project_id}/apigw/instances/{instance_id}"
+		instanceId = d.Id()
+	)
+	client, err := cfg.NewServiceClient("apig", region)
 	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG client: %s", err)
 	}
-	if err = instances.Delete(client, d.Id()).ExtractErr(); err != nil {
-		return diag.Errorf("error deleting the dedicated instance (%s): %s", d.Id(), err)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{instance_id}", instanceId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	_, err = client.Request("DELETE", deletePath, &opt)
+	if err != nil {
+		return diag.Errorf("error deleting dedicated instance (%s): %s", instanceId, err)
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      InstanceStateRefreshFunc(client, d.Id(), nil),
+		Refresh:      instanceStateRefreshFunc(client, d.Id(), nil),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        20 * time.Second,
-		PollInterval: 20 * time.Second,
+		PollInterval: 15 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
 	return nil
-}
-
-func InstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceId string, targets []string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		resp, err := instances.Get(client, instanceId).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
-				return resp, "COMPLETED", nil
-			}
-			return resp, "", err
-		}
-
-		if utils.StrSliceContains([]string{"CreateFail", "InitingFailed", "RegisterFailed", "InstallFailed",
-			"UpdateFailed", "RollbackFailed", "UnRegisterFailed", "DeleteFailed"}, resp.Status) {
-			return resp, "", fmt.Errorf("unexpect status (%s)", resp.Status)
-		}
-
-		if utils.StrSliceContains(targets, resp.Status) {
-			return resp, "COMPLETED", nil
-		}
-		return resp, "PENDING", nil
-	}
 }
