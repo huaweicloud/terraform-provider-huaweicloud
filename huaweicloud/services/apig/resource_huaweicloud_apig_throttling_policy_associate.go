@@ -3,6 +3,7 @@ package apig
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -271,7 +272,17 @@ func unbindPolicy(ctx context.Context, client *golangsdk.ServiceClient, opt thro
 	)
 	resp, err := throttles.ListBind(client, opt)
 	if err != nil {
+		// The instance or throttling policy not exist.
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			return err
+		}
 		return fmt.Errorf("error getting API information from server: %s", err)
+	}
+
+	if len(resp) < 1 {
+		log.Printf("[DEBUG] All APIs has been disassociated from the throttling policy (%s) under dedicated instance (%s)",
+			policyId, instanceId)
+		return nil
 	}
 
 	publishIds := make([]string, 0, unbindSet.Len())
@@ -282,6 +293,10 @@ func unbindPolicy(ctx context.Context, client *golangsdk.ServiceClient, opt thro
 				publishIds = append(publishIds, api.PublishId)
 				err = throttles.Unbind(client, instanceId, api.ThrottleApplyId)
 				if err != nil {
+					if _, ok := err.(golangsdk.ErrDefault404); ok {
+						log.Printf("[DEBUG] All APIs has been disassociated from the throttling policy (%s)", policyId)
+						continue
+					}
 					return fmt.Errorf("error unbound policy from the API: %s", err)
 				}
 				break
@@ -358,8 +373,11 @@ func resourceThrottlingPolicyAssociateDelete(ctx context.Context, d *schema.Reso
 		publishIds = d.Get("publish_ids").(*schema.Set)
 		opt        = buildListOpts(instanceId, policyId)
 	)
+	if err = unbindPolicy(ctx, client, opt, publishIds, d.Timeout(schema.TimeoutDelete)); err != nil {
+		return common.CheckDeletedDiag(d, err, "error unbinding APIs from throttling policy")
+	}
 
-	return diag.FromErr(unbindPolicy(ctx, client, opt, publishIds, d.Timeout(schema.TimeoutDelete)))
+	return nil
 }
 
 func resourceThrottlingPolicyAssociateImportState(_ context.Context, d *schema.ResourceData,
