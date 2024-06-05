@@ -370,6 +370,9 @@ var (
 	HW_RDS_BACKUP_ID                       = os.Getenv("HW_RDS_BACKUP_ID")
 	HW_RDS_START_TIME                      = os.Getenv("HW_RDS_START_TIME")
 	HW_RDS_END_TIME                        = os.Getenv("HW_RDS_END_TIME")
+
+	HW_DMS_ROCKETMQ_INSTANCE_ID = os.Getenv("HW_DMS_ROCKETMQ_INSTANCE_ID")
+	HW_DMS_ROCKETMQ_TOPIC_NAME  = os.Getenv("HW_DMS_ROCKETMQ_TOPIC_NAME")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -1742,6 +1745,20 @@ func TestAccPreCheckRdsTimeRange(t *testing.T) {
 func TestAccPreCheckCssLowEngineVersion(t *testing.T) {
 	if HW_CSS_LOW_ENGINE_VERSION == "" {
 		t.Skip("HW_CSS_LOW_ENGINE_VERSION must be set for CSS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDMSRocketMQInstanceID(t *testing.T) {
+	if HW_DMS_ROCKETMQ_INSTANCE_ID == "" {
+		t.Skip("HW_DMS_ROCKETMQ_INSTANCE_ID must be set for DMS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDMSRocketMQTopicName(t *testing.T) {
+	if HW_DMS_ROCKETMQ_TOPIC_NAME == "" {
+		t.Skip("HW_DMS_ROCKETMQ_TOPIC_NAME must be set for DMS acceptance tests")
 	}
 }
 
