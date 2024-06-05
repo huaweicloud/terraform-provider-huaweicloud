@@ -30,30 +30,30 @@ resource "huaweicloud_dc_virtual_gateway" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region where the virtual gateway is located.  
+* `region` - (Optional, String, ForceNew) Specifies the region where the virtual gateway is located.
   If omitted, the provider-level region will be used. Changing this will create a new resource.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC connected to the virtual gateway.  
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC connected to the virtual gateway.
   Changing this will create a new resource.
 
-* `local_ep_group` - (Required, List) Specifies the list of IPv6 subnets from the virtual gateway to access cloud
+* `local_ep_group` - (Required, List) Specifies the list of IPv4 subnets from the virtual gateway to access cloud
   services, which is usually the CIDR block of the VPC.
 
-* `name` - (Required, String) Specifies the name of the virtual gateway.  
+* `name` - (Required, String) Specifies the name of the virtual gateway.
   The valid length is limited from `3` to `64`, only chinese and english letters, digits, hyphens (-), underscores (_)
-  and dots (.) are allowed.  
+  and dots (.) are allowed.
   The Chinese characters must be in **UTF-8** or **Unicode** format.
 
-* `description` - (Optional, String) Specifies the description of the virtual gateway.  
-  The description contain a maximum of 128 characters and the angle brackets (< and >) are not allowed.  
+* `description` - (Optional, String) Specifies the description of the virtual gateway.
+  The description contain a maximum of 128 characters and the angle brackets (< and >) are not allowed.
   Chinese characters must be in **UTF-8** or **Unicode** format.
 
-* `asn` - (Optional, Int, ForceNew) Specifies the local BGP ASN of the virtual gateway.  
+* `asn` - (Optional, Int, ForceNew) Specifies the local BGP ASN of the virtual gateway.
   The valid value is range from `1` to `4,294,967,295`.
   Changing this will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the virtual
-  gateway belongs.  
+  gateway belongs.
   Changing this will create a new resource.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the virtual gateway.
