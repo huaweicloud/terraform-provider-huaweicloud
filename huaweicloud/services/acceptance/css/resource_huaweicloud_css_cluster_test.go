@@ -62,6 +62,10 @@ func TestAccCssCluster_basic(t *testing.T) {
 						"huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+					resource.TestCheckResourceAttr(resourceName, "is_period", "false"),
+					resource.TestCheckResourceAttr(resourceName, "backup_available", "true"),
+					resource.TestCheckResourceAttr(resourceName, "disk_encrypted", "false"),
 				),
 			},
 			{
