@@ -232,8 +232,8 @@ func resourceResponseDelete(_ context.Context, d *schema.ResourceData, meta inte
 	)
 	err = responses.Delete(client, instanceId, groupId, responseId).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting APIG custom response (%s) from the dedicated group (%s): %s",
-			responseId, groupId, err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting APIG custom response (%s) from the dedicated group (%s)",
+			responseId, groupId))
 	}
 	return nil
 }

@@ -3,6 +3,7 @@ package apig
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -221,6 +222,11 @@ func signatureUnbindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, 
 		opts := buildSignBindApiListOpts(instanceId, signId)
 		resp, err := signs.ListBind(client, opts)
 		if err != nil {
+			// The API returns a 404 error, which means that the instance or signature has been deleted.
+			// In this case, there's no need to disassociate API, also this action has been completed.
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return "instance_or_signature_not_exist", "COMPLETED", nil
+			}
 			return resp, "", err
 		}
 		bindPublishIds := flattenApiPublishIdsForSignature(resp)
@@ -240,13 +246,25 @@ func unbindSignatureFromApis(ctx context.Context, client *golangsdk.ServiceClien
 	opts := buildSignBindApiListOpts(instanceId, signId)
 	resp, err := signs.ListBind(client, opts)
 	if err != nil {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			return err
+		}
 		return fmt.Errorf("error getting binding APIs based on signature (%s): %s", signId, err)
+	}
+
+	if len(resp) < 1 {
+		log.Printf("[DEBUG] All APIs has been disassociated from the signature (%s) under dedicated instance (%s)", signId, instanceId)
+		return nil
 	}
 
 	for _, val := range resp {
 		if utils.StrSliceContains(rmList, val.PublishId) {
 			err = signs.Unbind(client, instanceId, val.BindId)
 			if err != nil {
+				if _, ok := err.(golangsdk.ErrDefault404); ok {
+					log.Printf("[DEBUG] All APIs has been disassociated from the signature (%s)", signId)
+					continue
+				}
 				return fmt.Errorf("an error occurred during unbind signature: %s", err)
 			}
 		}
@@ -317,7 +335,7 @@ func resourceSignatureAssociateDelete(ctx context.Context, d *schema.ResourceDat
 	err = unbindSignatureFromApis(ctx, client, d, utils.ExpandToStringListBySet(d.Get("publish_ids").(*schema.Set)),
 		d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error unbinding APIs from signature")
 	}
 	return nil
 }

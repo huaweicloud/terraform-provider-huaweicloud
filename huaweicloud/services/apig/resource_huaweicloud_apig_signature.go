@@ -193,7 +193,7 @@ func resourceSignatureDelete(_ context.Context, d *schema.ResourceData, meta int
 	)
 	err = signs.Delete(client, instanceId, signatureId)
 	if err != nil {
-		return diag.Errorf("error deleting the signature (%s): %s", signatureId, err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting the signature (%s)", signatureId))
 	}
 	return nil
 }

@@ -3,6 +3,7 @@ package apig
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -240,6 +241,11 @@ func aclPolicyUnbindingRefreshFunc(client *golangsdk.ServiceClient, instanceId, 
 			listPathWithOffset := fmt.Sprintf("%s&limit=100&offset=%d", listPath, offset)
 			requestResp, err := client.Request("GET", listPathWithOffset, &opt)
 			if err != nil {
+				// The API returns a 404 error, which means that the instance or ACL policy has been deleted.
+				// In this case, there's no need to disassociate API, also this action has been completed.
+				if _, ok := err.(golangsdk.ErrDefault404); ok {
+					return "instance_or_ACL_policy_not_exist", "COMPLETED", nil
+				}
 				return nil, "ERROR", fmt.Errorf("error retrieving associated ACL policies: %s", err)
 			}
 			respBody, err := utils.FlattenResponse(requestResp)
@@ -272,6 +278,10 @@ func unbindAclPolicy(ctx context.Context, client *golangsdk.ServiceClient, opt a
 	)
 	resp, err := acls.ListBind(client, opt)
 	if err != nil {
+		// The instance or ACL policy not exist.
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			return err
+		}
 		return fmt.Errorf("error getting binding APIs based on ACL policy (%s): %s", policyId, err)
 	}
 
@@ -283,6 +293,11 @@ func unbindAclPolicy(ctx context.Context, client *golangsdk.ServiceClient, opt a
 				bindIds = append(bindIds, api.BindId)
 			}
 		}
+	}
+
+	if len(bindIds) < 1 {
+		log.Printf("[DEBUG] All APIs has been disassociated from the ACL policy (%s)", policyId)
+		return nil
 	}
 
 	unbindOpt.AclBindings = bindIds
@@ -362,7 +377,10 @@ func resourceAclPolicyAssociateDelete(ctx context.Context, d *schema.ResourceDat
 		opt        = buildAclPolicyListOpts(instanceId, policyId)
 	)
 
-	return diag.FromErr(unbindAclPolicy(ctx, client, opt, publishIds, d.Timeout(schema.TimeoutUpdate)))
+	if err = unbindAclPolicy(ctx, client, opt, publishIds, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return common.CheckDeletedDiag(d, err, "error unbinding APIs from ACL policy")
+	}
+	return nil
 }
 
 func resourceAclPolicyAssociateImportState(_ context.Context, d *schema.ResourceData,

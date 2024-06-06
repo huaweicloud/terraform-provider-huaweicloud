@@ -320,8 +320,8 @@ func resourceCustomAuthorizerDelete(_ context.Context, d *schema.ResourceData, m
 
 	err = authorizers.Delete(client, instanceId, authorizerId).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting custom authorizer (%s) from the instance (%s): %s",
-			authorizerId, instanceId, err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting custom authorizer (%s) from the instance (%s)",
+			authorizerId, instanceId))
 	}
 	return nil
 }

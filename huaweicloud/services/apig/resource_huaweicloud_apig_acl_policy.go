@@ -175,7 +175,7 @@ func resourceAclPolicyDelete(_ context.Context, d *schema.ResourceData, meta int
 		policyId   = d.Id()
 	)
 	if err = acls.Delete(client, instanceId, policyId); err != nil {
-		return diag.Errorf("unable to delete the ACL policy (%s): %s", policyId, err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to delete the ACL policy (%s)", policyId))
 	}
 
 	return nil

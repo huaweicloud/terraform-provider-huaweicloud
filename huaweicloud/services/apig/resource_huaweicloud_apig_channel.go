@@ -708,7 +708,7 @@ func resourceChannelDelete(_ context.Context, d *schema.ResourceData, meta inter
 	instanceId := d.Get("instance_id").(string)
 	channelId := d.Id()
 	if err = channels.Delete(client, instanceId, channelId); err != nil {
-		return diag.Errorf("error deleting APIG channel (%s): %s", channelId, err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting APIG channel (%s)", channelId))
 	}
 
 	return nil
