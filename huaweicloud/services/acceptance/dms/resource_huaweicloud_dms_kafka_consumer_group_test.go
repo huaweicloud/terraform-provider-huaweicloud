@@ -2,6 +2,7 @@ package dms
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -90,7 +91,8 @@ func TestAccDmsKafkaConsumerGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "state"),
 					resource.TestCheckResourceAttrSet(resourceName, "lag"),
 					resource.TestCheckResourceAttrSet(resourceName, "coordinator_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestMatchResourceAttr(resourceName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "add"),
 					resource.TestCheckResourceAttr(resourceName, "state", "EMPTY"),

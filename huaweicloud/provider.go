@@ -578,6 +578,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dms_kafka_flavors":             dms.DataSourceKafkaFlavors(),
 			"huaweicloud_dms_kafka_instances":           dms.DataSourceDmsKafkaInstances(),
+			"huaweicloud_dms_kafka_consumer_groups":     dms.DataSourceDmsKafkaConsumerGroups(),
 			"huaweicloud_dms_product":                   dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_maintainwindow":            dms.DataSourceDmsMaintainWindow(),
 			"huaweicloud_dms_kafka_smart_connect_tasks": dms.DataSourceDmsKafkaSmartConnectTasks(),

@@ -69,7 +69,7 @@ func ResourceDmsKafkaConsumerGroup() *schema.Resource {
 				Description: `Indicates the lag number of the consumer group.`,
 			},
 			"created_at": {
-				Type:        schema.TypeInt,
+				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the created time of the consumer group.`,
 			},
@@ -238,9 +238,10 @@ func resourceDmsKafkaConsumerGroupRead(_ context.Context, d *schema.ResourceData
 		d.Set("name", name),
 		d.Set("description", utils.PathSearch("group_desc", groupJson, nil)),
 		d.Set("state", utils.PathSearch("state", groupJson, nil)),
-		d.Set("coordinator_id", utils.PathSearch("coordinator_id", groupJson, nil)),
-		d.Set("lag", utils.PathSearch("lag", groupJson, nil)),
-		d.Set("created_at", utils.PathSearch("createdAt", groupJson, nil)),
+		d.Set("coordinator_id", utils.PathSearch("coordinator_id", groupJson, 0)),
+		d.Set("lag", utils.PathSearch("lag", groupJson, 0)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(
+			(int64(utils.PathSearch("createdAt", groupJson, float64(0)).(float64)))/1000, false)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
