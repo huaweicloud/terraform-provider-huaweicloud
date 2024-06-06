@@ -84,6 +84,12 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				Description: utils.SchemaDesc(
+					`The code type of the function.`,
+					utils.SchemaDescInput{
+						Required: true,
+					},
+				),
 			},
 			"handler": {
 				Type:        schema.TypeString,

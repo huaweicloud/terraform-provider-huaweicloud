@@ -76,6 +76,7 @@ resource "huaweicloud_fgs_function" "by_swr_image" {
   handler     = "-"
   app         = "default"
   runtime     = "Custom Image"
+  code_type   = "Custom-Image-Swr"
   memory_size = 128
   timeout     = 3
 
@@ -221,11 +222,12 @@ The following arguments are supported:
 * `timeout` - (Required, Int) Specifies the timeout interval of the function, in seconds.  
   The value ranges from `3` to `900`.
 
-* `code_type` - (Optional, String) Specifies the function code type, which can be:
+* `code_type` - (Required, String) Specifies the function code type, which can be:
   + **inline**: inline code.
   + **zip**: ZIP file.
   + **jar**: JAR file or java functions.
   + **obs**: function code stored in an OBS bucket.
+  + **Custom-Image-Swr**: function code comes from the SWR custom image.
 
 * `handler` - (Required, String) Specifies the entry point of the function.
 
@@ -295,7 +297,8 @@ The following arguments are supported:
   below.
 
 * `custom_image` - (Optional, List) Specifies the custom image configuration for creating function.
-  The [object](#functiongraph_custom_image) structure is documented below.
+  The [object](#functiongraph_custom_image) structure is documented below.  
+  Required if the parameter `code_type` is **Custom-Image-Swr**.
 
 * `max_instance_num` - (Optional, String) Specifies the maximum number of instances of the function.  
   The valid value ranges from `-1` to `1,000`, defaults to `400`.
