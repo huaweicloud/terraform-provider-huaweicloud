@@ -35,22 +35,51 @@ The following arguments are supported:
   64 characters, and supports only letters, digits, hyphens (-) and underscores (_). Changing this creates a new
   resource.
 
-* `partitions` - (Required, Int) Specifies the partition number. The value ranges from 1 to 100.
+* `partitions` - (Required, Int) Specifies the partition number. The value ranges from **1** to **100**.
+  
+  -> Only support to add partitions.
 
-* `replicas` - (Optional, Int, ForceNew) Specifies the replica number. The value ranges from 1 to 3 and defaults to 3.
-  Changing this creates a new resource.
+* `new_partition_brokers` - (Optional, List) Specifies the integers list of brokers for new partitions.
+  
+  -> It's only valid when adding partitions.
 
-* `aging_time` - (Optional, Int) Specifies the aging time in hours. The value ranges from 1 to 168 and defaults to 72.
+* `replicas` - (Optional, Int, ForceNew) Specifies the replica number.
+  The value ranges from **1** to **3** and defaults to **3**. Changing this creates a new resource.
+
+* `aging_time` - (Optional, Int) Specifies the aging time in hours.
+  The value ranges from **1** to **168** and defaults to **72**.
 
 * `sync_replication` - (Optional, Bool) Whether or not to enable synchronous replication.
 
 * `sync_flushing` - (Optional, Bool) Whether or not to enable synchronous flushing.
+
+* `description` - (Optional, String) Specifies the description of topic.
+
+* `configs` - (Optional, List) Specifies the other topic configurations.
+
+  The [configs](#topics_configs_struct) structure is documented below.
+
+<a name="topics_configs_struct"></a>
+The `configs` block supports:
+
+* `name` - (Required, String) Specifies the configuration name.
+
+* `value` - (Required, String) Specifies the configuration value.
+
+  -> When `name` is **max.message.bytes**, `value` ranges from **0** to **10485760**.
+  When `name` is **message.timestamp.type**, `value` can be **LogAppendTime** and **CreateTime**.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID which equals to the topic name.
+
+* `policies_only` - Indicates whether this policy is the default policy.
+
+* `type` - Indicates the topic type.
+
+* `created_at` - Indicates the topic create time.
 
 ## Import
 
