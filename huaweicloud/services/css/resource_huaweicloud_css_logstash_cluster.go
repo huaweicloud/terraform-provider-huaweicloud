@@ -181,6 +181,14 @@ func ResourceLogstashCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"resource_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -198,6 +206,14 @@ func ResourceLogstashCluster() *schema.Resource {
 			},
 			"status": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_period": {
+				Type:     schema.TypeBool,
 				Computed: true,
 			},
 		},
@@ -354,6 +370,8 @@ func resourceLogstashClusterRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("endpoint", clusterDetail.Endpoint),
 		d.Set("status", clusterDetail.Status),
 		d.Set("routes", flattenGetRoute(getRoutesRespBody)),
+		d.Set("updated_at", clusterDetail.Updated),
+		d.Set("is_period", clusterDetail.Period),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
