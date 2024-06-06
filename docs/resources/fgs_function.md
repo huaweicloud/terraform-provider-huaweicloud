@@ -221,7 +221,7 @@ The following arguments are supported:
 * `timeout` - (Required, Int) Specifies the timeout interval of the function, in seconds.  
   The value ranges from `3` to `900`.
 
-* `code_type` - (Optional, String) Specifies the function code type, which can be:
+* `code_type` - (Required, String) Specifies the function code type, which can be:
   + **inline**: inline code.
   + **zip**: ZIP file.
   + **jar**: JAR file or java functions.
