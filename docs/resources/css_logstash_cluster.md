@@ -155,6 +155,10 @@ In addition to all arguments above, the following attributes are exported:
   + **200**: The CSS logstash cluster is available.
   + **303**: The CSS logstash cluster is unavailable.
 
+* `updated_at` - Time when a cluster is updated. The format is ISO8601: CCYY-MM-DDThh:mm:ss.
+
+* `is_period` - Whether a cluster is billed on the yearly/monthly mode.
+
 <a name="Css_nodes_attr"></a>
 The `nodes` block supports:
 
@@ -169,6 +173,10 @@ The `nodes` block supports:
 * `status` - Instance status.
 
 * `spec_code` - Instance specification code.
+
+* `ip` - Instance IP address.
+
+* `resource_id` - The resource ID of this instance.
 
 ## Timeouts
 

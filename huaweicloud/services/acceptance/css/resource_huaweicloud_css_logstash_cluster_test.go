@@ -47,6 +47,8 @@ func TestAccLogstashCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "node_config.0.instance_number", "1"),
 					resource.TestCheckResourceAttr(resourceName, "engine_type", "logstash"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+					resource.TestCheckResourceAttr(resourceName, "is_period", "false"),
 				),
 			},
 			{
