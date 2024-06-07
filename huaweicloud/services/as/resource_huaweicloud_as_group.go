@@ -2,6 +2,8 @@ package as
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -13,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
@@ -444,13 +447,35 @@ func refreshGroupState(client *golangsdk.ServiceClient, groupID string) resource
 	return func() (interface{}, string, error) {
 		asGroup, err := groups.Get(client, groupID).Extract()
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
+			var errDefault404 golangsdk.ErrDefault404
+			if errors.As(parseGroupResponseError(err), &errDefault404) {
 				return asGroup, "DELETED", nil
 			}
 			return nil, "ERROR", err
 		}
 		return asGroup, asGroup.Status, nil
 	}
+}
+
+// When the AS group does not exist, the response body example of the details interface is as follows:
+// {"error":{"code":"AS.2007","message":"The AS group does not exist."}}
+func parseGroupResponseError(err error) error {
+	var errCode golangsdk.ErrDefault400
+	if errors.As(err, &errCode) {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return err
+		}
+		errorCode, errorCodeErr := jmespath.Search("error.code", apiError)
+		if errorCodeErr != nil || errorCode == nil {
+			return err
+		}
+
+		if errorCode.(string) == "AS.2007" {
+			return golangsdk.ErrDefault404(errCode)
+		}
+	}
+	return err
 }
 
 func checkASGroupInstancesInService(ctx context.Context, client *golangsdk.ServiceClient, groupID string, insNum int, timeout time.Duration) error {
@@ -584,7 +609,7 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 	groupID := d.Id()
 	asg, err := groups.Get(asClient, groupID).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS group")
+		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "AS group")
 	}
 
 	log.Printf("[DEBUG] Retrieved AS group %s: %#v", groupID, asg)
