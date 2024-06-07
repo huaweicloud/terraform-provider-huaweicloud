@@ -85,6 +85,10 @@ func DataSourceCssFlavors() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"availability_zones": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -151,14 +155,15 @@ func flatternFlavors(flavors *cluster.EsFlavorsResp) []flavor {
 	for _, v := range flavors.Versions {
 		for _, f := range v.Flavors {
 			newFlavor := flavor{
-				Type:      v.Type,
-				Version:   v.Version,
-				Name:      f.Name,
-				FlavorId:  f.FlavorId,
-				Region:    f.Region,
-				Ram:       f.Ram,
-				Cpu:       f.Cpu,
-				Diskrange: f.Diskrange,
+				Type:              v.Type,
+				Version:           v.Version,
+				Name:              f.Name,
+				FlavorId:          f.FlavorId,
+				Region:            f.Region,
+				RAM:               f.Ram,
+				CPU:               f.Cpu,
+				Diskrange:         f.Diskrange,
+				AvailabilityZones: f.AvailableAZ,
 			}
 
 			rst = append(rst, newFlavor)
@@ -181,11 +186,12 @@ func buildFlavors(flavors []interface{}) []map[string]interface{} {
 		newFlavor["id"] = f.FlavorId
 		newFlavor["region"] = f.Region
 		newFlavor["name"] = f.Name
-		newFlavor["memory"] = f.Ram
-		newFlavor["vcpus"] = f.Cpu
+		newFlavor["memory"] = f.RAM
+		newFlavor["vcpus"] = f.CPU
 		newFlavor["disk_range"] = f.Diskrange
 		newFlavor["type"] = f.Type
 		newFlavor["version"] = f.Version
+		newFlavor["availability_zones"] = f.AvailabilityZones
 
 		rst = append(rst, newFlavor)
 	}
@@ -194,12 +200,13 @@ func buildFlavors(flavors []interface{}) []map[string]interface{} {
 }
 
 type flavor struct {
-	Ram       int
-	Cpu       int
-	Name      string
-	Region    string
-	Diskrange string
-	FlavorId  string
-	Version   string
-	Type      string
+	RAM               int
+	CPU               int
+	Name              string
+	Region            string
+	Diskrange         string
+	FlavorId          string
+	Version           string
+	Type              string
+	AvailabilityZones string
 }
