@@ -234,7 +234,7 @@ func resourceApplicationQuotaDelete(_ context.Context, d *schema.ResourceData, m
 	_, err = quotaClient.Request("DELETE", delQuotaPath, &delQuotaOpt)
 
 	if err != nil {
-		return diag.Errorf("error deleting APIG application quota: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting APIG application quota")
 	}
 	return nil
 }

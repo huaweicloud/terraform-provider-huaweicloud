@@ -188,7 +188,7 @@ func resourcePluginDelete(_ context.Context, d *schema.ResourceData, meta interf
 	)
 	err = plugins.Delete(client, instanceId, pluginId)
 	if err != nil {
-		return diag.Errorf("error deleting the plugin (%s): %s", pluginId, err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting the plugin (%s)", pluginId))
 	}
 	return nil
 }
