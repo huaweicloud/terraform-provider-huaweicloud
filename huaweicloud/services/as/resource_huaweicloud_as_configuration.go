@@ -166,6 +166,24 @@ func ResourceASConfiguration() *schema.Resource {
 										Computed: true,
 										ForceNew: true,
 									},
+									"dedicated_storage_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+									"data_disk_image_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+									"snapshot_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
 								},
 							},
 						},
@@ -299,13 +317,19 @@ func buildDiskOpts(diskMeta []interface{}) []configurations.DiskOpts {
 		diskType := disk["disk_type"].(string)
 		iops := disk["iops"].(int)
 		throughput := disk["throughput"].(int)
+		dedicatedStorageId := disk["dedicated_storage_id"].(string)
+		dataDiskImageId := disk["data_disk_image_id"].(string)
+		snapshotId := disk["snapshot_id"].(string)
 
 		diskOpts := configurations.DiskOpts{
-			Size:       size,
-			VolumeType: volumeType,
-			DiskType:   diskType,
-			Iops:       iops,
-			Throughput: throughput,
+			Size:               size,
+			VolumeType:         volumeType,
+			DiskType:           diskType,
+			Iops:               iops,
+			Throughput:         throughput,
+			DedicatedStorageID: dedicatedStorageId,
+			DataDiskImageID:    dataDiskImageId,
+			SnapshotId:         snapshotId,
 		}
 		kmsId := disk["kms_id"].(string)
 		if kmsId != "" {
@@ -545,11 +569,14 @@ func flattenInstanceDisks(disks []configurations.Disk) []map[string]interface{} 
 	res := make([]map[string]interface{}, len(disks))
 	for i, item := range disks {
 		res[i] = map[string]interface{}{
-			"volume_type": item.VolumeType,
-			"size":        item.Size,
-			"disk_type":   item.DiskType,
-			"iops":        item.Iops,
-			"throughput":  item.Throughput,
+			"volume_type":          item.VolumeType,
+			"size":                 item.Size,
+			"disk_type":            item.DiskType,
+			"iops":                 item.Iops,
+			"throughput":           item.Throughput,
+			"dedicated_storage_id": item.DedicatedStorageID,
+			"data_disk_image_id":   item.DataDiskImageID,
+			"snapshot_id":          item.SnapshotID,
 		}
 
 		if kms, ok := item.Metadata["__system__cmkid"]; ok {

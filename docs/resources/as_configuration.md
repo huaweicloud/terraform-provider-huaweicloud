@@ -244,6 +244,22 @@ The `disk` block supports:
   [Disk Types and Performance](https://support.huaweicloud.com/intl/en-us/productdesc-evs/en-us_topic_0014580744.html).
   <br/>Only pay-per-use billing is supported currently.
 
+* `dedicated_storage_id` - (Optional, String, ForceNew) Specifies a DSS device ID for creating an ECS disk.
+
+  -> Specify DSS devices for all disks in an AS configuration or not. If DSS devices are specified, all the
+  data stores must belong to the same AZ, and the disk types supported by a DSS device for a disk must be
+  the same as the `volume_type` value.
+
+* `data_disk_image_id` - (Optional, String, ForceNew) Specifies the ID of a data disk image used to export data disks of
+  an ECS.
+
+* `snapshot_id` - (Optional, String, ForceNew) Specifies the disk backup snapshot ID for restoring the system disk and
+  data disks using a full-ECS backup when a full-ECS image is used.
+
+  -> You can obtain the disk backup snapshot ID using the full-ECS backup ID in
+  [Querying a Single Backup](https://support.huaweicloud.com/intl/en-us/api-csbs/en-us_topic_0059304234.html).
+  <br/>Each disk in an AS configuration must correspond to a disk backup in the full-ECS backup by `snapshot_id`.
+
 <a name="instance_config_public_ip_object"></a>
 The `public_ip` block supports:
 

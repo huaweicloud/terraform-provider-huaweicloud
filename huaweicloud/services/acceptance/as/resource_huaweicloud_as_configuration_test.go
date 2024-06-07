@@ -150,6 +150,73 @@ func TestAccASConfiguration_bandwidth_new_disk(t *testing.T) {
 	})
 }
 
+func TestAccASConfiguration_snapshot(t *testing.T) {
+	var asConfig configurations.Configuration
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_as_configuration.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASConfigurationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccASConfiguration_snapshot(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckASConfigurationExists(resourceName, &asConfig),
+					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.0.volume_type", "GPSSD"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.disk.0.snapshot_id",
+						"data.huaweicloud_cbr_backup.test", "children.0.extend_info.0.snapshot_id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"instance_config.0.instance_id",
+				},
+			},
+		},
+	})
+}
+
+func TestAccASConfiguration_dataDiskImage(t *testing.T) {
+	var asConfig configurations.Configuration
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_as_configuration.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAsDataDiskImageId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckASConfigurationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccASConfiguration_dataDiskImage(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckASConfigurationExists(resourceName, &asConfig),
+					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.0.volume_type", "GPSSD"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.1.volume_type", "SAS"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.1.data_disk_image_id", acceptance.HW_IMS_DATA_DISK_IMAGE_ID),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"instance_config.0.instance_id",
+				},
+			},
+		},
+	})
+}
+
 func testAccCheckASConfigurationDestroy(s *terraform.State) error {
 	conf := acceptance.TestAccProvider.Meta().(*config.Config)
 	asClient, err := conf.AutoscalingV1Client(acceptance.HW_REGION_NAME)
@@ -398,4 +465,88 @@ resource "huaweicloud_as_configuration" "test"{
   }
 }
 `, testAccASConfiguration_newBase(name), name)
+}
+
+func testAccASConfiguration_snapshot(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_cbr_vault" "test" {
+  name             = "%[2]s"
+  type             = "server"
+  consistent_level = "app_consistent"
+  protection_type  = "backup"
+  size             = 200
+}
+
+resource "huaweicloud_images_image" "test" {
+  name        = "%[2]s"
+  instance_id = huaweicloud_compute_instance.test.id
+  description = "Terraform test"
+  vault_id    = huaweicloud_cbr_vault.test.id
+}
+
+data "huaweicloud_cbr_backup" "test" {
+  id = huaweicloud_images_image.test.backup_id
+}
+
+resource "huaweicloud_as_configuration" "test"{
+  scaling_configuration_name = "%[2]s"
+
+  instance_config {
+    image              = huaweicloud_images_image.test.id
+    flavor             = huaweicloud_compute_instance.test.flavor_name
+    security_group_ids = [huaweicloud_networking_secgroup.test.id]
+    key_name           = huaweicloud_kps_keypair.acc_key.id
+
+    disk {
+      size        = 40
+      volume_type = "GPSSD"
+      disk_type   = "SYS"
+      snapshot_id = data.huaweicloud_cbr_backup.test.children.0.extend_info.0.snapshot_id
+    }
+  }
+}
+`, testAccASConfiguration_base(name), name)
+}
+
+func testAccASConfiguration_dataDiskImage(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_as_configuration" "test"{
+  scaling_configuration_name = "%[2]s"
+
+  instance_config {
+    image              = data.huaweicloud_images_image.test.id
+    flavor             = data.huaweicloud_compute_flavors.test.ids[0]
+    security_group_ids = [huaweicloud_networking_secgroup.test.id]
+    key_name           = huaweicloud_kps_keypair.acc_key.id
+
+    disk {
+      size        = 40
+      volume_type = "GPSSD"
+      disk_type   = "SYS"
+    }
+
+    disk {
+      size               = 100
+      volume_type        = "SAS"
+      disk_type          = "DATA"
+      data_disk_image_id = "%[3]s"
+    }
+  }
+}
+`, testAccASConfiguration_base(name), name, acceptance.HW_IMS_DATA_DISK_IMAGE_ID)
 }
