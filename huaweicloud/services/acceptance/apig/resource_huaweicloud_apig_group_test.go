@@ -29,6 +29,7 @@ func TestAccGroup_basic(t *testing.T) {
 		rName      = "huaweicloud_apig_group.test"
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
+		baseConfig = testAccGroup_base(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -45,7 +46,7 @@ func TestAccGroup_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGroup_basic(name),
+				Config: testAccGroup_basic_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -53,67 +54,11 @@ func TestAccGroup_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccGroup_update(updateName),
+				Config: testAccGroup_basic_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", ""),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccGroupImportStateFunc(),
-			},
-		},
-	})
-}
-
-func TestAccGroup_variables(t *testing.T) {
-	var (
-		group apigroups.Group
-
-		rName = "huaweicloud_apig_group.test"
-		name  = acceptance.RandomAccResourceName()
-	)
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&group,
-		getGroupFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccGroup_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-				),
-			},
-			{
-				// Bind two environment to group, and create some variables.
-				Config: testAccGroup_variables(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "environment.#", "2"),
-				),
-			},
-			{
-				// Update the variables for two environments.
-				Config: testAccGroup_variablesUpdate(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "environment.#", "2"),
 				),
 			},
 			{
@@ -162,7 +107,7 @@ resource "huaweicloud_apig_instance" "test" {
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccGroup_basic(name string) string {
+func testAccGroup_basic_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -171,10 +116,10 @@ resource "huaweicloud_apig_group" "test" {
   instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 }
-`, testAccGroup_base(name), name)
+`, baseConfig, name)
 }
 
-func testAccGroup_update(name string) string {
+func testAccGroup_basic_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -182,93 +127,120 @@ resource "huaweicloud_apig_group" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
 }
-`, testAccGroup_base(name), name)
+`, baseConfig, name)
+}
+
+func TestAccGroup_variables(t *testing.T) {
+	var (
+		group apigroups.Group
+
+		rName = "huaweicloud_apig_group.test"
+		name  = acceptance.RandomAccResourceName()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&group,
+		getGroupFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				// Bind two environment to group, and create some variables.
+				Config: testAccGroup_variables(name, 0),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "environment.#", "2"),
+				),
+			},
+			{
+				// Update the variables for two environments.
+				Config: testAccGroup_variables(name, 1),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "environment.#", "2"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccGroupImportStateFunc(),
+			},
+		},
+	})
 }
 
 func testAccGroup_variablesBase(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_environment" "test1" {
-  name        = "%[2]s_1"
-  instance_id = huaweicloud_apig_instance.test.id
-  description = "Created by script"
+variable "variables_configuration" {
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default = [
+    {name="TEST_VAR_1", value="TEST_VALUE_1"},
+    {name="TEST_VAR_2", value="TEST_VALUE_2"},
+    {name="TEST_VAR_3", value="TEST_VALUE_3"},
+    {name="TEST_VAR_2", value="TEST_VALUE_4"}, // same variable name, but value is different.
+  ]
 }
 
-resource "huaweicloud_apig_environment" "test2" {
-  name        = "%[2]s_2"
+%[1]s
+
+resource "huaweicloud_apig_environment" "test" {
+  count = 2
+
+  name        = format("%[2]s_%%d", count.index)
   instance_id = huaweicloud_apig_instance.test.id
-  description = "Created by script"
 }
 `, testAccGroup_base(name), name)
 }
 
 // Create two environments for the group, and add a total of three variables to the two environments.
 // Each of the two environments has a variable with the same name and different value.
-func testAccGroup_variables(rName string) string {
+func testAccGroup_variables(name string, offset int) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_apig_group" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
-  description = "Created by script"
 
   environment {
-    environment_id = huaweicloud_apig_environment.test1.id
+    environment_id = huaweicloud_apig_environment.test[0].id
 
-    variable {
-      name  = "TERRAFORM"
-      value = "/stage/terraform"
+    dynamic "variable" {
+      for_each = slice(var.variables_configuration, 0+%[3]d, 2+%[3]d)
+
+      content {
+        name  = variable.value.name
+        value = variable.value.value
+      }
     }
   }
   environment {
-    environment_id = huaweicloud_apig_environment.test2.id
+    environment_id = huaweicloud_apig_environment.test[1].id
 
-    variable {
-      name  = "TERRAFORM"
-      value = "/res/terraform"
-    }
-    variable {
-      name  = "DEMO"
-      value = "/stage/demo"
-    }
-  }
-}
-`, testAccGroup_variablesBase(rName), rName)
-}
+    dynamic "variable" {
+      for_each = slice(var.variables_configuration, 1+%[3]d, 3+%[3]d)
 
-func testAccGroup_variablesUpdate(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_group" "test" {
-  name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
-  description = "Created by script"
-
-  environment {
-    environment_id = huaweicloud_apig_environment.test1.id
-
-    variable {
-      name  = "TERRAFORM"
-      value = "/stage/terraform"
-    }
-    variable {
-      name  = "TEST"
-      value = "/stage/test"
-    }
-  }
-  environment {
-    environment_id = huaweicloud_apig_environment.test2.id
-
-    variable {
-      name  = "TERRAFORM"
-      value = "/stage/terraform"
+      content {
+        name  = variable.value.name
+        value = variable.value.value
+      }
     }
   }
 }
-`, testAccGroup_variablesBase(rName), rName)
+`, testAccGroup_variablesBase(name), name, offset)
 }
 
 func TestAccGroup_urlDomains(t *testing.T) {

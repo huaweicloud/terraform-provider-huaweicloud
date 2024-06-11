@@ -59,9 +59,15 @@ func TestAccDataSourceApplications_basic(t *testing.T) {
 }
 
 func testAccDataSourceApplications_basic(name string) string {
-	description := "Created by script"
+	baseConfig := testAccApigApplication_base(name)
+
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_apig_application" "test" {
+  instance_id = huaweicloud_apig_instance.test.id
+  name        = "%[2]s"
+}
 
 data "huaweicloud_apig_applications" "test" {
   depends_on = [
@@ -150,5 +156,5 @@ locals {
 output "created_by_filter_is_useful" {
   value = length(local.created_by_filter_result) > 0 && alltrue(local.created_by_filter_result)
 }
-`, testAccApplication_basic(name, description))
+`, baseConfig, name)
 }

@@ -52,6 +52,27 @@ func TestAccDataSourceCustomAuthorizers_basic(t *testing.T) {
 	})
 }
 
+func testAccDataSourceCustomAuthorizers_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_custom_authorizer" "test" {
+  instance_id      = huaweicloud_apig_instance.test.id
+  name             = "%[2]s"
+  function_urn     = huaweicloud_fgs_function.test.urn
+  function_version = "latest"
+  type             = "FRONTEND"
+  is_body_send     = true
+  cache_age        = 60
+  
+  identity {
+    name     = "user_name"
+    location = "QUERY"
+  }
+}
+`, testAccCustomAuthorizer_base(name), name)
+}
+
 func testAccDataSourceCustomAuthorizers_basic(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -123,5 +144,5 @@ locals {
 output "type_filter_is_useful" {
   value = length(local.type_filter_result) > 0 && alltrue(local.type_filter_result)
 }
-`, testAccCustomAuthorizer_front(name))
+`, testAccDataSourceCustomAuthorizers_base(name))
 }

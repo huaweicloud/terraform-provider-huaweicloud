@@ -634,6 +634,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   engine_version     = element(local.query_results.versions, length(local.query_results.versions)-1)
   storage_space      = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   broker_num         = 3
+  enable_auto_topic  = true
 
   access_user      = "user"
   password         = "Kafkatest@123"
@@ -650,7 +651,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 resource "huaweicloud_dms_kafka_topic" "test" {
   instance_id = huaweicloud_dms_kafka_instance.test.id
   name        = "%[2]s"
-  partitions  = 20
+  partitions  = 1
 }
 `, testAccPlugin_basicConfig(name), name)
 }

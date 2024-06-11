@@ -30,6 +30,7 @@ func TestAccChannel_basic(t *testing.T) {
 		rName      = "huaweicloud_apig_channel.test"
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
+		baseConfig = testAccChannel_base(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -46,7 +47,7 @@ func TestAccChannel_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccChannel_basic_step1(name),
+				Config: testAccChannel_basic_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -67,7 +68,7 @@ func TestAccChannel_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccChannel_basic_step2(updateName),
+				Config: testAccChannel_basic_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -128,7 +129,7 @@ resource "huaweicloud_apig_instance" "test" {
 `, common.TestBaseComputeResources(name), name)
 }
 
-func testAccChannel_basic_step1(name string) string {
+func testAccChannel_basic_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -172,10 +173,10 @@ resource "huaweicloud_apig_channel" "test" {
     }
   }
 }
-`, testAccChannel_base(name), name)
+`, baseConfig, name)
 }
 
-func testAccChannel_basic_step2(name string) string {
+func testAccChannel_basic_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -223,7 +224,7 @@ resource "huaweicloud_apig_channel" "test" {
     }
   }
 }
-`, testAccChannel_base(name), name)
+`, baseConfig, name)
 }
 
 func TestAccChannel_eipMembers(t *testing.T) {
@@ -231,8 +232,9 @@ func TestAccChannel_eipMembers(t *testing.T) {
 		channel channels.Channel
 
 		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
-		rName = "huaweicloud_apig_channel.test"
-		name  = acceptance.RandomAccResourceName()
+		rName      = "huaweicloud_apig_channel.test"
+		name       = acceptance.RandomAccResourceName()
+		baseConfig = testAccChannel_eipBase(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -249,7 +251,7 @@ func TestAccChannel_eipMembers(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccChannel_eipMembers_step1(name),
+				Config: testAccChannel_eipMembers_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -270,7 +272,7 @@ func TestAccChannel_eipMembers(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccChannel_eipMembers_step2(name),
+				Config: testAccChannel_eipMembers_step2(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -306,7 +308,7 @@ resource "huaweicloud_apig_instance" "test" {
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccChannel_eipMembers_step1(rName string) string {
+func testAccChannel_eipMembers_step1(baseConfig, rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -353,10 +355,10 @@ resource "huaweicloud_apig_channel" "test" {
     }
   }
 }
-`, testAccChannel_eipBase(rName), rName)
+`, baseConfig, rName)
 }
 
-func testAccChannel_eipMembers_step2(rName string) string {
+func testAccChannel_eipMembers_step2(baseConfig, rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -403,5 +405,5 @@ resource "huaweicloud_apig_channel" "test" {
     }
   }
 }
-`, testAccChannel_eipBase(rName), rName)
+`, baseConfig, rName)
 }

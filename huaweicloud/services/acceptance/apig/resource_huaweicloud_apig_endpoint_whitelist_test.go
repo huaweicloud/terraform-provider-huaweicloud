@@ -60,7 +60,6 @@ func TestAccEndpointWhiteList_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -92,7 +91,7 @@ func TestAccEndpointWhiteList_basic(t *testing.T) {
 	})
 }
 
-func testAccInstance_base(rName string) string {
+func testAccEndpointWhiteList_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -108,11 +107,11 @@ resource "huaweicloud_apig_instance" "test" {
 
   edition               = "BASIC"
   name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
+  enterprise_project_id = "0"
   maintain_begin        = "14:00:00"
   description           = "created by acc test"
 }
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName)
 }
 
 func testAccEndpointWhiteList_basic(rName string) string {
@@ -126,7 +125,7 @@ resource "huaweicloud_apig_endpoint_whitelist" "test" {
     "iam:domain::2cc2018e40394f7c9692f1713e76234d",
   ]
 }
-`, testAccInstance_base(rName))
+`, testAccEndpointWhiteList_base(rName))
 }
 
 func testAccEndpointWhiteList_update(rName string) string {
@@ -141,5 +140,5 @@ resource "huaweicloud_apig_endpoint_whitelist" "test" {
     "iam:domain::5cc2018e40394f7c9692f1713e76234d",
   ]
 }
-`, testAccInstance_base(rName))
+`, testAccEndpointWhiteList_base(rName))
 }

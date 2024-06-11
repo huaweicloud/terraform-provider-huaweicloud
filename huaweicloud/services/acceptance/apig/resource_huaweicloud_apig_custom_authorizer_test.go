@@ -29,6 +29,7 @@ func TestAccCustomAuthorizer_basic(t *testing.T) {
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
 		rName      = "huaweicloud_apig_custom_authorizer.test"
+		baseConfig = testAccCustomAuthorizer_base(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -45,7 +46,7 @@ func TestAccCustomAuthorizer_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCustomAuthorizer_front(name),
+				Config: testAccCustomAuthorizer_front_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -56,7 +57,7 @@ func TestAccCustomAuthorizer_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCustomAuthorizer_frontUpdate(updateName),
+				Config: testAccCustomAuthorizer_front_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -83,6 +84,7 @@ func TestAccCustomAuthorizer_backend(t *testing.T) {
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
 		rName      = "huaweicloud_apig_custom_authorizer.test"
+		baseConfig = testAccCustomAuthorizer_base(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -99,7 +101,7 @@ func TestAccCustomAuthorizer_backend(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCustomAuthorizer_backend(name),
+				Config: testAccCustomAuthorizer_backend_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -109,7 +111,7 @@ func TestAccCustomAuthorizer_backend(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCustomAuthorizer_backendUpdate(updateName),
+				Config: testAccCustomAuthorizer_backend_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -200,7 +202,7 @@ EOF
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccCustomAuthorizer_front(name string) string {
+func testAccCustomAuthorizer_front_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -218,10 +220,10 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
     location = "QUERY"
   }
 }
-`, testAccCustomAuthorizer_base(name), name)
+`, baseConfig, name)
 }
 
-func testAccCustomAuthorizer_frontUpdate(name string) string {
+func testAccCustomAuthorizer_front_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -232,10 +234,10 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
   function_version = "latest"
   type             = "FRONTEND"
 }
-`, testAccCustomAuthorizer_base(name), name)
+`, baseConfig, name)
 }
 
-func testAccCustomAuthorizer_backend(name string) string {
+func testAccCustomAuthorizer_backend_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -247,10 +249,10 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
   type             = "BACKEND"
   cache_age        = 60
 }
-`, testAccCustomAuthorizer_base(name), name)
+`, baseConfig, name)
 }
 
-func testAccCustomAuthorizer_backendUpdate(name string) string {
+func testAccCustomAuthorizer_backend_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -262,5 +264,5 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
   type             = "BACKEND"
   cache_age        = 45
 }
-`, testAccCustomAuthorizer_base(name), name)
+`, baseConfig, name)
 }

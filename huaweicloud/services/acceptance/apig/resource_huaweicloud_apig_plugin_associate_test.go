@@ -351,9 +351,10 @@ resource "huaweicloud_apig_plugin" "http_resp" {
   content     = jsonencode(
     {
       response_headers = [{
-        name   = "X-Custom-Pwd"
-        value  = "**********"
-        action = "override"
+        name       = "X-Custom-Pwd"
+        value      = "**********"
+        value_type = "custom_value"
+        action     = "override"
       }]
     }
   )
