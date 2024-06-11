@@ -89,6 +89,7 @@ The following arguments are supported:
   + **HEADER**: The request header will be used for matching.
   + **QUERY_STRING**: A query string will be used for matching.
   + **SOURCE_IP**: The source IP address will be used for matching.
+  + **COOKIE**: The cookie will be used for matching.
   
   Changing this creates a new L7 Rule.
 

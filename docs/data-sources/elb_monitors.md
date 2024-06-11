@@ -50,7 +50,7 @@ The following arguments are supported:
   seconds.
 
 * `protocol` - (Optional, String) Specifies the health check protocol. The value can be **TCP**, **UDP_CONNECT**,
-  **HTTP**, or **HTTPS**.
+  **HTTP**, **HTTPS**, **GRPC** or **TLS**.
 
 * `status_code` - (Optional, String) Specifies the expected HTTP status code. This parameter will take effect only when
   type is set to **HTTP** or **HTTPS**.Value options:

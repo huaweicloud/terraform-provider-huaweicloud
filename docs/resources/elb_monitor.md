@@ -38,12 +38,14 @@ The following arguments are supported:
   configured. Changing this creates a new monitor.
 
 * `protocol` - (Required, String) Specifies the health check protocol. Value options: **TCP**, **UDP_CONNECT**,
-  **HTTP**, or **HTTPS**.
+  **HTTP**, **HTTPS**, **GRPC** or **TLS**.
   + If the protocol of the backend server is **QUIC**, the value can only be **UDP_CONNECT**.
   + If the protocol of the backend server is **UDP**, the value can only be **UDP_CONNECT**.
-  + If the protocol of the backend server is **TCP**, the value can only be **TCP**, **HTTP**, or **HTTPS**.
-  + If the protocol of the backend server is **HTTP**, the value can only be **TCP**, **HTTP**, or **HTTPS**.
-  + If the protocol of the backend server is **HTTPS**, the value can only be **TCP**, **HTTP**, or **HTTPS**.
+  + If the protocol of the backend server is **TCP**, the value can only be **TCP**, **HTTP** or **HTTPS**.
+  + If the protocol of the backend server is **HTTP**, the value can only be **TCP**, **HTTP**, **HTTPS**, **TLS** or **GRPC**.
+  + If the protocol of the backend server is **HTTPS**, the value can only be **TCP**, **HTTP**, **HTTPS**, **TLS** or **GRPC**.
+  + If the protocol of the backend server is **GRPC**, the value can only be **TCP**, **HTTP**, **HTTPS**, **TLS** or **GRPC**.
+  + If the protocol of the backend server is **TLS**, the value can only be **TCP**, **HTTP**, **HTTPS**, **TLS** or **GRPC**.
 
 * `interval` - (Required, Int) Specifies the interval between health checks, in seconds.
   Value ranges from **1** to **50**.

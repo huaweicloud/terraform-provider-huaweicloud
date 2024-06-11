@@ -36,7 +36,7 @@ The following arguments are supported:
 * `value` - (Optional, String) Specifies the value of the match content.
 
 * `type` - (Optional, String) Specifies the match type. Value options: **HOST_NAME**, **PATH**, **METHOD**, **HEADER**,
-  **QUERY_STRING**, **SOURCE_IP**.
+  **QUERY_STRING**, **SOURCE_IP**, **COOKIE**.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 
