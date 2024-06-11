@@ -119,7 +119,8 @@ The following arguments are supported:
   valid when protocol is set to **HTTPS**.
 
 * `tls_ciphers_policy` - (Optional, String) Specifies the TLS cipher policy for the listener. Valid options are:
-  tls-1-0-inherit, tls-1-0, tls-1-1, tls-1-2, tls-1-2-strict, tls-1-2-fs, tls-1-0-with-1-3, and tls-1-2-fs-with-1-3.
+  **tls-1-0-inherit**, **tls-1-0**, **tls-1-1**, **tls-1-2**, **tls-1-2-strict**, **tls-1-2-fs**, **tls-1-0-with-1-3**,
+  **tls-1-2-fs-with-1-3**, **hybrid-policy-1-0** and **tls-1-2-strict-no-cbc**. Defaults to **tls-1-0**.
   This parameter is valid when protocol is set to **HTTPS**.
 
 * `security_policy_id` - (Optional, String) Specifies the ID of the custom security policy. This parameter is available
