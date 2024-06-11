@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
@@ -23,6 +24,7 @@ import (
 // @API Config PUT /v1/resource-manager/organizations/{organization_id}/policy-assignments
 // @API Config GET /v1/resource-manager/organizations/{organization_id}/policy-assignments/{id}
 // @API Config DELETE /v1/resource-manager/organizations/{organization_id}/policy-assignments/{id}
+// @API Config GET /v1/resource-manager/organizations/{organization_id}/policy-assignment-statuses
 func ResourceOrganizationalPolicyAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceOrganizationalPolicyAssignmentCreateOrUpdate,
@@ -31,8 +33,9 @@ func ResourceOrganizationalPolicyAssignment() *schema.Resource {
 		DeleteContext: resourceOrganizationalPolicyAssignmentDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		Importer: &schema.ResourceImporter{
@@ -53,7 +56,7 @@ func ResourceOrganizationalPolicyAssignment() *schema.Resource {
 				Description: "The name of the organizational policy assignment.",
 			},
 			"excluded_accounts": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -219,7 +222,7 @@ func buildOrganizationalPolicyAssignmentCreateOpts(d *schema.ResourceData) (map[
 
 	res := map[string]interface{}{
 		"organization_policy_assignment_name": d.Get("name"),
-		"excluded_accounts":                   d.Get("excluded_accounts"),
+		"excluded_accounts":                   d.Get("excluded_accounts").(*schema.Set).List(),
 	}
 
 	if _, ok := d.GetOk("policy_definition_id"); ok {
@@ -269,12 +272,30 @@ func resourceOrganizationalPolicyAssignmentCreateOrUpdate(ctx context.Context, d
 		return diag.FromErr(err)
 	}
 
+	waitTimeout := d.Timeout(schema.TimeoutUpdate)
+
 	if d.IsNewResource() {
 		id, err := jmespath.Search("organization_policy_assignment_id", createOrgPolicyAssignmentRespBody)
 		if err != nil {
 			return diag.Errorf("error creating RMS assignment package: ID is not found in API response")
 		}
 		d.SetId(id.(string))
+
+		waitTimeout = d.Timeout(schema.TimeoutCreate)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"CREATE_SUCCESSFUL", "UPDATE_SUCCESSFUL"},
+		Pending:      []string{"CREATE_IN_PROGRESS", "UPDATE_IN_PROGRESS"},
+		Refresh:      refreshOrgPolicyAssignmentDeployStatus(d, createOrgPolicyAssignmentClient),
+		Timeout:      waitTimeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error waiting for RMS organizational assignment Package (%s) to be created: %s",
+			d.Id(), err)
 	}
 
 	return resourceOrganizationalPolicyAssignmentRead(ctx, d, meta)
@@ -381,7 +402,7 @@ func resourceOrganizationalPolicyAssignmentRead(_ context.Context, d *schema.Res
 	return nil
 }
 
-func resourceOrganizationalPolicyAssignmentDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceOrganizationalPolicyAssignmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -410,7 +431,49 @@ func resourceOrganizationalPolicyAssignmentDelete(_ context.Context, d *schema.R
 		return diag.Errorf("error deleting RMS organizational assignment package: %s", err)
 	}
 
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{""},
+		Pending:      []string{"DELETE_IN_PROGRESS"},
+		Refresh:      refreshOrgPolicyAssignmentDeployStatus(d, deleteOrgPolicyAssignmentClient),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error waiting for RMS organizational assignment Package (%s) to be deleted: %s", d.Id(), err)
+	}
+
 	return nil
+}
+
+func refreshOrgPolicyAssignmentDeployStatus(d *schema.ResourceData, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	return func() (result interface{}, state string, err error) {
+		// getDeployStatus: Query the RMS organizational assignment
+		var (
+			getDeployStatusHttpUrl = "v1/resource-manager/organizations/{organization_id}/policy-assignment-statuses"
+		)
+
+		getDeployStatusPath := client.Endpoint + getDeployStatusHttpUrl
+		getDeployStatusPath = strings.ReplaceAll(getDeployStatusPath, "{organization_id}", d.Get("organization_id").(string))
+
+		getDeployStatusPath += fmt.Sprintf("?organization_policy_assignment_id=%s", d.Id())
+
+		getDeployStatusOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+
+		getDeployStatusResp, err := client.Request("GET", getDeployStatusPath, &getDeployStatusOpt)
+		if err != nil {
+			return nil, "", err
+		}
+		getDeployStatusRespBody, err := utils.FlattenResponse(getDeployStatusResp)
+		if err != nil {
+			return nil, "", err
+		}
+		return getDeployStatusRespBody, utils.PathSearch("value[0].organization_policy_assignment_status",
+			getDeployStatusRespBody, "").(string), nil
+	}
 }
 
 // resourceOrganizationalPolicyAssignmentImportState use to import an id with format <organization_id>/<id>

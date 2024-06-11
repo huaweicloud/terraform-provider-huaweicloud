@@ -139,6 +139,16 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated_at` - The latest update time of the organizational policy assignment.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minutes.
+
+* `update` - Default is 30 minutes.
+
+* `delete` - Default is 30 minutes.
+
 ## Import
 
 The organizational policy assignment can be imported using the `organization_id` and `id`separated by a slash, e.g.
