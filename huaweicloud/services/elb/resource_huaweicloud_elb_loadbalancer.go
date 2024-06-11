@@ -133,6 +133,12 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Computed: true,
 			},
 
+			"ipv6_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"ipv4_eip_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -317,10 +323,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"ipv6_address": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"autoscaling_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -361,6 +363,7 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		VipSubnetID:              d.Get("ipv4_subnet_id").(string),
 		IpV6VipSubnetID:          d.Get("ipv6_network_id").(string),
 		VipAddress:               d.Get("ipv4_address").(string),
+		Ipv6VipAddress:           d.Get("ipv6_address").(string),
 		L4Flavor:                 d.Get("l4_flavor_id").(string),
 		L7Flavor:                 d.Get("l7_flavor_id").(string),
 		ProtectionStatus:         d.Get("protection_status").(string),
@@ -604,8 +607,8 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	updateLoadBalancerChanges := []string{"name", "description", "cross_vpc_backend", "ipv4_subnet_id", "ipv6_network_id",
-		"ipv6_bandwidth_id", "ipv4_address", "l4_flavor_id", "l7_flavor_id", "autoscaling_enabled", "min_l7_flavor_id",
-		"protection_status", "protection_reason", "deletion_protection_enable", "waf_failure_action",
+		"ipv6_bandwidth_id", "ipv4_address", "ipv6_address", "l4_flavor_id", "l7_flavor_id", "autoscaling_enabled",
+		"min_l7_flavor_id", "protection_status", "protection_reason", "deletion_protection_enable", "waf_failure_action",
 	}
 
 	if d.HasChanges(updateLoadBalancerChanges...) {
@@ -752,6 +755,9 @@ func buildUpdateLoadBalancerBodyParams(d *schema.ResourceData) loadbalancers.Upd
 	}
 	if d.HasChange("ipv4_address") {
 		updateOpts.VipAddress = d.Get("ipv4_address").(string)
+	}
+	if d.HasChange("ipv6_address") {
+		updateOpts.Ipv6VipAddress = d.Get("ipv6_address").(string)
 	}
 	if d.HasChange("l4_flavor_id") {
 		updateOpts.L4Flavor = d.Get("l4_flavor_id").(string)
