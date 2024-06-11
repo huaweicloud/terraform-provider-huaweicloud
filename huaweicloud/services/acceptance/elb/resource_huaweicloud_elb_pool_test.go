@@ -53,6 +53,7 @@ func TestAccElbV3Pool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "APP_COOKIE"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.cookie_name", "testCookie"),
+					resource.TestCheckResourceAttr(resourceName, "minimum_healthy_member_count", "1"),
 				),
 			},
 			{
@@ -72,6 +73,7 @@ func TestAccElbV3Pool_basic(t *testing.T) {
 						"test protection reason"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "APP_COOKIE"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.cookie_name", "testCookie"),
+					resource.TestCheckResourceAttr(resourceName, "minimum_healthy_member_count", "0"),
 				),
 			},
 			{
@@ -303,6 +305,44 @@ func TestAccElbV3Pool_basic_with_protocol_tcp(t *testing.T) {
 	})
 }
 
+func TestAccElbV3Pool_basic_with_connection_drain(t *testing.T) {
+	var pool pools.Pool
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_pool.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&pool,
+		getELBPoolResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3PoolConfig_basic_with_connection_drain(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "connection_drain_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "connection_drain_timeout", "80"),
+				),
+			},
+			{
+				Config: testAccElbV3PoolConfig_update_with_connection_drain_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "connection_drain_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "connection_drain_timeout", "60"),
+				),
+			},
+		},
+	})
+}
+
 func testAccElbV3PoolConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -313,6 +353,8 @@ resource "huaweicloud_elb_pool" "test" {
   lb_method = "ROUND_ROBIN"
   type      = "instance"
   vpc_id    = huaweicloud_vpc.test.id
+
+  minimum_healthy_member_count = 1
 
   persistence {
     type        = "APP_COOKIE"
@@ -338,6 +380,8 @@ resource "huaweicloud_elb_pool" "test" {
 
   protection_status = "consoleProtection"
   protection_reason = "test protection reason"
+
+  minimum_healthy_member_count = 0
 
   persistence {
     type        = "APP_COOKIE"
@@ -471,4 +515,36 @@ resource "huaweicloud_elb_pool" "test" {
   }
 }
 `, rName)
+}
+
+func testAccElbV3PoolConfig_basic_with_connection_drain(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_pool" "test" {
+  name                     = "%[2]s"
+  protocol                 = "TCP"
+  lb_method                = "ROUND_ROBIN"
+  type                     = "instance"
+  vpc_id                   = huaweicloud_vpc.test.id
+  connection_drain_enabled = true
+  connection_drain_timeout = 80
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccElbV3PoolConfig_update_with_connection_drain_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_pool" "test" {
+  name                     = "%[2]s"
+  protocol                 = "TCP"
+  lb_method                = "ROUND_ROBIN"
+  type                     = "instance"
+  vpc_id                   = huaweicloud_vpc.test.id
+  connection_drain_enabled = false
+  connection_drain_timeout = 60
+}
+`, common.TestVpc(rName), rName)
 }
