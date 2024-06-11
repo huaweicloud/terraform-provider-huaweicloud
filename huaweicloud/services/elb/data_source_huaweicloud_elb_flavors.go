@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v3/flavors"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
 
 // @API ELB GET /v3/{project_id}/elb/flavors
@@ -25,6 +25,10 @@ func DataSourceElbFlavorsV3() *schema.Resource {
 				Computed: true,
 			},
 			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -103,6 +107,9 @@ func dataSourceElbFlavorsV3Read(_ context.Context, d *schema.ResourceData, meta 
 	if v, ok := d.GetOk("type"); ok {
 		listOpts.Type = []string{v.(string)}
 	}
+	if v, ok := d.GetOk("name"); ok {
+		listOpts.Name = []string{v.(string)}
+	}
 
 	pages, err := flavors.List(elbClient, listOpts).AllPages()
 	if err != nil {
@@ -155,12 +162,12 @@ func dataSourceElbFlavorsV3Read(_ context.Context, d *schema.ResourceData, meta 
 		flavorInfos = append(flavorInfos, flavorInfo)
 	}
 
-	if len(ids) < 1 {
-		return diag.Errorf("your query returned no results. " +
-			"Please change your search criteria and try again.")
+	dataSourceId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(hashcode.Strings(ids))
+	d.SetId(dataSourceId)
 
 	mErr := multierror.Append(
 		d.Set("region", cfg.GetRegion(d)),
