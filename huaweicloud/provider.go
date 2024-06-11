@@ -921,9 +921,10 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dcs_maintainwindow_v1": dcs.DataSourceDcsMaintainWindow(),
 
-			"huaweicloud_dds_flavors_v3":   dds.DataSourceDDSFlavorV3(),
-			"huaweicloud_identity_role_v3": iam.DataSourceIdentityRole(),
-			"huaweicloud_cdm_flavors_v1":   cdm.DataSourceCdmFlavors(),
+			"huaweicloud_dds_flavors_v3":               dds.DataSourceDDSFlavorV3(),
+			"huaweicloud_identity_role_v3":             iam.DataSourceIdentityRole(),
+			"huaweicloud_identity_virtual_mfa_devices": iam.DataSourceIamIdentityVirtualMfaDevices(),
+			"huaweicloud_cdm_flavors_v1":               cdm.DataSourceCdmFlavors(),
 
 			"huaweicloud_ddm_engines":        ddm.DataSourceDdmEngines(),
 			"huaweicloud_ddm_flavors":        ddm.DataSourceDdmFlavors(),
