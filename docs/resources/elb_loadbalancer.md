@@ -122,6 +122,8 @@ The following arguments are supported:
 
 * `ipv4_address` - (Optional, String) The ipv4 address of the load balancer.
 
+* `ipv6_address` - (Optional, String) The ipv6 address of the Load Balancer.
+
 * `ipv4_eip_id` - (Optional, String, ForceNew) The ID of the EIP. Changing this parameter will create a new resource.
 
   -> **NOTE:** If the ipv4_eip_id parameter is configured, you do not need to configure the bandwidth parameters:
@@ -216,7 +218,6 @@ In addition to all arguments above, the following attributes are exported:
 * `ipv4_eip` - The ipv4 eip address of the Load Balancer.
 * `ipv6_eip` - The ipv6 eip address of the Load Balancer.
 * `ipv6_eip_id` - The ipv6 eip id of the Load Balancer.
-* `ipv6_address` - The ipv6 address of the Load Balancer.
 
 * `charge_mode` - Indicates the billing mode. The value can be one of the following:
   + **flavor**: Billed by the specifications you will select.

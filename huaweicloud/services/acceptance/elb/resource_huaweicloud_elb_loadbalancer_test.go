@@ -380,6 +380,47 @@ func TestAccElbV3LoadBalancer_updateChargingMode(t *testing.T) {
 	})
 }
 
+func TestAccElbV3LoadBalancer_withIpv6(t *testing.T) {
+	var lb loadbalancers.LoadBalancer
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_loadbalancer.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&lb,
+		getELBResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3LoadBalancerConfig_withIpv6(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrPair(resourceName, "ipv6_network_id",
+						"data.huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "ipv6_address", "2407:c080:1200:5f0:9bb8:4438:299b:9083"),
+				),
+			},
+			{
+				Config: testAccElbV3LoadBalancerConfig_withIpv6_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "ipv6_network_id",
+						"data.huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "ipv6_address", "2407:c080:1200:5f0:9bb8:4438:299b:9084"),
+				),
+			},
+		},
+	})
+}
+
 func testAccElbV3LoadBalancerConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -708,4 +749,58 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   }
 }
 `, common.TestVpc(rName), rNameUpdate)
+}
+
+func testAccElbV3LoadBalancerConfig_withIpv6(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name           = "%s"
+  ipv4_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  iptype                = "5_bgp"
+  bandwidth_charge_mode = "traffic"
+  sharetype             = "PER"
+  bandwidth_size        = 5
+
+  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
+  ipv6_address    = "2407:c080:1200:5f0:9bb8:4438:299b:9083"
+}
+`, rName)
+}
+
+func testAccElbV3LoadBalancerConfig_withIpv6_update(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name           = "%s"
+  ipv4_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  iptype                = "5_bgp"
+  bandwidth_charge_mode = "traffic"
+  sharetype             = "PER"
+  bandwidth_size        = 5
+
+  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
+  ipv6_address    = "2407:c080:1200:5f0:9bb8:4438:299b:9084"
+}
+`, rName)
 }
