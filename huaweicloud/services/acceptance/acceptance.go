@@ -186,6 +186,7 @@ var (
 	HW_DC_HOSTTING_ID          = os.Getenv("HW_DC_HOSTTING_ID")
 	HW_DC_TARGET_TENANT_VGW_ID = os.Getenv("HW_DC_TARGET_TENANT_VGW_ID")
 	HW_DC_VIRTUAL_INTERFACE_ID = os.Getenv("HW_DC_VIRTUAL_INTERFACE_ID")
+	HW_DC_ENABLE_FLAG          = os.Getenv("HW_DC_ENABLE_FLAG")
 
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID        = os.Getenv("HW_CFW_INSTANCE_ID")
@@ -1812,5 +1813,12 @@ func TestAccPreCheckSubnetId(t *testing.T) {
 func TestAccPreCheckSecurityGroupId(t *testing.T) {
 	if HW_SECURITY_GROUP_ID == "" {
 		t.Skip("HW_SECURITY_GROUP_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckDcFlag(t *testing.T) {
+	if HW_DC_ENABLE_FLAG == "" {
+		t.Skip("HW_DC_ENABLE_FLAG must be set for the acceptance test")
 	}
 }
