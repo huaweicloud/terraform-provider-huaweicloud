@@ -13,6 +13,7 @@ Manages a CBH instance resource within HuaweiCloud.
 
 ```hcl
 variable "name" {}
+variable "flavor_id" {}
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "security_group_id" {}
@@ -20,8 +21,8 @@ variable "password" {}
 variable "availability_zone" {}
 
 resource "huaweicloud_cbh_instance" "test" {
-  flavor_id         = "cbh.basic.10"
   name              = var.name
+  flavor_id         = var.flavor_id
   vpc_id            = var.vpc_id
   subnet_id         = var.subnet_id
   security_group_id = var.security_group_id
@@ -51,13 +52,9 @@ The following arguments are supported:
   -> 1. The flavor change is a high-risk operation, with a certain risk of failure.
   <br/>2. Flavor change failing may impact the usability of the instance. Please be sure to back up your data.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the ID of a VPC.
+* `vpc_id` - (Required, String) Specifies the ID of a VPC.
 
-  Changing this parameter will create a new resource.
-
-* `subnet_id` - (Required, String, ForceNew) Specifies the ID of a subnet.
-
-  Changing this parameter will create a new resource.
+* `subnet_id` - (Required, String) Specifies the ID of a subnet.
 
 * `security_group_id` - (Required, String) Specifies the IDs of the security group. Multiple security group IDs are
   separated by commas (,) without spaces.
@@ -95,6 +92,10 @@ The following arguments are supported:
 
 * `subnet_address` - (Optional, String) Specifies the IP address of the subnet.
   If not specified, a new IP address will be assigned.
+
+  -> The CBH instance will automatically create an elastic network card based on the subnet address, which will be
+  deleted along with the instance deletion. But if the `subnet_address` parameter is updated, the elastic network card
+  resource corresponding to the original subnet address will remain, you need to manually delete it in the console.
 
 * `public_ip_id` - (Optional, String) Specifies the ID of the elastic IP.
 

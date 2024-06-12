@@ -43,6 +43,7 @@ const (
 // @API CBH POST /v2/{project_id}/cbs/instance/start
 // @API CBH POST /v2/{project_id}/cbs/instance/stop
 // @API CBH POST /v2/{project_id}/cbs/instance/reboot
+// @API CBH PUT /v2/{project_id}/cbs/instance/vpc
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -85,13 +86,11 @@ func ResourceCBHInstance() *schema.Resource {
 			"vpc_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of a VPC.`,
 			},
 			"subnet_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of a subnet.`,
 			},
 			"security_group_id": {
@@ -640,6 +639,17 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	// Update `vpc_id`, `subnet_id`, and `subnet_address` using the same API.
+	if d.HasChanges("vpc_id", "subnet_id", "subnet_address") {
+		if err := updateVpc(client, d); err != nil {
+			return diag.Errorf("error updating the vpc of the CBH instance (%s): %s", ID, err)
+		}
+
+		if err := waitingForCBHInstanceActive(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.Errorf("error waiting for CBH instance (%s) update vpc complete: %s", ID, err)
+		}
+	}
+
 	if d.HasChanges("security_group_id") {
 		securityGroupIDs := d.Get("security_group_id").(string)
 		sgIDs := strings.Split(securityGroupIDs, ",")
@@ -828,6 +838,34 @@ func getInstanceResourceIdById(client *golangsdk.ServiceClient, instanceId strin
 	resourceId := utils.PathSearch(expression, instances, "").(string)
 
 	return resourceId, nil
+}
+
+func buildUpdateVpcNetWorkBodyParam(d *schema.ResourceData) interface{} {
+	return map[string]interface{}{
+		"vpc_id":    d.Get("vpc_id"),
+		"subnet_id": d.Get("subnet_id"),
+		// When updating VPC, security group ID is a required parameter, but it will not take effect in reality.
+		"security_groups": []map[string]interface{}{
+			{"id": ""},
+		},
+		"private_ip": buildCreateNetworkPrivateIpBodyParam(d),
+	}
+}
+
+func updateVpc(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateVpcPath := client.Endpoint + "v2/{project_id}/cbs/instance/vpc"
+	updateVpcPath = strings.ReplaceAll(updateVpcPath, "{project_id}", client.ProjectID)
+	updateVpcOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"server_id": d.Id(),
+			"network":   buildUpdateVpcNetWorkBodyParam(d),
+		},
+	}
+
+	_, err := client.Request("PUT", updateVpcPath, &updateVpcOpt)
+
+	return err
 }
 
 func updateFlavorId(client *golangsdk.ServiceClient, resourceId, flavorId string) (string, error) {
