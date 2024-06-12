@@ -35,6 +35,7 @@ import (
 // @API CBH POST /v2/{project_id}/cbs/instance/start
 // @API CBH POST /v2/{project_id}/cbs/instance/stop
 // @API CBH POST /v2/{project_id}/cbs/instance/reboot
+// @API CBH PUT /v2/{project_id}/cbs/instance/vpc
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -95,13 +96,11 @@ func ResourceCBHHAInstance() *schema.Resource {
 			"vpc_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of a VPC.`,
 			},
 			"subnet_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of a subnet.`,
 			},
 			"security_group_id": {
@@ -169,21 +168,18 @@ func ResourceCBHHAInstance() *schema.Resource {
 			"master_private_ip": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: `Specifies the private IP address of the master instance.`,
 			},
 			"slave_private_ip": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: `Specifies the private IP address of the slave instance.`,
 			},
 			"floating_ip": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: `Specifies the floating IP address of the CBH HA instance.`,
 			},
@@ -473,6 +469,39 @@ func doHAInstancePowerAction(ctx context.Context, client *golangsdk.ServiceClien
 	return nil
 }
 
+func waitingForHAInstanceUpdateVpcCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, masterId string) error {
+	masterExpression := fmt.Sprintf("[?server_id == '%s']|[0]", masterId)
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			instances, err := getCBHInstanceList(client)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			masterInstance := utils.PathSearch(masterExpression, instances, nil)
+			if masterInstance == nil {
+				return nil, "ERROR", golangsdk.ErrDefault404{}
+			}
+
+			vpcId := utils.PathSearch("network.vpc_id", masterInstance, "").(string)
+			subnetId := utils.PathSearch("network.subnet_id", masterInstance, "").(string)
+			if vpcId == d.Get("vpc_id").(string) && subnetId == d.Get("subnet_id").(string) {
+				return masterInstance, "COMPLETED", nil
+			}
+
+			return masterInstance, "PENDING", nil
+		},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+
+	return err
+}
+
 func waitingForHAInstanceShutoff(ctx context.Context, client *golangsdk.ServiceClient, ids []string,
 	timeout time.Duration) error {
 	for _, serverId := range ids {
@@ -661,6 +690,26 @@ func resourceHAInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
+	// Update `vpc_id`, `subnet_id`, and private IP related parameters using the same API.
+	if d.HasChanges("vpc_id", "subnet_id", "master_private_ip", "slave_private_ip", "floating_ip") {
+		if err := updateHAInstanceVpc(client, d, masterId); err != nil {
+			return diag.Errorf("error updating the vpc of the CBH HA instance (%s): %s", id, err)
+		}
+
+		// When updating the CBH HA instance vpc, the slave instance status always is active.
+		// So, here we just need to wait for the master instance.
+		if err := waitingForHAInstanceActive(ctx, client, []string{masterId}, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.Errorf("error waiting for CBH HA instance (%s) update vpc complete: %s", id, err)
+		}
+
+		// Due to API issues, within a short period of time after updating the CBH HA instance vpc, even if the instance
+		// status is active, the value of the `vpc_id` and `subnet_id` fields is not the target value.
+		// So, here we need to wait for them to reach the target value.
+		if err := waitingForHAInstanceUpdateVpcCompleted(ctx, client, d, masterId); err != nil {
+			return diag.Errorf("error waiting for CBH HA instance (%s) update vpc to target value: %s", id, err)
+		}
+	}
+
 	if d.HasChanges("security_group_id") {
 		securityGroupIDs := d.Get("security_group_id").(string)
 		sgIDs := strings.Split(securityGroupIDs, ",")
@@ -814,6 +863,34 @@ func resourceHAInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	return resourceHAInstanceRead(ctx, d, meta)
+}
+
+func buildUpdateHAInstanceVpcNetWorkBodyParam(d *schema.ResourceData) interface{} {
+	return map[string]interface{}{
+		"vpc_id":    d.Get("vpc_id"),
+		"subnet_id": d.Get("subnet_id"),
+		// When updating VPC, security group ID is a required parameter, but it will not take effect in reality.
+		"security_groups": []map[string]interface{}{
+			{"id": ""},
+		},
+		"private_ip": buildCreateHAInstanceNetworkPrivateIpBodyParam(d),
+	}
+}
+
+func updateHAInstanceVpc(client *golangsdk.ServiceClient, d *schema.ResourceData, masterId string) error {
+	updateVpcPath := client.Endpoint + "v2/{project_id}/cbs/instance/vpc"
+	updateVpcPath = strings.ReplaceAll(updateVpcPath, "{project_id}", client.ProjectID)
+	updateVpcOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"server_id": masterId,
+			"network":   buildUpdateHAInstanceVpcNetWorkBodyParam(d),
+		},
+	}
+
+	_, err := client.Request("PUT", updateVpcPath, &updateVpcOpt)
+
+	return err
 }
 
 func updateHAInstancePublicIpId(client *golangsdk.ServiceClient, d *schema.ResourceData, masterId string) error {

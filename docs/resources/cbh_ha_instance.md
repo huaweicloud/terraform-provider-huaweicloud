@@ -55,13 +55,9 @@ The following arguments are supported:
   -> 1. The flavor change is a high-risk operation, with a certain risk of failure.
   <br/>2. Flavor change failing may impact the usability of the instance. Please be sure to back up your data.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the ID of a VPC.
+* `vpc_id` - (Required, String) Specifies the ID of a VPC.
 
-  Changing this parameter will create a new resource.
-
-* `subnet_id` - (Required, String, ForceNew) Specifies the ID of a subnet.
-
-  Changing this parameter will create a new resource.
+* `subnet_id` - (Required, String) Specifies the ID of a subnet.
 
 * `security_group_id` - (Required, String) Specifies the IDs of the security group. Multiple security group IDs are
   separated by commas (,) without spaces.
@@ -114,20 +110,18 @@ The following arguments are supported:
   -> 1. Storage expansion is a high-risk operation, with a certain risk of failure.
   <br/>2. Expansion failure may affect the usability of the instance. Please ensure to back up your data.
 
-* `master_private_ip` - (Optional, String, ForceNew) Specifies the private IP address of the master instance.
+* `master_private_ip` - (Optional, String) Specifies the private IP address of the master instance.
 
-  Changing this parameter will create a new resource.
+* `slave_private_ip` - (Optional, String) Specifies the private IP address of the slave instance.
 
-* `slave_private_ip` - (Optional, String, ForceNew) Specifies the private IP address of the slave instance.
+* `floating_ip` - (Optional, String) Specifies the floating IP address of the CBH HA instance.
 
-  Changing this parameter will create a new resource.
-
-* `floating_ip` - (Optional, String, ForceNew) Specifies the floating IP address of the CBH HA instance.
-
-  Changing this parameter will create a new resource.
-
--> For the parameters `master_private_ip`, `slave_private_ip`, and `floating_ip`, if none of them are specified,
+-> 1. For the parameters `master_private_ip`, `slave_private_ip`, and `floating_ip`, if none of them are specified,
 a new IP address will be assigned to each. If one is specified, then the other two must also be specified.
+<br>2. The CBH HA instance will automatically create two elastic network card based on `master_private_ip` and
+`slave_private_ip`, they will be deleted as the CBH HA instance is deleted. But if the `master_private_ip` and
+`slave_private_ip` parameters is updated, the elastic network card resources corresponding to the original master
+private IP and slave private IP will remain, you need to manually delete them in the console.
 
 * `power_action` - (Optional, String) Specifies the power action after the CBH HA instance is created.
   The valid values are as follows:
