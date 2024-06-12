@@ -70,6 +70,7 @@ func TestAccCTSDataTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrPair(resourceName, "data_bucket",
 						"huaweicloud_obs_bucket.data_bucket", "bucket"),
+					resource.TestCheckResourceAttrSet(resourceName, "agency_name"),
 				),
 			},
 			{
