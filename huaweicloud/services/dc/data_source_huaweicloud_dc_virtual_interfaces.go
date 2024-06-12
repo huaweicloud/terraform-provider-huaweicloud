@@ -198,6 +198,12 @@ func virtualInterfaceSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The (MD5) password for the local BGP.",
 			},
+			"vif_peers": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        vifPeersSchema(),
+				Description: "The peer information of the virtual interface.",
+			},
 		},
 	}
 	return &sc
@@ -295,6 +301,39 @@ func flattenListVirtualInterfacesBody(resp interface{}) []interface{} {
 			"route_mode":            utils.PathSearch("route_mode", v, nil),
 			"asn":                   utils.PathSearch("bgp_asn", v, nil),
 			"bgp_md5":               utils.PathSearch("bgp_md5", v, nil),
+			"vif_peers":             flattenVifPeersAttributes(v),
+		})
+	}
+	return rst
+}
+
+func flattenVifPeersAttributes(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
+	}
+	curJson := utils.PathSearch("vif_peers", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"id":                utils.PathSearch("id", v, nil),
+			"name":              utils.PathSearch("name", v, nil),
+			"description":       utils.PathSearch("description", v, nil),
+			"address_family":    utils.PathSearch("address_family", v, nil),
+			"local_gateway_ip":  utils.PathSearch("local_gateway_ip", v, nil),
+			"remote_gateway_ip": utils.PathSearch("remote_gateway_ip", v, nil),
+			"route_mode":        utils.PathSearch("route_mode", v, nil),
+			"bgp_asn":           utils.PathSearch("bgp_asn", v, nil),
+			"bgp_md5":           utils.PathSearch("bgp_md5", v, nil),
+			"device_id":         utils.PathSearch("device_id", v, nil),
+			"enable_bfd":        utils.PathSearch("enable_bfd", v, nil),
+			"enable_nqa":        utils.PathSearch("enable_nqa", v, nil),
+			"bgp_route_limit":   utils.PathSearch("bgp_route_limit", v, nil),
+			"bgp_status":        utils.PathSearch("bgp_status", v, nil),
+			"status":            utils.PathSearch("status", v, nil),
+			"vif_id":            utils.PathSearch("vif_id", v, nil),
+			"receive_route_num": utils.PathSearch("receive_route_num", v, nil),
+			"remote_ep_group":   utils.PathSearch("remote_ep_group", v, nil),
 		})
 	}
 	return rst
