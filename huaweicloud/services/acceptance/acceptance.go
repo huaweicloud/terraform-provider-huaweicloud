@@ -43,6 +43,7 @@ var (
 	HW_VPC_ID                 = os.Getenv("HW_VPC_ID")
 	HW_NETWORK_ID             = os.Getenv("HW_NETWORK_ID")
 	HW_SUBNET_ID              = os.Getenv("HW_SUBNET_ID")
+	HW_SECURITY_GROUP_ID      = os.Getenv("HW_SECURITY_GROUP_ID")
 	HW_ENTERPRISE_PROJECT_ID  = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
 	HW_ADMIN                  = os.Getenv("HW_ADMIN")
 
@@ -1790,5 +1791,26 @@ func TestAccPreCheckAsDedicatedHostId(t *testing.T) {
 func TestAccPreCheckAsDataDiskImageId(t *testing.T) {
 	if HW_IMS_DATA_DISK_IMAGE_ID == "" {
 		t.Skip("HW_IMS_DATA_DISK_IMAGE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckVpcId(t *testing.T) {
+	if HW_VPC_ID == "" {
+		t.Skip("HW_VPC_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSubnetId(t *testing.T) {
+	if HW_SUBNET_ID == "" {
+		t.Skip("HW_SUBNET_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecurityGroupId(t *testing.T) {
+	if HW_SECURITY_GROUP_ID == "" {
+		t.Skip("HW_SECURITY_GROUP_ID must be set for the acceptance test")
 	}
 }

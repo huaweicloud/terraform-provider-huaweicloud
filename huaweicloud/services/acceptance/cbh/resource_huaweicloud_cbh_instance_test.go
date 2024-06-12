@@ -357,3 +357,120 @@ resource "huaweicloud_cbh_instance" "test" {
 }
 `, testCBHInstance_base(name), name, action)
 }
+
+func TestAccCBHInstance_updateVpc(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_cbh_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getCBHInstanceResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		// 1.Because the CBH instance will automatically create an extended elastic network card and bind it to the
+		// instance and security group. After switching to VPC, the original extended elastic network card will not be
+		// deleted, so it cannot be completed through automated test cases. So use environment variables to inject
+		// `vpc_id`, `subnet_id`, and `security_group_id`.
+		// 2.After updating the 'subnet_address' parameter, the elastic network card corresponding to the original
+		// subnet address will remain, and you need to manually delete it in the console.
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckVpcId(t)
+			acceptance.TestAccPreCheckSubnetId(t)
+			acceptance.TestAccPreCheckSecurityGroupId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testCBHInstance_updateVpc_stp1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "vpc_id", acceptance.HW_VPC_ID),
+					resource.TestCheckResourceAttr(rName, "subnet_id", acceptance.HW_SUBNET_ID),
+					resource.TestCheckResourceAttr(rName, "security_group_id", acceptance.HW_SECURITY_GROUP_ID),
+					resource.TestCheckResourceAttr(rName, "subnet_address", "192.168.0.154"),
+				),
+			},
+			{
+				Config: testCBHInstance_updateVpc_stp2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "subnet_address", "192.168.0.155"),
+
+					resource.TestCheckResourceAttrPair(rName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"huaweicloud_networking_secgroup.test", "id"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"charging_mode",
+					"password",
+					"period",
+					"period_unit",
+				},
+			},
+		},
+	})
+}
+
+func testCBHInstance_updateVpc_stp1(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_cbh_flavors" "test" {
+  type = "basic"
+}
+
+resource "huaweicloud_cbh_instance" "test" {
+  flavor_id         = data.huaweicloud_cbh_flavors.test.flavors[0].id
+  name              = "%[1]s"
+  vpc_id            = "%[2]s"
+  subnet_id         = "%[3]s"
+  subnet_address    = "192.168.0.154"
+  security_group_id = "%[4]s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  password          = "test_123456"
+  charging_mode     = "prePaid"
+  period_unit       = "month"
+  period            = 1
+}
+`, name, acceptance.HW_VPC_ID, acceptance.HW_SUBNET_ID, acceptance.HW_SECURITY_GROUP_ID)
+}
+
+func testCBHInstance_updateVpc_stp2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_cbh_flavors" "test" {
+  type = "basic"
+}
+
+resource "huaweicloud_cbh_instance" "test" {
+  flavor_id         = data.huaweicloud_cbh_flavors.test.flavors[0].id
+  name              = "%[2]s"
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  subnet_address    = "192.168.0.155"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  password          = "test_123456"
+  charging_mode     = "prePaid"
+  period_unit       = "month"
+  period            = 1
+}
+`, common.TestBaseNetwork(name), name)
+}
