@@ -527,7 +527,7 @@ func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	_, err = deleteInstanceClient.Request("DELETE", deleteInstancePath, &deleteInstanceOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Instance: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting instance")
 	}
 
 	err = deleteInstanceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
