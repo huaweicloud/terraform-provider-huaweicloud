@@ -35,6 +35,7 @@ func TestAccCTSTracker_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "compress_type", "gzip"),
 					resource.TestCheckResourceAttr(resourceName, "is_sort_by_service", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttrSet(resourceName, "agency_name"),
 				),
 			},
 			{

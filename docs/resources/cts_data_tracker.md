@@ -71,6 +71,7 @@ In addition to all arguments above, the following attributes are exported:
 * `type` - The tracker type, only **data** is available.
 * `transfer_enabled` - Whether traces will be transferred.
 * `status` - The tracker status, the value can be **enabled**, **disabled** or **error**.
+* `agency_name` - The cloud service delegation name.
 
 ## Timeouts
 

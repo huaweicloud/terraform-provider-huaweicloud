@@ -126,12 +126,17 @@ func ResourceCTSDataTracker() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"agency_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
 func buildCreateRequestBody(d *schema.ResourceData) *cts.CreateTrackerRequestBody {
 	trackerType := cts.GetCreateTrackerRequestBodyTrackerTypeEnum().DATA
+	agencyName := cts.GetCreateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
 	reqBody := cts.CreateTrackerRequestBody{
 		TrackerType:       trackerType,
 		TrackerName:       d.Get("name").(string),
@@ -139,6 +144,7 @@ func buildCreateRequestBody(d *schema.ResourceData) *cts.CreateTrackerRequestBod
 		IsSupportValidate: utils.Bool(d.Get("validate_file").(bool)),
 		DataBucket:        buildDataBucketOpts(d),
 		ObsInfo:           buildTransferBucketOpts(d),
+		AgencyName:        &agencyName,
 	}
 
 	log.Printf("[DEBUG] creating data CTS tracker options: %#v", reqBody)
@@ -321,12 +327,14 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 	// update other configurations
 	if d.HasChangeExcept("enabled") {
 		trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().DATA
+		agencyName := cts.GetUpdateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
 		updateReq := cts.UpdateTrackerRequestBody{
 			TrackerName:       trackerName,
 			TrackerType:       trackerType,
 			IsLtsEnabled:      utils.Bool(d.Get("lts_enabled").(bool)),
 			IsSupportValidate: utils.Bool(d.Get("validate_file").(bool)),
 			DataBucket:        buildDataBucketOpts(d),
+			AgencyName:        &agencyName,
 		}
 
 		if d.HasChanges("bucket_name", "file_prefix", "obs_retention_period", "compress_type", "is_sort_by_service") {
@@ -400,6 +408,7 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("name", ctsTracker.TrackerName),
 		d.Set("lts_enabled", ctsTracker.Lts.IsLtsEnabled),
 		d.Set("validate_file", ctsTracker.IsSupportValidate),
+		d.Set("agency_name", ctsTracker.AgencyName.Value()),
 	)
 
 	if ctsTracker.DataBucket != nil {
@@ -482,10 +491,12 @@ func updateDataTrackerStatus(c *client.CtsClient, name, status string) error {
 	}
 
 	trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().DATA
+	agencyName := cts.GetUpdateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
 	statusOpts := cts.UpdateTrackerRequestBody{
 		TrackerName: name,
 		TrackerType: trackerType,
 		Status:      enabledStatus,
+		AgencyName:  &agencyName,
 	}
 	statusReq := cts.UpdateTrackerRequest{
 		Body: &statusOpts,

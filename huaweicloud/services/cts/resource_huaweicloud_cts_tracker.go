@@ -123,6 +123,10 @@ func ResourceCTSTracker() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"agency_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -210,6 +214,7 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 
 		trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().SYSTEM
+		agencyName := cts.GetUpdateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
 		updateBody := cts.UpdateTrackerRequestBody{
 			TrackerName:           "system",
 			TrackerType:           trackerType,
@@ -217,6 +222,7 @@ func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			IsOrganizationTracker: utils.Bool(d.Get("organization_enabled").(bool)),
 			IsSupportValidate:     utils.Bool(d.Get("validate_file").(bool)),
 			ObsInfo:               &obsInfo,
+			AgencyName:            &agencyName,
 		}
 
 		if v, ok := d.GetOk("exclude_service"); ok {
@@ -278,6 +284,7 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("organization_enabled", ctsTracker.IsOrganizationTracker),
 		d.Set("validate_file", ctsTracker.IsSupportValidate),
 		d.Set("kms_id", ctsTracker.KmsId),
+		d.Set("agency_name", ctsTracker.AgencyName.Value()),
 	)
 
 	if ctsTracker.ObsInfo != nil {
@@ -401,6 +408,7 @@ func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) (s
 	}
 
 	trackerType := cts.GetCreateTrackerRequestBodyTrackerTypeEnum().SYSTEM
+	agencyName := cts.GetCreateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
 	reqBody := cts.CreateTrackerRequestBody{
 		TrackerName:           "system",
 		TrackerType:           trackerType,
@@ -408,6 +416,7 @@ func createSystemTracker(d *schema.ResourceData, ctsClient *client.CtsClient) (s
 		IsOrganizationTracker: utils.Bool(d.Get("organization_enabled").(bool)),
 		IsSupportValidate:     utils.Bool(d.Get("validate_file").(bool)),
 		ObsInfo:               &obsInfo,
+		AgencyName:            &agencyName,
 	}
 
 	if v, ok := d.GetOk("exclude_service"); ok {
@@ -475,10 +484,12 @@ func updateSystemTrackerStatus(c *client.CtsClient, status string) error {
 	}
 
 	trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().SYSTEM
+	agencyName := cts.GetUpdateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
 	statusOpts := cts.UpdateTrackerRequestBody{
 		TrackerName: "system",
 		TrackerType: trackerType,
 		Status:      enabledStatus,
+		AgencyName:  &agencyName,
 	}
 	statusReq := cts.UpdateTrackerRequest{
 		Body: &statusOpts,
