@@ -20,9 +20,39 @@ fixes #xxx
 
 ## PR Checklist
 
+Before submitting resources, please check the following items and provide the corresponding verification results, and paste the screenshots of the results (if it is necessary) to the designated location.
+
 * [ ] Tests added/passed.
 * [ ] Documentation updated.
 * [ ] Schema updated.
+* [ ] CheckDeleted
+
+About the checking items of the CheckDeleted logic, we need you provide these corresponding verification results, and paste the screenshots of the results (if it is actually checked) to the designated location.
+
+**a. During query operation (Read Context)**
+<!--  How to verify?
+During local testing, after the corresponding resource is created, modify the resource ID in the terraform.tfstate file (in the script directory), and run the 'terraform plan' command after the modification is completed (note to save) and observe whether a warning that the resource does not exist is output.
+If the Checkdeleted logic is in effect, a warning message will be printed.
+-->
+  aa. Resource not found
+  \>>>>>> Paste the screenshot here <<<<<<
+
+  ab. Related resources (parent resources) not found
+  \>>>>>> Paste the screenshot here <<<<<<
+
+**b. During delete/disassociate/unbind operation (Delete Context)**
+<!--  How to verify?
+During local testing, after the corresponding resource is created, run the 'terraform destroy -target=huaweicloud_xxx_xxx.xxx' command.
+Then delete the resource from the console or delete its parent resource together (note that this action must be completed after executing the destroy command and before typing yes), then type yes to execute the deletion action and observe whether a warning that the resource does not exist is output.
+If the Checkdeleted logic is in effect, a warning message will be printed.
+-->
+  ba. Resource not found
+  \>>>>>> Paste the screenshot here <<<<<<
+
+  bb. Related resources (parent resources) not found
+  \>>>>>> Paste the screenshot here <<<<<<
+
+(If there are multiple parent resources, please verify them one by one and attach the verification results)
 
 ## Acceptance Steps Performed
 
