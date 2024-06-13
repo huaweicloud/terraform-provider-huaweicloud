@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identity_virtual_mfa_devices": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "Specifies the user ID to which the virtual MFA device belongs.",
+                "optional": true
+              },
+              "virtual_mfa_devices": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "serial_number": "string",
+                      "user_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of virtual MFA devices.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IAM",
+            "name": "Identity and Access Management",
+            "catalog": "Management & Governance",
+            "name_cn": "统一身份认证服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

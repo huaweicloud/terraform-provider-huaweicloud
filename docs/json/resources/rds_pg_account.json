@@ -40,14 +40,6 @@
                 "required": true,
                 "forcenew": true
               },
-              "memberof": {
-                "type": [
-                  "set",
-                  "string"
-                ],
-                "description": "Specifies  the list of default rights of a account.",
-                "optional": true
-              },
               "name": {
                 "type": "string",
                 "description": "Specifies the username of the DB account.",

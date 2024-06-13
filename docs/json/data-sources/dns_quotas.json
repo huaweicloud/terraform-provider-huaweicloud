@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_quotas": {
+          "block": {
+            "attributes": {
+              "domain_id": {
+                "type": "string",
+                "description": "Specified the account ID of IAM user.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "max": "number",
+                      "type": "string",
+                      "unit": "string",
+                      "used": "number"
+                    }
+                  ]
+                ],
+                "description": "All quotas that match the filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the resource type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Business Applications",
+            "name_cn": "云解析服务",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

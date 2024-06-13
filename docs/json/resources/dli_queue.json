@@ -21,7 +21,8 @@
               },
               "elastic_resource_pool_name": {
                 "type": "string",
-                "optional": true
+                "description": "The name of the elastic resource pool to which the queue belongs.",
+                "required": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -61,7 +62,8 @@
               },
               "resource_mode": {
                 "type": "number",
-                "optional": true,
+                "description": "The queue resource mode.",
+                "required": true,
                 "forcenew": true
               },
               "tags": {
@@ -71,11 +73,6 @@
                 ],
                 "optional": true,
                 "forcenew": true
-              },
-              "vpc_cidr": {
-                "type": "string",
-                "optional": true,
-                "computed": true
               }
             },
             "block_types": {

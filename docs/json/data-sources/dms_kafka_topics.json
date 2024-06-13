@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_kafka_topics": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the DMS kafka instance ID.",
+                "required": true
+              },
+              "max_partitions": {
+                "type": "number",
+                "description": "Indicates the total number of partitions.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the topic name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "remain_partitions": {
+                "type": "number",
+                "description": "Indicates the number of remaining partitions.",
+                "computed": true
+              },
+              "topic_max_partitions": {
+                "type": "number",
+                "description": "Indicates the maximum number of partitions in a single topic.",
+                "computed": true
+              },
+              "topics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "aging_time": "number",
+                      "configs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "name": "string",
+                      "partitions": "number",
+                      "policies_only": "bool",
+                      "replicas": "number",
+                      "sync_flushing": "bool",
+                      "sync_replication": "bool",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the topic list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

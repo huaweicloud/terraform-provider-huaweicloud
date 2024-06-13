@@ -2,30 +2,41 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_apig_endpoint_whitelist": {
+        "huaweicloud_apig_application_acl": {
           "block": {
             "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "The ID of the application to which the ACL rules belong.",
+                "required": true,
+                "forcenew": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
               },
               "instance_id": {
                 "type": "string",
-                "description": "The ID of the dedicated instance to which the endpoint service belongs.",
+                "description": "The ID of the dedicated instance to which the application belongs.",
                 "required": true,
                 "forcenew": true
               },
               "region": {
                 "type": "string",
-                "description": "The region where the endpoint service is located.",
+                "description": "The region where the application and ACL rules are located.",
                 "computed": true
               },
-              "whitelists": {
+              "type": {
+                "type": "string",
+                "description": "The ACL type.",
+                "required": true
+              },
+              "values": {
                 "type": [
-                  "set",
+                  "list",
                   "string"
                 ],
-                "description": "The whitelist records of the endpoint service.",
+                "description": "The ACL values.",
                 "required": true
               }
             }

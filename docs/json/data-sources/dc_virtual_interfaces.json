@@ -76,6 +76,35 @@
                       "status": "string",
                       "type": "string",
                       "vgw_id": "string",
+                      "vif_peers": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "address_family": "string",
+                            "bgp_asn": "number",
+                            "bgp_md5": "string",
+                            "bgp_route_limit": "number",
+                            "bgp_status": "string",
+                            "description": "string",
+                            "device_id": "string",
+                            "enable_bfd": "bool",
+                            "enable_nqa": "bool",
+                            "id": "string",
+                            "local_gateway_ip": "string",
+                            "name": "string",
+                            "receive_route_num": "number",
+                            "remote_ep_group": [
+                              "list",
+                              "string"
+                            ],
+                            "remote_gateway_ip": "string",
+                            "route_mode": "string",
+                            "status": "string",
+                            "vif_id": "string"
+                          }
+                        ]
+                      ],
                       "vlan": "number"
                     }
                   ]

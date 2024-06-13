@@ -1,0 +1,410 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_dataservice_api": {
+          "block": {
+            "attributes": {
+              "auth_type": {
+                "type": "string",
+                "description": "The authentication type.",
+                "required": true
+              },
+              "catalog_id": {
+                "type": "string",
+                "description": "The ID of the catalog where the API is located.",
+                "required": true
+              },
+              "create_user": {
+                "type": "string",
+                "description": "The creator name.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the API, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the API.",
+                "optional": true
+              },
+              "dlm_type": {
+                "type": "string",
+                "description": "The type of DLM engine.",
+                "optional": true,
+                "forcenew": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "The ID of the group to which the API belongs.",
+                "computed": true
+              },
+              "host": {
+                "type": "string",
+                "description": "The API host configuration, for shared type.",
+                "computed": true
+              },
+              "hosts": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The API host configuration, for exclusive type.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "manager": {
+                "type": "string",
+                "description": "The API reviewer.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the API.",
+                "required": true
+              },
+              "path": {
+                "type": "string",
+                "description": "The API request path.",
+                "required": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "The request protocol of the API.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the API is located.",
+                "computed": true
+              },
+              "request_type": {
+                "type": "string",
+                "description": "The request type of the API.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The API status.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The API type.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the API, in RFC3339 format.",
+                "computed": true
+              },
+              "visibility": {
+                "type": "string",
+                "description": "The visibility to the catalog of API.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the API belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "backend_config": {
+                "block": {
+                  "attributes": {
+                    "host": {
+                      "type": "string",
+                      "description": "The backend host.",
+                      "required": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "The backend path.",
+                      "required": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "description": "The protocol of the backend request.",
+                      "required": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "description": "The backend timeout.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the backend request.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "backend_params": {
+                      "block": {
+                        "attributes": {
+                          "backend_param_name": {
+                            "type": "string",
+                            "description": "The name of the corresponding backend parameter.",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the request parameter.",
+                            "required": true
+                          },
+                          "position": {
+                            "type": "string",
+                            "description": "The position of the request parameter.",
+                            "required": true
+                          }
+                        },
+                        "description": "The backend parameters of the API."
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "constant_params": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "description": "The description of the constant parameter.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the constant parameter.",
+                            "required": true
+                          },
+                          "position": {
+                            "type": "string",
+                            "description": "The position of the constant parameter.",
+                            "required": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of the constant parameter.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the constant parameter.",
+                            "required": true
+                          }
+                        },
+                        "description": "The backend constant parameters of the API."
+                      },
+                      "nesting_mode": "set"
+                    }
+                  },
+                  "description": "The configuration of the API backend."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "datasource_config": {
+                "block": {
+                  "attributes": {
+                    "access_mode": {
+                      "type": "string",
+                      "description": "The access mode for the data.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "connection_id": {
+                      "type": "string",
+                      "description": "The ID of the data connection.",
+                      "required": true
+                    },
+                    "database": {
+                      "type": "string",
+                      "description": "The name of the database.",
+                      "required": true
+                    },
+                    "datatable": {
+                      "type": "string",
+                      "description": "The name of the data table.",
+                      "required": true
+                    },
+                    "queue": {
+                      "type": "string",
+                      "description": "The ID of the DLI queue.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "sql": {
+                      "type": "string",
+                      "description": "The SQL statements in script access type.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the data source.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "backend_params": {
+                      "block": {
+                        "attributes": {
+                          "condition": {
+                            "type": "string",
+                            "description": "The condition character.",
+                            "required": true
+                          },
+                          "mapping": {
+                            "type": "string",
+                            "description": "The name of the mapping parameter.",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the backend parameter.",
+                            "required": true
+                          }
+                        },
+                        "description": "The backend parameters of the API."
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "order_params": {
+                      "block": {
+                        "attributes": {
+                          "field": {
+                            "type": "string",
+                            "description": "The corresponding parameter field for the order parameter.",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the order parameter.",
+                            "required": true
+                          },
+                          "optional": {
+                            "type": "bool",
+                            "description": "Whether this order parameter is the optional parameter.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "order": {
+                            "type": "number",
+                            "description": "The order of the sorting parameters.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "sort": {
+                            "type": "string",
+                            "description": "The sort type of the order parameter.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The order parameters of the API."
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "response_params": {
+                      "block": {
+                        "attributes": {
+                          "description": {
+                            "type": "string",
+                            "description": "The description of the response parameter.",
+                            "optional": true
+                          },
+                          "example_value": {
+                            "type": "string",
+                            "description": "The example value of the response parameter.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "field": {
+                            "type": "string",
+                            "description": "The bound table field for the response parameter.",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the response parameter.",
+                            "required": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of the response parameter.",
+                            "required": true
+                          }
+                        },
+                        "description": "The response parameters of the API."
+                      },
+                      "nesting_mode": "set"
+                    }
+                  },
+                  "description": "The configuration of the API data source."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "request_params": {
+                "block": {
+                  "attributes": {
+                    "default_value": {
+                      "type": "string",
+                      "description": "The default value of the request parameter.",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the request parameter.",
+                      "optional": true
+                    },
+                    "example_value": {
+                      "type": "string",
+                      "description": "The example value of the request parameter.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the request parameter.",
+                      "required": true
+                    },
+                    "necessary": {
+                      "type": "bool",
+                      "description": "Whether this parameter is the required parameter.",
+                      "optional": true
+                    },
+                    "position": {
+                      "type": "string",
+                      "description": "The position of the request parameter.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the request parameter.",
+                      "required": true
+                    }
+                  },
+                  "description": "The parameters of the API request."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

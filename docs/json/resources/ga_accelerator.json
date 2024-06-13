@@ -65,8 +65,7 @@
                   "map",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "updated_at": {
                 "type": "string",

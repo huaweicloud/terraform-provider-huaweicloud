@@ -46,6 +46,10 @@
                 "type": "number",
                 "optional": true
               },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
               "qps": {
                 "type": "number",
                 "optional": true

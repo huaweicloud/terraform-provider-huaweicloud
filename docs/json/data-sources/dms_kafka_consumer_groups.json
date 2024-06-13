@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_kafka_consumer_groups": {
+          "block": {
+            "attributes": {
+              "coordinator_id": {
+                "type": "number",
+                "description": "Specifies the coordinator ID.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the consumer group description.",
+                "optional": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "coordinator_id": "number",
+                      "created_at": "string",
+                      "description": "string",
+                      "lag": "number",
+                      "name": "string",
+                      "state": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the consumer groups.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "lag": {
+                "type": "number",
+                "description": "Specifies the the number of accumulated messages.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the consumer group name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "description": "Specifies the consumer group status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

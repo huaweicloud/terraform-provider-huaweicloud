@@ -1,0 +1,40 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dc_virtual_interface_accepter": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the action on virtual interfaces shared by other accounts.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "virtual_interface_id": {
+                "type": "string",
+                "description": "Specifies the virtual interface ID.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

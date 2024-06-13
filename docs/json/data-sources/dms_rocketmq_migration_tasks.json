@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_migration_tasks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the RocketMQ instance ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the RocketMQ migration task name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the RocketMQ migration task ID.",
+                "optional": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "start_date": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of metadata migration tasks.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the RocketMQ migration task type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -118,6 +118,7 @@
               },
               "ipv6_address": {
                 "type": "string",
+                "optional": true,
                 "computed": true
               },
               "ipv6_bandwidth_id": {

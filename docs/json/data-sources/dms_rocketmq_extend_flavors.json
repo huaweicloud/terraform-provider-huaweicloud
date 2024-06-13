@@ -1,0 +1,142 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_extend_flavors": {
+          "block": {
+            "attributes": {
+              "arch_type": {
+                "type": "string",
+                "description": "Specifies the type of CPU architecture, e.g. **X86**.",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "description": "Specifies the flavor billing mode. The valid values are **prePaid** and **postPaid**.",
+                "optional": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "arch_types": [
+                        "list",
+                        "string"
+                      ],
+                      "available_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "billing_code": "string",
+                      "charging_modes": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "ios": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "available_zones": [
+                              "list",
+                              "string"
+                            ],
+                            "storage_spec_code": "string",
+                            "type": "string",
+                            "unavailable_zones": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "properties": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "engine_versions": "string",
+                            "flavor_alias": "string",
+                            "max_broker": "string",
+                            "max_consumer_per_broker": "string",
+                            "max_storage_per_node": "string",
+                            "max_topic_per_broker": "string",
+                            "min_broker": "string",
+                            "min_storage_per_node": "string"
+                          }
+                        ]
+                      ],
+                      "support_features": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "properties": [
+                              "map",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "type": "string",
+                      "unavailable_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "vm_specification": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of flavor details.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "storage_spec_code": {
+                "type": "string",
+                "description": "Specifies the disk IO encoding, e.g. **dms.physical.storage.high.v2**.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the flavor type.",
+                "optional": true
+              },
+              "versions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the supported flavor versions.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

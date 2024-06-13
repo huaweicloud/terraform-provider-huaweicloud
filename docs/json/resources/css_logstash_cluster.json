@@ -17,8 +17,7 @@
               "charging_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "created_at": {
                 "type": "string",
@@ -46,6 +45,10 @@
                 "type": "string",
                 "computed": true
               },
+              "is_period": {
+                "type": "bool",
+                "computed": true
+              },
               "name": {
                 "type": "string",
                 "required": true
@@ -58,7 +61,9 @@
                     {
                       "availability_zone": "string",
                       "id": "string",
+                      "ip": "string",
                       "name": "string",
+                      "resource_id": "string",
                       "spec_code": "string",
                       "status": "string",
                       "type": "string"
@@ -69,13 +74,11 @@
               },
               "period": {
                 "type": "number",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "period_unit": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "region": {
                 "type": "string",
@@ -100,6 +103,10 @@
                   "string"
                 ],
                 "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
               },
               "vpc_id": {
                 "type": "string",

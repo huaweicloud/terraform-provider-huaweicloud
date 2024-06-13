@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_css_manual_log_backup": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the CSS cluster.",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "failed_msg": {
+                "type": "string",
+                "description": "The error information.",
+                "computed": true
+              },
+              "finished_at": {
+                "type": "string",
+                "description": "The end time.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "The ID of the log backup job.",
+                "computed": true
+              },
+              "log_path": {
+                "type": "string",
+                "description": "The storage path of backed up logs in the OBS bucket.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the log backup job.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the log backup job.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

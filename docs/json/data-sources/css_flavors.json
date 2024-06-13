@@ -11,6 +11,7 @@
                   [
                     "object",
                     {
+                      "availability_zones": "string",
                       "disk_range": "string",
                       "id": "string",
                       "memory": "number",

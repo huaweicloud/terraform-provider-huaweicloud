@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_endpoint_connections": {
+          "block": {
+            "attributes": {
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "domain_id": "string",
+                      "id": "string",
+                      "packet_id": "number",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All endpoint connections that match the filter parameters.",
+                "computed": true
+              },
+              "endpoint_id": {
+                "type": "string",
+                "description": "Specifies the ID of the endpoint connection.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the dedicated instance ID to which the endpoint connections belong.",
+                "required": true
+              },
+              "packet_id": {
+                "type": "number",
+                "description": "Specifies packet ID of endpoint connection.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies status of endpoint connection.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

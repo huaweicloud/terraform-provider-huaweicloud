@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_instance_features": {
+          "block": {
+            "attributes": {
+              "features": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "config": "string",
+                      "enabled": "bool",
+                      "id": "string",
+                      "name": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All instance features that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specified the ID of the dedicated instance to which the features belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specified the name of the feature.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

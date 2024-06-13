@@ -1,0 +1,427 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_api": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "Specifies the ID of the API.",
+                "required": true
+              },
+              "authorizer_id": {
+                "type": "string",
+                "description": "The ID of the authorizer to which the API request used.",
+                "computed": true
+              },
+              "backend_params": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "id": "string",
+                      "location": "string",
+                      "name": "string",
+                      "request_id": "string",
+                      "system_param_type": "string",
+                      "type": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "The configuration list of the backend parameters.",
+                "computed": true
+              },
+              "backend_type": {
+                "type": "string",
+                "description": "The backend type of the API.",
+                "computed": true
+              },
+              "body_description": {
+                "type": "string",
+                "description": "The description of the API request body.",
+                "computed": true
+              },
+              "cors": {
+                "type": "bool",
+                "description": "Whether CORS is supported.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the API.",
+                "computed": true
+              },
+              "env_id": {
+                "type": "string",
+                "description": "The name of the environment where the API is published.",
+                "computed": true
+              },
+              "env_name": {
+                "type": "string",
+                "description": "The name of the environment where the API is published.",
+                "computed": true
+              },
+              "failure_response": {
+                "type": "string",
+                "description": "The example response for a failure request.",
+                "computed": true
+              },
+              "func_graph": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "authorizer_id": "string",
+                      "function_urn": "string",
+                      "id": "string",
+                      "invocation_type": "string",
+                      "timeout": "number",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The FunctionGraph backend details.",
+                "computed": true
+              },
+              "func_graph_policy": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "authorizer_id": "string",
+                      "backend_params": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "id": "string",
+                            "location": "string",
+                            "name": "string",
+                            "request_id": "string",
+                            "system_param_type": "string",
+                            "type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cookie_name": "string",
+                            "frontend_authorizer_name": "string",
+                            "id": "string",
+                            "param_name": "string",
+                            "request_id": "string",
+                            "request_location": "string",
+                            "source": "string",
+                            "sys_name": "string",
+                            "type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "effective_mode": "string",
+                      "function_urn": "string",
+                      "id": "string",
+                      "invocation_type": "string",
+                      "name": "string",
+                      "timeout": "number",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The policy backends of the FunctionGraph.",
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "The group ID corresponding to the API.",
+                "computed": true
+              },
+              "group_name": {
+                "type": "string",
+                "description": "The group name corresponding to the API.",
+                "computed": true
+              },
+              "group_version": {
+                "type": "string",
+                "description": "The version of group corresponding to the API.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated instance to which the API belong.",
+                "required": true
+              },
+              "matching": {
+                "type": "string",
+                "description": "The matching mode of the API.",
+                "computed": true
+              },
+              "mock": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "authorizer_id": "string",
+                      "id": "string",
+                      "response": "string"
+                    }
+                  ]
+                ],
+                "description": "The mock backend details.",
+                "computed": true
+              },
+              "mock_policy": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "authorizer_id": "string",
+                      "backend_params": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "id": "string",
+                            "location": "string",
+                            "name": "string",
+                            "request_id": "string",
+                            "system_param_type": "string",
+                            "type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cookie_name": "string",
+                            "frontend_authorizer_name": "string",
+                            "id": "string",
+                            "param_name": "string",
+                            "request_id": "string",
+                            "request_location": "string",
+                            "source": "string",
+                            "sys_name": "string",
+                            "type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "effective_mode": "string",
+                      "id": "string",
+                      "name": "string",
+                      "response": "string"
+                    }
+                  ]
+                ],
+                "description": "The policy backends of the mock.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the API.",
+                "computed": true
+              },
+              "publish_id": {
+                "type": "string",
+                "description": "The ID of publish corresponding to the API.",
+                "computed": true
+              },
+              "published_at": {
+                "type": "string",
+                "description": "The published time of the API, in RFC3339 format.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "registered_at": {
+                "type": "string",
+                "description": "The registered time of the API, in RFC3339 format.",
+                "computed": true
+              },
+              "request_method": {
+                "type": "string",
+                "description": "The request method of the API.",
+                "computed": true
+              },
+              "request_params": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "default": "string",
+                      "description": "string",
+                      "enumeration": "string",
+                      "example": "string",
+                      "id": "string",
+                      "location": "string",
+                      "maximum": "number",
+                      "minimum": "number",
+                      "name": "string",
+                      "passthrough": "bool",
+                      "required": "bool",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The configuration list of the front-end parameters.",
+                "computed": true
+              },
+              "request_path": {
+                "type": "string",
+                "description": "The request address of the API.",
+                "computed": true
+              },
+              "request_protocol": {
+                "type": "string",
+                "description": "The request protocol of the API.",
+                "computed": true
+              },
+              "response_id": {
+                "type": "string",
+                "description": "The response ID of the corresponding APIG group.",
+                "computed": true
+              },
+              "security_authentication": {
+                "type": "string",
+                "description": "The security authentication mode of the API request.",
+                "computed": true
+              },
+              "simple_authentication": {
+                "type": "bool",
+                "description": "Whether the authentication of the application code is enabled.",
+                "computed": true
+              },
+              "success_response": {
+                "type": "string",
+                "description": "The example response for a successful request.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the API.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the API, in RFC3339 format.",
+                "computed": true
+              },
+              "web": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "authorizer_id": "string",
+                      "backend_address": "string",
+                      "host_header": "string",
+                      "id": "string",
+                      "path": "string",
+                      "request_method": "string",
+                      "request_protocol": "string",
+                      "retry_count": "number",
+                      "ssl_enable": "bool",
+                      "timeout": "number",
+                      "vpc_channel_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The web backend details.",
+                "computed": true
+              },
+              "web_policy": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "authorizer_id": "string",
+                      "backend_address": "string",
+                      "backend_params": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "id": "string",
+                            "location": "string",
+                            "name": "string",
+                            "request_id": "string",
+                            "system_param_type": "string",
+                            "type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cookie_name": "string",
+                            "frontend_authorizer_name": "string",
+                            "id": "string",
+                            "param_name": "string",
+                            "request_id": "string",
+                            "request_location": "string",
+                            "source": "string",
+                            "sys_name": "string",
+                            "type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "effective_mode": "string",
+                      "host_header": "string",
+                      "id": "string",
+                      "name": "string",
+                      "path": "string",
+                      "request_method": "string",
+                      "request_protocol": "string",
+                      "retry_count": "number",
+                      "timeout": "number",
+                      "vpc_channel_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The policy backends of the web.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

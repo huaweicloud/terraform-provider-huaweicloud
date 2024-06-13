@@ -33,6 +33,12 @@
                       "forcenew": true,
                       "default": "postPaid"
                     },
+                    "dedicated_host_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "ecs_group_id": {
                       "type": "string",
                       "optional": true,
@@ -84,6 +90,12 @@
                       "required": true,
                       "forcenew": true
                     },
+                    "tenancy": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "user_data": {
                       "type": "string",
                       "optional": true,
@@ -94,9 +106,27 @@
                     "disk": {
                       "block": {
                         "attributes": {
+                          "data_disk_image_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "dedicated_storage_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
                           "disk_type": {
                             "type": "string",
                             "required": true,
+                            "forcenew": true
+                          },
+                          "iops": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true,
                             "forcenew": true
                           },
                           "kms_id": {
@@ -108,6 +138,18 @@
                           "size": {
                             "type": "number",
                             "required": true,
+                            "forcenew": true
+                          },
+                          "snapshot_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "throughput": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true,
                             "forcenew": true
                           },
                           "volume_type": {
@@ -157,7 +199,14 @@
                                     "attributes": {
                                       "charging_mode": {
                                         "type": "string",
-                                        "required": true,
+                                        "optional": true,
+                                        "computed": true,
+                                        "forcenew": true
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true,
                                         "forcenew": true
                                       },
                                       "share_type": {
@@ -167,7 +216,8 @@
                                       },
                                       "size": {
                                         "type": "number",
-                                        "required": true,
+                                        "optional": true,
+                                        "computed": true,
                                         "forcenew": true
                                       }
                                     }

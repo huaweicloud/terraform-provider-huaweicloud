@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_as_instances": {
+          "block": {
+            "attributes": {
+              "health_status": {
+                "type": "string",
+                "description": "Specifies the instance health status.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "health_status": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "life_cycle_state": "string",
+                      "protect_from_scaling_down": "bool",
+                      "scaling_configuration_id": "string",
+                      "scaling_configuration_name": "string",
+                      "scaling_group_id": "string",
+                      "scaling_group_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The details about the instances in the AS group.",
+                "computed": true
+              },
+              "life_cycle_state": {
+                "type": "string",
+                "description": "Specifies the instance lifecycle status in the AS group.",
+                "optional": true
+              },
+              "protect_from_scaling_down": {
+                "type": "string",
+                "description": "Specifies the instance protection status.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scaling_group_id": {
+                "type": "string",
+                "description": "Specifies the AS group ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "AS",
+            "name": "Auto Scaling",
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

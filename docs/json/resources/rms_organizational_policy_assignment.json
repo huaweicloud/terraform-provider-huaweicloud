@@ -17,7 +17,7 @@
               },
               "excluded_accounts": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "description": "The excluded accounts of the organizational policy assignment.",

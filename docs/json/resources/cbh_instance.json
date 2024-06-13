@@ -120,8 +120,7 @@
               "subnet_id": {
                 "type": "string",
                 "description": "Specifies the ID of a subnet.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "tags": {
                 "type": [
@@ -138,8 +137,7 @@
               "vpc_id": {
                 "type": "string",
                 "description": "Specifies the ID of a VPC.",
-                "required": true,
-                "forcenew": true
+                "required": true
               }
             }
           },

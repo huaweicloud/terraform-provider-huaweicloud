@@ -9,6 +9,11 @@
                 "type": "number",
                 "computed": true
               },
+              "anti_affinity": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
               "available_zone": {
                 "type": "string",
                 "required": true,
@@ -22,7 +27,8 @@
               },
               "ecs_flavor": {
                 "type": "string",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "enterprise_project_id": {
@@ -45,6 +51,11 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "res_tenant": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
               },
               "run_status": {
                 "type": "number",

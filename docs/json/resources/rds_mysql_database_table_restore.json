@@ -1,0 +1,109 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_mysql_database_table_restore": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of RDS MySQL instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "is_fast_restore": {
+                "type": "bool",
+                "description": "Specifies whether to use fast restoration.",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "restore_time": {
+                "type": "number",
+                "description": "Specifies the restoration time point.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "databases": {
+                "block": {
+                  "attributes": {
+                    "new_name": {
+                      "type": "string",
+                      "description": "Specifies the name of the database after restoration.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "old_name": {
+                      "type": "string",
+                      "description": "Specifies the name of the database before restoration.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the databases that will be restored."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "restore_tables": {
+                "block": {
+                  "attributes": {
+                    "database": {
+                      "type": "string",
+                      "description": "Specifies the database name.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "tables": {
+                      "block": {
+                        "attributes": {
+                          "new_name": {
+                            "type": "string",
+                            "description": "Specifies the name of the table after restoration.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "old_name": {
+                            "type": "string",
+                            "description": "Specifies the name of the table before restoration.",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        },
+                        "description": "Specifies the tables."
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "min_items": 1
+                    }
+                  },
+                  "description": " Specifies the tables that will be restored."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

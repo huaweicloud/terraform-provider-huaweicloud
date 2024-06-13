@@ -41,7 +41,7 @@
                 "type": "string",
                 "description": "Specifies the floating IP address of the CBH HA instance.",
                 "optional": true,
-                "forcenew": true
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -68,7 +68,7 @@
                 "type": "string",
                 "description": "Specifies the private IP address of the master instance.",
                 "optional": true,
-                "forcenew": true
+                "computed": true
               },
               "name": {
                 "type": "string",
@@ -93,6 +93,11 @@
                 "description": "Specifies the charging period unit of the CBH HA instance.",
                 "required": true,
                 "forcenew": true
+              },
+              "power_action": {
+                "type": "string",
+                "description": "Specifies the power action after the CBH HA instance is created.",
+                "optional": true
               },
               "public_ip": {
                 "type": "string",
@@ -129,7 +134,7 @@
                 "type": "string",
                 "description": "Specifies the private IP address of the slave instance.",
                 "optional": true,
-                "forcenew": true
+                "computed": true
               },
               "status": {
                 "type": "string",
@@ -139,8 +144,7 @@
               "subnet_id": {
                 "type": "string",
                 "description": "Specifies the ID of a subnet.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "tags": {
                 "type": [
@@ -157,8 +161,7 @@
               "vpc_id": {
                 "type": "string",
                 "description": "Specifies the ID of a VPC.",
-                "required": true,
-                "forcenew": true
+                "required": true
               }
             }
           },

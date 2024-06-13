@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_appcodes": {
+          "block": {
+            "attributes": {
+              "appcodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "application_id": "string",
+                      "created_at": "string",
+                      "id": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "All APPCODEs of the specified application.",
+                "computed": true
+              },
+              "application_id": {
+                "type": "string",
+                "description": "The ID of the application to be queried.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the application belongs.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

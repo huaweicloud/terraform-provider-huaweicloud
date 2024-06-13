@@ -25,8 +25,8 @@
               },
               "code_type": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "description": "The code type of the function.",
+                "required": true
               },
               "code_url": {
                 "type": "string",

@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_fgs_function_triggers": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies end time of creation time of the function trigger.",
+                "optional": true
+              },
+              "function_urn": {
+                "type": "string",
+                "description": "Specifies the function URN to which the trigger belongs.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies start time of creation time of the function trigger.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies status of the function trigger.",
+                "optional": true
+              },
+              "trigger_id": {
+                "type": "string",
+                "description": "Specifies the ID of the function trigger.",
+                "optional": true
+              },
+              "triggers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "event_data": "string",
+                      "id": "string",
+                      "status": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies type of the function trigger.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

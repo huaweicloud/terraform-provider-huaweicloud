@@ -5,6 +5,10 @@
         "huaweicloud_cts_tracker": {
           "block": {
             "attributes": {
+              "agency_name": {
+                "type": "string",
+                "computed": true
+              },
               "bucket_name": {
                 "type": "string",
                 "optional": true
