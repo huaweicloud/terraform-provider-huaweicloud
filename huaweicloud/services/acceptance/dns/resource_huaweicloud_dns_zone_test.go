@@ -55,6 +55,7 @@ func TestAccDNSZone_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.zone_type", "public"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
+					resource.TestCheckResourceAttr(resourceName, "status", "DISABLE"),
 				),
 			},
 			{
@@ -70,6 +71,7 @@ func TestAccDNSZone_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.zone_type", "public"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc"),
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ENABLE"),
 				),
 			},
 		},
@@ -171,6 +173,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   description = "a zone"
   ttl         = 300
+  status      = "DISABLE"
 
   tags = {
     zone_type = "public"
@@ -186,6 +189,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   description = "an updated zone"
   ttl         = 600
+  status      = "ENABLE"
 
   tags = {
     zone_type = "public"

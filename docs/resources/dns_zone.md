@@ -66,6 +66,13 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the zone. Changing this creates a
   new zone.
 
+* `status` - (Optional, String) Specifies the status of the zone.  
+  The valid values are as follows:
+  + **ENABLE**
+  + **DISABLE**
+
+  -> This parameter is only supported by the public zone, and it is a one-time action.
+
 The `router` block supports:
 
 * `router_id` - (Required, String) ID of the associated VPC.
