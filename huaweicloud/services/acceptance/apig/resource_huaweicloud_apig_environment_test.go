@@ -32,6 +32,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
+		baseConfig = testAccEnvironment_base(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -48,7 +49,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEnvironment_basic(name),
+				Config: testAccEnvironment_basic_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -57,7 +58,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEnvironment_update(updateName),
+				Config: testAccEnvironment_basic_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -110,7 +111,7 @@ resource "huaweicloud_apig_instance" "test" {
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccEnvironment_basic(name string) string {
+func testAccEnvironment_basic_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -119,10 +120,10 @@ resource "huaweicloud_apig_environment" "test" {
   instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 }
-`, testAccEnvironment_base(name), name)
+`, baseConfig, name)
 }
 
-func testAccEnvironment_update(name string) string {
+func testAccEnvironment_basic_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -130,5 +131,5 @@ resource "huaweicloud_apig_environment" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
 }
-`, testAccEnvironment_base(name), name)
+`, baseConfig, name)
 }

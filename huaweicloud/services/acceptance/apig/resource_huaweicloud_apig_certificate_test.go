@@ -109,6 +109,7 @@ func TestAccCertificate_instance(t *testing.T) {
 		rName      = "huaweicloud_apig_certificate.test"
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
+		baseConfig = testAccCertificate_instanceBase(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -126,7 +127,7 @@ func TestAccCertificate_instance(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCertificate_instance_step1(name),
+				Config: testAccCertificate_instance_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -145,7 +146,7 @@ func TestAccCertificate_instance(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccCertificate_instance_step2(updateName),
+				Config: testAccCertificate_instance_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -178,7 +179,7 @@ resource "huaweicloud_apig_instance" "test" {
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccCertificate_instance_step1(name string) string {
+func testAccCertificate_instance_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -189,11 +190,11 @@ resource "huaweicloud_apig_certificate" "test" {
   content     = "%[3]s"
   private_key = "%[4]s"
 }
-`, testAccCertificate_instanceBase(name), name, acceptance.HW_CERTIFICATE_CONTENT,
+`, baseConfig, name, acceptance.HW_CERTIFICATE_CONTENT,
 		acceptance.HW_CERTIFICATE_PRIVATE_KEY)
 }
 
-func testAccCertificate_instance_step2(name string) string {
+func testAccCertificate_instance_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -204,7 +205,7 @@ resource "huaweicloud_apig_certificate" "test" {
   content     = "%[3]s"
   private_key = "%[4]s"
 }
-`, testAccCertificate_instanceBase(name), name, acceptance.HW_NEW_CERTIFICATE_CONTENT,
+`, baseConfig, name, acceptance.HW_NEW_CERTIFICATE_CONTENT,
 		acceptance.HW_NEW_CERTIFICATE_PRIVATE_KEY)
 }
 
@@ -215,6 +216,7 @@ func TestAccCertificate_instanceWithRootCA(t *testing.T) {
 		rName      = "huaweicloud_apig_certificate.test"
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
+		baseConfig = testAccCertificate_instanceBase(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -232,7 +234,7 @@ func TestAccCertificate_instanceWithRootCA(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCertificate_instanceWithRootCA_step1(name),
+				Config: testAccCertificate_instanceWithRootCA_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -244,7 +246,7 @@ func TestAccCertificate_instanceWithRootCA(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCertificate_instanceWithRootCA_step2(updateName),
+				Config: testAccCertificate_instanceWithRootCA_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -267,7 +269,7 @@ func TestAccCertificate_instanceWithRootCA(t *testing.T) {
 	})
 }
 
-func testAccCertificate_instanceWithRootCA_step1(name string) string {
+func testAccCertificate_instanceWithRootCA_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -279,11 +281,11 @@ resource "huaweicloud_apig_certificate" "test" {
   private_key     = "%[4]s"
   trusted_root_ca = "%[5]s"
 }
-`, testAccCertificate_instanceBase(name), name, acceptance.HW_CERTIFICATE_CONTENT,
+`, baseConfig, name, acceptance.HW_CERTIFICATE_CONTENT,
 		acceptance.HW_CERTIFICATE_PRIVATE_KEY, acceptance.HW_CERTIFICATE_ROOT_CA)
 }
 
-func testAccCertificate_instanceWithRootCA_step2(name string) string {
+func testAccCertificate_instanceWithRootCA_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -295,6 +297,6 @@ resource "huaweicloud_apig_certificate" "test" {
   private_key     = "%[4]s"
   trusted_root_ca = "%[5]s"
 }
-`, testAccCertificate_instanceBase(name), name, acceptance.HW_NEW_CERTIFICATE_CONTENT,
+`, baseConfig, name, acceptance.HW_NEW_CERTIFICATE_CONTENT,
 		acceptance.HW_NEW_CERTIFICATE_PRIVATE_KEY, acceptance.HW_NEW_CERTIFICATE_ROOT_CA)
 }
