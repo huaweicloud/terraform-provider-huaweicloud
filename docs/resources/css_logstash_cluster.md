@@ -77,18 +77,18 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the CSS logstash cluster,
   The value `0` indicates the default enterprise project.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CSS logstash cluster.
+* `charging_mode` - (Optional, String) Specifies the charging mode of the CSS logstash cluster.
   The valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
-  Changing this parameter will create a new resource.
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
+* `period_unit` - (Optional, String) Specifies the charging period unit of the instance.
   The valid values are **month** and **year**.
-  Changing this parameter will create a new resource.
 
-* `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance.
+* `period` - (Optional, Int) Specifies the charging period of the instance.
   If `period_unit` is set to **month**, the value ranges from **1** to **9**.
   If `period_unit` is set to **year**, the value ranges from **1** to **3**.
-  Changing this parameter will create a new resource.
+
+  -> **NOTE:** `charging_mode`, `period_unit`, `period` can only be updated when changing
+  from **postPaid** to **prePaid** billing mode.
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
   The valid values are **true** and **false**, defaults to **false**.

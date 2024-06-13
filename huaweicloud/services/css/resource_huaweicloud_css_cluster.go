@@ -71,6 +71,7 @@ const (
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/mode/change
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/password/reset
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/sg/change
+// @API CSS POST /v1.0/{project_id}/cluster/{cluster_id}/period
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -301,10 +302,30 @@ func ResourceCssCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+			// charging_mode, period_unit and period only support changing post-paid to pre-paid billing mode.
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, false),
+			},
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"period_unit"},
+				ValidateFunc: validation.IntBetween(1, 9),
+			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 			"expect_node_num": {
 				Type:       schema.TypeInt,
 				Optional:   true,
@@ -1118,13 +1139,15 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
-	if d.HasChange("auto_renew") {
+	if d.HasChanges("charging_mode", "auto_renew") {
 		bssClient, err := conf.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), clusterId); err != nil {
-			return diag.Errorf("error updating the auto-renew of the cluster (%s): %s", clusterId, err)
+
+		err = updateChangingModeOrAutoRenew(ctx, d, cssV1Client, bssClient)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

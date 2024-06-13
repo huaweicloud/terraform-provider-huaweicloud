@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
@@ -32,6 +33,7 @@ import (
 // @API CSS GET /v1.0/{project_id}/clusters/{cluster_id}/route
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/sg/change
+// @API CSS POST /v1.0/{project_id}/cluster/{cluster_id}/period
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -132,10 +134,30 @@ func ResourceLogstashCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+			// charging_mode, period_unit and period only support changing post-paid to pre-paid billing mode.
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, false),
+			},
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"period_unit"},
+				ValidateFunc: validation.IntBetween(1, 9),
+			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 			"routes": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -457,13 +479,15 @@ func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
-	if d.HasChange("auto_renew") {
+	if d.HasChanges("charging_mode", "auto_renew") {
 		bssClient, err := conf.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), clusterId); err != nil {
-			return diag.Errorf("error updating the auto-renew of the CSS logstash cluster (%s): %s", clusterId, err)
+
+		err = updateChangingModeOrAutoRenew(ctx, d, cssV1Client, bssClient)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -674,4 +698,49 @@ func flattenGetRoute(resp interface{}) []interface{} {
 		}
 	}
 	return rst
+}
+
+func updateChangingModeOrAutoRenew(ctx context.Context, d *schema.ResourceData,
+	cssV1Client *cssv1.CssClient, bssClient *golangsdk.ServiceClient) error {
+	clusterID := d.Id()
+	autoRenew := d.Get("auto_renew").(string)
+	if d.HasChange("charging_mode") {
+		if d.Get("charging_mode").(string) == "postPaid" {
+			return fmt.Errorf("error updating the charging mode of the CSS cluster (%s): %s", clusterID,
+				"only support changing the CSS cluster form post-paid to pre-paid")
+		}
+
+		changeOpts := &model.UpdateOndemandClusterToPeriodRequest{
+			ClusterId: clusterID,
+			Body: &model.PeriodReq{
+				PeriodNum: int32(d.Get("period").(int)),
+				IsAutoPay: utils.Int32(1),
+			},
+		}
+
+		if d.Get("period_unit").(string) == "month" {
+			changeOpts.Body.PeriodType = 2
+		} else {
+			changeOpts.Body.PeriodType = 3
+		}
+
+		if autoRenew == "true" {
+			changeOpts.Body.IsAutoRenew = utils.Int32(1)
+		}
+		r, err := cssV1Client.UpdateOndemandClusterToPeriod(changeOpts)
+		if err != nil {
+			return fmt.Errorf("error updating the CSS cluster (%s) form post-paid to pre-paid: %s", clusterID, err)
+		}
+
+		_, err = common.WaitOrderResourceComplete(ctx, bssClient, *r.OrderId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return err
+		}
+	} else if d.HasChange("auto_renew") {
+		if err := common.UpdateAutoRenew(bssClient, autoRenew, clusterID); err != nil {
+			return fmt.Errorf("error updating the auto-renew of the CSS cluster (%s): %s", clusterID, err)
+		}
+	}
+
+	return nil
 }

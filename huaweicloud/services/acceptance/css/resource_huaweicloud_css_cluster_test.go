@@ -2,6 +2,7 @@ package css
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -352,6 +353,54 @@ func TestAccCssCluster_extend_prePaid(t *testing.T) {
 	})
 }
 
+func TestAccCssCluster_changeToPeriod(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getLogstashClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssCluster_changeToPrepaidBasic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "is_period", "false"),
+				),
+			},
+			{
+				Config: testAccCssCluster_toPrePaid(rName, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "is_period", "true"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccCssCluster_toPrePaid(rName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "is_period", "true"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+				),
+			},
+			{
+				Config:      testAccCssCluster_toPostPaid(rName),
+				ExpectError: regexp.MustCompile(`only support changing the CSS cluster form post-paid to pre-paid`),
+			},
+		},
+	})
+}
+
 func testAccCssBase(rName string) string {
 	bucketName := acceptance.RandomAccResourceNameWithDash()
 	return fmt.Sprintf(`
@@ -658,4 +707,86 @@ resource "huaweicloud_css_cluster" "test" {
   }
 }
 `, testAccCssBase(rName), rName, flavorNmae, essNodeNum, masterNodeNum, size)
+}
+
+func testAccCssCluster_changeToPrepaidBasic(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+}
+`, testAccCssBase(rName), rName)
+}
+
+func testAccCssCluster_toPrePaid(rName, autoRenew string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "%[3]s"
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+}
+`, testAccCssBase(rName), rName, autoRenew)
+}
+
+func testAccCssCluster_toPostPaid(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  charging_mode = "postPaid"
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+}
+`, testAccCssBase(rName), rName)
 }

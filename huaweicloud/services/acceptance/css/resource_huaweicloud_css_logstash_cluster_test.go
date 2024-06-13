@@ -2,6 +2,7 @@ package css
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -199,6 +200,54 @@ func TestAccLogstashCluster_route(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "routes.0.ip_address", "192.168.10.0"),
 					resource.TestCheckResourceAttr(resourceName, "routes.0.ip_net_mask", "255.255.255.0"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccLogstashCluster_changeToPeriod(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_logstash_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getLogstashClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLogstashCluster_basic(rName, 1, "bar"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "is_period", "false"),
+				),
+			},
+			{
+				Config: testAccLogstashCluster_toPrePaid(rName, false),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "is_period", "true"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+				),
+			},
+			{
+				Config: testAccLogstashCluster_toPrePaid(rName, true),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "is_period", "true"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+				),
+			},
+			{
+				Config:      testAccLogstashCluster_toPostPaid(rName),
+				ExpectError: regexp.MustCompile(`only support changing the CSS cluster form post-paid to pre-paid`),
 			},
 		},
 	})
@@ -427,4 +476,73 @@ resource "huaweicloud_css_logstash_cluster" "test" {
   }
 }
 `, testAcclogstashBase(rName), rName)
+}
+
+func testAccLogstashCluster_toPrePaid(rName string, isAutoRenew bool) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_css_logstash_cluster" "test" {
+  name           = "%[3]s"
+  engine_version = "7.10.0"
+
+  node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "%[4]v"
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  tags = {
+    foo = "bar"
+  }
+}
+`, testAcclogstashBase(rName), testAccSecGroupUpdate(rName), rName, isAutoRenew)
+}
+
+func testAccLogstashCluster_toPostPaid(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_css_logstash_cluster" "test" {
+  name           = "%[3]s"
+  engine_version = "7.10.0"
+
+  node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  charging_mode = "postPaid"
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  tags = {
+    foo = "bar"
+  }
+}
+`, testAcclogstashBase(rName), testAccSecGroupUpdate(rName), rName)
 }
