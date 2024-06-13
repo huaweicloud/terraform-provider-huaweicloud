@@ -2,7 +2,6 @@ package apig
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -48,7 +47,7 @@ func ResourceEndpointWhiteList() *schema.Resource {
 				Type:        schema.TypeSet,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "The whitelists list of endpoint service.",
+				Description: "The whitelist records of the endpoint service.",
 			},
 		},
 	}
@@ -70,7 +69,7 @@ func resourceEndpointWhiteListCreate(ctx context.Context, d *schema.ResourceData
 	)
 	err = createEndpointWhiteListForApis(client, instanceId, utils.ExpandToStringListBySet(whitelists))
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating whitelist records: %s", err)
 	}
 	d.SetId(instanceId)
 
@@ -84,8 +83,7 @@ func createEndpointWhiteListForApis(client *golangsdk.ServiceClient, instanceId 
 	}
 	_, err := endpoints.AddPermissions(client, opt)
 	if err != nil {
-		return fmt.Errorf("error adding whitelists for the endpoint service of the dedicated instance "+
-			"(%s): %s", instanceId, err)
+		return err
 	}
 
 	return nil
@@ -110,8 +108,7 @@ func resourceEndpointWhiteListRead(_ context.Context, d *schema.ResourceData, me
 	)
 	resp, err := endpoints.ListPermissions(client, opt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error querying whitelists for the endpoint service "+
-			"of the dedicated instance (%s)", instanceId))
+		return common.CheckDeletedDiag(d, err, "error querying whitelist record")
 	}
 
 	var (
@@ -165,14 +162,14 @@ func resourceEndpointWhiteListUpdate(ctx context.Context, d *schema.ResourceData
 		whitelists := utils.ExpandToStringListBySet(rmSet)
 		err := deleteEndpointWhiteListFromApis(client, instanceId, whitelists)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error deleting whitelist records: %s", err)
 		}
 	}
 	if addSet.Len() > 0 {
 		whitelists := utils.ExpandToStringListBySet(addSet)
 		err = createEndpointWhiteListForApis(client, instanceId, whitelists)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error creating whitelist records: %s", err)
 		}
 	}
 
@@ -195,7 +192,7 @@ func resourceEndpointWhiteListDelete(_ context.Context, d *schema.ResourceData, 
 	)
 	err = deleteEndpointWhiteListFromApis(client, instanceId, utils.ExpandToStringListBySet(whitelists))
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error deleting whitelists for the endpoint service")
 	}
 
 	return nil
@@ -209,8 +206,7 @@ func deleteEndpointWhiteListFromApis(client *golangsdk.ServiceClient, instanceId
 
 	err := endpoints.DeletePermissions(client, opt)
 	if err != nil {
-		return fmt.Errorf("error deleting whitelists for the endpoint service of the dedicated instance "+
-			"(%s): %s", instanceId, err)
+		return err
 	}
 
 	return nil

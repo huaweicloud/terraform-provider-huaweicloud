@@ -7,11 +7,10 @@ description: ""
 
 # huaweicloud_apig_endpoint_whitelist
 
-Manage the endpoint service whitelists of APIG instance within HuaweiCloud.
+Manage the endpoint service whitelist records of APIG service within HuaweiCloud.
 
--> There is not need to add a whitelist for the current account. After starting the endpoint service,
-  the whitelist of the current account will automatically be added to the whitelists list,
-  and this whitelist is not managed by terraform.
+-> There is not need to add a whitelist for the current account. After starting the endpoint service, the whitelist
+   of the current account will automatically be added, and this whitelist is not managed by terraform.
 
 ## Example Usage
 
@@ -37,7 +36,7 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the ID of the dedicated instance to which the endpoint service
   belongs. Changing this will create a new resource.
 
-* `whitelists` - (Required, List) Specifies the whitelists in the endpoint service.
+* `whitelists` - (Required, List) Specifies the whitelist records of the endpoint service.
   This is a list of strings. The value must comply with regular validation.
   It consists of two parts, the first part is the fixed format **iam: domain::**, and the second part is the
   enterprise project ID. e.g. **iam:domain::XXX**.
@@ -50,7 +49,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Endpoint service whitelists can be imported using their `id`, e.g.
+Whitelist records can be imported using resource ID (`id`), e.g.
 
 ```shell
 $ terraform import huaweicloud_apig_endpoint_whitelist.test <id>
