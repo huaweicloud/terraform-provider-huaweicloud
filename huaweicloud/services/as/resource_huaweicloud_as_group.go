@@ -6,15 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"regexp"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -25,12 +22,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-var (
-	HealthAuditMethods = []string{"ELB_AUDIT", "NOVA_AUDIT"}
-	HealthAuditTime    = []int{0, 1, 5, 15, 60, 180}
-	TerminatePolices   = []string{"OLD_CONFIG_OLD_INSTANCE", "OLD_CONFIG_NEW_INSTANCE", "OLD_INSTANCE", "NEW_INSTANCE"}
 )
 
 // @API AS GET /autoscaling-api/v1/{project_id}/scaling_group/{id}
@@ -67,11 +58,6 @@ func ResourceASGroup() *schema.Resource {
 			"scaling_group_name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_]+$"),
-						"only letters, digits, underscores (_), and hyphens (-) are allowed"),
-				),
 			},
 			"scaling_configuration_id": {
 				Type:        schema.TypeString,
@@ -95,11 +81,10 @@ func ResourceASGroup() *schema.Resource {
 				Default:  0,
 			},
 			"cool_down_time": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      300,
-				ValidateFunc: validation.IntBetween(0, 86400),
-				Description:  "The cooling duration, in seconds.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     300,
+				Description: "The cooling duration, in seconds.",
 			},
 			"lbaas_listeners": {
 				Type:          schema.TypeList,
@@ -181,30 +166,26 @@ func ResourceASGroup() *schema.Resource {
 				Computed: true,
 			},
 			"health_periodic_audit_method": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice(HealthAuditMethods, false),
-				Default:      "NOVA_AUDIT",
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "NOVA_AUDIT",
 			},
 			"health_periodic_audit_time": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      5,
-				ValidateFunc: validation.IntInSlice(HealthAuditTime),
-				Description:  "The health check period for instances, in minutes.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     5,
+				Description: "The health check period for instances, in minutes.",
 			},
 			"health_periodic_audit_grace_period": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 86400),
-				Description:  "The health check grace period for instances, in seconds.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: "The health check grace period for instances, in seconds.",
 			},
 			"instance_terminate_policy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "OLD_CONFIG_OLD_INSTANCE",
-				ValidateFunc: validation.StringInSlice(TerminatePolices, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "OLD_CONFIG_OLD_INSTANCE",
 			},
 			"agency_name": {
 				Type:     schema.TypeString,
@@ -259,11 +240,10 @@ func ResourceASGroup() *schema.Resource {
 
 			// Deprecated
 			"lb_listener_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: resourceASGroupValidateListenerId,
-				Description:  "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
-				Deprecated:   "use lbaas_listeners instead",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
+				Deprecated:  "use lbaas_listeners instead",
 			},
 			"available_zones": {
 				Type:        schema.TypeList,
@@ -859,14 +839,4 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	return nil
-}
-
-func resourceASGroupValidateListenerId(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	split := strings.Split(value, ",")
-	if len(split) <= 6 {
-		return
-	}
-	errors = append(errors, fmt.Errorf("%s supports binding up to 6 ELB listeners which are separated by a comma", k))
-	return
 }
