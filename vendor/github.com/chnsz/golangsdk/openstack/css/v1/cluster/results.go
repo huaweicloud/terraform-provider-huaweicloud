@@ -118,12 +118,13 @@ type EsflavorsVersionsResp struct {
 }
 
 type EsFlavor struct {
-	Ram       int    `json:"ram"`       // Memory size of an instance. Unit: GB
-	Cpu       int    `json:"cpu"`       // Number of vCPUs of an instance.
-	Name      string `json:"name"`      // Flavor name.
-	Region    string `json:"region"`    // AZ
-	Diskrange string `json:"diskrange"` // Disk capacity range of an instance.
-	FlavorId  string `json:"flavor_id"` // ID of a flavor.
+	Ram         int    `json:"ram"`         // Memory size of an instance. Unit: GB
+	Cpu         int    `json:"cpu"`         // Number of vCPUs of an instance.
+	Name        string `json:"name"`        // Flavor name.
+	Region      string `json:"region"`      // Region.
+	Diskrange   string `json:"diskrange"`   // Disk capacity range of an instance.
+	AvailableAZ string `json:"availableAZ"` // Availability zones.
+	FlavorId    string `json:"flavor_id"`   // ID of a flavor.
 }
 
 // RestartClusterResponse This is a auto create Response Object
