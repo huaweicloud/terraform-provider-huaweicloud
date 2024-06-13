@@ -2189,8 +2189,24 @@ func readConfig(c *config.Config) error {
 		return fmt.Errorf("Error finding profile %s from shared config file", current)
 	}
 
-	c.AccessKey = providerConfig.AccessKeyId
-	c.SecretKey = providerConfig.SecretAccessKey
+	if providerConfig.Mode == "SSO" {
+		ssoAuth := providerConfig.SsoAuth
+		if (ssoAuth == config.SsoAuth{}) {
+			return fmt.Errorf("Error finding ssoAuth config when auth mode is SSO")
+		}
+		stsToken := ssoAuth.StsToken
+		if (stsToken == config.StsToken{}) {
+			return fmt.Errorf("Error finding ssoAuth.stsToken config when auth mode is SSO")
+		}
+		c.AccessKey = stsToken.AccessKeyId
+		c.SecretKey = stsToken.SecretAccessKey
+		c.SecurityToken = stsToken.SecurityToken
+	} else {
+		c.AccessKey = providerConfig.AccessKeyId
+		c.SecretKey = providerConfig.SecretAccessKey
+		c.SecurityToken = providerConfig.SecurityToken
+	}
+
 	// non required fields
 	if providerConfig.Region != "" {
 		c.Region = providerConfig.Region

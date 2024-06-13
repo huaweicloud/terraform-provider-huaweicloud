@@ -36,17 +36,28 @@ type SharedConfig struct {
 }
 
 type Profile struct {
-	Name             string `json:"name"`
-	Mode             string `json:"mode"`
-	AccessKeyId      string `json:"accessKeyId"`
-	SecretAccessKey  string `json:"secretAccessKey"`
-	SecurityToken    string `json:"securityToken"`
-	Region           string `json:"region"`
-	ProjectId        string `json:"projectId"`
-	DomainId         string `json:"domainId"`
-	AgencyDomainId   string `json:"agencyDomainId"`
-	AgencyDomainName string `json:"agencyDomainName"`
-	AgencyName       string `json:"agencyName"`
+	Name             string  `json:"name"`
+	Mode             string  `json:"mode"`
+	AccessKeyId      string  `json:"accessKeyId"`
+	SecretAccessKey  string  `json:"secretAccessKey"`
+	SecurityToken    string  `json:"securityToken"`
+	Region           string  `json:"region"`
+	ProjectId        string  `json:"projectId"`
+	DomainId         string  `json:"domainId"`
+	AgencyDomainId   string  `json:"agencyDomainId"`
+	AgencyDomainName string  `json:"agencyDomainName"`
+	AgencyName       string  `json:"agencyName"`
+	SsoAuth          SsoAuth `json:"ssoAuth"`
+}
+
+type SsoAuth struct {
+	StsToken StsToken `json:"stsToken"`
+}
+
+type StsToken struct {
+	AccessKeyId     string `json:"accessKeyId"`
+	SecretAccessKey string `json:"secretAccessKey"`
+	SecurityToken   string `json:"securityToken"`
 }
 
 func buildClient(c *Config) error {
