@@ -138,7 +138,8 @@ func resourcePluginAssociateRead(_ context.Context, d *schema.ResourceData, meta
 
 	resp, err := plugins.ListBind(client, listOpts)
 	if err != nil {
-		return diag.Errorf("error querying the bind details of the plugin: %s", err)
+		// A 404 error will returned if the instance is not exist.
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error querying the bind details of the plugin")
 	}
 
 	bindApiIds := flattenBindApis(resp)
