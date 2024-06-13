@@ -8,9 +8,6 @@ host: huaweicloud.com
 tags:
     - name: APIG
 paths:
-    /v1/{project_id}/publicips:
-        GET:
-            tag: EIP
     /v2/{project_id}/apigw/instances:
         POST:
             tag: APIG
@@ -31,9 +28,6 @@ paths:
             tag: APIG
     /v2/{project_id}/apigw/instances/{instance_id}/instance-tags:
         GET:
-            tag: APIG
-    /v2/{project_id}/apigw/instances/{instance_id}/instance-tags/action:
-        POST:
             tag: APIG
     /v2/{project_id}/apigw/instances/{instance_id}/nat-eip:
         DELETE:

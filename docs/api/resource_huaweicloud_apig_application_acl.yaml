@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_apig_application_acl
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v2/{project_id}/apigw/instances/{instance_id}/apps/{app_id}/app-acl:
+        DELETE:
+            tag: APIG
+        GET:
+            tag: APIG
+        PUT:
+            tag: APIG

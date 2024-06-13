@@ -8,6 +8,12 @@ host: huaweicloud.com
 tags:
     - name: GA
 paths:
+    /v1/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: GA
+    /v1/{resource_type}/{resource_id}/tags/delete:
+        DELETE:
+            tag: GA
     /v1/listeners:
         POST:
             tag: GA

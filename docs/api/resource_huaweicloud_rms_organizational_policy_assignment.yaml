@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: Config
 paths:
+    /v1/resource-manager/organizations/{organization_id}/policy-assignment-statuses:
+        GET:
+            tag: Config
     /v1/resource-manager/organizations/{organization_id}/policy-assignments:
         PUT:
             tag: Config

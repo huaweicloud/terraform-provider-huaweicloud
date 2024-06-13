@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_apig_application_quota_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/binding-apps:
+        GET:
+            tag: APIG
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/bound-apps:
+        GET:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/app-quotas/{app_quota_id}/bound-apps/{app_id}:
+        DELETE:
+            tag: APIG

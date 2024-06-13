@@ -34,6 +34,18 @@ paths:
     /v2/{project_id}/cbs/instance/password:
         PUT:
             tag: CBH
+    /v2/{project_id}/cbs/instance/reboot:
+        POST:
+            tag: CBH
+    /v2/{project_id}/cbs/instance/start:
+        POST:
+            tag: CBH
+    /v2/{project_id}/cbs/instance/stop:
+        POST:
+            tag: CBH
+    /v2/{project_id}/cbs/instance/vpc:
+        PUT:
+            tag: CBH
     /v2/orders/customer-orders/details/{order_id}:
         GET:
             tag: BSS

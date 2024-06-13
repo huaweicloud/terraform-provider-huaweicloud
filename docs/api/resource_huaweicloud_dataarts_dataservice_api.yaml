@@ -1,0 +1,27 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_dataservice_api
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v1/{project_id}/data-connections/{data_connection_id}:
+        GET:
+            tag: DataArtsStudio
+    /v1/{project_id}/service/apis:
+        POST:
+            tag: DataArtsStudio
+    /v1/{project_id}/service/apis/{api_id}:
+        GET:
+            tag: DataArtsStudio
+        PUT:
+            tag: DataArtsStudio
+    /v1/{project_id}/service/apis/batch-delete:
+        POST:
+            tag: DataArtsStudio
+    /v2/{project_id}/{connection_id}/datatables:
+        GET:
+            tag: DataArtsStudio

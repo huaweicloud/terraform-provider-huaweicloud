@@ -14,6 +14,9 @@ paths:
     /v1.0/{project_id}/{resource_type}/{cluster_id}/tags/{key}:
         DELETE:
             tag: CSS
+    /v1.0/{project_id}/cluster/{cluster_id}/period:
+        POST:
+            tag: CSS
     /v1.0/{project_id}/clusters:
         POST:
             tag: CSS

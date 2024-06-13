@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_manual_log_backup
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}/logs/collect:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/logs/records:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/logs/settings:
+        GET:
+            tag: CSS
