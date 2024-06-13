@@ -152,6 +152,50 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created_at` - The creation time of the virtual interface.
 
+* `vif_peers` - The peer information of the virtual interface.
+  The [vif_peers](#DCVirtualInterface_vif_peers) structure is documented below.
+
+<a name="DCVirtualInterface_vif_peers"></a>
+The `vif_peers` block supports:
+
+* `id` - The VIF peer resource ID.
+
+* `name` - The name of the virtual interface peer.
+
+* `description` - The description of the virtual interface peer.
+
+* `address_family` - The address family type of the virtual interface, which can be **IPv4** or **IPv6**.
+
+* `local_gateway_ip` - The address of the virtual interface peer used on the cloud.
+
+* `remote_gateway_ip` - The address of the virtual interface peer used in the on-premises data center.
+
+* `route_mode` - The routing mode, which can be **static** or **bgp**.
+
+* `bgp_asn` - The ASN of the BGP peer.
+
+* `bgp_md5` - The MD5 password of the BGP peer.
+
+* `device_id` - The ID of the device that the virtual interface peer belongs to.
+
+* `enable_bfd` - Whether to enable BFD.
+
+* `enable_nqa` - Whether to enable NQA.
+
+* `bgp_route_limit` - The BGP route configuration.
+
+* `bgp_status` - The BGP protocol status of the virtual interface peer. If the virtual interface peer uses **static**
+  routing, the status is null.
+
+* `status` - The status of the virtual interface peer.
+
+* `vif_id` - The ID of the virtual interface corresponding to the virtual interface peer.
+
+* `receive_route_num` - The number of received BGP routes if **bgp** routing is used. If **static** routing is used,
+  this parameter is meaningless and the value is **-1**.
+
+* `remote_ep_group` - The remote subnet list, which records the CIDR blocks used in the on-premises data center.
+
 ## Import
 
 Virtual interfaces can be imported using their `id`, e.g.

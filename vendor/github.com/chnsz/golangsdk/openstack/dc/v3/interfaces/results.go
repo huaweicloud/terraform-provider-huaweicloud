@@ -97,7 +97,7 @@ type VirtualInterface struct {
 	// Whether limit rate.
 	RateLimit bool `json:"rate_limit"`
 	// The VLAN for constom side.
-	VifPeers []VifPeer `json:"vif_peer"`
+	VifPeers []VifPeer `json:"vif_peers"`
 	// The Peer details of the VIF.
 	ExtendAttribute VifExtendAttribute `json:"extend_attribute"`
 	// The enterprise project ID to which the virtual interface belongs.
@@ -128,6 +128,8 @@ type VifPeer struct {
 	LocalGatewayIp string `json:"local_gateway_ip"`
 	// Remote gateway IP.
 	RemoteGatewayIp string `json:"remote_gateway_ip"`
+	// The routing mode, which can be static or bgp.
+	RouteMode string `json:"route_mode"`
 	// BGP ASN.
 	BgpAsn int `json:"bgp_asn"`
 	// BGP MD5 password.
@@ -135,15 +137,23 @@ type VifPeer struct {
 	// The CIDR list of remote subnets.
 	RemoteEpGroup []string `json:"remote_ep_group"`
 	// The CIDR list of subnets in service side.
-	ServiceEpGroup string `json:"service_ep_group"`
+	ServiceEpGroup []string `json:"service_ep_group"`
 	// Attributed Device ID.
 	DeviceId string `json:"device_id"`
+	// Whether to enable BFD.
+	EnableBfd bool `json:"enable_bfd"`
+	// Whether to enable NQA.
+	EnableNqa bool `json:"enable_nqa"`
 	// Attributed Device ID.
 	BgpRouteLimit int `json:"bgp_route_limit"`
 	// Attributed Device ID.
 	BgpStatus string `json:"bgp_status"`
+	// The status of the virtual interface peer.
+	Status string `json:"status"`
 	// The virtual interface ID corresponding to the VIF peer.
 	VifId string `json:"vif_id"`
+	// The number of received BGP routes if BGP routing is used.
+	ReceiveRouteNum int `json:"receive_route_num"`
 }
 
 // VifExtendAttribute is the structure that represents the reliability detection information of BFD/NQA.
