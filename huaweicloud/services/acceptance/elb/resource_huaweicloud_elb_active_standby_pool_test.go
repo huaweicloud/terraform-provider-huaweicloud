@@ -74,10 +74,13 @@ func TestAccElbActiveStandbyPool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "members.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.delay", "5"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.expected_codes", "200"),
+					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.http_method", "HEAD"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.max_retries", "3"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.max_retries_down", "3"),
 					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.timeout", "3"),
-					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.type", "TCP"),
+					resource.TestCheckResourceAttr(resourceName, "healthmonitor.0.type", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "connection_drain_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "connection_drain_timeout", "100"),
 					resource.TestCheckResourceAttrSet(resourceName, "members.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "members.0.member_type"),
 					resource.TestCheckResourceAttrSet(resourceName, "members.0.operating_status"),
@@ -101,13 +104,15 @@ func testAccElbActiveStandbyPoolConfig_basic(rName string) string {
 %s
 
 resource "huaweicloud_elb_active_standby_pool" "test" {
-  name            = "%s"
-  description     = "test"
-  protocol        = "TCP"
-  vpc_id          = huaweicloud_vpc.test.id
-  type            = "instance"
-  any_port_enable = false
-  ip_version      = "dualstack"
+  name                     = "%s"
+  description              = "test"
+  protocol                 = "TCP"
+  vpc_id                   = huaweicloud_vpc.test.id
+  type                     = "instance"
+  any_port_enable          = false
+  ip_version               = "dualstack"
+  connection_drain_enabled = true
+  connection_drain_timeout = 100
 
   members {
     address       = "192.168.0.1"
@@ -124,10 +129,11 @@ resource "huaweicloud_elb_active_standby_pool" "test" {
   healthmonitor {
     delay            = 5
     expected_codes   = "200"
+    http_method      = "HEAD"
     max_retries      = 3
     max_retries_down = 3
     timeout          = 3
-    type             = "TCP"
+    type             = "HTTP"
   }
 
 }

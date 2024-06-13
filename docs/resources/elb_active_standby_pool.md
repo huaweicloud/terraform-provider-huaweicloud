@@ -56,9 +56,10 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
 
 * `protocol` - (Required, String, ForceNew) Specifies the protocol used by the active-standby pool to receive requests.
-  Value options: **TCP**, **UDP** or **QUIC**. The value range is from **1** to **255**.
+  Value options: **TCP**, **UDP**, **QUIC** or **TLS**.
   + If the listener's protocol is **UDP**, the value must be **UDP** or **QUIC**.
   + If the listener's protocol is **TCP**, the value must be **TCP**.
+  + If the listener's protocol is **TLS**, the value must be **TLS** or **TCP**.
 
   Changing this parameter will create a new resource.
 
@@ -110,6 +111,20 @@ The following arguments are supported:
   + **true**: Enable forward to same port.
 
   Defaults to **false**.
+
+  Changing this parameter will create a new resource.
+
+* `connection_drain_enabled` - (Optional, Bool, ForceNew) Specifies whether to enable delayed logout. This parameter can
+  be set to **true** when the `protocol` is set to **TCP**, **UDP** or **QUIC**, and the value of `protocol` of the
+  associated listener must be **TCP** or **UDP**. It will be triggered for the following scenes:
+  + The pool member is removed from the pool.
+  + The health monitor status is abnormal.
+  + The pool member weight is changed to 0.
+
+  Changing this parameter will create a new resource.
+
+* `connection_drain_timeout` - (Optional, Int, ForceNew) Specifies the timeout of the delayed logout in seconds. Value
+  ranges from **10** to **4000**.
 
   Changing this parameter will create a new resource.
 
@@ -181,6 +196,11 @@ The `healthmonitor` block supports:
   + A specific value, for example, **200**
   + A list of values that are separated with commas (,), for example, **200**, **202**
   + A value range, for example, **200**-**204**
+
+  Changing this parameter will create a new resource.
+
+* `http_method` - (Optional, String, ForceNew) Specifies the HTTP method. The value can be **GET**, **HEAD**, **POST**.
+  Default to **GET**. This parameter is available when `type` is set to **HTTP** or **HTTPS**.
 
   Changing this parameter will create a new resource.
 

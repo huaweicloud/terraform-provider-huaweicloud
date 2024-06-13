@@ -38,7 +38,7 @@ The following arguments are supported:
 * `healthmonitor_id` - (Optional, String) Specifies the ID of the health check configured for the active-standby pool.
 
 * `protocol` - (Optional, String) Specifies the protocol used by the active-standby pool to receive requests from the
-  load balancer. Value options: **TCP**, **UDP**, **HTTP**, **HTTPS** or **QUIC**.
+  load balancer. Value options: **TCP**, **UDP**, **QUIC** or **TLS**.
 
 * `member_address` - (Optional, String) Specifies the private IP address bound to the member. This parameter is used
   only as a query condition and is not included in the response.
@@ -82,6 +82,10 @@ The `pools` block supports:
 * `any_port_enable` - Whether to enable Forward to same Port for a pool.
 
 * `vpc_id` - The ID of the VPC where the active-standby pool works.
+
+* `connection_drain_enabled` - Whether to enable delayed logout.
+
+* `connection_drain_timeout` - The timeout of the delayed logout in seconds.
 
 * `listeners` - The IDs of the listeners with which the active-standby pool is associated.
   The [listeners](#elb_listeners) structure is documented below.
@@ -140,6 +144,8 @@ The `healthmonitor` block supports:
 * `domain_name` - The domain name that HTTP requests are sent to during the health check.
 
 * `expected_codes` - The expected HTTP status code.
+
+* `http_method` - The HTTP method.
 
 * `max_retries_down` - The number of consecutive health checks when the health check result of a backend server changes
   from **ONLINE** to **OFFLINE**.
