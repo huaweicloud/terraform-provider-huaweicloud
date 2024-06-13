@@ -142,7 +142,7 @@ func httpRequest(method, requestUrl string, jsonBody any, headers map[string]str
 					InsecureSkipVerify: true, //nolint:gosec
 				},
 			},
-			MaxRetries: 3,
+			MaxRetries: 1,
 		},
 	}
 	defer client.CloseIdleConnections()
