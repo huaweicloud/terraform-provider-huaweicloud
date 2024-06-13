@@ -32,13 +32,13 @@ func TestAccDataSourceCcCentralNetworks_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSource, "central_networks.0.enterprise_project_id"),
 					resource.TestCheckResourceAttrSet(dataSource, "central_networks.0.created_at"),
 					resource.TestCheckResourceAttrSet(dataSource, "central_networks.0.updated_at"),
-					resource.TestCheckResourceAttrSet(dataSource, "central_networks.0.tags.foo"),
 
 					resource.TestCheckOutput("id_filter_is_useful", "true"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 					resource.TestCheckOutput("name_filter_not_found", "true"),
 					resource.TestCheckOutput("state_filter_is_useful", "true"),
 					resource.TestCheckOutput("ep_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("is_tags_filter_useful", "true"),
 				),
 			},
 		},
@@ -61,6 +61,7 @@ locals {
   id                    = data.huaweicloud_cc_central_networks.test.central_networks[0].id
   state                 = data.huaweicloud_cc_central_networks.test.central_networks[1].state
   enterprise_project_id = data.huaweicloud_cc_central_networks.test.central_networks[2].enterprise_project_id
+  tags                  = huaweicloud_cc_central_network.test1.tags
 }	
 
 data "huaweicloud_cc_central_networks" "filter_by_id" {
@@ -95,6 +96,16 @@ data "huaweicloud_cc_central_networks" "filter_by_ep_id" {
   enterprise_project_id = local.enterprise_project_id
 }
 
+data "huaweicloud_cc_central_networks" "filter_by_tags" {
+  tags = local.tags
+
+  depends_on = [
+    huaweicloud_cc_central_network.test1,
+    huaweicloud_cc_central_network.test2,
+    huaweicloud_cc_central_network.test3,
+  ]
+}
+
 output "id_filter_is_useful" {
   value = length(data.huaweicloud_cc_central_networks.filter_by_id.central_networks) > 0 && alltrue(
     [for v in data.huaweicloud_cc_central_networks.filter_by_id.central_networks[*].id : v == local.id]
@@ -124,6 +135,14 @@ output "ep_id_filter_is_useful" {
     [for v in local.central_networks[*].enterprise_project_id : v == local.enterprise_project_id]
   )
 }
+
+output "is_tags_filter_useful" {
+  value = length(data.huaweicloud_cc_central_networks.filter_by_tags.central_networks) >= 1 && alltrue([
+    for ct in data.huaweicloud_cc_central_networks.filter_by_tags.central_networks[*].tags : alltrue([
+      for k, v in local.tags : ct[k] == v
+    ])
+  ])
+}
 `, testAccDatasourceCreateCentralNetwork(name), name)
 }
 
@@ -134,8 +153,7 @@ resource "huaweicloud_cc_central_network" "test1" {
   description = "This is an accaptance test"
 
   tags = {
-    foo = "bar"
-    key = "value"
+    k1 = "v1"
   }
 }
 
@@ -144,8 +162,7 @@ resource "huaweicloud_cc_central_network" "test2" {
   description = "This is an accaptance test"
 
   tags = {
-    foo = "bar"
-    key = "value"
+    k2 = "v2"
   }
 }
 
@@ -154,8 +171,8 @@ resource "huaweicloud_cc_central_network" "test3" {
   description = "This is an accaptance test"
 
   tags = {
-    foo = "bar"
-    key = "value"
+    k1 = "v1"
+    k2 = "v2"
   }
 }
 `, rName)
