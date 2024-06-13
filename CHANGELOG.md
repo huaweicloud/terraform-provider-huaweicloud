@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.65.1 (June 13, 2024)
+
+ENHANCEMENTS:
+
+* authentication: add sso config support [GH-4998]
+
 ## 1.65.0 (June 3, 2024)
 
 * **New Resource:**
