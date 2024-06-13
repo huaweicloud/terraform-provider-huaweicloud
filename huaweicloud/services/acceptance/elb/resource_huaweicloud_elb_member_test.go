@@ -82,6 +82,30 @@ func TestAccElbV3Member_crossVpcBackend(t *testing.T) {
 	})
 }
 
+func TestAccElbV3Member_without_protocol_port(t *testing.T) {
+	rName := acceptance.RandomAccResourceNameWithDash()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3MemberDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3MemberConfig_without_protocol_port(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("huaweicloud_elb_member.test", "address", "121.121.0.110"),
+				),
+			},
+			{
+				Config: testAccElbV3MemberConfig_without_protocol_port_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("huaweicloud_elb_member.test", "address", "121.121.0.111"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckElbV3MemberDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	elbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
@@ -370,4 +394,48 @@ resource "huaweicloud_elb_member" "member_2" {
   pool_id        = huaweicloud_elb_pool.test.id
 }
 `, rName, rName, rName)
+}
+
+func testAccElbV3MemberConfig_without_protocol_port(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+resource "huaweicloud_elb_pool" "test" {
+  name            = "%s"
+  protocol        = "TCP"
+  lb_method       = "ROUND_ROBIN"
+  type            = "instance"
+  vpc_id          = data.huaweicloud_vpc.test.id
+  any_port_enable = true
+}
+
+resource "huaweicloud_elb_member" "test" {
+  address = "121.121.0.110"
+  pool_id = huaweicloud_elb_pool.test.id
+}
+`, rName)
+}
+
+func testAccElbV3MemberConfig_without_protocol_port_update(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+resource "huaweicloud_elb_pool" "test" {
+  name            = "%s"
+  protocol        = "TCP"
+  lb_method       = "ROUND_ROBIN"
+  type            = "instance"
+  vpc_id          = data.huaweicloud_vpc.test.id
+  any_port_enable = true
+}
+
+resource "huaweicloud_elb_member" "test" {
+  address = "121.121.0.111"
+  pool_id = huaweicloud_elb_pool.test.id
+}
+`, rName)
 }

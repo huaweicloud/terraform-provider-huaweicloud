@@ -111,6 +111,12 @@ type Pool struct {
 	// Whether to enable deletion protection for the load balancer.
 	DeletionProtectionEnable bool `json:"member_deletion_protection_enable"`
 
+	// Whether to enable delayed logout.
+	ConnectionDrain ConnectionDrain `json:"connection_drain"`
+
+	// Backend full offline forwarding configuration.
+	PoolHealth PoolHealth `json:"pool_health"`
+
 	// The type of the backend server group.
 	Type string `json:"type"`
 

@@ -2,7 +2,8 @@
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_member"
-description: ""
+description: |-
+  Manages an ELB member resource within HuaweiCloud.
 ---
 
 # huaweicloud_elb_member
@@ -43,8 +44,9 @@ The following arguments are supported:
 * `address` - (Required, String, ForceNew) The IP address of the member to receive traffic from the load balancer.
   Changing this creates a new member.
 
-* `protocol_port` - (Required, Int, ForceNew) The port on which to listen for client traffic. Changing this creates a
-  new member.
+* `protocol_port` - (Optional, Int, ForceNew) The port on which to listen for client traffic. Changing this creates a
+  new member. This parameter can be left blank because it does not take effect if `any_port_enable` is set to **true**
+  for a backend server group.
 
 * `weight` - (Optional, Int)  A positive integer value that indicates the relative portion of traffic that this member
   should receive from the pool. For example, a member with a weight of 10 receives five times as much traffic as a
@@ -66,8 +68,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-ELB member can be imported using the pool ID and member ID separated by a slash, e.g.
+ELB member can be imported using the `pool_id` and `id` separated by a slash, e.g.
 
-```
-$ terraform import huaweicloud_elb_member.member_1 e0bd694a-abbe-450e-b329-0931fd1cc5eb/4086b0c9-b18c-4d1c-b6b8-4c56c3ad2a9e
+```bash
+$ terraform import huaweicloud_elb_member.member_1 <pool_id>/<id>
 ```

@@ -58,8 +58,9 @@ func ResourceMemberV3() *schema.Resource {
 
 			"protocol_port": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 
 			"weight": {
