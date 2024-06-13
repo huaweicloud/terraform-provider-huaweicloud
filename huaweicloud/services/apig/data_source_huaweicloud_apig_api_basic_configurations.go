@@ -198,6 +198,7 @@ func DataSourceApiBasicConfigurations() *schema.Resource {
 							Computed:    true,
 							Description: "The description of the API.",
 						},
+						// The format is `yyyy-MM-ddTHH:mm:ss{timezone}`, e.g. `2006-01-02 15:04:05+08:00`.
 						"registered_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -371,8 +372,8 @@ func flattenApiBasicConfigurations(configurations []interface{}) []interface{} {
 			"cors":                    utils.PathSearch("cors", conf, nil),
 			"matching":                analyseApiMatchMode(utils.PathSearch("match_mode", conf, "").(string)),
 			"description":             utils.PathSearch("remark", conf, nil),
-			"registered_at":           utils.PathSearch("register_time", conf, nil),
-			"updated_at":              utils.PathSearch("update_time", conf, nil),
+			"registered_at":           flattenTimeToRFC3339(utils.PathSearch("register_time", conf, "").(string)),
+			"updated_at":              flattenTimeToRFC3339(utils.PathSearch("update_time", conf, "").(string)),
 			"published_at":            flattenPulishTime(utils.PathSearch("publish_time", conf, "").(string)),
 		})
 	}
@@ -383,7 +384,12 @@ func flattenSimpleAuth(authType string) bool {
 	return authType == string(AppCodeAuthTypeEnable)
 }
 
+// Formats the time according to the local computer's time.
+func flattenTimeToRFC3339(timeStr string) string {
+	return utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(timeStr)/1000, false)
+}
+
 func flattenPulishTime(utcTime string) string {
 	pulishTime := utils.ConvertTimeStrToNanoTimestamp(utcTime, "2006-01-02 15:04:05")
-	return utils.FormatTimeStampRFC3339(pulishTime/1000, false, "2006-01-02T15:04:05Z")
+	return utils.FormatTimeStampRFC3339(pulishTime/1000, false)
 }
