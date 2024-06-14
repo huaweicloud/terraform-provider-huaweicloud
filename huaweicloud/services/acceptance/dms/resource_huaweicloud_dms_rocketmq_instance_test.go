@@ -87,12 +87,15 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "storage_space", "1200"),
 					resource.TestCheckResourceAttrPair(resourceName, "engine_version", "data.huaweicloud_dms_rocketmq_flavors.test", "versions.0"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor_id", "data.huaweicloud_dms_rocketmq_flavors.test", "flavors.1.id"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.name", "fileReservedTime"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.value", "72"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"configs"},
 			},
 		},
 	})
@@ -378,6 +381,11 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   flavor_id         = local.newFlavor.id
   storage_space     = 1200 
   broker_num        = 2
+
+  configs {
+    name  = "fileReservedTime"
+    value = "72"
+  }
 
   tags = {
     key1 = "value1_update"

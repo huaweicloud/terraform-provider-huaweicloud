@@ -114,6 +114,18 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
+* `configs` - (Optional, List) Specifies the instance configs.
+  The [configs](#dms_configs) structure is documented below.
+
+<a name="dms_configs"></a>
+The `configs` block supports:
+
+* `name` - (Required, String) Specifies the config name.
+
+* `value` - (Required, String) Specifies the config value.
+
+-> When `name` is **fileReservedTime**, `value` ranges from **1** to **720** and unit is **hour**. Defaults to **48**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
