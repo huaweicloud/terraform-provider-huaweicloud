@@ -581,6 +581,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_sql_templates":          dli.DataSourceDliSqlTemplates(),
 
 			"huaweicloud_dms_kafka_flavors":             dms.DataSourceKafkaFlavors(),
+			"huaweicloud_dms_kafka_extend_flavors":      dms.DataSourceDmsKafkaExtendFlavors(),
 			"huaweicloud_dms_kafka_instances":           dms.DataSourceDmsKafkaInstances(),
 			"huaweicloud_dms_kafka_consumer_groups":     dms.DataSourceDmsKafkaConsumerGroups(),
 			"huaweicloud_dms_product":                   dms.DataSourceDmsProduct(),
