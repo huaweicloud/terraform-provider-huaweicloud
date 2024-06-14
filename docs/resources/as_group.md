@@ -128,7 +128,7 @@ The following arguments are supported:
 * `max_instance_number` - (Optional, Int) Specifies the maximum number of instances. The value ranges from **0** to **300**.
   Defaults to **0**.
 
-* `cool_down_time` - (Optional, Int) Specifies the cooling duration (in seconds). The value ranges from **0** to **86400**.
+* `cool_down_time` - (Optional, Int) Specifies the cooling duration (in seconds). The value ranges from **0** to **86,400**.
   Defaults to **300**.
 
 * `availability_zones` - (Optional, List) Specifies the availability zones in which to create the instances in the
@@ -168,7 +168,7 @@ The following arguments are supported:
   If the value is set to **0**, health check is performed every 10 seconds.
 
 * `health_periodic_audit_grace_period` - (Optional, Int) Specifies the health check grace period for instances.
-  The unit is second and the value ranges from **0** to **86400**. Defaults to **600**.
+  The unit is second and the value ranges from **0** to **86,400**. Defaults to **600**.
 
   -> This parameter is valid only when the instance health check method of the AS group is **ELB_AUDIT**.
 
@@ -231,7 +231,7 @@ The `lbaas_listeners` block supports:
 * `pool_id` - (Required, String) Specifies the backend ECS group ID.
 
 * `protocol_port` - (Required, Int) Specifies the backend protocol, which is the port on which a backend ECS listens for
-  traffic. The number of the port ranges from **1** to **65535**.
+  traffic. The number of the port ranges from **1** to **65,535**.
 
 * `weight` - (Optional, Int) Specifies the weight, which determines the portion of requests a backend ECS processes
   compared to other backend ECSs added to the same listener. The value of this parameter ranges from **0** to **100**.
