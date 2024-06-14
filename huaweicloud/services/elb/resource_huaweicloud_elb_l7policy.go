@@ -3,7 +3,6 @@ package elb
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -73,7 +72,7 @@ func ResourceL7PolicyV3() *schema.Resource {
 			"redirect_listener_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ExactlyOneOf: []string{"redirect_listener_id", "redirect_pool_id", "redirect_url_config",
+				ExactlyOneOf: []string{"redirect_listener_id", "redirect_pool_id", "redirect_pools_config", "redirect_url_config",
 					"fixed_response_config"},
 				Computed: true,
 			},
@@ -81,6 +80,21 @@ func ResourceL7PolicyV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+			"redirect_pools_config": {
+				Type:          schema.TypeSet,
+				Elem:          redirectPoolsConfigSchema(),
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"redirect_pool_id"},
+			},
+			"redirect_pools_sticky_session_config": {
+				Type:          schema.TypeList,
+				Elem:          redirectPoolsStickySessionConfigSchema(),
+				MaxItems:      1,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"redirect_pool_id"},
 			},
 			"redirect_pools_extend_config": {
 				Type:     schema.TypeList,
@@ -131,6 +145,59 @@ func redirectPoolsExtendConfigSchema() *schema.Resource {
 				Type:     schema.TypeList,
 				Elem:     rewriteUrlConfigSchema(),
 				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+			},
+			"insert_headers_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     insertHeadersConfigSchema(),
+				MaxItems: 1,
+			},
+			"remove_headers_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     removeHeadersConfigSchema(),
+				MaxItems: 1,
+			},
+			"traffic_limit_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     trafficLimitConfigSchema(),
+				MaxItems: 1,
+			},
+		},
+	}
+	return &sc
+}
+
+func redirectPoolsConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"pool_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"weight": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func redirectPoolsStickySessionConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"timeout": {
+				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
@@ -192,6 +259,18 @@ func redirectUrlConfigSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"insert_headers_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     insertHeadersConfigSchema(),
+				MaxItems: 1,
+			},
+			"remove_headers_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     removeHeadersConfigSchema(),
+				MaxItems: 1,
+			},
 		},
 	}
 	return &sc
@@ -211,6 +290,102 @@ func fixedResponseConfigSchema() *schema.Resource {
 			},
 			"message_body": {
 				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"insert_headers_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     insertHeadersConfigSchema(),
+				MaxItems: 1,
+			},
+			"remove_headers_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     removeHeadersConfigSchema(),
+				MaxItems: 1,
+			},
+			"traffic_limit_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     trafficLimitConfigSchema(),
+				MaxItems: 1,
+			},
+		},
+	}
+	return &sc
+}
+
+func insertHeadersConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"configs": {
+				Type:     schema.TypeSet,
+				Required: true,
+				Elem:     insertHeaderConfigSchema(),
+			},
+		},
+	}
+	return &sc
+}
+
+func insertHeaderConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"key": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"value_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"value": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func removeHeadersConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"configs": {
+				Type:     schema.TypeSet,
+				Required: true,
+				Elem:     removeHeaderConfigSchema(),
+			},
+		},
+	}
+	return &sc
+}
+
+func removeHeaderConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"key": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func trafficLimitConfigSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"qps": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"per_source_ip_qps": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"burst": {
+				Type:     schema.TypeInt,
 				Optional: true,
 			},
 		},
@@ -235,6 +410,8 @@ func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	if action == "REDIRECT_TO_POOL" {
 		createOpts.RedirectPoolID = d.Get("redirect_pool_id").(string)
+		createOpts.RedirectPoolsConfig = buildRedirectPoolsConfig(d)
+		createOpts.RedirectPoolsStickySessionConfig = buildRedirectPoolsStickySessionConfig(d)
 		createOpts.RedirectPoolsExtendConfig = buildRedirectPoolsExtendConfig(d)
 	} else if action == "REDIRECT_TO_LISTENER" {
 		createOpts.RedirectListenerID = d.Get("redirect_listener_id").(string)
@@ -244,7 +421,6 @@ func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		createOpts.FixedResponseConfig = buildFixedResponseConfig(d)
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	l7Policy, err := l7policies.Create(elbClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating L7 Policy: %s", err)
@@ -262,26 +438,53 @@ func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceL7PolicyV3Read(ctx, d, meta)
 }
 
-func buildRedirectPoolsExtendConfig(d *schema.ResourceData) *l7policies.RedirectPoolsExtendConfig {
-	var redirectPoolsExtendConfig *l7policies.RedirectPoolsExtendConfig
-	redirectPoolsExtendConfigRaw := d.Get("redirect_pools_extend_config").([]interface{})
-	log.Printf("[DEBUG] redirectPoolsExtendConfigRaw: %+v", redirectPoolsExtendConfigRaw)
-	if len(redirectPoolsExtendConfigRaw) == 1 {
-		if v, ok := redirectPoolsExtendConfigRaw[0].(map[string]interface{}); ok {
-			redirectPoolsExtendConfig = &l7policies.RedirectPoolsExtendConfig{
-				RewriteUrlEnable: v["rewrite_url_enabled"].(bool),
-				RewriteUrlConfig: buildRewriteUrlConfig(v["rewrite_url_config"]),
+func buildRedirectPoolsConfig(d *schema.ResourceData) []*l7policies.RedirectPoolsConfig {
+	var redirectPoolsConfig []*l7policies.RedirectPoolsConfig
+	redirectPoolsConfigRaw := d.Get("redirect_pools_config").(*schema.Set).List()
+	for _, redirectPoolConfigRaw := range redirectPoolsConfigRaw {
+		v := redirectPoolConfigRaw.(map[string]interface{})
+		redirectPoolsConfig = append(redirectPoolsConfig, &l7policies.RedirectPoolsConfig{
+			PoolId: v["pool_id"].(string),
+			Weight: v["weight"].(int),
+		})
+	}
+	return redirectPoolsConfig
+}
+
+func buildRedirectPoolsStickySessionConfig(d *schema.ResourceData) *l7policies.RedirectPoolsStickySessionConfig {
+	var redirectPoolsStickySessionConfig *l7policies.RedirectPoolsStickySessionConfig
+	redirectPoolsStickySessionConfigRaw := d.Get("redirect_pools_sticky_session_config").([]interface{})
+	if len(redirectPoolsStickySessionConfigRaw) == 1 {
+		if v, ok := redirectPoolsStickySessionConfigRaw[0].(map[string]interface{}); ok {
+			redirectPoolsStickySessionConfig = &l7policies.RedirectPoolsStickySessionConfig{
+				Enable:  v["enable"].(bool),
+				Timeout: v["timeout"].(int),
 			}
 		}
 	}
-	log.Printf("[DEBUG] redirectPoolsExtendConfig: %+v", redirectPoolsExtendConfig)
+	return redirectPoolsStickySessionConfig
+}
+
+func buildRedirectPoolsExtendConfig(d *schema.ResourceData) *l7policies.RedirectPoolsExtendConfig {
+	var redirectPoolsExtendConfig *l7policies.RedirectPoolsExtendConfig
+	redirectPoolsExtendConfigRaw := d.Get("redirect_pools_extend_config").([]interface{})
+	if len(redirectPoolsExtendConfigRaw) == 1 {
+		if v, ok := redirectPoolsExtendConfigRaw[0].(map[string]interface{}); ok {
+			redirectPoolsExtendConfig = &l7policies.RedirectPoolsExtendConfig{
+				RewriteUrlEnable:    v["rewrite_url_enabled"].(bool),
+				RewriteUrlConfig:    buildRewriteUrlConfig(v["rewrite_url_config"]),
+				InsertHeadersConfig: buildInsertHeadersConfig(v["insert_headers_config"]),
+				RemoveHeadersConfig: buildRemoveHeadersConfig(v["remove_headers_config"]),
+				TrafficLimitConfig:  buildTrafficLimitConfig(v["traffic_limit_config"]),
+			}
+		}
+	}
 	return redirectPoolsExtendConfig
 }
 
 func buildRewriteUrlConfig(data interface{}) *l7policies.RewriteUrlConfig {
 	var rewriteUrlConfig *l7policies.RewriteUrlConfig
 	rewriteUrlConfigRaw := data.([]interface{})
-	log.Printf("[DEBUG] rewriteUrlConfigRaw: %+v", rewriteUrlConfigRaw)
 	if len(rewriteUrlConfigRaw) == 1 {
 		if v, ok := rewriteUrlConfigRaw[0].(map[string]interface{}); ok {
 			rewriteUrlConfig = &l7policies.RewriteUrlConfig{
@@ -291,44 +494,111 @@ func buildRewriteUrlConfig(data interface{}) *l7policies.RewriteUrlConfig {
 			}
 		}
 	}
-	log.Printf("[DEBUG] rewriteUrlConfig: %+v", rewriteUrlConfig)
 	return rewriteUrlConfig
+}
+
+func buildInsertHeadersConfig(data interface{}) *l7policies.InsertHeadersConfig {
+	var insertHeadersConfig *l7policies.InsertHeadersConfig
+	insertHeadersConfigRaw := data.([]interface{})
+	if len(insertHeadersConfigRaw) == 1 {
+		if v, ok := insertHeadersConfigRaw[0].(map[string]interface{}); ok {
+			insertHeadersConfig = &l7policies.InsertHeadersConfig{
+				Configs: buildInsertHeaderConfig(v["configs"]),
+			}
+		}
+	}
+	return insertHeadersConfig
+}
+
+func buildInsertHeaderConfig(data interface{}) []*l7policies.InsertHeaderConfig {
+	var insertHeaderConfigs []*l7policies.InsertHeaderConfig
+	insertHeaderConfigsRaw := data.(*schema.Set).List()
+	for _, insertHeaderConfigRaw := range insertHeaderConfigsRaw {
+		v := insertHeaderConfigRaw.(map[string]interface{})
+		insertHeaderConfigs = append(insertHeaderConfigs, &l7policies.InsertHeaderConfig{
+			Key:       v["key"].(string),
+			ValueType: v["value_type"].(string),
+			Value:     v["value"].(string),
+		})
+	}
+	return insertHeaderConfigs
+}
+
+func buildRemoveHeadersConfig(data interface{}) *l7policies.RemoveHeadersConfig {
+	var removeHeadersConfig *l7policies.RemoveHeadersConfig
+	removeHeadersConfigRaw := data.([]interface{})
+	if len(removeHeadersConfigRaw) == 1 {
+		if v, ok := removeHeadersConfigRaw[0].(map[string]interface{}); ok {
+			removeHeadersConfig = &l7policies.RemoveHeadersConfig{
+				Configs: buildRemoveHeaderConfig(v["configs"]),
+			}
+		}
+	}
+	return removeHeadersConfig
+}
+
+func buildRemoveHeaderConfig(data interface{}) []*l7policies.RemoveHeaderConfig {
+	var removeHeaderConfigs []*l7policies.RemoveHeaderConfig
+	removeHeaderConfigsRaw := data.(*schema.Set).List()
+	for _, removeHeaderConfigRaw := range removeHeaderConfigsRaw {
+		v := removeHeaderConfigRaw.(map[string]interface{})
+		removeHeaderConfigs = append(removeHeaderConfigs, &l7policies.RemoveHeaderConfig{
+			Key: v["key"].(string),
+		})
+	}
+	return removeHeaderConfigs
+}
+
+func buildTrafficLimitConfig(data interface{}) *l7policies.TrafficLimitConfig {
+	var trafficLimitConfig *l7policies.TrafficLimitConfig
+	trafficLimitConfigRaw := data.([]interface{})
+	if len(trafficLimitConfigRaw) == 1 {
+		if v, ok := trafficLimitConfigRaw[0].(map[string]interface{}); ok {
+			trafficLimitConfig = &l7policies.TrafficLimitConfig{
+				Qps:            v["qps"].(int),
+				PerSourceIpQps: v["per_source_ip_qps"].(int),
+				Burst:          v["burst"].(int),
+			}
+		}
+	}
+	return trafficLimitConfig
 }
 
 func buildRedirectUrlConfig(d *schema.ResourceData) *l7policies.RedirectUrlConfig {
 	var redirectUrlConfig *l7policies.RedirectUrlConfig
 	redirectUrlConfigRaw := d.Get("redirect_url_config").([]interface{})
-	log.Printf("[DEBUG] redirectUrlConfigRaw: %+v", redirectUrlConfigRaw)
 	if len(redirectUrlConfigRaw) == 1 {
 		if v, ok := redirectUrlConfigRaw[0].(map[string]interface{}); ok {
 			redirectUrlConfig = &l7policies.RedirectUrlConfig{
-				Protocol:   v["protocol"].(string),
-				Host:       v["host"].(string),
-				Port:       v["port"].(string),
-				Path:       v["path"].(string),
-				Query:      v["query"].(string),
-				StatusCode: v["status_code"].(string),
+				Protocol:            v["protocol"].(string),
+				Host:                v["host"].(string),
+				Port:                v["port"].(string),
+				Path:                v["path"].(string),
+				Query:               v["query"].(string),
+				StatusCode:          v["status_code"].(string),
+				InsertHeadersConfig: buildInsertHeadersConfig(v["insert_headers_config"]),
+				RemoveHeadersConfig: buildRemoveHeadersConfig(v["remove_headers_config"]),
 			}
 		}
 	}
-	log.Printf("[DEBUG] redirectUrlConfig: %+v", redirectUrlConfig)
 	return redirectUrlConfig
 }
 
 func buildFixedResponseConfig(d *schema.ResourceData) *l7policies.FixedResponseConfig {
 	var fixedResponseConfig *l7policies.FixedResponseConfig
 	fixedResponseConfigRaw := d.Get("fixed_response_config").([]interface{})
-	log.Printf("[DEBUG] fixedResponseConfigRaw: %+v", fixedResponseConfigRaw)
 	if len(fixedResponseConfigRaw) == 1 {
 		if v, ok := fixedResponseConfigRaw[0].(map[string]interface{}); ok {
 			fixedResponseConfig = &l7policies.FixedResponseConfig{
-				StatusCode:  v["status_code"].(string),
-				ContentType: v["content_type"].(string),
-				MessageBody: v["message_body"].(string),
+				StatusCode:          v["status_code"].(string),
+				ContentType:         v["content_type"].(string),
+				MessageBody:         v["message_body"].(string),
+				InsertHeadersConfig: buildInsertHeadersConfig(v["insert_headers_config"]),
+				RemoveHeadersConfig: buildRemoveHeadersConfig(v["remove_headers_config"]),
+				TrafficLimitConfig:  buildTrafficLimitConfig(v["traffic_limit_config"]),
 			}
 		}
 	}
-	log.Printf("[DEBUG] fixedResponseConfig: %+v", fixedResponseConfig)
 	return fixedResponseConfig
 }
 
@@ -344,8 +614,6 @@ func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		return common.CheckDeletedDiag(d, err, "L7 Policy")
 	}
 
-	log.Printf("[DEBUG] Retrieved L7 Policy %s: %#v", d.Id(), l7Policy)
-
 	mErr := multierror.Append(nil,
 		d.Set("description", l7Policy.Description),
 		d.Set("name", l7Policy.Name),
@@ -354,6 +622,8 @@ func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("listener_id", l7Policy.ListenerID),
 		d.Set("redirect_pool_id", l7Policy.RedirectPoolID),
 		d.Set("redirect_listener_id", l7Policy.RedirectListenerID),
+		d.Set("redirect_pools_config", flattenRedirectPoolsConfig(l7Policy)),
+		d.Set("redirect_pools_sticky_session_config", flattenRedirectPoolsStickySessionConfig(l7Policy)),
 		d.Set("redirect_pools_extend_config", flattenRedirectPoolsExtendConfig(l7Policy)),
 		d.Set("redirect_url_config", flattenRedirectUrlConfig(l7Policy)),
 		d.Set("fixed_response_config", flattenFixedResponseConfig(l7Policy)),
@@ -362,11 +632,37 @@ func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("updated_at", l7Policy.UpdatedAt),
 		d.Set("provisioning_status", l7Policy.ProvisioningStatus),
 	)
-	if err := mErr.ErrorOrNil(); err != nil {
+	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting Dedicated ELB l7policy fields: %s", err)
 	}
 
 	return nil
+}
+
+func flattenRedirectPoolsConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
+	var redirectPoolsConfig []map[string]interface{}
+	if l7policy.RedirectPoolsConfig != nil {
+		redirectPoolsConfig = make([]map[string]interface{}, 0, len(l7policy.RedirectPoolsConfig))
+		for _, redirectPoolConfig := range l7policy.RedirectPoolsConfig {
+			redirectPoolsConfig = append(redirectPoolsConfig, map[string]interface{}{
+				"pool_id": redirectPoolConfig.PoolId,
+				"weight":  redirectPoolConfig.Weight,
+			})
+		}
+	}
+	return redirectPoolsConfig
+}
+
+func flattenRedirectPoolsStickySessionConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
+	var redirectPoolsStickySessionConfig []map[string]interface{}
+	if l7policy.RedirectPoolsStickySessionConfig != nil {
+		redirectPoolsStickySessionConfig = make([]map[string]interface{}, 1)
+		params := make(map[string]interface{})
+		params["enable"] = l7policy.RedirectPoolsStickySessionConfig.Enable
+		params["timeout"] = l7policy.RedirectPoolsStickySessionConfig.Timeout
+		redirectPoolsStickySessionConfig[0] = params
+	}
+	return redirectPoolsStickySessionConfig
 }
 
 func flattenRedirectPoolsExtendConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
@@ -376,6 +672,9 @@ func flattenRedirectPoolsExtendConfig(l7policy *l7policies.L7Policy) []map[strin
 		params := make(map[string]interface{})
 		params["rewrite_url_enabled"] = l7policy.RedirectPoolsExtendConfig.RewriteUrlEnable
 		params["rewrite_url_config"] = flattenRewriteUrlConfig(l7policy)
+		params["insert_headers_config"] = flattenInsertHeadersConfig(l7policy.RedirectPoolsExtendConfig.InsertHeadersConfig)
+		params["remove_headers_config"] = flattenRemoveHeadersConfig(l7policy.RedirectPoolsExtendConfig.RemoveHeadersConfig)
+		params["traffic_limit_config"] = flattenTrafficLimitConfig(l7policy.RedirectPoolsExtendConfig.TrafficLimitConfig)
 		redirectPoolsExtendConfig[0] = params
 	}
 	return redirectPoolsExtendConfig
@@ -394,6 +693,69 @@ func flattenRewriteUrlConfig(l7policy *l7policies.L7Policy) []map[string]interfa
 	return rewriteUrlConfig
 }
 
+func flattenInsertHeadersConfig(cfg *l7policies.InsertHeadersConfig) []map[string]interface{} {
+	var insertHeadersConfig []map[string]interface{}
+	if cfg != nil {
+		insertHeadersConfig = make([]map[string]interface{}, 1)
+		params := make(map[string]interface{})
+		params["configs"] = flattenInsertHeaderConfigs(cfg.Configs)
+		insertHeadersConfig[0] = params
+	}
+	return insertHeadersConfig
+}
+
+func flattenInsertHeaderConfigs(insertHeaderConfigs []*l7policies.InsertHeaderConfig) []map[string]interface{} {
+	var configs []map[string]interface{}
+	if len(insertHeaderConfigs) > 0 {
+		configs = make([]map[string]interface{}, 0, len(insertHeaderConfigs))
+		for _, v := range insertHeaderConfigs {
+			configs = append(configs, map[string]interface{}{
+				"key":        v.Key,
+				"value_type": v.ValueType,
+				"value":      v.Value,
+			})
+		}
+	}
+	return configs
+}
+
+func flattenRemoveHeadersConfig(cfg *l7policies.RemoveHeadersConfig) []map[string]interface{} {
+	var removeHeadersConfig []map[string]interface{}
+	if cfg != nil {
+		removeHeadersConfig = make([]map[string]interface{}, 1)
+		params := make(map[string]interface{})
+		params["configs"] = flattenRemoveHeaderConfigs(cfg.Configs)
+		removeHeadersConfig[0] = params
+	}
+	return removeHeadersConfig
+}
+
+func flattenRemoveHeaderConfigs(removeHeaderConfigs []*l7policies.RemoveHeaderConfig) []map[string]interface{} {
+	var configs []map[string]interface{}
+	if len(removeHeaderConfigs) > 0 {
+		configs = make([]map[string]interface{}, 0, len(removeHeaderConfigs))
+		for _, v := range removeHeaderConfigs {
+			configs = append(configs, map[string]interface{}{
+				"key": v.Key,
+			})
+		}
+	}
+	return configs
+}
+
+func flattenTrafficLimitConfig(cfg *l7policies.TrafficLimitConfig) []map[string]interface{} {
+	var trafficLimitConfig []map[string]interface{}
+	if cfg != nil {
+		trafficLimitConfig = make([]map[string]interface{}, 1)
+		params := make(map[string]interface{})
+		params["qps"] = cfg.Qps
+		params["per_source_ip_qps"] = cfg.PerSourceIpQps
+		params["burst"] = cfg.Burst
+		trafficLimitConfig[0] = params
+	}
+	return trafficLimitConfig
+}
+
 func flattenRedirectUrlConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
 	var redirectUrlConfig []map[string]interface{}
 	if l7policy.RedirectUrlConfig != nil {
@@ -405,6 +767,8 @@ func flattenRedirectUrlConfig(l7policy *l7policies.L7Policy) []map[string]interf
 		params["path"] = l7policy.RedirectUrlConfig.Path
 		params["query"] = l7policy.RedirectUrlConfig.Query
 		params["status_code"] = l7policy.RedirectUrlConfig.StatusCode
+		params["insert_headers_config"] = flattenInsertHeadersConfig(l7policy.RedirectUrlConfig.InsertHeadersConfig)
+		params["remove_headers_config"] = flattenRemoveHeadersConfig(l7policy.RedirectUrlConfig.RemoveHeadersConfig)
 		redirectUrlConfig[0] = params
 	}
 	return redirectUrlConfig
@@ -418,6 +782,9 @@ func flattenFixedResponseConfig(l7policy *l7policies.L7Policy) []map[string]inte
 		params["status_code"] = l7policy.FixedResponseConfig.StatusCode
 		params["content_type"] = l7policy.FixedResponseConfig.ContentType
 		params["message_body"] = l7policy.FixedResponseConfig.MessageBody
+		params["insert_headers_config"] = flattenInsertHeadersConfig(l7policy.FixedResponseConfig.InsertHeadersConfig)
+		params["remove_headers_config"] = flattenRemoveHeadersConfig(l7policy.FixedResponseConfig.RemoveHeadersConfig)
+		params["traffic_limit_config"] = flattenTrafficLimitConfig(l7policy.FixedResponseConfig.TrafficLimitConfig)
 		fixedResponseConfig[0] = params
 	}
 	return fixedResponseConfig
@@ -448,6 +815,12 @@ func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		redirectPoolID := d.Get("redirect_pool_id").(string)
 		updateOpts.RedirectPoolID = &redirectPoolID
 	}
+	if d.HasChange("redirect_pools_config") {
+		updateOpts.RedirectPoolsConfig = buildRedirectPoolsConfig(d)
+	}
+	if d.HasChange("redirect_pools_sticky_session_config") {
+		updateOpts.RedirectPoolsStickySessionConfig = buildRedirectPoolsStickySessionConfig(d)
+	}
 	if d.HasChange("redirect_pools_extend_config") {
 		updateOpts.RedirectPoolsExtendConfig = buildRedirectPoolsExtendConfig(d)
 	}
@@ -462,7 +835,6 @@ func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta 
 		updateOpts.FixedResponseConfig = buildFixedResponseConfig(d)
 	}
 
-	log.Printf("[DEBUG] Updating L7 Policy %s with options: %#v", d.Id(), updateOpts)
 	_, err = l7policies.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("unable to update L7 Policy %s: %s", d.Id(), err)
@@ -484,7 +856,6 @@ func resourceL7PolicyV3Delete(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Attempting to delete L7 Policy %s", d.Id())
 	err = l7policies.Delete(elbClient, d.Id()).ExtractErr()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting L7 Policy")
@@ -499,10 +870,8 @@ func resourceL7PolicyV3Delete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func waitForElbV3Policy(ctx context.Context, elbClient *golangsdk.ServiceClient,
-	id string, target string, pending []string, timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for policy %s to become %s", id, target)
-
+func waitForElbV3Policy(ctx context.Context, elbClient *golangsdk.ServiceClient, id string, target string,
+	pending []string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{target},
 		Pending:      pending,

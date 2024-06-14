@@ -116,18 +116,30 @@ The following arguments are supported:
 
 * `action` - (Optional, String, ForceNew) Whether requests are forwarded to another backend server group
   or redirected to an HTTPS listener. Changing this creates a new L7 Policy. The value ranges:
-  + **REDIRECT_TO_POOL**: Requests are forwarded to the backend server group specified by `redirect_pool_id`.
+  + **REDIRECT_TO_POOL**: Requests are forwarded to the backend server group specified by `redirect_pool_id` or
+    `redirect_pools_config`, the `protocol` of the listener must be **HTTP** or **HTTPS**.
   + **REDIRECT_TO_LISTENER**: Requests are redirected from the HTTP listener specified by `listener_id` to the
-    HTTPS listener specified by `redirect_listener_id`.
+    HTTPS listener specified by `redirect_listener_id`, the `protocol` of the listener must be **HTTP**.
   + **REDIRECT_TO_URL**: Requests are forwarded to another URL whose config specified by `redirect_url_config`.
   + **FIXED_RESPONSE**: Requests are forwarded to a fixed response body specified by `fixed_response_config`.
   Defaults to **REDIRECT_TO_POOL**.
 
 * `redirect_pool_id` - (Optional, String) The ID of the backend server group to which traffic is forwarded.
-  This parameter is mandatory when `action` is set to **REDIRECT_TO_POOL**. The backend server group must meet the
+  This parameter will take effect when `action` is set to **REDIRECT_TO_POOL**. The backend server group must meet the
   following requirements:
   + Cannot be the default backend server group of the listener.
   + Cannot be the backend server group used by forwarding policies of other listeners.
+
+* `redirect_pools_config` - (Optional, List) The list of the backend server groups to which traffic is forwarded.
+  traffic is redirected. This parameter will take effect when `action` is set to **REDIRECT_TO_POOL**.
+  The [redirect_pools_config](#redirect_pools_config_object) structure is documented below.
+
+  -> **NOTE:** Exactly one of `redirect_pool_id` or `redirect_pools_config` should be specified when `action` is set to
+  **REDIRECT_TO_POOL**.
+
+* `redirect_pools_sticky_session_config` - (Optional, List) The session persistence between backend server groups which
+  associated with the policy. This parameter will take effect when `action` is set to **REDIRECT_TO_POOL**.
+  The [redirect_pools_sticky_session_config](#redirect_pools_sticky_session_config_object) structure is documented below.
 
 * `redirect_pools_extend_config` - (Optional, List) The config of the backend server group to which the
   traffic is redirected. This parameter will take effect when `action` is set to **REDIRECT_TO_POOL**.
@@ -149,6 +161,20 @@ The following arguments are supported:
   the listener must be set to **true**.
   The [fixed_response_config](#fixed_response_config_object) structure is documented below.
 
+<a name="redirect_pools_config_object"></a>
+The `redirect_pools_config` block supports:
+
+* `pool_id` - (Required, String) The ID of the backend server group.
+
+* `weight` - (Optional, Int) The weight of the backend server group.
+
+<a name="redirect_pools_sticky_session_config_object"></a>
+The `redirect_pools_sticky_session_config` block supports:
+
+* `enable` - (Optional, Bool) Whether enable config session persistence between backend server groups.
+
+* `timeout` - (Optional, Int) The timeout of the session persistence.
+
 <a name="redirect_pools_extend_config_object"></a>
 The `redirect_pools_extend_config` block supports:
 
@@ -157,6 +183,15 @@ The `redirect_pools_extend_config` block supports:
 * `rewrite_url_config` - (Optional, List) The rewrite url config. This parameter is mandatory when `rewrite_url_enabled`
   is set to **true**.
   The [rewrite_url_config](#rewrite_url_config_object) structure is documented below.
+
+* `insert_headers_config` - (Optional, List) The header parameters to be added.
+  The [insert_headers_config](#insert_headers_config_object) structure is documented below.
+
+* `remove_headers_config` - (Optional, List) The header parameters to be removed.
+  The [remove_headers_config](#remove_headers_config_object) structure is documented below.
+
+* `traffic_limit_config` - (Optional, List) The traffic limit config of the policy.
+  The [traffic_limit_config](#traffic_limit_config_object) structure is documented below.
 
 <a name="rewrite_url_config_object"></a>
 The `rewrite_url_config` block supports:
@@ -198,6 +233,12 @@ The `redirect_url_config` block supports:
   If this parameter is set to **${query}&name=my_name**, the URL will be redirected to
   URL `https://www.xxx.com:8080/elb?type=loadbalancer&name=my_name`.
 
+* `insert_headers_config` - (Optional, List) The header parameters to be added.
+  The [insert_headers_config](#insert_headers_config_object) structure is documented below.
+
+* `remove_headers_config` - (Optional, List) The header parameters to be removed.
+  The [remove_headers_config](#remove_headers_config_object) structure is documented below.
+
 <a name="fixed_response_config_object"></a>
 The `fixed_response_config` block supports:
 
@@ -208,6 +249,70 @@ The `fixed_response_config` block supports:
   **text/html**, **application/javascript**, or **application/json**. Defaults to: **text/plain**.
 
 * `message_body` - (Optional, String) The content of the response message body.
+
+* `insert_headers_config` - (Optional, List) The header parameters to be added.
+  The [insert_headers_config](#insert_headers_config_object) structure is documented below.
+
+* `remove_headers_config` - (Optional, List) The header parameters to be removed.
+  The [remove_headers_config](#remove_headers_config_object) structure is documented below.
+
+* `traffic_limit_config` - (Optional, List) The traffic limit config of the policy.
+  The [traffic_limit_config](#traffic_limit_config_object) structure is documented below.
+
+<a name="insert_headers_config_object"></a>
+The `insert_headers_config` block supports:
+
+* `configs` - (Required, List) The list of request header parameters to be added.
+  The [insert_header_configs](#insert_header_configs_object) structure is documented below.
+
+<a name="insert_header_configs_object"></a>
+The `insert_header_configs` block supports:
+
+* `key` - (Required, String) The parameter name of the added request header. The value can contain **1** to **40**
+  characters, only a-z, digits, hyphens (-) and underscore (_) are allowed, and it can not be the following characters:
+  **connection**, **upgrade**, **content-length**, **transfer-encoding**, **keep-alive**, **te**, **host**, **cookie**,
+  **remoteip**, **authority**, **x-forwarded-host**, **x-forwarded-for**, **x-forwarded-for-port**,
+  **x-forwarded-tls-certificate-id**, **x-forwarded-tls-protocol**, **x-forwarded-tls-cipher**, **x-forwarded-elb-ip**,
+  **x-forwarded-port**, **x-forwarded-elb-id**, **x-forwarded-elb-vip**, **x-real-ip**, **x-forwarded-proto**,
+  **x-nuwa-trace-ne-in**, **x-nuwa-trace-ne-out**.
+
+* `value_type` - (Required, String) The value type of the parameter. Value options: **USER_DEFINED**,
+  **REFERENCE_HEADER**, **SYSTEM_DEFINED**.
+
+* `value` - (Required, String) The value of the parameter. The value can contain **1** to **128**, only printable
+  characters in the range of ASCII code value 32<=ch<=127, asterisks (*) and question marks (?) are allowed, and it
+  cannot start or end with a space characters. If the value of `value_type` is **SYSTEM_DEFINED**, the value options is:
+  **CLIENT-PORT**, **CLIENT-IP**, **ELB-PROTOCOL**, **ELB-ID**, **ELB-PORT**, **ELB-EIP**, **ELB-VIP**.
+
+<a name="remove_headers_config_object"></a>
+The `remove_headers_config` block supports:
+
+* `configs` - (Required, List) The list of request header parameters to be removed.
+  The [remove_header_configs](#remove_header_configs_object) structure is documented below.
+
+<a name="remove_header_configs_object"></a>
+The `remove_header_configs` block supports:
+
+* `key` - (Required, String) The parameter name of the removed request header. The value can contain **1** to **40**
+  characters, only a-z, digits, hyphens (-) and underscore (_) are allowed, and it can not be the following characters:
+  **connection**, **upgrade**, **content-length**, **transfer-encoding**, **keep-alive**, **te**, **host**, **cookie**,
+  **remoteip**, **authority**, **x-forwarded-host**, **x-forwarded-for**, **x-forwarded-for-port**,
+  **x-forwarded-tls-certificate-id**, **x-forwarded-tls-protocol**, **x-forwarded-tls-cipher**, **x-forwarded-elb-ip**,
+  **x-forwarded-port**, **x-forwarded-elb-id**, **x-forwarded-elb-vip**, **x-real-ip**, **x-forwarded-proto**,
+  **x-nuwa-trace-ne-in**, **x-nuwa-trace-ne-out**.
+
+<a name="traffic_limit_config_object"></a>
+The `traffic_limit_config` block supports:
+
+* `qps` - (Optional, Int) The overall qps of the policy. Value options: **0-100000**, **0** indicates no limit.
+
+* `per_source_ip_qps` - (Optional, Int) The single source qps of the policy. Value options: **0-100000**, **0**
+  indicates no limit. If the value of `qps` is not **0**, then the value of `per_source_ip_qps` must less than the value
+  of `qps`. If the `protocol` of the listener that the policy associated with is **QUIC**, then `per_source_ip_qps` is
+  not supported, the value should be **0** or empty.
+
+* `burst` - (Optional, Int) The qps buffer. Value options: **0-100000**. When qps exceeds the limit, 503 will not be
+  returned, and requests that allow local burst size increases are supported.
 
 ## Attribute Reference
 
