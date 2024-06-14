@@ -277,7 +277,7 @@ func buildNetworksOpts(networks []interface{}) []groups.NetworkOpts {
 		}
 
 		if item["source_dest_check"].(bool) {
-			// Cancle all allowed-address-pairs to enable the source/destination check
+			// Cancel all allowed-address-pairs to enable the source/destination check
 			res[i].AllowedAddressPairs = make([]groups.AddressPairOpts, 0)
 		} else {
 			// Update the allowed-address-pairs to 1.1.1.1/0
@@ -337,25 +337,20 @@ func buildAvailabilityZonesOpts(d *schema.ResourceData) []string {
 		rawZones = v2.([]interface{})
 	}
 
-	zones := make([]string, len(rawZones))
-	for i, raw := range rawZones {
-		zones[i] = raw.(string)
-	}
-
-	return zones
+	return utils.ExpandToStringList(rawZones)
 }
 
-func expandGroupsTags(tagmap map[string]interface{}) []tags.ResourceTag {
-	taglist := make([]tags.ResourceTag, 0, len(tagmap))
-	for k, v := range tagmap {
+func expandGroupsTags(tagMap map[string]interface{}) []tags.ResourceTag {
+	tagList := make([]tags.ResourceTag, 0, len(tagMap))
+	for k, v := range tagMap {
 		tag := tags.ResourceTag{
 			Key:   k,
 			Value: v.(string),
 		}
-		taglist = append(taglist, tag)
+		tagList = append(tagList, tag)
 	}
 
-	return taglist
+	return tagList
 }
 
 func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string, opts instances.ListOptsBuilder) ([]instances.Instance, error) {
@@ -364,8 +359,7 @@ func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string, opts
 	if err != nil {
 		return insList, fmt.Errorf("error getting instances in AS group %s: %s", groupID, err)
 	}
-	insList, err = page.(instances.InstancePage).Extract()
-	return insList, err
+	return page.(instances.InstancePage).Extract()
 }
 
 func getInstancesIDs(allIns []instances.Instance) []string {
@@ -542,7 +536,6 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, conf),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	asgId, err := groups.Create(asClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating AS group: %s", err)
@@ -553,8 +546,8 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandGroupsTags(tagRaw)
-		if tagErr := tags.Create(asClient, asgId, taglist).ExtractErr(); tagErr != nil {
+		tagList := expandGroupsTags(tagRaw)
+		if tagErr := tags.Create(asClient, asgId, tagList).ExtractErr(); tagErr != nil {
 			return diag.Errorf("error setting tags of AS group %s: %s", asgId, tagErr)
 		}
 	}
@@ -592,7 +585,6 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "AS group")
 	}
 
-	log.Printf("[DEBUG] Retrieved AS group %s: %#v", groupID, asg)
 	allIns, err := getInstancesInGroup(asClient, groupID, nil)
 	if err != nil {
 		return diag.Errorf("can not get the instances in AS Group %s: %s", groupID, err)
@@ -731,7 +723,6 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		updateOpts.IamAgencyName = d.Get("agency_name").(string)
 	}
 
-	log.Printf("[DEBUG] AS Group update options: %#v", updateOpts)
 	asgID, err := groups.Update(asClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error updating AS group %s: %s", asgID, err)
@@ -743,16 +734,16 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		oldTag, newTag := d.GetChange("tags")
 		oldRaw := oldTag.(map[string]interface{})
 		if len(oldRaw) > 0 {
-			taglist := expandGroupsTags(oldRaw)
-			if tagErr := tags.Delete(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
+			tagList := expandGroupsTags(oldRaw)
+			if tagErr := tags.Delete(asClient, asgID, tagList).ExtractErr(); tagErr != nil {
 				return diag.Errorf("error deleting tags of AS group %s: %s", asgID, tagErr)
 			}
 		}
 
 		newRaw := newTag.(map[string]interface{})
 		if len(newRaw) > 0 {
-			taglist := expandGroupsTags(newRaw)
-			if tagErr := tags.Create(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
+			tagList := expandGroupsTags(newRaw)
+			if tagErr := tags.Create(asClient, asgID, tagList).ExtractErr(); tagErr != nil {
 				return diag.Errorf("error setting tags of AS group %s: %s", asgID, tagErr)
 			}
 		}
