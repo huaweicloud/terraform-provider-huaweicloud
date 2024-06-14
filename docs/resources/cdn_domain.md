@@ -205,7 +205,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 
 The following arguments are supported:
 
-* `name` - (Required, String) Specifies acceleration domain name. The domain name consists of one or more parts,
+* `name` - (Required, String, NonUpdatable) Specifies acceleration domain name. The domain name consists of one or more parts,
   representing domains at different levels. Domain names at all levels can only be composed of letters, digits,
   and hyphens (-), and the letters are equivalent in upper and lower case. Domain names at all levels are connected
   with (.). The domain name can contain up to `75` characters.

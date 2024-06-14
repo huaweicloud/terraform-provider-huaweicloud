@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -93,6 +94,8 @@ type Config struct {
 
 	// Metadata is used for extend
 	Metadata any
+
+	EnableForceNew bool
 }
 
 func (c *Config) LoadAndValidate() error {
@@ -587,6 +590,21 @@ func CheckValueInterchange(d *schema.ResourceDiff, key1, key2 string) (isKey1New
 	isKey2NewEqualKey1Old = newKey2Value.(string) == oldKey1Value.(string)
 
 	return isKey1NewEqualKey2Old, isKey2NewEqualKey1Old
+}
+
+// GetForceNew returns the enable_force_new that was specified in the resource.
+// If it was not set, the provider-level value is checked. The provider-level value can
+// either be set by the `enable_force_new` argument or by HW_ENABLE_FORCE_NEW.
+func (c *Config) GetForceNew(d *schema.ResourceDiff) bool {
+	if v, ok := d.GetOk("enable_force_new"); ok {
+		res, err := strconv.ParseBool(v.(string))
+		if err != nil {
+			return false
+		}
+		return res
+	}
+
+	return c.EnableForceNew
 }
 
 // ********** client for Global Service **********
