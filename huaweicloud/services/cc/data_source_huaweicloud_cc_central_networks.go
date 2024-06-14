@@ -11,7 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/tidwall/gjson"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/filters"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/httphelper"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -48,6 +50,7 @@ func DataSourceCcCentralNetworks() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies enterprise project ID to which the central network belongs.`,
 			},
+			"tags": common.TagsSchema(),
 			"central_networks": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -126,7 +129,10 @@ func dataSourceCcCentralNetworksRead(_ context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, _ := uuid.GenerateUUID()
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(id)
 
 	err = wrapper.listCentralNetworksToSchema(lisCenNetRst)
@@ -158,6 +164,29 @@ func (w *CentralNetworksDSWrapper) ListCentralNetworks() (*gjson.Result, error) 
 		URI(uri).
 		Query(params).
 		MarkerPager("central_networks", "page_info.next_marker", "marker").
+		Filter(
+			filters.New().From("central_networks").
+				Filter(func(item gjson.Result) bool {
+					tags := w.Get("tags")
+					if tags == nil {
+						return true
+					}
+					tagList := utils.ExpandResourceTagsMap(tags.(map[string]interface{}))
+					for _, tag := range tagList {
+						found := false
+						for _, itemTag := range item.Get("tags").Array() {
+							if itemTag.Get("key").String() == tag["key"].(string) && itemTag.Get("value").String() == tag["value"].(string) {
+								found = true
+								break
+							}
+						}
+						if !found {
+							return false
+						}
+					}
+					return true
+				}),
+		).
 		Request().
 		Result()
 }
@@ -167,17 +196,17 @@ func (w *CentralNetworksDSWrapper) listCentralNetworksToSchema(body *gjson.Resul
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("central_networks", schemas.SliceToList(body.Get("central_networks"),
-			func(cenNet gjson.Result) any {
+			func(centralNetworks gjson.Result) any {
 				return map[string]any{
-					"id":                    cenNet.Get("id").Value(),
-					"name":                  cenNet.Get("name").Value(),
-					"description":           cenNet.Get("description").Value(),
-					"state":                 cenNet.Get("state").Value(),
-					"created_at":            cenNet.Get("created_at").Value(),
-					"updated_at":            cenNet.Get("updated_at").Value(),
-					"default_plane_id":      cenNet.Get("default_plane_id").Value(),
-					"enterprise_project_id": cenNet.Get("enterprise_project_id").Value(),
-					"tags":                  w.setCenNetTag(body, &cenNet),
+					"id":                    centralNetworks.Get("id").Value(),
+					"name":                  centralNetworks.Get("name").Value(),
+					"description":           centralNetworks.Get("description").Value(),
+					"state":                 centralNetworks.Get("state").Value(),
+					"created_at":            centralNetworks.Get("created_at").Value(),
+					"updated_at":            centralNetworks.Get("updated_at").Value(),
+					"default_plane_id":      centralNetworks.Get("default_plane_id").Value(),
+					"enterprise_project_id": centralNetworks.Get("enterprise_project_id").Value(),
+					"tags":                  w.setCentralNetworksTags(centralNetworks),
 				}
 			},
 		)),
@@ -185,7 +214,7 @@ func (w *CentralNetworksDSWrapper) listCentralNetworksToSchema(body *gjson.Resul
 	return mErr.ErrorOrNil()
 }
 
-func (*CentralNetworksDSWrapper) setCenNetTag(_, data *gjson.Result) map[string]string {
+func (*CentralNetworksDSWrapper) setCentralNetworksTags(data gjson.Result) map[string]string {
 	tags := make(map[string]string)
 
 	tagArr := data.Get("tags").Array()

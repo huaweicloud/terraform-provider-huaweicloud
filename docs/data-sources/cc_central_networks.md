@@ -2,7 +2,8 @@
 subcategory: "Cloud Connect (CC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cc_central_networks"
-description: ""
+description: |-
+  Use this data source to get the list of CC central networks.
 ---
 
 # huaweicloud_cc_central_networks
@@ -33,6 +34,8 @@ The following arguments are supported:
 * `state` - (Optional, String) Specifies the status of the central network.
 
 * `enterprise_project_id` - (Optional, String) Specifies enterprise project ID to which the central network belongs.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the central network.
 
 ## Attribute Reference
 
