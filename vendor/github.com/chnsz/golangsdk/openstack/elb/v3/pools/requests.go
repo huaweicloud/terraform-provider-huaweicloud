@@ -316,7 +316,7 @@ type CreateMemberOpts struct {
 	Address string `json:"address" required:"true"`
 
 	// The port on which to listen for client traffic.
-	ProtocolPort int `json:"protocol_port" required:"true"`
+	ProtocolPort int `json:"protocol_port,omitempty"`
 
 	// Name of the Member.
 	Name string `json:"name,omitempty"`
