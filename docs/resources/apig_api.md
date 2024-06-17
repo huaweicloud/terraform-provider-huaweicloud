@@ -11,6 +11,8 @@ Manages an APIG API resource within HuaweiCloud.
 
 ## Example Usage
 
+### Create an API with the Web backend and the protocol type is HTTP
+
 ```hcl
 variable "instance_id" {}
 variable "group_id" {}
@@ -50,6 +52,58 @@ resource "huaweicloud_apig_api" "test" {
 }
 ```
 
+### Create an API with the FunctionGraph backend and the protocol type is GRPCS
+
+```hcl
+variable "instance_id" {}
+variable "group_id" {}
+variable "api_name" {}
+variable "function_urn" {}
+variable "function_alias" {}
+variable "custom_authorizer_id" {}
+
+resource "huaweicloud_apig_api" "test" {
+  instance_id             = var.instance_id
+  group_id                = var.group_id
+  type                    = "Private"
+  name                    = var.api_name
+  request_protocol        = "GRPCS"
+  request_method          = "POST"
+  request_path            = "/test"
+  security_authentication = "APP"
+  simple_authentication   = true
+  matching                = "Exact"
+
+  func_graph {
+    function_urn       = var.function_urn
+    function_alias_urn = format("%s:!%s", var.function_urn, var.function_alias)
+    network_type       = "V2"
+    request_protocol   = "GRPCS"
+    timeout            = 5000
+    invocation_type    = "sync"
+    authorizer_id      = var.custom_authorizer_id
+  }
+
+  func_graph_policy {
+    name               = "policy_test"
+    function_urn       = var.function_urn
+    function_alias_urn = format("%s:!%s", var.function_urn, var.function_alias)
+    network_type       = "V2"
+    request_protocol   = "GRPCS"
+    timeout            = 6000
+    invocation_type    = "sync"
+    effective_mode     = "ALL"
+
+    conditions {
+      source      = "cookie"
+      cookie_name = "regex_test"
+      value       = format("^%s:\\w+$", var.api_name)
+      type        = "Matching"
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -81,8 +135,10 @@ The following arguments are supported:
 
   Only letters, digits, hyphens (-), and underscores (_) are allowed in environment variables.
 
+-> The request parameters (`{xxx}`) cannot be included in the request path if the `request_protocol` is **GRPCS**.
+
 * `request_protocol` - (Required, String) Specifies the request protocol of the API.  
-  The valid values are **HTTP**, **HTTPS** and **BOTH**.
+  The valid values are **HTTP**, **HTTPS**, **BOTH** (**HTTP** and **HTTPS**) and **GRPCS**.
 
 * `security_authentication` - (Optional, String) Specifies the security authentication mode of the API request.  
   The valid values are **NONE**, **APP**, **IAM** and **AUTHORIZER**, defaults to **NONE**.
@@ -93,11 +149,17 @@ The following arguments are supported:
 * `authorizer_id` - (Optional, String) Specifies the ID of the authorizer to which the API request used.
   It is Required when `security_authentication` is **AUTHORIZER**.
 
+-> The custom authorization is not supported if the `request_protocol` is **GRPCS**.
+
+* `tags` - (Optional, List) Specifies the list of tags configuration.
+
 * `request_params` - (Optional, List) Specifies the configurations of the front-end parameters.  
   The [object](#apig_api_request_params) structure is documented below.
 
 * `backend_params` - (Optional, List) Specifies the configurations of the backend parameters.  
   The [object](#apig_api_backend_params) structure is documented below.
+
+-> The `request_params` and `backend_params` are not supported if the `request_protocol` is **GRPCS**.
 
 * `body_description` - (Optional, String) Specifies the description of the API request body, which can be an example
   request body, media type or parameters.  
@@ -179,6 +241,10 @@ The `request_params` block supports:
 * `description` - (Optional, String) Specifies the description of the request parameter.  
   The description contains a maximum of `255` characters and the angle brackets (< and >) are not allowed.
 
+* `valid_enable` - (Optional, Int) Specifies whether to enable the parameter validation.
+  + **1**: enable
+  + **2**: disable (by default)
+
 <a name="apig_api_backend_params"></a>
 The `backend_params` block supports:
 
@@ -204,11 +270,13 @@ The `backend_params` block supports:
 <a name="apig_api_mock"></a>
 The `mock` block supports:
 
-* `response` - (Required, String) Specifies the response of the backend policy.  
+* `response` - (Required, String) Specifies the response content of the mock.  
   The description contains a maximum of `2,048` characters and the angle brackets (< and >) are not allowed.
 
   -> **NOTE:**  Mock enables APIG to return a response without sending the request to the backend. This is useful for
   testing APIs when the backend is not available.
+
+* `status_code` - (Optional, Int) Specifies the custom status code of the mock response.
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
 
@@ -217,13 +285,29 @@ The `func_graph` block supports:
 
 * `function_urn` - (Required, String) Specifies the URN of the FunctionGraph function.
 
-* `version` - (Required, String) Specifies the function version.
+* `version` - (Optional, String) Specifies the version of the FunctionGraph function.  
+  Required if the parameter `function_alias_urn` is omitted and this parameter is useless if the parameter
+  `function_alias_urn` is set.
+
+* `function_alias_urn` - (Optional, String) Specifies the alias URN of the FunctionGraph function.  
+  The format is `{function_urn}:!{alias}`.
+
+* `network_type` - (Optional, String) Specifies the network architecture (framework) type of the FunctionGraph function.
+  **V1**: Non-VPC network framework.
+  **V2**: VPC network framework.
+
+  Defaults to **V1** and **V2** is required if the `request_protocol` is **GRPCS**.
+
+* `request_protocol` - (Optional, String) Specifies the request protocol of the FunctionGraph function.  
+  Currently, only **GRPCS** is available.
 
 * `timeout` - (Optional, Int) Specifies the timeout for API requests to backend service.  
   The valid value is range form `1` to `600,000`, defaults to `5,000`.
 
 * `invocation_type` - (Optional, String) Specifies the invocation type.  
   The valid values are **async** and **sync**, defaults to **sync**.
+
+  -> Only **sync** is allowed for the **GRPCS** protocol type FunctionGraph backend.
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
 
@@ -284,7 +368,9 @@ The `mock_policy` block supports:
   Up to five conditions can be set.
   The [object](#apig_api_conditions) structure is documented below.
 
-* `response` - (Optional, String) Specifies the response of the backend policy.  
+* `status_code` - (Optional, Int) Specifies the custom status code of the mock response.
+
+* `response` - (Optional, String) Specifies the response content of the mock.  
   The description contains a maximum of `2,048` characters and the angle brackets (< and >) are not allowed.
 
 * `effective_mode` - (Optional, String) Specifies the effective mode of the backend policy.  
@@ -304,6 +390,22 @@ The `func_graph_policy` block supports:
 
 * `function_urn` - (Required, String) Specifies the URN of the FunctionGraph function.
 
+* `version` - (Optional, String) Specifies the version of the FunctionGraph function.  
+  Required if the parameter `function_alias_urn` is omitted and this parameter is useless if the parameter
+  `function_alias_urn` is set.
+
+* `function_alias_urn` - (Optional, String) Specifies the alias URN of the FunctionGraph function.  
+  The format is `{function_urn}:!{alias}`.
+
+* `network_type` - (Optional, String) Specifies the network architecture (framework) type of the FunctionGraph function.
+  **V1**: Non-VPC network framework.
+  **V2**: VPC network framework.
+
+  Defaults to **V1** and **V2** is required if the `request_protocol` is **GRPCS**.
+
+* `request_protocol` - (Optional, String) Specifies the request protocol of the FunctionGraph function.  
+  Currently, only **GRPCS** is available.
+
 * `conditions` - (Required, List) Specifies an array of one or more policy conditions.  
   Up to five conditions can be set.
   The [object](#apig_api_conditions) structure is documented below.
@@ -311,13 +413,13 @@ The `func_graph_policy` block supports:
 * `invocation_type` - (Optional, String) Specifies the invocation mode of the FunctionGraph function.  
   The valid values are **async** and **sync**, defaults to **sync**.
 
+  -> Only **sync** is allowed for the **GRPCS** protocol type FunctionGraph backend.
+
 * `effective_mode` - (Optional, String) Specifies the effective mode of the backend policy.  
   The valid values are **ALL** and **ANY**, defaults to **ANY**.
 
 * `timeout` - (Optional, Int) Specifies the timeout for API requests to backend service, the unit is `ms`.
   The valid value ranges from `1` to `600,000`, defaults to `5,000`.
-
-* `version` - (Optional, String) Specifies the version of the FunctionGraph function.
 
 * `backend_params` - (Optional, List) Specifies the configuration list of the backend parameters.  
   The maximum of request parameters is `50`.  
