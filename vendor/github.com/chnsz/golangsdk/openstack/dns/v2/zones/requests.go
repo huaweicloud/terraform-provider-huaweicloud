@@ -221,3 +221,25 @@ func DisassociateZone(client *golangsdk.ServiceClient, zoneID string, opts Route
 	_, r.Err = client.Post(disassociateURL(client, zoneID), b, nil, nil)
 	return
 }
+
+// UpdateStatusOpts is a struct that is used as parameter of the UpdateZoneStatus method.
+type UpdateStatusOpts struct {
+	// The ID of the public zone.
+	ZoneId string `json:"-" required:"true"`
+	// The status of the public zone.
+	// The valid values are as follows:
+	// + ENABLE
+	// + DISABLE
+	Status string `json:"status" required:"true"`
+}
+
+// UpdateZoneStatus is a method to set status of the public zone using given parameters.
+func UpdateZoneStatus(c *golangsdk.ServiceClient, opts UpdateStatusOpts) error {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return err
+	}
+	var r UpdateStatusOpts
+	_, err = c.Put(setStatusURL(c, opts.ZoneId), b, &r, nil)
+	return err
+}

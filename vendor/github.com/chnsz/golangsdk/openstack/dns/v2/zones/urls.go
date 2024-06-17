@@ -17,3 +17,7 @@ func associateURL(client *golangsdk.ServiceClient, zoneID string) string {
 func disassociateURL(client *golangsdk.ServiceClient, zoneID string) string {
 	return client.ServiceURL("zones", zoneID, "disassociaterouter")
 }
+
+func setStatusURL(client *golangsdk.ServiceClient, zoneId string) string {
+	return client.ServiceURL("zones", zoneId, "statuses")
+}
