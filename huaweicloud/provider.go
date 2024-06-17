@@ -548,6 +548,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_logstash_templates":        css.DataSourceCssLogstashTemplates(),
 			"huaweicloud_css_cluster_tags":              css.DataSourceCssClusterTags(),
 			"huaweicloud_css_log_backup_records":        css.DataSourceCssLogBackupRecords(),
+			"huaweicloud_css_cluster_logs":              css.DataSourceCssClusterLogs(),
 
 			"huaweicloud_dataarts_architecture_ds_template_optionals": dataarts.DataSourceTemplateOptionalFields(),
 			"huaweicloud_dataarts_studio_data_connections":            dataarts.DataSourceDataConnections(),
