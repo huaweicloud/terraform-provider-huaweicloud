@@ -108,6 +108,14 @@ func poolsActiveStandbyPoolsSchema() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"connection_drain_enabled": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"connection_drain_timeout": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -240,6 +248,10 @@ func poolsActiveStandbyPoolHealthmonitorSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"http_method": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"max_retries_down": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -327,17 +339,19 @@ func flattenListActiveStandbyPoolsBodyPools(resp interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"id":              utils.PathSearch("id", v, nil),
-			"name":            utils.PathSearch("name", v, nil),
-			"description":     utils.PathSearch("description", v, nil),
-			"protocol":        utils.PathSearch("protocol", v, nil),
-			"type":            utils.PathSearch("type", v, nil),
-			"any_port_enable": utils.PathSearch("any_port_enable", v, nil),
-			"vpc_id":          utils.PathSearch("vpc_id", v, nil),
-			"listeners":       flattenActiveStandbyPoolListeners(v),
-			"loadbalancers":   flattenActiveStandbyPoolLoadbalancers(v),
-			"members":         flattenActiveStandbyPoolMember(v),
-			"healthmonitor":   flattenActiveStandbyPoolMonitor(v),
+			"id":                       utils.PathSearch("id", v, nil),
+			"name":                     utils.PathSearch("name", v, nil),
+			"description":              utils.PathSearch("description", v, nil),
+			"protocol":                 utils.PathSearch("protocol", v, nil),
+			"type":                     utils.PathSearch("type", v, nil),
+			"any_port_enable":          utils.PathSearch("any_port_enable", v, nil),
+			"vpc_id":                   utils.PathSearch("vpc_id", v, nil),
+			"connection_drain_enabled": utils.PathSearch("connection_drain.enable", v, nil),
+			"connection_drain_timeout": utils.PathSearch("connection_drain.timeout", v, nil),
+			"listeners":                flattenActiveStandbyPoolListeners(v),
+			"loadbalancers":            flattenActiveStandbyPoolLoadbalancers(v),
+			"members":                  flattenActiveStandbyPoolMember(v),
+			"healthmonitor":            flattenActiveStandbyPoolMonitor(v),
 		})
 	}
 	return rst
@@ -425,6 +439,7 @@ func flattenActiveStandbyPoolMonitor(resp interface{}) []interface{} {
 			"max_retries_down": utils.PathSearch("max_retries_down", curJson, nil),
 			"max_retries":      utils.PathSearch("max_retries", curJson, nil),
 			"expected_codes":   utils.PathSearch("expected_codes", curJson, nil),
+			"http_method":      utils.PathSearch("http_method", curJson, nil),
 			"timeout":          utils.PathSearch("timeout", curJson, nil),
 			"delay":            utils.PathSearch("delay", curJson, nil),
 			"id":               utils.PathSearch("id", curJson, nil),
