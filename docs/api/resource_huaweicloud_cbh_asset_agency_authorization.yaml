@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cbh_asset_agency_authorization
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CBH
+paths:
+    /v2/{project_id}/cbs/agency/authorization:
+        GET:
+            tag: CBH
+        POST:
+            tag: CBH

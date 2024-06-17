@@ -36,3 +36,6 @@ paths:
     /v2/zones/{zone_id}/disassociaterouter:
         POST:
             tag: DNS
+    /v2/zones/{zone_id}/statuses:
+        PUT:
+            tag: DNS
