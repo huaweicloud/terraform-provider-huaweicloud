@@ -92,10 +92,11 @@ type SecurityGroup struct {
 }
 
 type LBaaSListener struct {
-	ListenerID   string `json:"listener_id"`
-	PoolID       string `json:"pool_id"`
-	ProtocolPort int    `json:"protocol_port"`
-	Weight       int    `json:"weight"`
+	ListenerID      string `json:"listener_id"`
+	PoolID          string `json:"pool_id"`
+	ProtocolPort    int    `json:"protocol_port"`
+	Weight          int    `json:"weight"`
+	ProtocolVersion string `json:"protocol_version"`
 }
 
 type GroupPage struct {

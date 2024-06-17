@@ -107,6 +107,12 @@ func ResourceASGroup() *schema.Resource {
 							Optional: true,
 							Default:  1,
 						},
+						// This field has a default value and cannot be set to empty.
+						"protocol_version": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -196,6 +202,11 @@ func ResourceASGroup() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+			},
+			"delete_volume": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
 			},
 			"delete_instances": {
 				Description: "Whether to delete instances when they are removed from the AS group.",
@@ -317,9 +328,10 @@ func buildLBaaSListenersOpts(listeners []interface{}) []groups.LBaaSListenerOpts
 	for i, v := range listeners {
 		item := v.(map[string]interface{})
 		res[i] = groups.LBaaSListenerOpts{
-			PoolID:       item["pool_id"].(string),
-			ProtocolPort: item["protocol_port"].(int),
-			Weight:       item["weight"].(int),
+			PoolID:          item["pool_id"].(string),
+			ProtocolPort:    item["protocol_port"].(int),
+			Weight:          item["weight"].(int),
+			ProtocolVersion: item["protocol_version"].(string),
 		}
 	}
 
@@ -525,6 +537,7 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		Description:               d.Get("description").(string),
 		IamAgencyName:             d.Get("agency_name").(string),
 		IsDeletePublicip:          d.Get("delete_publicip").(bool),
+		IsDeleteVolume:            d.Get("delete_volume").(bool),
 		EnterpriseProjectID:       conf.GetEnterpriseProjectID(d),
 	}
 
@@ -601,6 +614,7 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("health_periodic_audit_grace_period", asg.HealthPeriodicAuditGrace),
 		d.Set("instance_terminate_policy", asg.InstanceTerminatePolicy),
 		d.Set("delete_publicip", asg.DeletePublicip),
+		d.Set("delete_volume", asg.DeleteVolume),
 		d.Set("enterprise_project_id", asg.EnterpriseProjectID),
 		d.Set("availability_zones", asg.AvailableZones),
 		d.Set("multi_az_scaling_policy", asg.MultiAZPriorityPolicy),
@@ -658,9 +672,10 @@ func flattenLBaaSListeners(listeners []groups.LBaaSListener) []map[string]interf
 	res := make([]map[string]interface{}, len(listeners))
 	for i, item := range listeners {
 		res[i] = map[string]interface{}{
-			"pool_id":       item.PoolID,
-			"protocol_port": item.ProtocolPort,
-			"weight":        item.Weight,
+			"pool_id":          item.PoolID,
+			"protocol_port":    item.ProtocolPort,
+			"weight":           item.Weight,
+			"protocol_version": item.ProtocolVersion,
 		}
 	}
 	return res
@@ -705,7 +720,8 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		HealthPeriodicAuditGrace:  d.Get("health_periodic_audit_grace_period").(int),
 		InstanceTerminatePolicy:   d.Get("instance_terminate_policy").(string),
 		MultiAZPriorityPolicy:     d.Get("multi_az_scaling_policy").(string),
-		IsDeletePublicip:          d.Get("delete_publicip").(bool),
+		IsDeletePublicip:          utils.Bool(d.Get("delete_publicip").(bool)),
+		IsDeleteVolume:            utils.Bool(d.Get("delete_volume").(bool)),
 		Description:               utils.String(d.Get("description").(string)),
 		EnterpriseProjectID:       conf.GetEnterpriseProjectID(d),
 	}
