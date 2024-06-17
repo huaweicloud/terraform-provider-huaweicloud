@@ -114,7 +114,7 @@ func checkMarkdownSchemas(res, rootRes *schema.Resource, parent string, mdConten
 			fmt.Printf("[ERROR] can not find `%s`, please check it\n", fieldPath)
 		} else if extentStr != "" {
 			// check the format of field
-			reg += fmt.Sprintf("\\(%s\\)", extentStr)
+			reg += fmt.Sprintf("\\(%s", extentStr)
 			if !checkArgumentExist(*mdContent, reg) {
 				count++
 				fmt.Printf("[ERROR] the format of `%s` is not correct, should be (%s)\n", fieldPath, extentStr)
