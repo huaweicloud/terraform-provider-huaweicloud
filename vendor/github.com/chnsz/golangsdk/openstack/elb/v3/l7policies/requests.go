@@ -70,6 +70,14 @@ type CreateOpts struct {
 	// Only valid if action is FIXED_RESPONSE.
 	FixedResponseConfig *FixedResponseConfig `json:"fixed_response_config,omitempty"`
 
+	// Requests matching this policy will be redirected to the multiple pools. 5 at most
+	// Only valid if action is REDIRECT_TO_POOL.
+	RedirectPoolsConfig []*RedirectPoolsConfig `json:"redirect_pools_config,omitempty"`
+
+	// Config session persistence between pools that associated with the policy.
+	// Only valid if action is REDIRECT_TO_POOL.
+	RedirectPoolsStickySessionConfig *RedirectPoolsStickySessionConfig `json:"redirect_pools_sticky_session_config,omitempty"`
+
 	// The config of the redirected pool.
 	// Only valid if action is REDIRECT_TO_POOL.
 	RedirectPoolsExtendConfig *RedirectPoolsExtendConfig `json:"redirect_pools_extend_config,omitempty"`
@@ -97,6 +105,12 @@ type RedirectUrlConfig struct {
 
 	// The status code returned after the requests are redirected.
 	StatusCode string `json:"status_code" required:"true"`
+
+	// The list of request header parameters to be added
+	InsertHeadersConfig *InsertHeadersConfig `json:"insert_headers_config,omitempty"`
+
+	// The list of request header parameters to be removed
+	RemoveHeadersConfig *RemoveHeadersConfig `json:"remove_headers_config,omitempty"`
 }
 
 type FixedResponseConfig struct {
@@ -108,6 +122,31 @@ type FixedResponseConfig struct {
 
 	// The content of the response message body.
 	MessageBody string `json:"message_body"`
+
+	// The list of request header parameters to be added
+	InsertHeadersConfig *InsertHeadersConfig `json:"insert_headers_config,omitempty"`
+
+	// The list of request header parameters to be removed
+	RemoveHeadersConfig *RemoveHeadersConfig `json:"remove_headers_config,omitempty"`
+
+	// The limit config of the policy
+	TrafficLimitConfig *TrafficLimitConfig `json:"traffic_limit_config,omitempty"`
+}
+
+type RedirectPoolsConfig struct {
+	// The pool ID
+	PoolId string `json:"pool_id" required:"true"`
+
+	// The weight of the pool
+	Weight int `json:"weight"`
+}
+
+type RedirectPoolsStickySessionConfig struct {
+	// Whether enable config session persistence between pools
+	Enable bool `json:"enable"`
+
+	// The timeout of the session persistence
+	Timeout int `json:"timeout"`
 }
 
 type RedirectPoolsExtendConfig struct {
@@ -116,6 +155,15 @@ type RedirectPoolsExtendConfig struct {
 
 	// The rewriter url config
 	RewriteUrlConfig *RewriteUrlConfig `json:"rewrite_url_config,omitempty"`
+
+	// The header parameters to be added
+	InsertHeadersConfig *InsertHeadersConfig `json:"insert_headers_config,omitempty"`
+
+	// The header parameters to be removed
+	RemoveHeadersConfig *RemoveHeadersConfig `json:"remove_headers_config,omitempty"`
+
+	// The traffic limit config of the policy
+	TrafficLimitConfig *TrafficLimitConfig `json:"traffic_limit_config,omitempty"`
 }
 
 type RewriteUrlConfig struct {
@@ -127,6 +175,43 @@ type RewriteUrlConfig struct {
 
 	// The query string set in the URL for redirection.
 	Query string `json:"query"`
+}
+
+type InsertHeadersConfig struct {
+	// The list of request header parameters to be added
+	Configs []*InsertHeaderConfig `json:"configs" required:"true"`
+}
+
+type InsertHeaderConfig struct {
+	// The parameter name of the added request header
+	Key string `json:"key" required:"true"`
+
+	// The value type of the parameter
+	ValueType string `json:"value_type" required:"true"`
+
+	// The value of the parameter
+	Value string `json:"value" required:"true"`
+}
+
+type RemoveHeadersConfig struct {
+	// The list of request header parameters to be removed
+	Configs []*RemoveHeaderConfig `json:"configs" required:"true"`
+}
+
+type RemoveHeaderConfig struct {
+	// The parameter name of the removed request header
+	Key string `json:"key" required:"true"`
+}
+
+type TrafficLimitConfig struct {
+	// The overall qps of the policy
+	Qps int `json:"qps"`
+
+	// The single source qps of the policy
+	PerSourceIpQps int `json:"per_source_ip_qps"`
+
+	// The qps buffer
+	Burst int `json:"burst"`
 }
 
 // ToL7PolicyCreateMap builds a request body from CreateOpts.
@@ -247,6 +332,14 @@ type UpdateOpts struct {
 	// Requests matching this policy will be redirected to the configuration of the page.
 	// Only valid if action is FIXED_RESPONSE.
 	FixedResponseConfig *FixedResponseConfig `json:"fixed_response_config,omitempty"`
+
+	// Requests matching this policy will be redirected to the multiple pools. 5 at most
+	// Only valid if action is REDIRECT_TO_POOL.
+	RedirectPoolsConfig []*RedirectPoolsConfig `json:"redirect_pools_config,omitempty"`
+
+	// Config session persistence between pools that associated with the policy.
+	// Only valid if action is REDIRECT_TO_POOL.
+	RedirectPoolsStickySessionConfig *RedirectPoolsStickySessionConfig `json:"redirect_pools_sticky_session_config,omitempty"`
 
 	// The config of the redirected pool.
 	// Only valid if action is REDIRECT_TO_POOL.

@@ -51,6 +51,14 @@ type L7Policy struct {
 
 	// The config of the redirected pool.
 	// Only valid if action is REDIRECT_TO_POOL.
+	RedirectPoolsConfig []*RedirectPoolsConfig `json:"redirect_pools_config"`
+
+	// The config of the redirected pool.
+	// Only valid if action is REDIRECT_TO_POOL.
+	RedirectPoolsStickySessionConfig *RedirectPoolsStickySessionConfig `json:"redirect_pools_sticky_session_config"`
+
+	// The config of the redirected pool.
+	// Only valid if action is REDIRECT_TO_POOL.
 	RedirectPoolsExtendConfig *RedirectPoolsExtendConfig `json:"redirect_pools_extend_config"`
 
 	// The administrative state of the L7 policy, which is up (true) or down (false).
