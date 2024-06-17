@@ -14,21 +14,38 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
+func getASGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	asClient, err := cfg.AutoscalingV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating autoscaling client: %s", err)
+	}
+
+	return groups.Get(asClient, state.Primary.ID).Extract()
+}
+
 func TestAccASGroup_basic(t *testing.T) {
-	var asGroup groups.Group
-	rName := acceptance.RandomAccResourceName()
-	updateName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_as_group.acc_as_group"
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		updateName   = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_group.acc_as_group"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASGroupResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASGroupDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testASGroup_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASGroupExists(resourceName, &asGroup),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "scaling_group_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "this is a basic AS group"),
 					resource.TestCheckResourceAttr(resourceName, "desire_instance_number", "0"),
@@ -70,14 +87,14 @@ func TestAccASGroup_basic(t *testing.T) {
 			{
 				Config: testASGroup_basic_disable(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASGroupExists(resourceName, &asGroup),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "PAUSED"),
 				),
 			},
 			{
 				Config: testASGroup_basic_enable(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASGroupExists(resourceName, &asGroup),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "multi_az_scaling_policy", "PICK_FIRST"),
 					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "600"),
 					resource.TestCheckResourceAttr(resourceName, "health_periodic_audit_time", "15"),
@@ -90,19 +107,30 @@ func TestAccASGroup_basic(t *testing.T) {
 }
 
 func TestAccASGroup_withEpsId(t *testing.T) {
-	var asGroup groups.Group
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_as_group.acc_as_group"
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_group.acc_as_group"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASGroupResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASGroupDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testASGroup_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASGroupExists(resourceName, &asGroup),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
@@ -111,19 +139,27 @@ func TestAccASGroup_withEpsId(t *testing.T) {
 }
 
 func TestAccASGroup_forceDelete(t *testing.T) {
-	var asGroup groups.Group
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_as_group.acc_as_group"
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_group.acc_as_group"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASGroupResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASGroupDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testASGroup_forceDelete(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASGroupExists(resourceName, &asGroup),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "desire_instance_number", "2"),
 					resource.TestCheckResourceAttr(resourceName, "min_instance_number", "2"),
 					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "5"),
@@ -136,77 +172,33 @@ func TestAccASGroup_forceDelete(t *testing.T) {
 }
 
 func TestAccASGroup_sourceDestCheck(t *testing.T) {
-	var asGroup groups.Group
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_as_group.acc_as_group"
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_group.acc_as_group"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASGroupResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASGroupDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testASGroup_sourceDestCheck(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASGroupExists(resourceName, &asGroup),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "networks.0.source_dest_check", "false"),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 				),
 			},
 		},
 	})
-}
-
-func testAccCheckASGroupDestroy(s *terraform.State) error {
-	conf := acceptance.TestAccProvider.Meta().(*config.Config)
-	asClient, err := conf.AutoscalingV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating autoscaling client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_as_group" {
-			continue
-		}
-
-		_, err := groups.Get(asClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("AS group still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckASGroupExists(n string, group *groups.Group) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating autoscaling client: %s", err)
-		}
-
-		found, err := groups.Get(asClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Autoscaling Group not found")
-		}
-
-		group = &found
-		return nil
-	}
 }
 
 //nolint:revive

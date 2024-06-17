@@ -6,15 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"regexp"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -25,12 +22,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-var (
-	HealthAuditMethods = []string{"ELB_AUDIT", "NOVA_AUDIT"}
-	HealthAuditTime    = []int{0, 1, 5, 15, 60, 180}
-	TerminatePolices   = []string{"OLD_CONFIG_OLD_INSTANCE", "OLD_CONFIG_NEW_INSTANCE", "OLD_INSTANCE", "NEW_INSTANCE"}
 )
 
 // @API AS GET /autoscaling-api/v1/{project_id}/scaling_group/{id}
@@ -67,11 +58,6 @@ func ResourceASGroup() *schema.Resource {
 			"scaling_group_name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_]+$"),
-						"only letters, digits, underscores (_), and hyphens (-) are allowed"),
-				),
 			},
 			"scaling_configuration_id": {
 				Type:        schema.TypeString,
@@ -95,11 +81,10 @@ func ResourceASGroup() *schema.Resource {
 				Default:  0,
 			},
 			"cool_down_time": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      300,
-				ValidateFunc: validation.IntBetween(0, 86400),
-				Description:  "The cooling duration, in seconds.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     300,
+				Description: "The cooling duration, in seconds.",
 			},
 			"lbaas_listeners": {
 				Type:          schema.TypeList,
@@ -181,30 +166,26 @@ func ResourceASGroup() *schema.Resource {
 				Computed: true,
 			},
 			"health_periodic_audit_method": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice(HealthAuditMethods, false),
-				Default:      "NOVA_AUDIT",
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "NOVA_AUDIT",
 			},
 			"health_periodic_audit_time": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      5,
-				ValidateFunc: validation.IntInSlice(HealthAuditTime),
-				Description:  "The health check period for instances, in minutes.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     5,
+				Description: "The health check period for instances, in minutes.",
 			},
 			"health_periodic_audit_grace_period": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 86400),
-				Description:  "The health check grace period for instances, in seconds.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: "The health check grace period for instances, in seconds.",
 			},
 			"instance_terminate_policy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "OLD_CONFIG_OLD_INSTANCE",
-				ValidateFunc: validation.StringInSlice(TerminatePolices, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "OLD_CONFIG_OLD_INSTANCE",
 			},
 			"agency_name": {
 				Type:     schema.TypeString,
@@ -259,11 +240,10 @@ func ResourceASGroup() *schema.Resource {
 
 			// Deprecated
 			"lb_listener_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: resourceASGroupValidateListenerId,
-				Description:  "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
-				Deprecated:   "use lbaas_listeners instead",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
+				Deprecated:  "use lbaas_listeners instead",
 			},
 			"available_zones": {
 				Type:        schema.TypeList,
@@ -297,7 +277,7 @@ func buildNetworksOpts(networks []interface{}) []groups.NetworkOpts {
 		}
 
 		if item["source_dest_check"].(bool) {
-			// Cancle all allowed-address-pairs to enable the source/destination check
+			// Cancel all allowed-address-pairs to enable the source/destination check
 			res[i].AllowedAddressPairs = make([]groups.AddressPairOpts, 0)
 		} else {
 			// Update the allowed-address-pairs to 1.1.1.1/0
@@ -357,25 +337,20 @@ func buildAvailabilityZonesOpts(d *schema.ResourceData) []string {
 		rawZones = v2.([]interface{})
 	}
 
-	zones := make([]string, len(rawZones))
-	for i, raw := range rawZones {
-		zones[i] = raw.(string)
-	}
-
-	return zones
+	return utils.ExpandToStringList(rawZones)
 }
 
-func expandGroupsTags(tagmap map[string]interface{}) []tags.ResourceTag {
-	taglist := make([]tags.ResourceTag, 0, len(tagmap))
-	for k, v := range tagmap {
+func expandGroupsTags(tagMap map[string]interface{}) []tags.ResourceTag {
+	tagList := make([]tags.ResourceTag, 0, len(tagMap))
+	for k, v := range tagMap {
 		tag := tags.ResourceTag{
 			Key:   k,
 			Value: v.(string),
 		}
-		taglist = append(taglist, tag)
+		tagList = append(tagList, tag)
 	}
 
-	return taglist
+	return tagList
 }
 
 func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string, opts instances.ListOptsBuilder) ([]instances.Instance, error) {
@@ -384,8 +359,7 @@ func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string, opts
 	if err != nil {
 		return insList, fmt.Errorf("error getting instances in AS group %s: %s", groupID, err)
 	}
-	insList, err = page.(instances.InstancePage).Extract()
-	return insList, err
+	return page.(instances.InstancePage).Extract()
 }
 
 func getInstancesIDs(allIns []instances.Instance) []string {
@@ -562,7 +536,6 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 		EnterpriseProjectID:       common.GetEnterpriseProjectID(d, conf),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	asgId, err := groups.Create(asClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating AS group: %s", err)
@@ -573,8 +546,8 @@ func resourceASGroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandGroupsTags(tagRaw)
-		if tagErr := tags.Create(asClient, asgId, taglist).ExtractErr(); tagErr != nil {
+		tagList := expandGroupsTags(tagRaw)
+		if tagErr := tags.Create(asClient, asgId, tagList).ExtractErr(); tagErr != nil {
 			return diag.Errorf("error setting tags of AS group %s: %s", asgId, tagErr)
 		}
 	}
@@ -612,7 +585,6 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "AS group")
 	}
 
-	log.Printf("[DEBUG] Retrieved AS group %s: %#v", groupID, asg)
 	allIns, err := getInstancesInGroup(asClient, groupID, nil)
 	if err != nil {
 		return diag.Errorf("can not get the instances in AS Group %s: %s", groupID, err)
@@ -751,7 +723,6 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		updateOpts.IamAgencyName = d.Get("agency_name").(string)
 	}
 
-	log.Printf("[DEBUG] AS Group update options: %#v", updateOpts)
 	asgID, err := groups.Update(asClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error updating AS group %s: %s", asgID, err)
@@ -763,16 +734,16 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		oldTag, newTag := d.GetChange("tags")
 		oldRaw := oldTag.(map[string]interface{})
 		if len(oldRaw) > 0 {
-			taglist := expandGroupsTags(oldRaw)
-			if tagErr := tags.Delete(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
+			tagList := expandGroupsTags(oldRaw)
+			if tagErr := tags.Delete(asClient, asgID, tagList).ExtractErr(); tagErr != nil {
 				return diag.Errorf("error deleting tags of AS group %s: %s", asgID, tagErr)
 			}
 		}
 
 		newRaw := newTag.(map[string]interface{})
 		if len(newRaw) > 0 {
-			taglist := expandGroupsTags(newRaw)
-			if tagErr := tags.Create(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
+			tagList := expandGroupsTags(newRaw)
+			if tagErr := tags.Create(asClient, asgID, tagList).ExtractErr(); tagErr != nil {
 				return diag.Errorf("error setting tags of AS group %s: %s", asgID, tagErr)
 			}
 		}
@@ -859,14 +830,4 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	return nil
-}
-
-func resourceASGroupValidateListenerId(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	split := strings.Split(value, ",")
-	if len(split) <= 6 {
-		return
-	}
-	errors = append(errors, fmt.Errorf("%s supports binding up to 6 ELB listeners which are separated by a comma", k))
-	return
 }
