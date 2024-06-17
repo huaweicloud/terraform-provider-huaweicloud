@@ -483,8 +483,19 @@ func checkASGroupInstancesRemoved(ctx context.Context, client *golangsdk.Service
 
 func checkASGroupRemoved(ctx context.Context, client *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Target:       []string{"DELETED"},
-		Refresh:      refreshGroupState(client, groupID),
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			asGroup, err := groups.Get(client, groupID).Extract()
+			if err != nil {
+				var errDefault404 golangsdk.ErrDefault404
+				if errors.As(parseGroupResponseError(err), &errDefault404) {
+					return "success", "COMPLETED", nil
+				}
+				return nil, "ERROR", err
+			}
+			return asGroup, "PENDING", nil
+		},
 		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
