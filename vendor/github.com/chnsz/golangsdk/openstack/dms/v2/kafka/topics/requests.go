@@ -20,8 +20,15 @@ type CreateOps struct {
 	// aging time in hours, value range: 1-168, defaults to 72
 	RetentionTime int `json:"retention_time,omitempty"`
 
-	SyncMessageFlush bool `json:"sync_message_flush,omitempty"`
-	SyncReplication  bool `json:"sync_replication,omitempty"`
+	SyncMessageFlush bool          `json:"sync_message_flush,omitempty"`
+	SyncReplication  bool          `json:"sync_replication,omitempty"`
+	Description      string        `json:"topic_desc,omitempty"`
+	Configs          []ConfigParam `json:"topic_other_configs,omitempty"`
+}
+
+type ConfigParam struct {
+	Name  string `json:"name" required:"true"`
+	Value string `json:"value" required:"true"`
 }
 
 // ToTopicCreateMap is used for type convert
@@ -57,11 +64,14 @@ type UpdateOpts struct {
 // UpdateItem represents the object of one topic in update function
 type UpdateItem struct {
 	// Name can not be updated
-	Name             string `json:"id" required:"true"`
-	Partition        *int   `json:"new_partition_numbers,omitempty"`
-	RetentionTime    *int   `json:"retention_time,omitempty"`
-	SyncMessageFlush *bool  `json:"sync_message_flush,omitempty"`
-	SyncReplication  *bool  `json:"sync_replication,omitempty"`
+	Name                string        `json:"id" required:"true"`
+	Partition           *int          `json:"new_partition_numbers,omitempty"`
+	NewPartitionBrokers []int         `json:"new_partition_brokers,omitempty"`
+	RetentionTime       *int          `json:"retention_time,omitempty"`
+	SyncMessageFlush    *bool         `json:"sync_message_flush,omitempty"`
+	SyncReplication     *bool         `json:"sync_replication,omitempty"`
+	Description         *string       `json:"topic_desc,omitempty"`
+	Configs             []ConfigParam `json:"topic_other_configs,omitempty"`
 }
 
 // ToTopicUpdateMap is used for type convert

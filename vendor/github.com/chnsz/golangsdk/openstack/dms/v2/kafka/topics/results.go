@@ -11,15 +11,18 @@ type CreateResponse struct {
 
 // Topic includes the parameters of an topic
 type Topic struct {
-	Name             string      `json:"name"`
-	Partition        int         `json:"partition"`
-	Replication      int         `json:"replication"`
-	RetentionTime    int         `json:"retention_time"`
-	SyncReplication  bool        `json:"sync_replication"`
-	SyncMessageFlush bool        `json:"sync_message_flush"`
-	TopicType        int         `json:"topic_type"`
-	PoliciesOnly     bool        `json:"policiesOnly"`
-	ExternalConfigs  interface{} `json:"external_configs"`
+	Name             string        `json:"name"`
+	Partition        int           `json:"partition"`
+	Replication      int           `json:"replication"`
+	RetentionTime    int           `json:"retention_time"`
+	SyncReplication  bool          `json:"sync_replication"`
+	SyncMessageFlush bool          `json:"sync_message_flush"`
+	TopicType        int           `json:"topic_type"`
+	PoliciesOnly     bool          `json:"policiesOnly"`
+	ExternalConfigs  interface{}   `json:"external_configs"`
+	CreatedAt        int64         `json:"created_at"`
+	Description      string        `json:"topic_desc"`
+	Configs          []ConfigParam `json:"topic_other_configs"`
 }
 
 // ListResponse is a struct that contains the list response

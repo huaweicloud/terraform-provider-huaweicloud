@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/elb/v3/pools"
@@ -50,9 +49,6 @@ func ResourcePoolV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"TCP", "UDP", "HTTP", "HTTPS", "QUIC",
-				}, false),
 			},
 			"loadbalancer_id": {
 				Type:         schema.TypeString,
@@ -77,9 +73,6 @@ func ResourcePoolV3() *schema.Resource {
 			"lb_method": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"ROUND_ROBIN", "LEAST_CONNECTIONS", "SOURCE_IP", "QUIC_CID",
-				}, false),
 			},
 			"persistence": {
 				Type:     schema.TypeList,
@@ -90,9 +83,6 @@ func ResourcePoolV3() *schema.Resource {
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"SOURCE_IP", "HTTP_COOKIE", "APP_COOKIE",
-							}, false),
 						},
 						"cookie_name": {
 							Type:     schema.TypeString,
@@ -155,6 +145,22 @@ func ResourcePoolV3() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"connection_drain_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"connection_drain_timeout": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"connection_drain_enabled"},
+			},
+			"minimum_healthy_member_count": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 			"monitor_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -211,6 +217,19 @@ func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
+	if v, ok := d.GetOk("connection_drain_enabled"); ok {
+		createOpts.ConnectionDrain = &pools.ConnectionDrain{
+			Enable:  v.(bool),
+			Timeout: d.Get("connection_drain_timeout").(int),
+		}
+	}
+
+	if v, ok := d.GetOk("minimum_healthy_member_count"); ok {
+		createOpts.PoolHealth = &pools.PoolHealth{
+			MinimumHealthyMemberCount: v.(int),
+		}
+	}
+
 	// Must omit if not set
 	if persistence != (pools.SessionPersistence{}) {
 		createOpts.Persistence = &persistence
@@ -260,6 +279,9 @@ func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("protection_reason", pool.ProtectionReason),
 		d.Set("slow_start_enabled", pool.SlowStart.Enable),
 		d.Set("slow_start_duration", pool.SlowStart.Duration),
+		d.Set("connection_drain_enabled", pool.ConnectionDrain.Enable),
+		d.Set("connection_drain_timeout", pool.ConnectionDrain.Timeout),
+		d.Set("minimum_healthy_member_count", pool.PoolHealth.MinimumHealthyMemberCount),
 		d.Set("ip_version", pool.IpVersion),
 		d.Set("any_port_enable", pool.AnyPortEnable),
 		d.Set("deletion_protection_enable", d.Get("deletion_protection_enable").(bool)),
@@ -339,6 +361,17 @@ func resourcePoolV3Update(ctx context.Context, d *schema.ResourceData, meta inte
 		updateOpts.SlowStart = &pools.SlowStart{
 			Enable:   d.Get("slow_start_enabled").(bool),
 			Duration: d.Get("slow_start_duration").(int),
+		}
+	}
+	if d.HasChanges("connection_drain_enabled", "connection_drain_timeout") {
+		updateOpts.ConnectionDrain = &pools.ConnectionDrain{
+			Enable:  d.Get("connection_drain_enabled").(bool),
+			Timeout: d.Get("connection_drain_timeout").(int),
+		}
+	}
+	if d.HasChanges("minimum_healthy_member_count") {
+		updateOpts.PoolHealth = &pools.PoolHealth{
+			MinimumHealthyMemberCount: d.Get("minimum_healthy_member_count").(int),
 		}
 	}
 	if d.HasChange("deletion_protection_enable") {

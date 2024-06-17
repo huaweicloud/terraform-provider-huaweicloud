@@ -92,13 +92,16 @@ The following arguments are supported:
   provider-level region will be used. Changing this creates a new pool.
 
 * `protocol` - (Required, String, ForceNew) Specifies the protocol used by the backend server group to receive requests.
-  Value options: **TCP**, **UDP**, **HTTP**, **HTTPS** or **QUIC**.
+  Value options: **TCP**, **UDP**, **HTTP**, **HTTPS**, **QUIC**, **GRPC** or **TLS**.
   + If the listener's protocol is **UDP**, the value must be **UDP** or **QUIC**.
   + If the listener's protocol is **TCP**, the value must be **TCP**.
   + If the listener's protocol is **HTTP**, the value must be **HTTP**.
   + If the listener's protocol is **HTTPS**, the value must be **HTTP** or **HTTPS**.
   + If the listener's protocol is **TERMINATED_HTTPS**, the value must be **HTTP**.
+  + If the listener's protocol is **QUIC**, the value must be **HTTP**、**HTTPS** or **GRPC**.
+  + If the listener's protocol is **TLS**, the value must be **TLS** or **TCP**.
   + If the value is **QUIC**, sticky session must be enabled with `type` set to **SOURCE_IP**.
+  + If the value is **GRPC**, the value of `http2_enable` of the associated listener must be **true**.
 
   Changing this creates a new pool.
 
@@ -170,6 +173,21 @@ The following arguments are supported:
 
 * `slow_start_duration` - (Optional, Int) Specifies the slow start duration, in seconds. Value ranges from **30**
   to **1200**. Defaults to **30**.
+
+* `connection_drain_enabled` - (Optional, Bool) Specifies whether to enable delayed logout. This parameter can be set to
+  **true** when the `protocol` is set to **TCP**, **UDP** or **QUIC**, and the value of `protocol` of the associated
+  listener must be **TCP** or **UDP**. It will be triggered for the following scenes:
+  + The pool member is removed from the pool.
+  + The health monitor status is abnormal.
+  + The pool member weight is changed to 0.
+
+* `connection_drain_timeout` - (Optional, Int) Specifies the timeout of the delayed logout in seconds. Value ranges from
+  **10** to **4000**.
+
+* `minimum_healthy_member_count` - (Optional, Int) Specifies the minimum healthy member count. When the number of online
+  members in the health check is less than this number, the status of the pool is determined to be unhealthy. Value options:
+  + **0** (default value): Not take effect.
+  + **1**: Take effect when all member offline.
 
 <a name="persistence"></a>
 The `persistence` block supports:
