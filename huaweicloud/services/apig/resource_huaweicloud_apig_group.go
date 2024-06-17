@@ -258,7 +258,8 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	// The API will not report an error if it is called repeatedly.
 	err = updateDomianAccessEnabled(client, instanceId, groupId, d.Get("domain_access_enabled").(bool))
 	if err != nil {
-		return diag.FromErr(err)
+		// This feature is not available in some region, so use log.Printf to record the error.
+		log.Printf("[ERROR] Update debugging domain name access status failed: %s", err)
 	}
 
 	return resourceGroupRead(ctx, d, meta)
