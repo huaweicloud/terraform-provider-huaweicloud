@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_as_hook_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_hanging_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "default_result": "string",
+                      "instance_id": "string",
+                      "lifecycle_action_key": "string",
+                      "lifecycle_hook_name": "string",
+                      "lifecycle_hook_status": "string",
+                      "scaling_group_id": "string",
+                      "timeout": "string"
+                    }
+                  ]
+                ],
+                "description": "All lifecycle hook information about the AS instances.",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the AS instance.",
+                "optional": true
+              },
+              "lifecycle_hook_name": {
+                "type": "string",
+                "description": "Specifies the name of the lifecycle hook.",
+                "optional": true
+              },
+              "lifecycle_hook_status": {
+                "type": "string",
+                "description": "Specifies the status of the lifecycle hook.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "scaling_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the AS group to which the AS instances belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "AS",
+            "name": "Auto Scaling",
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

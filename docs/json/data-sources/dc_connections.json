@@ -1,0 +1,114 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dc_connections": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "description": "Specifies the ID of the connection.",
+                "optional": true
+              },
+              "direct_connects": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "apply_time": "string",
+                      "bandwidth": "number",
+                      "change_mode": "number",
+                      "charge_mode": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "device_id": "string",
+                      "email": "string",
+                      "enterprise_project_id": "string",
+                      "hosting_id": "string",
+                      "id": "string",
+                      "ies_id": "string",
+                      "lag_id": "string",
+                      "location": "string",
+                      "modified_bandwidth": "number",
+                      "name": "string",
+                      "onestopdc_status": "string",
+                      "peer_location": "string",
+                      "peer_port_type": "string",
+                      "peer_provider": "string",
+                      "port_type": "string",
+                      "provider": "string",
+                      "provider_status": "string",
+                      "public_border_group": "string",
+                      "ratio_95peak": "number",
+                      "status": "string",
+                      "support_feature": [
+                        "list",
+                        "string"
+                      ],
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "vgw_type": "string",
+                      "vlan": "number"
+                    }
+                  ]
+                ],
+                "description": "All connections that match the filter parameters.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project to which the connections belong.",
+                "optional": true
+              },
+              "hosting_id": {
+                "type": "string",
+                "description": "Specifies operations connection ID by which hosted connections are filtered.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the connection.",
+                "optional": true
+              },
+              "port_type": {
+                "type": "string",
+                "description": "Specifies the type of the port used by the connection.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the connection.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the connection.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

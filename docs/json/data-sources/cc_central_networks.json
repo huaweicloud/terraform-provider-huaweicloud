@@ -57,6 +57,13 @@
                 "type": "string",
                 "description": "Specifies the status of the central network.",
                 "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
               }
             }
           },

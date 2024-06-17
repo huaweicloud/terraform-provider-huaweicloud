@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_as_planned_tasks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the planned task.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "scaling_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the AS group to which the planned tasks belong.",
+                "required": true
+              },
+              "scheduled_tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "instance_number": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "desire": "number",
+                            "max": "number",
+                            "min": "number"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "scaling_group_id": "string",
+                      "scheduled_policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "end_time": "string",
+                            "launch_time": "string",
+                            "recurrence_type": "string",
+                            "recurrence_value": "string",
+                            "start_time": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "All planned tasks that match the filter parameters.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the ID of the planned task.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "AS",
+            "name": "Auto Scaling",
+            "catalog": "Compute",
+            "name_cn": "弹性伸缩",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

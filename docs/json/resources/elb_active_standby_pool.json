@@ -11,6 +11,18 @@
                 "computed": true,
                 "forcenew": true
               },
+              "connection_drain_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "connection_drain_timeout": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "created_at": {
                 "type": "string",
                 "computed": true
@@ -91,6 +103,12 @@
                       "forcenew": true
                     },
                     "expected_codes": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "http_method": {
                       "type": "string",
                       "optional": true,
                       "computed": true,

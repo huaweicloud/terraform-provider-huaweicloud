@@ -1,0 +1,37 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbh_asset_agency_authorization": {
+          "block": {
+            "attributes": {
+              "csms": {
+                "type": "bool",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kms": {
+                "type": "bool",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBH",
+            "name": "Cloud Bastion Host",
+            "catalog": "Security & Compliance",
+            "name_cn": "云堡垒机",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

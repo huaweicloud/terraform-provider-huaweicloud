@@ -1,0 +1,335 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_acl_rule": {
+          "block": {
+            "attributes": {
+              "action_type": {
+                "type": "number",
+                "description": "The action type.",
+                "required": true
+              },
+              "address_type": {
+                "type": "number",
+                "description": "The address type.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The rule description.",
+                "optional": true,
+                "computed": true
+              },
+              "destination_address_groups": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The destination address group list.",
+                "optional": true
+              },
+              "destination_address_type": {
+                "type": "number",
+                "description": "The destination address type.",
+                "optional": true
+              },
+              "destination_addresses": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The destination IP address list.",
+                "optional": true
+              },
+              "destination_domain_address_name": {
+                "type": "string",
+                "description": "The destination domain address name.",
+                "optional": true
+              },
+              "destination_domain_group_id": {
+                "type": "string",
+                "description": "The destination domain group ID.",
+                "optional": true
+              },
+              "destination_domain_group_name": {
+                "type": "string",
+                "description": "The destination domain group name.",
+                "optional": true
+              },
+              "destination_domain_group_type": {
+                "type": "number",
+                "description": "The destination domain group type.",
+                "optional": true
+              },
+              "direction": {
+                "type": "number",
+                "description": "The rule direction.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "long_connect_enable": {
+                "type": "number",
+                "description": "Whether to support persistent connections.",
+                "required": true
+              },
+              "long_connect_time_hour": {
+                "type": "number",
+                "description": "The persistent connection duration (hour).",
+                "optional": true,
+                "computed": true
+              },
+              "long_connect_time_minute": {
+                "type": "number",
+                "description": "The persistent connection duration (minute).",
+                "optional": true,
+                "computed": true
+              },
+              "long_connect_time_second": {
+                "type": "number",
+                "description": "The persistent Connection Duration (second).",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The rule name.",
+                "required": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "The protected object ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_hit_count": {
+                "type": "string",
+                "description": "The number of times the ACL rule is hit.",
+                "optional": true,
+                "computed": true
+              },
+              "source_address_groups": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The source address group list.",
+                "optional": true
+              },
+              "source_address_type": {
+                "type": "number",
+                "description": "The source address type.",
+                "optional": true
+              },
+              "source_addresses": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The source IP address list.",
+                "optional": true
+              },
+              "source_predefined_groups": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The source predefined address group list.",
+                "optional": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The rule status.",
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the ACL rule.",
+                "optional": true
+              },
+              "type": {
+                "type": "number",
+                "description": "The rule type.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "custom_service_groups": {
+                "block": {
+                  "attributes": {
+                    "group_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The IDs of the service groups.",
+                      "required": true
+                    },
+                    "protocols": {
+                      "type": [
+                        "set",
+                        "number"
+                      ],
+                      "description": "The protocols used in the service groups.",
+                      "required": true
+                    }
+                  },
+                  "description": "The custom service group list."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "custom_services": {
+                "block": {
+                  "attributes": {
+                    "dest_port": {
+                      "type": "string",
+                      "description": "The destination port.",
+                      "required": true
+                    },
+                    "protocol": {
+                      "type": "number",
+                      "description": "The protocol type.",
+                      "required": true
+                    },
+                    "source_port": {
+                      "type": "string",
+                      "description": "The source port.",
+                      "required": true
+                    }
+                  },
+                  "description": "The custom service configuration."
+                },
+                "nesting_mode": "list"
+              },
+              "destination_region_list": {
+                "block": {
+                  "attributes": {
+                    "description_cn": {
+                      "type": "string",
+                      "description": "The Chinese description of the region.",
+                      "optional": true
+                    },
+                    "description_en": {
+                      "type": "string",
+                      "description": "The English description of the region.",
+                      "optional": true
+                    },
+                    "region_id": {
+                      "type": "string",
+                      "description": "The region ID.",
+                      "required": true
+                    },
+                    "region_type": {
+                      "type": "number",
+                      "description": "The region type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The destination region list."
+                },
+                "nesting_mode": "list"
+              },
+              "predefined_service_groups": {
+                "block": {
+                  "attributes": {
+                    "group_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The IDs of the service groups.",
+                      "required": true
+                    },
+                    "protocols": {
+                      "type": [
+                        "set",
+                        "number"
+                      ],
+                      "description": "The protocols used in the service groups.",
+                      "required": true
+                    }
+                  },
+                  "description": "The predefined service group list."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "sequence": {
+                "block": {
+                  "attributes": {
+                    "bottom": {
+                      "type": "number",
+                      "description": "Whether to pin on bottom.",
+                      "optional": true
+                    },
+                    "dest_rule_id": {
+                      "type": "string",
+                      "description": "The ID of the rule that the added rule will follow.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "top": {
+                      "type": "number",
+                      "description": "Whether to pin on top.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The sequence configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "source_region_list": {
+                "block": {
+                  "attributes": {
+                    "description_cn": {
+                      "type": "string",
+                      "description": "The Chinese description of the region.",
+                      "optional": true
+                    },
+                    "description_en": {
+                      "type": "string",
+                      "description": "The English description of the region.",
+                      "optional": true
+                    },
+                    "region_id": {
+                      "type": "string",
+                      "description": "The region ID.",
+                      "required": true
+                    },
+                    "region_type": {
+                      "type": "number",
+                      "description": "The region type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The source region list."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

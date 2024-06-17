@@ -40,6 +40,12 @@
                 "type": "string",
                 "computed": true
               },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the public zone.",
+                "optional": true,
+                "computed": true
+              },
               "tags": {
                 "type": [
                   "map",

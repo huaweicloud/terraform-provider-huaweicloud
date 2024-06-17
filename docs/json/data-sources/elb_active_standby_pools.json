@@ -48,6 +48,8 @@
                     "object",
                     {
                       "any_port_enable": "bool",
+                      "connection_drain_enabled": "bool",
+                      "connection_drain_timeout": "number",
                       "description": "string",
                       "healthmonitor": [
                         "list",
@@ -57,6 +59,7 @@
                             "delay": "number",
                             "domain_name": "string",
                             "expected_codes": "string",
+                            "http_method": "string",
                             "id": "string",
                             "max_retries": "number",
                             "max_retries_down": "number",
