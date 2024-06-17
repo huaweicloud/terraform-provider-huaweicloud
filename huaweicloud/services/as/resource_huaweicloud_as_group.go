@@ -385,38 +385,6 @@ func getInstancesLifeStates(allIns []instances.Instance) []string {
 	return allStates
 }
 
-func refreshInstancesLifeStates(asClient *golangsdk.ServiceClient, groupID string, insNum int, checkInService bool) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		allIns, err := getInstancesInGroup(asClient, groupID, nil)
-		if err != nil {
-			return nil, "ERROR", err
-		}
-		// maybe the instances (or some of the instances) have not put in the autoscaling group when creating
-		if checkInService && len(allIns) != insNum {
-			return allIns, "PENDING", err
-		}
-		allLifeStatus := getInstancesLifeStates(allIns)
-		for _, lifeStatus := range allLifeStatus {
-			// check for creation
-			if checkInService {
-				if lifeStatus == "PENDING" || lifeStatus == "REMOVING" {
-					return allIns, lifeStatus, err
-				}
-			}
-			// check for removal
-			if !checkInService {
-				if lifeStatus == "REMOVING" || lifeStatus != "INSERVICE" {
-					return allIns, lifeStatus, err
-				}
-			}
-		}
-		if checkInService {
-			return allIns, "INSERVICE", err
-		}
-		return allIns, "", err
-	}
-}
-
 func refreshGroupState(client *golangsdk.ServiceClient, groupID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		asGroup, err := groups.Get(client, groupID).Extract()
@@ -490,9 +458,20 @@ func checkASGroupInstancesInService(ctx context.Context, client *golangsdk.Servi
 
 func checkASGroupInstancesRemoved(ctx context.Context, client *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"REMOVING"},
-		Target:       []string{""}, // if there is no lifecyclestatus, it means that no instances in AS group
-		Refresh:      refreshInstancesLifeStates(client, groupID, 0, false),
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			allIns, err := getInstancesInGroup(client, groupID, nil)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			// If the number of instances in the scaling group is `0`, it indicates removing operation success.
+			if len(allIns) == 0 {
+				return "success", "COMPLETED", nil
+			}
+			return allIns, "PENDING", nil
+		},
 		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
