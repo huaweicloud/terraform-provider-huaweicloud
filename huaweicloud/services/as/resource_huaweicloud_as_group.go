@@ -452,11 +452,33 @@ func parseGroupResponseError(err error) error {
 	return err
 }
 
+// isAllInstanceIsService Used to determine whether all instances in the scaling group are `INSERVICE`.
+// When the array is empty, return `true` directly.
+func isAllInstanceIsService(instances []instances.Instance) bool {
+	for _, ins := range instances {
+		if ins.LifeCycleStatus != "INSERVICE" {
+			return false
+		}
+	}
+	return true
+}
+
 func checkASGroupInstancesInService(ctx context.Context, client *golangsdk.ServiceClient, groupID string, insNum int, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"INSERVICE"},
-		Refresh:      refreshInstancesLifeStates(client, groupID, insNum, true),
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			allIns, err := getInstancesInGroup(client, groupID, nil)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			// The status of all instances is `INSERVICE` indicating success.
+			if len(allIns) == insNum && isAllInstanceIsService(allIns) {
+				return "success", "COMPLETED", nil
+			}
+			return allIns, "PENDING", nil
+		},
 		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
