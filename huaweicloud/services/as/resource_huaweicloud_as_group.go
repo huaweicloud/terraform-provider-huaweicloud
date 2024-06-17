@@ -353,7 +353,8 @@ func expandGroupsTags(tagMap map[string]interface{}) []tags.ResourceTag {
 	return tagList
 }
 
-func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string, opts instances.ListOptsBuilder) ([]instances.Instance, error) {
+func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string,
+	opts instances.ListOptsBuilder) ([]instances.Instance, error) {
 	var insList []instances.Instance
 	page, err := instances.List(asClient, groupID, opts).AllPages()
 	if err != nil {
@@ -420,10 +421,10 @@ func parseGroupResponseError(err error) error {
 	return err
 }
 
-// isAllInstanceIsService Used to determine whether all instances in the scaling group are `INSERVICE`.
+// isAllInstanceInService Used to determine whether all instances in the scaling group are `INSERVICE`.
 // When the array is empty, return `true` directly.
-func isAllInstanceIsService(instances []instances.Instance) bool {
-	for _, ins := range instances {
+func isAllInstanceInService(allIns []instances.Instance) bool {
+	for _, ins := range allIns {
 		if ins.LifeCycleStatus != "INSERVICE" {
 			return false
 		}
@@ -431,7 +432,8 @@ func isAllInstanceIsService(instances []instances.Instance) bool {
 	return true
 }
 
-func checkASGroupInstancesInService(ctx context.Context, client *golangsdk.ServiceClient, groupID string, insNum int, timeout time.Duration) error {
+func checkASGroupInstancesInService(ctx context.Context, client *golangsdk.ServiceClient, groupID string, insNum int,
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
@@ -442,7 +444,7 @@ func checkASGroupInstancesInService(ctx context.Context, client *golangsdk.Servi
 			}
 
 			// The status of all instances is `INSERVICE` indicating success.
-			if len(allIns) == insNum && isAllInstanceIsService(allIns) {
+			if len(allIns) == insNum && isAllInstanceInService(allIns) {
 				return "success", "COMPLETED", nil
 			}
 			return allIns, "PENDING", nil
@@ -456,7 +458,8 @@ func checkASGroupInstancesInService(ctx context.Context, client *golangsdk.Servi
 	return err
 }
 
-func checkASGroupInstancesRemoved(ctx context.Context, client *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
+func checkASGroupInstancesRemoved(ctx context.Context, client *golangsdk.ServiceClient, groupID string,
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
@@ -780,6 +783,46 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceASGroupRead(ctx, d, meta)
 }
 
+func forceDeleteASGroup(ctx context.Context, asClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	if err := groups.ForceDelete(asClient, d.Id()).ExtractErr(); err != nil {
+		return fmt.Errorf("error deleting AS group %s: %s", d.Id(), err)
+	}
+
+	if err := checkASGroupRemoved(ctx, asClient, d.Id(), d.Timeout(schema.TimeoutDelete)); err != nil {
+		return fmt.Errorf("error deleting AS group %s: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func deleteAllInstancesFromASGroup(ctx context.Context, asClient *golangsdk.ServiceClient, d *schema.ResourceData,
+	allIns []instances.Instance) error {
+	for _, ins := range allIns {
+		if ins.LifeCycleStatus != "INSERVICE" {
+			return fmt.Errorf("can't delete the AS group %s: some instances are not in INSERVICE but in %s, "+
+				"please try again latter or use force_delete option", d.Id(), ins.LifeCycleStatus)
+		}
+	}
+
+	minNumber := d.Get("min_instance_number").(int)
+	if minNumber > 0 {
+		return fmt.Errorf("can't delete the AS group %s: The instance number after the removal will less than "+
+			"min number %d, please modify the min number to zero or use force_delete option", d.Id(), minNumber)
+	}
+
+	allIDs := getInstancesIDs(allIns)
+	deleteIns := d.Get("delete_instances").(string)
+	batchResult := instances.BatchDelete(asClient, d.Id(), allIDs, deleteIns)
+	if batchResult.Err != nil {
+		return fmt.Errorf("error removing instancess of AS group: %s", batchResult.Err)
+	}
+
+	err := checkASGroupInstancesRemoved(ctx, asClient, d.Id(), d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return fmt.Errorf("error removing instances from AS group %s: %s", d.Id(), err)
+	}
+	return nil
+}
+
 func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	asClient, err := conf.AutoscalingV1Client(conf.GetRegion(d))
@@ -787,59 +830,24 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
-	groupID := d.Id()
-	timeout := d.Timeout(schema.TimeoutDelete)
-
-	// forcibly delete an AS group
 	if _, ok := d.GetOk("force_delete"); ok {
-		if err := groups.ForceDelete(asClient, groupID).ExtractErr(); err != nil {
-			return diag.Errorf("error deleting AS group %s: %s", groupID, err)
-		}
-
-		err = checkASGroupRemoved(ctx, asClient, groupID, timeout)
-		if err != nil {
-			return diag.Errorf("error deleting AS group %s: %s", groupID, err)
-		}
-		return nil
+		err := forceDeleteASGroup(ctx, asClient, d)
+		return diag.FromErr(err)
 	}
 
-	allIns, err := getInstancesInGroup(asClient, groupID, nil)
+	allIns, err := getInstancesInGroup(asClient, d.Id(), nil)
 	if err != nil {
 		return diag.Errorf("error listing instances of AS group: %s", err)
 	}
-	allIDs := getInstancesIDs(allIns)
-	log.Printf("[DEBUG] Instances in AS group %s: %+v", groupID, allIDs)
-
-	allLifeStatus := getInstancesLifeStates(allIns)
-	for _, lifeCycleState := range allLifeStatus {
-		if lifeCycleState != "INSERVICE" {
-			return diag.Errorf("can't delete the AS group %s: some instances are not in INSERVICE but in %s, "+
-				"please try again latter or use force_delete option", groupID, lifeCycleState)
-		}
-	}
-
 	if len(allIns) > 0 {
-		minNumber := d.Get("min_instance_number").(int)
-		if minNumber > 0 {
-			return diag.Errorf("can't delete the AS group %s: The instance number after the removal will less than "+
-				"min number %d, please modify the min number to zero or use force_delete option", groupID, minNumber)
-		}
-
-		deleteIns := d.Get("delete_instances").(string)
-		batchResult := instances.BatchDelete(asClient, groupID, allIDs, deleteIns)
-		if batchResult.Err != nil {
-			return diag.Errorf("error removing instancess of AS group: %s", batchResult.Err)
-		}
-
-		err = checkASGroupInstancesRemoved(ctx, asClient, groupID, timeout)
-		if err != nil {
-			return diag.Errorf("error removing instances from AS group %s: %s", groupID, err)
+		// remove all instances from group
+		if err := deleteAllInstancesFromASGroup(ctx, asClient, d, allIns); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
-	if delErr := groups.Delete(asClient, groupID).ExtractErr(); delErr != nil {
+	if delErr := groups.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
 		return diag.Errorf("error deleting AS group: %s", delErr)
 	}
-
 	return nil
 }
