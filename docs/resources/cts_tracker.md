@@ -57,6 +57,11 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CTS tracker.
 
+* `delete_tracker` - (Optional, Bool) Specifies whether the tracker can be deleted.
+  
+  -> **NOTE:** By default, resource deletion only clears parameters without removing the system tracker.
+  To delete the system tracker, set `delete_tracker` to true. Note that this will disable the CTS service.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -84,7 +89,7 @@ $ terraform import huaweicloud_cts_tracker.tracker system
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attribute is `tags`.
+API response, security or some other reason. The missing attributes include: `tags`, `delete_tracker`.
 
 It is generally recommended running `terraform plan` after importing the resource.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
@@ -95,7 +100,9 @@ resource "huaweicloud_cts_tracker" "test" {
     ...
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes = [
+      tags, delete_tracker
+    ]
   }
 }
 ```
