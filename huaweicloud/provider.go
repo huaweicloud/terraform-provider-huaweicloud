@@ -1111,6 +1111,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ces_resource_group": ces.ResourceResourceGroup(),
 			"huaweicloud_ces_alarm_template": ces.ResourceCesAlarmTemplate(),
 
+			"huaweicloud_cfw_acl_rule":             cfw.ResourceAclRule(),
 			"huaweicloud_cfw_address_group":        cfw.ResourceAddressGroup(),
 			"huaweicloud_cfw_address_group_member": cfw.ResourceAddressGroupMember(),
 			"huaweicloud_cfw_black_white_list":     cfw.ResourceBlackWhiteList(),

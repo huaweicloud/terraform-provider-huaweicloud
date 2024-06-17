@@ -189,10 +189,14 @@ var (
 	HW_DC_ENABLE_FLAG          = os.Getenv("HW_DC_ENABLE_FLAG")
 
 	// The CFW instance ID
-	HW_CFW_INSTANCE_ID        = os.Getenv("HW_CFW_INSTANCE_ID")
-	HW_CFW_EAST_WEST_FIREWALL = os.Getenv("HW_CFW_EAST_WEST_FIREWALL")
-	HW_CFW_START_TIME         = os.Getenv("HW_CFW_START_TIME")
-	HW_CFW_END_TIME           = os.Getenv("HW_CFW_END_TIME")
+	HW_CFW_INSTANCE_ID               = os.Getenv("HW_CFW_INSTANCE_ID")
+	HW_CFW_EAST_WEST_FIREWALL        = os.Getenv("HW_CFW_EAST_WEST_FIREWALL")
+	HW_CFW_START_TIME                = os.Getenv("HW_CFW_START_TIME")
+	HW_CFW_END_TIME                  = os.Getenv("HW_CFW_END_TIME")
+	HW_CFW_PREDEFINED_SERVICE_GROUP1 = os.Getenv("HW_CFW_PREDEFINED_SERVICE_GROUP1")
+	HW_CFW_PREDEFINED_SERVICE_GROUP2 = os.Getenv("HW_CFW_PREDEFINED_SERVICE_GROUP2")
+	HW_CFW_PREDEFINED_ADDRESS_GROUP1 = os.Getenv("HW_CFW_PREDEFINED_ADDRESS_GROUP1")
+	HW_CFW_PREDEFINED_ADDRESS_GROUP2 = os.Getenv("HW_CFW_PREDEFINED_ADDRESS_GROUP2")
 
 	HW_CTS_START_TIME = os.Getenv("HW_CTS_START_TIME")
 	HW_CTS_END_TIME   = os.Getenv("HW_CTS_END_TIME")
@@ -1156,6 +1160,20 @@ func TestAccPreCheckCfwTimeRange(t *testing.T) {
 func TestAccPreCheckCfwEastWestFirewall(t *testing.T) {
 	if HW_CFW_EAST_WEST_FIREWALL == "" {
 		t.Skip("HW_CFW_EAST_WEST_FIREWALL must be set for CFW east-west firewall acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwPredefinedServiceGroup(t *testing.T) {
+	if HW_CFW_PREDEFINED_SERVICE_GROUP1 == "" || HW_CFW_PREDEFINED_SERVICE_GROUP2 == "" {
+		t.Skip("HW_CFW_PREDEFINED_SERVICE_GROUP1 and HW_CFW_PREDEFINED_SERVICE_GROUP2 must be set for CFW ACL rule acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCfwPredefinedAddressGroup(t *testing.T) {
+	if HW_CFW_PREDEFINED_ADDRESS_GROUP1 == "" || HW_CFW_PREDEFINED_ADDRESS_GROUP2 == "" {
+		t.Skip("HW_CFW_PREDEFINED_ADDRESS_GROUP1 and HW_CFW_PREDEFINED_ADDRESS_GROUP2 must be set for CFW ACL rule acceptance tests")
 	}
 }
 
