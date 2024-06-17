@@ -21,6 +21,7 @@ import (
 // @API LTS GET /v2/{project_id}/groups
 // @API LTS POST /v2/{project_id}/groups/{log_group_id}
 // @API LTS DELETE /v2/{project_id}/groups/{log_group_id}
+// @API LTS POST /v1/{project_id}/{resource_type}/{resource_id}/tags/action
 func ResourceLTSGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGroupCreate,

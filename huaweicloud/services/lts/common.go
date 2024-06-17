@@ -74,6 +74,7 @@ func updateTags(client *golangsdk.ServiceClient, resourceType, resourceId string
 	path = strings.ReplaceAll(path, "{resource_id}", resourceId)
 	opts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json;charset=UTF-8"},
 		OkCodes: []int{
 			// For log stream, the status code of deleting tags is 201.
 			200, 201,

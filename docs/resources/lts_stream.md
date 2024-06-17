@@ -42,6 +42,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.
   Changing this parameter will create a new resource.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs of the log stream.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -49,8 +51,6 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The log stream ID.
 
 * `filter_count` - Number of log stream filters.
-
-* `tags` - The key/value pairs to associate with the log stream.
 
 * `created_at` - The creation time of the log stream.
 

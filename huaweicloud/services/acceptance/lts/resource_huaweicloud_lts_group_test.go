@@ -104,7 +104,7 @@ resource "huaweicloud_lts_group" "test" {
   ttl_in_days = %d
 
   tags = {
-	owner = "terraform"
+    owner = "terraform"
   }
 }
 `, name, ttl)
@@ -119,7 +119,7 @@ resource "huaweicloud_lts_group" "test" {
   tags = {
     foo       = "bar"
     key       = "value"
-	terraform = ""
+    terraform = ""
   }
 }
 `, name, ttl)
