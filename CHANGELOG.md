@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.65.2 (June 17, 2024)
+
+BUG FIXES:
+
+* data/huaweicloud_as_configurations: fix configurations set issue [GH-5014]
+
 ## 1.65.1 (June 13, 2024)
 
 ENHANCEMENTS:
