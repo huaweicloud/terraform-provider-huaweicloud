@@ -79,6 +79,9 @@ func TestAccCTSNotification_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "filter.0.rule.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "operations.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "operations.0.service", "ECS"),
+					resource.TestCheckResourceAttr(resourceName, "operation_users.0.group", "devops"),
+					resource.TestCheckResourceAttr(resourceName, "operation_users.0.users.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "operation_users.0.users.0", "tf-user10"),
 					resource.TestCheckResourceAttrPair(resourceName, "smn_topic",
 						"huaweicloud_smn_topic.topic_1", "id"),
 				),
@@ -139,6 +142,11 @@ resource "huaweicloud_cts_notification" "notify" {
     service     = "ECS"
     resource    = "ecs"
     trace_names = ["createServer", "deleteServer"]
+  }
+
+  operation_users {
+    group = "devops"
+    users = ["tf-user10"]
   }
 }
 `, rName)
