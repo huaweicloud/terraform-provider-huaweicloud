@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -12,10 +13,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 var (
@@ -28,6 +31,7 @@ var (
 // @API AS GET /autoscaling-api/v1/{project_id}/scaling_policy/{id}
 // @API AS PUT /autoscaling-api/v1/{project_id}/scaling_policy/{id}
 // @API AS POST /autoscaling-api/v1/{project_id}/scaling_policy
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_policy/{scaling_policy_id}/action
 func ResourceASPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceASPolicyCreate,
@@ -134,6 +138,11 @@ func ResourceASPolicy() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntBetween(0, 86400),
+			},
+			"action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -244,6 +253,13 @@ func resourceASPolicyCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	d.SetId(asPolicyId)
+
+	if d.Get("action").(string) == "pause" {
+		if err := updateAsPolicyStatus(asClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceASPolicyRead(ctx, d, meta)
 }
 
@@ -262,6 +278,7 @@ func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	log.Printf("[DEBUG] Retrieved AS policy %s: %+v", policyId, asPolicy)
+
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("scaling_policy_name", asPolicy.Name),
@@ -272,9 +289,20 @@ func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("status", asPolicy.Status),
 		d.Set("scaling_policy_action", flattenPolicyAction(asPolicy.Action)),
 		d.Set("scheduled_policy", flattenSchedulePolicy(asPolicy.SchedulePolicy)),
+		d.Set("action", flattenActionAttribute(asPolicy.Status)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenActionAttribute(status string) string {
+	switch status {
+	case "INSERVICE":
+		return "resume"
+	case "PAUSED":
+		return "pause"
+	}
+	return ""
 }
 
 func flattenPolicyAction(action policies.Action) []map[string]interface{} {
@@ -343,6 +371,12 @@ func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error updating AS policy %s: %s", asPolicyID, err)
 	}
 
+	if d.HasChange("action") {
+		if err := updateAsPolicyStatus(asClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceASPolicyRead(ctx, d, meta)
 }
 
@@ -359,4 +393,31 @@ func resourceASPolicyDelete(_ context.Context, d *schema.ResourceData, meta inte
 	}
 
 	return nil
+}
+
+func updateAsPolicyStatus(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateStatusHttpUrl := "autoscaling-api/v1/{project_id}/scaling_policy/{scaling_policy_id}/action"
+	updateStatusPath := client.Endpoint + updateStatusHttpUrl
+	updateStatusPath = strings.ReplaceAll(updateStatusPath, "{project_id}", client.ProjectID)
+	updateStatusPath = strings.ReplaceAll(updateStatusPath, "{scaling_policy_id}", d.Id())
+
+	updateAsPolicyStatusOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	updateAsPolicyStatusOpt.JSONBody = utils.RemoveNil(buildUpdateStatusBodyParams(d))
+	_, err := client.Request("POST", updateStatusPath, &updateAsPolicyStatusOpt)
+	if err != nil {
+		return fmt.Errorf("error updating AS policy status: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateStatusBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"action": d.Get("action").(string),
+	}
+	return bodyParams
 }
