@@ -67,7 +67,8 @@ func TestAccLtsGroup_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "30"),
-				),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform")),
 			},
 			{
 				ResourceName:      resourceName,
@@ -86,8 +87,10 @@ func TestAccLtsGroup_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "60"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.terraform", ""),
 				),
 			},
 		},
@@ -99,6 +102,10 @@ func testAccLtsGroup_basic(name string, ttl int) string {
 resource "huaweicloud_lts_group" "test" {
   group_name  = "%s"
   ttl_in_days = %d
+
+  tags = {
+    owner = "terraform"
+  }
 }
 `, name, ttl)
 }
@@ -110,8 +117,9 @@ resource "huaweicloud_lts_group" "test" {
   ttl_in_days = %d
 
   tags = {
-    foo = "bar"
-    key = "value"
+    foo       = "bar"
+    key       = "value"
+    terraform = ""
   }
 }
 `, name, ttl)

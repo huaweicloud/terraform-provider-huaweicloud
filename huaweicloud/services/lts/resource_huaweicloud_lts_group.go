@@ -21,6 +21,7 @@ import (
 // @API LTS GET /v2/{project_id}/groups
 // @API LTS POST /v2/{project_id}/groups/{log_group_id}
 // @API LTS DELETE /v2/{project_id}/groups/{log_group_id}
+// @API LTS POST /v1/{project_id}/{resource_type}/{resource_id}/tags/action
 func ResourceLTSGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGroupCreate,
@@ -96,6 +97,12 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	d.SetId(id.(string))
 
+	if _, ok := d.GetOk("tags"); ok {
+		groupId := d.Id()
+		if err := updateTags(client, "groups", groupId, d); err != nil {
+			return diag.Errorf("error creating tags of log group %s: %s", groupId, err)
+		}
+	}
 	return resourceGroupRead(ctx, d, meta)
 }
 
@@ -103,7 +110,6 @@ func buildCreateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"log_group_name": d.Get("group_name"),
 		"ttl_in_days":    utils.ValueIgnoreEmpty(d.Get("ttl_in_days")),
-		"tags":           utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	return bodyParams
 }
@@ -144,7 +150,7 @@ func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface
 
 	groupResult := utils.PathSearch(fmt.Sprintf("log_groups|[?log_group_id=='%s']|[0]", groupId), respBody, nil)
 	if groupResult == nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to find log group by its ID (%s)", groupId))
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, fmt.Sprintf("unable to find log group by its ID (%s)", groupId))
 	}
 
 	mErr := multierror.Append(nil,
@@ -169,33 +175,39 @@ func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	if err != nil {
 		return diag.Errorf("error creating LTS client: %s", err)
 	}
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{log_group_id}", groupId)
 
-	updateOpts := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-		JSONBody:         utils.RemoveNil(buildUpdateGroupBodyParams(d)),
+	if d.HasChange("ttl_in_days") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{log_group_id}", groupId)
+
+		updateOpts := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+			JSONBody:         utils.RemoveNil(buildUpdateGroupBodyParams(d)),
+		}
+
+		_, err = client.Request("POST", updatePath, &updateOpts)
+		if err != nil {
+			return diag.Errorf("error updating log group (%s): %s", groupId, err)
+		}
 	}
 
-	_, err = client.Request("POST", updatePath, &updateOpts)
-	if err != nil {
-		return diag.Errorf("error updating log group (%s): %s", groupId, err)
+	if d.HasChange("tags") {
+		if _, ok := d.GetOk("tags"); ok {
+			if err := updateTags(client, "groups", groupId, d); err != nil {
+				return diag.Errorf("error updating tags of log group %s: %s", groupId, err)
+			}
+		}
 	}
 
 	return resourceGroupRead(ctx, d, meta)
 }
 
 func buildUpdateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
-	result := make(map[string]interface{})
-	if d.HasChange("tags") {
-		result["tags"] = utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))
+	return map[string]interface{}{
+		"ttl_in_days": d.Get("ttl_in_days"),
 	}
-	if d.HasChange("ttl_in_days") {
-		result["ttl_in_days"] = d.Get("ttl_in_days")
-	}
-	return result
 }
 
 func resourceGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

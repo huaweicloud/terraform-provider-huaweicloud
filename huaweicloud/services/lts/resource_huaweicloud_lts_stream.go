@@ -23,10 +23,12 @@ const EPSTagKey string = "_sys_enterprise_project_id"
 // @API LTS POST /v2/{project_id}/groups/{log_group_id}/streams
 // @API LTS GET /v2/{project_id}/groups/{log_group_id}/streams
 // @API LTS DELETE /v2/{project_id}/groups/{log_group_id}/streams/{log_stream_id}
+// @API LTS POST /v1/{project_id}/{resource_type}/{resource_id}/tags/action
 func ResourceLTSStream() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceStreamCreate,
 		ReadContext:   resourceStreamRead,
+		UpdateContext: resourceStreamUpdate,
 		DeleteContext: resourceStreamDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceStreamImportState,
@@ -60,11 +62,8 @@ func ResourceLTSStream() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
+			"tags": common.TagsSchema(),
 			// Attributes
-			// tags of stream will be changed when the tags of group has been changed
-			// and the API cannot support updating tags, so we should mark tags as computed.
-			"tags": common.TagsComputedSchema(),
 			"filter_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -114,6 +113,14 @@ func resourceStreamCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	d.SetId(id.(string))
+
+	if _, ok := d.GetOk("tags"); ok {
+		streamId := d.Id()
+		err = updateTags(client, "topics", streamId, d)
+		if err != nil {
+			return diag.Errorf("error creating tags of log stream %s: %s", streamId, err)
+		}
+	}
 
 	return resourceStreamRead(ctx, d, meta)
 }
@@ -212,6 +219,27 @@ func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("creation_time", streamResult, 0).(float64))/1000, false)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func resourceStreamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		streamId = d.Id()
+	)
+	client, err := cfg.NewServiceClient("lts", region)
+	if err != nil {
+		return diag.Errorf("error creating LTS client: %s", err)
+	}
+
+	if d.HasChange("tags") {
+		err = updateTags(client, "topics", streamId, d)
+		if err != nil {
+			return diag.Errorf("error updating tags of log stream (%s): %s", streamId, err)
+		}
+	}
+
+	return resourceStreamRead(ctx, d, meta)
 }
 
 func resourceStreamDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -166,3 +166,87 @@ resource "huaweicloud_lts_stream" "test" {
 }
 `, rName)
 }
+
+func TestAccLtsStream_tags(t *testing.T) {
+	var (
+		stream       interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_lts_stream.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &stream, getLtsStreamResourceFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLtsStream_tags_step1(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.terraform", ""),
+				),
+			},
+			{
+				Config: testAccLtsStream_tags_step2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl_in_days"},
+				ImportStateIdFunc:       testLtsStreamImportState(resourceName),
+			},
+		},
+	})
+}
+
+func testAccLtsStream_tags_step1(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%[1]s"
+  ttl_in_days = 30
+}
+
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
+  stream_name = "%[1]s"
+
+  tags = {
+    foo       = "bar"
+    terraform = ""
+  }
+}
+`, rName)
+}
+
+func testAccLtsStream_tags_step2(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%[1]s"
+  ttl_in_days = 30
+
+  tags = {
+    key = "log-group"
+  }
+}
+
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
+  stream_name = "%[1]s"
+
+  tags = {
+    owner = "terraform"
+  }
+}
+`, rName)
+}
