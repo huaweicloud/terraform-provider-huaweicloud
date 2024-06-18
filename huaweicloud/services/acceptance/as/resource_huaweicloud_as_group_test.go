@@ -51,7 +51,14 @@ func TestAccASGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "desire_instance_number", "0"),
 					resource.TestCheckResourceAttr(resourceName, "min_instance_number", "0"),
 					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "5"),
-					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_port", "8080"),
+					resource.TestCheckResourceAttr(resourceName, "delete_publicip", "false"),
+					resource.TestCheckResourceAttr(resourceName, "delete_volume", "true"),
+					resource.TestCheckResourceAttrPair(resourceName, "lbaas_listeners.0.pool_id",
+						"huaweicloud_lb_pool.pool_1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "lbaas_listeners.0.protocol_port",
+						"huaweicloud_lb_listener.listener_1", "protocol_port"),
+					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.weight", "20"),
+					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_version", "ipv4"),
 					resource.TestCheckResourceAttr(resourceName, "networks.0.source_dest_check", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
@@ -70,6 +77,14 @@ func TestAccASGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "this is an updated AS group"),
 					resource.TestCheckResourceAttr(resourceName, "min_instance_number", "0"),
 					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "5"),
+					resource.TestCheckResourceAttr(resourceName, "delete_publicip", "true"),
+					resource.TestCheckResourceAttr(resourceName, "delete_volume", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "lbaas_listeners.0.pool_id",
+						"huaweicloud_lb_pool.pool_1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "lbaas_listeners.0.protocol_port",
+						"huaweicloud_lb_listener.listener_1", "protocol_port"),
+					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.weight", "30"),
+					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_version", "ipv4"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "agency_name", "ims_admin"),
@@ -89,6 +104,7 @@ func TestAccASGroup_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "PAUSED"),
+					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.weight", "1"),
 				),
 			},
 			{
@@ -132,6 +148,8 @@ func TestAccASGroup_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.weight", "1"),
+					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_version", "ipv4"),
 				),
 			},
 		},
@@ -165,6 +183,8 @@ func TestAccASGroup_forceDelete(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "max_instance_number", "5"),
 					resource.TestCheckResourceAttr(resourceName, "instances.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "delete_publicip", "true"),
+					resource.TestCheckResourceAttr(resourceName, "delete_volume", "true"),
 				),
 			},
 		},
@@ -255,6 +275,8 @@ resource "huaweicloud_as_group" "acc_as_group"{
   vpc_id                   = huaweicloud_vpc.test.id
   max_instance_number      = 5
   description              = "this is a basic AS group"
+  delete_publicip          = false
+  delete_volume            = true
 
   networks {
     id = huaweicloud_vpc_subnet.test.id
@@ -263,8 +285,10 @@ resource "huaweicloud_as_group" "acc_as_group"{
     id = huaweicloud_networking_secgroup.test.id
   }
   lbaas_listeners {
-    pool_id       = huaweicloud_lb_pool.pool_1.id
-    protocol_port = huaweicloud_lb_listener.listener_1.protocol_port
+    pool_id          = huaweicloud_lb_pool.pool_1.id
+    protocol_port    = huaweicloud_lb_listener.listener_1.protocol_port
+    weight           = 20
+    protocol_version = "ipv4"
   }
   tags = {
     foo = "bar"
@@ -287,6 +311,8 @@ resource "huaweicloud_as_group" "acc_as_group"{
   max_instance_number      = 5
   description              = "this is an updated AS group"
   agency_name              = "ims_admin"
+  delete_publicip          = true
+  delete_volume            = false
 
   networks {
     id = huaweicloud_vpc_subnet.test.id
@@ -295,8 +321,10 @@ resource "huaweicloud_as_group" "acc_as_group"{
     id = huaweicloud_networking_secgroup.test.id
   }
   lbaas_listeners {
-    pool_id       = huaweicloud_lb_pool.pool_1.id
-    protocol_port = huaweicloud_lb_listener.listener_1.protocol_port
+    pool_id          = huaweicloud_lb_pool.pool_1.id
+    protocol_port    = huaweicloud_lb_listener.listener_1.protocol_port
+    weight           = 30
+    protocol_version = "ipv4"
   }
   tags = {
     foo   = "bar"
@@ -408,6 +436,8 @@ resource "huaweicloud_as_group" "acc_as_group"{
   max_instance_number      = 5
   force_delete             = true
   vpc_id                   = huaweicloud_vpc.test.id
+  delete_publicip          = true
+  delete_volume            = true
 
   networks {
     id = huaweicloud_vpc_subnet.test.id

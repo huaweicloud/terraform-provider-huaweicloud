@@ -196,6 +196,13 @@ The following arguments are supported:
     `yearly/monthly` basis, they will not be released when the ECSs are removed.
   + **false**: The EIPs bound to ECSs will be unbound but will not be released when the ECSs are removed.
 
+* `delete_volume` - (Optional, Bool) Specifies whether to delete the data disks attached to ECSs when the ECSs are removed.
+  Defaults to **false**.
+
+  + **true**: The data disks attached to ECSs will be released when the ECSs are removed. If the data disks are billed a
+    `yearly/monthly` basis, they will not be deleted when ECSs are removed.
+  + **false**: The data disks attached to ECSs will be detached but will not be released when the ECSs are removed.
+
 * `delete_instances` - (Optional, String) Specifies whether to delete the instances in the AS group when deleting
   the AS group. The options are **yes** and **no**.
 
@@ -236,6 +243,16 @@ The `lbaas_listeners` block supports:
 * `weight` - (Optional, Int) Specifies the weight, which determines the portion of requests a backend ECS processes
   compared to other backend ECSs added to the same listener. The value of this parameter ranges from **0** to **100**.
   Defaults to **1**.
+
+* `protocol_version` - (Optional, String) Specifies the version of instance IP addresses to be associated with the
+  load balancer. The value can be **ipv4** or **ipv6**. Defaults to **ipv4**.
+
+  -> 1. Instances in an AS group do not support IPv4/IPv6 dual-stack on multiple NICs. IPv4/IPv6 dual-stack is only
+  available for the first NIC that supports both IPv4 and IPv6. The NIC may be a primary NIC or an extension NIC.
+  <br/>2. Only ECSs with flavors that support IPv6 can use IPv4/IPv6 dual-stack networks. If you want to select IPv6 for
+  this parameter, make sure that you have selected such ECS flavors in a supported region.
+  <br/>3. If you add two or more load balancers whose pool_id, protocol_port, and protocol_version settings are totally
+  same, deduplication will be performed.
 
 ## Attribute Reference
 

@@ -60,6 +60,8 @@ type LBaaSListenerOpts struct {
 	PoolID       string `json:"pool_id" required:"true"`
 	ProtocolPort int    `json:"protocol_port" required:"true"`
 	Weight       int    `json:"weight,omitempty"`
+	// Field `protocol_version` cannot be specified to empty string. This filed must be `IPv4` or `IPv6`
+	ProtocolVersion string `json:"protocol_version,omitempty"`
 }
 
 func (opts CreateOpts) ToGroupCreateMap() (map[string]interface{}, error) {
@@ -151,7 +153,8 @@ type UpdateOpts struct {
 	HealthPeriodicAuditGrace  int                 `json:"health_periodic_audit_grace_period,omitempty"`
 	InstanceTerminatePolicy   string              `json:"instance_terminate_policy,omitempty"`
 	Notifications             []string            `json:"notifications,omitempty"`
-	IsDeletePublicip          bool                `json:"delete_publicip,omitempty"`
+	IsDeletePublicip          *bool               `json:"delete_publicip,omitempty"`
+	IsDeleteVolume            *bool               `json:"delete_volume,omitempty"`
 	ConfigurationID           string              `json:"scaling_configuration_id,omitempty"`
 	MultiAZPriorityPolicy     string              `json:"multi_az_priority_policy,omitempty"`
 	Description               *string             `json:"description,omitempty"`
