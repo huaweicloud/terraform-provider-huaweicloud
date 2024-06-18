@@ -15,6 +15,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aad"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/accessanalyzer"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/antiddos"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
@@ -990,6 +991,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_aad_forward_rule": aad.ResourceForwardRule(),
 
 			"huaweicloud_antiddos_basic": antiddos.ResourceCloudNativeAntiDdos(),
+
+			"huaweicloud_access_analyzer": accessanalyzer.ResourceAccessAnalyzer(),
 
 			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
 			"huaweicloud_aom_event_alarm_rule":       aom.ResourceEventAlarmRule(),

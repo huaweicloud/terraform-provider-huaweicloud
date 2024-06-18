@@ -83,6 +83,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "IAM",
 	},
+	"accessanalyzer": {
+		Name:             "access-analyzer",
+		Version:          "",
+		Admin:            true,
+		WithOutProjectID: true,
+		Product:          "AccessAnalyzer",
+	},
 
 	// iam is used for huaweicloud IAM APIs
 	"iam": {
