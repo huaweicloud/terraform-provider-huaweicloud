@@ -55,6 +55,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `authorizer_id` - The ID of the authorizer to which the API request used.
 
+* `tags` - The list of tags configuration.
+
 * `group_id` - The group ID corresponding to the API.
 
 * `group_name` - The group name corresponding to the API.
@@ -142,6 +144,10 @@ The `request_params` block supports:
 
 * `default` - The default value of the parameter.
 
+* `valid_enable` - Whether to enable the parameter validation.
+  + **1**: enable
+  + **2**: disable
+
 <a name="api_backend_params"></a>
 The `backend_params` block supports:
 
@@ -166,6 +172,8 @@ The `mock` block supports:
 
 * `id` - The ID of the mock backend configuration.
 
+* `status_code` - The custom status code of the mock response.
+
 * `response` - The response of the mock backend configuration.
 
 * `authorizer_id` - The ID of the backend custom authorization.
@@ -176,6 +184,8 @@ The `mock_policy` block supports:
 * `id` - The ID of the mock backend policy.
 
 * `name` - The backend policy name.
+
+* `status_code` - The custom status code of the mock response.
 
 * `response` - The response of the backend policy.
 
@@ -196,6 +206,16 @@ The `func_graph` block supports:
 
 * `function_urn` - The URN of the FunctionGraph function.
 
+* `version` - The version of the FunctionGraph function.
+
+* `function_alias_urn` - The alias URN of the FunctionGraph function.  
+
+* `network_type` - The network architecture (framework) type of the FunctionGraph function.
+  **V1**: Non-VPC network framework.
+  **V2**: VPC network framework.
+
+* `request_protocol` - The request protocol of the FunctionGraph function.  
+
 * `timeout` - The timeout for API requests to backend service.
 
 * `version` - The version of the FunctionGraph function.
@@ -213,6 +233,16 @@ The `func_graph_policy` block supports:
 
 * `function_urn` - The URN of the FunctionGraph function.
 
+* `version` - The version of the FunctionGraph function.
+
+* `function_alias_urn` - The alias URN of the FunctionGraph function.  
+
+* `network_type` - The network architecture (framework) type of the FunctionGraph function.
+  **V1**: Non-VPC network framework.
+  **V2**: VPC network framework.
+
+* `request_protocol` - The request protocol of the FunctionGraph function.  
+
 * `conditions` - The policy conditions.
   The [conditions](#policy_conditions) structure is documented below.
   
@@ -221,8 +251,6 @@ The `func_graph_policy` block supports:
 * `effective_mode` - The effective mode of the backend policy.
 
 * `timeout` - The timeout for API requests to backend service.
-
-* `version` - The version of the FunctionGraph function.
 
 * `backend_params` - The configaiton list of the backend parameters.
   The [backend_params](#api_backend_params) structure is documented below.

@@ -75,6 +75,12 @@ func DataSourceApi() *schema.Resource {
 				Computed:    true,
 				Description: `The ID of the authorizer to which the API request used.`,
 			},
+			"tags": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The list of tags configuration.",
+			},
 			"group_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -155,6 +161,11 @@ func DataSourceApi() *schema.Resource {
 							Computed:    true,
 							Description: "The parameter description.",
 						},
+						"valid_enable": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Whether to enable the parameter validation.",
+						},
 					},
 				},
 				Description: "The configuration list of the front-end parameters.",
@@ -210,6 +221,11 @@ func DataSourceApi() *schema.Resource {
 							Computed:    true,
 							Description: "The ID of the mock backend configuration.",
 						},
+						"status_code": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The custom status code of the mock response.",
+						},
 						"response": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -238,6 +254,11 @@ func DataSourceApi() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The backend policy name.",
+						},
+						"status_code": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The custom status code of the mock response.",
 						},
 						"response": {
 							Type:        schema.TypeString,
@@ -285,15 +306,30 @@ func DataSourceApi() *schema.Resource {
 							Computed:    true,
 							Description: "The URN of the FunctionGraph function.",
 						},
-						"timeout": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: "The timeout for API requests to backend service.",
-						},
 						"version": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The version of the FunctionGraph function.",
+						},
+						"function_alias_urn": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The alias URN of the FunctionGraph function.",
+						},
+						"network_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The network architecture (framework) type of the FunctionGraph function.",
+						},
+						"request_protocol": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The request protocol of the FunctionGraph function.",
+						},
+						"timeout": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"invocation_type": {
 							Type:        schema.TypeString,
@@ -329,6 +365,26 @@ func DataSourceApi() *schema.Resource {
 							Computed:    true,
 							Description: "The URN of the FunctionGraph function.",
 						},
+						"version": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The version of the FunctionGraph function.",
+						},
+						"function_alias_urn": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The alias URN of the FunctionGraph function.",
+						},
+						"network_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The network (framework) type of the FunctionGraph function.",
+						},
+						"request_protocol": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The request protocol of the FunctionGraph function.",
+						},
 						"conditions": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -349,11 +405,6 @@ func DataSourceApi() *schema.Resource {
 							Type:        schema.TypeInt,
 							Computed:    true,
 							Description: "The timeout for API requests to backend service.",
-						},
-						"version": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The version of the FunctionGraph function.",
 						},
 						"backend_params": {
 							Type:        schema.TypeList,
@@ -693,6 +744,7 @@ func dataSourceApiRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("request_path", resp.ReqURI),
 		d.Set("security_authentication", resp.AuthType),
 		d.Set("authorizer_id", resp.AuthorizerId),
+		d.Set("tags", resp.Tags),
 		d.Set("request_params", flattenRequestParams(resp.ReqParams)),
 		d.Set("backend_params", flattenBackendParams(resp.BackendParams)),
 		d.Set("group_id", resp.GroupId),
@@ -731,16 +783,17 @@ func flattenRequestParams(reqParams []apis.ReqParamResp) []map[string]interface{
 	result := make([]map[string]interface{}, len(reqParams))
 	for i, v := range reqParams {
 		param := map[string]interface{}{
-			"id":          v.ID,
-			"name":        v.Name,
-			"location":    v.Location,
-			"type":        v.Type,
-			"required":    parseObjectEnabled(v.Required),
-			"passthrough": parseObjectEnabled(v.PassThrough),
-			"enumeration": v.Enumerations,
-			"example":     v.SampleValue,
-			"default":     v.DefaultValue,
-			"description": v.Description,
+			"id":           v.ID,
+			"name":         v.Name,
+			"location":     v.Location,
+			"type":         v.Type,
+			"required":     parseObjectEnabled(v.Required),
+			"passthrough":  parseObjectEnabled(v.PassThrough),
+			"enumeration":  v.Enumerations,
+			"example":      v.SampleValue,
+			"default":      v.DefaultValue,
+			"description":  v.Description,
+			"valid_enable": v.ValidEnable,
 		}
 		switch v.Type {
 		case string(ParamTypeNumber):
@@ -795,6 +848,7 @@ func flattenMockPolicies(policies []apis.PolicyMockResp) []map[string]interface{
 		result[i] = map[string]interface{}{
 			"id":             policy.ID,
 			"name":           policy.Name,
+			"status_code":    policy.StatusCode,
 			"response":       policy.ResultContent,
 			"effective_mode": policy.EffectMode,
 			"authorizer_id":  policy.AuthorizerId,
@@ -843,16 +897,19 @@ func flattenFuncGraphPolicies(policies []apis.PolicyFuncGraphResp) []map[string]
 	result := make([]map[string]interface{}, len(policies))
 	for i, policy := range policies {
 		result[i] = map[string]interface{}{
-			"id":              policy.ID,
-			"name":            policy.Name,
-			"function_urn":    policy.FunctionUrn,
-			"version":         policy.Version,
-			"invocation_type": policy.InvocationType,
-			"effective_mode":  policy.EffectMode,
-			"timeout":         policy.Timeout,
-			"authorizer_id":   policy.AuthorizerId,
-			"backend_params":  flattenBackendParams(policy.BackendParams),
-			"conditions":      flattenConditions(policy.Conditions),
+			"id":                 policy.ID,
+			"name":               policy.Name,
+			"function_urn":       policy.FunctionUrn,
+			"version":            policy.Version,
+			"function_alias_urn": policy.FunctionAliasUrn,
+			"network_type":       policy.NetworkType,
+			"request_protocol":   policy.RequestProtocol,
+			"invocation_type":    policy.InvocationType,
+			"effective_mode":     policy.EffectMode,
+			"timeout":            policy.Timeout,
+			"authorizer_id":      policy.AuthorizerId,
+			"backend_params":     flattenBackendParams(policy.BackendParams),
+			"conditions":         flattenConditions(policy.Conditions),
 		}
 	}
 

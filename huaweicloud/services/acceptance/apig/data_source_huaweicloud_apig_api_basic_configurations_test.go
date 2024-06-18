@@ -72,6 +72,8 @@ func TestAccDataSourceApiBasicConfigurations_basic(t *testing.T) {
 					dcById.CheckResourceExists(),
 					resource.TestCheckOutput("is_id_filter_useful", "true"),
 					resource.TestCheckResourceAttrSet(byId, "configurations.0.group_name"),
+					resource.TestCheckResourceAttr(byId, "configurations.0.tags.#", "1"),
+					resource.TestCheckResourceAttr(byId, "configurations.0.tags.0", "foo"),
 					resource.TestCheckResourceAttrSet(byId, "configurations.0.group_version"),
 					resource.TestCheckResourceAttrSet(byId, "configurations.0.publish_id"),
 					resource.TestCheckResourceAttrSet(byId, "configurations.0.backend_type"),
@@ -143,6 +145,7 @@ resource "huaweicloud_apig_api" "test" {
   authorizer_id           = huaweicloud_apig_custom_authorizer.frontEnd.id
   cors                    = true
   description             = "Updated by script"
+  tags                    = ["foo"]
   
   request_params {
     name     = "%[2]s"
