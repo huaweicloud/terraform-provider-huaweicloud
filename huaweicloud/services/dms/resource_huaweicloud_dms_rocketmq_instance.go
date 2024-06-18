@@ -39,6 +39,8 @@ type dmsError struct {
 // @API RocketMQ POST /v2/{project_id}/instances/{instance_id}/crossvpc/modify
 // @API RocketMQ GET /v2/{project_id}/instances/{instance_id}/tasks
 // @API RocketMQ POST /v2/{engine}/{project_id}/instances/{instance_id}/extend
+// @API RocketMQ PUT /v2/{project_id}/rocketmq/instances/{instance_id}/configs
+// @API RocketMQ GET /v2/{project_id}/rocketmq/instances/{instance_id}/configs
 // @API EIP GET /v1/{project_id}/publicips
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -173,6 +175,24 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies whether access control is enabled.`,
+			},
+			"configs": {
+				Type: schema.TypeSet,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the instance configs.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -369,6 +389,13 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 
+	if v := d.Get("configs").(*schema.Set).List(); len(v) > 0 {
+		err := updateRocketmqConfigs(ctx, createRocketmqInstanceClient, d.Timeout(schema.TimeoutCreate), d.Id(), v)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -512,6 +539,56 @@ func buildCreateRocketmqInstanceBodyBssParams(d *schema.ResourceData) map[string
 	return bodyParams
 }
 
+func updateRocketmqConfigs(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId string, configs []interface{}) error {
+	updateConfigsHttpUrl := "v2/{project_id}/rocketmq/instances/{instance_id}/configs"
+	updateConfigsPath := client.Endpoint + updateConfigsHttpUrl
+	updateConfigsPath = strings.ReplaceAll(updateConfigsPath, "{project_id}", client.ProjectID)
+	updateConfigsPath = strings.ReplaceAll(updateConfigsPath, "{instance_id}", instanceId)
+
+	updateConfigsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+		JSONBody: map[string]interface{}{
+			"rocketmq_configs": buildRocketmqConfigsRequestBody(configs),
+		},
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := client.Request("PUT", updateConfigsPath, &updateConfigsOpt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rocketmqInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+
+	if err != nil {
+		return fmt.Errorf("error updating configs: %s", err)
+	}
+
+	return nil
+}
+
+func buildRocketmqConfigsRequestBody(configs []interface{}) []map[string]string {
+	rst := make([]map[string]string, len(configs))
+	for i, v := range configs {
+		rst[i] = map[string]string{
+			"name":  v.(map[string]interface{})["name"].(string),
+			"value": v.(map[string]interface{})["value"].(string),
+		}
+	}
+	return rst
+}
+
 func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -614,6 +691,16 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 			ProjectId:    cfg.GetProjectID(region),
 		}
 		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("configs") {
+		oldRaw, newRaw := d.GetChange("configs")
+		oldConfigs, newConfigs := oldRaw.(*schema.Set), newRaw.(*schema.Set)
+		configs := newConfigs.Difference(oldConfigs).List()
+		err := updateRocketmqConfigs(ctx, updateRocketmqInstanceClient, d.Timeout(schema.TimeoutUpdate), d.Id(), configs)
+		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -755,6 +842,18 @@ func resourceDmsRocketMQInstanceRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("charging_mode", chargingMode),
 	)
 
+	// get configs
+	configNames := getConfigsNameList(d.Get("configs").(*schema.Set).List())
+	if len(configNames) > 0 {
+		if configs, err := getRocketmqConfgs(getRocketmqInstanceClient, d.Id(), configNames); err == nil {
+			mErr = multierror.Append(mErr,
+				d.Set("configs", configs),
+			)
+		} else {
+			fmt.Printf("[WARN] fetching configs of RocketMQ failed: %s", err)
+		}
+	}
+
 	// fetch tags
 	if resourceTags, err := tags.Get(getRocketmqInstanceClient, "rocketmq", d.Id()).Extract(); err == nil {
 		tagMap := utils.TagsToMap(resourceTags.Tags)
@@ -764,6 +863,53 @@ func resourceDmsRocketMQInstanceRead(_ context.Context, d *schema.ResourceData, 
 	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getConfigsNameList(configs []interface{}) []string {
+	rst := make([]string, len(configs))
+	for i, v := range configs {
+		rst[i] = v.(map[string]interface{})["name"].(string)
+	}
+	return rst
+}
+
+func getRocketmqConfgs(client *golangsdk.ServiceClient, instanceId string, configsName []string) ([]map[string]interface{}, error) {
+	getConfigsHttpUrl := "v2/{project_id}/rocketmq/instances/{instance_id}/configs"
+	getConfigsPath := client.Endpoint + getConfigsHttpUrl
+	getConfigsPath = strings.ReplaceAll(getConfigsPath, "{project_id}", client.ProjectID)
+	getConfigsPath = strings.ReplaceAll(getConfigsPath, "{instance_id}", instanceId)
+	getConfigsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getConfigsResp, err := client.Request("GET", getConfigsPath, &getConfigsOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error getting recoketmq configs: %s", err)
+	}
+
+	getConfigsRespBody, err := utils.FlattenResponse(getConfigsResp)
+	if err != nil {
+		return nil, fmt.Errorf("error flattening recoketmq configs response: %s", err)
+	}
+
+	rocketmqConfigs := utils.PathSearch("rocketmq_configs", getConfigsRespBody, make([]interface{}, 0)).([]interface{})
+	if len(rocketmqConfigs) == 0 {
+		return nil, fmt.Errorf("error getting recoketmq configs: rocketmq_config is not in return")
+	}
+
+	var rst []map[string]interface{}
+	for _, rocketmqConfig := range rocketmqConfigs {
+		name := utils.PathSearch("name", rocketmqConfig, "").(string)
+		if utils.StrSliceContains(configsName, name) {
+			p := map[string]interface{}{
+				"name":  name,
+				"value": utils.PathSearch("value", rocketmqConfig, nil),
+			}
+			rst = append(rst, p)
+		}
+	}
+
+	return rst, nil
 }
 
 func resourceDmsRocketMQInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
