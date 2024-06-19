@@ -1165,6 +1165,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_logstash_cluster":            css.ResourceLogstashCluster(),
 			"huaweicloud_css_logstash_cluster_restart":    css.ResourceLogstashClusterRestart(),
 			"huaweicloud_css_logstash_configuration":      css.ResourceLogstashConfiguration(),
+			"huaweicloud_css_logstash_connectivity":       css.ResourceLogstashConnectivity(),
 			"huaweicloud_css_logstash_pipeline":           css.ResourceLogstashPipeline(),
 			"huaweicloud_css_logstash_custom_certificate": css.ResourceLogstashCertificate(),
 			"huaweicloud_css_logstash_custom_template":    css.ResourceLogstashCustomTemplate(),
