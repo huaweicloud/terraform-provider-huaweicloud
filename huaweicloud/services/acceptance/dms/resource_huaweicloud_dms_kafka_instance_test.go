@@ -240,8 +240,8 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.1.advertised_ip", "www.terraform-test.com"),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.53"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "min.insync.replicas"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "2"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "log.retention.hours"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "48"),
 				),
 			},
 			{
@@ -498,8 +498,8 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   }
 
   parameters {
-    name  = "min.insync.replicas"
-    value = "2"
+    name  = "log.retention.hours"
+    value = "48"
   }
 }`, common.TestBaseNetwork(rName), rName)
 }

@@ -58,3 +58,7 @@ func actionURL(c *golangsdk.ServiceClient) string {
 func tasksURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(c.ProjectID, "instances", id, "tasks")
 }
+
+func taskURL(c *golangsdk.ServiceClient, instanceID, taskID string) string {
+	return c.ServiceURL(c.ProjectID, "instances", instanceID, "tasks", taskID)
+}
