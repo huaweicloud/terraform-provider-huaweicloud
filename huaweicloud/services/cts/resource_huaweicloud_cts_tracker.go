@@ -106,6 +106,10 @@ func ResourceCTSTracker() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"delete_tracker": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"tags": common.TagsSchema(),
 			"name": {
 				Type:     schema.TypeString,
@@ -176,7 +180,7 @@ func resourceCTSTrackerCreate(ctx context.Context, d *schema.ResourceData, meta 
 			return diag.Errorf("failed to disable CTS system tracker: %s", err)
 		}
 	}
-	return nil
+	return resourceCTSTrackerRead(ctx, d, meta)
 }
 
 func resourceCTSTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -330,6 +334,22 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 	ctsClient, err := cfg.HcCtsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CTS client: %s", err)
+	}
+
+	trackerCanBeDeleted := d.Get("delete_tracker").(bool)
+	if trackerCanBeDeleted {
+		trackerName := d.Get("name").(string)
+		trackerType := cts.GetDeleteTrackerRequestTrackerTypeEnum().SYSTEM
+		deleteOpts := cts.DeleteTrackerRequest{
+			TrackerName: &trackerName,
+			TrackerType: &trackerType,
+		}
+
+		_, err = ctsClient.DeleteTracker(&deleteOpts)
+		if err != nil {
+			return diag.Errorf("error deleting CTS system tracker %s: %s", trackerName, err)
+		}
+		return nil
 	}
 
 	if err := updateSystemTrackerStatus(ctsClient, "disabled"); err != nil {

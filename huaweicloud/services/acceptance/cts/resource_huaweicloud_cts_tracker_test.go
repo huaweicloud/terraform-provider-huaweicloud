@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccCTSTracker_basic(t *testing.T) {
+func TestAccCTSTracker_keepTracker(t *testing.T) {
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_cts_tracker.tracker"
 
@@ -23,7 +23,7 @@ func TestAccCTSTracker_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckCTSTrackerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCTSTracker_basic(rName),
+				Config: testAccCTSTracker_keepTracker(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCTSTrackerExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "bucket_name", rName),
@@ -39,7 +39,7 @@ func TestAccCTSTracker_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCTSTracker_update(rName),
+				Config: testAccCTSTracker_keepTracker_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "bucket_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "file_prefix", "cts-updated"),
@@ -149,7 +149,80 @@ func testAccCheckCTSTrackerDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCTSTracker_basic(rName string) string {
+func getCTSTrackerResourceObj(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := conf.HcCtsV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CTS client: %s", err)
+	}
+
+	name := state.Primary.Attributes["name"]
+	trackerType := cts.GetListTrackersRequestTrackerTypeEnum().SYSTEM
+	listOpts := &cts.ListTrackersRequest{
+		TrackerName: &name,
+		TrackerType: &trackerType,
+	}
+
+	response, err := client.ListTrackers(listOpts)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving CTS tracker: %s", err)
+	}
+
+	if response.Trackers == nil || len(*response.Trackers) == 0 {
+		return nil, fmt.Errorf("can not find the CTS tracker %s", name)
+	}
+
+	allTrackers := *response.Trackers
+	ctsTracker := allTrackers[0]
+
+	return ctsTracker, nil
+}
+
+func TestAccCTSTracker_deleteTracker(t *testing.T) {
+	var tracker cts.TrackerResponseBody
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_cts_tracker.tracker"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&tracker,
+		getCTSTrackerResourceObj,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCTSTracker_deleteTracker(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "bucket_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "file_prefix", "cts"),
+					resource.TestCheckResourceAttr(resourceName, "lts_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name", "system"),
+					resource.TestCheckResourceAttr(resourceName, "type", "system"),
+					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
+					resource.TestCheckResourceAttr(resourceName, "compress_type", "json"),
+					resource.TestCheckResourceAttr(resourceName, "is_sort_by_service", "false"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "exclude_service.0", "KMS"),
+					resource.TestCheckResourceAttrSet(resourceName, "agency_name"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdFunc:       testAccCTSTrackerImportState(resourceName),
+				ImportStateVerifyIgnore: []string{"tags", "delete_tracker"},
+			},
+		},
+	})
+}
+
+func testAccCTSTracker_keepTracker(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket        = "%s"
@@ -171,7 +244,7 @@ resource "huaweicloud_cts_tracker" "tracker" {
 `, rName)
 }
 
-func testAccCTSTracker_update(rName string) string {
+func testAccCTSTracker_keepTracker_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket        = "%s"
@@ -191,6 +264,30 @@ resource "huaweicloud_cts_tracker" "tracker" {
   tags = {
     foo    = "bar1"
     newkey = "value"
+  }
+}
+`, rName)
+}
+
+func testAccCTSTracker_deleteTracker(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket        = "%s"
+  acl           = "public-read"
+  force_destroy = true
+}
+
+resource "huaweicloud_cts_tracker" "tracker" {
+  bucket_name        = huaweicloud_obs_bucket.bucket.bucket
+  file_prefix        = "cts"
+  lts_enabled        = true
+  compress_type      = "json"
+  is_sort_by_service = false
+  delete_tracker     = true
+  exclude_service    = ["KMS"]
+
+  tags = {
+    foo = "bar"
   }
 }
 `, rName)
