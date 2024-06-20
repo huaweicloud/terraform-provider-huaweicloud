@@ -41,6 +41,7 @@ func TestAccDataSourceInstances_basic(t *testing.T) {
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dataSource, "instances.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
 					resource.TestCheckResourceAttrSet(dataSource, "instances.0.id"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.edition"),
 					resource.TestCheckResourceAttrSet(dataSource, "instances.0.name"),
 					resource.TestCheckResourceAttrSet(dataSource, "instances.0.status"),
 					resource.TestCheckResourceAttrSet(dataSource, "instances.0.enterprise_project_id"),

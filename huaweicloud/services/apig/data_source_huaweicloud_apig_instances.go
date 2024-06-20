@@ -197,7 +197,7 @@ func flattenInstances(instances []interface{}) []interface{} {
 			"name":                  utils.PathSearch("instance_name", authorizer, nil),
 			"type":                  utils.PathSearch("type", authorizer, nil),
 			"status":                utils.PathSearch("status", authorizer, nil),
-			"edition":               utils.PathSearch("edition", authorizer, nil),
+			"edition":               utils.PathSearch("spec", authorizer, nil),
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", authorizer, nil),
 			"eip_address":           utils.PathSearch("eip_address", authorizer, nil),
 			"loadbalancer_provider": utils.PathSearch("loadbalancer_provider", authorizer, nil),
