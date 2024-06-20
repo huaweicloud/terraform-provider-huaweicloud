@@ -2,13 +2,11 @@ package elb
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -52,25 +50,15 @@ func ResourceSecurityPolicy() *schema.Resource {
 				Description: `Specifies the cipher suite list of the security policy.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 255),
-					validation.StringMatch(regexp.MustCompile(`^[\x{4E00}-\x{9FFC}A-Za-z-_0-9.]*$`),
-						"the input is invalid"),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 				Description: `Specifies the ELB security policy name.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 255),
-					validation.StringMatch(regexp.MustCompile(`^[^<>]+$`),
-						"the input is invalid"),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 				Description: `Specifies the description of the ELB security policy`,
 			},
 			"enterprise_project_id": {
