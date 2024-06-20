@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
 	"strings"
 	"time"
 
@@ -19,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -70,21 +68,13 @@ func ResourceDdsBackup() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the manual backup name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"the value must be 4 to 64 characters in length and start with a letter"+
-							"(from A to Z or from a to z). It is case-sensitive and can contain only letters,"+
-							"digits (from 0 to 9), hyphens (-), and underscores (_)"),
-					validation.StringLenBetween(4, 64),
-				),
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				Description:  `Specifies the manual backup description`,
-				ValidateFunc: validation.StringLenBetween(0, 256),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Specifies the manual backup description`,
 			},
 			"instance_name": {
 				Type:        schema.TypeString,
@@ -165,39 +155,29 @@ func resourceDdsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	createBackupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	createBackupOpt.JSONBody = utils.RemoveNil(buildCreateBackupBodyParams(d))
 
-	var createBackupResp *http.Response
 	instanceId := d.Get("instance_id").(string)
-	for {
-		createBackupResp, err = createBackupClient.Request("POST", createBackupPath, &createBackupOpt)
-		if err == nil {
-			break
-		}
-		// if the HTTP response code is 403 and the error code is DBS.201015 or DBS.201014, then it indicates that other
-		// operation is being executed and need to wait
-		if errCode, ok := err.(golangsdk.ErrDefault403); ok {
-			var backupErr backupError
-			err = json.Unmarshal(errCode.Body, &backupErr)
-			if err != nil {
-				return diag.Errorf("error creating DDS backup: error format error: %s", err)
-			}
-			if backupErr.ErrorCode == "DBS.201014" || backupErr.ErrorCode == "DBS.201015" {
-				err = waitForInstanceRunning(ctx, d, cfg, region, instanceId, schema.TimeoutCreate)
-				if err != nil {
-					return diag.FromErr(err)
-				}
-				continue
-			}
-		}
-		return diag.Errorf("error creating DDS Backup: %s", err)
+	retryFunc := func() (interface{}, bool, error) {
+		resp, err := createBackupClient.Request("POST", createBackupPath, &createBackupOpt)
+		retry, err := handleMultiOperationsError(err)
+		return resp, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(createBackupClient, instanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return diag.Errorf("error creating DDS backup: %s", err)
 	}
 
-	createBackupRespBody, err := utils.FlattenResponse(createBackupResp)
+	createBackupRespBody, err := utils.FlattenResponse(r.(*http.Response))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -219,7 +199,7 @@ func resourceDdsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 		Target:       []string{"Completed"},
 		Refresh:      ddsJobStatusRefreshFunc(jobId.(string), region, cfg),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        60 * time.Second,
+		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 
@@ -243,66 +223,6 @@ func buildCreateBackupBodyParams(d *schema.ResourceData) map[string]interface{} 
 	return params
 }
 
-func waitForInstanceRunning(ctx context.Context, d *schema.ResourceData, cfg *config.Config, region, instanceID,
-	timeout string) error {
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"RUNNING"},
-		Refresh:      ddsInstanceStatusRefreshFunc(instanceID, region, cfg),
-		Timeout:      d.Timeout(timeout),
-		PollInterval: 5 * time.Second,
-	}
-
-	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for instance (%s) to running: %s", instanceID, err)
-	}
-	return nil
-}
-
-func ddsInstanceStatusRefreshFunc(instanceId, region string, cfg *config.Config) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		var (
-			getInstanceHttpUrl = "v3/{project_id}/instances"
-			getInstanceProduct = "dds"
-		)
-		getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
-		if err != nil {
-			return nil, "", fmt.Errorf("error creating DDS client: %s", err)
-		}
-
-		getInstancePath := getInstanceClient.Endpoint + getInstanceHttpUrl
-		getInstancePath = strings.ReplaceAll(getInstancePath, "{project_id}", getInstanceClient.ProjectID)
-
-		getInstancePath += buildGetInstanceQueryParams(instanceId)
-		getInstanceOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-		}
-
-		getInstanceResp, err := getInstanceClient.Request("GET", getInstancePath, &getInstanceOpt)
-		if err != nil {
-			return nil, "", err
-		}
-
-		getInstanceRespBody, err := utils.FlattenResponse(getInstanceResp)
-		if err != nil {
-			return nil, "", err
-		}
-		instances := utils.PathSearch("instances", getInstanceRespBody, make([]interface{}, 0))
-		if len(instances.([]interface{})) == 0 {
-			return nil, "", fmt.Errorf("can not get instance by instance ID %s", instanceId)
-		}
-		actions := utils.PathSearch("actions", instances.([]interface{})[0], make([]interface{}, 0))
-		if len(actions.([]interface{})) == 0 {
-			return getInstanceRespBody, "RUNNING", nil
-		}
-		return getInstanceRespBody, "PENDING", nil
-	}
-}
-
 func ddsJobStatusRefreshFunc(jobId, region string, cfg *config.Config) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
@@ -322,9 +242,6 @@ func ddsJobStatusRefreshFunc(jobId, region string, cfg *config.Config) resource.
 
 		getJobStatusOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		getJobStatusResp, err := getJobStatusClient.Request("GET", getJobStatusPath, &getJobStatusOpt)
 
@@ -385,9 +302,6 @@ func resourceDdsBackupRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	getBackupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getBackupResp, err := getBackupClient.Request("GET", getBackupPath, &getBackupOpt)
 
@@ -481,38 +395,28 @@ func resourceDdsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	deleteBackupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 
-	var deleteBackupResp *http.Response
 	instanceId := d.Get("instance_id").(string)
-	for {
-		deleteBackupResp, err = deleteBackupClient.Request("DELETE", deleteBackupPath, &deleteBackupOpt)
-		if err == nil {
-			break
-		}
-		// if the HTTP response code is 403 and the error code is DBS.201208, then it indicates the backup
-		// is in the state of backup and need to wait
-		if errCode, ok := err.(golangsdk.ErrDefault403); ok {
-			var backupErr backupError
-			err = json.Unmarshal(errCode.Body, &backupErr)
-			if err != nil {
-				return diag.Errorf("error deleting DDS backup: error format error: %s", err)
-			}
-			if backupErr.ErrorCode == "DBS.201208" {
-				err = waitForInstanceRunning(ctx, d, cfg, region, instanceId, schema.TimeoutDelete)
-				if err != nil {
-					return diag.FromErr(err)
-				}
-				continue
-			}
-		}
+	retryFunc := func() (interface{}, bool, error) {
+		resp, err := deleteBackupClient.Request("DELETE", deleteBackupPath, &deleteBackupOpt)
+		retry, err := handleMultiOperationsError(err)
+		return resp, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(deleteBackupClient, instanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
 		return diag.Errorf("error deleting DDS Backup: %s", err)
 	}
 
-	deleteBackupRespBody, err := utils.FlattenResponse(deleteBackupResp)
+	deleteBackupRespBody, err := utils.FlattenResponse(r.(*http.Response))
 	if err != nil {
 		return diag.FromErr(err)
 	}
