@@ -291,10 +291,9 @@ func resourceCTSDataTrackerCreate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	trackerName := d.Get("name").(string)
 	// disable status if necessary
 	if enabled := d.Get("enabled").(bool); !enabled {
-		err = updateDataTrackerStatus(ctsClient, trackerName, "disabled")
+		err = updateDataTrackerStatus(ctsClient, d)
 		if err != nil {
 			return diag.Errorf("failed to disable CTS data tracker: %s", err)
 		}
@@ -310,15 +309,9 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
-	trackerName := d.Get("name").(string)
 	// update status firstly
 	if d.HasChange("enabled") {
-		status := "enabled"
-		if enabled := d.Get("enabled").(bool); !enabled {
-			status = "disabled"
-		}
-
-		err = updateDataTrackerStatus(ctsClient, trackerName, status)
+		err = updateDataTrackerStatus(ctsClient, d)
 		if err != nil {
 			return diag.Errorf("error updating CTS tracker status: %s", err)
 		}
@@ -328,6 +321,7 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChangeExcept("enabled") {
 		trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().DATA
 		agencyName := cts.GetUpdateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
+		trackerName := d.Get("name").(string)
 		updateReq := cts.UpdateTrackerRequestBody{
 			TrackerName:       trackerName,
 			TrackerType:       trackerType,
@@ -484,7 +478,11 @@ func resourceCTSDataTrackerDelete(_ context.Context, d *schema.ResourceData, met
 	return nil
 }
 
-func updateDataTrackerStatus(c *client.CtsClient, name, status string) error {
+func updateDataTrackerStatus(c *client.CtsClient, d *schema.ResourceData) error {
+	status := "enabled"
+	if enabled := d.Get("enabled").(bool); !enabled {
+		status = "disabled"
+	}
 	enabledStatus := new(cts.UpdateTrackerRequestBodyStatus)
 	if err := enabledStatus.UnmarshalJSON([]byte(status)); err != nil {
 		return fmt.Errorf("failed to parse status %s: %s", status, err)
@@ -492,10 +490,12 @@ func updateDataTrackerStatus(c *client.CtsClient, name, status string) error {
 
 	trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().DATA
 	agencyName := cts.GetUpdateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
+	name := d.Get("name").(string)
 	statusOpts := cts.UpdateTrackerRequestBody{
 		TrackerName: name,
 		TrackerType: trackerType,
 		Status:      enabledStatus,
+		DataBucket:  buildDataBucketOpts(d),
 		AgencyName:  &agencyName,
 	}
 	statusReq := cts.UpdateTrackerRequest{
