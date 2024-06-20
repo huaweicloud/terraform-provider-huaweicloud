@@ -72,6 +72,8 @@ const (
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/password/reset
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/sg/change
 // @API CSS POST /v1.0/{project_id}/cluster/{cluster_id}/period
+// @API CSS POST /v1.0/extend/{project_id}/clusters/{cluster_id}/role/shrink
+// @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/node/offline
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -523,6 +525,11 @@ func essOrColdNodeSchema(min, max int) *schema.Resource {
 					},
 				},
 			},
+			"shrink_node_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -558,6 +565,11 @@ func masterOrClientNodeSchema(min, max int) *schema.Resource {
 						},
 					},
 				},
+			},
+			"shrink_node_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -980,6 +992,7 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 					"size":        v.Volume.Size,
 					"volume_type": v.Volume.Type,
 				}},
+				"shrink_node_ids": nil,
 			}
 		}
 	}
@@ -1015,6 +1028,9 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 					"volume_type": d.Get("ess_node_config.0.volume.0.volume_type").(string),
 				}}
 			}
+			if ids, ok := d.GetOk("ess_node_config.0.shrink_node_ids"); ok {
+				v["shrink_node_ids"] = ids.([]interface{})
+			}
 			mErr = multierror.Append(mErr,
 				d.Set("node_config", []interface{}{nodeConfig}),
 				d.Set("ess_node_config", []interface{}{v}),
@@ -1029,6 +1045,9 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 					"volume_type": d.Get("master_node_config.0.volume.0.volume_type").(string),
 				}}
 			}
+			if ids, ok := d.GetOk("master_node_config.0.shrink_node_ids"); ok {
+				v["shrink_node_ids"] = ids.([]interface{})
+			}
 			mErr = multierror.Append(mErr,
 				d.Set("master_node_config", []interface{}{v}),
 			)
@@ -1041,6 +1060,9 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 					"volume_type": d.Get("client_node_config.0.volume.0.volume_type").(string),
 				}}
 			}
+			if ids, ok := d.GetOk("client_node_config.0.shrink_node_ids"); ok {
+				v["shrink_node_ids"] = ids.([]interface{})
+			}
 			mErr = multierror.Append(mErr,
 				d.Set("client_node_config", []interface{}{v}),
 			)
@@ -1052,6 +1074,9 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 					"size":        d.Get("cold_node_config.0.volume.0.size").(int),
 					"volume_type": d.Get("cold_node_config.0.volume.0.volume_type").(string),
 				}}
+			}
+			if ids, ok := d.GetOk("cold_node_config.0.shrink_node_ids"); ok {
+				v["shrink_node_ids"] = ids.([]interface{})
 			}
 			mErr = multierror.Append(mErr,
 				d.Set("cold_node_config", []interface{}{v}),
@@ -1866,59 +1891,102 @@ func extendInstanceNumber(ctx context.Context, d *schema.ResourceData, conf *con
 	addMasterNode, addClientNode bool) error {
 	if d.HasChange("ess_node_config.0.instance_number") {
 		oldv, newv := d.GetChange("ess_node_config.0.instance_number")
-		nodesize := newv.(int) - oldv.(int)
-		if nodesize < 0 {
-			return fmt.Errorf("instance_number only supports to be extended")
+		oldNum := oldv.(int)
+		newNum := newv.(int)
+		if newNum < oldNum {
+			if d.Get("is_period").(bool) {
+				return fmt.Errorf("instance shrinking operation is only supported in the PostPaid charging mode")
+			}
+			nodeIds := d.Get("ess_node_config.0.shrink_node_ids").([]interface{})
+			err := updateShrinkInstance(ctx, d, conf, oldNum-newNum, InstanceTypeEss, nodeIds)
+			if err != nil {
+				return err
+			}
 		}
 
-		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEss, nodesize, 0)
+		if newNum > oldNum {
+			bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEss, newNum-oldNum, 0)
 
-		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
-		if err != nil {
-			return err
+			err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	if d.HasChange("master_node_config.0.instance_number") {
 		if !addMasterNode {
 			oldv, newv := d.GetChange("master_node_config.0.instance_number")
-			nodesize := newv.(int) - oldv.(int)
-			if nodesize < 0 {
-				return fmt.Errorf("instance_number only supports to be extended")
+			oldNum := oldv.(int)
+			newNum := newv.(int)
+			if newNum < oldNum {
+				if d.Get("is_period").(bool) {
+					return fmt.Errorf("instance shrinking operation is only supported in the PostPaid charging mode")
+				}
+				nodeIds := d.Get("master_node_config.0.shrink_node_ids").([]interface{})
+				err := updateShrinkInstance(ctx, d, conf, oldNum-newNum, InstanceTypeEssMaster, nodeIds)
+				if err != nil {
+					return err
+				}
 			}
-			bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssMaster, nodesize, 0)
 
-			err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
-			if err != nil {
-				return err
+			if newNum > oldNum {
+				bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssMaster, newNum-oldNum, 0)
+
+				err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
 	if d.HasChange("client_node_config.0.instance_number") {
 		if !addClientNode {
 			oldv, newv := d.GetChange("client_node_config.0.instance_number")
-			nodesize := newv.(int) - oldv.(int)
-			if nodesize < 0 {
-				return fmt.Errorf("instance_number only supports to be extended")
+			oldNum := oldv.(int)
+			newNum := newv.(int)
+			if newNum < oldNum {
+				if d.Get("is_period").(bool) {
+					return fmt.Errorf("instance shrinking operation is only supported in the PostPaid charging mode")
+				}
+				nodeIds := d.Get("client_node_config.0.shrink_node_ids").([]interface{})
+				err := updateShrinkInstance(ctx, d, conf, oldNum-newNum, InstanceTypeEssClient, nodeIds)
+				if err != nil {
+					return err
+				}
 			}
-			bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssClient, nodesize, 0)
 
-			err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
-			if err != nil {
-				return err
+			if newNum > oldNum {
+				bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssClient, newNum-oldNum, 0)
+
+				err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
 	if d.HasChange("cold_node_config.0.instance_number") {
 		oldv, newv := d.GetChange("cold_node_config.0.instance_number")
-		nodesize := newv.(int) - oldv.(int)
-		if nodesize < 0 {
-			return fmt.Errorf("instance_number only supports to be extended")
+		oldNum := oldv.(int)
+		newNum := newv.(int)
+		if newNum < oldNum {
+			if d.Get("is_period").(bool) {
+				return fmt.Errorf("instance shrinking operation is only supported in the PostPaid charging mode")
+			}
+			nodeIds := d.Get("cold_node_config.0.shrink_node_ids").([]interface{})
+			err := updateShrinkInstance(ctx, d, conf, oldNum-newNum, InstanceTypeEssCold, nodeIds)
+			if err != nil {
+				return err
+			}
 		}
-		bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssCold, nodesize, 0)
 
-		err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
-		if err != nil {
-			return err
+		if newNum > oldNum {
+			bodyParams := buildUpdateExtendInstanceStorageBodyParams(InstanceTypeEssCold, newNum-oldNum, 0)
+
+			err := updateExtendInstanceStorage(ctx, d, conf, bodyParams)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	if d.HasChange("expect_node_num") {
@@ -2234,6 +2302,105 @@ func updateSecurityGroup(ctx context.Context, d *schema.ResourceData,
 		return err
 	}
 
+	return nil
+}
+
+func updateShrinkInstance(ctx context.Context, d *schema.ResourceData, conf *config.Config,
+	shrinkNodeSize int, nodeType string, shrinkNodeIds []interface{}) error {
+	region := conf.GetRegion(d)
+	client, err := conf.CssV1Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating CSS V1 client: %s", err)
+	}
+	hcClient, err := conf.HcCssV1Client(region)
+	if err != nil {
+		return fmt.Errorf("error creating CSS V1 client: %s", err)
+	}
+
+	if len(shrinkNodeIds) == 0 {
+		bodyParams := buildUpdateShrinkNodeByTypeBodyParams(nodeType, shrinkNodeSize)
+		err := updateShrinkInstanceNodeByType(ctx, d, hcClient, client, bodyParams)
+		if err != nil {
+			return err
+		}
+	} else {
+		if shrinkNodeSize != len(shrinkNodeIds) {
+			return fmt.Errorf("instance_number changing number is inconsistent with the length"+
+				" of shrink_node_ids, node type: %s", nodeType)
+		}
+		err := updateShrinkInstanceNodeById(ctx, d, hcClient, client, shrinkNodeIds)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func buildUpdateShrinkNodeByTypeBodyParams(nodeType string, nodesize int) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"shrink": []map[string]interface{}{
+			{
+				"type":           nodeType,
+				"reducedNodeNum": nodesize,
+			},
+		},
+	}
+	return bodyParams
+}
+
+func updateShrinkInstanceNodeByType(ctx context.Context, d *schema.ResourceData, hcClient *cssv1.CssClient,
+	client *golangsdk.ServiceClient, bodyParams map[string]interface{}) error {
+	shrinkNodeHttpUrl := "v1.0/extend/{project_id}/clusters/{cluster_id}/role/shrink"
+	shrinkNodePath := client.Endpoint + shrinkNodeHttpUrl
+	shrinkNodePath = strings.ReplaceAll(shrinkNodePath, "{project_id}", client.ProjectID)
+	shrinkNodePath = strings.ReplaceAll(shrinkNodePath, "{cluster_id}", d.Id())
+
+	shrinkNodeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	shrinkNodeOpt.JSONBody = bodyParams
+
+	_, err := client.Request("POST", shrinkNodePath, &shrinkNodeOpt)
+	if err != nil {
+		return fmt.Errorf("error shrinking CSS cluster node by type, cluster_id: %s, error: %s", d.Id(), err)
+	}
+
+	err = checkClusterOperationCompleted(ctx, hcClient, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateShrinkInstanceNodeById(ctx context.Context, d *schema.ResourceData, hcClient *cssv1.CssClient,
+	client *golangsdk.ServiceClient, nodeIds []interface{}) error {
+	shrinkNodeHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/node/offline"
+	shrinkNodePath := client.Endpoint + shrinkNodeHttpUrl
+	shrinkNodePath = strings.ReplaceAll(shrinkNodePath, "{project_id}", client.ProjectID)
+	shrinkNodePath = strings.ReplaceAll(shrinkNodePath, "{cluster_id}", d.Id())
+
+	shrinkNodeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	shrinkNodeOpt.JSONBody = map[string]interface{}{
+		"migrate_data": true,
+		"shrinkNodes":  nodeIds,
+	}
+	_, err := client.Request("POST", shrinkNodePath, &shrinkNodeOpt)
+	if err != nil {
+		return fmt.Errorf("error shrinking CSS cluster node by ID, cluster_id: %s, error: %s", d.Id(), err)
+	}
+
+	err = checkClusterOperationCompleted(ctx, hcClient, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
