@@ -734,6 +734,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_lts_groups":                       lts.DataSourceLtsGroups(),
 			"huaweicloud_lts_notification_templates":       lts.DataSourceLtsNotificationTemplates(),
+			"huaweicloud_lts_streams":                      lts.DataSourceLtsStreams(),
 			"huaweicloud_lts_structuring_custom_templates": lts.DataSourceCustomTemplates(),
 
 			"huaweicloud_elb_certificate":          elb.DataSourceELBCertificateV3(),
