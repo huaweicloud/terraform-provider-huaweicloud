@@ -677,9 +677,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_restore_time_ranges":    gaussdb.DataSourceGaussdbMysqlRestoreTimeRanges(),
 			"huaweicloud_gaussdb_mysql_databases":              gaussdb.DataSourceGaussdbMysqlDatabases(),
 
-			"huaweicloud_hss_host_groups":     hss.DataSourceHostGroups(),
-			"huaweicloud_hss_hosts":           hss.DataSourceHosts(),
-			"huaweicloud_hss_webtamper_hosts": hss.DataSourceWebTamperHosts(),
+			"huaweicloud_hss_ransomware_protection_policies": hss.DataSourceRansomwareProtectionPolicies(),
+			"huaweicloud_hss_host_groups":                    hss.DataSourceHostGroups(),
+			"huaweicloud_hss_hosts":                          hss.DataSourceHosts(),
+			"huaweicloud_hss_webtamper_hosts":                hss.DataSourceWebTamperHosts(),
 
 			"huaweicloud_identity_permissions": iam.DataSourceIdentityPermissions(),
 			"huaweicloud_identity_role":        iam.DataSourceIdentityRole(),
