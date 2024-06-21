@@ -304,8 +304,11 @@ var (
 	HW_CERT_BATCH_PUSH_ID     = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 	HW_CERT_BATCH_PUSH_WAF_ID = os.Getenv("HW_CERT_BATCH_PUSH_WAF_ID")
 
-	HW_AS_SCALING_GROUP_ID  = os.Getenv("HW_AS_SCALING_GROUP_ID")
-	HW_AS_SCALING_POLICY_ID = os.Getenv("HW_AS_SCALING_POLICY_ID")
+	HW_AS_SCALING_GROUP_ID     = os.Getenv("HW_AS_SCALING_GROUP_ID")
+	HW_AS_SCALING_POLICY_ID    = os.Getenv("HW_AS_SCALING_POLICY_ID")
+	HW_AS_LIFECYCLE_ACTION_KEY = os.Getenv("HW_AS_LIFECYCLE_ACTION_KEY")
+	HW_AS_INSTANCE_ID          = os.Getenv("HW_AS_INSTANCE_ID")
+	HW_AS_LIFECYCLE_HOOK_NAME  = os.Getenv("HW_AS_LIFECYCLE_HOOK_NAME")
 
 	HW_DATAARTS_WORKSPACE_ID                               = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
 	HW_DATAARTS_CDM_NAME                                   = os.Getenv("HW_DATAARTS_CDM_NAME")
@@ -1569,6 +1572,27 @@ func TestAccPreCheckASScalingGroupID(t *testing.T) {
 func TestAccPreCheckASScalingPolicyID(t *testing.T) {
 	if HW_AS_SCALING_POLICY_ID == "" {
 		t.Skip("HW_AS_SCALING_POLICY_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckASLifecycleActionKey(t *testing.T) {
+	if HW_AS_LIFECYCLE_ACTION_KEY == "" {
+		t.Skip("HW_AS_LIFECYCLE_ACTION_KEY must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckASINSTANCEID(t *testing.T) {
+	if HW_AS_INSTANCE_ID == "" {
+		t.Skip("HW_AS_INSTANCE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckASLifecycleHookName(t *testing.T) {
+	if HW_AS_LIFECYCLE_HOOK_NAME == "" {
+		t.Skip("HW_AS_LIFECYCLE_HOOK_NAME must be set for the acceptance test")
 	}
 }
 

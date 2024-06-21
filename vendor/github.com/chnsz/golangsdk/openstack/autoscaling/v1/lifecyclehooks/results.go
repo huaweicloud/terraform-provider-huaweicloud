@@ -49,6 +49,10 @@ type ListResult struct {
 	commonResult
 }
 
+type CallBackResult struct {
+	golangsdk.ErrResult
+}
+
 // Extract will deserialize the result to Hook array.
 func (r ListResult) Extract() (*[]Hook, error) {
 	var s struct {
