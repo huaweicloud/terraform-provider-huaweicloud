@@ -297,7 +297,9 @@ var (
 	HW_CC_PERMISSION_ID = os.Getenv("HW_CC_PERMISSION_ID")
 
 	HW_CSS_ELB_AGENCY         = os.Getenv("HW_CSS_ELB_AGENCY")
+	HW_CSS_UPGRADE_AGENCY     = os.Getenv("HW_CSS_UPGRADE_AGENCY")
 	HW_CSS_LOW_ENGINE_VERSION = os.Getenv("HW_CSS_LOW_ENGINE_VERSION")
+	HW_CSS_TARGET_IMAGE_ID    = os.Getenv("HW_CSS_TARGET_IMAGE_ID")
 
 	HW_CERT_BATCH_PUSH_ID     = os.Getenv("HW_CERT_BATCH_PUSH_ID")
 	HW_CERT_BATCH_PUSH_WAF_ID = os.Getenv("HW_CERT_BATCH_PUSH_WAF_ID")
@@ -1550,6 +1552,13 @@ func TestAccPreCheckCSSElbAgency(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckCSSUpgradeAgency(t *testing.T) {
+	if HW_CSS_UPGRADE_AGENCY == "" {
+		t.Skip("HW_CSS_UPGRADE_AGENCY must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckASScalingGroupID(t *testing.T) {
 	if HW_AS_SCALING_GROUP_ID == "" {
 		t.Skip("HW_AS_SCALING_GROUP_ID must be set for the acceptance test")
@@ -1782,6 +1791,13 @@ func TestAccPreCheckRdsTimeRange(t *testing.T) {
 func TestAccPreCheckCssLowEngineVersion(t *testing.T) {
 	if HW_CSS_LOW_ENGINE_VERSION == "" {
 		t.Skip("HW_CSS_LOW_ENGINE_VERSION must be set for CSS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCssTargetImageId(t *testing.T) {
+	if HW_CSS_TARGET_IMAGE_ID == "" {
+		t.Skip("HW_CSS_TARGET_IMAGE_ID must be set for CSS acceptance tests")
 	}
 }
 
