@@ -1566,6 +1566,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_extend_log_link":              rds.ResourceRdsExtendLogLink(),
 
 			"huaweicloud_rms_policy_assignment":                  rms.ResourcePolicyAssignment(),
+			"huaweicloud_rms_policy_assignment_evaluate":         rms.ResourcePolicyAssignmentEvaluate(),
 			"huaweicloud_rms_resource_aggregator":                rms.ResourceAggregator(),
 			"huaweicloud_rms_resource_aggregation_authorization": rms.ResourceAggregationAuthorization(),
 			"huaweicloud_rms_resource_recorder":                  rms.ResourceRecorder(),
