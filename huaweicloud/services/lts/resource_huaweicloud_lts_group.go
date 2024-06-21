@@ -194,10 +194,8 @@ func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	if d.HasChange("tags") {
-		if _, ok := d.GetOk("tags"); ok {
-			if err := updateTags(client, "groups", groupId, d); err != nil {
-				return diag.Errorf("error updating tags of log group %s: %s", groupId, err)
-			}
+		if err := updateTags(client, "groups", groupId, d); err != nil {
+			return diag.Errorf("error updating tags of log group %s: %s", groupId, err)
 		}
 	}
 
