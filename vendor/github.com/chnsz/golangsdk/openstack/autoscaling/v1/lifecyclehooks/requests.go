@@ -101,8 +101,47 @@ func Update(client *golangsdk.ServiceClient, opts UpdateOptsBuilder, groupID, ho
 	return
 }
 
-//Delete is a method which can be able to access to delete the existing hook of the autoscaling service.
+// Delete is a method which can be able to access to delete the existing hook of the autoscaling service.
 func Delete(client *golangsdk.ServiceClient, groupID, hookName string) (r DeleteResult) {
 	_, r.Err = client.Delete(resourceURL(client, groupID, hookName), nil)
+	return
+}
+
+// CallBackOpts is a structure that will be used to perform a callback operation on hook.
+type CallBackOpts struct {
+	// The parameters `instance_id` and `lifecycle_hook_name` must be used together,
+	// and they are mutually exclusive with the parameter `lifecycle_action_key`.
+
+	// The lifecycle callback action token.
+	LifecycleActionKey string `json:"lifecycle_action_key,omitempty"`
+	// The lifecycle callback instance ID.
+	InstanceId string `json:"instance_id,omitempty"`
+	// The lifecycle callback hook name.
+	LifecycleHookName string `json:"lifecycle_hook_name,omitempty"`
+	// This lifecycle callback operation, the value can be **ABANDON**, **CONTINUE**, or **EXTEND**.
+	LifecycleActionResult string `json:"lifecycle_action_result" required:"true"`
+}
+
+// callBackOptsBuilder is an interface by which can serialize the callback parameters.
+type callBackOptsBuilder interface {
+	toLifecycleHookCallBackMap() (map[string]interface{}, error)
+}
+
+func (opts CallBackOpts) toLifecycleHookCallBackMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// CallBack is a method of performing a callback operation on the hook specified by the scaling instance of the
+// autoscaling service.
+func CallBack(client *golangsdk.ServiceClient, opts callBackOptsBuilder, groupID string) (r CallBackResult) {
+	b, err := opts.toLifecycleHookCallBackMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(callBackURL(client, groupID), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{204},
+	})
 	return
 }
