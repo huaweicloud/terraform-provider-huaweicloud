@@ -185,8 +185,20 @@ The `instance_config` block supports:
   <br/>If this parameter is not specified, the system automatically selects the DeH with the maximum available memory
   size from the DeHs that meet specifications requirements to create the ECSs, thereby balancing load of the DeHs.
 
-* `user_data` - (Optional, String, ForceNew) Specifies the user data to provide when launching the instance.
-  The file content must be encoded with Base64. Changing this will create a new resource.
+* `user_data` - (Optional, String, ForceNew) Specifies the user data to be injected during the ECS creation process.
+  Text, text files, and gzip files can be injected. The content of `user_data` must be encoded with Base64.
+  The maximum size of the `user_data` (before encoding) is 32 KB.
+  Changing this will create a new resource.
+  
+  -> If both `key_name` and `user_data` are specified, `user_data` only injects user data.
+
+  -> If `key_name` is not specified, the `user_data` is specified, the field can as the login password when creating a
+     Linux ECS. Data injection is not supported when the field as the login password.
+
+  <br/>Password complexity requirements:
+  + Contains 8 to 26 characters.
+  + Contains at least three of the following character types: uppercase letters, lowercase letters, digits, and special
+    characters !@$%^-_=+[{}]:,./?
 
 * `public_ip` - (Optional, List, ForceNew) Specifies the EIP of the ECS instance.
   The [object](#instance_config_public_ip_object) structure is documented below.
@@ -195,8 +207,9 @@ The `instance_config` block supports:
 * `metadata` - (Optional, Map, ForceNew) Specifies the key/value pairs to make available from within the instance.
   Changing this will create a new resource.
 
-* `personality` - (Optional, List, ForceNew) Specifies the customize personality of an instance by defining one or
-  more files and their contents. The [object](#instance_config_personality_object) structure is documented below.
+* `personality` - (Optional, List, ForceNew) Specifies the injected file information. Only text file can be
+  injected. A maximum of five files can be injected, and the maximum size of each file is 1 KB.
+  The [personality](#instance_config_personality_object) structure is documented below.
   Changing this will create a new resource.
 
 <a name="instance_config_disk_object"></a>
@@ -301,6 +314,9 @@ The `bandwidth` block supports:
 The `personality` block supports:
 
 * `path` - (Required, String, ForceNew) Specifies the path of the injected file. Changing this creates a new resource.
+  + For Linux, specify the injection file save path. e.g. **/etc/foo.txt**.
+  + For Windows, the injected file is automatically stored in the root directory of drive C. Only need to specify the
+    file name, the file name only letters and digits allowed. e.g. **foo**.
 
 * `content` - (Required, String, ForceNew) Specifies the content of the injected file, which must be encoded with base64.
   Changing this creates a new resource.
