@@ -17,7 +17,7 @@ import (
 )
 
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/failover
-// @API RDS GET /v3/{project_id}/instances
+// @API RDS GET /v3/{project_id}/jobs
 func ResourceRdsInstanceSwitch() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsPrimaryStandbySwitchCreate,
