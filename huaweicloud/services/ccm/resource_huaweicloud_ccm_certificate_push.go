@@ -31,10 +31,10 @@ const (
 // @API ELB DELETE /v3/{project_id}/elb/certificates/{certificate_id}
 func ResourceCcmCertificatePush() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCcmCertificateBatchPush,
-		ReadContext:   resourceCcmCertificateRead,
-		UpdateContext: resourceCcmCertificateUpdate,
-		DeleteContext: resourceCcmCertificateDelete,
+		CreateContext: resourceCcmCertificatePushCreate,
+		ReadContext:   resourceCcmCertificatePushRead,
+		UpdateContext: resourceCcmCertificatePushUpdate,
+		DeleteContext: resourceCcmCertificatePushDelete,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -77,7 +77,7 @@ func ResourceCcmCertificatePush() *schema.Resource {
 	}
 }
 
-func resourceCcmCertificateBatchPush(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCcmCertificatePushCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	scmClient, err := conf.ScmV3Client(conf.GetRegion(d))
 
@@ -108,7 +108,7 @@ func resourceCcmCertificateBatchPush(ctx context.Context, d *schema.ResourceData
 	d.SetId(certId)
 	d.Set("targets", flattenResult(pushCertificateRespBody))
 
-	return resourceCcmCertificateRead(ctx, d, meta)
+	return resourceCcmCertificatePushRead(ctx, d, meta)
 }
 
 func buildPushCertificateBodyParams(service string, projectlist []interface{}) map[string]interface{} {
@@ -172,7 +172,7 @@ func getCertIdFromResult(projectName string, resp interface{}) string {
 	}
 	return certId
 }
-func resourceCcmCertificateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCcmCertificatePushRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	projectList := d.Get("targets").(*schema.Set).List()
 	targetService := d.Get("service").(string)
 	rst := make([]interface{}, 0, len(projectList))
@@ -235,7 +235,7 @@ func resourceCcmCertificateRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 	return nil
 }
-func resourceCcmCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCcmCertificatePushUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	if d.HasChange("targets") {
 		err := rePushOrDelete(d, meta)
 		if err != nil {
@@ -243,7 +243,7 @@ func resourceCcmCertificateUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	return resourceCcmCertificateRead(ctx, d, meta)
+	return resourceCcmCertificatePushRead(ctx, d, meta)
 }
 
 func rePushOrDelete(d *schema.ResourceData, meta interface{}) error {
@@ -290,7 +290,7 @@ func rePushOrDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceCcmCertificateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCcmCertificatePushDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	targetService := d.Get("service").(string)
 	oRaws := d.Get("targets").(*schema.Set).List()
 	if len(oRaws) == 0 {
