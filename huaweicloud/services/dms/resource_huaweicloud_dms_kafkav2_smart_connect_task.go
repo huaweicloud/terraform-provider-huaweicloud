@@ -385,7 +385,7 @@ func resourceDmsKafkav2SmartConnectTaskCreate(ctx context.Context, d *schema.Res
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING", "WAITING"},
-		Refresh:      Kafkav2SmartConnectTaskStateRefreshFunc(client, instanceID, d.Id()),
+		Refresh:      kafkav2SmartConnectTaskStateRefreshFunc(client, instanceID, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        1 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -624,7 +624,7 @@ func resourceDmsKafkav2SmartConnectTaskImportState(_ context.Context, d *schema.
 	return []*schema.ResourceData{d}, nil
 }
 
-func Kafkav2SmartConnectTaskStateRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskID string) resource.StateRefreshFunc {
+func kafkav2SmartConnectTaskStateRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		getTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/connector/tasks/{task_id}"
 		getTaskPath := client.Endpoint + getTaskHttpUrl
