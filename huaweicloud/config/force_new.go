@@ -31,7 +31,8 @@ func FlexibleForceNew(keys []string) schema.CustomizeDiffFunc {
 		} else {
 			for _, k := range keysExpand {
 				if d.Id() != "" && d.HasChange(k) {
-					err = multierror.Append(err, fmt.Errorf("%s can't be updated", k))
+					oldValue, newValue := d.GetChange(k)
+					err = multierror.Append(err, fmt.Errorf("%s can't be updated, %v -> %v", k, oldValue, newValue))
 				}
 			}
 		}
