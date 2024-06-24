@@ -703,24 +703,24 @@ func initializeParameters(ctx context.Context, d *schema.ResourceData, client *g
 	}
 
 	if needRestart {
-		return restartDdmInstance(ctx, d, client)
+		return restartDdmInstance(ctx, client, d.Id(), "soft", d.Timeout(schema.TimeoutUpdate))
 	}
 	return nil
 }
 
-func restartDdmInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+func restartDdmInstance(ctx context.Context, client *golangsdk.ServiceClient, instanceId, restartType string, timeout time.Duration) error {
 	var (
 		httpUrl = "v1/{project_id}/instances/{instance_id}/action"
 	)
 
 	restartPath := client.Endpoint + httpUrl
 	restartPath = strings.ReplaceAll(restartPath, "{project_id}", client.ProjectID)
-	restartPath = strings.ReplaceAll(restartPath, "{instance_id}", d.Id())
+	restartPath = strings.ReplaceAll(restartPath, "{instance_id}", instanceId)
 
 	restartOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	restartOpt.JSONBody = utils.RemoveNil(buildCreateRestartBodyParams("soft"))
+	restartOpt.JSONBody = utils.RemoveNil(buildCreateRestartBodyParams(restartType))
 
 	retryFunc := func() (interface{}, bool, error) {
 		res, err := client.Request("POST", restartPath, &restartOpt)
@@ -730,9 +730,9 @@ func restartDdmInstance(ctx context.Context, d *schema.ResourceData, client *gol
 	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     ddmInstanceStatusRefreshFunc(d.Id(), client),
+		WaitFunc:     ddmInstanceStatusRefreshFunc(instanceId, client),
 		WaitTarget:   []string{"RUNNING"},
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Timeout:      timeout,
 		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
@@ -743,14 +743,14 @@ func restartDdmInstance(ctx context.Context, d *schema.ResourceData, client *gol
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      ddmInstanceStatusRefreshFunc(d.Id(), client),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Refresh:      ddmInstanceStatusRefreshFunc(instanceId, client),
+		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("error waiting for instance (%s) to running: %s", d.Id(), err)
+		return fmt.Errorf("error waiting for instance (%s) to running: %s", instanceId, err)
 	}
 	return nil
 }
