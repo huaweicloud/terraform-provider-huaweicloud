@@ -2,6 +2,7 @@ package dms
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -97,6 +98,8 @@ func TestAccDmsRabbitmqInstances_newFormat_cluster(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestMatchResourceAttr(resourceName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
@@ -524,7 +527,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   ]
 
   flavor_id         = local.flavor.id
-  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  engine_version    = "3.8.35"
   storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   storage_spec_code = local.flavor.ios[0].storage_spec_code
   broker_num        = 3
@@ -567,7 +570,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   ]
 
   flavor_id         = local.newFlavor.id
-  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  engine_version    = "3.8.35"
   storage_space     = 1000
   storage_spec_code = local.flavor.ios[0].storage_spec_code
   broker_num        = 5
@@ -609,7 +612,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   ]
 
   flavor_id         = local.flavor.id
-  engine_version    = element(local.query_results.versions, 0)
+  engine_version    = "3.8.35"
   storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   storage_spec_code = local.flavor.ios[0].storage_spec_code
   access_user       = "user"
@@ -651,7 +654,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   ]
 
   flavor_id         = local.newFlavor.id
-  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  engine_version    = "3.8.35"
   storage_space     = 600
   storage_spec_code = local.flavor.ios[0].storage_spec_code
   access_user       = "user"
@@ -692,7 +695,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   ]
 
   flavor_id         = local.flavor.id
-  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  engine_version    = "3.8.35"
   storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   storage_spec_code = local.flavor.ios[0].storage_spec_code
   broker_num        = 3
@@ -740,7 +743,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   ]
 
   flavor_id         = local.flavor.id
-  engine_version    = element(local.query_results.versions, length(local.query_results.versions)-1)
+  engine_version    = "3.8.35"
   storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
   storage_spec_code = local.flavor.ios[0].storage_spec_code
   broker_num        = 3

@@ -193,6 +193,10 @@ In addition to all arguments above, the following attributes are exported:
 * `user_name` - Indicates the name of the user who created the DMS RabbitMQ instance
 * `connect_address` - Indicates the IP address of the DMS RabbitMQ instance.
 * `management_connect_address` - Indicates the management address of the DMS RabbitMQ instance.
+* `created_at` - Indicates the create time of the DMS RabbitMQ instance.
+* `extend_times` - Indicates the extend times of the DMS RabbitMQ instance.
+* `is_logical_volume` - Indicates whether the DMS RabbitMQ instance is logical volume.
+* `public_ip_address` - Indicates the public ip address of the DMS RabbitMQ instance.
 
 ## Timeouts
 
