@@ -83,7 +83,7 @@ func TestAccLtsGroup_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccLtsGroup_tags(rName, 60),
+				Config: testAccLtsGroup_step3(rName, 60),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "60"),
@@ -91,6 +91,12 @@ func TestAccLtsGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.terraform", ""),
+				),
+			},
+			{
+				Config: testAccLtsGroup_step4(rName, 60),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
 				),
 			},
 		},
@@ -110,7 +116,7 @@ resource "huaweicloud_lts_group" "test" {
 `, name, ttl)
 }
 
-func testAccLtsGroup_tags(name string, ttl int) string {
+func testAccLtsGroup_step3(name string, ttl int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_lts_group" "test" {
   group_name  = "%s"
@@ -121,6 +127,15 @@ resource "huaweicloud_lts_group" "test" {
     key       = "value"
     terraform = ""
   }
+}
+`, name, ttl)
+}
+
+func testAccLtsGroup_step4(name string, ttl int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%s"
+  ttl_in_days = %d
 }
 `, name, ttl)
 }
