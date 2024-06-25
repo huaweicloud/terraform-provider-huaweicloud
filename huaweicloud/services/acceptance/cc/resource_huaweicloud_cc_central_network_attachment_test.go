@@ -85,7 +85,7 @@ func TestAccCentralNetworkAttachment_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "enterprise_router_id",
 						"huaweicloud_er_instance.test", "id"),
 					resource.TestCheckResourceAttr(rName, "enterprise_router_project_id", acceptance.HW_PROJECT_ID),
-					resource.TestCheckResourceAttr(rName, "enterprise_router_region_id", acceptance.HW_PROJECT_ID),
+					resource.TestCheckResourceAttr(rName, "enterprise_router_region_id", acceptance.HW_REGION_NAME),
 					resource.TestCheckResourceAttr(rName, "global_dc_gateway_id", acceptance.HW_CC_GLOBAL_GATEWAY_ID),
 					resource.TestCheckResourceAttr(rName, "global_dc_gateway_project_id", acceptance.HW_PROJECT_ID),
 					resource.TestCheckResourceAttr(rName, "global_dc_gateway_region_id", acceptance.HW_REGION_NAME),
@@ -103,7 +103,7 @@ func TestAccCentralNetworkAttachment_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "enterprise_router_id",
 						"huaweicloud_er_instance.test", "id"),
 					resource.TestCheckResourceAttr(rName, "enterprise_router_project_id", acceptance.HW_PROJECT_ID),
-					resource.TestCheckResourceAttr(rName, "enterprise_router_region_id", acceptance.HW_PROJECT_ID),
+					resource.TestCheckResourceAttr(rName, "enterprise_router_region_id", acceptance.HW_REGION_NAME),
 					resource.TestCheckResourceAttr(rName, "global_dc_gateway_id", acceptance.HW_CC_GLOBAL_GATEWAY_ID),
 					resource.TestCheckResourceAttr(rName, "global_dc_gateway_project_id", acceptance.HW_PROJECT_ID),
 					resource.TestCheckResourceAttr(rName, "global_dc_gateway_region_id", acceptance.HW_REGION_NAME),
@@ -149,6 +149,7 @@ func testCentralNetworkAttachment_basic_update(name string) string {
 resource "huaweicloud_cc_central_network_attachment" "test" {
   name                         = "%[2]s_update"
   description                  = "This is a demo update"
+  central_network_id           = huaweicloud_cc_central_network.test.id
   enterprise_router_id         = huaweicloud_er_instance.test.id
   enterprise_router_project_id = "%[3]s"
   enterprise_router_region_id  = "%[4]s"
