@@ -45,6 +45,8 @@ func TestAccNetworkingV3SecGroup_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "rules.#", "4"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
@@ -57,6 +59,8 @@ func TestAccNetworkingV3SecGroup_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPtr(resourceName, "id", &secGroup.ID),
 					resource.TestCheckResourceAttr(resourceName, "name", updatedName),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
 				),
 			},
 		},
@@ -124,6 +128,11 @@ func testAccSecGroup_basic(name string) string {
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name        = "%s"
   description = "security group acceptance test"
+
+  tags = {
+	foo = "bar"
+	key = "value"
+  }
 }
 `, name)
 }
@@ -133,6 +142,11 @@ func testAccSecGroup_update(name string) string {
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name        = "%s"
   description = "security group acceptance test updated"
+
+  tags = {
+    foo        = "bar_update"
+    key_update = "value_update"
+  }
 }
 `, name)
 }
