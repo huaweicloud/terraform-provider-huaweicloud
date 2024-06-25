@@ -25,6 +25,10 @@ func ResourceRdsExtendLogLink() *schema.Resource {
 		ReadContext:   resourceRdsExtendLogLinkRead,
 		DeleteContext: resourceRdsExtendLogLinkDelete,
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
