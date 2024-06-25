@@ -502,7 +502,7 @@ func resourceDmsKafkav2SmartConnectTaskRead(_ context.Context, d *schema.Resourc
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("task_name", utils.PathSearch("task_name", getTaskRespBody, nil)),
-		d.Set("topics", strings.Split(utils.PathSearch("topics", getTaskRespBody, "").(string), ",")),
+		d.Set("topics", flattenStringWithCommaSplitToSlice(utils.PathSearch("topics", getTaskRespBody, "").(string))),
 		d.Set("topics_regex", utils.PathSearch("topics_regex", getTaskRespBody, nil)),
 		d.Set("source_type", utils.PathSearch("source_type", getTaskRespBody, nil)),
 		d.Set("destination_type", utils.PathSearch("sink_type", getTaskRespBody, nil)),
@@ -538,7 +538,7 @@ func flattenSourceTaskResponse(d *schema.ResourceData, rawParams interface{}) []
 		"provenance_header_enabled":     utils.PathSearch("provenance_header_enabled", rawParams, false),
 		"consumer_strategy":             utils.PathSearch("consumer_strategy", rawParams, nil),
 		"compression_type":              utils.PathSearch("compression_type", rawParams, nil),
-		"topics_mapping":                flattenSliceToStringWithCommaSplit(utils.PathSearch("topics_mapping", rawParams, "").(string)),
+		"topics_mapping":                flattenStringWithCommaSplitToSlice(utils.PathSearch("topics_mapping", rawParams, "").(string)),
 	}
 	rst[0] = params
 	return rst
@@ -574,11 +574,11 @@ func flattenSinkTaskResponse(d *schema.ResourceData, rawParams interface{}) []ma
 	return rst
 }
 
-func flattenSliceToStringWithCommaSplit(mapping string) []string {
-	if mapping == "" {
+func flattenStringWithCommaSplitToSlice(s string) []string {
+	if s == "" {
 		return []string{}
 	}
-	return strings.Split(mapping, ",")
+	return strings.Split(s, ",")
 }
 
 func resourceDmsKafkav2SmartConnectTaskDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
