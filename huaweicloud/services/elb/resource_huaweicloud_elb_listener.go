@@ -365,8 +365,8 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 
 	protocol := d.Get("protocol").(string)
 
-	// only for HTTP and HTTPS listener
-	if utils.StrSliceContains([]string{"HTTP", "HTTPS"}, protocol) {
+	// only for HTTP, HTTPS and QUIC listener
+	if utils.StrSliceContains([]string{"HTTP", "HTTPS", "QUIC"}, protocol) {
 		forwardEip := d.Get("forward_eip").(bool)
 		forwardPort := d.Get("forward_port").(bool)
 		forwardRequestPort := d.Get("forward_request_port").(bool)
