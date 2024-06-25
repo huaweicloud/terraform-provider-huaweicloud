@@ -28,7 +28,8 @@ func TestAccASPolicy_basic(t *testing.T) {
 				Config: testASPolicy_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASPolicyExists(resourceName, &asPolicy),
-					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "action", "pause"),
+					resource.TestCheckResourceAttr(resourceName, "status", "PAUSED"),
 					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "300"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "SCHEDULED"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "ADD"),
@@ -39,6 +40,7 @@ func TestAccASPolicy_basic(t *testing.T) {
 			{
 				Config: testASPolicy_update(rName),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "action", "resume"),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "900"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "SCHEDULED"),
@@ -49,7 +51,8 @@ func TestAccASPolicy_basic(t *testing.T) {
 			{
 				Config: testASPolicy_recurrence(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+					resource.TestCheckResourceAttr(resourceName, "action", "pause"),
+					resource.TestCheckResourceAttr(resourceName, "status", "PAUSED"),
 					resource.TestCheckResourceAttr(resourceName, "cool_down_time", "900"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_type", "RECURRENCE"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "ADD"),
@@ -202,6 +205,8 @@ resource "huaweicloud_as_policy" "acc_as_policy"{
   scheduled_policy {
     launch_time = "2099-12-22T12:00Z"
   }
+
+  action = "pause"
 }
 `, testASPolicy_base(rName), rName)
 }
@@ -223,6 +228,8 @@ resource "huaweicloud_as_policy" "acc_as_policy"{
   scheduled_policy {
     launch_time = "2099-12-22T12:00Z"
   }
+
+  action = "resume"
 }
 `, testASPolicy_base(rName), rName)
 }
@@ -246,6 +253,8 @@ resource "huaweicloud_as_policy" "acc_as_policy"{
     start_time      = "2099-11-22T12:00Z"
     end_time        = "2099-12-22T12:00Z"
   }
+
+  action = "pause"
 }
 `, testASPolicy_base(rName), rName)
 }

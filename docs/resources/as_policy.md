@@ -115,6 +115,11 @@ The following arguments are supported:
   + **SCHEDULED**: indicates that the scaling action is triggered as scheduled.
   + **RECURRENCE**: indicates that the scaling action is triggered periodically.
 
+* `action` - (Optional, String) Specifies the operation for the AS policy.
+  The default value is **resume**. The valid values are as follows:
+  + **resume**: Enables the AS policy.
+  + **pause**: Disables the AS policy.
+
 * `alarm_id` - (Optional, String) Specifies the alarm rule ID. This parameter is mandatory when `scaling_policy_type`
   is set to `ALARM`. You can create an alarm rule with
   [huaweicloud_ces_alarmrule](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/resources/ces_alarmrule).
