@@ -443,3 +443,10 @@ func GetTasks(c *golangsdk.ServiceClient, instanceID string) (r GetTasksResult) 
 	})
 	return
 }
+
+func GetTask(c *golangsdk.ServiceClient, instanceID, taskID string) (r GetTasksResult) {
+	_, r.Err = c.Get(taskURL(c, instanceID, taskID), &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+	})
+	return
+}
