@@ -552,7 +552,6 @@ resource "huaweicloud_rds_instance" "test" {
   subnet_id                     = data.huaweicloud_vpc_subnet.test.id
   vpc_id                        = data.huaweicloud_vpc.test.id
   time_zone                     = "UTC+08:00"
-  fixed_ip                      = "192.168.0.210"
   maintain_begin                = "06:00"
   maintain_end                  = "09:00"
   private_dns_name_prefix       = "terraformTest"

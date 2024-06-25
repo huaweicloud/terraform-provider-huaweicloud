@@ -17,6 +17,7 @@ var (
 		"DBS.200018":   {},
 		"DBS.200019":   {},
 		"DBS.200047":   {},
+		"DBS.200076":   {},
 		"DBS.200611":   {},
 		"DBS.200080":   {},
 		"DBS.200463":   {}, // create replica instance
@@ -37,6 +38,21 @@ func handleMultiOperationsError(err error) (bool, error) {
 	if err == nil {
 		// The operation was executed successfully and does not need to be executed again.
 		return false, nil
+	}
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code||errCode", apiError)
+		if errorCodeErr != nil {
+			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+
+		if _, ok = retryErrCodes[errorCode.(string)]; ok {
+			return true, err
+		}
 	}
 	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
 		var apiError interface{}

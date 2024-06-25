@@ -202,7 +202,7 @@ func parseRdsErrorToError404(respErr error) error {
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
 		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		errorCode, errorCodeErr := jmespath.Search("error_code||errCode", apiError)
 		if errorCodeErr != nil {
 			return fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
 		}
