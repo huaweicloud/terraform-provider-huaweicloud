@@ -226,6 +226,8 @@ The `ess_node_config` and `cold_node_config` block supports:
 
   The [volume](#Css_volume) structure is documented below. Changing this parameter will create a new resource.
 
+* `shrink_node_ids` - (Optional, List) Specifies the node IDs that needs to be scaled down.
+
 <a name="Css_volume"></a>
 The `volume` block supports:
 
@@ -249,6 +251,8 @@ The `master_node_config` and `client_node_config` block supports:
 
 * `volume` - (Required, List) Specifies the information about the volume.
   The [volume](#Css_master_or_client_volume) structure is documented below.
+
+* `shrink_node_ids` - (Optional, List) Specifies the node IDs that needs to be scaled down.
 
 <a name="Css_master_or_client_volume"></a>
 The `volume` block supports:

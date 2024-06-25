@@ -296,6 +296,17 @@ func TestAccCssCluster_extend(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.volume.0.size", "40"),
 				),
 			},
+			{ // test shrink
+				Config: testAccCssCluster_extend(rName, updateFlavor, 3, 3, 3, 60),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "3"),
+				),
+			},
 		},
 	})
 }
