@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"regexp"
 	"strings"
 	"time"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
 	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
 
@@ -154,8 +156,16 @@ func resourceCTSTrackerCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return resourceCTSTrackerUpdate(ctx, d, meta)
 	}
 
-	// return the error with non-404 code
-	if _, ok := err.(golangsdk.ErrDefault404); !ok {
+	var statusCode int
+	// check if the error is raised by golangsdk.
+	if _, ok := err.(golangsdk.ErrDefault404); ok {
+		statusCode = http.StatusNotFound
+		// check if the error is raised by huaweicloud-sdk-go-v3.
+	} else if responseErr, ok := err.(*sdkerr.ServiceResponseError); ok {
+		statusCode = responseErr.StatusCode
+	}
+
+	if statusCode != http.StatusNotFound {
 		return diag.Errorf("error retrieving CTS tracker: %s", err)
 	}
 
