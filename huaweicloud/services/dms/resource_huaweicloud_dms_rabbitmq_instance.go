@@ -208,6 +208,23 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"extend_times": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"is_logical_volume": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"public_ip_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"available_zones": {
 				Type:         schema.TypeList,
 				Optional:     true,
@@ -566,6 +583,8 @@ func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, 
 	}
 
 	d.SetId(v.InstanceID)
+
+	createdAt, _ := strconv.ParseInt(v.CreatedAt, 10, 64)
 	mErr = multierror.Append(mErr,
 		d.Set("region", region),
 		d.Set("name", v.Name),
@@ -603,6 +622,10 @@ func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("type", v.Type),
 		d.Set("access_user", v.AccessUser),
 		d.Set("charging_mode", chargingMode),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(createdAt/1000, false)),
+		d.Set("extend_times", v.ExtendTimes),
+		d.Set("is_logical_volume", v.IsLogicalVolume),
+		d.Set("public_ip_address", v.PublicIPAddress),
 	)
 
 	// set tags
@@ -844,11 +867,6 @@ func doRabbitMQInstanceResize(ctx context.Context, d *schema.ResourceData, clien
 }
 
 func rabbitMQResizeStateRefresh(client *golangsdk.ServiceClient, d *schema.ResourceData, operType *string) resource.StateRefreshFunc {
-	productID := d.Get("flavor_id").(string)
-	if productID == "" {
-		productID = d.Get("product_id").(string)
-	}
-
 	return func() (interface{}, string, error) {
 		v, err := instances.Get(client, d.Id()).Extract()
 		if err != nil {

@@ -2,7 +2,7 @@ package availablezones
 
 // GetResponse response
 type GetResponse struct {
-	RegionID       string          `json:"regionId"`
+	RegionID       string          `json:"region_id"`
 	AvailableZones []AvailableZone `json:"available_zones"`
 }
 
