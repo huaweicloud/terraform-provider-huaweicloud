@@ -375,13 +375,16 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		forwardProto := d.Get("forward_proto").(bool)
 		realIp := d.Get("real_ip").(bool)
 		createOpts.InsertHeaders = &listeners.InsertHeaders{
-			ForwardedELBIP:   &forwardEip,
-			ForwardedPort:    &forwardPort,
-			ForwardedForPort: &forwardRequestPort,
-			ForwardedHost:    &forwardHost,
-			ForwardedELBID:   &forwardElb,
-			ForwardedProto:   &forwardProto,
-			RealIP:           &realIp,
+			ForwardedELBIP: &forwardEip,
+			ForwardedPort:  &forwardPort,
+			ForwardedHost:  &forwardHost,
+			ForwardedELBID: &forwardElb,
+			ForwardedProto: &forwardProto,
+		}
+
+		if utils.StrSliceContains([]string{"HTTP", "HTTPS"}, protocol) {
+			createOpts.InsertHeaders.ForwardedForPort = &forwardRequestPort
+			createOpts.InsertHeaders.RealIP = &realIp
 		}
 
 		// Only for HTTPS listener
