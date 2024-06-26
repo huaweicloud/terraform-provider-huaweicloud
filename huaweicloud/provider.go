@@ -637,6 +637,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_er_associations":       er.DataSourceAssociations(),
 			"huaweicloud_er_attachments":        er.DataSourceAttachments(),
+			"huaweicloud_er_available_routes":   er.DataSourceErAvailableRoutes(),
 			"huaweicloud_er_flow_logs":          er.DataSourceFlowLogs(),
 			"huaweicloud_er_instances":          er.DataSourceInstances(),
 			"huaweicloud_er_propagations":       er.DataSourcePropagations(),
