@@ -3,6 +3,7 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -11,6 +12,7 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -25,6 +27,9 @@ import (
 // @API VPC PUT /v3/{project_id}/vpc/firewalls/{firewall_id}/remove-rules
 // @API VPC PUT /v3/{project_id}/vpc/firewalls/{firewall_id}/associate-subnets
 // @API VPC PUT /v3/{project_id}/vpc/firewalls/{firewall_id}/disassociate-subnets
+// @API VPC POST /v3/{project_id}/firewalls/{id}/tags/create
+// @API VPC POST /v3/{project_id}/firewalls/{id}/tags/delete
+// @API VPC GET /v3/{project_id}/firewalls/{id}/tags
 // @API VPC DELETE /v3/{project_id}/vpc/firewalls/{id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources/filter
@@ -78,6 +83,7 @@ func ResourceNetworkAcl() *schema.Resource {
 				Elem:     networkAclSubnetSchema(),
 				Optional: true,
 			},
+			"tags": common.TagsSchema(),
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -218,6 +224,15 @@ func resourceNetworkAclCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	if v, ok := d.GetOk("associated_subnets"); ok {
 		err = networkAclAssociatSubnets(client, v.(*schema.Set).List(), id.(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		err := doTagsAction(client, tagRaw, id.(string), "create")
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -438,6 +453,15 @@ func resourceNetworkAclRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("updated_at", utils.PathSearch("firewall.updated_at", getNetworkAclRespBody, nil)),
 	)
 
+	if resourceTags, err := tags.Get(client, "firewalls", d.Id()).Extract(); err == nil {
+		tagmap := utils.TagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return diag.Errorf("error saving tags to state for network ACL (%s): %s", d.Id(), err)
+		}
+	} else {
+		log.Printf("[WARN] error fetching tags of network ACL (%s): %s", d.Id(), err)
+	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -557,7 +581,64 @@ func resourceNetworkAclUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
+	// update tags
+	if d.HasChange("tags") {
+		tagErr := updateTags(client, d, id)
+		if tagErr != nil {
+			return diag.Errorf("error updating tags of network ACL %s: %s", d.Id(), tagErr)
+		}
+	}
+
 	return resourceNetworkAclRead(ctx, d, meta)
+}
+
+func updateTags(client *golangsdk.ServiceClient, d *schema.ResourceData, id string) error {
+	oRaw, nRaw := d.GetChange("tags")
+	oMap := oRaw.(map[string]interface{})
+	nMap := nRaw.(map[string]interface{})
+
+	// remove old tags
+	if len(oMap) > 0 {
+		err := doTagsAction(client, oMap, id, "delete")
+		if err != nil {
+			return err
+		}
+	}
+
+	// set new tags
+	if len(nMap) > 0 {
+		err := doTagsAction(client, nMap, id, "create")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func doTagsAction(client *golangsdk.ServiceClient, tagsRaw map[string]interface{}, id, action string) error {
+	manageTagsHttpUrl := "v3/{project_id}/firewalls/{resource_id}/tags/{action}"
+	manageTagsPath := client.Endpoint + manageTagsHttpUrl
+	manageTagsPath = strings.ReplaceAll(manageTagsPath, "{project_id}", client.ProjectID)
+	manageTagsPath = strings.ReplaceAll(manageTagsPath, "{resource_id}", id)
+	manageTagsPath = strings.ReplaceAll(manageTagsPath, "{action}", action)
+	manageTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+
+	manageTagsOpt.JSONBody = map[string]interface{}{
+		"tags": utils.ExpandResourceTags(tagsRaw),
+	}
+
+	_, err := client.Request("POST", manageTagsPath, &manageTagsOpt)
+	if err != nil {
+		return fmt.Errorf("unable to %s network ACL tags: %s", action, err)
+	}
+
+	return nil
 }
 
 func updateRules(client *golangsdk.ServiceClient, d *schema.ResourceData, ruleType string) error {

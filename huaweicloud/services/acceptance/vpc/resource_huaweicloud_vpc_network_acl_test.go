@@ -83,6 +83,9 @@ func TestAccNetworkAcl_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "egress_rules.0.destination_ip_address", "0.0.0.0/0"),
 					resource.TestCheckResourceAttr(resourceName, "egress_rules.0.destination_port", "8001-8010"),
 
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+
 					resource.TestCheckOutput("is_associated_subnets_different", "false"),
 
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
@@ -123,6 +126,9 @@ func TestAccNetworkAcl_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "egress_rules.1.protocol", "icmp"),
 					resource.TestCheckResourceAttr(resourceName, "egress_rules.1.source_ip_address", "172.16.0.0/24"),
 					resource.TestCheckResourceAttr(resourceName, "egress_rules.1.destination_ip_address", "0.0.0.0/0"),
+
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
 
 					resource.TestCheckOutput("is_associated_subnets_different", "false"),
 
@@ -188,6 +194,11 @@ resource "huaweicloud_vpc_network_acl" "test" {
   
   associated_subnets {
     subnet_id = huaweicloud_vpc_subnet.test[0].id
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
   }
 }
 
@@ -258,6 +269,11 @@ resource "huaweicloud_vpc_network_acl" "test" {
 
   associated_subnets {
     subnet_id = huaweicloud_vpc_subnet.test[1].id
+  }
+
+  tags = {
+    foo        = "bar_update"
+    key_update = "value_update"
   }
 }
 
