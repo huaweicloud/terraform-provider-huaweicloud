@@ -72,12 +72,15 @@ func TestAccDataSourceApiBasicConfigurations_basic(t *testing.T) {
 					dcById.CheckResourceExists(),
 					resource.TestCheckOutput("is_id_filter_useful", "true"),
 					resource.TestCheckResourceAttrSet(byId, "configurations.0.group_name"),
+					resource.TestCheckResourceAttr(byId, "configurations.0.tags.#", "1"),
+					resource.TestCheckResourceAttr(byId, "configurations.0.tags.0", "foo"),
 					resource.TestCheckResourceAttrSet(byId, "configurations.0.group_version"),
 					resource.TestCheckResourceAttrSet(byId, "configurations.0.publish_id"),
 					resource.TestCheckResourceAttrSet(byId, "configurations.0.backend_type"),
 					resource.TestCheckResourceAttr(byId, "configurations.0.simple_authentication", "false"),
 					resource.TestCheckResourceAttr(byId, "configurations.0.cors", "true"),
 					resource.TestCheckResourceAttr(byId, "configurations.0.matching", "Exact"),
+					resource.TestCheckResourceAttr(byId, "configurations.0.description", "Created by script"),
 					resource.TestMatchResourceAttr(byId, "configurations.0.registered_at",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					resource.TestMatchResourceAttr(byId, "configurations.0.updated_at",
@@ -125,7 +128,7 @@ func testAccDataSourceApiBasicConfigurations_base() string {
 resource "huaweicloud_apig_custom_authorizer" "frontEnd" {
   instance_id      = huaweicloud_apig_instance.test.id
   name             = "%[2]s_front"
-  function_urn     = huaweicloud_fgs_function.test.urn
+  function_urn     = huaweicloud_fgs_function.test[1].urn
   function_version = "latest"
   type             = "FRONTEND"
 }
@@ -142,7 +145,8 @@ resource "huaweicloud_apig_api" "test" {
   matching                = "Exact"
   authorizer_id           = huaweicloud_apig_custom_authorizer.frontEnd.id
   cors                    = true
-  description             = "Updated by script"
+  description             = "Created by script"
+  tags                    = ["foo"]
   
   request_params {
     name     = "%[2]s"
@@ -155,7 +159,7 @@ resource "huaweicloud_apig_api" "test" {
 
   web {
     path             = "/"
-    vpc_channel_id   = huaweicloud_apig_vpc_channel.test.id
+    vpc_channel_id   = huaweicloud_apig_channel.test.id
     request_method   = "GET"
     request_protocol = "HTTP"
     timeout          = 30000
@@ -429,7 +433,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_vpc_channel_name" {
   ]
 
   instance_id      = huaweicloud_apig_instance.test.id
-  vpc_channel_name = huaweicloud_apig_vpc_channel.test.name
+  vpc_channel_name = huaweicloud_apig_channel.test.name
 }
 
 output "is_vpc_channel_name_filter_useful" {

@@ -118,6 +118,8 @@ The `configurations` block supports:
 
 * `description` - The description of the API.
 
+* `tags` - The list of tags configuration.
+
 * `registered_at` - The registered time of the API, in RFC3339 format.
 
 * `updated_at` - The latest update time of the API, in RFC3339 format.

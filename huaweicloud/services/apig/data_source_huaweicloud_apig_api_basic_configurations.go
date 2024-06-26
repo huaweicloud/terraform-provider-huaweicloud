@@ -198,6 +198,12 @@ func DataSourceApiBasicConfigurations() *schema.Resource {
 							Computed:    true,
 							Description: "The description of the API.",
 						},
+						"tags": {
+							Type:        schema.TypeSet,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The list of tags configuration.",
+						},
 						// The format is `yyyy-MM-ddTHH:mm:ss{timezone}`, e.g. `2006-01-02 15:04:05+08:00`.
 						"registered_at": {
 							Type:        schema.TypeString,
@@ -372,6 +378,7 @@ func flattenApiBasicConfigurations(configurations []interface{}) []interface{} {
 			"cors":                    utils.PathSearch("cors", conf, nil),
 			"matching":                analyseApiMatchMode(utils.PathSearch("match_mode", conf, "").(string)),
 			"description":             utils.PathSearch("remark", conf, nil),
+			"tags":                    utils.PathSearch("tags", conf, nil),
 			"registered_at":           flattenTimeToRFC3339(utils.PathSearch("register_time", conf, "").(string)),
 			"updated_at":              flattenTimeToRFC3339(utils.PathSearch("update_time", conf, "").(string)),
 			"published_at":            flattenPulishTime(utils.PathSearch("publish_time", conf, "").(string)),

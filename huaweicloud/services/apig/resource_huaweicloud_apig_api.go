@@ -104,6 +104,7 @@ const (
 	ProtocolTypeHTTP  ProtocolType = "HTTP"
 	ProtocolTypeHTTPS ProtocolType = "HTTPS"
 	ProtocolTypeBoth  ProtocolType = "BOTH"
+	ProtocolTypeGPRCS ProtocolType = "GRPCS"
 
 	strBoolEnabled  int = 1
 	strBoolDisabled int = 2
@@ -197,6 +198,7 @@ func ResourceApigAPIV2() *schema.Resource {
 					string(ProtocolTypeHTTP),
 					string(ProtocolTypeHTTPS),
 					string(ProtocolTypeBoth),
+					string(ProtocolTypeGPRCS),
 				}, false),
 				Description: "The request protocol of the API request.",
 			},
@@ -223,9 +225,16 @@ func ResourceApigAPIV2() *schema.Resource {
 				Optional:    true,
 				Description: "The ID of the authorizer to which the API request used.",
 			},
+			"tags": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The list of tags configuration.",
+			},
 			"request_params": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				MaxItems: 50,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -243,11 +252,13 @@ func ResourceApigAPIV2() *schema.Resource {
 						"required": {
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Computed:    true,
 							Description: "Whether this parameter is required.",
 						},
 						"passthrough": {
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Computed:    true,
 							Description: "Whether to transparently transfer the parameter.",
 						},
 						"enumeration": {
@@ -280,16 +291,19 @@ func ResourceApigAPIV2() *schema.Resource {
 						"maximum": {
 							Type:        schema.TypeInt,
 							Optional:    true,
+							Computed:    true,
 							Description: "The maximum value or length (string parameter) for parameter.",
 						},
 						"minimum": {
 							Type:        schema.TypeInt,
 							Optional:    true,
+							Computed:    true,
 							Description: "The minimum value or length (string parameter) for parameter.",
 						},
 						"example": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ValidateFunc: validation.All(
 								validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
 									"The angle brackets (< and >) are not allowed."),
@@ -300,6 +314,7 @@ func ResourceApigAPIV2() *schema.Resource {
 						"default": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ValidateFunc: validation.All(
 								validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
 									"The angle brackets (< and >) are not allowed."),
@@ -310,12 +325,19 @@ func ResourceApigAPIV2() *schema.Resource {
 						"description": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ValidateFunc: validation.All(
 								validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
 									"The angle brackets (< and >) are not allowed."),
 								validation.StringLenBetween(0, 255),
 							),
 							Description: "The parameter description.",
+						},
+						"valid_enable": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "Whether to enable the parameter validation.",
 						},
 					},
 				},
@@ -388,11 +410,22 @@ func ResourceApigAPIV2() *schema.Resource {
 				ExactlyOneOf: []string{"func_graph", "web"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"status_code": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The custom status code of the mock response.",
+						},
 						"response": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringLenBetween(0, 2048),
-							Description:  "The response of the backend policy.",
+							Description: utils.SchemaDesc(
+								"The response content of the mock.",
+								utils.SchemaDescInput{
+									Required: true,
+								},
+							),
 						},
 						"authorizer_id": {
 							Type:        schema.TypeString,
@@ -420,6 +453,21 @@ func ResourceApigAPIV2() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "The version of the FunctionGraph function.",
+						},
+						"function_alias_urn": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The alias URN of the FunctionGraph function.",
+						},
+						"network_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The network architecture (framework) type of the FunctionGraph function.",
+						},
+						"request_protocol": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The request protocol of the FunctionGraph function.",
 						},
 						"timeout": {
 							Type:         schema.TypeInt,
@@ -555,11 +603,17 @@ func ResourceApigAPIV2() *schema.Resource {
 							Elem:        policyConditionSchemaResource(),
 							Description: "The policy conditions.",
 						},
+						"status_code": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The custom status code of the mock response.",
+						},
 						"response": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringLenBetween(8, 2048),
-							Description:  "The response of the backend policy.",
+							Description:  "The response content of the mock.",
 						},
 						"effective_mode": {
 							Type:     schema.TypeString,
@@ -609,6 +663,26 @@ func ResourceApigAPIV2() *schema.Resource {
 							Required:    true,
 							Description: "The URN of the FunctionGraph function.",
 						},
+						"version": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The version of the FunctionGraph function.",
+						},
+						"function_alias_urn": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The alias URN of the FunctionGraph function.",
+						},
+						"network_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The network (framework) type of the FunctionGraph function.",
+						},
+						"request_protocol": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The request protocol of the FunctionGraph function.",
+						},
 						"conditions": {
 							Type:        schema.TypeSet,
 							Required:    true,
@@ -642,11 +716,6 @@ func ResourceApigAPIV2() *schema.Resource {
 							Default:      5000,
 							ValidateFunc: validation.IntBetween(1, 600000),
 							Description:  "The timeout for API requests to backend service.",
-						},
-						"version": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "The version of the FunctionGraph function.",
 						},
 						"backend_params": {
 							Type:        schema.TypeSet,
@@ -961,6 +1030,7 @@ func buildMockStructure(mocks []interface{}) *apis.Mock {
 
 	mockMap := mocks[0].(map[string]interface{})
 	return &apis.Mock{
+		StatusCode:    mockMap["status_code"].(int),
 		ResultContent: utils.String(mockMap["response"].(string)),
 		AuthorizerId:  utils.String(mockMap["authorizer_id"].(string)),
 	}
@@ -973,11 +1043,14 @@ func buildFuncGraphStructure(funcGraphs []interface{}) *apis.FuncGraph {
 
 	funcMap := funcGraphs[0].(map[string]interface{})
 	return &apis.FuncGraph{
-		Timeout:        funcMap["timeout"].(int),
-		InvocationType: funcMap["invocation_type"].(string),
-		FunctionUrn:    funcMap["function_urn"].(string),
-		Version:        funcMap["version"].(string),
-		AuthorizerId:   utils.String(funcMap["authorizer_id"].(string)),
+		FunctionUrn:      funcMap["function_urn"].(string),
+		FunctionAliasUrn: funcMap["function_alias_urn"].(string),
+		NetworkType:      funcMap["network_type"].(string),
+		Timeout:          funcMap["timeout"].(int),
+		InvocationType:   funcMap["invocation_type"].(string),
+		Version:          funcMap["version"].(string),
+		AuthorizerId:     utils.String(funcMap["authorizer_id"].(string)),
+		RequestProtocol:  funcMap["request_protocol"].(string),
 	}
 }
 
@@ -1032,6 +1105,7 @@ func buildRequestParameters(requests *schema.Set) []apis.ReqParamBase {
 			PassThrough:  isObjectEnabled(paramMap["passthrough"].(bool)),
 			DefaultValue: utils.String(paramMap["default"].(string)),
 			SampleValue:  paramMap["example"].(string),
+			ValidEnable:  paramMap["valid_enable"].(int),
 		}
 		switch paramType {
 		case string(ParamTypeNumber):
@@ -1132,6 +1206,7 @@ func buildMockPolicy(policies *schema.Set) ([]apis.PolicyMock, error) {
 		result[i] = apis.PolicyMock{
 			AuthorizerId:  utils.String(pm["authorizer_id"].(string)),
 			Name:          pm["name"].(string),
+			StatusCode:    pm["status_code"].(int),
 			ResultContent: pm["response"].(string),
 			EffectMode:    pm["effective_mode"].(string),
 			Conditions:    buildPolicyConditions(pm["conditions"].(*schema.Set)),
@@ -1162,15 +1237,18 @@ func buildFuncGraphPolicy(policies *schema.Set) ([]apis.PolicyFuncGraph, error) 
 			return nil, err
 		}
 		result[i] = apis.PolicyFuncGraph{
-			AuthorizerId:   utils.String(pm["authorizer_id"].(string)),
-			Name:           pm["name"].(string),
-			FunctionUrn:    pm["function_urn"].(string),
-			InvocationType: buildInvocationType(pm["invocation_type"].(string), pm["invocation_mode"].(string)),
-			EffectMode:     pm["effective_mode"].(string),
-			Timeout:        pm["timeout"].(int),
-			Version:        pm["version"].(string),
-			Conditions:     buildPolicyConditions(pm["conditions"].(*schema.Set)),
-			BackendParams:  params,
+			AuthorizerId:     utils.String(pm["authorizer_id"].(string)),
+			Name:             pm["name"].(string),
+			FunctionUrn:      pm["function_urn"].(string),
+			FunctionAliasUrn: pm["function_alias_urn"].(string),
+			InvocationType:   buildInvocationType(pm["invocation_type"].(string), pm["invocation_mode"].(string)),
+			EffectMode:       pm["effective_mode"].(string),
+			NetworkType:      pm["network_type"].(string),
+			RequestProtocol:  pm["request_protocol"].(string),
+			Timeout:          pm["timeout"].(int),
+			Version:          pm["version"].(string),
+			Conditions:       buildPolicyConditions(pm["conditions"].(*schema.Set)),
+			BackendParams:    params,
 		}
 	}
 	return result, nil
@@ -1236,6 +1314,7 @@ func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
 		ResultFailureSample: utils.String(d.Get("failure_response").(string)),
 		ResponseId:          d.Get("response_id").(string),
 		ReqParams:           buildRequestParameters(d.Get("request_params").(*schema.Set)),
+		Tags:                utils.ExpandToStringListBySet(d.Get("tags").((*schema.Set))),
 	}
 	// build match mode
 	matchMode := d.Get("matching").(string)
@@ -1434,15 +1513,16 @@ func flattenApiRequestParams(reqParams []apis.ReqParamResp) []map[string]interfa
 	result := make([]map[string]interface{}, len(reqParams))
 	for i, v := range reqParams {
 		param := map[string]interface{}{
-			"name":        v.Name,
-			"location":    v.Location,
-			"type":        v.Type,
-			"required":    parseObjectEnabled(v.Required),
-			"passthrough": parseObjectEnabled(v.PassThrough),
-			"enumeration": v.Enumerations,
-			"example":     v.SampleValue,
-			"default":     v.DefaultValue,
-			"description": v.Description,
+			"name":         v.Name,
+			"location":     v.Location,
+			"type":         v.Type,
+			"required":     parseObjectEnabled(v.Required),
+			"passthrough":  parseObjectEnabled(v.PassThrough),
+			"enumeration":  v.Enumerations,
+			"example":      v.SampleValue,
+			"default":      v.DefaultValue,
+			"description":  v.Description,
+			"valid_enable": v.ValidEnable,
 		}
 		switch v.Type {
 		case string(ParamTypeNumber):
@@ -1464,6 +1544,7 @@ func flattenMockStructure(mockResp apis.Mock) []map[string]interface{} {
 
 	return []map[string]interface{}{
 		{
+			"status_code":   mockResp.StatusCode,
 			"response":      mockResp.ResultContent,
 			"authorizer_id": mockResp.AuthorizerId,
 		},
@@ -1477,11 +1558,14 @@ func flattenFuncGraphStructure(funcResp apis.FuncGraph) []map[string]interface{}
 
 	return []map[string]interface{}{
 		{
-			"function_urn":    funcResp.FunctionUrn,
-			"timeout":         funcResp.Timeout,
-			"invocation_type": funcResp.InvocationType,
-			"version":         funcResp.Version,
-			"authorizer_id":   funcResp.AuthorizerId,
+			"function_urn":       funcResp.FunctionUrn,
+			"function_alias_urn": funcResp.FunctionAliasUrn,
+			"timeout":            funcResp.Timeout,
+			"invocation_type":    funcResp.InvocationType,
+			"network_type":       funcResp.NetworkType,
+			"request_protocol":   funcResp.RequestProtocol,
+			"version":            funcResp.Version,
+			"authorizer_id":      funcResp.AuthorizerId,
 		},
 	}
 }
@@ -1537,6 +1621,7 @@ func flattenMockPolicy(policies []apis.PolicyMockResp) []map[string]interface{} 
 	for i, policy := range policies {
 		result[i] = map[string]interface{}{
 			"name":           policy.Name,
+			"status_code":    policy.StatusCode,
 			"response":       policy.ResultContent,
 			"effective_mode": policy.EffectMode,
 			"authorizer_id":  policy.AuthorizerId,
@@ -1552,15 +1637,18 @@ func flattenFuncGraphPolicy(policies []apis.PolicyFuncGraphResp) []map[string]in
 	result := make([]map[string]interface{}, len(policies))
 	for i, policy := range policies {
 		result[i] = map[string]interface{}{
-			"name":            policy.Name,
-			"function_urn":    policy.FunctionUrn,
-			"version":         policy.Version,
-			"invocation_type": policy.InvocationType,
-			"effective_mode":  policy.EffectMode,
-			"timeout":         policy.Timeout,
-			"authorizer_id":   policy.AuthorizerId,
-			"backend_params":  flattenBackendParameters(policy.BackendParams),
-			"conditions":      flattenPolicyConditions(policy.Conditions),
+			"name":               policy.Name,
+			"function_urn":       policy.FunctionUrn,
+			"function_alias_urn": policy.FunctionAliasUrn,
+			"version":            policy.Version,
+			"network_type":       policy.NetworkType,
+			"request_protocol":   policy.RequestProtocol,
+			"invocation_type":    policy.InvocationType,
+			"effective_mode":     policy.EffectMode,
+			"timeout":            policy.Timeout,
+			"authorizer_id":      policy.AuthorizerId,
+			"backend_params":     flattenBackendParameters(policy.BackendParams),
+			"conditions":         flattenPolicyConditions(policy.Conditions),
 		}
 	}
 
@@ -1619,6 +1707,7 @@ func resourceApiRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("group_id", resp.GroupId),
 		d.Set("name", resp.Name),
 		d.Set("authorizer_id", resp.AuthorizerId),
+		d.Set("tags", resp.Tags),
 		d.Set("request_protocol", resp.ReqProtocol),
 		d.Set("request_method", resp.ReqMethod),
 		d.Set("request_path", resp.ReqURI),
