@@ -1061,7 +1061,7 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 			if resp.Count == 0 || resp.Results[0].ErrorCode != "" {
 				return diag.Errorf("error retrieving job status, %s: %s", resp.Results[0].ErrorCode, resp.Results[0].ErrorMessage)
 			}
-			err = preCheckStatus(resp.Results[0].Status)
+			err = preCheckStatus(action.(string), resp.Results[0].Status)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -1153,6 +1153,9 @@ func updateObjectsSelection(ctx context.Context, d *schema.ResourceData, client,
 	if err != nil {
 		return err
 	}
+	if len(listResp.Jobs) == 0 || len(listResp.Jobs[0].Children) == 0 {
+		return fmt.Errorf("error getting children job info")
+	}
 	if listResp.Jobs[0].Children[0].Id == "" {
 		return fmt.Errorf("error updating synchronization object: children synchronization job ID not found")
 	}
@@ -1164,8 +1167,8 @@ func updateObjectsSelection(ctx context.Context, d *schema.ResourceData, client,
 	return nil
 }
 
-func preCheckStatus(status string) error {
-	switch status {
+func preCheckStatus(action, status string) error {
+	switch action {
 	case "stop":
 		if !utils.StrSliceContains(
 			[]string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}, status) {
@@ -1336,9 +1339,10 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 		pending = []string{"STARTJOBING", "WAITING_FOR_START"}
 		target = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}
 	case "restart":
-		pending = []string{"STARTJOBING", "WAITING_FOR_START", "CHILD_TRANSFER_STARTING"}
+		pending = []string{"STARTJOBING", "WAITING_FOR_START", "CHILD_TRANSFER_STARTING", "CHILD_TRANSFER_STARTED",
+			"CHILD_TRANSFER_COMPLETE", "RELEASE_CHILD_TRANSFER_STARTED"}
 		target = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED",
-			"CHILD_TRANSFER_STARTED", "CHILD_TRANSFER_COMPLETE"}
+			"RELEASE_CHILD_TRANSFER_COMPLETE", "DELETED"}
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -1714,7 +1718,7 @@ func preCheck(ctx context.Context, client *golangsdk.ServiceClient, jobId string
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("error waiting for DRS job: %s to be terminate: %s", jobId, err)
+		return fmt.Errorf("error waiting for DRS job(%s) precheck mode(%s) to be completed: %s", jobId, precheckMode, err)
 	}
 	return nil
 }
