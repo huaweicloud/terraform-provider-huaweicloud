@@ -125,7 +125,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"source_db.0.password", "destination_db.0.password",
-					"expired_days", "migrate_definer", "force_destroy", "action"},
+					"expired_days", "migrate_definer", "force_destroy", "action", "updated_at"},
 			},
 		},
 	})
@@ -317,7 +317,7 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"source_db.0.password", "destination_db.0.password",
-					"expired_days", "migrate_definer", "force_destroy", "status", "auto_renew"},
+					"expired_days", "migrate_definer", "force_destroy", "status", "auto_renew", "updated_at"},
 			},
 		},
 	})
@@ -474,7 +474,7 @@ func TestAccResourceDrsJob_dualAZ(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"source_db.0.password", "destination_db.0.password",
-					"expired_days", "migrate_definer", "force_destroy", "status"},
+					"expired_days", "migrate_definer", "force_destroy", "status", "updated_at"},
 			},
 		},
 	})

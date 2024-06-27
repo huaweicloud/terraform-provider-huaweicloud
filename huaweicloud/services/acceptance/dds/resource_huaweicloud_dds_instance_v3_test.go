@@ -117,7 +117,7 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"availability_zone", "flavor", "password",
+					"availability_zone", "flavor", "password", "groups", "nodes",
 				},
 			},
 		},
