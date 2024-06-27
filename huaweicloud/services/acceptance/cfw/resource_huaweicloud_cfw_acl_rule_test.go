@@ -69,7 +69,7 @@ func TestAccACLRule_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_cfw_acl_rule.test"
+	rName := "huaweicloud_cfw_acl_rule.r1"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -426,10 +426,10 @@ func testACLRuleImportState(name string) resource.ImportStateIdFunc {
 
 func testAccACLRule_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_cfw_acl_rule" "test" {
-  name                = "%s"
+resource "huaweicloud_cfw_acl_rule" "r1" {
+  name                = "%[2]s"
   object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
   description         = "terraform test"
   type                = 0
@@ -454,6 +454,38 @@ resource "huaweicloud_cfw_acl_rule" "test" {
   tags = {
     key = "value"
   }
+
+  depends_on = [
+    huaweicloud_cfw_acl_rule.r2,
+  ]
+}
+
+resource "huaweicloud_cfw_acl_rule" "r2" {
+  name                = "%[2]s2"
+  object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
+  description         = "terraform test"
+  type                = 0
+  address_type        = 0
+  action_type         = 0
+  long_connect_enable = 0
+  status              = 1
+  
+  source_addresses      = ["2.2.2.2"]
+  destination_addresses = ["3.3.3.3"]
+  
+  custom_services {
+    protocol    = 6
+    source_port = 81
+    dest_port   = 82
+  }
+  
+  sequence {
+    top = 1
+  }
+  
+  tags = {
+    key = "value"
+  }
 }
 `, testAccDatasourceFirewalls_basic(), name)
 }
@@ -462,7 +494,7 @@ func testAccACLRule_basic_update(name string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_cfw_acl_rule" "test" {
+resource "huaweicloud_cfw_acl_rule" "r1" {
   name                = "%s"
   object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
   description         = "terraform test"
@@ -488,11 +520,44 @@ resource "huaweicloud_cfw_acl_rule" "test" {
   }
 
   sequence {
-    top = 1
+    top          = 0
+    dest_rule_id = huaweicloud_cfw_acl_rule.r2.id
   }
 
   tags = {
     k1 = "v1"
+  }
+
+  depends_on = [
+    huaweicloud_cfw_acl_rule.r2,
+  ]
+}
+
+resource "huaweicloud_cfw_acl_rule" "r2" {
+  name                = "%[2]s2"
+  object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
+  description         = "terraform test"
+  type                = 0
+  address_type        = 0
+  action_type         = 0
+  long_connect_enable = 0
+  status              = 1
+  
+  source_addresses      = ["2.2.2.2"]
+  destination_addresses = ["3.3.3.3"]
+  
+  custom_services {
+    protocol    = 6
+    source_port = 81
+    dest_port   = 82
+  }
+  
+  sequence {
+    top = 1
+  }
+  
+  tags = {
+    key = "value"
   }
 }
 `, testAccDatasourceFirewalls_basic(), name)
