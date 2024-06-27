@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 	v1rules "github.com/chnsz/golangsdk/openstack/networking/v1/security/rules"
 	v1groups "github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups"
 	v2groups "github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups"
@@ -23,6 +24,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 var securityGroupRuleSchema = &schema.Schema{
@@ -97,6 +99,9 @@ var securityGroupRuleSchema = &schema.Schema{
 // @API VPC DELETE /v1/{project_id}/security-groups/{securityGroupId}
 // @API VPC GET /v1/{project_id}/security-groups/{securityGroupId}
 // @API VPC POST /v1/{project_id}/security-groups
+// @API VPC POST /v2.0/{project_id}/security-groups/{id}/tags/action
+// @API VPC DELETE /v2.0/{project_id}/security-groups/{id}/tags/action
+// @API VPC GET /v2.0/{project_id}/security-groups/{id}/tags
 func ResourceNetworkingSecGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkingSecGroupCreate,
@@ -138,6 +143,7 @@ func ResourceNetworkingSecGroup() *schema.Resource {
 				ForceNew: true,
 			},
 			"rules": securityGroupRuleSchema,
+			"tags":  common.TagsSchema(),
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -196,6 +202,19 @@ func resourceNetworkingSecGroupCreate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
+	// set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		v2Client, err := cfg.NetworkingV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating networking v2 client: %s", err)
+		}
+		taglist := utils.ExpandResourceTags(tagRaw)
+		if tagErr := tags.Create(v2Client, "security-groups", d.Id(), taglist).ExtractErr(); tagErr != nil {
+			return diag.Errorf("error setting tags of security group %q: %s", d.Id(), tagErr)
+		}
+	}
+
 	return resourceNetworkingSecGroupRead(ctx, d, meta)
 }
 
@@ -235,6 +254,20 @@ func resourceNetworkingSecGroupCreateV1(ctx context.Context, d *schema.ResourceD
 			}
 		}
 	}
+
+	// set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		v2Client, err := cfg.NetworkingV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating networking v2 client: %s", err)
+		}
+		taglist := utils.ExpandResourceTags(tagRaw)
+		if tagErr := tags.Create(v2Client, "security-groups", d.Id(), taglist).ExtractErr(); tagErr != nil {
+			return diag.Errorf("error setting tags of security group %q: %s", d.Id(), tagErr)
+		}
+	}
+
 	return resourceNetworkingSecGroupRead(ctx, d, meta)
 }
 
@@ -284,6 +317,20 @@ func resourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, m
 
 	// If the query process returns an error, either because the specified region does not exist or the v3 API is
 	// not released, or other reasons, skip the setting.
+
+	// save VirtualPrivateCloudV2 tags
+	v2Client, err := cfg.NetworkingV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating networking v2 client: %s", err)
+	}
+	if resourceTags, err := tags.Get(v2Client, "security-groups", d.Id()).Extract(); err == nil {
+		tagmap := utils.TagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return diag.Errorf("error saving tags to state for security group (%s): %s", d.Id(), err)
+		}
+	} else {
+		log.Printf("[WARN] error fetching tags of security group (%s): %s", d.Id(), err)
+	}
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -375,6 +422,19 @@ func resourceNetworkingSecGroupUpdate(ctx context.Context, d *schema.ResourceDat
 			}
 		} else {
 			return diag.Errorf("error updating security group (%s): %s", d.Id(), err)
+		}
+	}
+
+	// update tags
+	if d.HasChange("tags") {
+		v2Client, err := cfg.NetworkingV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating networking v2 client: %s", err)
+		}
+
+		tagErr := utils.UpdateResourceTags(v2Client, d, "security-groups", d.Id())
+		if tagErr != nil {
+			return diag.Errorf("error updating tags of security group %s: %s", d.Id(), tagErr)
 		}
 	}
 

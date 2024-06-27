@@ -35,6 +35,8 @@ The following arguments are supported:
 * `delete_default_rules` - (Optional, Bool, ForceNew) Specifies whether or not to delete the default security rules.
   This is `false` by default.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the security group.
+
 -> **NOTE:** The default security rules are described
 in [HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-vpc/SecurityGroup_0003.html). See the below
 section for more information.
