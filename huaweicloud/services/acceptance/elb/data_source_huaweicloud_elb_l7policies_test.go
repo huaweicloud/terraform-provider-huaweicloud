@@ -56,6 +56,8 @@ func testAccDatasourceL7Policies_basic(name string) string {
 
 data "huaweicloud_elb_l7policies" "test" {
   depends_on = [huaweicloud_elb_l7policy.test]
+
+  l7policy_id = huaweicloud_elb_l7policy.test.id
 }
 
 data "huaweicloud_elb_l7policies" "name_filter" {
@@ -198,6 +200,8 @@ func testAccDatasourceL7Policies_url(name string) string {
 
 data "huaweicloud_elb_l7policies" "test" {
   depends_on = [huaweicloud_elb_l7policy.test]
+
+  l7policy_id = huaweicloud_elb_l7policy.test.id
 }
 
 locals {
@@ -253,6 +257,8 @@ func testAccDatasourceL7Policies_fixed_response(name string) string {
 
 data "huaweicloud_elb_l7policies" "test" {
   depends_on = [huaweicloud_elb_l7policy.test]
+
+  l7policy_id = huaweicloud_elb_l7policy.test.id
 }
 
 locals {

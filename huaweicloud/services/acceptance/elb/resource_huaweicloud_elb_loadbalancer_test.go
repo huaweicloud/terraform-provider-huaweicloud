@@ -66,7 +66,7 @@ func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "charge_mode", "flavor"),
+					resource.TestCheckResourceAttr(resourceName, "charge_mode", "lcu"),
 					resource.TestCheckResourceAttr(resourceName, "guaranteed", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttr(resourceName, "waf_failure_action", "discard"),
@@ -434,11 +434,26 @@ resource "huaweicloud_vpc_subnet" "test_1" {
   gateway_ip = "192.168.1.1"
 }
 
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+
+  bandwidth {
+    name        = "%[2]s"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name               = "%[2]s"
-  vpc_id             = huaweicloud_vpc.test.id
-  ipv4_subnet_id     = huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  waf_failure_action = "discard"
+  name                = "%[2]s"
+  vpc_id              = huaweicloud_vpc.test.id
+  ipv4_subnet_id      = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  ipv4_eip_id         = huaweicloud_vpc_eip.test.id
+  waf_failure_action  = "discard"
+  autoscaling_enabled = true
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -471,12 +486,27 @@ resource "huaweicloud_vpc_subnet" "test_1" {
   gateway_ip = "192.168.1.1"
 }
 
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+
+  bandwidth {
+    name        = "%[2]s"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name               = "%[3]s"
-  cross_vpc_backend  = true
-  vpc_id             = huaweicloud_vpc.test.id
-  ipv4_subnet_id     = huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  waf_failure_action = "forward"
+  name                = "%[3]s"
+  cross_vpc_backend   = true
+  vpc_id              = huaweicloud_vpc.test.id
+  ipv4_subnet_id      = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  ipv4_eip_id         = huaweicloud_vpc_eip.test.id
+  waf_failure_action  = "forward"
+  autoscaling_enabled = true
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]

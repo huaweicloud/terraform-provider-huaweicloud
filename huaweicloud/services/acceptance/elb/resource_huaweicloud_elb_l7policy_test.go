@@ -716,7 +716,7 @@ resource "huaweicloud_elb_listener" "test_redirect" {
   protocol_port               = 443
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = true
-  server_certificate          = huaweicloud_elb_certificate.test.id
+  server_certificate          = huaweicloud_elb_certificate.server.id
 }
 
 resource "huaweicloud_elb_l7policy" "test" {
@@ -741,7 +741,7 @@ resource "huaweicloud_elb_listener" "test_redirect" {
   protocol_port               = 443
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = true
-  server_certificate          = huaweicloud_elb_certificate.test.id
+  server_certificate          = huaweicloud_elb_certificate.server.id
 }
 
 resource "huaweicloud_elb_listener" "test_redirect_update" {
@@ -750,7 +750,7 @@ resource "huaweicloud_elb_listener" "test_redirect_update" {
   protocol_port               = 448
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = true
-  server_certificate          = huaweicloud_elb_certificate.test.id
+  server_certificate          = huaweicloud_elb_certificate.server.id
 }
 
 resource "huaweicloud_elb_l7policy" "test" {
