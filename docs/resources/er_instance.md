@@ -64,7 +64,13 @@ attachment.
 
 * `default_propagation_route_table_id` - (Optional, String) The ID of the default propagation route table.
 
+  -> Before modifying the default routing table of this instance (except cancel the default route table), make sure
+     `enable_default_propagation` is set to **true**.
+
 * `default_association_route_table_id` - (Optional, String) The ID of the default association route table.
+
+  -> Before modifying the default routing table of this instance (except cancel the default route table), make sure
+     `enable_default_association` is set to **true**.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 

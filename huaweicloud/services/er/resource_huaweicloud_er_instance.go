@@ -82,7 +82,6 @@ func ResourceInstance() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				Description: `The description of the Enterprise router.`,
 				ValidateFunc: validation.All(
 					validation.StringLenBetween(0, 255),
@@ -99,19 +98,16 @@ func ResourceInstance() *schema.Resource {
 			"enable_default_propagation": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Computed:    true,
 				Description: `Whether to enable the propagation of the default route table.`,
 			},
 			"enable_default_association": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Computed:    true,
 				Description: `Whether to enable the association of the default route table.`,
 			},
 			"auto_accept_shared_attachments": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Computed:    true,
 				Description: `Whether to automatically accept the creation of shared attachment.`,
 			},
 			"default_propagation_route_table_id": {
@@ -257,6 +253,8 @@ func buildUpdateInstanceDefaultRouteTablesBodyParams(d *schema.ResourceData) map
 
 func buildUpdateInstanceDefaultRouteTablesInstanceChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
+		"enable_default_propagation":         utils.ValueIgnoreEmpty(d.Get("enable_default_propagation")),
+		"enable_default_association":         utils.ValueIgnoreEmpty(d.Get("enable_default_association")),
 		"default_propagation_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_propagation_route_table_id")),
 		"default_association_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_association_route_table_id")),
 	}
@@ -483,13 +481,17 @@ func buildUpdateInstanceBodyParams(d *schema.ResourceData) map[string]interface{
 
 func buildUpdateInstanceInstanceChildBody(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"name":                               utils.ValueIgnoreEmpty(d.Get("name")),
-		"description":                        utils.ValueIgnoreEmpty(d.Get("description")),
-		"enable_default_propagation":         utils.ValueIgnoreEmpty(d.Get("enable_default_propagation")),
-		"enable_default_association":         utils.ValueIgnoreEmpty(d.Get("enable_default_association")),
-		"default_propagation_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_propagation_route_table_id")),
-		"default_association_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_association_route_table_id")),
-		"auto_accept_shared_attachments":     utils.ValueIgnoreEmpty(d.Get("auto_accept_shared_attachments")),
+		"name":                           utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":                    d.Get("description"),
+		"enable_default_propagation":     d.Get("enable_default_propagation"),
+		"enable_default_association":     d.Get("enable_default_association"),
+		"auto_accept_shared_attachments": d.Get("auto_accept_shared_attachments"),
+	}
+	if d.Get("enable_default_propagation").(bool) {
+		params["default_propagation_route_table_id"] = utils.ValueIgnoreEmpty(d.Get("default_propagation_route_table_id"))
+	}
+	if d.Get("enable_default_association").(bool) {
+		params["default_association_route_table_id"] = utils.ValueIgnoreEmpty(d.Get("default_association_route_table_id"))
 	}
 	return params
 }
