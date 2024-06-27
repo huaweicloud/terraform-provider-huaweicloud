@@ -163,7 +163,7 @@ func resourceL7RuleV2Create(ctx context.Context, d *schema.ResourceData, meta in
 		// Fallback for the Neutron LBaaSv2 extension
 		listenerID, err = getListenerIDForL7Policy(lbClient, l7policyID)
 		if err != nil {
-			diag.FromErr(err)
+			return diag.FromErr(err)
 		}
 	}
 
@@ -262,7 +262,7 @@ func resourceL7RuleV2Update(ctx context.Context, d *schema.ResourceData, meta in
 	// Ensure the right combination of options have been specified.
 	err = checkL7RuleType(ruleType, key)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutUpdate)
@@ -288,13 +288,13 @@ func resourceL7RuleV2Update(ctx context.Context, d *schema.ResourceData, meta in
 	// Wait for parent L7 Policy to become active before continuing
 	err = waitForLBV2L7Policy(ctx, lbClient, parentListener, parentL7Policy, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 
 	// Wait for L7 Rule to become active before continuing
 	err = waitForLBV2L7Rule(ctx, lbClient, parentListener, parentL7Policy, l7Rule, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 
 	logp.Printf("[DEBUG] Updating L7 Rule %s with options: %#v", d.Id(), updateOpts)
@@ -314,7 +314,7 @@ func resourceL7RuleV2Update(ctx context.Context, d *schema.ResourceData, meta in
 	// Wait for L7 Rule to become active before continuing
 	err = waitForLBV2L7Rule(ctx, lbClient, parentListener, parentL7Policy, l7Rule, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 
 	return resourceL7RuleV2Read(ctx, d, meta)
@@ -353,7 +353,7 @@ func resourceL7RuleV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 	// Wait for parent L7 Policy to become active before continuing
 	err = waitForLBV2L7Policy(ctx, lbClient, parentListener, parentL7Policy, "ACTIVE", lbPendingStatuses, timeout)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 
 	logp.Printf("[DEBUG] Attempting to delete L7 Rule %s", d.Id())
@@ -372,7 +372,7 @@ func resourceL7RuleV2Delete(ctx context.Context, d *schema.ResourceData, meta in
 
 	err = waitForLBV2L7Rule(ctx, lbClient, parentListener, parentL7Policy, l7Rule, "DELETED", lbPendingDeleteStatuses, timeout)
 	if err != nil {
-		diag.FromErr(err)
+		return diag.FromErr(err)
 	}
 
 	return nil
