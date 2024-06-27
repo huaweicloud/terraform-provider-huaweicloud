@@ -107,15 +107,7 @@ func resourceLtsLogCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	opt.JSONBody = buildLtsLogConfigurationBodyParams(d)
 	resp, err := client.Request("POST", path, &opt)
 	if err != nil {
-		// Ignore the error if the log configuration already exists.
-		if parseError(err) != nil {
-			return diag.Errorf("error creating CFW lts log configuration: %s", err)
-		}
-
-		resp, err = client.Request("PUT", path, &opt)
-		if err != nil {
-			return diag.Errorf("error creating CFW lts log configuration: %s", err)
-		}
+		return diag.Errorf("error creating CFW lts log configuration: %s", err)
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
@@ -142,10 +134,6 @@ func parseError(err error) error {
 		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
 		if errorCodeErr != nil {
 			return err
-		}
-		// The log configuration already exists.
-		if errorCode == "CFW.00300003" {
-			return nil
 		}
 		if errorCode == "CFW.00200005" {
 			return golangsdk.ErrDefault404(errCode)
@@ -192,9 +180,8 @@ func resourceLtsLogRead(_ context.Context, d *schema.ResourceData, meta interfac
 		KeepResponseBody: true,
 	}
 	resp, err := client.Request("GET", path, &opt)
-	err = parseError(err)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CFW lts log configuration")
+		return common.CheckDeletedDiag(d, parseError(err), "error retrieving CFW lts log configuration")
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
