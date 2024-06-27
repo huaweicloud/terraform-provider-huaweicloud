@@ -61,7 +61,7 @@ func TestAccStructConfig_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_lts_structuring_configuration.test"
+	rName := "huaweicloud_lts_structing_template.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -126,7 +126,7 @@ func TestAccStructConfig_customTemplate(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_lts_structuring_configuration.test"
+	rName := "huaweicloud_lts_structing_template.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -194,7 +194,7 @@ func testStructConfig_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_lts_structuring_configuration" "test" {
+resource "huaweicloud_lts_structing_template" "test" {
   log_group_id  = huaweicloud_lts_group.test.id
   log_stream_id = huaweicloud_lts_stream.test.id
   template_type = "built_in"
@@ -222,7 +222,7 @@ func testStructConfig_basic_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_lts_structuring_configuration" "test" {
+resource "huaweicloud_lts_structing_template" "test" {
   log_group_id   = huaweicloud_lts_group.test.id
   log_stream_id  = huaweicloud_lts_stream.test.id
   template_type  = "built_in"
@@ -251,7 +251,7 @@ func testStructConfig_custom(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_lts_structuring_configuration" "test" {
+resource "huaweicloud_lts_structing_template" "test" {
   log_group_id   = huaweicloud_lts_group.test.id
   log_stream_id  = huaweicloud_lts_stream.test.id
   template_type  = "custom"
@@ -266,7 +266,7 @@ func testStructConfig_custom_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_lts_structuring_configuration" "test" {
+resource "huaweicloud_lts_structing_template" "test" {
   log_group_id   = huaweicloud_lts_group.test.id
   log_stream_id  = huaweicloud_lts_stream.test.id
   template_type  = "built_in"

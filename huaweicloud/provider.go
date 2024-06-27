@@ -1464,7 +1464,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_log_converge":                     lts.ResourceLogConverge(),
 			"huaweicloud_lts_log_converge_switch":              lts.ResourceLogConvergeSwitch(),
 			"huaweicloud_lts_stream":                           lts.ResourceLTSStream(),
-			"huaweicloud_lts_structuring_configuration":        lts.ResourceStructConfig(),
+			"huaweicloud_lts_structing_template":               lts.ResourceStructConfig(),
 			"huaweicloud_lts_structuring_custom_configuration": lts.ResourceStructCustomConfig(),
 			"huaweicloud_lts_transfer":                         lts.ResourceLtsTransfer(),
 			"huaweicloud_lts_keywords_alarm_rule":              lts.ResourceKeywordsAlarmRule(),
@@ -1904,6 +1904,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cs_route_v1":           deprecated.ResourceCsRouteV1(),
 			"huaweicloud_cs_peering_connect":    deprecated.ResourceCsPeeringConnectV1(),
 			"huaweicloud_cs_peering_connect_v1": deprecated.ResourceCsPeeringConnectV1(),
+
+			"huaweicloud_lts_structuring_configuration": lts.ResourceStructConfig(),
 
 			"huaweicloud_vbs_backup":           deprecated.ResourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy":    deprecated.ResourceVBSBackupPolicyV2(),

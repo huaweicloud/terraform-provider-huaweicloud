@@ -1,11 +1,11 @@
 ---
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_lts_structuring_configuration"
+page_title: "HuaweiCloud: huaweicloud_lts_structing_template"
 description: ""
 ---
 
-# huaweicloud_lts_structuring_configuration
+# huaweicloud_lts_structing_template
 
 Manages an LTS structuring configuration resource within HuaweiCloud.
 
@@ -17,7 +17,7 @@ Manages an LTS structuring configuration resource within HuaweiCloud.
 variable "log_group_id" {}
 variable "log_stream_id" {}
 
-resource "huaweicloud_lts_structuring_configuration" "test" {
+resource "huaweicloud_lts_structing_template" "test" {
   log_group_id  = var.log_group_id
   log_stream_id = var.log_stream_id
   template_name = "CTS"
@@ -33,7 +33,7 @@ variable "log_stream_id" {}
 variable "template_name" {}
 variable "template_id" {}
 
-resource "huaweicloud_lts_structuring_configuration" "test" {
+resource "huaweicloud_lts_structing_template" "test" {
   log_group_id  = var.log_group_id
   log_stream_id = var.log_stream_id
   template_name = var.template_name
@@ -135,7 +135,7 @@ In addition to all arguments above, the following attributes are exported:
 The LTS structuring configuration can be imported using `log_group_id` and `log_stream_id`, separated by a slash, e.g.
 
 ```bash
-$ terraform import huaweicloud_lts_structuring_configuration.test <log_group_id>/<log_stream_id>
+$ terraform import huaweicloud_lts_structing_template.test <log_group_id>/<log_stream_id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -146,7 +146,7 @@ You can then decide if changes should be applied to the resource, or the resourc
 with the resource. Also, you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_lts_structuring_configuration" "test" {
+resource "huaweicloud_lts_structing_template" "test" {
   ...
   
   lifecycle {
