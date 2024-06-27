@@ -95,6 +95,8 @@ The following arguments are supported:
 * `associated_subnets` - (Optional, List) Specifies the associated subnets of the network ACL.
   The [associated_subnets](#subnets) structure is documented below.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the network ACL.
+
 <a name="rules"></a>
 The `ingress_rules` and `egress_rules` block supports:
 
