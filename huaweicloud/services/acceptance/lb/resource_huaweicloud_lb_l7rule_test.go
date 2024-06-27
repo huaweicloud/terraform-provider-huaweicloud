@@ -2,7 +2,6 @@ package lb
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -49,10 +48,10 @@ func TestAccLBV2L7Rule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "PATH"),
 					resource.TestCheckResourceAttr(resourceName, "compare_type", "EQUAL_TO"),
 					resource.TestCheckResourceAttr(resourceName, "value", "/api"),
-					resource.TestMatchResourceAttr(resourceName, "listener_id",
-						regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")),
-					resource.TestMatchResourceAttr(resourceName, "l7policy_id",
-						regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")),
+					resource.TestCheckResourceAttrPair(resourceName, "listener_id",
+						"huaweicloud_lb_listener.listener_1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "l7policy_id",
+						"huaweicloud_lb_l7policy.l7policy_1", "id"),
 				),
 			},
 			{

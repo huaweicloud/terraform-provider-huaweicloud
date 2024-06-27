@@ -46,6 +46,8 @@ func TestAccLBV2Certificate_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "description", "terraform test certificate"),
+					resource.TestCheckResourceAttr(resourceName, "domain", "www.elb.com"),
 					resource.TestCheckResourceAttr(resourceName, "type", "server"),
 				),
 			},
@@ -53,6 +55,8 @@ func TestAccLBV2Certificate_basic(t *testing.T) {
 				Config: testAccLBV2CertificateConfig_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_updated", name)),
+					resource.TestCheckResourceAttr(resourceName, "description", "terraform test certificate update"),
+					resource.TestCheckResourceAttr(resourceName, "domain", "www.elbUpdate.com"),
 				),
 			},
 			{
@@ -195,8 +199,8 @@ func testAccLBV2CertificateConfig_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_lb_certificate" "certificate_1" {
   name        = "%s_updated"
-  description = "terraform test certificate"
-  domain      = "www.elb.com"
+  description = "terraform test certificate update"
+  domain      = "www.elbUpdate.com"
   private_key = <<EOT
 -----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAwZ5UJULAjWr7p6FVwGRQRjFN2s8tZ/6LC3X82fajpVsYqF1x

@@ -133,6 +133,20 @@ func TestAccLBV2Monitor_http(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "expected_codes", "200-202"),
 				),
 			},
+			{
+				Config: testAccLBV2MonitorConfig_http_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "delay", "30"),
+					resource.TestCheckResourceAttr(resourceName, "timeout", "20"),
+					resource.TestCheckResourceAttr(resourceName, "max_retries", "6"),
+					resource.TestCheckResourceAttr(resourceName, "url_path", "/apiUpdate"),
+					resource.TestCheckResourceAttr(resourceName, "http_method", "GET"),
+					resource.TestCheckResourceAttr(resourceName, "expected_codes", "400-404"),
+				),
+			},
 		},
 	})
 }
@@ -144,24 +158,24 @@ data "huaweicloud_vpc_subnet" "test" {
 }
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "%s"
+  name          = "%[1]s"
   vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "%s"
+  name            = "%[1]s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
 resource "huaweicloud_lb_pool" "pool_1" {
-  name        = "%s"
-  protocol    = "HTTP"
-  lb_method   = "ROUND_ROBIN"
-  listener_id = huaweicloud_lb_listener.listener_1.id
+  name            = "%[1]s"
+  protocol        = "HTTP"
+  lb_method       = "ROUND_ROBIN"
+  listener_id     = huaweicloud_lb_listener.listener_1.id
 }
-`, rName, rName, rName)
+`, rName)
 }
 
 func testAccLBV2MonitorConfig_basic(rName string) string {
@@ -206,8 +220,27 @@ resource "huaweicloud_lb_monitor" "monitor_http" {
   delay          = 20
   timeout        = 10
   max_retries    = 5
+  http_method    = "GET"
   url_path       = "/api"
   expected_codes = "200-202"
+}
+`, testAccLBV2MonitorConfig_base(rName), rName)
+}
+
+func testAccLBV2MonitorConfig_http_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_lb_monitor" "monitor_http" {
+  pool_id        = huaweicloud_lb_pool.pool_1.id
+  name           = "%s"
+  type           = "HTTP"
+  delay          = 30
+  timeout        = 20
+  max_retries    = 6
+  http_method    = "GET"
+  url_path       = "/apiUpdate"
+  expected_codes = "400-404"
 }
 `, testAccLBV2MonitorConfig_base(rName), rName)
 }
