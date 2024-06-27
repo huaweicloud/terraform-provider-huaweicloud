@@ -142,29 +142,66 @@ func ResourceInstance() *schema.Resource {
 	}
 }
 
-func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func buildUpdateInstanceDefaultRouteTablesBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"instance": buildUpdateInstanceDefaultRouteTablesInstanceChildBody(d),
+	}
+	return bodyParams
+}
 
-	// createInstance: Create an Enterprise router instance.
-	createInstanceHttpUrl := "enterprise-router/instances"
-	client, err := cfg.ErV3Client(region)
-	if err != nil {
-		return diag.Errorf("error creating ER v3 Client: %s", err)
+func buildUpdateInstanceDefaultRouteTablesInstanceChildBody(d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
+		// The enable switch parameters must be set if the default route table IDs have been changed.
+		"enable_default_propagation":         utils.ValueIgnoreEmpty(d.Get("enable_default_propagation")),
+		"enable_default_association":         utils.ValueIgnoreEmpty(d.Get("enable_default_association")),
+		"default_propagation_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_propagation_route_table_id")),
+		"default_association_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_association_route_table_id")),
+	}
+	return params
+}
+
+func updateDefaultRouteTables(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		httpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{er_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateInstanceDefaultRouteTablesBodyParams(d)),
 	}
 
-	createInstancePath := client.ResourceBaseURL() + createInstanceHttpUrl
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating the default route tables of the instance: %s", err)
+	}
+	return nil
+}
 
+func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/enterprise-router/instances"
+	)
+	client, err := cfg.NewServiceClient("er", region)
+	if err != nil {
+		return diag.Errorf("error creating ER Client: %s", err)
+	}
+
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			202,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateInstanceBodyParams(d, cfg)),
 	}
-	createInstanceOpt.JSONBody = utils.RemoveNil(buildCreateInstanceBodyParams(d, cfg))
-	createInstanceResp, err := client.Request("POST", createInstancePath, &createInstanceOpt)
+
+	createInstanceResp, err := client.Request("POST", createPath, &createInstanceOpt)
 	if err != nil {
-		return diag.Errorf("error creating Instance: %s", err)
+		return diag.Errorf("error creating instance: %s", err)
 	}
 
 	createInstanceRespBody, err := utils.FlattenResponse(createInstanceResp)
@@ -174,50 +211,26 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 	id, err := jmespath.Search("instance.id", createInstanceRespBody)
 	if err != nil {
-		return diag.Errorf("error creating Instance: ID is not found in API response")
+		return diag.Errorf("the resource ID is not found in the API response")
 	}
 	d.SetId(id.(string))
 
-	err = instanceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	err = instanceWaitingForStateCompleted(ctx, client, d, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the Create of Instance (%s) to complete: %s", d.Id(), err)
-	}
-	// updateInstanceDefaultRouteTables: Update default route tables
-	var (
-		updateInstanceDefaultRouteTablesHttpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
-		updateInstanceDefaultRouteTablesProduct = "er"
-	)
-	updateInstanceDefaultRouteTablesClient, err := cfg.NewServiceClient(updateInstanceDefaultRouteTablesProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating Instance Client: %s", err)
+		return diag.Errorf("error waiting for the create operation of the instance (%s) to complete: %s", d.Id(), err)
 	}
 
-	updateInstanceDefaultRouteTablesPath := updateInstanceDefaultRouteTablesClient.Endpoint + updateInstanceDefaultRouteTablesHttpUrl
-	updateInstanceDefaultRouteTablesPath = strings.ReplaceAll(updateInstanceDefaultRouteTablesPath, "{project_id}",
-		updateInstanceDefaultRouteTablesClient.ProjectID)
-	updateInstanceDefaultRouteTablesPath = strings.ReplaceAll(updateInstanceDefaultRouteTablesPath, "{er_id}", d.Id())
-
-	updateInstanceDefaultRouteTablesOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	updateInstanceDefaultRouteTablesOpt.JSONBody = utils.RemoveNil(buildUpdateInstanceDefaultRouteTablesBodyParams(d))
-	updateInstanceDefaultRouteTablesResp, err := updateInstanceDefaultRouteTablesClient.Request("PUT", updateInstanceDefaultRouteTablesPath,
-		&updateInstanceDefaultRouteTablesOpt)
-	if err != nil {
-		return diag.Errorf("error creating Instance: %s", err)
+	if d.Get("default_propagation_route_table_id") != "" || d.Get("default_association_route_table_id") != "" {
+		if err = updateDefaultRouteTables(client, d); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
-	_, err = utils.FlattenResponse(updateInstanceDefaultRouteTablesResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	err = utils.UpdateResourceTags(client, d, "instance", d.Id())
-	if err != nil {
-		return diag.Errorf("error creating instance tags: %s", err)
+	if _, ok := d.GetOk("tags"); ok {
+		err = utils.UpdateResourceTags(client, d, "instance", d.Id())
+		if err != nil {
+			return diag.Errorf("error creating instance tags: %s", err)
+		}
 	}
 
 	return resourceInstanceRead(ctx, d, meta)
@@ -244,43 +257,15 @@ func buildCreateInstanceInstanceChildBody(d *schema.ResourceData, cfg *config.Co
 	return params
 }
 
-func buildUpdateInstanceDefaultRouteTablesBodyParams(d *schema.ResourceData) map[string]interface{} {
-	bodyParams := map[string]interface{}{
-		"instance": buildUpdateInstanceDefaultRouteTablesInstanceChildBody(d),
-	}
-	return bodyParams
-}
-
-func buildUpdateInstanceDefaultRouteTablesInstanceChildBody(d *schema.ResourceData) map[string]interface{} {
-	params := map[string]interface{}{
-		"enable_default_propagation":         utils.ValueIgnoreEmpty(d.Get("enable_default_propagation")),
-		"enable_default_association":         utils.ValueIgnoreEmpty(d.Get("enable_default_association")),
-		"default_propagation_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_propagation_route_table_id")),
-		"default_association_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_association_route_table_id")),
-	}
-	return params
-}
-
-func instanceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func instanceWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			cfg := meta.(*config.Config)
-			region := cfg.GetRegion(d)
-			// createInstanceWaiting: Query the Enterprise router instance status
-			var (
-				createInstanceWaitingHttpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
-				createInstanceWaitingProduct = "er"
-			)
-			createInstanceWaitingClient, err := cfg.NewServiceClient(createInstanceWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Instance Client: %s", err)
-			}
-
-			createInstanceWaitingPath := createInstanceWaitingClient.Endpoint + createInstanceWaitingHttpUrl
-			createInstanceWaitingPath = strings.ReplaceAll(createInstanceWaitingPath, "{project_id}", createInstanceWaitingClient.ProjectID)
-			createInstanceWaitingPath = strings.ReplaceAll(createInstanceWaitingPath, "{er_id}", d.Id())
+			httpUrl := "v3/{project_id}/enterprise-router/instances/{er_id}"
+			refreshPath := client.Endpoint + httpUrl
+			refreshPath = strings.ReplaceAll(refreshPath, "{project_id}", client.ProjectID)
+			refreshPath = strings.ReplaceAll(refreshPath, "{er_id}", d.Id())
 
 			createInstanceWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -288,12 +273,12 @@ func instanceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceDat
 					200,
 				},
 			}
-			createInstanceWaitingResp, err := createInstanceWaitingClient.Request("GET", createInstanceWaitingPath, &createInstanceWaitingOpt)
+			requestResp, err := client.Request("GET", refreshPath, &createInstanceWaitingOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			createInstanceWaitingRespBody, err := utils.FlattenResponse(createInstanceWaitingResp)
+			createInstanceWaitingRespBody, err := utils.FlattenResponse(requestResp)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -321,24 +306,19 @@ func instanceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getInstance: Query the Enterprise router instance detail
 	var (
-		getInstanceHttpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
-		getInstanceProduct = "er"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
 	)
-	getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
+	client, err := cfg.NewServiceClient("er", region)
 	if err != nil {
-		return diag.Errorf("error creating Instance Client: %s", err)
+		return diag.Errorf("error creating ER Client: %s", err)
 	}
 
-	getInstancePath := getInstanceClient.Endpoint + getInstanceHttpUrl
-	getInstancePath = strings.ReplaceAll(getInstancePath, "{project_id}", getInstanceClient.ProjectID)
-	getInstancePath = strings.ReplaceAll(getInstancePath, "{er_id}", d.Id())
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{er_id}", d.Id())
 
 	getInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -346,19 +326,16 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 			200,
 		},
 	}
-	getInstanceResp, err := getInstanceClient.Request("GET", getInstancePath, &getInstanceOpt)
-
+	getInstanceResp, err := client.Request("GET", getPath, &getInstanceOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Instance")
+		return common.CheckDeletedDiag(d, err, "error retrieving instance")
 	}
-
 	getInstanceRespBody, err := utils.FlattenResponse(getInstanceResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("instance.name", getInstanceRespBody, nil)),
 		d.Set("description", utils.PathSearch("instance.description", getInstanceRespBody, nil)),
@@ -380,12 +357,14 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 }
 
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	instanceId := d.Id()
-	client, err := cfg.ErV3Client(region)
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		instanceId = d.Id()
+	)
+	client, err := cfg.NewServiceClient("er", region)
 	if err != nil {
-		return diag.Errorf("error creating ER v3 Client: %s", err)
+		return diag.Errorf("error creating ER Client: %s", err)
 	}
 
 	updateInstancehasChanges := []string{
@@ -399,11 +378,11 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	if d.HasChanges(updateInstancehasChanges...) {
-		// updateInstance: Update the configuration of Enterprise router instance
-		updateInstanceHttpUrl := "enterprise-router/instances/{er_id}"
-		updateInstancePath := client.ResourceBaseURL() + updateInstanceHttpUrl
-		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{project_id}", client.ProjectID)
-		updateInstancePath = strings.ReplaceAll(updateInstancePath, "{er_id}", instanceId)
+		// Update the basic configuration of instance
+		httpUrl := "v3/{project_id}/enterprise-router/instances/{er_id}"
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{er_id}", instanceId)
 
 		updateInstanceOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -412,13 +391,13 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			},
 		}
 		updateInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateInstanceBodyParams(d))
-		_, err = client.Request("PUT", updateInstancePath, &updateInstanceOpt)
+		_, err = client.Request("PUT", updatePath, &updateInstanceOpt)
 		if err != nil {
 			return diag.Errorf("error updating Instance: %s", err)
 		}
-		err = instanceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+		err = instanceWaitingForStateCompleted(ctx, client, d, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the Update of Instance (%s) to complete: %s", instanceId, err)
+			return diag.Errorf("error waiting for the update operation of the instance (%s) to complete: %s", instanceId, err)
 		}
 	}
 
@@ -428,10 +407,10 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.HasChanges(updateInstanceAvailabilityZoneshasChanges...) {
 		// updateInstanceAvailabilityZones: Update the availability zone list where the Enterprise router instance is located
-		updateInstanceAvailabilityZonesHttpUrl := "enterprise-router/instances/{er_id}/change-availability-zone-ids"
-		updateInstanceAvailabilityZonesPath := client.ResourceBaseURL() + updateInstanceAvailabilityZonesHttpUrl
-		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{project_id}", client.ProjectID)
-		updateInstanceAvailabilityZonesPath = strings.ReplaceAll(updateInstanceAvailabilityZonesPath, "{er_id}", instanceId)
+		httpUrl := "v3/{project_id}/enterprise-router/instances/{er_id}/change-availability-zone-ids"
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{er_id}", instanceId)
 
 		updateInstanceAvailabilityZonesOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -440,13 +419,13 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			},
 		}
 		updateInstanceAvailabilityZonesOpt.JSONBody = utils.RemoveNil(buildUpdateInstanceAvailabilityZonesBodyParams(d))
-		_, err = client.Request("POST", updateInstanceAvailabilityZonesPath, &updateInstanceAvailabilityZonesOpt)
+		_, err = client.Request("POST", updatePath, &updateInstanceAvailabilityZonesOpt)
 		if err != nil {
-			return diag.Errorf("error updating Instance: %s", err)
+			return diag.Errorf("error updating instance: %s", err)
 		}
-		err = instanceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+		err = instanceWaitingForStateCompleted(ctx, client, d, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the Update of Instance (%s) to complete: %s", instanceId, err)
+			return diag.Errorf("error waiting for the update operation of the instance (%s) availability zones to complete: %s", instanceId, err)
 		}
 	}
 
@@ -483,9 +462,9 @@ func buildUpdateInstanceInstanceChildBody(d *schema.ResourceData) map[string]int
 	params := map[string]interface{}{
 		"name":                           utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":                    d.Get("description"),
-		"enable_default_propagation":     d.Get("enable_default_propagation"),
-		"enable_default_association":     d.Get("enable_default_association"),
-		"auto_accept_shared_attachments": d.Get("auto_accept_shared_attachments"),
+		"auto_accept_shared_attachments": utils.ValueIgnoreEmpty(d.Get("auto_accept_shared_attachments")),
+		"enable_default_propagation":     d.Get("auto_accept_shared_attachments"),
+		"enable_default_association":     d.Get("auto_accept_shared_attachments"),
 	}
 	if d.Get("enable_default_propagation").(bool) {
 		params["default_propagation_route_table_id"] = utils.ValueIgnoreEmpty(d.Get("default_propagation_route_table_id"))
@@ -504,22 +483,19 @@ func buildUpdateInstanceAvailabilityZonesBodyParams(d *schema.ResourceData) map[
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteInstance: Deleter an existing router instance
 	var (
-		deleteInstanceHttpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
-		deleteInstanceProduct = "er"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
 	)
-	deleteInstanceClient, err := cfg.NewServiceClient(deleteInstanceProduct, region)
+	client, err := cfg.NewServiceClient("er", region)
 	if err != nil {
-		return diag.Errorf("error creating Instance Client: %s", err)
+		return diag.Errorf("error creating ER Client: %s", err)
 	}
 
-	deleteInstancePath := deleteInstanceClient.Endpoint + deleteInstanceHttpUrl
-	deleteInstancePath = strings.ReplaceAll(deleteInstancePath, "{project_id}", deleteInstanceClient.ProjectID)
-	deleteInstancePath = strings.ReplaceAll(deleteInstancePath, "{er_id}", d.Id())
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{er_id}", d.Id())
 
 	deleteInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -527,38 +503,27 @@ func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta in
 			202,
 		},
 	}
-	_, err = deleteInstanceClient.Request("DELETE", deleteInstancePath, &deleteInstanceOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteInstanceOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Instance: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting instance")
 	}
 
-	err = deleteInstanceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
+	err = deleteInstanceWaitingForStateCompleted(ctx, client, d, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.Errorf("error waiting for the Delete of Instance (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the delete operation of instance (%s) to complete: %s", d.Id(), err)
 	}
 	return nil
 }
 
-func deleteInstanceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func deleteInstanceWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			// deleteInstanceWaiting: missing operation notes
-			var (
-				deleteInstanceWaitingHttpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
-				deleteInstanceWaitingProduct = "er"
-			)
-			deleteInstanceWaitingClient, err := config.NewServiceClient(deleteInstanceWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Instance Client: %s", err)
-			}
-
-			deleteInstanceWaitingPath := deleteInstanceWaitingClient.Endpoint + deleteInstanceWaitingHttpUrl
-			deleteInstanceWaitingPath = strings.ReplaceAll(deleteInstanceWaitingPath, "{project_id}", deleteInstanceWaitingClient.ProjectID)
-			deleteInstanceWaitingPath = strings.ReplaceAll(deleteInstanceWaitingPath, "{er_id}", d.Id())
+			httpUrl := "v3/{project_id}/enterprise-router/instances/{er_id}"
+			refreshPath := client.Endpoint + httpUrl
+			refreshPath = strings.ReplaceAll(refreshPath, "{project_id}", client.ProjectID)
+			refreshPath = strings.ReplaceAll(refreshPath, "{er_id}", d.Id())
 
 			deleteInstanceWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
@@ -566,13 +531,12 @@ func deleteInstanceWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 					200,
 				},
 			}
-			deleteInstanceWaitingResp, err := deleteInstanceWaitingClient.Request("GET", deleteInstanceWaitingPath, &deleteInstanceWaitingOpt)
+			deleteInstanceWaitingResp, err := client.Request("GET", refreshPath, &deleteInstanceWaitingOpt)
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
 					return "Resource Not Found", "COMPLETED", nil
 				}
-
 				return nil, "ERROR", err
 			}
 
