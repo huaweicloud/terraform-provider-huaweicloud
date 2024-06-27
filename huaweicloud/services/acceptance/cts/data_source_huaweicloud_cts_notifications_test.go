@@ -31,6 +31,8 @@ func TestAccDatasourceCTSNotifications_basic(t *testing.T) {
 					resource.TestCheckOutput("is_default_useful", "true"),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
 					resource.TestCheckOutput("is_topic_id_filter_useful", "true"),
+					resource.TestCheckOutput("is_status_filter_useful", "true"),
+					resource.TestCheckOutput("is_operation_type_filter_useful", "true"),
 				),
 			},
 		},
@@ -127,6 +129,46 @@ data "huaweicloud_cts_notifications" "filter_by_topic_id" {
 output "is_topic_id_filter_useful" {
   value = length(data.huaweicloud_cts_notifications.filter_by_topic_id.notifications) > 0 && alltrue(
     [for v in data.huaweicloud_cts_notifications.filter_by_topic_id.notifications[*].topic_id : v == local.topic_id]
+  )
+}
+
+locals {
+  status = huaweicloud_cts_notification.notify.status
+}
+
+data "huaweicloud_cts_notifications" "filter_by_status" {
+  type   = "smn"
+  status = local.status
+
+  depends_on = [
+    huaweicloud_cts_notification.test,
+    huaweicloud_cts_notification.notify
+  ]
+}
+
+output "is_status_filter_useful" {
+  value = length(data.huaweicloud_cts_notifications.filter_by_status.notifications) >= 1 && alltrue(
+    [for v in data.huaweicloud_cts_notifications.filter_by_status.notifications[*].status : v == local.status]
+  )
+}
+
+locals {
+  operation_type = huaweicloud_cts_notification.notify.operation_type
+}
+
+data "huaweicloud_cts_notifications" "filter_by_operation_type" {
+  type           = "smn"
+  operation_type = local.operation_type
+
+  depends_on = [
+    huaweicloud_cts_notification.test,
+    huaweicloud_cts_notification.notify,
+  ]
+}
+
+output "is_operation_type_filter_useful" {
+  value = length(data.huaweicloud_cts_notifications.filter_by_operation_type.notifications) >= 1 && alltrue(
+    [for v in data.huaweicloud_cts_notifications.filter_by_operation_type.notifications[*].operation_type : v == local.operation_type]
   )
 }
 `, config)
