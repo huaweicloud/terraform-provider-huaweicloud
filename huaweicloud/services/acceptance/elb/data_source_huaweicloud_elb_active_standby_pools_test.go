@@ -22,9 +22,9 @@ func TestAccDatasourceActiveStandbyPools_basic(t *testing.T) {
 				Config: testAccDatasourceActiveStandbyPools_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "pools.0.name", name),
 					resource.TestCheckResourceAttrSet(rName, "pools.#"),
 					resource.TestCheckResourceAttrSet(rName, "pools.0.id"),
+					resource.TestCheckResourceAttrSet(rName, "pools.0.name"),
 					resource.TestCheckResourceAttrSet(rName, "pools.0.type"),
 					resource.TestCheckResourceAttrSet(rName, "pools.0.protocol"),
 					resource.TestCheckResourceAttrSet(rName, "pools.0.any_port_enable"),
@@ -49,6 +49,8 @@ func TestAccDatasourceActiveStandbyPools_basic(t *testing.T) {
 					resource.TestCheckOutput("protocol_filter_is_useful", "true"),
 					resource.TestCheckOutput("type_filter_is_useful", "true"),
 					resource.TestCheckOutput("healthmonitor_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("vpc_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("member_address_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -79,6 +81,8 @@ locals {
 }
 
 data "huaweicloud_elb_active_standby_pools" "pool_id_filter" {
+  depends_on = [huaweicloud_elb_active_standby_pool.test]
+
   pool_id = huaweicloud_elb_active_standby_pool.test.id
 }
 
@@ -93,6 +97,8 @@ locals {
 }
 
 data "huaweicloud_elb_active_standby_pools" "description_filter" {
+  depends_on = [huaweicloud_elb_active_standby_pool.test]
+
   description = huaweicloud_elb_active_standby_pool.test.description
 }
 
@@ -107,6 +113,8 @@ locals {
 }
 
 data "huaweicloud_elb_active_standby_pools" "protocol_filter" {
+  depends_on = [huaweicloud_elb_active_standby_pool.test]
+
   protocol = huaweicloud_elb_active_standby_pool.test.protocol
 }
 
@@ -121,6 +129,8 @@ locals {
 }
 
 data "huaweicloud_elb_active_standby_pools" "type_filter" {
+  depends_on = [huaweicloud_elb_active_standby_pool.test]
+
   type = huaweicloud_elb_active_standby_pool.test.type
 }
 
@@ -135,6 +145,8 @@ locals {
 }
 
 data "huaweicloud_elb_active_standby_pools" "healthmonitor_id_filter" {
+  depends_on = [huaweicloud_elb_active_standby_pool.test]
+
   healthmonitor_id = huaweicloud_elb_active_standby_pool.test.healthmonitor.0.id
 }
 
@@ -145,5 +157,36 @@ output "healthmonitor_id_filter_is_useful" {
   )
 }
 
+locals {
+  vpc_id = huaweicloud_elb_active_standby_pool.test.vpc_id
+}
+
+data "huaweicloud_elb_active_standby_pools" "vpc_id_filter" {
+  depends_on = [huaweicloud_elb_active_standby_pool.test]
+
+  vpc_id = huaweicloud_elb_active_standby_pool.test.vpc_id
+}
+
+output "vpc_id_filter_is_useful" {
+  value = length(data.huaweicloud_elb_active_standby_pools.vpc_id_filter.pools) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_active_standby_pools.vpc_id_filter.pools[*].vpc_id : v == local.vpc_id]
+  )
+}
+
+locals {
+  member_address = tolist(huaweicloud_elb_active_standby_pool.test.members).0.address
+}
+
+data "huaweicloud_elb_active_standby_pools" "member_address_filter" {
+  depends_on = [huaweicloud_elb_active_standby_pool.test]
+
+  member_address = tolist(huaweicloud_elb_active_standby_pool.test.members).0.address
+}
+
+output "member_address_filter_is_useful" {
+  value = length(data.huaweicloud_elb_active_standby_pools.member_address_filter.pools) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_active_standby_pools.member_address_filter.pools[*].members[*].address : contains(v, local.member_address)]
+  )
+}
 `, testAccElbActiveStandbyPoolConfig_basic(name), name)
 }

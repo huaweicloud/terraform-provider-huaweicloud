@@ -49,6 +49,7 @@ func TestAccElbV3Pool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "instance"),
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
 						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test pool description"),
 					resource.TestCheckResourceAttr(resourceName, "slow_start_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "APP_COOKIE"),
@@ -67,10 +68,10 @@ func TestAccElbV3Pool_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
 						"huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "slow_start_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test pool description update"),
 					resource.TestCheckResourceAttr(resourceName, "slow_start_duration", "100"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
-					resource.TestCheckResourceAttr(resourceName, "protection_reason",
-						"test protection reason"),
+					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "APP_COOKIE"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.cookie_name", "testCookie"),
 					resource.TestCheckResourceAttr(resourceName, "minimum_healthy_member_count", "0"),
@@ -348,11 +349,12 @@ func testAccElbV3PoolConfig_basic(rName string) string {
 %s
 
 resource "huaweicloud_elb_pool" "test" {
-  name      = "%s"
-  protocol  = "HTTP"
-  lb_method = "ROUND_ROBIN"
-  type      = "instance"
-  vpc_id    = huaweicloud_vpc.test.id
+  name        = "%s"
+  protocol    = "HTTP"
+  lb_method   = "ROUND_ROBIN"
+  type        = "instance"
+  vpc_id      = huaweicloud_vpc.test.id
+  description = "test pool description"
 
   minimum_healthy_member_count = 1
 
@@ -369,11 +371,12 @@ func testAccElbV3PoolConfig_update(rName, rNameUpdate string) string {
 %s
 
 resource "huaweicloud_elb_pool" "test" {
-  name      = "%s"
-  protocol  = "HTTP"
-  lb_method = "LEAST_CONNECTIONS"
-  type      = "instance"
-  vpc_id    = huaweicloud_vpc.test.id
+  name        = "%s"
+  protocol    = "HTTP"
+  lb_method   = "LEAST_CONNECTIONS"
+  type        = "instance"
+  vpc_id      = huaweicloud_vpc.test.id
+  description = "test pool description update"
 
   slow_start_enabled  = true
   slow_start_duration = 100

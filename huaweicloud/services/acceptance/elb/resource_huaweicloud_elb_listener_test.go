@@ -43,6 +43,7 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "forward_eip", "false"),
 					resource.TestCheckResourceAttr(resourceName, "forward_port", "false"),
 					resource.TestCheckResourceAttr(resourceName, "forward_request_port", "false"),
@@ -59,6 +60,7 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 				Config: testAccElbV3ListenerConfig_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
 					resource.TestCheckResourceAttr(resourceName, "forward_eip", "true"),
 					resource.TestCheckResourceAttr(resourceName, "forward_port", "true"),
 					resource.TestCheckResourceAttr(resourceName, "forward_request_port", "true"),
@@ -203,7 +205,7 @@ func TestAccElbV3Listener_with_protocol_https(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "forward_tls_cipher", "false"),
 					resource.TestCheckResourceAttr(resourceName, "forward_tls_protocol", "false"),
 					resource.TestCheckResourceAttr(resourceName, "enable_member_retry", "false"),
-					resource.TestCheckResourceAttr(resourceName, "ssl_early_data_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_early_data_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "sni_match_algo", "wildcard"),
 					resource.TestCheckResourceAttrPair(resourceName, "quic_listener_id", "huaweicloud_elb_listener.quic", "id"),
 				),
@@ -221,7 +223,7 @@ func TestAccElbV3Listener_with_protocol_https(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "forward_tls_protocol", "true"),
 					resource.TestCheckResourceAttr(resourceName, "enable_member_retry", "true"),
 					resource.TestCheckResourceAttr(resourceName, "sni_match_algo", "longest_suffix"),
-					resource.TestCheckResourceAttr(resourceName, "ssl_early_data_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_early_data_enable", "false"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_policy_id", "huaweicloud_elb_security_policy.test", "id"),
 				),
 			},
@@ -342,15 +344,15 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 
 resource "huaweicloud_elb_listener" "test" {
   name                        = "%s"
-  description                 = "test description"
+  description                 = "test description update"
   protocol                    = "HTTP"
   protocol_port               = 8080
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = true
 
-  idle_timeout     = 62
-  request_timeout  = 63
-  response_timeout = 64
+  idle_timeout     = 63
+  request_timeout  = 64
+  response_timeout = 65
 
   forward_eip          = true
   forward_port         = true
@@ -496,7 +498,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   }
 }
 
-resource "huaweicloud_elb_pool" "test" {
+resource "huaweicloud_elb_pool" "test_update" {
   name      = "%[1]s"
   protocol  = "HTTP"
   lb_method = "ROUND_ROBIN"
@@ -510,7 +512,7 @@ resource "huaweicloud_elb_listener" "test" {
   protocol                    = "HTTP"
   protocol_port               = 8080
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
-  default_pool_id             = huaweicloud_elb_pool.test.id
+  default_pool_id             = huaweicloud_elb_pool.test_update.id
   advanced_forwarding_enabled = true
 
   idle_timeout     = 62
@@ -560,7 +562,7 @@ resource "huaweicloud_elb_listener" "quic" {
   protocol           = "QUIC"
   protocol_port      = 80
   loadbalancer_id    = huaweicloud_elb_loadbalancer.test.id
-  server_certificate = huaweicloud_elb_certificate.test.id
+  server_certificate = huaweicloud_elb_certificate.server.id
 }`, rName)
 }
 
@@ -578,23 +580,32 @@ resource "huaweicloud_elb_security_policy" "test" {
 `, name)
 }
 
-func testAccElbV3ListenerConfig_protocol_https(rName string) string {
+func testAccElbV3ListenerConfig_protocol_https_base(rName string) string {
 	lb := testAccElbV3ListenerConfig_loadbalancer_basic(rName)
-	certificate := testAccElbV3CertificateConfig_basic(rName)
+	serverCertificate := testAccElbV3CertificateConfig_basic(rName)
 	quicListener := testAccElbV3ListenerConfig_protocol_quic(rName)
+	ipGroup := testAccElbV3IpGroupConfig_basic(rName)
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-%s
+%[2]s
 
-%s
+%[3]s
+
+%[4]s
+`, lb, serverCertificate, quicListener, ipGroup)
+}
+
+func testAccElbV3ListenerConfig_protocol_https(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_elb_listener" "test" {
-  name                    = "%s"
+  name                    = "%[2]s"
   protocol                = "HTTPS"
   protocol_port           = 8080
   loadbalancer_id         = huaweicloud_elb_loadbalancer.test.id
-  server_certificate      = huaweicloud_elb_certificate.test.id
+  server_certificate      = huaweicloud_elb_certificate.server.id
   forward_elb             = false
   forward_proto           = false
   real_ip                 = false
@@ -602,33 +613,33 @@ resource "huaweicloud_elb_listener" "test" {
   forward_tls_cipher      = false
   forward_tls_protocol    = false
   enable_member_retry     = false
-  ssl_early_data_enable   = false
+  ssl_early_data_enable   = true
+  gzip_enable             = false
+  http2_enable            = true
   sni_match_algo          = "wildcard"
   quic_listener_id        = huaweicloud_elb_listener.quic.id
+  access_policy           = "white"
+  ip_group                = huaweicloud_elb_ipgroup.test.id
+  tls_ciphers_policy      = "tls-1-0-with-1-3"
 }
-`, lb, certificate, quicListener, rName)
+`, testAccElbV3ListenerConfig_protocol_https_base(rName), rName)
 }
 
 func testAccElbV3ListenerConfig_protocol_https_update(rName string) string {
-	lb := testAccElbV3ListenerConfig_loadbalancer_basic(rName)
-	certificate := testAccElbV3CertificateConfig_basic(rName)
-	quicListener := testAccElbV3ListenerConfig_protocol_quic(rName)
+	clientCertificate := testAccElbV3CertificateConfig_client(rName)
 	securityPolicy := testAccSecurityPolicies_tlsv13(rName)
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-%s
+%[2]s
 
-%s
-
-%s
+%[3]s
 
 resource "huaweicloud_elb_listener" "test" {
-  name                    = "%s"
+  name                    = "%[4]s"
   protocol                = "HTTPS"
   protocol_port           = 8080
   loadbalancer_id         = huaweicloud_elb_loadbalancer.test.id
-  server_certificate      = huaweicloud_elb_certificate.test.id
   forward_elb             = true
   forward_proto           = true
   real_ip                 = true
@@ -636,11 +647,18 @@ resource "huaweicloud_elb_listener" "test" {
   forward_tls_cipher      = true
   forward_tls_protocol    = true
   security_policy_id      = huaweicloud_elb_security_policy.test.id
-  ssl_early_data_enable   = true
+  ssl_early_data_enable   = false
+  gzip_enable             = true
   enable_member_retry     = true
+  http2_enable            = false
   sni_match_algo          = "longest_suffix"
+  access_policy           = "black"
+  ip_group                = huaweicloud_elb_ipgroup.test.id
+  tls_ciphers_policy      = "tls-1-2-fs-with-1-3"
+  ca_certificate          = huaweicloud_elb_certificate.client.id
+  server_certificate      = huaweicloud_elb_certificate.server.id
 }
-`, lb, certificate, quicListener, securityPolicy, rName)
+`, testAccElbV3ListenerConfig_protocol_https_base(rName), clientCertificate, securityPolicy, rName)
 }
 
 func testAccElbV3ListenerConfig_protocol_tls(rName string) string {
@@ -656,7 +674,8 @@ resource "huaweicloud_elb_listener" "test" {
   protocol           = "TLS"
   protocol_port      = 80
   loadbalancer_id    = huaweicloud_elb_loadbalancer.test.id
-  server_certificate = huaweicloud_elb_certificate.test.id
+  server_certificate = huaweicloud_elb_certificate.server.id
+  proxy_protocol_enable = true
 }`, lb, certificate, rName)
 }
 
@@ -673,7 +692,7 @@ resource "huaweicloud_elb_listener" "test" {
   protocol              = "TLS"
   protocol_port         = 80
   loadbalancer_id       = huaweicloud_elb_loadbalancer.test.id
-  server_certificate    = huaweicloud_elb_certificate.test.id
+  server_certificate    = huaweicloud_elb_certificate.server.id
   proxy_protocol_enable = true
 }`, lb, certificate, rName)
 }

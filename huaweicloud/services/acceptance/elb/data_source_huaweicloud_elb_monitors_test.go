@@ -54,6 +54,8 @@ func testAccDatasourceMonitors_basic(name string) string {
 
 data "huaweicloud_elb_monitors" "test" {
   depends_on = [huaweicloud_elb_monitor.monitor_1]
+
+  monitor_id = huaweicloud_elb_monitor.monitor_1.id
 }
 
 locals {
