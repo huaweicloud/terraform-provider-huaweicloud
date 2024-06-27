@@ -72,7 +72,7 @@ func TestAccProtectionRule_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_cfw_protection_rule.test"
+	rName := "huaweicloud_cfw_protection_rule.r1"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -335,10 +335,10 @@ func testProtectionRuleImportState(name string) resource.ImportStateIdFunc {
 
 func testProtectionRule_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_cfw_protection_rule" "test" {
-  name                = "%s"
+resource "huaweicloud_cfw_protection_rule" "r1" {
+  name                = "%[2]s"
   object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
   description         = "terraform test"
   type                = 0
@@ -367,6 +367,42 @@ resource "huaweicloud_cfw_protection_rule" "test" {
   sequence {
     top = 1
   }
+
+  depends_on = [
+    huaweicloud_cfw_protection_rule.r2,
+  ]
+}
+
+resource "huaweicloud_cfw_protection_rule" "r2" {
+  name                = "%[2]s2"
+  object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
+  description         = "terraform test"
+  type                = 0
+  address_type        = 0
+  action_type         = 0
+  long_connect_enable = 0
+  status              = 1
+
+  source {
+    type    = 0
+    address = "2.2.2.2"
+  }
+
+  destination {
+    type    = 0
+    address = "3.3.3.3"
+  }
+
+  service {
+    type        = 0
+    protocol    = 6
+    source_port = 8001
+    dest_port   = 8002
+  }
+
+  sequence {
+    top = 1
+  }
 }
 `, testAccDatasourceFirewalls_basic(), name)
 }
@@ -375,7 +411,7 @@ func testProtectionRule_basic_update(name string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_cfw_protection_rule" "test" {
+resource "huaweicloud_cfw_protection_rule" "r1" {
   name                = "%s-update"
   object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
   description         = "terraform test update"
@@ -404,6 +440,43 @@ resource "huaweicloud_cfw_protection_rule" "test" {
   }
 
   sequence {
+    top          = 0
+    dest_rule_id = huaweicloud_cfw_protection_rule.r2.id
+  }
+
+  depends_on = [
+    huaweicloud_cfw_protection_rule.r2,
+  ]
+}
+
+resource "huaweicloud_cfw_protection_rule" "r2" {
+  name                = "%[2]s2"
+  object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
+  description         = "terraform test"
+  type                = 0
+  address_type        = 0
+  action_type         = 0
+  long_connect_enable = 0
+  status              = 1
+
+  source {
+    type    = 0
+    address = "2.2.2.2"
+  }
+
+  destination {
+    type    = 0
+    address = "3.3.3.3"
+  }
+
+  service {
+    type        = 0
+    protocol    = 6
+    source_port = 8001
+    dest_port   = 8002
+  }
+
+  sequence {
     top = 1
   }
 }
@@ -414,7 +487,7 @@ func testProtectionRule_region_list(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_cfw_protection_rule" "test" {
+resource "huaweicloud_cfw_protection_rule" "r1" {
   name                = "%[2]s"
   object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
   description         = "terraform test update"
@@ -453,6 +526,43 @@ resource "huaweicloud_cfw_protection_rule" "test" {
       region_id      = "AF"
       region_type    = 2
     }
+  }
+
+  service {
+    type        = 0
+    protocol    = 6
+    source_port = 8001
+    dest_port   = 8002
+  }
+
+  sequence {
+    top          = 0
+    dest_rule_id = huaweicloud_cfw_protection_rule.r2.id
+  }
+
+  depends_on = [
+    huaweicloud_cfw_protection_rule.r2,
+  ]
+}
+
+resource "huaweicloud_cfw_protection_rule" "r2" {
+  name                = "%[2]s2"
+  object_id           = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
+  description         = "terraform test"
+  type                = 0
+  address_type        = 0
+  action_type         = 0
+  long_connect_enable = 0
+  status              = 1
+
+  source {
+    type    = 0
+    address = "2.2.2.2"
+  }
+
+  destination {
+    type    = 0
+    address = "3.3.3.3"
   }
 
   service {
