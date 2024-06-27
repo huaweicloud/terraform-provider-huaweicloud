@@ -2,6 +2,7 @@ package er
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/go-uuid"
@@ -13,16 +14,12 @@ import (
 
 func TestAccDataSourceAssociations_basic(t *testing.T) {
 	var (
-		dcName   = "data.huaweicloud_er_associations.test"
-		name     = acceptance.RandomAccResourceName()
-		dc       = acceptance.InitDataSourceCheck(dcName)
-		bgpAsNum = acctest.RandIntRange(64512, 65534)
+		name       = acceptance.RandomAccResourceName()
+		bgpAsNum   = acctest.RandIntRange(64512, 65534)
+		baseConfig = testAccAssociation_basic(name, bgpAsNum)
 
-		byInstanceId   = "data.huaweicloud_er_associations.not_found_instance_id"
-		dcByInstanceId = acceptance.InitDataSourceCheck(byInstanceId)
-
-		byRouteTableId   = "data.huaweicloud_er_associations.not_found_route_table_id"
-		dcByRouteTableId = acceptance.InitDataSourceCheck(byRouteTableId)
+		all = "data.huaweicloud_er_associations.test"
+		dc  = acceptance.InitDataSourceCheck(all)
 
 		byAttachmentId   = "data.huaweicloud_er_associations.filter_by_attachment_id"
 		dcByAttachmentId = acceptance.InitDataSourceCheck(byAttachmentId)
@@ -32,6 +29,9 @@ func TestAccDataSourceAssociations_basic(t *testing.T) {
 
 		byStatus   = "data.huaweicloud_er_associations.filter_by_status"
 		dcByStatus = acceptance.InitDataSourceCheck(byStatus)
+
+		byNotFoundInstanceId   = "data.huaweicloud_er_associations.instance_id_not_found"
+		dcByNotFoundInstanceId = acceptance.InitDataSourceCheck(byNotFoundInstanceId)
 	)
 
 	resource.Test(t, resource.TestCase{
@@ -41,19 +41,13 @@ func TestAccDataSourceAssociations_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceAssociations_basic(name, bgpAsNum),
+				Config: testAccDatasourceAssociations_basic(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dcName, "associations.#"),
-					resource.TestCheckResourceAttrSet(dcName, "associations.0.resource_id"),
-					resource.TestCheckResourceAttrSet(dcName, "associations.0.created_at"),
-					resource.TestCheckResourceAttrSet(dcName, "associations.0.updated_at"),
-
-					dcByInstanceId.CheckResourceExists(),
-					resource.TestCheckOutput("instance_id_not_found", "true"),
-
-					dcByRouteTableId.CheckResourceExists(),
-					resource.TestCheckOutput("route_table_id_not_found", "true"),
+					resource.TestCheckResourceAttrSet(all, "associations.#"),
+					resource.TestCheckResourceAttrSet(all, "associations.0.resource_id"),
+					resource.TestCheckResourceAttrSet(all, "associations.0.created_at"),
+					resource.TestCheckResourceAttrSet(all, "associations.0.updated_at"),
 
 					dcByStatus.CheckResourceExists(),
 					resource.TestCheckOutput("is_status_filter_useful", "true"),
@@ -68,41 +62,27 @@ func TestAccDataSourceAssociations_basic(t *testing.T) {
 					resource.TestCheckOutput("is_status_filter_useful", "true"),
 				),
 			},
+			// If the instance ID does not exist, the data source will not report the error.
+			// Just return an empty list.
+			{
+				Config: testAccDatasourceAssociations_instanceIdNotFound(baseConfig),
+				Check: resource.ComposeTestCheckFunc(
+					dcByNotFoundInstanceId.CheckResourceExists(),
+					resource.TestCheckResourceAttr(byNotFoundInstanceId, "associations.#", "0"),
+				),
+			},
+			// If the routing table ID does not exist, the data source will report an error: 'route table {uuid} not found'.
+			{
+				Config:      testAccDatasourceAssociations_routeTableIdNotFound(baseConfig),
+				ExpectError: regexp.MustCompile(`route table [a-f0-9-]+ not found`),
+			},
 		},
 	})
 }
 
-func testAccDatasourceAssociations_basic(name string, bgpAsNum int) string {
-	randUUID, _ := uuid.GenerateUUID()
-
+func testAccDatasourceAssociations_basic(baseConfig string) string {
 	return fmt.Sprintf(`
 %[1]s
-
-data "huaweicloud_er_associations" "not_found_instance_id" {
-  depends_on = [
-    huaweicloud_er_association.test,
-  ]
-
-  instance_id    = "%[2]s"
-  route_table_id = huaweicloud_er_route_table.test.id
-}
-  
-output "instance_id_not_found" {
-  value = length(data.huaweicloud_er_associations.not_found_instance_id.associations) == 0
-}
-  
-data "huaweicloud_er_associations" "not_found_route_table_id" {
-  depends_on = [
-    huaweicloud_er_association.test,
-  ]
-
-  instance_id    = huaweicloud_er_instance.test.id
-  route_table_id = "%[2]s"
-}
-  
-output "route_table_id_not_found" {
-  value = length(data.huaweicloud_er_associations.not_found_route_table_id.associations) == 0
-}
 
 data "huaweicloud_er_associations" "test" {
   depends_on = [
@@ -186,5 +166,39 @@ locals {
 output "is_status_filter_useful" {
   value = alltrue(local.status_filter_result) && length(local.status_filter_result) > 0
 }
-`, testAccAssociation_basic(name, bgpAsNum), randUUID)
+`, baseConfig)
+}
+
+func testAccDatasourceAssociations_instanceIdNotFound(baseConfig string) string {
+	randUUID, _ := uuid.GenerateUUID()
+
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_er_associations" "instance_id_not_found" {
+  depends_on = [
+    huaweicloud_er_association.test,
+  ]
+
+  instance_id    = "%[2]s"
+  route_table_id = huaweicloud_er_route_table.test.id
+}
+`, baseConfig, randUUID)
+}
+
+func testAccDatasourceAssociations_routeTableIdNotFound(baseConfig string) string {
+	randUUID, _ := uuid.GenerateUUID()
+
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_er_associations" "route_table_id_not_found" {
+  depends_on = [
+    huaweicloud_er_association.test,
+  ]
+
+  instance_id    = huaweicloud_er_instance.test.id
+  route_table_id = "%[2]s"
+}
+`, baseConfig, randUUID)
 }
