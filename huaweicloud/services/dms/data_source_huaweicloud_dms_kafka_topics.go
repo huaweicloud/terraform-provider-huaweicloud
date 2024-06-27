@@ -181,6 +181,7 @@ func (w *KafkaTopicsDSWrapper) ListInstanceTopics() (*gjson.Result, error) {
 	return httphelper.New(client).
 		Method("GET").
 		URI(uri).
+		OffsetPager("topics", "offset", "limit", 0).
 		Filter(
 			filters.New().From("topics").
 				Where("name", "contains", w.Get("name")),

@@ -92,6 +92,7 @@ func (w *RocketmqTopicConsumerGroupsDSWrapper) ListConsumerGroupOfTopic() (*gjso
 	return httphelper.New(client).
 		Method("GET").
 		URI(uri).
+		OffsetPager("groups", "offset", "limit", 0).
 		OkCode(200).
 		Request().
 		Result()

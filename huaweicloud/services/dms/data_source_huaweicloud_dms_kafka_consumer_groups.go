@@ -152,6 +152,7 @@ func (w *KafkaConsumerGroupsDSWrapper) ListInstanceConsumerGroups() (*gjson.Resu
 		Method("GET").
 		URI(uri).
 		Query(params).
+		OffsetPager("groups", "offset", "limit", 0).
 		Filter(
 			filters.New().From("groups").
 				Where("state", "=", w.Get("state")).
