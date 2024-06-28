@@ -131,6 +131,7 @@ func (w *RocketmqMigrationTasksDSWrapper) ListRocketMqMigrationTask() (*gjson.Re
 	return httphelper.New(client).
 		Method("GET").
 		URI(uri).
+		OffsetPager("task", "offset", "limit", 0).
 		Filter(
 			filters.New().From("task").
 				Where("id", "=", w.Get("task_id")).

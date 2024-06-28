@@ -130,6 +130,7 @@ func (w *KafkaUserClientQuotasDSWrapper) ShowKafkaUserClientQuota() (*gjson.Resu
 	return httphelper.New(client).
 		Method("GET").
 		URI(uri).
+		OffsetPager("quotas", "offset", "limit", 0).
 		Filter(
 			filters.New().From("quotas").
 				Where("user", "contains", w.Get("user")).
