@@ -1190,6 +1190,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_scan_task":                   css.ResourceScanTask(),
 			"huaweicloud_css_es_loadbalancer_config":      css.ResourceEsLoadbalancerConfig(),
 			"huaweicloud_css_es_core_upgrade":             css.ResourceCssEsCoreUpgrade(),
+			"huaweicloud_css_cluster_az_migrate":          css.ResourceCssClusterAzMigrate(),
 			"huaweicloud_css_log_setting":                 css.ResourceLogSetting(),
 			"huaweicloud_css_manual_log_backup":           css.ResourceManualLogBackup(),
 			"huaweicloud_css_logstash_cluster":            css.ResourceLogstashCluster(),
