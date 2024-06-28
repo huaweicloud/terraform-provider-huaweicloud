@@ -103,7 +103,7 @@ func TestAccCssCluster_basic(t *testing.T) {
 	})
 }
 
-func TestAccCssCluster_localDisk(t *testing.T) {
+func TestAccCssCluster_access(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_css_cluster.test"
 
@@ -120,15 +120,60 @@ func TestAccCssCluster_localDisk(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccCssCluster_access(rName, "Test@passw0rd", "116.204.111.47"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "public_access.0.whitelist", "116.204.111.47"),
+					resource.TestCheckResourceAttr(resourceName, "kibana_public_access.0.whitelist", "116.204.111.47"),
+					resource.TestCheckResourceAttrSet(resourceName, "public_access.0.public_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "kibana_public_access.0.public_ip"),
+				),
+			},
+			{
+				Config: testAccCssCluster_access(rName, "Test@passw0rd.", "116.204.111.47,121.37.117.211"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "public_access.0.whitelist",
+						"116.204.111.47,121.37.117.211"),
+					resource.TestCheckResourceAttr(resourceName, "kibana_public_access.0.whitelist",
+						"116.204.111.47,121.37.117.211"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCssCluster_localDisk(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckCSSLocalDiskFlavor(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
 				Config: testAccCssCluster_localDisk(rName, 1),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
 					resource.TestCheckResourceAttr(resourceName, "https_enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", "ess.spec-ds.xlarge.8"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor",
+						acceptance.HW_CSS_LOCAL_DISK_FLAVOR),
 					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "1"),
-					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.flavor", "ess.spec-ds.2xlarge.8"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.flavor",
+						acceptance.HW_CSS_LOCAL_DISK_FLAVOR),
 					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.instance_number", "1"),
 				),
 			},
@@ -136,9 +181,7 @@ func TestAccCssCluster_localDisk(t *testing.T) {
 				Config: testAccCssCluster_localDisk(rName, 2),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", "ess.spec-ds.xlarge.8"),
 					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "2"),
-					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.flavor", "ess.spec-ds.2xlarge.8"),
 					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.instance_number", "2"),
 				),
 			},
@@ -233,7 +276,7 @@ func TestAccCssCluster_updateWithEpsId(t *testing.T) {
 	})
 }
 
-func TestAccCssCluster_extend(t *testing.T) {
+func TestAccCssCluster_flavor(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_css_cluster.test"
 	flavor := "ess.spec-4u8g"
@@ -252,57 +295,150 @@ func TestAccCssCluster_extend(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCssCluster_extend_basic(rName, flavor, 3, 40),
+				Config: testAccCssCluster_favor(rName, flavor),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
 					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", flavor),
-					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "3"),
-					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.flavor", flavor),
+					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.flavor", flavor),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.flavor", flavor),
 				),
 			},
-			{ // test add master and client node.
-				Config: testAccCssCluster_extend(rName, flavor, 3, 3, 1, 40),
+			{
+				Config: testAccCssCluster_favor(rName, updateFlavor),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
-					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", flavor),
-					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "3"),
-					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.volume.0.size", "40"),
-					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.flavor", flavor),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", updateFlavor),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.flavor", updateFlavor),
+					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.flavor", updateFlavor),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.flavor", updateFlavor),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCssCluster_addMasterAndClientNode(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssCluster_extend_basic(rName, 3, 40),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+				),
+			},
+			{
+				Config: testAccCssCluster_nodeChangeBasic(rName, 3, 3, 3, 1, 40),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.volume.0.size", "40"),
-					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.flavor", flavor),
 					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.volume.0.size", "40"),
 				),
 			},
-			{ // test extend node flavor, number and volume size.
-				Config: testAccCssCluster_extend(rName, updateFlavor, 4, 5, 3, 60),
+		},
+	})
+}
+
+func TestAccCssCluster_extend(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssCluster_nodeChangeBasic(rName, 3, 3, 3, 1, 40),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
-					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", updateFlavor),
-					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "4"),
-					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.volume.0.size", "60"),
-					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.flavor", updateFlavor),
-					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "5"),
-					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.volume.0.size", "40"),
-					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.flavor", updateFlavor),
-					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "3"),
-					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.instance_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "1"),
 				),
 			},
-			{ // test shrink
-				Config: testAccCssCluster_extend(rName, updateFlavor, 3, 3, 3, 60),
+			{
+				Config: testAccCssCluster_nodeChangeBasic(rName, 4, 4, 5, 3, 60),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "4"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.volume.0.size", "60"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.instance_number", "4"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.volume.0.size", "60"),
+					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "5"),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "3"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCssCluster_shrink(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssCluster_nodeChangeBasic(rName, 4, 4, 5, 4, 40),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "4"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.instance_number", "4"),
+					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "5"),
+					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "4"),
+				),
+			},
+			{
+				Config: testAccCssCluster_nodeChangeBasic(rName, 3, 3, 3, 3, 60),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
 					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "3"),
+					resource.TestCheckResourceAttr(resourceName, "cold_node_config.0.instance_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_config.0.instance_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_node_config.0.instance_number", "3"),
 				),
@@ -311,7 +447,7 @@ func TestAccCssCluster_extend(t *testing.T) {
 	})
 }
 
-func TestAccCssCluster_extend_prePaid(t *testing.T) {
+func TestAccCssCluster_prePaid_extend(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_css_cluster.test"
 	flavor := "ess.spec-4u8g"
@@ -479,6 +615,57 @@ resource "huaweicloud_css_cluster" "test" {
 `, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName, pwd, keepDays, tag)
 }
 
+func testAccCssCluster_access(rName, pwd string, whiteList string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[3]s"
+  engine_version = "7.10.2"
+  security_mode  = true
+  https_enabled  = true
+  password       = "%[4]s"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  backup_strategy {
+    keep_days   = 7
+    start_time  = "00:00 GMT+08:00"
+    prefix      = "snapshot"
+    bucket      = huaweicloud_obs_bucket.cssObs.bucket
+    agency      = "css_obs_agency"
+    backup_path = "css_repository/acctest"
+  }
+
+  public_access {
+    bandwidth         = 5
+    whitelist_enabled = true
+    whitelist         = "%[5]s"
+  }
+
+  kibana_public_access {
+    bandwidth         = 5
+    whitelist_enabled = true
+    whitelist         = "%[5]s"
+  }
+}
+`, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName, pwd, whiteList)
+}
+
 func testAccCssCluster_basic_update(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -531,12 +718,12 @@ resource "huaweicloud_css_cluster" "test" {
   password       = "Test@passw0rd"
 
   ess_node_config {
-    flavor          = "ess.spec-ds.xlarge.8"
+    flavor          = "%[4]s"
     instance_number = %[3]d
   }
 
   cold_node_config {
-    flavor          = "ess.spec-ds.2xlarge.8"
+    flavor          = "%[4]s"
     instance_number = %[3]d
   }
 
@@ -545,7 +732,7 @@ resource "huaweicloud_css_cluster" "test" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
 }
-`, testAccCssBase(rName), rName, nodeNum)
+`, testAccCssBase(rName), rName, nodeNum, acceptance.HW_CSS_LOCAL_DISK_FLAVOR)
 }
 
 func testAccCssCluster_prePaid(rName, pwd string, period int, isAutoRenew bool) string {
@@ -613,7 +800,7 @@ resource "huaweicloud_css_cluster" "test" {
 `, testAccCssBase(rName), rName, epsId)
 }
 
-func testAccCssCluster_extend_basic(rName, flavorNmae string, essNodeNum, size int) string {
+func testAccCssCluster_extend_basic(rName string, essNodeNum, size int) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -627,18 +814,26 @@ resource "huaweicloud_css_cluster" "test" {
   vpc_id            = huaweicloud_vpc.test.id
 
   ess_node_config {
-    flavor          = "%[3]s"
-    instance_number = %[4]d
+    flavor          = "ess.spec-4u8g"
+    instance_number = %[3]d
     volume {
       volume_type = "HIGH"
-      size        = %[5]d
+      size        = %[4]d
+    }
+  }
+  cold_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = %[3]d
+    volume {
+      volume_type = "HIGH"
+      size        = %[4]d
     }
   }
 }
-`, testAccCssBase(rName), rName, flavorNmae, essNodeNum, size)
+`, testAccCssBase(rName), rName, essNodeNum, size)
 }
 
-func testAccCssCluster_extend(rName, flavorNmae string, essNodeNum, masterNodeNum, clientNodeNum, size int) string {
+func testAccCssCluster_favor(rName, flavor string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -653,16 +848,25 @@ resource "huaweicloud_css_cluster" "test" {
 
   ess_node_config {
     flavor          = "%[3]s"
-    instance_number = %[4]d
+    instance_number = 3
     volume {
       volume_type = "HIGH"
-      size        = %[7]d
+      size        = 40
+    }
+  }
+
+  cold_node_config {
+    flavor          = "%[3]s"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
     }
   }
 
   master_node_config {
     flavor          = "%[3]s"
-    instance_number = %[5]d
+    instance_number = 3
     volume {
       volume_type = "HIGH"
       size        = 40
@@ -671,6 +875,58 @@ resource "huaweicloud_css_cluster" "test" {
 
   client_node_config {
     flavor          = "%[3]s"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+}
+`, testAccCssBase(rName), rName, flavor)
+}
+
+func testAccCssCluster_nodeChangeBasic(rName string, essNum, coldNum, masterNum, clientNum, size int) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = %[3]d
+    volume {
+      volume_type = "HIGH"
+      size        = %[7]d
+    }
+  }
+
+  cold_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = %[4]d
+    volume {
+      volume_type = "HIGH"
+      size        = %[7]d
+    }
+  }
+
+  master_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = %[5]d
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  client_node_config {
+    flavor          = "ess.spec-4u8g"
     instance_number = %[6]d
     volume {
       volume_type = "HIGH"
@@ -678,7 +934,7 @@ resource "huaweicloud_css_cluster" "test" {
     }
   }
 }
-`, testAccCssBase(rName), rName, flavorNmae, essNodeNum, masterNodeNum, clientNodeNum, size)
+`, testAccCssBase(rName), rName, essNum, coldNum, masterNum, clientNum, size)
 }
 
 func testAccCssCluster_extend_prePaid(rName, flavorNmae string, essNodeNum, masterNodeNum, size int) string {

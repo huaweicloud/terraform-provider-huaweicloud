@@ -296,6 +296,7 @@ var (
 
 	HW_CC_PERMISSION_ID = os.Getenv("HW_CC_PERMISSION_ID")
 
+	HW_CSS_LOCAL_DISK_FLAVOR  = os.Getenv("HW_CSS_LOCAL_DISK_FLAVOR")
 	HW_CSS_ELB_AGENCY         = os.Getenv("HW_CSS_ELB_AGENCY")
 	HW_CSS_UPGRADE_AGENCY     = os.Getenv("HW_CSS_UPGRADE_AGENCY")
 	HW_CSS_LOW_ENGINE_VERSION = os.Getenv("HW_CSS_LOW_ENGINE_VERSION")
@@ -1545,6 +1546,13 @@ func TestAccPreCheckCCAuth(t *testing.T) {
 func TestAccPreCheckCCPermission(t *testing.T) {
 	if HW_CC_PERMISSION_ID == "" {
 		t.Skip("HW_CC_PERMISSION_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCSSLocalDiskFlavor(t *testing.T) {
+	if HW_CSS_LOCAL_DISK_FLAVOR == "" {
+		t.Skip("HW_CSS_LOCAL_DISK_FLAVOR must be set for the acceptance test")
 	}
 }
 
