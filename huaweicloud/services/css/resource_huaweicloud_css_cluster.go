@@ -40,6 +40,8 @@ const (
 	ClusterStatusUnavailable = "303"
 )
 
+var clusterNonUpdatableParams = []string{"engine_version", "availability_zone"}
+
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/role_extend
 // @API CSS POST /v1.0/{project_id}/clusters
 // @API CSS POST /v1.0/{project_id}/{resource_type}/{cluster_id}/tags
@@ -94,6 +96,8 @@ func ResourceCssCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(clusterNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -116,7 +120,6 @@ func ResourceCssCluster() *schema.Resource {
 			"engine_version": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"security_mode": {
 				Type:     schema.TypeBool,
@@ -165,7 +168,6 @@ func ResourceCssCluster() *schema.Resource {
 			"availability_zone": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				RequiredWith: []string{"vpc_id", "subnet_id", "security_group_id"},
 				Computed:     true,
 				Description:  "schema: Required",
@@ -485,6 +487,12 @@ func ResourceCssCluster() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "schema: Deprecated; use created_at instead",
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
