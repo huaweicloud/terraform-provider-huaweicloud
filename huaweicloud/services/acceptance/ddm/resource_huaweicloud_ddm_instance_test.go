@@ -34,9 +34,6 @@ func getDdmInstanceResourceFunc(cfg *config.Config, state *terraform.ResourceSta
 
 	getInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getInstanceResp, err := getInstanceClient.Request("GET", getInstancePath, &getInstanceOpt)
 	if err != nil {
@@ -90,6 +87,8 @@ func TestAccDdmInstance_basic(t *testing.T) {
 						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
 						"huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.name", "bind_table"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.value", "test_value"),
 				),
 			},
 			{
@@ -109,6 +108,8 @@ func TestAccDdmInstance_basic(t *testing.T) {
 						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
 						"huaweicloud_networking_secgroup.test_update", "id"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.name", "concurrent_execution_level"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.value", "RDS_INSTANCE"),
 				),
 			},
 			{
@@ -134,7 +135,7 @@ func TestAccDdmInstance_basic(t *testing.T) {
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"admin_password", "engine_id", "flavor_id"},
+				ImportStateVerifyIgnore: []string{"admin_password", "engine_id", "flavor_id", "parameters"},
 			},
 		},
 	})
@@ -175,6 +176,8 @@ func TestAccDdmInstance_prepaid(t *testing.T) {
 						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
 						"huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.name", "bind_table"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.value", "test_value"),
 				),
 			},
 			{
@@ -194,6 +197,8 @@ func TestAccDdmInstance_prepaid(t *testing.T) {
 						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
 						"huaweicloud_networking_secgroup.test_update", "id"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.name", "concurrent_execution_level"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.value", "RDS_INSTANCE"),
 				),
 			},
 			{
@@ -201,7 +206,7 @@ func TestAccDdmInstance_prepaid(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"admin_password", "engine_id", "flavor_id",
-					"charging_mode", "auto_renew", "period", "period_unit"},
+					"charging_mode", "auto_renew", "period", "period_unit", "parameters"},
 			},
 		},
 	})
@@ -282,6 +287,11 @@ resource "huaweicloud_ddm_instance" "test" {
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  parameters {
+    name  = "bind_table"
+    value = "test_value"
+  }
 }
 `, testDdmInstance_base(name), name)
 }
@@ -308,6 +318,11 @@ resource "huaweicloud_ddm_instance" "test" {
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  parameters {
+    name  = "concurrent_execution_level"
+    value = "RDS_INSTANCE"
+  }
 }
 `, testDdmInstance_base(name), updateName)
 }
@@ -332,6 +347,11 @@ resource "huaweicloud_ddm_instance" "test" {
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  parameters {
+    name  = "concurrent_execution_level"
+    value = "RDS_INSTANCE"
+  }
 }
 `, testDdmInstance_base(name), updateName)
 }
@@ -359,6 +379,11 @@ resource "huaweicloud_ddm_instance" "test" {
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  parameters {
+    name  = "bind_table"
+    value = "test_value"
+  }
 }
 `, testDdmInstance_base(name), name)
 }
@@ -390,6 +415,11 @@ resource "huaweicloud_ddm_instance" "test" {
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
+
+  parameters {
+    name  = "concurrent_execution_level"
+    value = "RDS_INSTANCE"
+  }
 }
 `, testDdmInstance_base(name), updateName)
 }

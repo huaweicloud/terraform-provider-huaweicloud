@@ -242,7 +242,7 @@ func resourceDdmSchemaCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating DdmSchema: Schema name is not found in API response %s", err)
 	}
 
-	err = waitForInstanceRunning(ctx, d, cfg, instanceID, schema.TimeoutCreate)
+	err = waitForInstanceRunning(ctx, d, createSchemaClient, instanceID, schema.TimeoutCreate)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -431,7 +431,7 @@ func resourceDdmSchemaDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	err = waitForInstanceRunning(ctx, d, cfg, instanceID, schema.TimeoutDelete)
+	err = waitForInstanceRunning(ctx, d, deleteSchemaClient, instanceID, schema.TimeoutDelete)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -467,14 +467,13 @@ func handleOperationError(err error, operateType string, operateObj string) (boo
 	return false, fmt.Errorf("error %s DDM %s: %s", operateType, operateObj, err)
 }
 
-func waitForInstanceRunning(ctx context.Context, d *schema.ResourceData, cfg *config.Config, instanceID string,
+func waitForInstanceRunning(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string,
 	timeout string) error {
-	region := cfg.GetRegion(d)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      ddmInstanceStatusRefreshFunc(instanceID, region, cfg),
+		Refresh:      ddmInstanceStatusRefreshFunc(instanceID, client),
 		Timeout:      d.Timeout(timeout),
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,

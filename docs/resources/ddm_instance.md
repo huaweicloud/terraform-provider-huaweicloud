@@ -12,45 +12,23 @@ Manages DDM instance resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_vpc" "test" {
-  name = "test_vpc"
-  cidr = "192.168.0.0/24"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "test_subnet"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name = "test_secgroup"
-}
-
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_ddm_engines" test {
-  version = "3.0.8.5"
-}
-
-data "huaweicloud_ddm_flavors" test {
-  engine_id = data.huaweicloud_ddm_engines.test.engines[0].id
-  cpu_arch  = "X86"
-}
+variable "flavor_id" {}
+variable "engine_id" {}
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "security_group_id" {}
+variable "availability_zone" {}
 
 resource "huaweicloud_ddm_instance" "test" {
   name              = "ddm_test"
-  flavor_id         = data.huaweicloud_ddm_flavors.test.flavors[0].id
+  flavor_id         = var.flavor_id
   node_num          = 2
-  engine_id         = data.huaweicloud_ddm_engines.test.engines[0].id
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  engine_id         = var.engine_id
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
+  security_group_id = var.security_group_id
   
-  availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0]
-  ]
+  availability_zones = [var.availability_zone]
 }
 ```
 
@@ -99,7 +77,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `admin_user` - (Optional, String, ForceNew) Specifies the username of the administrator.
-  The user name starts with a letter, consists of 1 to 32 characters, and can contain only letters,
+  The username starts with a letter, consists of 1 to 32 characters, and can contain only letters,
   digits, and underscores (_).
 
   Changing this parameter will create a new resource.
@@ -107,6 +85,9 @@ The following arguments are supported:
 * `admin_password` - (Optional, String) Specifies the password of the administrator.
   The password consists of 8 to 32 characters, and must be a combination of uppercase letters,
   lowercase letters, digits, and the following special characters: ~!@#%^*-_=+?.
+
+* `parameters` - (Optional, List) Specify an array of one or more parameters to be set to the instance after launched.
+  The [parameters](#parameters_struct) structure is documented below.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the DDM instance.
   Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
@@ -125,10 +106,17 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled.
   Valid values are **true** and **false**. Defaults to **false**.
 
 * `delete_rds_data` - (Optional, String) Specifies whether data stored on the associated DB instances is deleted.
+
+<a name="parameters_struct"></a>
+The `parameters` block supports:
+
+* `name` - (Required, String) Specifies the parameter name. Some of them needs the instance to be restarted to take effect.
+
+* `value` - (Required, String) Specifies the parameter value.
 
 ## Attribute Reference
 
@@ -166,8 +154,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The ddm instance can be imported using the `id`, e.g.
+The DDM instance can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_ddm_instance.test 4bc36477c36642479acf2d90751c8c29in09
+```bash
+$ terraform import huaweicloud_ddm_instance.test <id>
 ```
