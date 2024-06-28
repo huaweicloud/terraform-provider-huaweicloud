@@ -38,8 +38,9 @@ func testAccDatasourceDcsInstance_basic(name string) string {
 %s
 
 data "huaweicloud_dcs_instances" "test" {
-  name   = huaweicloud_dcs_instance.instance_1.name
-  status = "RUNNING"
+  name     = huaweicloud_dcs_instance.instance_1.name
+  status   = "RUNNING"
+  capacity = 0.125
 }
 `, testAccDcsV1Instance_basic(name))
 }
