@@ -95,6 +95,7 @@ var (
 	HW_CDN_CERT_PATH                = os.Getenv("HW_CDN_CERT_PATH")
 	HW_CDN_PRIVATE_KEY_PATH         = os.Getenv("HW_CDN_PRIVATE_KEY_PATH")
 	HW_CDN_ENABLE_FLAG              = os.Getenv("HW_CDN_ENABLE_FLAG")
+	HW_CDN_TIMESTAMP                = os.Getenv("HW_CDN_TIMESTAMP")
 	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
 	HW_CERTIFICATE_CHAIN_PATH       = os.Getenv("HW_CERTIFICATE_CHAIN_PATH")
 	HW_CERTIFICATE_PRIVATE_KEY_PATH = os.Getenv("HW_CERTIFICATE_PRIVATE_KEY_PATH")
@@ -1894,5 +1895,12 @@ func TestAccPreCheckSecurityGroupId(t *testing.T) {
 func TestAccPrecheckDcFlag(t *testing.T) {
 	if HW_DC_ENABLE_FLAG == "" {
 		t.Skip("HW_DC_ENABLE_FLAG must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckTimeStamp(t *testing.T) {
+	if HW_CDN_TIMESTAMP == "" {
+		t.Skip("HW_CDN_TIMESTAMP must be set for the acceptance test")
 	}
 }
