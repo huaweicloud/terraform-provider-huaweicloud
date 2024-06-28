@@ -128,7 +128,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this will create a new resource.
 
 * `scaling_configuration_name` - (Required, String, ForceNew) Specifies the AS configuration name.
-  The name contains only letters, digits, underscores (_), and hyphens (-), and cannot exceed 64 characters.
+  The name contains only letters, digits, underscores (_), and hyphens (-), and cannot exceed `64` characters.
   Changing this will create a new resource.
 
 * `instance_config` - (Required, List, ForceNew) Specifies the information about instance configuration.
@@ -144,7 +144,7 @@ The `instance_config` block supports:
   If this argument is not specified, `flavor`, `image`, and `disk` arguments are mandatory.
   Changing this will create a new resource.
 
-* `flavor` - (Optional, String, ForceNew) Specifies the ECS flavor name. A maximum of 10 flavors can be selected.
+* `flavor` - (Optional, String, ForceNew) Specifies the ECS flavor name. A maximum of `10` flavors can be selected.
   Use a comma (,) to separate multiple flavor names. Changing this will create a new resource.
 
 * `image` - (Optional, String, ForceNew) Specifies the ECS image ID. Changing this will create a new resource.
@@ -174,6 +174,8 @@ The `instance_config` block supports:
 
 * `ecs_group_id` - (Optional, String, ForceNew) Specifies the ECS group ID. Changing this will create a new resource.
 
+  -> To ensure service reliability, an ECS group allows ECSs within in the group to be automatically allocated to different hosts.
+
 * `tenancy` - (Optional, String, ForceNew) Configure this field to **dedicated** to create ECS instances on DeHs.
   Before configuring this field, prepare DeHs. Changing this will create a new resource.
 
@@ -189,22 +191,22 @@ The `instance_config` block supports:
   The file content must be encoded with Base64. Changing this will create a new resource.
 
 * `public_ip` - (Optional, List, ForceNew) Specifies the EIP of the ECS instance.
-  The [object](#instance_config_public_ip_object) structure is documented below.
+  The [public_ip](#instance_config_public_ip_object) structure is documented below.
   Changing this will create a new resource.
 
 * `metadata` - (Optional, Map, ForceNew) Specifies the key/value pairs to make available from within the instance.
   Changing this will create a new resource.
 
 * `personality` - (Optional, List, ForceNew) Specifies the customize personality of an instance by defining one or
-  more files and their contents. The [object](#instance_config_personality_object) structure is documented below.
+  more files and their contents. The [personality](#instance_config_personality_object) structure is documented below.
   Changing this will create a new resource.
 
 <a name="instance_config_disk_object"></a>
 The `disk` block supports:
 
 * `size` - (Required, Int, ForceNew) Specifies the disk size. The unit is GB.
-  The system disk size ranges from 1 to 1024, and not less than the minimum value of the system disk in the
-  instance image. The data disk size ranges from 10 to 32768.
+  The system disk size ranges from `1` to `1024`, and not less than the minimum value of the system disk in the
+  instance image. The data disk size ranges from `10` to `32,768`.
   Changing this will create a new resource.
 
 * `volume_type` - (Required, String, ForceNew) Specifies the disk type. Changing this will create a new resource.
@@ -291,7 +293,7 @@ The `bandwidth` block supports:
   + **traffic**: Billing by traffic.
 
 * `size` - (Optional, Int, ForceNew) Specifies the bandwidth (Mbit/s). The value range for bandwidth billed by bandwidth
-  is 1 to 2000 and that for bandwidth billed by traffic is 1 to 300.
+  is `1` to `2,000` and that for bandwidth billed by traffic is `1` to `300`.
   Changing this creates a new resource.
 
 * `id` - (Optional, String, ForceNew) Specifies the ID of the shared bandwidth.
