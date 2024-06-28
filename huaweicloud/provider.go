@@ -1014,7 +1014,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_antiddos_basic": antiddos.ResourceCloudNativeAntiDdos(),
 
-			"huaweicloud_access_analyzer": accessanalyzer.ResourceAccessAnalyzer(),
+			"huaweicloud_access_analyzer":              accessanalyzer.ResourceAccessAnalyzer(),
+			"huaweicloud_access_analyzer_archive_rule": accessanalyzer.ResourceArchiveRule(),
 
 			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
 			"huaweicloud_aom_event_alarm_rule":       aom.ResourceEventAlarmRule(),
