@@ -273,8 +273,8 @@ func queryRouteTableRoutes(client *golangsdk.ServiceClient, routeTableId string)
 		for i, attachment := range route.Attachments {
 			attachments[i] = map[string]interface{}{
 				"attachment_id":   attachment.AttachmentId,
-				"attachment_type": attachment.AttachmentId,
-				"resource_id":     attachment.AttachmentId,
+				"attachment_type": attachment.ResourceType,
+				"resource_id":     attachment.ResourceId,
 			}
 		}
 		rr["attachments"] = attachments
@@ -323,6 +323,7 @@ func flattenRouteTables(client *golangsdk.ServiceClient, instanceId string,
 
 		result[i] = map[string]interface{}{
 			"id":                     routeTableId,
+			"name":                   routeTable.Name,
 			"description":            routeTable.Description,
 			"associations":           associationList,
 			"propagations":           propagationList,
@@ -330,9 +331,10 @@ func flattenRouteTables(client *golangsdk.ServiceClient, instanceId string,
 			"is_default_association": routeTable.IsDefaultAssociation,
 			"is_default_propagation": routeTable.IsDefaultPropagation,
 			"status":                 routeTable.Status,
-			"created_at":             routeTable.CreatedAt,
-			"updated_at":             routeTable.UpdatedAt,
-			"tags":                   utils.TagsToMap(routeTable.Tags),
+			// The time results are not the time in RF3339 format without milliseconds.
+			"created_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(routeTable.CreatedAt)/1000, false),
+			"updated_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(routeTable.UpdatedAt)/1000, false),
+			"tags":       utils.TagsToMap(routeTable.Tags),
 		}
 	}
 	return result

@@ -181,8 +181,9 @@ func resourceVpcAttachmentRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("auto_create_vpc_routes", resp.AutoCreateVpcRoutes),
 		d.Set("tags", utils.TagsToMap(resp.Tags)),
 		d.Set("status", resp.Status),
-		d.Set("created_at", resp.CreatedAt),
-		d.Set("updated_at", resp.UpdatedAt),
+		// The time results are not the time in RF3339 format without milliseconds.
+		d.Set("created_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(resp.CreatedAt)/1000, false)),
+		d.Set("updated_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(resp.UpdatedAt)/1000, false)),
 	)
 
 	if mErr.ErrorOrNil() != nil {

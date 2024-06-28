@@ -73,6 +73,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated_at` - The latest update time of the static route.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 5 minutes.
+* `update` - Default is 5 minutes.
+* `delete` - Default is 2 minutes.
+
 ## Import
 
 Static routes can be imported using the related `route_table_id` and their `id`, separated by a slash (/), e.g.
