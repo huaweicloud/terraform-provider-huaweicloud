@@ -91,7 +91,9 @@ func TestAccInternetBandwidth_basic(t *testing.T) {
 
 func testAccInternetBandwidth_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_global_eip_pools" "all" {
+  access_site = "cn-north-beijing"
+}
 
 resource "huaweicloud_global_internet_bandwidth" "test" {
   access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
@@ -105,12 +107,14 @@ resource "huaweicloud_global_internet_bandwidth" "test" {
     foo = "bar"
   }
 }
-`, testAccGlobalEIPPoolsDataSource_basic, name)
+`, name)
 }
 
 func testAccInternetBandwidth_update(name string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_global_eip_pools" "all" {
+  access_site = "cn-north-beijing"
+}
 
 resource "huaweicloud_global_internet_bandwidth" "test" {
   access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
@@ -125,5 +129,5 @@ resource "huaweicloud_global_internet_bandwidth" "test" {
     key = "value"
   }
 }
-`, testAccGlobalEIPPoolsDataSource_basic, name)
+`, name)
 }
