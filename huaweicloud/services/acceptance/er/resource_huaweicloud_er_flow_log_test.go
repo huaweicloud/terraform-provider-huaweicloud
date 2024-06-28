@@ -2,6 +2,7 @@ package er
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -45,18 +46,16 @@ func getFlowResourceFunc(cfg *config.Config, state *terraform.ResourceState) (in
 
 func TestAccFlowLog_basic(t *testing.T) {
 	var (
-		flowLog  interface{}
-		name     = acceptance.RandomAccResourceName()
-		rName    = "huaweicloud_er_flow_log.test"
-		bgpAsNum = acctest.RandIntRange(64512, 65534)
-		rc       = acceptance.InitResourceCheck(
-			rName,
-			&flowLog,
-			getFlowResourceFunc,
-		)
+		flowLog interface{}
+		rName   = "huaweicloud_er_flow_log.test"
+		rc      = acceptance.InitResourceCheck(rName, &flowLog, getFlowResourceFunc)
+
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+		baseConfig = testaccFlowLog_base(name)
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
@@ -64,7 +63,7 @@ func TestAccFlowLog_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testFlowLog_basic(name, bgpAsNum),
+				Config: testFlowLog_basic_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "log_store_type", "LTS"),
@@ -73,18 +72,20 @@ func TestAccFlowLog_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "resource_type", "attachment"),
 					resource.TestCheckResourceAttrPair(rName, "resource_id", "huaweicloud_er_vpc_attachment.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "Create ER flow log"),
+					resource.TestCheckResourceAttr(rName, "description", "Created by script"),
 					resource.TestCheckResourceAttr(rName, "enabled", "false"),
 					resource.TestCheckResourceAttrSet(rName, "state"),
-					resource.TestCheckResourceAttrSet(rName, "created_at"),
-					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
-				Config: testFlowLog_basic_update(name, bgpAsNum),
+				Config: testFlowLog_basic_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s-update", name)),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "enabled", "true"),
 				),
@@ -99,12 +100,12 @@ func TestAccFlowLog_basic(t *testing.T) {
 	})
 }
 
-func testAccFlowLogImportStateFunc(rName string) resource.ImportStateIdFunc {
+func testAccFlowLogImportStateFunc(rsName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		var instanceId, flowLogId string
-		rs, ok := s.RootModule().Resources[rName]
+		rs, ok := s.RootModule().Resources[rsName]
 		if !ok {
-			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
+			return "", fmt.Errorf("the resource (%s) of ER flow log is not found in the tfstate", rsName)
 		}
 
 		instanceId = rs.Primary.Attributes["instance_id"]
@@ -117,7 +118,8 @@ func testAccFlowLogImportStateFunc(rName string) resource.ImportStateIdFunc {
 	}
 }
 
-func testaccFlowLog_base(name string, bgpAsNum int) string {
+func testaccFlowLog_base(name string) string {
+	bgpAsNum := acctest.RandIntRange(64512, 65534)
 	return fmt.Sprintf(`
 %[1]s
 
@@ -153,7 +155,7 @@ resource "huaweicloud_er_vpc_attachment" "test" {
 `, common.TestVpc(name), name, bgpAsNum)
 }
 
-func testFlowLog_basic(name string, bgpAsNum int) string {
+func testFlowLog_basic_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -165,15 +167,14 @@ resource "huaweicloud_er_flow_log" "test" {
   resource_type  = "attachment"
   resource_id    = huaweicloud_er_vpc_attachment.test.id
   name           = "%[2]s"
-  description    = "Create ER flow log"
+  description    = "Created by script"
   enabled        = false
 }
-`, testaccFlowLog_base(name, bgpAsNum), name)
+`, baseConfig, name)
 }
 
-func testFlowLog_basic_update(name string, bgpAsNum int) string {
+func testFlowLog_basic_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
-
 %[1]s
 
 resource "huaweicloud_er_flow_log" "test" {
@@ -183,9 +184,8 @@ resource "huaweicloud_er_flow_log" "test" {
   log_stream_id  = huaweicloud_lts_stream.test.id
   resource_type  = "attachment"
   resource_id    = huaweicloud_er_vpc_attachment.test.id
-  name           = "%[2]s-update"
-  description    = ""
+  name           = "%[2]s"
   enabled        = true
 }
-`, testaccFlowLog_base(name, bgpAsNum), name)
+`, baseConfig, name)
 }

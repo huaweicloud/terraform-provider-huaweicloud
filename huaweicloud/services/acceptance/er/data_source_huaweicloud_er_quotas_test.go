@@ -34,7 +34,7 @@ func TestAccDataSourceQuotas_basic(t *testing.T) {
 		dcByNotFoundRouteTableId = acceptance.InitDataSourceCheck(byNotFoundRouteTableId)
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},

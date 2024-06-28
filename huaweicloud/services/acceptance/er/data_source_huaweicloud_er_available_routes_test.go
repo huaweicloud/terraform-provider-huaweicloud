@@ -27,7 +27,7 @@ func TestAccDataSourceAvailableRoutes_basic(t *testing.T) {
 		dcByResourceType = acceptance.InitDataSourceCheck(byResourceType)
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
