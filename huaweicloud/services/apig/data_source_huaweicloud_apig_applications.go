@@ -131,6 +131,10 @@ func buildListApplicationsParams(d *schema.ResourceData) string {
 	if appKey, ok := d.GetOk("app_key"); ok {
 		res = fmt.Sprintf("%s&app_key=%v", res, appKey)
 	}
+	if creator, ok := d.GetOk("created_by"); ok {
+		res = fmt.Sprintf("%s&creator=%v", res, creator)
+	}
+
 	return res
 }
 
@@ -197,23 +201,9 @@ func dataSourceApplicationsRead(_ context.Context, d *schema.ResourceData, meta 
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("applications", filterApplications(flattenApplications(applications), d)),
+		d.Set("applications", flattenApplications(applications)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func filterApplications(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
-
-	for _, v := range all {
-		if param, ok := d.GetOk("created_by"); ok &&
-			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("created_by", v, nil)) {
-			continue
-		}
-
-		rst = append(rst, v)
-	}
-	return rst
 }
 
 func flattenApplications(applications []interface{}) []interface{} {
