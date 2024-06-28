@@ -35,6 +35,7 @@ func TestAccDataSourceHostGroups_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckLTSHostGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		ExternalProviders: map[string]resource.ExternalProvider{
@@ -72,22 +73,18 @@ func TestAccDataSourceHostGroups_basic(t *testing.T) {
 
 func testDataSourceHostGroups_base(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_lts_host_group" "test" {
-  depends_on = [null_resource.test]
-
   name = "%s"
   type = "linux"
 
-  host_ids = huaweicloud_compute_instance.test[*].id
+  host_ids = split(",", "%s")
 
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, testHostGroup_base(name), name)
+`, name, acceptance.HW_LTS_HOST_IDS)
 }
 
 func testDataSourceHostGroups_basic(name string) string {
@@ -121,10 +118,14 @@ output "is_id_filter_useful" {
 
 # Filter by name
 locals {
-  group_name = data.huaweicloud_lts_host_groups.test.groups[0].name
+  group_name = huaweicloud_lts_host_group.test.name
 }
 
 data "huaweicloud_lts_host_groups" "filter_by_name" {
+  depends_on = [
+    huaweicloud_lts_host_group.test
+  ]
+
   name = local.group_name
 }
 
@@ -144,6 +145,10 @@ locals {
 }
 
 data "huaweicloud_lts_host_groups" "filter_by_not_found_name" {
+  depends_on = [
+    huaweicloud_lts_host_group.test
+  ]
+
   name = local.not_found_name
 }
 
@@ -159,10 +164,14 @@ output "is_name_not_found_filter_useful" {
 
 # Filter by type
 locals {
-  group_type = data.huaweicloud_lts_host_groups.test.groups[0].type
+  group_type = huaweicloud_lts_host_group.test.type
 }
 
 data "huaweicloud_lts_host_groups" "filter_by_type" {
+  depends_on = [
+    huaweicloud_lts_host_group.test
+  ]
+
   type = local.group_type
 }
 
@@ -182,6 +191,10 @@ locals {
 }
 
 data "huaweicloud_lts_host_groups" "filter_by_tags" {
+  depends_on = [
+    huaweicloud_lts_host_group.test
+  ]
+
   tags = local.tags
 }
 

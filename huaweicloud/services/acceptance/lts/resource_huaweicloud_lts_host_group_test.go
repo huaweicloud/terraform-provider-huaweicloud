@@ -62,7 +62,7 @@ func TestAccHostGroup_basic(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_lts_host_group.test"
-
+	hostId := strings.Split(acceptance.HW_LTS_HOST_IDS, ",")[0]
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
@@ -72,6 +72,7 @@ func TestAccHostGroup_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckLTSHostGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -83,7 +84,7 @@ func TestAccHostGroup_basic(t *testing.T) {
 		},
 		Steps: []resource.TestStep{
 			{
-				Config: testHostGroup_basic(name),
+				Config: testHostGroup_basic(name, hostId),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -94,7 +95,7 @@ func TestAccHostGroup_basic(t *testing.T) {
 				),
 			},
 			{
-				Config:            testHostGroup_import(name),
+				Config:            testHostGroup_import(name, hostId),
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -125,152 +126,62 @@ func TestAccHostGroup_basic(t *testing.T) {
 	})
 }
 
-func testHostGroup_base(name string) string {
+func testHostGroup_basic(name, hostId string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
-}
-
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
-resource "huaweicloud_compute_instance" "test" {
-  count = 2
-
-  name                = "%s-${count.index}"
-  description         = "terraform test"
-  image_id            = data.huaweicloud_images_image.test.id
-  flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
-
-  network {
-    uuid = data.huaweicloud_vpc_subnet.test.id
-  }
-
-  system_disk_type = "SAS"
-  system_disk_size = 50
-
-  data_disks {
-    type = "SAS"
-    size = "10"
-  }
-
-  # install IC agent
-  user_data = <<EOF
-#! /bin/bash
-set +o history; curl http://icagent-cn-north-4.obs.cn-north-4.myhuaweicloud.com/ICAgent_linux/apm_agent_install.sh > \
-apm_agent_install.sh && REGION=cn-north-4 bash apm_agent_install.sh -ak %s \
--sk %s -region cn-north-4 -projectid 0970dd7a1300f5672ff2c003c60ae115 \
--accessip 100.125.12.150 -obsdomain obs.cn-north-4.myhuaweicloud.com \
--accessdomain lts-access.cn-north-4.myhuaweicloud.com
-  EOF
-}
-
-# wait 2 minutes for the lts service to discover the server
-resource "null_resource" "test" {
-  provisioner "local-exec" {
-    interpreter = ["bash", "-c"]
-    command     = "sleep 120;"
-  }
-
-  depends_on = [huaweicloud_compute_instance.test]
-}
-`, name, acceptance.HW_ACCESS_KEY, acceptance.HW_SECRET_KEY)
-}
-
-func testHostGroup_basic(name string) string {
-	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_lts_host_group" "test" {
-  name     = "%s"
+  name     = "%[1]s"
   type     = "linux"
-  host_ids = [
-    huaweicloud_compute_instance.test[0].id
-  ]
+  host_ids = ["%[2]s"]
 
   tags = {
     foo = "bar"
     key = "value"
   }
-
-  depends_on = [null_resource.test]
 }
 
 output "is_host_id_different" {
   value = length(setsubtract(huaweicloud_lts_host_group.test.host_ids,
-    tolist([huaweicloud_compute_instance.test[0].id]))) != 0
+    tolist(["%[2]s"]))) != 0
 }
-`, testHostGroup_base(name), name)
+`, name, hostId)
 }
 
-func testHostGroup_import(name string) string {
+func testHostGroup_import(name, hostId string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_lts_host_group" "test" {
   name     = "%s"
   type     = "linux"
-  host_ids = [
-    huaweicloud_compute_instance.test[0].id
-  ]
+  host_ids = ["%s"]
 
   tags = {
     foo = "bar"
     key = "value"
   }
-
-  depends_on = [null_resource.test]
 }
-`, testHostGroup_base(name), name)
+`, name, hostId)
 }
 
 func testHostGroup_basic_update_1(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_lts_host_group" "test" {
-  name     = "%s-update"
+  name     = "%[1]s-update"
   type     = "linux"
-  host_ids = [
-    huaweicloud_compute_instance.test[0].id,
-    huaweicloud_compute_instance.test[1].id
-  ]
+  host_ids = split(",", "%[2]s")
 
   tags = {
     foo        = "bar_update"
     key_update = "value"
   }
-
-  depends_on = [null_resource.test]
 }
 
 output "is_host_id_different" {
-  value = length(setsubtract(huaweicloud_lts_host_group.test.host_ids,
-    huaweicloud_compute_instance.test[*].id)) != 0
+  value = length(setsubtract(huaweicloud_lts_host_group.test.host_ids, split(",", "%[2]s"))) != 0
 }
-`, testHostGroup_base(name), name)
+`, name, acceptance.HW_LTS_HOST_IDS)
 }
 
 func testHostGroup_basic_update_2(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_lts_host_group" "test" {
   name = "%s-update"
   type = "linux"
@@ -279,8 +190,6 @@ resource "huaweicloud_lts_host_group" "test" {
     foo        = "bar_update"
     key_update = "value"
   }
-
-  depends_on = [null_resource.test]
 }
-`, testHostGroup_base(name), name)
+`, name)
 }

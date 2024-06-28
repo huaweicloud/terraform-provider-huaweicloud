@@ -70,6 +70,7 @@ func TestAccCceAccessConfig_containerFile(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckLTSCCEAccess(t)
+			acceptance.TestAccPreCheckLTSHostGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -160,6 +161,7 @@ func TestAccCceAccessConfig_containerStdout(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckLTSCCEAccess(t)
+			acceptance.TestAccPreCheckLTSHostGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -248,6 +250,7 @@ func TestAccCceAccessConfig_hostFile(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckLTSCCEAccess(t)
+			acceptance.TestAccPreCheckLTSHostGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -304,22 +307,45 @@ func testAccCceAccessConfigImportStateFunc(rName string) resource.ImportStateIdF
 	}
 }
 
+func testCceAccessConfig_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%[1]s"
+  ttl_in_days = 30
+}
+	  
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
+  stream_name = "%[1]s"
+  ttl_in_days = 60
+}
+
+resource "huaweicloud_lts_host_group" "test" {
+  name     = "%[1]s"
+  type     = "linux"
+  host_ids = split(",", "%[2]s")
+}
+`, name, acceptance.HW_LTS_HOST_IDS)
+}
+
 func testCceAccessConfigContainerFile(name, suffix string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_lts_cce_access" "container_file" {
-  name           = "%[1]s"
-  log_group_id   = "%[2]s"
-  log_stream_id  = "%[3]s"
-  host_group_ids = ["%[4]s"]
-  cluster_id     = "%[5]s"
+  name           = "%[2]s"
+  log_group_id   = huaweicloud_lts_group.test.id
+  log_stream_id  = huaweicloud_lts_stream.test.id
+  host_group_ids = [huaweicloud_lts_host_group.test.id]
+  cluster_id     = "%[3]s"
 
   access_config {
     path_type            = "container_file"
     paths                = ["/var"]
     black_paths          = ["/var/a.log"]
-    name_space_regex     = "namespace%[6]s"
-    pod_name_regex       = "podname%[6]s"
-    container_name_regex = "containername%[6]s"
+    name_space_regex     = "namespace%[4]s"
+    pod_name_regex       = "podname%[4]s"
+    container_name_regex = "containername%[4]s"
 
     windows_log_info {
       categorys        = ["System", "Application"]
@@ -334,74 +360,75 @@ resource "huaweicloud_lts_cce_access" "container_file" {
 
     log_labels = {
       loglabelkey1 = "bar1"
-      loglabelkey2 = "bar%[6]s"
+      loglabelkey2 = "bar%[4]s"
     }
 
     include_labels = {
       includeKey1 = "incval1"
-      includeKey2 = "incval%[6]s"
+      includeKey2 = "incval%[4]s"
     }
 
     exclude_labels = {
       excludeKey1 = "excval1"
-      excludeKey2 = "excval%[6]s"
+      excludeKey2 = "excval%[4]s"
     }
 
     log_envs = {
       envKey1 = "envval1"
-      envKey2 = "envval%[6]s"
+      envKey2 = "envval%[4]s"
     }
 
     include_envs = {
       inEnvKey1 = "incval1"
-      inEnvKey2 = "incval%[6]s"
+      inEnvKey2 = "incval%[4]s"
     }
 
     exclude_envs = {
       exEnvKey1 = "excval1"
-      exEnvKey2 = "excval%[6]s"
+      exEnvKey2 = "excval%[4]s"
     }
 
     log_k8s = {
       k8sKey1 = "k8sval1"
-      k8sKey2 = "k8sval%[6]s"
+      k8sKey2 = "k8sval%[4]s"
     }
 
     include_k8s_labels = {
       ink8sKey1 = "ink8sval1"
-      ink8sKey2 = "ink8sval%[6]s"
+      ink8sKey2 = "ink8sval%[4]s"
     }
 
     exclude_k8s_labels = {
       exk8sKey1 = "exk8sval1"
-      exk8sKey2 = "exk8sval%[6]s"
+      exk8sKey2 = "exk8sval%[4]s"
     }
   }
 
   tags = {
     key = "value"
-    foo = "bar%[6]s"
+    foo = "bar%[4]s"
   }
 }
-`, name, acceptance.HW_LTS_LOG_GROUP_ID, acceptance.HW_LTS_LOG_STREAM_ID,
-		acceptance.HW_LTS_CCE_HOST_GROUP_ID, acceptance.HW_LTS_CCE_CLUSTER_ID, suffix)
+`, testCceAccessConfig_base(name), name, acceptance.HW_LTS_CCE_CLUSTER_ID, suffix)
 }
 
 func testCceAccessConfigContainerStdout(name, suffix string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_lts_cce_access" "container_stdout" {
-  name           = "%[1]s"
-  log_group_id   = "%[2]s"
-  log_stream_id  = "%[3]s"
-  host_group_ids = ["%[4]s"]
-  cluster_id     = "%[5]s"
+  name           = "%[2]s"
+  log_group_id   = huaweicloud_lts_group.test.id
+  log_stream_id  = huaweicloud_lts_stream.test.id
+  host_group_ids = [huaweicloud_lts_host_group.test.id]
+  cluster_id     = "%[3]s"
 
   access_config {
     path_type            = "container_stdout"
     stdout               = true
-    name_space_regex     = "namespace%[6]s"
-    pod_name_regex       = "podname%[6]s"
-    container_name_regex = "containername%[6]s"
+    name_space_regex     = "namespace%[4]s"
+    pod_name_regex       = "podname%[4]s"
+    container_name_regex = "containername%[4]s"
 
     windows_log_info {
       categorys        = ["System", "Application"]
@@ -416,67 +443,68 @@ resource "huaweicloud_lts_cce_access" "container_stdout" {
 
     log_labels = {
       loglabelkey1 = "bar1"
-      loglabelkey2 = "bar%[6]s"
+      loglabelkey2 = "bar%[4]s"
     }
 
     include_labels = {
       includeKey1 = "incval1"
-      includeKey2 = "incval%[6]s"
+      includeKey2 = "incval%[4]s"
     }
 
     exclude_labels = {
       excludeKey1 = "excval1"
-      excludeKey2 = "excval%[6]s"
+      excludeKey2 = "excval%[4]s"
     }
 
     log_envs = {
       envKey1 = "envval1"
-      envKey2 = "envval%[6]s"
+      envKey2 = "envval%[4]s"
     }
 
     include_envs = {
       inEnvKey1 = "incval1"
-      inEnvKey2 = "incval%[6]s"
+      inEnvKey2 = "incval%[4]s"
     }
 
     exclude_envs = {
       exEnvKey1 = "excval1"
-      exEnvKey2 = "excval%[6]s"
+      exEnvKey2 = "excval%[4]s"
     }
 
     log_k8s = {
       k8sKey1 = "k8sval1"
-      k8sKey2 = "k8sval%[6]s"
+      k8sKey2 = "k8sval%[4]s"
     }
 
     include_k8s_labels = {
       ink8sKey1 = "ink8sval1"
-      ink8sKey2 = "ink8sval%[6]s"
+      ink8sKey2 = "ink8sval%[4]s"
     }
 
     exclude_k8s_labels = {
       exk8sKey1 = "exk8sval1"
-      exk8sKey2 = "exk8sval%[6]s"
+      exk8sKey2 = "exk8sval%[4]s"
     }
   }
 
   tags = {
     key = "value"
-    foo = "bar%[6]s"
+    foo = "bar%[4]s"
   }
 }
-`, name, acceptance.HW_LTS_LOG_GROUP_ID, acceptance.HW_LTS_LOG_STREAM_ID,
-		acceptance.HW_LTS_CCE_HOST_GROUP_ID, acceptance.HW_LTS_CCE_CLUSTER_ID, suffix)
+`, testCceAccessConfig_base(name), name, acceptance.HW_LTS_CCE_CLUSTER_ID, suffix)
 }
 
 func testCceAccessConfigHostFile(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_lts_cce_access" "host_file" {
-  name           = "%[1]s"
-  log_group_id   = "%[2]s"
-  log_stream_id  = "%[3]s"
-  host_group_ids = ["%[4]s"]
-  cluster_id     = "%[5]s"
+  name           = "%[2]s"
+  log_group_id   = huaweicloud_lts_group.test.id
+  log_stream_id  = huaweicloud_lts_stream.test.id
+  host_group_ids = [huaweicloud_lts_host_group.test.id]
+  cluster_id     = "%[3]s"
 
   access_config {
     path_type   = "host_file"
@@ -493,18 +521,19 @@ resource "huaweicloud_lts_cce_access" "host_file" {
     foo = "bar"
   }
 }
-`, name, acceptance.HW_LTS_LOG_GROUP_ID, acceptance.HW_LTS_LOG_STREAM_ID,
-		acceptance.HW_LTS_CCE_HOST_GROUP_ID, acceptance.HW_LTS_CCE_CLUSTER_ID)
+`, testCceAccessConfig_base(name), name, acceptance.HW_LTS_CCE_CLUSTER_ID)
 }
 
 func testCceAccessConfigHostFileUpdate(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_lts_cce_access" "host_file" {
-  name           = "%[1]s"
-  log_group_id   = "%[2]s"
-  log_stream_id  = "%[3]s"
-  host_group_ids = ["%[4]s"]
-  cluster_id     = "%[5]s"
+  name           = "%[2]s"
+  log_group_id   = huaweicloud_lts_group.test.id
+  log_stream_id  = huaweicloud_lts_stream.test.id
+  host_group_ids = [huaweicloud_lts_host_group.test.id]
+  cluster_id     = "%[3]s"
 
   access_config {
     path_type   = "host_file"
@@ -521,6 +550,5 @@ resource "huaweicloud_lts_cce_access" "host_file" {
     owner = "terraform"
   }
 }
-`, name, acceptance.HW_LTS_LOG_GROUP_ID, acceptance.HW_LTS_LOG_STREAM_ID,
-		acceptance.HW_LTS_CCE_HOST_GROUP_ID, acceptance.HW_LTS_CCE_CLUSTER_ID)
+`, testCceAccessConfig_base(name), name, acceptance.HW_LTS_CCE_CLUSTER_ID)
 }

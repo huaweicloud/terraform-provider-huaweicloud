@@ -55,7 +55,7 @@ func getAOMAccessResourceFunc(cfg *config.Config, state *terraform.ResourceState
 	return arrayBody[0], nil
 }
 
-func TestAccAOMAccess_allWorkloads(t *testing.T) {
+func TestAccAOMAccess_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
@@ -77,7 +77,7 @@ func TestAccAOMAccess_allWorkloads(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAOMAccess_allWorkloads(name),
+				Config: testAOMAccess_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -99,78 +99,17 @@ func TestAccAOMAccess_allWorkloads(t *testing.T) {
 				),
 			},
 			{
-				Config: testAOMAccess_allWorkloads_update(name),
+				Config: testAOMAccess_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
 					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_LTS_CLUSTER_ID_ANOTHER),
 					resource.TestCheckResourceAttr(rName, "cluster_name", acceptance.HW_LTS_CLUSTER_NAME_ANOTHER),
 					resource.TestCheckResourceAttr(rName, "namespace", "test_namespace"),
-					resource.TestCheckResourceAttr(rName, "workloads.0", "__ALL_DEPLOYMENTS__"),
-					resource.TestCheckResourceAttr(rName, "container_name", "test_container_update"),
-					resource.TestCheckResourceAttr(rName, "access_rules.0.file_name", "/test/update/*"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccAOMAccess_specifyWorkloads(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_lts_aom_access.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getAOMAccessResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckLtsAomAccess(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAOMAccess_specifyWorkloads(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_LTS_CLUSTER_ID),
-					resource.TestCheckResourceAttr(rName, "cluster_name", acceptance.HW_LTS_CLUSTER_NAME),
-					resource.TestCheckResourceAttr(rName, "namespace", "default"),
 					resource.TestCheckResourceAttr(rName, "workloads.0", "WORKLOAD_1"),
 					resource.TestCheckResourceAttr(rName, "workloads.1", "WORKLOAD_2"),
-					resource.TestCheckResourceAttr(rName, "container_name", "test_container"),
-					resource.TestCheckResourceAttr(rName, "access_rules.0.file_name", "__ALL_FILES__"),
-					resource.TestCheckResourceAttrPair(rName, "access_rules.0.log_group_id",
-						"huaweicloud_lts_group.test", "id"),
-					resource.TestCheckResourceAttrPair(rName, "access_rules.0.log_group_name",
-						"huaweicloud_lts_group.test", "group_name"),
-					resource.TestCheckResourceAttrPair(rName, "access_rules.0.log_stream_id",
-						"huaweicloud_lts_stream.test", "id"),
-					resource.TestCheckResourceAttrPair(rName, "access_rules.0.log_stream_name",
-						"huaweicloud_lts_stream.test", "stream_name"),
-				),
-			},
-			{
-				Config: testAOMAccess_specifyWorkloads_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "namespace", "test_namespace"),
-					resource.TestCheckResourceAttr(rName, "workloads.0", "WORKLOAD_3"),
 					resource.TestCheckResourceAttr(rName, "container_name", "test_container_update"),
-					resource.TestCheckResourceAttr(rName, "access_rules.0.file_name", "/test/*"),
+					resource.TestCheckResourceAttr(rName, "access_rules.0.file_name", "/test/update/*"),
 				),
 			},
 			{
@@ -242,7 +181,7 @@ func TestAccAOMAccess_withCCICluster(t *testing.T) {
 	})
 }
 
-func testAOMAccess_allWorkloads(name string) string {
+func testAOMAccess_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -273,7 +212,7 @@ resource "huaweicloud_lts_aom_access" "test" {
 `, testAccLtsStream_basic(name), name, acceptance.HW_LTS_CLUSTER_ID, acceptance.HW_LTS_CLUSTER_NAME)
 }
 
-func testAOMAccess_allWorkloads_update(name string) string {
+func testAOMAccess_basic_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -282,7 +221,7 @@ resource "huaweicloud_lts_aom_access" "test" {
   cluster_id     = "%[3]s"
   cluster_name   = "%[4]s"
   namespace      = "test_namespace"
-  workloads      = ["__ALL_DEPLOYMENTS__"]
+  workloads      = ["WORKLOAD_1", "WORKLOAD_2"]
   container_name = "test_container_update"
 
   access_rules {
@@ -294,52 +233,6 @@ resource "huaweicloud_lts_aom_access" "test" {
   }
 }
 `, testAccLtsStream_basic(name), name, acceptance.HW_LTS_CLUSTER_ID_ANOTHER, acceptance.HW_LTS_CLUSTER_NAME_ANOTHER)
-}
-
-func testAOMAccess_specifyWorkloads(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_lts_aom_access" "test" {
-  name           = "%[2]s"
-  cluster_id     = "%[3]s"
-  cluster_name   = "%[4]s"
-  namespace      = "default"
-  workloads      = ["WORKLOAD_1", "WORKLOAD_2"]
-  container_name = "test_container"
-
-  access_rules {
-    file_name       = "__ALL_FILES__"
-    log_group_id    = huaweicloud_lts_group.test.id
-    log_group_name  = huaweicloud_lts_group.test.group_name
-    log_stream_id   = huaweicloud_lts_stream.test.id
-    log_stream_name = huaweicloud_lts_stream.test.stream_name
-  }
-}
-`, testAccLtsStream_basic(name), name, acceptance.HW_LTS_CLUSTER_ID, acceptance.HW_LTS_CLUSTER_NAME)
-}
-
-func testAOMAccess_specifyWorkloads_update(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_lts_aom_access" "test" {
-  name           = "%[2]s_update"
-  cluster_id     = "%[3]s"
-  cluster_name   = "%[4]s"
-  namespace      = "test_namespace"
-  workloads      = ["WORKLOAD_3"]
-  container_name = "test_container_update"
-
-  access_rules {
-    file_name       = "/test/*"
-    log_group_id    = huaweicloud_lts_group.test.id
-    log_group_name  = huaweicloud_lts_group.test.group_name
-    log_stream_id   = huaweicloud_lts_stream.test.id
-    log_stream_name = huaweicloud_lts_stream.test.stream_name
-  }
-}
-`, testAccLtsStream_basic(name), name, acceptance.HW_LTS_CLUSTER_ID, acceptance.HW_LTS_CLUSTER_NAME)
 }
 
 func testAOMAccess_withCCICluster(name string) string {
