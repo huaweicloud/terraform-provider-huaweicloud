@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -31,7 +30,6 @@ func TestAccThrottlingPolicy_basic(t *testing.T) {
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
 		baseConfig = testAccApigThrottlingPolicy_base(name)
-		appCode    = acctest.RandString(64)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -48,7 +46,7 @@ func TestAccThrottlingPolicy_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigThrottlingPolicy_basic_step1(baseConfig, name, appCode),
+				Config: testAccApigThrottlingPolicy_basic_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -63,7 +61,7 @@ func TestAccThrottlingPolicy_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccApigThrottlingPolicy_basic_step2(baseConfig, updateName, appCode),
+				Config: testAccApigThrottlingPolicy_basic_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -87,13 +85,60 @@ func TestAccThrottlingPolicy_basic(t *testing.T) {
 	})
 }
 
+func testAccApigThrottlingPolicy_basic_step1(baseConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_application" "test" {
+  name        = "%[2]s"
+  instance_id = huaweicloud_apig_instance.test.id
+}
+
+resource "huaweicloud_apig_throttling_policy" "test" {
+  instance_id       = huaweicloud_apig_instance.test.id
+  name              = "%[2]s"
+  type              = "API-based"
+  period            = 15000
+  period_unit       = "SECOND"
+  max_api_requests  = 100
+  max_user_requests = 60
+  max_app_requests  = 60
+  max_ip_requests   = 60
+  description       = "Created by script"
+}
+`, baseConfig, name)
+}
+
+func testAccApigThrottlingPolicy_basic_step2(baseConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_application" "test" {
+  name        = "%[2]s"
+  instance_id = huaweicloud_apig_instance.test.id
+}
+
+resource "huaweicloud_apig_throttling_policy" "test" {
+  instance_id       = huaweicloud_apig_instance.test.id
+  name              = "%[2]s"
+  type              = "API-shared"
+  period            = 10
+  period_unit       = "MINUTE"
+  max_api_requests  = 70
+  max_user_requests = 45
+  max_app_requests  = 45
+  max_ip_requests   = 45
+  description       = "Updated by script"
+}
+`, baseConfig, name)
+}
+
 func TestAccThrottlingPolicy_spec(t *testing.T) {
 	var (
-		policy throttles.ThrottlingPolicy
+		policy *throttles.ThrottlingPolicy
 
-		rName   = "huaweicloud_apig_throttling_policy.test"
-		name    = acceptance.RandomAccResourceName()
-		appCode = acctest.RandString(64)
+		rName = "huaweicloud_apig_throttling_policy.test"
+		name  = acceptance.RandomAccResourceName()
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -110,7 +155,7 @@ func TestAccThrottlingPolicy_spec(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigThrottlingPolicy_spec_step1(name, appCode),
+				Config: testAccApigThrottlingPolicy_spec_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -122,21 +167,21 @@ func TestAccThrottlingPolicy_spec(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccApigThrottlingPolicy_spec_step2(name, appCode),
+				Config: testAccApigThrottlingPolicy_spec_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "app_throttles.#", "1"),
+					resource.TestCheckResourceAttr(rName, "app_throttles.#", "2"),
 				),
 			},
 			{
-				Config: testAccApigThrottlingPolicy_spec_step3(name, appCode),
+				Config: testAccApigThrottlingPolicy_spec_step3(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "app_throttles.#", "1"),
+					resource.TestCheckResourceAttr(rName, "app_throttles.#", "2"),
 				),
 			},
 			{
-				Config: testAccApigThrottlingPolicy_spec_step4(name, appCode),
+				Config: testAccApigThrottlingPolicy_spec_step4(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "app_throttles.#", "0"),
@@ -188,143 +233,101 @@ resource "huaweicloud_apig_instance" "test" {
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccApigThrottlingPolicy_basic_step1(baseConfig, name, appCode string) string {
+func testAccApigThrottlingPolicy_spec_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_throttling_policy" "test" {
+  instance_id      = huaweicloud_apig_instance.test.id
+  name             = "%[2]s"
+  type             = "API-based"
+  period           = 15000
+  period_unit      = "SECOND"
+  max_api_requests = 100
+}
+`, testAccApigThrottlingPolicy_base(name), name)
+}
+
+func testAccApigThrottlingPolicy_spec_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_apig_application" "test" {
-  name        = "%[3]s"
-  instance_id = huaweicloud_apig_instance.test.id
+  count = 3
 
-  app_codes = [
-    base64encode("%[2]s"),
-  ]
+  name        = "%[2]s_${count.index}"
+  instance_id = huaweicloud_apig_instance.test.id
 }
 
 resource "huaweicloud_apig_throttling_policy" "test" {
-  instance_id       = huaweicloud_apig_instance.test.id
-  name              = "%[3]s"
-  type              = "API-based"
-  period            = 15000
-  period_unit       = "SECOND"
-  max_api_requests  = 100
-  max_user_requests = 60
-  max_app_requests  = 60
-  max_ip_requests   = 60
-  description       = "Created by script"
-}
-`, baseConfig, appCode, name)
-}
-
-func testAccApigThrottlingPolicy_basic_step2(baseConfig, name, appCode string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_application" "test" {
-  name        = "%[3]s"
-  instance_id = huaweicloud_apig_instance.test.id
-
-  app_codes = [
-    base64encode("%[2]s"),
-  ]
-}
-
-resource "huaweicloud_apig_throttling_policy" "test" {
-  instance_id       = huaweicloud_apig_instance.test.id
-  name              = "%[3]s"
-  type              = "API-shared"
-  period            = 10
-  period_unit       = "MINUTE"
-  max_api_requests  = 70
-  max_user_requests = 45
-  max_app_requests  = 45
-  max_ip_requests   = 45
-  description       = "Updated by script"
-}
-`, baseConfig, appCode, name)
-}
-
-func testAccApigThrottlingPolicy_spec_step1(name, appCode string) string {
-	baseConfig := testAccApigThrottlingPolicy_base(name)
-	return testAccApigThrottlingPolicy_basic_step1(baseConfig, name, appCode)
-}
-
-func testAccApigThrottlingPolicy_spec_step2(name, appCode string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-locals {
-  randCodes = [
-    base64encode("%[2]s"), base64encode(strrev("%[2]s")),
-  ]
-}
-
-resource "huaweicloud_apig_application" "test" {
-  count = 2
-
-  name        = "%[3]s_${count.index}"
-  instance_id = huaweicloud_apig_instance.test.id
-  app_codes   = slice(local.randCodes, count.index, count.index+1)
-}
-
-resource "huaweicloud_apig_throttling_policy" "test" {
-  instance_id       = huaweicloud_apig_instance.test.id
-  name              = "%[3]s"
-  type              = "API-based"
-  period            = 15000
-  period_unit       = "SECOND"
-  max_api_requests  = 100
+  instance_id      = huaweicloud_apig_instance.test.id
+  name             = "%[2]s"
+  type             = "API-based"
+  period           = 15000
+  period_unit      = "SECOND"
+  max_api_requests = 100
 
   dynamic "app_throttles" {
-    for_each = slice(huaweicloud_apig_application.test[*].id, 0, 1)
+    for_each = slice(huaweicloud_apig_application.test[*].id, 0, 2)
 
     content {
       max_api_requests     = 30
       throttling_object_id = app_throttles.value
-	}
+    }
   }
 }
-`, testAccApigThrottlingPolicy_base(name), appCode, name)
+`, testAccApigThrottlingPolicy_base(name), name)
 }
 
-func testAccApigThrottlingPolicy_spec_step3(name, appCode string) string {
+func testAccApigThrottlingPolicy_spec_step3(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-locals {
-  randCodes = [
-    "%[2]s", strrev("%[2]s"),
-  ]
+resource "huaweicloud_apig_application" "test" {
+  count = 3
+
+  name        = "%[2]s_${count.index}"
+  instance_id = huaweicloud_apig_instance.test.id
 }
 
-resource "huaweicloud_apig_application" "test" {
-  count = 2
+resource "huaweicloud_apig_throttling_policy" "test" {
+  instance_id      = huaweicloud_apig_instance.test.id
+  name             = "%[2]s"
+  type             = "API-based"
+  period           = 15000
+  period_unit      = "SECOND"
+  max_api_requests = 100
 
-  name        = "%[3]s_${count.index}"
+  dynamic "app_throttles" {
+    for_each = slice(huaweicloud_apig_application.test[*].id, 1, 3)
+
+    content {
+      max_api_requests     = 40
+      throttling_object_id = app_throttles.value
+    }
+  }
+}
+`, testAccApigThrottlingPolicy_base(name), name)
+}
+
+func testAccApigThrottlingPolicy_spec_step4(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_application" "test" {
+  count = 3
+
+  name        = "%[2]s_${count.index}"
   instance_id = huaweicloud_apig_instance.test.id
-  app_codes   = slice(local.randCodes, count.index, count.index+1)
 }
 
 resource "huaweicloud_apig_throttling_policy" "test" {
   instance_id       = huaweicloud_apig_instance.test.id
-  name              = "%[3]s"
+  name              = "%[2]s"
   type              = "API-based"
   period            = 15000
   period_unit       = "SECOND"
   max_api_requests  = 100
-
-  dynamic "app_throttles" {
-    for_each = slice(huaweicloud_apig_application.test[*].id, 0, 1)
-
-    content {
-      max_api_requests     = 30
-      throttling_object_id = app_throttles.value
-	}
-  }
 }
-`, testAccApigThrottlingPolicy_base(name), appCode, name)
-}
-
-func testAccApigThrottlingPolicy_spec_step4(name, appCode string) string {
-	return testAccApigThrottlingPolicy_spec_step1(name, appCode)
+`, testAccApigThrottlingPolicy_base(name), name)
 }
