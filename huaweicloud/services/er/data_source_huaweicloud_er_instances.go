@@ -182,15 +182,16 @@ func flattenInstances(all []instances.Instance) []map[string]interface{} {
 	result := make([]map[string]interface{}, len(all))
 	for i, instance := range all {
 		result[i] = map[string]interface{}{
-			"id":                                 instance.ID,
-			"asn":                                instance.ASN,
-			"name":                               instance.Name,
-			"description":                        instance.Description,
-			"status":                             instance.Status,
-			"enterprise_project_id":              instance.EnterpriseProjectId,
-			"tags":                               utils.TagsToMap(instance.Tags),
-			"created_at":                         instance.CreatedAt,
-			"updated_at":                         instance.UpdatedAt,
+			"id":                    instance.ID,
+			"asn":                   instance.ASN,
+			"name":                  instance.Name,
+			"description":           instance.Description,
+			"status":                instance.Status,
+			"enterprise_project_id": instance.EnterpriseProjectId,
+			"tags":                  utils.TagsToMap(instance.Tags),
+			// The time results are not the time in RF3339 format without milliseconds.
+			"created_at":                         utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(instance.CreatedAt)/1000, false),
+			"updated_at":                         utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(instance.UpdatedAt)/1000, false),
 			"enable_default_propagation":         instance.EnableDefaultPropagation,
 			"enable_default_association":         instance.EnableDefaultAssociation,
 			"auto_accept_shared_attachments":     instance.AutoAcceptSharedAttachments,

@@ -2,6 +2,7 @@ package er
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -29,9 +30,8 @@ func TestAccAssociation_basic(t *testing.T) {
 	var (
 		obj associations.Association
 
-		rName    = "huaweicloud_er_association.test"
-		name     = acceptance.RandomAccResourceName()
-		bgpAsNum = acctest.RandIntRange(64512, 65534)
+		rName = "huaweicloud_er_association.test"
+		name  = acceptance.RandomAccResourceName()
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -40,13 +40,13 @@ func TestAccAssociation_basic(t *testing.T) {
 		getAssociationResourceFunc,
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAssociation_basic(name, bgpAsNum),
+				Config: testAccAssociation_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -57,40 +57,44 @@ func TestAccAssociation_basic(t *testing.T) {
 						"huaweicloud_er_vpc_attachment.test", "id"),
 					resource.TestCheckResourceAttr(rName, "attachment_type", "vpc"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
-					resource.TestCheckResourceAttrSet(rName, "created_at"),
-					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccAssociationImportStateFunc(),
+				ImportStateIdFunc: testAccAssociationImportStateFunc(rName),
 			},
 		},
 	})
 }
 
-func testAccAssociationImportStateFunc() resource.ImportStateIdFunc {
+func testAccAssociationImportStateFunc(rsName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		var instanceId, routeTableId, associationId string
-		for _, rs := range s.RootModule().Resources {
-			if rs.Type == "huaweicloud_er_association" {
-				instanceId = rs.Primary.Attributes["instance_id"]
-				routeTableId = rs.Primary.Attributes["route_table_id"]
-				associationId = rs.Primary.ID
-			}
+		rs, ok := s.RootModule().Resources[rsName]
+		if !ok {
+			return "", fmt.Errorf("the resource (%s) of ER association is not found in the tfstate", rsName)
 		}
+		instanceId = rs.Primary.Attributes["instance_id"]
+		routeTableId = rs.Primary.Attributes["route_table_id"]
+		associationId = rs.Primary.ID
 		if instanceId == "" || routeTableId == "" || associationId == "" {
 			return "", fmt.Errorf("some import IDs are missing, want "+
-				"'<instance_id>/<route_table_id>/<association_id>', but '%s/%s/%s'",
+				"'<instance_id>/<route_table_id>/<id>', but got '%s/%s/%s'",
 				instanceId, routeTableId, associationId)
 		}
 		return fmt.Sprintf("%s/%s/%s", instanceId, routeTableId, associationId), nil
 	}
 }
 
-func testAccAssociation_base(name string, bgpAsNum int) string {
+func testAccAssociation_base(name string) string {
+	bgpAsNum := acctest.RandIntRange(64512, 65534)
+
 	return fmt.Sprintf(`
 data "huaweicloud_er_availability_zones" "test" {}
 
@@ -131,7 +135,7 @@ resource "huaweicloud_er_route_table" "test" {
 `, name, bgpAsNum)
 }
 
-func testAccAssociation_basic(name string, bgpAsNum int) string {
+func testAccAssociation_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -140,5 +144,5 @@ resource "huaweicloud_er_association" "test" {
   route_table_id = huaweicloud_er_route_table.test.id
   attachment_id  = huaweicloud_er_vpc_attachment.test.id
 }
-`, testAccAssociation_base(name, bgpAsNum))
+`, testAccAssociation_base(name))
 }

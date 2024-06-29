@@ -52,7 +52,7 @@ type Attachment struct {
 	// + vgw: virtual gateway of cloud private line.
 	// + peering: Peering connection, through the cloud connection (CC) to load enterprise routers in different regions
 	//   to create a peering connection.
-	ResourceType string `q:"resource_type"`
+	ResourceType string `json:"resource_type"`
 	// The project ID to which the attachment is belongs.
 	ResourceProjectId string `json:"resource_project_id"`
 	// Whether this attachment is associated.

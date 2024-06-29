@@ -58,7 +58,7 @@ func TestAccInstance_basic(t *testing.T) {
 		getInstanceResourceFunc,
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
@@ -91,6 +91,8 @@ func TestAccInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
+						"data.huaweicloud_er_availability_zones.test", "names.1"),
 					resource.TestCheckResourceAttr(rName, "asn", fmt.Sprintf("%v", bgpAsNum)),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "enable_default_propagation", "false"),
@@ -137,7 +139,7 @@ func testInstance_basic_step2(name string, bgpAsNum int) string {
 data "huaweicloud_er_availability_zones" "test" {}
 
 resource "huaweicloud_er_instance" "test" {
-  availability_zones = slice(data.huaweicloud_er_availability_zones.test.names, 0, 1)
+  availability_zones = slice(data.huaweicloud_er_availability_zones.test.names, 1, 2)
 
   name = "%[1]s"
   asn  = %[2]d
@@ -169,7 +171,7 @@ func TestAccInstance_updateWithEpsId(t *testing.T) {
 	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
 	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMigrateEpsID(t)

@@ -4,11 +4,14 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/er/v3/routes"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -29,6 +32,12 @@ func ResourceStaticRoute() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceStaticRouteImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+			Update: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -94,6 +103,24 @@ func buildStaticRouteCreateOpts(d *schema.ResourceData) routes.CreateOpts {
 	}
 }
 
+func staticRouteStatusRefreshFunc(client *golangsdk.ServiceClient, routeTableId, staticRouteId string,
+	targets []string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := routes.Get(client, routeTableId, staticRouteId)
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
+				return "NOT_FOUND", "COMPLETED", nil
+			}
+			return "AN_ERROR_OCCURRED", "ERROR", err
+		}
+
+		if utils.IsStrContainsSliceElement(resp.Status, targets, false, true) {
+			return resp, "COMPLETED", nil
+		}
+		return resp, "PENDING", nil
+	}
+}
+
 func resourceStaticRouteCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.ErV3Client(cfg.GetRegion(d))
@@ -110,6 +137,18 @@ func resourceStaticRouteCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating static route: %s", err)
 	}
 	d.SetId(resp.ID)
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      staticRouteStatusRefreshFunc(client, routeTableId, d.Id(), []string{"available"}),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for the create operation completed: %s", err)
+	}
 
 	return resourceStaticRouteRead(ctx, d, meta)
 }
@@ -139,8 +178,9 @@ func resourceStaticRouteRead(_ context.Context, d *schema.ResourceData, meta int
 		// Attributes
 		d.Set("type", resp.Type),
 		d.Set("status", resp.Status),
-		d.Set("created_at", resp.CreatedAt),
-		d.Set("updated_at", resp.UpdatedAt),
+		// The time results are not the time in RF3339 format without milliseconds.
+		d.Set("created_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(resp.CreatedAt)/1000, false)),
+		d.Set("updated_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(resp.UpdatedAt)/1000, false)),
 	)
 
 	if len(resp.Attachments) > 0 && resp.Attachments[0].AttachmentId != "" {
@@ -178,10 +218,22 @@ func resourceStaticRouteUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error updating static route (%s): %s", staticRouteId, err)
 	}
 
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      staticRouteStatusRefreshFunc(client, routeTableId, d.Id(), []string{"available"}),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for the update operation completed: %s", err)
+	}
+
 	return resourceStaticRouteRead(ctx, d, meta)
 }
 
-func resourceStaticRouteDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceStaticRouteDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.ErV3Client(region)
@@ -198,6 +250,17 @@ func resourceStaticRouteDelete(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error deleting static route (%s): %s", staticRouteId, err)
 	}
 
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      staticRouteStatusRefreshFunc(client, routeTableId, d.Id(), nil),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for the delete operation completed: %s", err)
+	}
 	return nil
 }
 

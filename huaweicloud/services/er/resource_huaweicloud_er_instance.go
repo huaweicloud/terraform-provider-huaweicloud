@@ -142,45 +142,6 @@ func ResourceInstance() *schema.Resource {
 	}
 }
 
-func buildUpdateInstanceDefaultRouteTablesBodyParams(d *schema.ResourceData) map[string]interface{} {
-	bodyParams := map[string]interface{}{
-		"instance": buildUpdateInstanceDefaultRouteTablesInstanceChildBody(d),
-	}
-	return bodyParams
-}
-
-func buildUpdateInstanceDefaultRouteTablesInstanceChildBody(d *schema.ResourceData) map[string]interface{} {
-	params := map[string]interface{}{
-		// The enable switch parameters must be set if the default route table IDs have been changed.
-		"enable_default_propagation":         utils.ValueIgnoreEmpty(d.Get("enable_default_propagation")),
-		"enable_default_association":         utils.ValueIgnoreEmpty(d.Get("enable_default_association")),
-		"default_propagation_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_propagation_route_table_id")),
-		"default_association_route_table_id": utils.ValueIgnoreEmpty(d.Get("default_association_route_table_id")),
-	}
-	return params
-}
-
-func updateDefaultRouteTables(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	var (
-		httpUrl = "v3/{project_id}/enterprise-router/instances/{er_id}"
-	)
-
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{er_id}", d.Id())
-
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildUpdateInstanceDefaultRouteTablesBodyParams(d)),
-	}
-
-	_, err := client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return fmt.Errorf("error updating the default route tables of the instance: %s", err)
-	}
-	return nil
-}
-
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -218,12 +179,6 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	err = instanceWaitingForStateCompleted(ctx, client, d, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the create operation of the instance (%s) to complete: %s", d.Id(), err)
-	}
-
-	if d.Get("default_propagation_route_table_id") != "" || d.Get("default_association_route_table_id") != "" {
-		if err = updateDefaultRouteTables(client, d); err != nil {
-			return diag.FromErr(err)
-		}
 	}
 
 	if _, ok := d.GetOk("tags"); ok {
@@ -340,8 +295,11 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("name", utils.PathSearch("instance.name", getInstanceRespBody, nil)),
 		d.Set("description", utils.PathSearch("instance.description", getInstanceRespBody, nil)),
 		d.Set("status", utils.PathSearch("instance.state", getInstanceRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("instance.created_at", getInstanceRespBody, nil)),
-		d.Set("updated_at", utils.PathSearch("instance.updated_at", getInstanceRespBody, nil)),
+		// The time results are not the time in RF3339 format without milliseconds.
+		d.Set("created_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("instance.created_at",
+			getInstanceRespBody, "").(string))/1000, false)),
+		d.Set("updated_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("instance.updated_at",
+			getInstanceRespBody, "").(string))/1000, false)),
 		d.Set("enterprise_project_id", utils.PathSearch("instance.enterprise_project_id", getInstanceRespBody, nil)),
 		d.Set("asn", utils.PathSearch("instance.asn", getInstanceRespBody, nil)),
 		d.Set("enable_default_propagation", utils.PathSearch("instance.enable_default_propagation", getInstanceRespBody, nil)),

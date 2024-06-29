@@ -11,6 +11,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/er/v3/propagations"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API ER GET /v3/{project_id}/enterprise-router/{er_id}/route-tables/{route_table_id}/propagations
@@ -132,8 +133,9 @@ func flattenPropagations(all []propagations.Propagation) []map[string]interface{
 			"resource_id":     propagation.ResourceId,
 			"route_policy_id": propagation.RoutePolicy.ImportPoilicyId,
 			"status":          propagation.Status,
-			"created_at":      propagation.CreatedAt,
-			"updated_at":      propagation.UpdatedAt,
+			// The time results are not the time in RF3339 format without milliseconds.
+			"created_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(propagation.CreatedAt)/1000, false),
+			"updated_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(propagation.UpdatedAt)/1000, false),
 		}
 	}
 	return result

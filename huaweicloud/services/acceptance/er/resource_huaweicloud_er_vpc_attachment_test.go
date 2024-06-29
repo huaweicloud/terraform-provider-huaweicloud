@@ -2,6 +2,7 @@ package er
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -38,7 +39,7 @@ func TestAccVpcAttachment_basic(t *testing.T) {
 		getVpcAttachmentResourceFunc,
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -54,8 +55,10 @@ func TestAccVpcAttachment_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "auto_create_vpc_routes", "true"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
-					resource.TestCheckResourceAttrSet(rName, "created_at"),
-					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					resource.TestCheckOutput("er_route_count", "3"),
 				),
 			},
@@ -72,23 +75,23 @@ func TestAccVpcAttachment_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccVpcAttachmentImportStateFunc(),
+				ImportStateIdFunc: testAccVpcAttachmentImportStateFunc(rName),
 			},
 		},
 	})
 }
 
-func testAccVpcAttachmentImportStateFunc() resource.ImportStateIdFunc {
+func testAccVpcAttachmentImportStateFunc(rsName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		var instanceId, attachmentId string
-		for _, rs := range s.RootModule().Resources {
-			if rs.Type == "huaweicloud_er_vpc_attachment" {
-				instanceId = rs.Primary.Attributes["instance_id"]
-				attachmentId = rs.Primary.ID
-			}
+		rs, ok := s.RootModule().Resources[rsName]
+		if !ok {
+			return "", fmt.Errorf("the resource (%s) of ER attachment is not found in the tfstate", rsName)
 		}
+		instanceId = rs.Primary.Attributes["instance_id"]
+		attachmentId = rs.Primary.ID
 		if instanceId == "" || attachmentId == "" {
-			return "", fmt.Errorf("some import IDs are missing, want '<instance_id>/<attachment_id>', but '%s/%s'",
+			return "", fmt.Errorf("some import IDs are missing, want '<instance_id>/<id>', but got '%s/%s'",
 				instanceId, attachmentId)
 		}
 		return fmt.Sprintf("%s/%s", instanceId, attachmentId), nil

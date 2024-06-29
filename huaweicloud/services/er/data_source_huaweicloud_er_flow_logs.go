@@ -214,10 +214,13 @@ func flattenListTransitIpsResponseBody(resp interface{}) []interface{} {
 			"log_group_id":   utils.PathSearch("log_group_id", v, nil),
 			"log_stream_id":  utils.PathSearch("log_stream_id", v, nil),
 			"log_store_type": utils.PathSearch("log_store_type", v, nil),
-			"created_at":     utils.PathSearch("created_at", v, nil),
-			"updated_at":     utils.PathSearch("updated_at", v, nil),
-			"status":         utils.PathSearch("state", v, nil),
-			"enabled":        utils.PathSearch("enabled", v, nil),
+			// The time results are not the time in RF3339 format without milliseconds.
+			"created_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("created_at",
+				v, "").(string))/1000, false),
+			"updated_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("updated_at",
+				v, "").(string))/1000, false),
+			"status":  utils.PathSearch("state", v, nil),
+			"enabled": utils.PathSearch("enabled", v, nil),
 		})
 	}
 	return rst

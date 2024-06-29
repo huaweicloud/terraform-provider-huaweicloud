@@ -2,6 +2,7 @@ package er
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -38,7 +39,7 @@ func TestAccStaticRoute_basic(t *testing.T) {
 		crossVpcRes   = acceptance.InitResourceCheck(crossVpcResName, &obj, getStaticRouteFunc)
 	)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 		},
@@ -57,8 +58,10 @@ func TestAccStaticRoute_basic(t *testing.T) {
 						"huaweicloud_er_vpc_attachment.source", "id"),
 					resource.TestCheckResourceAttrSet(sourceSelfResName, "type"),
 					resource.TestCheckResourceAttrSet(sourceSelfResName, "status"),
-					resource.TestCheckResourceAttrSet(sourceSelfResName, "created_at"),
-					resource.TestCheckResourceAttrSet(sourceSelfResName, "updated_at"),
+					resource.TestMatchResourceAttr(sourceSelfResName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(sourceSelfResName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					destSelfRes.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(destSelfResName, "route_table_id",
 						"huaweicloud_er_route_table.destination", "id"),
@@ -82,8 +85,8 @@ func TestAccStaticRoute_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(sourceSelfResName, "attachment_id",
 						"huaweicloud_er_vpc_attachment.destination", "id"),
 					destSelfRes.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(destSelfResName, "destination",
-						"huaweicloud_vpc.source", "cidr"),
+					resource.TestCheckResourceAttrPair(destSelfResName, "attachment_id",
+						"huaweicloud_er_vpc_attachment.source", "id"),
 					crossVpcRes.CheckResourceExists(),
 					resource.TestCheckResourceAttr(crossVpcResName, "is_blackhole", "true"),
 				),
@@ -120,7 +123,8 @@ func testAccStaticRouteImportStateFunc(rsName string) resource.ImportStateIdFunc
 		routeTableId = rs.Primary.Attributes["route_table_id"]
 		staticRouteId = rs.Primary.ID
 		if routeTableId == "" || staticRouteId == "" {
-			return "", fmt.Errorf("the static route is not exist or related route table ID is missing")
+			return "", fmt.Errorf("some import IDs are missing, want '<route_table_id>/<id>', but got '%s/%s'",
+				routeTableId, staticRouteId)
 		}
 		return fmt.Sprintf("%s/%s", routeTableId, staticRouteId), nil
 	}
@@ -231,8 +235,8 @@ resource "huaweicloud_er_static_route" "source_self" {
 // Update the route destination CIDR.
 resource "huaweicloud_er_static_route" "destination_self" {
   route_table_id = huaweicloud_er_route_table.destination.id
-  destination    = huaweicloud_vpc.source.cidr
-  attachment_id  = huaweicloud_er_vpc_attachment.destination.id
+  destination    = huaweicloud_vpc.destination.cidr
+  attachment_id  = huaweicloud_er_vpc_attachment.source.id
 }
 
 // Change the static route to the black hole route.

@@ -111,10 +111,11 @@ func resourcePropagationCreate(ctx context.Context, d *schema.ResourceData, meta
 	d.SetId(resp.ID)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      propagationStatusRefreshFunc(client, instanceId, routeTableId, d.Id(), []string{"available"}),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: propagationStatusRefreshFunc(client, instanceId, routeTableId, d.Id(), []string{"available"}),
+		Timeout: d.Timeout(schema.TimeoutDelete),
+		// After the creation request is sent, it will briefly enter the pending status.
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
@@ -129,6 +130,7 @@ func resourcePropagationCreate(ctx context.Context, d *schema.ResourceData, meta
 // QueryPropagationById is a method to query association details from a specified route table using given parameters.
 func QueryPropagationById(client *golangsdk.ServiceClient, instanceId, routeTableId,
 	propagationId string) (*propagations.Propagation, error) {
+	// The query parameter list does not contain the ID parameter, so can only filter it manually.
 	resp, err := propagations.List(client, instanceId, routeTableId, propagations.ListOpts{})
 	if err != nil {
 		return nil, err
@@ -152,8 +154,7 @@ func QueryPropagationById(client *golangsdk.ServiceClient, instanceId, routeTabl
 	log.Printf("[DEBUG] The result filtered by resource ID (%s) is: %#v", propagationId, result)
 	association, ok := result[0].(propagations.Propagation)
 	if !ok {
-		return nil, fmt.Errorf("the element type of filter result is incorrect, want 'propagations.Propagation', "+
-			"but got '%T'", result[0])
+		return nil, fmt.Errorf("the element type of filter result is incorrect, want 'propagations.Propagation', but got '%T'", result[0])
 	}
 
 	return &association, nil
@@ -207,8 +208,9 @@ func resourcePropagationRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("attachment_id", resp.AttachmentId),
 		d.Set("attachment_type", resp.ResourceType),
 		d.Set("status", resp.Status),
-		d.Set("created_at", resp.CreatedAt),
-		d.Set("updated_at", resp.UpdatedAt),
+		// The time results are not the time in RF3339 format without milliseconds.
+		d.Set("created_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(resp.CreatedAt)/1000, false)),
+		d.Set("updated_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(resp.UpdatedAt)/1000, false)),
 	)
 
 	if mErr.ErrorOrNil() != nil {
@@ -240,10 +242,11 @@ func resourcePropagationDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      propagationStatusRefreshFunc(client, instanceId, routeTableId, propagationId, nil),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: propagationStatusRefreshFunc(client, instanceId, routeTableId, propagationId, nil),
+		Timeout: d.Timeout(schema.TimeoutDelete),
+		// After the creation request is sent, it will briefly enter the pending status.
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
@@ -259,8 +262,7 @@ func resourcePropagationImportState(_ context.Context, d *schema.ResourceData, _
 	error) {
 	parts := strings.SplitN(d.Id(), "/", 3)
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid format for import ID, want '<instance_id>/<route_table_id>/<propagation_id>', "+
-			"but '%s'", d.Id())
+		return nil, fmt.Errorf("invalid format for import ID, want '<instance_id>/<route_table_id>/<propagation_id>', but got '%s'", d.Id())
 	}
 
 	d.SetId(parts[2])
