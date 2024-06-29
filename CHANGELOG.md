@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## 1.66.0 (June 29, 2024)
+
+* **New Resource:**
+  + `huaweicloud_css_cluster_az_migrate` [GH-5078]
+  + `huaweicloud_access_analyzer_archive_rule` [GH-5093]
+  + `huaweicloud_access_analyzer` [GH-5029]
+  + `huaweicloud_ddm_instance_restart` [GH-5062]
+  + `huaweicloud_ccm_certificate` [GH-5058]
+  + `huaweicloud_asm_mesh` [GH-5041]
+  + `huaweicloud_enterprise_project_authority` [GH-5094]
+
+* **New Data Source:**
+  + `huaweicloud_cdn_logs` [GH-5074]
+  + `huaweicloud_er_available_routes` [GH-5073]
+  + `huaweicloud_lts_aom_accesses` [GH-5075]
+  + `huaweicloud_dms_kafkav2_smart_connect_tasks` [GH-5065]
+  + `huaweicloud_lts_host_groups` [GH-5045]
+  + `huaweicloud_lts_streams` [GH-5042]
+  + `huaweicloud_hss_quotas` [GH-5028]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_network_acl: add tags support [GH-5076]
+* resource/huaweicloud_css_cluster: add shrinking node support [GH-5044]
+* resource/huaweicloud_cts_tracker: add deletion support [GH-5026]
+
 ## 1.65.2 (June 17, 2024)
 
 BUG FIXES:
