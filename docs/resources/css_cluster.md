@@ -120,9 +120,8 @@ The following arguments are supported:
 * `engine_type` - (Optional, String, ForceNew) Specifies the engine type. The valid value is **elasticsearch**.
   Defaults to **elasticsearch**. Changing this parameter will create a new resource.
 
-* `engine_version` - (Required, String, ForceNew) Specifies the engine version.
+* `engine_version` - (Required, String, NonUpdatable) Specifies the engine version.
   For details, see [Supported Cluster Versions](https://support.huaweicloud.com/intl/en-us/api-css/css_03_0056.html).
-  Changing this parameter will create a new resource.
 
 * `security_mode` - (Optional, Bool) Specifies whether to enable authentication.
   The value can be **true** or **false**. Authentication is disabled by default.
@@ -165,12 +164,11 @@ The following arguments are supported:
 
 * `security_group_id` - (Required, String) Specifies the security group ID.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the availability zone name.
+* `availability_zone` - (Required, String, NonUpdatable) Specifies the availability zone name.
   Separate multiple AZs with commas (,), for example, az1,az2. AZs must be unique. The number of nodes must be greater
   than or equal to the number of AZs. If the number of nodes is a multiple of the number of AZs, the nodes are evenly
   distributed to each AZ. If the number of nodes is not a multiple of the number of AZs, the absolute difference
   between node quantity in any two AZs is **1** at most.
-  Changing this parameter will create a new resource.
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
