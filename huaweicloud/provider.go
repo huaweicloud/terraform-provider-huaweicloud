@@ -1326,7 +1326,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_logtank":             elb.ResourceLogTank(),
 			"huaweicloud_elb_security_policy":     elb.ResourceSecurityPolicy(),
 
-			"huaweicloud_enterprise_project": eps.ResourceEnterpriseProject(),
+			"huaweicloud_enterprise_project":           eps.ResourceEnterpriseProject(),
+			"huaweicloud_enterprise_project_authority": eps.ResourceAuthority(),
 
 			"huaweicloud_er_association":    er.ResourceAssociation(),
 			"huaweicloud_er_instance":       er.ResourceInstance(),
