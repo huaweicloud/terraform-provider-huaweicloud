@@ -42,6 +42,9 @@ paths:
     /v1.0/{project_id}/clusters/{cluster_id}/mode/change:
         POST:
             tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/node/offline:
+        POST:
+            tag: CSS
     /v1.0/{project_id}/clusters/{cluster_id}/password/reset:
         POST:
             tag: CSS
@@ -98,6 +101,9 @@ paths:
             tag: CSS
     /v1.0/{project_id}/es-flavors:
         GET:
+            tag: CSS
+    /v1.0/extend/{project_id}/clusters/{cluster_id}/role/shrink:
+        POST:
             tag: CSS
     /v2.0/{project_id}/clusters:
         POST:

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_enterprise_project_authority
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EPS
+paths:
+    /v2/enterprises/enterprise-projects/authority:
+        POST:
+            tag: EPS

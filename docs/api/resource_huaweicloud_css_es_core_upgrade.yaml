@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_es_core_upgrade
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/inst-type/{inst_type}/image/upgrade:
+        POST:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/upgrade/{action_id}/retry:
+        PUT:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/upgrade/detail:
+        GET:
+            tag: CSS

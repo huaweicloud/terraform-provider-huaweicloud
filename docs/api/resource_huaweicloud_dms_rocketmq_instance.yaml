@@ -36,6 +36,11 @@ paths:
     /v2/{project_id}/rocketmq/{instance_id}/tags/action:
         POST:
             tag: RocketMQ
+    /v2/{project_id}/rocketmq/instances/{instance_id}/configs:
+        GET:
+            tag: RocketMQ
+        PUT:
+            tag: RocketMQ
     /v2/orders/customer-orders/details/{order_id}:
         GET:
             tag: BSS

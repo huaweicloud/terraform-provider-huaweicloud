@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_kafkav2_smart_connect_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Kafka
+paths:
+    /v2/{project_id}/instances/{instance_id}/connector/tasks:
+        POST:
+            tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/connector/tasks/{task_id}:
+        DELETE:
+            tag: Kafka
+        GET:
+            tag: Kafka

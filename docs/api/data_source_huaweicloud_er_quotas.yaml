@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_er_quotas
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ER
+paths:
+    /v3/{project_id}/enterprise-router/quotas:
+        GET:
+            tag: ER

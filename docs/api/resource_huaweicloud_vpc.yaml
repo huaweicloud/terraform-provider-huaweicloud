@@ -28,6 +28,8 @@ paths:
         GET:
             tag: VPC
     /v2.0/{project_id}/vpcs/{id}/tags/action:
+        DELETE:
+            tag: VPC
         POST:
             tag: VPC
     /v3/{project_id}/vpc/vpcs/{id}:

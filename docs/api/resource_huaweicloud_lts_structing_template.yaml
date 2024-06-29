@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_lts_structuring_configuration
+    title: resource_huaweicloud_lts_structing_template
     description: ""
 schemes:
     - https

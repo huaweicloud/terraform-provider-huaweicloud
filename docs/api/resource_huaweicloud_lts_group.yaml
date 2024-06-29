@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: LTS
 paths:
+    /v1/{project_id}/{resource_type}/{resource_id}/tags/action:
+        POST:
+            tag: LTS
     /v2/{project_id}/groups:
         GET:
             tag: LTS

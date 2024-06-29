@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_asm_mesh
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ASM
+paths:
+    /v1/meshes:
+        POST:
+            tag: ASM
+    /v1/meshes/{mesh_id}:
+        DELETE:
+            tag: ASM
+        GET:
+            tag: ASM

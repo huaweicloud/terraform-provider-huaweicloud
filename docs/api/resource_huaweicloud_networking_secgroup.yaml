@@ -19,6 +19,14 @@ paths:
             tag: VPC
         GET:
             tag: VPC
+    /v2.0/{project_id}/security-groups/{id}/tags:
+        GET:
+            tag: VPC
+    /v2.0/{project_id}/security-groups/{id}/tags/action:
+        DELETE:
+            tag: VPC
+        POST:
+            tag: VPC
     /v2.0/security-groups/{id}:
         PUT:
             tag: VPC

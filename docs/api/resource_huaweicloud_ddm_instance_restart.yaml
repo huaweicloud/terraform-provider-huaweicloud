@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ddm_instance_restart
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDM
+paths:
+    /v1/{project_id}/instances/{instance_id}:
+        GET:
+            tag: DDM
+    /v1/{project_id}/instances/{instance_id}/action:
+        POST:
+            tag: DDM

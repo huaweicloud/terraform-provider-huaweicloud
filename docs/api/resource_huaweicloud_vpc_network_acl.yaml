@@ -14,6 +14,15 @@ paths:
     /v1.0/enterprise-projects/{enterprise_project_id}/resources/filter:
         POST:
             tag: EPS
+    /v3/{project_id}/firewalls/{id}/tags:
+        GET:
+            tag: VPC
+    /v3/{project_id}/firewalls/{id}/tags/create:
+        POST:
+            tag: VPC
+    /v3/{project_id}/firewalls/{id}/tags/delete:
+        POST:
+            tag: VPC
     /v3/{project_id}/vpc/firewalls:
         POST:
             tag: VPC
