@@ -294,7 +294,7 @@ func TestAccDDSV3Instance_withConfigurationReplicaSet(t *testing.T) {
 				Config: testAccDDSInstanceV3Config_withReplicaSetConfigurationUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "configuration.0.type", "replica"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "02:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "03:00"),
@@ -338,6 +338,44 @@ func TestAccDDSV3Instance_withSecondLevelMonitoring(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "second_level_monitoring_enabled", "false"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDDSV3Instance_updateAZ(t *testing.T) {
+	var instance instances.InstanceResponse
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_dds_instance.instance"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDdsResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDDSInstanceV3Config_withReplicaSetConfiguration(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone", "data.huaweicloud_availability_zones.test", "names.0"),
+				),
+			},
+			{
+				Config: testAccDDSInstanceV3Config_updateAZ(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone", "data.huaweicloud_availability_zones.test", "names.1"),
 				),
 			},
 		},
@@ -1071,6 +1109,8 @@ resource "huaweicloud_dds_instance" "instance" {
   mode                  = "ReplicaSet"
   replica_set_name      = "replicaName"
   client_network_ranges = ["192.168.0.0/24"]
+  maintain_begin        = "01:00"
+  maintain_end          = "03:00"
 
   datastore {
     type           = "DDS-Community"
@@ -1101,16 +1141,17 @@ func testAccDDSInstanceV3Config_withReplicaSetConfigurationUpdate(rName string) 
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dds_instance" "instance" {
-  name              = "%[3]s"
+  name              = "%[3]s-update"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
-  password          = "Terraform@123"
+  password          = "Terraform@1234"
   mode              = "ReplicaSet"
   replica_set_name  = "replicaName"
   maintain_begin    = "02:00"
   maintain_end      = "03:00"
+  description       = "test"
 
   datastore {
     type           = "DDS-Community"
@@ -1125,8 +1166,8 @@ resource "huaweicloud_dds_instance" "instance" {
     type      = "replica"
     storage   = "ULTRAHIGH"
     num       = 5
-    size      = 20
-    spec_code = "dds.mongodb.s6.large.2.repset"
+    size      = 30
+    spec_code = "dds.mongodb.s6.large.4.repset"
   }
 }`, common.TestBaseNetwork(rName), templateRreplica2, rName)
 }
@@ -1233,4 +1274,45 @@ resource "huaweicloud_dds_instance" "test" {
     period     = "1,3"
   }
 }`, common.TestBaseNetwork(rName), rName)
+}
+
+func testAccDDSInstanceV3Config_updateAZ(rName string) string {
+	templateRreplica1 := testAAccDDSInstance_templete(rName, "replica", 1, 400)
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_dds_instance" "instance" {
+  name                  = "%[3]s"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[1]
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  password              = "Terraform@123"
+  mode                  = "ReplicaSet"
+  replica_set_name      = "replicaName"
+  client_network_ranges = ["192.168.0.0/24"]
+  maintain_begin        = "01:00"
+  maintain_end          = "03:00"
+
+  datastore {
+    type           = "DDS-Community"
+    version        = "4.0"
+    storage_engine = "wiredTiger"
+  }
+  configuration {
+    type = "replica"
+    id   = huaweicloud_dds_parameter_template.replica1.id
+  }
+  flavor {
+    type      = "replica"
+    storage   = "ULTRAHIGH"
+    num       = 3
+    size      = 20
+    spec_code = "dds.mongodb.s6.large.2.repset"
+  }
+}`, common.TestBaseNetwork(rName), templateRreplica1, rName)
 }

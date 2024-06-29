@@ -64,6 +64,13 @@ func TestAccDatabaseUser_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccDatabaseUser_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -108,6 +115,32 @@ resource "huaweicloud_dds_database_user" "test" {
   instance_id = huaweicloud_dds_instance.test.id
 
   name     = "%[2]s"
+  password = "HuaweiTest@12345678"
+  db_name  = "admin"
+
+  roles {
+    name    = huaweicloud_dds_database_role.test.name
+    db_name = "admin"
+  }
+}
+`, testAccDatabaseRole_base(rName), rName)
+}
+
+func testAccDatabaseUser_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dds_database_role" "test" {
+  instance_id = huaweicloud_dds_instance.test.id
+
+  name    = "%[2]s"
+  db_name = "admin"
+}
+
+resource "huaweicloud_dds_database_user" "test" {
+  instance_id = huaweicloud_dds_instance.test.id
+
+  name     = "%[2]s-update"
   password = "HuaweiTest@12345678"
   db_name  = "admin"
 
