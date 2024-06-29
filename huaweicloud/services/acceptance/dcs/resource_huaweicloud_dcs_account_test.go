@@ -66,7 +66,6 @@ func TestAccDcsAccount_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDCSAccountWhitelist(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -79,7 +78,8 @@ func TestAccDcsAccount_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "account_role", "read"),
 					resource.TestCheckResourceAttr(rName, "account_type", "normal"),
 					resource.TestCheckResourceAttr(rName, "description", "add account"),
-					resource.TestCheckResourceAttrPair(rName, "instance_id", "huaweicloud_dcs_instance.instance_1", "id"),
+					resource.TestCheckResourceAttrPair(rName, "instance_id",
+						"huaweicloud_dcs_instance.instance_1", "id"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 				),
 			},
@@ -90,7 +90,8 @@ func TestAccDcsAccount_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "account_role", "write"),
 					resource.TestCheckResourceAttr(rName, "account_type", "normal"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
-					resource.TestCheckResourceAttrPair(rName, "instance_id", "huaweicloud_dcs_instance.instance_1", "id"),
+					resource.TestCheckResourceAttrPair(rName, "instance_id",
+						"huaweicloud_dcs_instance.instance_1", "id"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 				),
 			},
