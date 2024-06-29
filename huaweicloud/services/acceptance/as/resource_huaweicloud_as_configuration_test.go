@@ -12,23 +12,104 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+func getASConfigurationResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	asClient, err := cfg.AutoscalingV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating autoscaling client: %s", err)
+	}
+	return configurations.Get(asClient, state.Primary.ID).Extract()
+}
+
 func TestAccASConfiguration_basic(t *testing.T) {
-	var asConfig configurations.Configuration
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_as_configuration.acc_as_config"
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_configuration.acc_as_config"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASConfigurationResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASConfigurationDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccASConfiguration_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASConfigurationExists(resourceName, &asConfig),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.image",
+						"data.huaweicloud_images_image.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.flavor",
+						"data.huaweicloud_compute_flavors.test", "ids.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.key_name",
+						"huaweicloud_kps_keypair.acc_key", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.security_group_ids.0",
+						"huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.flavor_priority_policy", "PICK_FIRST"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.metadata.some_key", "some_value"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.public_ip.0.eip.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.security_group_ids.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "instance_config.0.user_data"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccASConfiguration_spot(t *testing.T) {
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_configuration.acc_as_config"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASConfigurationResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccASConfiguration_spot(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.image",
+						"data.huaweicloud_images_image.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.flavor",
+						"data.huaweicloud_compute_flavors.test", "ids.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.key_name",
+						"huaweicloud_kps_keypair.acc_key", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.security_group_ids.0",
+						"huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.charging_mode", "spot"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.flavor_priority_policy", "COST_FIRST"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.ecs_group_id",
+						"huaweicloud_compute_servergroup.test", "id"),
+
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.personality.0.path", "/etc/foo.txt"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.personality.0.content", utils.Base64EncodeString("test content")),
+
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.metadata.some_key", "some_value"),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.public_ip.0.eip.#", "1"),
@@ -46,19 +127,27 @@ func TestAccASConfiguration_basic(t *testing.T) {
 }
 
 func TestAccASConfiguration_instance(t *testing.T) {
-	var asConfig configurations.Configuration
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_as_configuration.acc_as_config"
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_configuration.acc_as_config"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASConfigurationResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASConfigurationDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccASConfiguration_instance(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASConfigurationExists(resourceName, &asConfig),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
 					resource.TestCheckResourceAttrSet(resourceName, "instance_config.0.user_data"),
 					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.instance_id",
@@ -78,9 +167,17 @@ func TestAccASConfiguration_instance(t *testing.T) {
 }
 
 func TestAccASConfiguration_DEH(t *testing.T) {
-	var asConfig configurations.Configuration
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_as_configuration.test"
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_configuration.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASConfigurationResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -88,12 +185,12 @@ func TestAccASConfiguration_DEH(t *testing.T) {
 			acceptance.TestAccPreCheckAsDedicatedHostId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASConfigurationDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccASConfiguration_DEH(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASConfigurationExists(resourceName, &asConfig),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.tenancy", "dedicated"),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.dedicated_host_id", acceptance.HW_DEDICATED_HOST_ID),
@@ -115,19 +212,27 @@ func TestAccASConfiguration_DEH(t *testing.T) {
 }
 
 func TestAccASConfiguration_bandwidth_new_disk(t *testing.T) {
-	var asConfig configurations.Configuration
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_as_configuration.test"
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_configuration.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASConfigurationResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASConfigurationDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccASConfiguration_bandwidth_new_disk(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASConfigurationExists(resourceName, &asConfig),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.0.volume_type", "GPSSD2"),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.0.iops", "8000"),
@@ -151,19 +256,27 @@ func TestAccASConfiguration_bandwidth_new_disk(t *testing.T) {
 }
 
 func TestAccASConfiguration_snapshot(t *testing.T) {
-	var asConfig configurations.Configuration
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_as_configuration.test"
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_configuration.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASConfigurationResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASConfigurationDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccASConfiguration_snapshot(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASConfigurationExists(resourceName, &asConfig),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.0.volume_type", "GPSSD"),
 					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.disk.0.snapshot_id",
@@ -183,9 +296,17 @@ func TestAccASConfiguration_snapshot(t *testing.T) {
 }
 
 func TestAccASConfiguration_dataDiskImage(t *testing.T) {
-	var asConfig configurations.Configuration
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_as_configuration.test"
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_configuration.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASConfigurationResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -193,12 +314,12 @@ func TestAccASConfiguration_dataDiskImage(t *testing.T) {
 			acceptance.TestAccPreCheckAsDataDiskImageId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckASConfigurationDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccASConfiguration_dataDiskImage(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASConfigurationExists(resourceName, &asConfig),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.0.volume_type", "GPSSD"),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.1.volume_type", "SAS"),
@@ -215,58 +336,6 @@ func TestAccASConfiguration_dataDiskImage(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckASConfigurationDestroy(s *terraform.State) error {
-	conf := acceptance.TestAccProvider.Meta().(*config.Config)
-	asClient, err := conf.AutoscalingV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating autoscaling client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_as_configuration" {
-			continue
-		}
-
-		_, err := configurations.Get(asClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("AS configuration still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckASConfigurationExists(n string, configuration *configurations.Configuration) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		asClient, err := config.AutoscalingV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating autoscaling client: %s", err)
-		}
-
-		found, err := configurations.Get(asClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Autoscaling Configuration not found")
-		}
-
-		configuration = &found
-		return nil
-	}
 }
 
 //nolint:revive
@@ -320,6 +389,60 @@ EOT
       size        = 40
       volume_type = "SSD"
       disk_type   = "SYS"
+    }
+
+    public_ip {
+      eip {
+        ip_type = "5_bgp"
+        bandwidth {
+          size          = 10
+          share_type    = "PER"
+          charging_mode = "traffic"
+        }
+      }
+    }
+  }
+}
+`, testAccASConfiguration_base(rName), rName)
+}
+
+func testAccASConfiguration_spot(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_compute_servergroup" "test" {
+  name     = "%[2]s"
+  policies = ["anti-affinity"]
+}
+
+resource "huaweicloud_as_configuration" "acc_as_config"{
+  scaling_configuration_name = "%[2]s"
+  instance_config {
+    image                  = data.huaweicloud_images_image.test.id
+    flavor                 = data.huaweicloud_compute_flavors.test.ids[0]
+    key_name               = huaweicloud_kps_keypair.acc_key.id
+    security_group_ids     = [huaweicloud_networking_secgroup.test.id]
+    charging_mode          = "spot"
+    flavor_priority_policy = "COST_FIRST"
+    ecs_group_id           = huaweicloud_compute_servergroup.test.id
+
+    metadata = {
+      some_key = "some_value"
+    }
+    user_data = <<EOT
+#!/bin/sh
+echo "Hello World! The time is now $(date -R)!" | tee /root/output.txt
+EOT
+
+    disk {
+      size        = 40
+      volume_type = "SSD"
+      disk_type   = "SYS"
+    }
+
+    personality {
+      path    = "/etc/foo.txt"
+      content = base64encode("test content")
     }
 
     public_ip {

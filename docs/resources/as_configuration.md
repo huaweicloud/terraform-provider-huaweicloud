@@ -174,7 +174,8 @@ The `instance_config` block supports:
 
 * `ecs_group_id` - (Optional, String, ForceNew) Specifies the ECS group ID. Changing this will create a new resource.
 
-  -> To ensure service reliability, an ECS group allows ECSs within in the group to be automatically allocated to different hosts.
+  -> To ensure service reliability, an ECS group allows ECSs within in the group to be automatically allocated to
+  different hosts.
 
 * `tenancy` - (Optional, String, ForceNew) Configure this field to **dedicated** to create ECS instances on DeHs.
   Before configuring this field, prepare DeHs. Changing this will create a new resource.
