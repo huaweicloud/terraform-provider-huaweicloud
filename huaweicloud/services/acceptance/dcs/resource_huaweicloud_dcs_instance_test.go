@@ -128,7 +128,8 @@ func TestAccDcsInstances_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "parameters", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "parameters",
+					"used_memory", "bandwidth_info"},
 			},
 		},
 	})
@@ -196,7 +197,8 @@ func TestAccDcsInstances_ha_change_capacity(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -253,7 +255,8 @@ func TestAccDcsInstances_ha_expand_replica(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -310,7 +313,8 @@ func TestAccDcsInstances_ha_to_proxy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -378,7 +382,8 @@ func TestAccDcsInstances_rw_change_capacity(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -435,7 +440,8 @@ func TestAccDcsInstances_rw_expand_replica(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -492,7 +498,8 @@ func TestAccDcsInstances_rw_to_proxy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -560,7 +567,8 @@ func TestAccDcsInstances_proxy_change_capacity(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -617,7 +625,8 @@ func TestAccDcsInstances_proxy_to_ha(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -674,7 +683,8 @@ func TestAccDcsInstances_proxy_to_rw(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -742,7 +752,8 @@ func TestAccDcsInstances_cluster_change_capacity(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -799,7 +810,8 @@ func TestAccDcsInstances_cluster_expand_replica(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
@@ -947,10 +959,11 @@ func TestAccDcsInstances_prePaid(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "bandwidth_info"},
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "bandwidth_info",
+					"used_memory"},
 			},
 		},
 	})
@@ -1012,7 +1025,8 @@ func TestAccDcsInstances_ssl(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
-					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "parameters", "bandwidth_info"},
+					"internal_version", "save_days", "backup_type", "begin_at", "period_type", "backup_at", "parameters",
+					"bandwidth_info", "used_memory"},
 			},
 		},
 	})
