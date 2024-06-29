@@ -3,20 +3,22 @@ package dms
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/tidwall/gjson"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/filters"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/httphelper"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API Kafka GET /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
 func DataSourceDmsKafkaUserClientQuotas() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDmsKafkaUserClientQuotasRead,
@@ -86,28 +88,76 @@ func DataSourceDmsKafkaUserClientQuotas() *schema.Resource {
 	}
 }
 
-type KafkaUserClientQuotasDSWrapper struct {
-	*schemas.ResourceDataWrapper
-	Config *config.Config
-}
-
-func newKafkaUserClientQuotasDSWrapper(d *schema.ResourceData, meta interface{}) *KafkaUserClientQuotasDSWrapper {
-	return &KafkaUserClientQuotasDSWrapper{
-		ResourceDataWrapper: schemas.NewSchemaWrapper(d),
-		Config:              meta.(*config.Config),
-	}
-}
-
 func dataSourceDmsKafkaUserClientQuotasRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	wrapper := newKafkaUserClientQuotasDSWrapper(d, meta)
-	shoKafUseCliQuoRst, err := wrapper.ShowKafkaUserClientQuota()
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("dmsv2", region)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	err = wrapper.showKafkaUserClientQuotaToSchema(shoKafUseCliQuoRst)
-	if err != nil {
-		return diag.FromErr(err)
+	listQuotasHttpUrl := "v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota"
+	listQuotasPath := client.Endpoint + listQuotasHttpUrl
+	listQuotasPath = strings.ReplaceAll(listQuotasPath, "{project_id}", client.ProjectID)
+	listQuotasPath = strings.ReplaceAll(listQuotasPath, "{instance_id}", d.Get("instance_id").(string))
+	listQuotasOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	// pagelimit is `10`
+	listQuotasPath += fmt.Sprintf("?limit=%v", pageLimit)
+	currentTotal := 0
+	results := make([]map[string]interface{}, 0)
+	for {
+		currentPath := listQuotasPath + fmt.Sprintf("&offset=%d", currentTotal)
+		listQuotasResp, err := client.Request("GET", currentPath, &listQuotasOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving quotas: %s", err)
+		}
+		listQuotasRespBody, err := utils.FlattenResponse(listQuotasResp)
+		if err != nil {
+			return diag.Errorf("error flatten response: %s", err)
+		}
+
+		quotas := utils.PathSearch("quotas", listQuotasRespBody, make([]interface{}, 0)).([]interface{})
+		for _, quota := range quotas {
+			// filter result
+			user := utils.PathSearch("user", quota, "").(string)
+			clientName := utils.PathSearch("client", quota, "").(string)
+			if val, ok := d.GetOk("user"); ok && user != val {
+				continue
+			}
+			if val, ok := d.GetOk("client"); ok && clientName != val {
+				continue
+			}
+
+			listRespJson, err := json.Marshal(quota)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+
+			var listRespBody map[string]interface{}
+			err = json.Unmarshal(listRespJson, &listRespBody)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			results = append(results, map[string]interface{}{
+				"user":               utils.PathSearch("user", quota, nil),
+				"user_default":       listRespBody["user-default"],
+				"client":             utils.PathSearch("client", quota, nil),
+				"client_default":     listRespBody["client-default"],
+				"producer_byte_rate": int64(listRespBody["producer-byte-rate"].(float64)),
+				"consumer_byte_rate": int64(listRespBody["consumer-byte-rate"].(float64)),
+			})
+		}
+
+		// `totalCount` means the number of all `Quotas`, and type is float64.
+		currentTotal += len(quotas)
+		totalCount := utils.PathSearch("count", listQuotasRespBody, float64(0))
+		if int(totalCount.(float64)) == currentTotal {
+			break
+		}
 	}
 
 	id, err := uuid.GenerateUUID()
@@ -115,47 +165,11 @@ func dataSourceDmsKafkaUserClientQuotasRead(_ context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 	d.SetId(id)
-	return nil
-}
 
-// @API Kafka GET /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
-func (w *KafkaUserClientQuotasDSWrapper) ShowKafkaUserClientQuota() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dmsv2")
-	if err != nil {
-		return nil, err
-	}
-
-	uri := "/v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota"
-	uri = strings.ReplaceAll(uri, "{instance_id}", w.Get("instance_id").(string))
-	return httphelper.New(client).
-		Method("GET").
-		URI(uri).
-		OffsetPager("quotas", "offset", "limit", 0).
-		Filter(
-			filters.New().From("quotas").
-				Where("user", "contains", w.Get("user")).
-				Where("client", "contains", w.Get("client")),
-		).
-		Request().
-		Result()
-}
-
-func (w *KafkaUserClientQuotasDSWrapper) showKafkaUserClientQuotaToSchema(body *gjson.Result) error {
-	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.Config.GetRegion(w.ResourceData)),
-		d.Set("quotas", schemas.SliceToList(body.Get("quotas"),
-			func(quotas gjson.Result) any {
-				return map[string]any{
-					"user":               quotas.Get("user").Value(),
-					"user_default":       quotas.Get("user-default").Value(),
-					"client":             quotas.Get("client").Value(),
-					"client_default":     quotas.Get("client-default").Value(),
-					"producer_byte_rate": quotas.Get("producer-byte-rate").Value(),
-					"consumer_byte_rate": quotas.Get("consumer-byte-rate").Value(),
-				}
-			},
-		)),
+		d.Set("region", region),
+		d.Set("quotas", results),
 	)
-	return mErr.ErrorOrNil()
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }

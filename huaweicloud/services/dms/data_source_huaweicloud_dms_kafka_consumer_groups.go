@@ -3,21 +3,23 @@ package dms
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/tidwall/gjson"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/filters"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/httphelper"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+const pageLimit = 10
+
+// @API Kafka GET /v2/{project_id}/instances/{instance_id}/groups
 func DataSourceDmsKafkaConsumerGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDmsKafkaConsumerGroupsRead,
@@ -102,23 +104,76 @@ func DataSourceDmsKafkaConsumerGroups() *schema.Resource {
 	}
 }
 
-type KafkaConsumerGroupsDSWrapper struct {
-	*schemas.ResourceDataWrapper
-	Config *config.Config
-}
-
-func newKafkaConsumerGroupsDSWrapper(d *schema.ResourceData, meta interface{}) *KafkaConsumerGroupsDSWrapper {
-	return &KafkaConsumerGroupsDSWrapper{
-		ResourceDataWrapper: schemas.NewSchemaWrapper(d),
-		Config:              meta.(*config.Config),
-	}
-}
-
 func dataSourceDmsKafkaConsumerGroupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	wrapper := newKafkaConsumerGroupsDSWrapper(d, meta)
-	lisInsConGroRst, err := wrapper.ListInstanceConsumerGroups()
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("dmsv2", region)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating DMS client: %s", err)
+	}
+
+	listGroupsHttpUrl := "v2/{project_id}/instances/{instance_id}/groups"
+	listGroupsPath := client.Endpoint + listGroupsHttpUrl
+	listGroupsPath = strings.ReplaceAll(listGroupsPath, "{project_id}", client.ProjectID)
+	listGroupsPath = strings.ReplaceAll(listGroupsPath, "{instance_id}", d.Get("instance_id").(string))
+	listGroupsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	// pagelimit is `10`
+	listGroupsPath += fmt.Sprintf("?limit=%v", pageLimit)
+	listGroupsPath = buildQueryGroupsListPath(d, listGroupsPath)
+
+	currentTotal := 0
+	results := make([]map[string]interface{}, 0)
+	for {
+		currentPath := listGroupsPath + fmt.Sprintf("&offset=%d", currentTotal)
+		listGroupsResp, err := client.Request("GET", currentPath, &listGroupsOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving groups: %s", err)
+		}
+		listGroupsRespBody, err := utils.FlattenResponse(listGroupsResp)
+		if err != nil {
+			return diag.Errorf("error flatten response: %s", err)
+		}
+
+		groups := utils.PathSearch("groups", listGroupsRespBody, make([]interface{}, 0)).([]interface{})
+		for _, group := range groups {
+			// filter result
+			description := utils.PathSearch("group_desc", group, "").(string)
+			lag := int64(utils.PathSearch("lag", group, float64(0)).(float64))
+			coordinatorID := int64(utils.PathSearch("coordinator_id", group, float64(0)).(float64))
+			state := utils.PathSearch("state", group, "").(string)
+			if val, ok := d.GetOk("description"); ok && description != val {
+				continue
+			}
+			if val, ok := d.GetOk("lag"); ok && lag != val {
+				continue
+			}
+			if val, ok := d.GetOk("coordinator_id"); ok && coordinatorID != val {
+				continue
+			}
+			if val, ok := d.GetOk("description"); ok && state != val {
+				continue
+			}
+			results = append(results, map[string]interface{}{
+				"name":           utils.PathSearch("group_id", group, nil),
+				"state":          utils.PathSearch("state", group, nil),
+				"lag":            utils.PathSearch("lag", group, 0),
+				"coordinator_id": utils.PathSearch("coordinator_id", group, 0),
+				"description":    utils.PathSearch("group_desc", group, nil),
+				"created_at": utils.FormatTimeStampRFC3339(
+					int64(utils.PathSearch("createdAt", group, float64(0)).(float64))/1000, true),
+			})
+		}
+
+		// `totalCount` means the number of all `groups`, and type is float64.
+		currentTotal += len(groups)
+		totalCount := utils.PathSearch("total", listGroupsRespBody, float64(0))
+		if int(totalCount.(float64)) == currentTotal {
+			break
+		}
 	}
 
 	id, err := uuid.GenerateUUID()
@@ -127,64 +182,17 @@ func dataSourceDmsKafkaConsumerGroupsRead(_ context.Context, d *schema.ResourceD
 	}
 	d.SetId(id)
 
-	err = wrapper.listInstanceConsumerGroupsToSchema(lisInsConGroRst)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	return nil
-}
-
-// @API Kafka GET /v2/{project_id}/instances/{instance_id}/groups
-func (w *KafkaConsumerGroupsDSWrapper) ListInstanceConsumerGroups() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dmsv2")
-	if err != nil {
-		return nil, err
-	}
-
-	uri := "/v2/{project_id}/instances/{instance_id}/groups"
-	uri = strings.ReplaceAll(uri, "{instance_id}", w.Get("instance_id").(string))
-	params := map[string]any{
-		"group": w.Get("name"),
-	}
-	params = utils.RemoveNil(params)
-	return httphelper.New(client).
-		Method("GET").
-		URI(uri).
-		Query(params).
-		OffsetPager("groups", "offset", "limit", 0).
-		Filter(
-			filters.New().From("groups").
-				Where("state", "=", w.Get("state")).
-				Where("group_desc", "contains", w.Get("description")).
-				Where("coordinator_id", "=", w.Get("coordinator_id")).
-				Where("lag", "=", w.Get("lag")),
-		).
-		OkCode(200).
-		Request().
-		Result()
-}
-
-func (w *KafkaConsumerGroupsDSWrapper) listInstanceConsumerGroupsToSchema(body *gjson.Result) error {
-	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.Config.GetRegion(w.ResourceData)),
-		d.Set("groups", schemas.SliceToList(body.Get("groups"),
-			func(groups gjson.Result) any {
-				return map[string]any{
-					"name":           groups.Get("group_id").Value(),
-					"description":    groups.Get("group_desc").Value(),
-					"lag":            groups.Get("lag").Value(),
-					"coordinator_id": groups.Get("coordinator_id").Value(),
-					"state":          groups.Get("state").Value(),
-					"created_at":     w.setGroupsCreatedAt(groups),
-				}
-			},
-		)),
+		d.Set("region", region),
+		d.Set("groups", results),
 	)
-	return mErr.ErrorOrNil()
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func (*KafkaConsumerGroupsDSWrapper) setGroupsCreatedAt(data gjson.Result) string {
-	return utils.FormatTimeStampRFC3339((data.Get("createdAt").Int())/1000, true)
+func buildQueryGroupsListPath(d *schema.ResourceData, listGroupsPath string) string {
+	if instId, ok := d.GetOk("name"); ok {
+		listGroupsPath += fmt.Sprintf("&group=%s", instId)
+	}
+	return listGroupsPath
 }
