@@ -11,8 +11,7 @@
               },
               "availability_zone": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "backup_available": {
                 "type": "bool",
@@ -47,8 +46,7 @@
               },
               "engine_version": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -200,6 +198,13 @@
                     "instance_number": {
                       "type": "number",
                       "required": true
+                    },
+                    "shrink_node_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
                     }
                   },
                   "block_types": {
@@ -235,6 +240,13 @@
                     "instance_number": {
                       "type": "number",
                       "required": true
+                    },
+                    "shrink_node_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
                     }
                   },
                   "block_types": {
@@ -271,6 +283,13 @@
                     "instance_number": {
                       "type": "number",
                       "required": true
+                    },
+                    "shrink_node_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
                     }
                   },
                   "block_types": {
@@ -332,6 +351,13 @@
                     "instance_number": {
                       "type": "number",
                       "required": true
+                    },
+                    "shrink_node_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
                     }
                   },
                   "block_types": {

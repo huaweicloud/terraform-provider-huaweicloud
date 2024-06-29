@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_access_analyzer_archive_rule": {
+          "block": {
+            "attributes": {
+              "analyzer_id": {
+                "type": "string",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "filters": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the cluster informations in the mesh.",
+                      "required": true
+                    },
+                    "organization_id": {
+                      "type": "string",
+                      "description": "Specifies the cluster informations in the mesh.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "criterion": {
+                      "block": {
+                        "attributes": {
+                          "contains": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the cluster informations in the mesh.",
+                            "optional": true
+                          },
+                          "eq": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the cluster informations in the mesh.",
+                            "optional": true
+                          },
+                          "exists": {
+                            "type": "string",
+                            "description": "Specifies the cluster informations in the mesh.",
+                            "optional": true
+                          },
+                          "neq": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the cluster informations in the mesh.",
+                            "optional": true
+                          }
+                        },
+                        "description": "Specifies the extend parameters of the mesh."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

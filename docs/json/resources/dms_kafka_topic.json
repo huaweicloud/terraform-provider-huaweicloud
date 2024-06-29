@@ -10,6 +10,14 @@
                 "optional": true,
                 "computed": true
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -24,9 +32,20 @@
                 "required": true,
                 "forcenew": true
               },
+              "new_partition_brokers": {
+                "type": [
+                  "set",
+                  "number"
+                ],
+                "optional": true
+              },
               "partitions": {
                 "type": "number",
                 "required": true
+              },
+              "policies_only": {
+                "type": "bool",
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -47,6 +66,27 @@
                 "type": "bool",
                 "optional": true,
                 "computed": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "configs": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               }
             }
           },

@@ -1,0 +1,201 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_asm_mesh": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the mesh annotations in key/value format.",
+                "optional": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The time when the mesh is created.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the mesh labels in key/value format.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies mesh name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the mesh.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the mesh type.",
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the mesh version.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "extend_params": {
+                "block": {
+                  "block_types": {
+                    "clusters": {
+                      "block": {
+                        "attributes": {
+                          "cluster_id": {
+                            "type": "string",
+                            "description": "Specifies the cluster ID.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "injection": {
+                            "block": {
+                              "block_types": {
+                                "namespaces": {
+                                  "block": {
+                                    "block_types": {
+                                      "field_selector": {
+                                        "block": {
+                                          "attributes": {
+                                            "key": {
+                                              "type": "string",
+                                              "description": "Specifies the key of the selector.",
+                                              "required": true
+                                            },
+                                            "operator": {
+                                              "type": "string",
+                                              "description": "Specifies the operator of the selector.",
+                                              "required": true
+                                            },
+                                            "values": {
+                                              "type": [
+                                                "list",
+                                                "string"
+                                              ],
+                                              "description": "Specifies the value of the selector.",
+                                              "required": true
+                                            }
+                                          },
+                                          "description": "Specifies the field selector."
+                                        },
+                                        "nesting_mode": "list",
+                                        "min_items": 1,
+                                        "max_items": 1
+                                      }
+                                    },
+                                    "description": "Specifies the namespace of the sidecar injection."
+                                  },
+                                  "nesting_mode": "list",
+                                  "min_items": 1,
+                                  "max_items": 1
+                                }
+                              },
+                              "description": "Specifies the sidecar injection configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "installation": {
+                            "block": {
+                              "block_types": {
+                                "nodes": {
+                                  "block": {
+                                    "block_types": {
+                                      "field_selector": {
+                                        "block": {
+                                          "attributes": {
+                                            "key": {
+                                              "type": "string",
+                                              "description": "Specifies the key of the selector.",
+                                              "required": true
+                                            },
+                                            "operator": {
+                                              "type": "string",
+                                              "description": "Specifies the operator of the selector.",
+                                              "required": true
+                                            },
+                                            "values": {
+                                              "type": [
+                                                "list",
+                                                "string"
+                                              ],
+                                              "description": "Specifies the value of the selector.",
+                                              "required": true
+                                            }
+                                          },
+                                          "description": "Specifies the field selector."
+                                        },
+                                        "nesting_mode": "list",
+                                        "min_items": 1,
+                                        "max_items": 1
+                                      }
+                                    },
+                                    "description": "Specifies the mesh components installation configuration."
+                                  },
+                                  "nesting_mode": "list",
+                                  "min_items": 1,
+                                  "max_items": 1
+                                }
+                              },
+                              "description": "Specifies the mesh components installation configuration."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          }
+                        },
+                        "description": "Specifies the cluster informations in the mesh."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the extend parameters of the mesh."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ASM",
+            "name": "Application Service Mesh",
+            "catalog": "Containers",
+            "name_cn": "应用服务网格",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

@@ -11,6 +11,16 @@
                 "computed": true,
                 "forcenew": true
               },
+              "connection_drain_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "connection_drain_timeout": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
               "created_at": {
                 "type": "string",
                 "computed": true
@@ -48,6 +58,11 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "minimum_healthy_member_count": {
+                "type": "number",
+                "optional": true,
+                "computed": true
               },
               "monitor_id": {
                 "type": "string",

@@ -42,7 +42,7 @@
                   "map",
                   "string"
                 ],
-                "computed": true
+                "optional": true
               },
               "ttl_in_days": {
                 "type": "number",

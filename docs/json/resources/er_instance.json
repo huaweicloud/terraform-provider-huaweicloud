@@ -14,8 +14,7 @@
               "auto_accept_shared_attachments": {
                 "type": "bool",
                 "description": "Whether to automatically accept the creation of shared attachment.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "availability_zones": {
                 "type": [
@@ -45,20 +44,17 @@
               "description": {
                 "type": "string",
                 "description": "The description of the Enterprise router.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "enable_default_association": {
                 "type": "bool",
                 "description": "Whether to enable the association of the default route table.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "enable_default_propagation": {
                 "type": "bool",
                 "description": "Whether to enable the propagation of the default route table.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",

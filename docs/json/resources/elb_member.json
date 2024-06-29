@@ -25,7 +25,8 @@
               },
               "protocol_port": {
                 "type": "number",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "region": {

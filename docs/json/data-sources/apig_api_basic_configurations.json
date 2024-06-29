@@ -41,6 +41,10 @@
                       "request_protocol": "string",
                       "security_authentication": "string",
                       "simple_authentication": "bool",
+                      "tags": [
+                        "set",
+                        "string"
+                      ],
                       "type": "string",
                       "updated_at": "string"
                     }

@@ -39,6 +39,11 @@
                 "optional": true,
                 "default": false
               },
+              "delete_volume": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "optional": true,
@@ -152,6 +157,11 @@
                     "protocol_port": {
                       "type": "number",
                       "required": true
+                    },
+                    "protocol_version": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
                     },
                     "weight": {
                       "type": "number",

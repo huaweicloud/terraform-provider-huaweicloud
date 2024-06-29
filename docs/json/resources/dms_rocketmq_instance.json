@@ -225,6 +225,24 @@
                 "required": true,
                 "forcenew": true
               }
+            },
+            "block_types": {
+              "configs": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the instance configs."
+                },
+                "nesting_mode": "set"
+              }
             }
           },
           "product": {

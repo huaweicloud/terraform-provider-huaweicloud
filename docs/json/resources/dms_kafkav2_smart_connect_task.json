@@ -1,0 +1,329 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_kafkav2_smart_connect_task": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time of the smart connect task.",
+                "computed": true
+              },
+              "destination_type": {
+                "type": "string",
+                "description": "Specifies the destination type of the smart connect task.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the kafka instance ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_type": {
+                "type": "string",
+                "description": "Specifies the source type of the smart connect task.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "start_later": {
+                "type": "bool",
+                "description": "Specifies whether to start a task later.",
+                "optional": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the status of the smart connect task.",
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "Specifies the smart connect task name.",
+                "required": true,
+                "forcenew": true
+              },
+              "topics": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the topics list of the task.",
+                "optional": true,
+                "forcenew": true
+              },
+              "topics_regex": {
+                "type": "string",
+                "description": "Specifies the topics regular expression of the smart connect task.",
+                "optional": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "destination_task": {
+                "block": {
+                  "attributes": {
+                    "access_key": {
+                      "type": "string",
+                      "description": "Specifies the access key used to access the OBS bucket.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "consumer_strategy": {
+                      "type": "string",
+                      "description": "Specifies the consumer strategy of the smart connect task.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "deliver_time_interval": {
+                      "type": "number",
+                      "description": "Specifies the deliver time interval of the smart connect task.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "destination_file_type": {
+                      "type": "string",
+                      "description": "Specifies the destination file type of the smart connect task.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "flush_size": {
+                      "type": "number",
+                      "description": "Indicates the flush size.",
+                      "computed": true
+                    },
+                    "key_converter": {
+                      "type": "string",
+                      "description": "Indicates the key converter.",
+                      "computed": true
+                    },
+                    "kv_delimiter": {
+                      "type": "string",
+                      "description": "Indicates the kv delimiter.",
+                      "computed": true
+                    },
+                    "obs_bucket_name": {
+                      "type": "string",
+                      "description": "Specifies the obs bucket name of the smart connect task.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "obs_part_size": {
+                      "type": "number",
+                      "description": "Indicates the size of each file to be uploaded.",
+                      "computed": true
+                    },
+                    "obs_path": {
+                      "type": "string",
+                      "description": "Specifies the obs path of the smart connect task.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "partition_format": {
+                      "type": "string",
+                      "description": "Specifies the partiton format of the smart connect task.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "partitioner_class": {
+                      "type": "string",
+                      "description": "Indicates the partitioner class.",
+                      "computed": true
+                    },
+                    "record_delimiter": {
+                      "type": "string",
+                      "description": "Specifies the record delimiter of the smart connect task.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "schema_generator_class": {
+                      "type": "string",
+                      "description": "Indicates the schema generator class.",
+                      "computed": true
+                    },
+                    "secret_key": {
+                      "type": "string",
+                      "description": "Specifies the secret access key used to access the OBS bucket.",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "store_keys": {
+                      "type": "bool",
+                      "description": "Specifies whether to store keys.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "timezone": {
+                      "type": "string",
+                      "description": "Indicates the time zone.",
+                      "computed": true
+                    },
+                    "value_converter": {
+                      "type": "string",
+                      "description": "Indicates the value converter.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the source configuration of a smart connect task."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "source_task": {
+                "block": {
+                  "attributes": {
+                    "compression_type": {
+                      "type": "string",
+                      "description": "Specifies the compression algorithm to use for copying messages.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "consumer_strategy": {
+                      "type": "string",
+                      "description": "Specifies the start offset.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "current_instance_alias": {
+                      "type": "string",
+                      "description": "Specifies the current Kafka instance alias.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "direction": {
+                      "type": "string",
+                      "description": "Specifies the sync direction.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "description": "Specifies the peer Kafka user password.",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "peer_instance_address": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "Specifies the peer Kafka instance address.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "peer_instance_alias": {
+                      "type": "string",
+                      "description": "Specifies the peer Kafka instance alias.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "peer_instance_id": {
+                      "type": "string",
+                      "description": "Specifies the peer Kafka instance ID.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "provenance_header_enabled": {
+                      "type": "bool",
+                      "description": "Specifies whether the message header contains the message source.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "rename_topic_enabled": {
+                      "type": "bool",
+                      "description": "Specifies whether to rename the topic.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "replication_factor": {
+                      "type": "number",
+                      "description": "Specifies the number of topic replicas.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "sasl_mechanism": {
+                      "type": "string",
+                      "description": "Specifies the peer Kafka authentication mode.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "security_protocol": {
+                      "type": "string",
+                      "description": "Specifies the peer Kafka authentication.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "sync_consumer_offsets_enabled": {
+                      "type": "bool",
+                      "description": "Specifies whether to sync the consumption progress.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "task_num": {
+                      "type": "number",
+                      "description": "Specifies the number of data replication tasks.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "topics_mapping": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "Specifies the topic mapping, which is used to customize the target topic name.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "description": "Specifies the peer Kafka username.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the source configuration of a smart connect task."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

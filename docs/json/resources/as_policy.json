@@ -5,6 +5,11 @@
         "huaweicloud_as_policy": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "alarm_id": {
                 "type": "string",
                 "optional": true

@@ -1,0 +1,104 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_structing_template": {
+          "block": {
+            "attributes": {
+              "demo_log": {
+                "type": "string",
+                "description": "The sample log event.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "description": "Specifies the log group ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "description": "Specifies the log stream ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "quick_analysis": {
+                "type": "bool",
+                "description": "Specifies whether to enable demo_fields and tag_fields quick analysis.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the template ID.",
+                "optional": true
+              },
+              "template_name": {
+                "type": "string",
+                "description": "Specifies the template name.",
+                "required": true
+              },
+              "template_type": {
+                "type": "string",
+                "description": "Specifies the type of the template.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "demo_fields": {
+                "block": {
+                  "attributes": {
+                    "field_name": {
+                      "type": "string",
+                      "description": "Specifies the field name.",
+                      "required": true
+                    },
+                    "is_analysis": {
+                      "type": "bool",
+                      "description": "Specifies whether quick analysis is enabled.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the example field array."
+                },
+                "nesting_mode": "list"
+              },
+              "tag_fields": {
+                "block": {
+                  "attributes": {
+                    "field_name": {
+                      "type": "string",
+                      "description": "Specifies the field name.",
+                      "required": true
+                    },
+                    "is_analysis": {
+                      "type": "bool",
+                      "description": "Specifies whether quick analysis is enabled.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the tag field array."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

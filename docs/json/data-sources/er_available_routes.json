@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_er_available_routes": {
+          "block": {
+            "attributes": {
+              "destination": {
+                "type": "string",
+                "description": "The destination address of the routes to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the available routes.",
+                "computed": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "The attachment type.",
+                "optional": true
+              },
+              "route_table_id": {
+                "type": "string",
+                "description": "The route table ID to which the available routes belong.",
+                "required": true
+              },
+              "routes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "destination": "string",
+                      "id": "string",
+                      "is_blackhole": "bool",
+                      "next_hops": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attachment_id": "string",
+                            "resource_id": "string",
+                            "resource_type": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "All available routes that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

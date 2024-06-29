@@ -1,0 +1,172 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ccm_certificate": {
+          "block": {
+            "attributes": {
+              "authentification": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "domain": "string",
+                      "record_name": "string",
+                      "record_type": "string",
+                      "record_value": "string"
+                    }
+                  ]
+                ],
+                "description": "The ownership certification information of domain name.",
+                "computed": true
+              },
+              "cert_brand": {
+                "type": "string",
+                "description": "Specifies the certificate authority.",
+                "required": true,
+                "forcenew": true
+              },
+              "cert_type": {
+                "type": "string",
+                "description": "Specifies the certificate type.",
+                "required": true,
+                "forcenew": true
+              },
+              "domain": {
+                "type": "string",
+                "description": "The domain name bound to the certificate.",
+                "computed": true
+              },
+              "domain_numbers": {
+                "type": "number",
+                "description": "Specifies the quantity of domain name.",
+                "required": true,
+                "forcenew": true
+              },
+              "domain_type": {
+                "type": "string",
+                "description": "Specifies the type of domain name.",
+                "required": true,
+                "forcenew": true
+              },
+              "effective_time": {
+                "type": "number",
+                "description": "Specifies the validity period (year).",
+                "required": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true,
+                "computed": true
+              },
+              "fingerprint": {
+                "type": "string",
+                "description": "The SHA-1 fingerprint of the certificate.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "issue_time": {
+                "type": "string",
+                "description": "The certificate issuance time.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The certificate name.",
+                "computed": true
+              },
+              "not_after": {
+                "type": "string",
+                "description": "The certificate expiration time.",
+                "computed": true
+              },
+              "not_before": {
+                "type": "string",
+                "description": "The certificate validity time.",
+                "computed": true
+              },
+              "order_id": {
+                "type": "string",
+                "description": "The order ID.",
+                "computed": true
+              },
+              "primary_domain_type": {
+                "type": "string",
+                "description": "Specifies the type of primary domain name in multiple domains.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "push_support": {
+                "type": "string",
+                "description": "Whether the certificate supports push.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "revoke_reason": {
+                "type": "string",
+                "description": "The reason for certificate revocation.",
+                "computed": true
+              },
+              "sans": {
+                "type": "string",
+                "description": "The information of additional domain name for the bound certificate.",
+                "computed": true
+              },
+              "signature_algorithm": {
+                "type": "string",
+                "description": "The signature algorithm.",
+                "computed": true
+              },
+              "single_domain_number": {
+                "type": "number",
+                "description": "Specifies the number of additional single domain names.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The certificate status.",
+                "computed": true
+              },
+              "validation_method": {
+                "type": "string",
+                "description": "The authentication method of domain name.",
+                "computed": true
+              },
+              "validity_period": {
+                "type": "number",
+                "description": "The validity period (month).",
+                "computed": true
+              },
+              "wildcard_domain_number": {
+                "type": "number",
+                "description": "Specifies the number of additional wildcard domain names.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCM",
+            "name": "Cloud Certificate Manager Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "云证书管理服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

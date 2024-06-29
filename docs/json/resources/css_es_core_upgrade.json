@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_css_es_core_upgrade": {
+          "block": {
+            "attributes": {
+              "agency": {
+                "type": "string",
+                "required": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "cluster_load_check": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "indices_backup_check": {
+                "type": "bool",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "target_image_id": {
+                "type": "string",
+                "required": true
+              },
+              "upgrade_detail": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agency": "string",
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "end_time": "string",
+                      "id": "string",
+                      "retry_times": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "total_nodes": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "upgrade_type": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_lts_transfers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_name": {
+                "type": "string",
+                "description": "The name of the log group to which the log transfers and log streams belong.",
+                "optional": true
+              },
+              "log_stream_name": {
+                "type": "string",
+                "description": "The name of the log stream to be transferred in the log transfer.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query log transfers.",
+                "computed": true
+              },
+              "transfers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "log_group_id": "string",
+                      "log_group_name": "string",
+                      "log_streams": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "log_stream_id": "string",
+                            "log_stream_name": "string"
+                          }
+                        ]
+                      ],
+                      "log_transfer_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "log_agency_transfer": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "agency_domain_id": "string",
+                                  "agency_domain_name": "string",
+                                  "agency_name": "string",
+                                  "agency_project_id": "string"
+                                }
+                              ]
+                            ],
+                            "log_storage_format": "string",
+                            "log_transfer_detail": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "delivery_tags": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "dis_id": "string",
+                                  "dis_name": "string",
+                                  "kafka_id": "string",
+                                  "kafka_topic": "string",
+                                  "obs_bucket_name": "string",
+                                  "obs_dir_prefix_name": "string",
+                                  "obs_encrypted_enable": "bool",
+                                  "obs_encrypted_id": "string",
+                                  "obs_eps_id": "string",
+                                  "obs_period": "number",
+                                  "obs_period_unit": "string",
+                                  "obs_prefix_name": "string",
+                                  "obs_time_zone": "string",
+                                  "obs_time_zone_id": "string",
+                                  "obs_transfer_path": "string"
+                                }
+                              ]
+                            ],
+                            "log_transfer_mode": "string",
+                            "log_transfer_status": "string",
+                            "log_transfer_type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of log transfers.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

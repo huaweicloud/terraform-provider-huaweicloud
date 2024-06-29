@@ -17,6 +17,10 @@
                 "type": "string",
                 "optional": true
               },
+              "delete_tracker": {
+                "type": "bool",
+                "optional": true
+              },
               "enabled": {
                 "type": "bool",
                 "optional": true,

@@ -78,10 +78,96 @@
                       "type": "string",
                       "required": true
                     }
+                  },
+                  "block_types": {
+                    "insert_headers_config": {
+                      "block": {
+                        "block_types": {
+                          "configs": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "value_type": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set",
+                            "min_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "remove_headers_config": {
+                      "block": {
+                        "block_types": {
+                          "configs": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set",
+                            "min_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "traffic_limit_config": {
+                      "block": {
+                        "attributes": {
+                          "burst": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "per_source_ip_qps": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "qps": {
+                            "type": "number",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
                   }
                 },
                 "nesting_mode": "list",
                 "max_items": 1
+              },
+              "redirect_pools_config": {
+                "block": {
+                  "attributes": {
+                    "pool_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               },
               "redirect_pools_extend_config": {
                 "block": {
@@ -93,6 +179,54 @@
                     }
                   },
                   "block_types": {
+                    "insert_headers_config": {
+                      "block": {
+                        "block_types": {
+                          "configs": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "value_type": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set",
+                            "min_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "remove_headers_config": {
+                      "block": {
+                        "block_types": {
+                          "configs": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set",
+                            "min_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
                     "rewrite_url_config": {
                       "block": {
                         "attributes": {
@@ -114,6 +248,44 @@
                       },
                       "nesting_mode": "list",
                       "max_items": 1
+                    },
+                    "traffic_limit_config": {
+                      "block": {
+                        "attributes": {
+                          "burst": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "per_source_ip_qps": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "qps": {
+                            "type": "number",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "redirect_pools_sticky_session_config": {
+                "block": {
+                  "attributes": {
+                    "enable": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
                     }
                   }
                 },
@@ -150,6 +322,56 @@
                     "status_code": {
                       "type": "string",
                       "required": true
+                    }
+                  },
+                  "block_types": {
+                    "insert_headers_config": {
+                      "block": {
+                        "block_types": {
+                          "configs": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "value_type": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set",
+                            "min_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "remove_headers_config": {
+                      "block": {
+                        "block_types": {
+                          "configs": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set",
+                            "min_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
                     }
                   }
                 },

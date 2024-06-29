@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_logs": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name to which the logs belong.",
+                "required": true
+              },
+              "end_time": {
+                "type": "number",
+                "description": "Specifies the end time for querying logs (excluding the end time point).",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the domain name belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "domain_name": "string",
+                      "end_time": "number",
+                      "link": "string",
+                      "name": "string",
+                      "size": "number",
+                      "start_time": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of Logs.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "Specifies the start time for querying logs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

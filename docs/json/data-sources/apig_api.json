@@ -77,9 +77,12 @@
                     "object",
                     {
                       "authorizer_id": "string",
+                      "function_alias_urn": "string",
                       "function_urn": "string",
                       "id": "string",
                       "invocation_type": "string",
+                      "network_type": "string",
+                      "request_protocol": "string",
                       "timeout": "number",
                       "version": "string"
                     }
@@ -130,10 +133,13 @@
                         ]
                       ],
                       "effective_mode": "string",
+                      "function_alias_urn": "string",
                       "function_urn": "string",
                       "id": "string",
                       "invocation_type": "string",
                       "name": "string",
+                      "network_type": "string",
+                      "request_protocol": "string",
                       "timeout": "number",
                       "version": "string"
                     }
@@ -179,7 +185,8 @@
                     {
                       "authorizer_id": "string",
                       "id": "string",
-                      "response": "string"
+                      "response": "string",
+                      "status_code": "number"
                     }
                   ]
                 ],
@@ -230,7 +237,8 @@
                       "effective_mode": "string",
                       "id": "string",
                       "name": "string",
-                      "response": "string"
+                      "response": "string",
+                      "status_code": "number"
                     }
                   ]
                 ],
@@ -283,7 +291,8 @@
                       "name": "string",
                       "passthrough": "bool",
                       "required": "bool",
-                      "type": "string"
+                      "type": "string",
+                      "valid_enable": "number"
                     }
                   ]
                 ],
@@ -318,6 +327,14 @@
               "success_response": {
                 "type": "string",
                 "description": "The example response for a successful request.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of tags configuration.",
                 "computed": true
               },
               "type": {

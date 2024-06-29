@@ -1,0 +1,179 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_lts_cce_accesses": {
+          "block": {
+            "attributes": {
+              "accesses": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "black_paths": [
+                              "list",
+                              "string"
+                            ],
+                            "container_name_regex": "string",
+                            "exclude_envs": [
+                              "map",
+                              "string"
+                            ],
+                            "exclude_k8s_labels": [
+                              "map",
+                              "string"
+                            ],
+                            "exclude_labels": [
+                              "map",
+                              "string"
+                            ],
+                            "include_envs": [
+                              "map",
+                              "string"
+                            ],
+                            "include_k8s_labels": [
+                              "map",
+                              "string"
+                            ],
+                            "include_labels": [
+                              "map",
+                              "string"
+                            ],
+                            "log_envs": [
+                              "map",
+                              "string"
+                            ],
+                            "log_k8s": [
+                              "map",
+                              "string"
+                            ],
+                            "log_labels": [
+                              "map",
+                              "string"
+                            ],
+                            "multi_log_format": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "mode": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "name_space_regex": "string",
+                            "path_type": "string",
+                            "paths": [
+                              "list",
+                              "string"
+                            ],
+                            "pod_name_regex": "string",
+                            "single_log_format": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "mode": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "stderr": "bool",
+                            "stdout": "bool",
+                            "windows_log_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "categorys": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "event_level": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "time_offset": "number",
+                                  "time_offset_unit": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "access_type": "string",
+                      "binary_collect": "bool",
+                      "cluster_id": "string",
+                      "created_at": "string",
+                      "host_group_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "log_group_id": "string",
+                      "log_group_name": "string",
+                      "log_split": "bool",
+                      "log_stream_id": "string",
+                      "log_stream_name": "string",
+                      "name": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of CCE access configurations.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_name": {
+                "type": "string",
+                "description": "The name of the log group to which the access configurations and log streams belong.",
+                "optional": true
+              },
+              "log_stream_name": {
+                "type": "string",
+                "description": "The name of the log stream to which the access configurations belong.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the CCE access.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query CCE access configurations.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

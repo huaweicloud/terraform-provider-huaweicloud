@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_kafkav2_smart_connect_tasks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the kafka instance ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "destination_task": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "consumer_strategy": "string",
+                            "deliver_time_interval": "number",
+                            "destination_file_type": "string",
+                            "flush_size": "number",
+                            "key_converter": "string",
+                            "kv_delimiter": "string",
+                            "obs_bucket_name": "string",
+                            "obs_part_size": "number",
+                            "obs_path": "string",
+                            "partition_format": "string",
+                            "partitioner_class": "string",
+                            "record_delimiter": "string",
+                            "schema_generator_class": "string",
+                            "store_keys": "bool",
+                            "timezone": "string",
+                            "value_converter": "string"
+                          }
+                        ]
+                      ],
+                      "destination_type": "string",
+                      "id": "string",
+                      "source_task": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "compression_type": "string",
+                            "consumer_strategy": "string",
+                            "current_instance_alias": "string",
+                            "direction": "string",
+                            "peer_instance_address": [
+                              "list",
+                              "string"
+                            ],
+                            "peer_instance_alias": "string",
+                            "peer_instance_id": "string",
+                            "provenance_header_enabled": "bool",
+                            "rename_topic_enabled": "bool",
+                            "replication_factor": "number",
+                            "sasl_mechanism": "string",
+                            "security_protocol": "string",
+                            "sync_consumer_offsets_enabled": "bool",
+                            "task_num": "number",
+                            "topics_mapping": [
+                              "list",
+                              "string"
+                            ],
+                            "user_name": "string"
+                          }
+                        ]
+                      ],
+                      "source_type": "string",
+                      "status": "string",
+                      "task_name": "string",
+                      "topics": [
+                        "list",
+                        "string"
+                      ],
+                      "topics_regex": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the smart connect task details.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

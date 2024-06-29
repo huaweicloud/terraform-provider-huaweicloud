@@ -104,6 +104,14 @@
                 "description": "The example response for a successful request.",
                 "optional": true
               },
+              "tags": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of tags configuration.",
+                "optional": true
+              },
               "type": {
                 "type": "string",
                 "description": "The API type.",
@@ -162,6 +170,11 @@
                       "description": "The ID of the backend custom authorization.",
                       "optional": true
                     },
+                    "function_alias_urn": {
+                      "type": "string",
+                      "description": "The alias URN of the FunctionGraph function.",
+                      "optional": true
+                    },
                     "function_urn": {
                       "type": "string",
                       "description": "The URN of the FunctionGraph function.",
@@ -172,6 +185,16 @@
                       "description": "The invocation type.",
                       "optional": true,
                       "default": "sync"
+                    },
+                    "network_type": {
+                      "type": "string",
+                      "description": "The network architecture (framework) type of the FunctionGraph function.",
+                      "optional": true
+                    },
+                    "request_protocol": {
+                      "type": "string",
+                      "description": "The request protocol of the FunctionGraph function.",
+                      "optional": true
                     },
                     "timeout": {
                       "type": "number",
@@ -205,6 +228,11 @@
                       "optional": true,
                       "default": "ANY"
                     },
+                    "function_alias_urn": {
+                      "type": "string",
+                      "description": "The alias URN of the FunctionGraph function.",
+                      "optional": true
+                    },
                     "function_urn": {
                       "type": "string",
                       "description": "The URN of the FunctionGraph function.",
@@ -220,6 +248,16 @@
                       "type": "string",
                       "description": "The name of the backend policy.",
                       "required": true
+                    },
+                    "network_type": {
+                      "type": "string",
+                      "description": "The network (framework) type of the FunctionGraph function.",
+                      "optional": true
+                    },
+                    "request_protocol": {
+                      "type": "string",
+                      "description": "The request protocol of the FunctionGraph function.",
+                      "optional": true
                     },
                     "timeout": {
                       "type": "number",
@@ -334,8 +372,14 @@
                     },
                     "response": {
                       "type": "string",
-                      "description": "The response of the backend policy.",
-                      "optional": true
+                      "description": "The response content of the mock.",
+                      "required": true
+                    },
+                    "status_code": {
+                      "type": "number",
+                      "description": "The custom status code of the mock response.",
+                      "optional": true,
+                      "computed": true
                     }
                   },
                   "description": "The mock backend details."
@@ -365,8 +409,14 @@
                     },
                     "response": {
                       "type": "string",
-                      "description": "The response of the backend policy.",
+                      "description": "The response content of the mock.",
                       "optional": true
+                    },
+                    "status_code": {
+                      "type": "number",
+                      "description": "The custom status code of the mock response.",
+                      "optional": true,
+                      "computed": true
                     }
                   },
                   "block_types": {
@@ -466,12 +516,14 @@
                     "default": {
                       "type": "string",
                       "description": "The default value of the parameter.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "description": {
                       "type": "string",
                       "description": "The parameter description.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "enumeration": {
                       "type": "string",
@@ -482,7 +534,8 @@
                     "example": {
                       "type": "string",
                       "description": "The parameter example.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "location": {
                       "type": "string",
@@ -493,12 +546,14 @@
                     "maximum": {
                       "type": "number",
                       "description": "The maximum value or length (string parameter) for parameter.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "minimum": {
                       "type": "number",
                       "description": "The minimum value or length (string parameter) for parameter.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "name": {
                       "type": "string",
@@ -508,18 +563,26 @@
                     "passthrough": {
                       "type": "bool",
                       "description": "Whether to transparently transfer the parameter.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "required": {
                       "type": "bool",
                       "description": "Whether this parameter is required.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "type": {
                       "type": "string",
                       "description": "The parameter type.",
                       "optional": true,
                       "default": "STRING"
+                    },
+                    "valid_enable": {
+                      "type": "number",
+                      "description": "Whether to enable the parameter validation.",
+                      "optional": true,
+                      "computed": true
                     }
                   },
                   "description": "The configurations of the front-end parameters."
