@@ -97,12 +97,12 @@ func testAccDataSourceAttachments_base() string {
 	)
 
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_er_availability_zones" "test" {}
 
 %[1]s
 
 resource "huaweicloud_er_instance" "test" {
-  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  availability_zones    = slice(data.huaweicloud_er_availability_zones.test.names, 0, 1)
   name                  = "%[2]s"
   asn                   = %[3]d
   enterprise_project_id = "0"
