@@ -62,45 +62,45 @@ func TestAccPluginAssociate_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName1, "plugin_id",
 						"huaweicloud_apig_plugin.cors", "id"),
 					resource.TestCheckResourceAttrPair(rName1, "env_id",
-						"huaweicloud_apig_environment.test.0", "id"),
+						"huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(rName1, "api_ids.0",
-						"huaweicloud_apig_api.test", "id"),
+						"huaweicloud_apig_api.test.0", "id"),
 					rc2.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName2, "instance_id",
 						"huaweicloud_apig_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName2, "plugin_id",
 						"huaweicloud_apig_plugin.http_resp", "id"),
 					resource.TestCheckResourceAttrPair(rName2, "env_id",
-						"huaweicloud_apig_environment.test.0", "id"),
+						"huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(rName2, "api_ids.0",
-						"huaweicloud_apig_api.test", "id"),
+						"huaweicloud_apig_api.test.0", "id"),
 					rc3.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName3, "instance_id",
 						"huaweicloud_apig_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName3, "plugin_id",
 						"huaweicloud_apig_plugin.rate_limit", "id"),
 					resource.TestCheckResourceAttrPair(rName3, "env_id",
-						"huaweicloud_apig_environment.test.0", "id"),
+						"huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(rName3, "api_ids.0",
-						"huaweicloud_apig_api.test", "id"),
+						"huaweicloud_apig_api.test.0", "id"),
 					rc4.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName4, "instance_id",
 						"huaweicloud_apig_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName4, "plugin_id",
 						"huaweicloud_apig_plugin.kafka_log", "id"),
 					resource.TestCheckResourceAttrPair(rName4, "env_id",
-						"huaweicloud_apig_environment.test.0", "id"),
+						"huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(rName4, "api_ids.0",
-						"huaweicloud_apig_api.test", "id"),
+						"huaweicloud_apig_api.test.0", "id"),
 					rc5.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName5, "instance_id",
 						"huaweicloud_apig_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName5, "plugin_id",
 						"huaweicloud_apig_plugin.breaker", "id"),
 					resource.TestCheckResourceAttrPair(rName5, "env_id",
-						"huaweicloud_apig_environment.test.0", "id"),
+						"huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(rName5, "api_ids.0",
-						"huaweicloud_apig_api.test", "id"),
+						"huaweicloud_apig_api.test.0", "id"),
 				),
 			},
 			{
@@ -112,45 +112,45 @@ func TestAccPluginAssociate_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName1, "plugin_id",
 						"huaweicloud_apig_plugin.cors", "id"),
 					resource.TestCheckResourceAttrPair(rName1, "env_id",
-						"huaweicloud_apig_environment.test.1", "id"),
+						"huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(rName1, "api_ids.0",
-						"huaweicloud_apig_api.test", "id"),
+						"huaweicloud_apig_api.test.1", "id"),
 					rc2.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName2, "instance_id",
 						"huaweicloud_apig_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName2, "plugin_id",
 						"huaweicloud_apig_plugin.http_resp", "id"),
 					resource.TestCheckResourceAttrPair(rName2, "env_id",
-						"huaweicloud_apig_environment.test.1", "id"),
+						"huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(rName2, "api_ids.0",
-						"huaweicloud_apig_api.test", "id"),
+						"huaweicloud_apig_api.test.1", "id"),
 					rc3.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName3, "instance_id",
 						"huaweicloud_apig_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName3, "plugin_id",
 						"huaweicloud_apig_plugin.rate_limit", "id"),
 					resource.TestCheckResourceAttrPair(rName3, "env_id",
-						"huaweicloud_apig_environment.test.1", "id"),
+						"huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(rName3, "api_ids.0",
-						"huaweicloud_apig_api.test", "id"),
+						"huaweicloud_apig_api.test.1", "id"),
 					rc4.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName4, "instance_id",
 						"huaweicloud_apig_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName4, "plugin_id",
 						"huaweicloud_apig_plugin.kafka_log", "id"),
 					resource.TestCheckResourceAttrPair(rName4, "env_id",
-						"huaweicloud_apig_environment.test.1", "id"),
+						"huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(rName4, "api_ids.0",
-						"huaweicloud_apig_api.test", "id"),
+						"huaweicloud_apig_api.test.1", "id"),
 					rc5.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName5, "instance_id",
 						"huaweicloud_apig_instance.test", "id"),
 					resource.TestCheckResourceAttrPair(rName5, "plugin_id",
 						"huaweicloud_apig_plugin.breaker", "id"),
 					resource.TestCheckResourceAttrPair(rName5, "env_id",
-						"huaweicloud_apig_environment.test.1", "id"),
+						"huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(rName5, "api_ids.0",
-						"huaweicloud_apig_api.test", "id"),
+						"huaweicloud_apig_api.test.1", "id"),
 				),
 			},
 			{
@@ -278,13 +278,15 @@ resource "huaweicloud_apig_vpc_channel" "test" {
 }
 
 resource "huaweicloud_apig_api" "test" {
+  count = 2
+
   instance_id             = huaweicloud_apig_instance.test.id
   group_id                = huaweicloud_apig_group.test.id
-  name                    = "%[2]s"
+  name                    = format("%[2]s_%%d", count.index)
   type                    = "Public"
   request_protocol        = "HTTP"
   request_method          = "GET"
-  request_path            = "/user_info/{user_age}"
+  request_path            = format("/user_info/{user_age}/num_%%d", count.index)
   security_authentication = "APP"
   matching                = "Exact"
 
@@ -296,7 +298,7 @@ resource "huaweicloud_apig_api" "test" {
     maximum  = 200
     minimum  = 0
   }
-  
+
   backend_params {
     type     = "REQUEST"
     name     = "userAge"
@@ -305,7 +307,7 @@ resource "huaweicloud_apig_api" "test" {
   }
 
   web {
-    path             = "/getUserAge/{userAge}"
+    path             = format("/getUserAge/{userAge}/num_%%d", count.index)
     vpc_channel_id   = huaweicloud_apig_vpc_channel.test.id
     request_method   = "GET"
     request_protocol = "HTTP"
@@ -314,9 +316,7 @@ resource "huaweicloud_apig_api" "test" {
 }
 
 resource "huaweicloud_apig_environment" "test" {
-  count = 2
-
-  name        = "%[2]s_${count.index}"
+  name        = "%[2]s"
   instance_id = huaweicloud_apig_instance.test.id
 }
 
@@ -324,8 +324,8 @@ resource "huaweicloud_apig_api_publishment" "test" {
   count = 2
 
   instance_id = huaweicloud_apig_instance.test.id
-  api_id      = huaweicloud_apig_api.test.id
-  env_id      = huaweicloud_apig_environment.test[count.index].id
+  api_id      = huaweicloud_apig_api.test[count.index].id
+  env_id      = huaweicloud_apig_environment.test.id
 }
 
 resource "huaweicloud_apig_plugin" "cors" {
@@ -502,38 +502,48 @@ func testAccPluginAssociate_basic_step1(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_plugin_associate" "cors_bind" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
   instance_id = huaweicloud_apig_instance.test.id
   plugin_id   = local.plugin_ids[0]
-  env_id      = huaweicloud_apig_environment.test[0].id
-  api_ids     = [huaweicloud_apig_api.test.id]
+  env_id      = huaweicloud_apig_environment.test.id
+  api_ids     = [huaweicloud_apig_api.test[0].id]
 }
 
 resource "huaweicloud_apig_plugin_associate" "http_resp_bind" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
   instance_id = huaweicloud_apig_instance.test.id
   plugin_id   = local.plugin_ids[1]
-  env_id      = huaweicloud_apig_environment.test[0].id
-  api_ids     = [huaweicloud_apig_api.test.id]
+  env_id      = huaweicloud_apig_environment.test.id
+  api_ids     = [huaweicloud_apig_api.test[0].id]
 }
 
 resource "huaweicloud_apig_plugin_associate" "rate_limit_bind" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
   instance_id = huaweicloud_apig_instance.test.id
   plugin_id   = local.plugin_ids[2]
-  env_id      = huaweicloud_apig_environment.test[0].id
-  api_ids     = [huaweicloud_apig_api.test.id]
+  env_id      = huaweicloud_apig_environment.test.id
+  api_ids     = [huaweicloud_apig_api.test[0].id]
 }
 
 resource "huaweicloud_apig_plugin_associate" "kafka_log_bind" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
   instance_id = huaweicloud_apig_instance.test.id
   plugin_id   = local.plugin_ids[3]
-  env_id      = huaweicloud_apig_environment.test[0].id
-  api_ids     = [huaweicloud_apig_api.test.id]
+  env_id      = huaweicloud_apig_environment.test.id
+  api_ids     = [huaweicloud_apig_api.test[0].id]
 }
 
 resource "huaweicloud_apig_plugin_associate" "breaker_bind" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
   instance_id = huaweicloud_apig_instance.test.id
   plugin_id   = local.plugin_ids[4]
-  env_id      = huaweicloud_apig_environment.test[0].id
-  api_ids     = [huaweicloud_apig_api.test.id]
+  env_id      = huaweicloud_apig_environment.test.id
+  api_ids     = [huaweicloud_apig_api.test[0].id]
 }
 `, testAccPluginAssociate_base(name), name)
 }
@@ -543,38 +553,48 @@ func testAccPluginAssociate_basic_step2(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_plugin_associate" "cors_bind" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
   instance_id = huaweicloud_apig_instance.test.id
   plugin_id   = local.plugin_ids[0]
-  env_id      = huaweicloud_apig_environment.test[1].id
-  api_ids     = [huaweicloud_apig_api.test.id]
+  env_id      = huaweicloud_apig_environment.test.id
+  api_ids     = [huaweicloud_apig_api.test[1].id]
 }
 
 resource "huaweicloud_apig_plugin_associate" "http_resp_bind" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
   instance_id = huaweicloud_apig_instance.test.id
   plugin_id   = local.plugin_ids[1]
-  env_id      = huaweicloud_apig_environment.test[1].id
-  api_ids     = [huaweicloud_apig_api.test.id]
+  env_id      = huaweicloud_apig_environment.test.id
+  api_ids     = [huaweicloud_apig_api.test[1].id]
 }
 
 resource "huaweicloud_apig_plugin_associate" "rate_limit_bind" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
   instance_id = huaweicloud_apig_instance.test.id
   plugin_id   = local.plugin_ids[2]
-  env_id      = huaweicloud_apig_environment.test[1].id
-  api_ids     = [huaweicloud_apig_api.test.id]
+  env_id      = huaweicloud_apig_environment.test.id
+  api_ids     = [huaweicloud_apig_api.test[1].id]
 }
 
 resource "huaweicloud_apig_plugin_associate" "kafka_log_bind" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
   instance_id = huaweicloud_apig_instance.test.id
   plugin_id   = local.plugin_ids[3]
-  env_id      = huaweicloud_apig_environment.test[1].id
-  api_ids     = [huaweicloud_apig_api.test.id]
+  env_id      = huaweicloud_apig_environment.test.id
+  api_ids     = [huaweicloud_apig_api.test[1].id]
 }
 
 resource "huaweicloud_apig_plugin_associate" "breaker_bind" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
   instance_id = huaweicloud_apig_instance.test.id
   plugin_id   = local.plugin_ids[4]
-  env_id      = huaweicloud_apig_environment.test[1].id
-  api_ids     = [huaweicloud_apig_api.test.id]
+  env_id      = huaweicloud_apig_environment.test.id
+  api_ids     = [huaweicloud_apig_api.test[1].id]
 }
 `, testAccPluginAssociate_base(name), name)
 }

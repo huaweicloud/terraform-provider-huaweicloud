@@ -42,7 +42,7 @@ func TestAccInstance_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -53,15 +53,22 @@ func TestAccInstance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
-					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "loadbalancer_provider", "elb"),
 					resource.TestCheckResourceAttr(resourceName, "vpcep_service_name", "apig"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpcep_service_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", ""),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "0"),
+					resource.TestCheckResourceAttr(resourceName, "egress_address", ""),
+					resource.TestCheckResourceAttr(resourceName, "ingress_address", ""),
 				),
 			},
 			{
@@ -70,14 +77,43 @@ func TestAccInstance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "22:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "5"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", "bandwidth"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "5"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "baar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.newKey", "value"),
 					resource.TestCheckResourceAttr(resourceName, "vpcep_service_name", "new_custom_apig"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpcep_service_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
+					resource.TestCheckResourceAttrSet(resourceName, "egress_address"),
+					resource.TestCheckResourceAttrSet(resourceName, "ingress_address"),
+				),
+			},
+			{
+				Config: testAccInstance_basic_step3(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "6"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", "traffic"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "6"),
+					resource.TestCheckResourceAttrSet(resourceName, "egress_address"),
+					resource.TestCheckResourceAttrSet(resourceName, "ingress_address"),
+				),
+			},
+			{
+				Config: testAccInstance_basic_step4(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", ""),
+					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "0"),
+					resource.TestCheckResourceAttr(resourceName, "egress_address", ""),
+					resource.TestCheckResourceAttr(resourceName, "ingress_address", ""),
 				),
 			},
 			{
@@ -91,43 +127,116 @@ func TestAccInstance_basic(t *testing.T) {
 
 func testAccInstance_basic_step1(rName string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 data "huaweicloud_availability_zones" "test" {}
 
+%[1]s
+
 resource "huaweicloud_apig_instance" "test" {
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
 
   edition               = "BASIC"
   name                  = "%[2]s"
-  enterprise_project_id = "0"
+  enterprise_project_id = "%[3]s"
   maintain_begin        = "14:00:00"
   description           = "created by acc test"
 
-  tags = {}
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
-`, common.TestBaseNetwork(rName), rName)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccInstance_basic_step2(rName string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 data "huaweicloud_availability_zones" "test" {}
+
+%[1]s
 
 resource "huaweicloud_networking_secgroup" "new" {
   name = "%[2]s_new"
 }
 
 resource "huaweicloud_apig_instance" "test" {
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.new.id
-  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-  vpcep_service_name    = "new_custom_apig"
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.new.id
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  vpcep_service_name = "new_custom_apig"
+
+  edition               = "BASIC"
+  name                  = "%[2]s"
+  enterprise_project_id = "%[3]s"
+  maintain_begin        = "18:00:00"
+
+  // Network configuration
+  bandwidth_size                  = 5 # The bandwidth value must be greater than or equal to 5
+  ingress_bandwidth_charging_mode = "bandwidth"
+  ingress_bandwidth_size          = 5
+
+  tags = {
+    foo    = "baar"
+    newKey = "value"
+  }
+}
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
+}
+
+func testAccInstance_basic_step3(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+%[1]s
+
+resource "huaweicloud_networking_secgroup" "new" {
+  name = "%[2]s_new"
+}
+
+resource "huaweicloud_apig_instance" "test" {
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.new.id
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  vpcep_service_name = "new_custom_apig"
+
+  edition               = "BASIC"
+  name                  = "%[2]s"
+  enterprise_project_id = "%[3]s"
+  maintain_begin        = "18:00:00"
+
+  // Network configuration
+  bandwidth_size                  = 6
+  ingress_bandwidth_charging_mode = "traffic"
+  ingress_bandwidth_size          = 6
+
+  tags = {
+    foo    = "baar"
+    newKey = "value"
+  }
+}
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
+}
+
+func testAccInstance_basic_step4(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+%[1]s
+
+resource "huaweicloud_networking_secgroup" "new" {
+  name = "%[2]s_new"
+}
+
+resource "huaweicloud_apig_instance" "test" {
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.new.id
+  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+  vpcep_service_name = "new_custom_apig"
 
   edition               = "BASIC"
   name                  = "%[2]s"
@@ -135,258 +244,9 @@ resource "huaweicloud_apig_instance" "test" {
   maintain_begin        = "18:00:00"
 
   tags = {
-    foo = "bar"
+    foo    = "baar"
+    newKey = "value"
   }
 }
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func TestAccInstance_egress(t *testing.T) {
-	var (
-		instance instances.Instance
-
-		resourceName = "huaweicloud_apig_instance.test"
-		rName        = acceptance.RandomAccResourceName()
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&instance,
-		getInstanceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccInstance_baseConfig(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
-					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "0"),
-				),
-			},
-			{
-				Config: testAccInstance_egress(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "5"),
-					resource.TestCheckResourceAttrSet(resourceName, "egress_address"),
-				),
-			},
-			{
-				Config: testAccInstance_egressUpdate(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "10"),
-					resource.TestCheckResourceAttrSet(resourceName, "egress_address"),
-				),
-			},
-			{
-				Config: testAccInstance_baseConfig(rName), // Unbind egress nat
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "0"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccInstance_baseConfig(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-  edition               = "BASIC"
-  name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
-  maintain_begin        = "14:00:00"
-  description           = "created by acc test"
-}
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func TestAccInstance_ingress(t *testing.T) {
-	var (
-		instance instances.Instance
-
-		resourceName = "huaweicloud_apig_instance.test"
-		rName        = acceptance.RandomAccResourceName()
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&instance,
-		getInstanceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccInstance_baseConfig(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
-					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "ingress_address", ""),
-				),
-			},
-			{
-				Config: testAccInstance_ingress(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "5"),
-					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", "bandwidth"),
-					resource.TestCheckResourceAttrSet(resourceName, "ingress_address"),
-				),
-			},
-			{
-				Config: testAccInstance_ingressUpdate(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "6"),
-					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_charging_mode", "traffic"),
-				),
-			},
-			{
-				Config: testAccInstance_baseConfig(rName), // Unbind ingress eip
-				Check: resource.ComposeTestCheckFunc(rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
-					resource.TestCheckResourceAttr(resourceName, "ingress_address", ""),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccInstance_egress(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  security_group_id  = huaweicloud_networking_secgroup.test.id
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-
-  edition               = "BASIC"
-  name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
-  bandwidth_size        = 5 # The bandwidth value must be greater than or equal to 5
-}
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccInstance_egressUpdate(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  security_group_id  = huaweicloud_networking_secgroup.test.id
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-
-  edition               = "BASIC"
-  name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
-  bandwidth_size        = 10
-}
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccInstance_ingress(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  security_group_id  = huaweicloud_networking_secgroup.test.id
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-
-  edition                         = "BASIC"
-  name                            = "%[2]s"
-  enterprise_project_id           = "%[3]s"
-  maintain_begin                  = "14:00:00"
-  ingress_bandwidth_size          = 5
-  ingress_bandwidth_charging_mode = "bandwidth"
-}
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccInstance_ingressUpdate(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  security_group_id  = huaweicloud_networking_secgroup.test.id
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-
-  edition                         = "BASIC"
-  name                            = "%[2]s"
-  enterprise_project_id           = "%[3]s"
-  maintain_begin                  = "14:00:00"
-  ingress_bandwidth_size          = 6
-  ingress_bandwidth_charging_mode = "traffic"
-}
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
 }
