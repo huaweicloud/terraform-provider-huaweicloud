@@ -208,10 +208,6 @@ var (
 	HW_CCE_CHART_PATH = os.Getenv("HW_CCE_CHART_PATH")
 	// The cluster name of the CCE
 	HW_CCE_CLUSTER_NAME = os.Getenv("HW_CCE_CLUSTER_NAME")
-	// The cluster ID of the CCE
-	HW_CCE_CLUSTER_ID_ANOTHER = os.Getenv("HW_CCE_CLUSTER_ID_ANOTHER")
-	// The cluster name of the CCE
-	HW_CCE_CLUSTER_NAME_ANOTHER = os.Getenv("HW_CCE_CLUSTER_NAME_ANOTHER")
 	// The partition az of the CCE
 	HW_CCE_PARTITION_AZ = os.Getenv("HW_CCE_PARTITION_AZ")
 	// The namespace of the workload is located
@@ -373,6 +369,11 @@ var (
 	HW_LTS_LOG_CONVERGE_SOURCE_LOG_STREAM_ID   = os.Getenv("HW_LTS_LOG_CONVERGE_SOURCE_LOG_STREAM_ID")
 	HW_LTS_LOG_CONVERGE_TARGET_LOG_STREAM_NAME = os.Getenv("HW_LTS_LOG_CONVERGE_TARGET_LOG_STREAM_NAME")
 	HW_LTS_LOG_CONVERGE_TARGET_LOG_STREAM_ID   = os.Getenv("HW_LTS_LOG_CONVERGE_TARGET_LOG_STREAM_ID")
+
+	HW_LTS_CLUSTER_ID           = os.Getenv("HW_LTS_CLUSTER_ID")
+	HW_LTS_CLUSTER_NAME         = os.Getenv("HW_LTS_CLUSTER_NAME")
+	HW_LTS_CLUSTER_ID_ANOTHER   = os.Getenv("HW_LTS_CLUSTER_ID_ANOTHER")
+	HW_LTS_CLUSTER_NAME_ANOTHER = os.Getenv("HW_LTS_CLUSTER_NAME_ANOTHER")
 
 	HW_VPCEP_SERVICE_ID = os.Getenv("HW_VPCEP_SERVICE_ID")
 
@@ -1392,15 +1393,15 @@ func TestAccPreCheckEgAgencyName(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckLtsAomAccess(t *testing.T) {
-	if HW_CCE_CLUSTER_ID == "" || HW_CCE_CLUSTER_NAME == "" {
-		t.Skip("HW_CCE_CLUSTER_ID and HW_CCE_CLUSTER_NAME must be set for LTS AOM access acceptance tests")
+	if HW_LTS_CLUSTER_ID == "" || HW_LTS_CLUSTER_NAME == "" {
+		t.Skip("HW_LTS_CLUSTER_ID and HW_LTS_CLUSTER_NAME must be set for LTS AOM access acceptance tests")
 	}
 }
 
 // lintignore:AT003
 func TestAccPreCheckLtsAomAccessUpdate(t *testing.T) {
-	if HW_CCE_CLUSTER_ID_ANOTHER == "" || HW_CCE_CLUSTER_NAME_ANOTHER == "" {
-		t.Skip("HW_CCE_CLUSTER_ID_ANOTHER and HW_CCE_CLUSTER_NAME_ANOTHER must be set for LTS AOM access" +
+	if HW_LTS_CLUSTER_ID_ANOTHER == "" || HW_LTS_CLUSTER_NAME_ANOTHER == "" {
+		t.Skip("HW_LTS_CLUSTER_ID_ANOTHER and HW_LTS_CLUSTER_NAME_ANOTHER must be set for LTS AOM access" +
 			" acceptance tests")
 	}
 }

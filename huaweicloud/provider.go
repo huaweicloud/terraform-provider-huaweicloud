@@ -739,6 +739,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_certificate":  lb.DataSourceLBCertificateV2(),
 			"huaweicloud_lb_pools":        lb.DataSourcePools(),
 
+			"huaweicloud_lts_aom_accesses":                 lts.DataSourceAOMAccesses(),
 			"huaweicloud_lts_cce_accesses":                 lts.DataSourceCceAccesses(),
 			"huaweicloud_lts_groups":                       lts.DataSourceLtsGroups(),
 			"huaweicloud_lts_host_groups":                  lts.DataSourceLtsHostGroups(),

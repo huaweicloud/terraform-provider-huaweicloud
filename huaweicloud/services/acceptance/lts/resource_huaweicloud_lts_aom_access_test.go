@@ -81,8 +81,8 @@ func TestAccAOMAccess_allWorkloads(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_CCE_CLUSTER_ID),
-					resource.TestCheckResourceAttr(rName, "cluster_name", acceptance.HW_CCE_CLUSTER_NAME),
+					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_LTS_CLUSTER_ID),
+					resource.TestCheckResourceAttr(rName, "cluster_name", acceptance.HW_LTS_CLUSTER_NAME),
 					resource.TestCheckResourceAttr(rName, "namespace", "default"),
 					resource.TestCheckResourceAttr(rName, "workloads.0", "__ALL_DEPLOYMENTS__"),
 					resource.TestCheckResourceAttr(rName, "container_name", "test_container"),
@@ -103,8 +103,8 @@ func TestAccAOMAccess_allWorkloads(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_CCE_CLUSTER_ID_ANOTHER),
-					resource.TestCheckResourceAttr(rName, "cluster_name", acceptance.HW_CCE_CLUSTER_NAME_ANOTHER),
+					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_LTS_CLUSTER_ID_ANOTHER),
+					resource.TestCheckResourceAttr(rName, "cluster_name", acceptance.HW_LTS_CLUSTER_NAME_ANOTHER),
 					resource.TestCheckResourceAttr(rName, "namespace", "test_namespace"),
 					resource.TestCheckResourceAttr(rName, "workloads.0", "__ALL_DEPLOYMENTS__"),
 					resource.TestCheckResourceAttr(rName, "container_name", "test_container_update"),
@@ -145,8 +145,8 @@ func TestAccAOMAccess_specifyWorkloads(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_CCE_CLUSTER_ID),
-					resource.TestCheckResourceAttr(rName, "cluster_name", acceptance.HW_CCE_CLUSTER_NAME),
+					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_LTS_CLUSTER_ID),
+					resource.TestCheckResourceAttr(rName, "cluster_name", acceptance.HW_LTS_CLUSTER_NAME),
 					resource.TestCheckResourceAttr(rName, "namespace", "default"),
 					resource.TestCheckResourceAttr(rName, "workloads.0", "WORKLOAD_1"),
 					resource.TestCheckResourceAttr(rName, "workloads.1", "WORKLOAD_2"),
@@ -270,7 +270,7 @@ resource "huaweicloud_lts_aom_access" "test" {
     log_stream_name = huaweicloud_lts_stream.test.stream_name
   }
 }
-`, testAccLtsStream_basic(name), name, acceptance.HW_CCE_CLUSTER_ID, acceptance.HW_CCE_CLUSTER_NAME)
+`, testAccLtsStream_basic(name), name, acceptance.HW_LTS_CLUSTER_ID, acceptance.HW_LTS_CLUSTER_NAME)
 }
 
 func testAOMAccess_allWorkloads_update(name string) string {
@@ -293,7 +293,7 @@ resource "huaweicloud_lts_aom_access" "test" {
     log_stream_name = huaweicloud_lts_stream.test.stream_name
   }
 }
-`, testAccLtsStream_basic(name), name, acceptance.HW_CCE_CLUSTER_ID_ANOTHER, acceptance.HW_CCE_CLUSTER_NAME_ANOTHER)
+`, testAccLtsStream_basic(name), name, acceptance.HW_LTS_CLUSTER_ID_ANOTHER, acceptance.HW_LTS_CLUSTER_NAME_ANOTHER)
 }
 
 func testAOMAccess_specifyWorkloads(name string) string {
@@ -316,7 +316,7 @@ resource "huaweicloud_lts_aom_access" "test" {
     log_stream_name = huaweicloud_lts_stream.test.stream_name
   }
 }
-`, testAccLtsStream_basic(name), name, acceptance.HW_CCE_CLUSTER_ID, acceptance.HW_CCE_CLUSTER_NAME)
+`, testAccLtsStream_basic(name), name, acceptance.HW_LTS_CLUSTER_ID, acceptance.HW_LTS_CLUSTER_NAME)
 }
 
 func testAOMAccess_specifyWorkloads_update(name string) string {
@@ -339,7 +339,7 @@ resource "huaweicloud_lts_aom_access" "test" {
     log_stream_name = huaweicloud_lts_stream.test.stream_name
   }
 }
-`, testAccLtsStream_basic(name), name, acceptance.HW_CCE_CLUSTER_ID, acceptance.HW_CCE_CLUSTER_NAME)
+`, testAccLtsStream_basic(name), name, acceptance.HW_LTS_CLUSTER_ID, acceptance.HW_LTS_CLUSTER_NAME)
 }
 
 func testAOMAccess_withCCICluster(name string) string {
