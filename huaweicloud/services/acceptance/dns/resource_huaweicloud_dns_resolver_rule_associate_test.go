@@ -2,9 +2,11 @@ package dns
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -42,9 +44,10 @@ func getDNSResolverRuleAssociateResourceFunc(conf *config.Config, state *terrafo
 
 func TestAccDNSResolverRuleAssociate_basic(t *testing.T) {
 	var (
-		obj   interface{}
-		name  = acceptance.RandomAccResourceName()
-		rName = "huaweicloud_dns_resolver_rule_associate.test"
+		obj         interface{}
+		name        = acceptance.RandomAccResourceName()
+		rName       = "huaweicloud_dns_resolver_rule_associate.test"
+		randUUID, _ = uuid.GenerateUUID()
 	)
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -57,6 +60,15 @@ func TestAccDNSResolverRuleAssociate_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
+			{
+				Config:      testDNSResolverRuleAssociate_ruleNotExist(randUUID),
+				ExpectError: regexp.MustCompile("Resolver rule not exist"),
+			},
+			{
+				Config: testDNSResolverRuleAssociate_VPCNotExist(name, randUUID),
+				// DNS.0711: The associated VPC does not exist.
+				ExpectError: regexp.MustCompile("DNS.0711"),
+			},
 			{
 				Config: testDNSResolverRuleAssociate_basic(name),
 				Check: resource.ComposeTestCheckFunc(
@@ -77,7 +89,7 @@ func TestAccDNSResolverRuleAssociate_basic(t *testing.T) {
 	})
 }
 
-func testDNSResolverRuleAssociate_basic(rName string) string {
+func testDNSResolverRuleAssociate_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -113,9 +125,36 @@ resource "huaweicloud_dns_resolver_rule" "test" {
     ip = huaweicloud_dns_endpoint.test.ip_addresses[0].ip
   }
 }
+`, rName)
+}
+
+func testDNSResolverRuleAssociate_ruleNotExist(randUUID string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dns_resolver_rule_associate" "test" {
+  resolver_rule_id = "%[1]s"
+  vpc_id           = "%[1]s"
+}
+`, randUUID)
+}
+
+func testDNSResolverRuleAssociate_VPCNotExist(name, randUUID string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dns_resolver_rule_associate" "test" {
+  resolver_rule_id = huaweicloud_dns_resolver_rule.test.id
+  vpc_id           = "%s"
+}
+`, testDNSResolverRuleAssociate_base(name), randUUID)
+}
+
+func testDNSResolverRuleAssociate_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_dns_resolver_rule_associate" "test" {
   resolver_rule_id = huaweicloud_dns_resolver_rule.test.id
   vpc_id           = huaweicloud_vpc.test.id
-}`, rName)
+}
+`, testDNSResolverRuleAssociate_base(rName))
 }
