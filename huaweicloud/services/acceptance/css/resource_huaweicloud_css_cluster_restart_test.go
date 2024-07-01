@@ -85,5 +85,30 @@ resource "huaweicloud_css_cluster_restart" "test" {
   value      = "ess"
   is_rolling = true
 }
-`, testAccCssCluster_extend(rName, "ess.spec-4u8g", 3, 3, 1, 40))
+`, testAccCssClusterRestart_build(rName))
+}
+
+func testAccCssClusterRestart_build(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 3
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+  
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+}
+`, testAccCssBase(rName), rName)
 }
