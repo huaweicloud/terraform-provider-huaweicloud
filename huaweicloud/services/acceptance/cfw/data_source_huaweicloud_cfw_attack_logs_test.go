@@ -59,6 +59,71 @@ func TestAccDataSourceCfwAttackLogs_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSource, "records.0.event_time"),
 				),
 			},
+			{
+				Config: testDataSourceCfwAttackLogs_dstPort(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSource, "records.0.dst_port", "80"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.packet"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.dst_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_port"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.level"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.event_time"),
+				),
+			},
+			{
+				Config: testDataSourceCfwAttackLogs_attackType(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSource, "records.0.attack_type", "Vulnerability Exploit Attack"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.packet"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.dst_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_port"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.level"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.event_time"),
+				),
+			},
+			{
+				Config: testDataSourceCfwAttackLogs_srcRegionName(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSource, "records.0.src_region_name", "Chinese Mainland"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.packet"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.dst_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_port"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.level"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.event_time"),
+				),
+			},
+			{
+				Config: testDataSourceCfwAttackLogs_dstRegionName(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSource, "records.0.dst_region_name", "Chinese Mainland"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.packet"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.dst_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_port"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.level"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.event_time"),
+				),
+			},
+			{
+				Config: testDataSourceCfwAttackLogs_attackRuleId(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(dataSource, "records.0.attack_rule_id", "336860"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.packet"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.dst_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_port"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.level"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.event_time"),
+				),
+			},
 		},
 	})
 }
@@ -91,6 +156,61 @@ data "huaweicloud_cfw_attack_logs" "test" {
   start_time     = "%[2]s"
   end_time       = "%[3]s"
   level          = "CRITICAL"
+}
+`, acceptance.HW_CFW_INSTANCE_ID, acceptance.HW_CFW_START_TIME, acceptance.HW_CFW_END_TIME)
+}
+
+func testDataSourceCfwAttackLogs_dstPort() string {
+	return fmt.Sprintf(`
+data "huaweicloud_cfw_attack_logs" "test" {
+  fw_instance_id = "%[1]s"
+  start_time     = "%[2]s"
+  end_time       = "%[3]s"
+  dst_port       = 80
+}
+`, acceptance.HW_CFW_INSTANCE_ID, acceptance.HW_CFW_START_TIME, acceptance.HW_CFW_END_TIME)
+}
+
+func testDataSourceCfwAttackLogs_attackType() string {
+	return fmt.Sprintf(`
+data "huaweicloud_cfw_attack_logs" "test" {
+  fw_instance_id = "%[1]s"
+  start_time     = "%[2]s"
+  end_time       = "%[3]s"
+  attack_type    = "Vulnerability Exploit Attack"
+}
+`, acceptance.HW_CFW_INSTANCE_ID, acceptance.HW_CFW_START_TIME, acceptance.HW_CFW_END_TIME)
+}
+
+func testDataSourceCfwAttackLogs_srcRegionName() string {
+	return fmt.Sprintf(`
+data "huaweicloud_cfw_attack_logs" "test" {
+  fw_instance_id  = "%[1]s"
+  start_time      = "%[2]s"
+  end_time        = "%[3]s"
+  src_region_name = "Chinese Mainland"
+}
+`, acceptance.HW_CFW_INSTANCE_ID, acceptance.HW_CFW_START_TIME, acceptance.HW_CFW_END_TIME)
+}
+
+func testDataSourceCfwAttackLogs_dstRegionName() string {
+	return fmt.Sprintf(`
+data "huaweicloud_cfw_attack_logs" "test" {
+  fw_instance_id  = "%[1]s"
+  start_time      = "%[2]s"
+  end_time        = "%[3]s"
+  dst_region_name = "Chinese Mainland"
+}
+`, acceptance.HW_CFW_INSTANCE_ID, acceptance.HW_CFW_START_TIME, acceptance.HW_CFW_END_TIME)
+}
+
+func testDataSourceCfwAttackLogs_attackRuleId() string {
+	return fmt.Sprintf(`
+data "huaweicloud_cfw_attack_logs" "test" {
+  fw_instance_id  = "%[1]s"
+  start_time      = "%[2]s"
+  end_time        = "%[3]s"
+  attack_rule_id  = "336860"
 }
 `, acceptance.HW_CFW_INSTANCE_ID, acceptance.HW_CFW_START_TIME, acceptance.HW_CFW_END_TIME)
 }
