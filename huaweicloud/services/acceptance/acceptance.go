@@ -47,6 +47,8 @@ var (
 	HW_ENTERPRISE_PROJECT_ID  = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
 	HW_ADMIN                  = os.Getenv("HW_ADMIN")
 
+	HW_APIG_DEDICATED_INSTANCE_ID = os.Getenv("HW_APIG_DEDICATED_INSTANCE_ID")
+
 	HW_CAE_ENVIRONMENT_ID     = os.Getenv("HW_CAE_ENVIRONMENT_ID")
 	HW_CAE_APPLICATION_ID     = os.Getenv("HW_CAE_APPLICATION_ID")
 	HW_CAE_CODE_URL           = os.Getenv("HW_CAE_CODE_URL")
@@ -572,6 +574,13 @@ func TestAccPreCheckMigrateEpsID(t *testing.T) {
 func TestAccPreCheckUserId(t *testing.T) {
 	if HW_USER_ID == "" {
 		t.Skip("The environment variables does not support the user ID (HW_USER_ID) for acc tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckApigSubResourcesRelatedInfo(t *testing.T) {
+	if HW_APIG_DEDICATED_INSTANCE_ID == "" {
+		t.Skip("Before running APIG acceptance tests, please ensure the env 'HW_APIG_DEDICATED_INSTANCE_ID' has been configured")
 	}
 }
 

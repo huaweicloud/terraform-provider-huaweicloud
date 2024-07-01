@@ -2,6 +2,7 @@ package apig
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -23,67 +24,70 @@ func getPluginFunc(cfg *config.Config, state *terraform.ResourceState) (interfac
 	return plugins.Get(client, state.Primary.Attributes["instance_id"], state.Primary.ID)
 }
 
-// The basic test is used to test CORS plugin.
 func TestAccPlugin_basic(t *testing.T) {
 	var (
 		plugin plugins.Plugin
 
-		rName      = "huaweicloud_apig_plugin.test"
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
-		baseConfig = testAccPlugin_basicConfig(name)
 
-		rc = acceptance.InitResourceCheck(
-			rName,
-			&plugin,
-			getPluginFunc,
-		)
+		rNameForCors = "huaweicloud_apig_plugin.cors"
+		rcForCors    = acceptance.InitResourceCheck(rNameForCors, &plugin, getPluginFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      rcForCors.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPlugin_basic_step1(baseConfig, name),
+				// Check whether illegal type ​​can be intercepted normally (create phase).
+				Config:      testAccPlugin_basic_step1(name),
+				ExpectError: regexp.MustCompile("error creating the plugin"),
+			},
+			{
+				Config: testAccPlugin_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
-					resource.TestCheckResourceAttr(rName, "type", "cors"),
+					rcForCors.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameForCors, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
+					resource.TestCheckResourceAttr(rNameForCors, "name", name),
+					resource.TestCheckResourceAttr(rNameForCors, "description", "Created by acc test"),
+					resource.TestCheckResourceAttr(rNameForCors, "type", "cors"),
+					resource.TestCheckResourceAttrSet(rNameForCors, "created_at"),
 				),
 			},
 			{
-				Config: testAccPlugin_basic_step2(baseConfig, updateName),
+				// Check whether illegal content value ​​can be intercepted normally (update phase).
+				Config:      testAccPlugin_basic_step3(name),
+				ExpectError: regexp.MustCompile("error updating the plugin"),
+			},
+			{
+				Config: testAccPlugin_basic_step4(updateName),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "description", "Updated by acc test"),
-					resource.TestCheckResourceAttr(rName, "type", "cors"),
+					rcForCors.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameForCors, "name", updateName),
+					resource.TestCheckResourceAttr(rNameForCors, "description", "Updated by acc test"),
+					resource.TestCheckResourceAttrSet(rNameForCors, "updated_at"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				ResourceName:      rNameForCors,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccPluginImportStateFunc(rName),
+				ImportStateIdFunc: testAccPluginImportStateFunc(rNameForCors),
 			},
 		},
 	})
 }
 
-func testAccPluginImportStateFunc(n string) resource.ImportStateIdFunc {
+func testAccPluginImportStateFunc(rsName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		rs, ok := s.RootModule().Resources[n]
+		rs, ok := s.RootModule().Resources[rsName]
 		if !ok {
-			return "", fmt.Errorf("resource (%s) not found: %s", n, rs)
+			return "", fmt.Errorf("resource (%s) not found", rsName)
 		}
 		if rs.Primary.Attributes["instance_id"] == "" {
 			return "", fmt.Errorf("invalid format specified for import ID, want '<instance_id>/<id>', but got '%s/%s'",
@@ -93,33 +97,31 @@ func testAccPluginImportStateFunc(n string) resource.ImportStateIdFunc {
 	}
 }
 
-func testAccPlugin_basicConfig(name string) string {
+func testAccPlugin_basic_step1(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
+resource "huaweicloud_apig_plugin" "cors" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+  description = "Created by acc test"
+  type        = "INVALID_TYPE"
+  content     = jsonencode(
+    {
+      allow_origin      = "*"
+      allow_methods     = "GET,PUT,DELETE,HEAD,PATCH"
+      allow_headers     = "Content-Type,Accept,Cache-Control"
+      expose_headers    = "X-Request-Id,X-Apig-Latency"
+      max_age           = 12700
+      allow_credentials = true
+    }
+  )
 }
-`, common.TestBaseNetwork(name), name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
-func testAccPlugin_basic_step1(baseConfig, name string) string {
+func testAccPlugin_basic_step2(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_plugin" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+resource "huaweicloud_apig_plugin" "cors" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
   description = "Created by acc test"
   type        = "cors"
@@ -134,15 +136,25 @@ resource "huaweicloud_apig_plugin" "test" {
     }
   )
 }
-`, baseConfig, name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
-func testAccPlugin_basic_step2(baseConfig, name string) string {
+func testAccPlugin_basic_step3(name string) string {
 	return fmt.Sprintf(`
-%[1]s
+resource "huaweicloud_apig_plugin" "cors" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+  description = "Created by acc test"
+  type        = "cors"
+  content     = "INVALID_CONTENT"
+}
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
+}
 
-resource "huaweicloud_apig_plugin" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+func testAccPlugin_basic_step4(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_apig_plugin" "cors" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
   description = "Updated by acc test" # Description cannot be updated to a empty value.
   type        = "cors"
@@ -157,72 +169,57 @@ resource "huaweicloud_apig_plugin" "test" {
     }
   )
 }
-`, baseConfig, name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func TestAccPlugin_httpResponse(t *testing.T) {
 	var (
 		plugin plugins.Plugin
 
-		rName      = "huaweicloud_apig_plugin.test"
-		name       = acceptance.RandomAccResourceName()
-		updateName = acceptance.RandomAccResourceName()
-		baseConfig = testAccPlugin_basicConfig(name)
+		name = acceptance.RandomAccResourceName()
 
-		rc = acceptance.InitResourceCheck(
-			rName,
-			&plugin,
-			getPluginFunc,
-		)
+		rNameForHttpResponse = "huaweicloud_apig_plugin.http_response"
+		rcForHttpResponse    = acceptance.InitResourceCheck(rNameForHttpResponse, &plugin, getPluginFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      rcForHttpResponse.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPlugin_httpResponse_step1(baseConfig, name),
+				Config: testAccPlugin_httpResponse_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
-					resource.TestCheckResourceAttr(rName, "type", "set_resp_headers"),
+					rcForHttpResponse.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameForHttpResponse, "type", "set_resp_headers"),
+					resource.TestCheckResourceAttrSet(rNameForHttpResponse, "created_at"),
 				),
 			},
 			{
-				Config: testAccPlugin_httpResponse_step2(baseConfig, updateName),
+				Config: testAccPlugin_httpResponse_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "description", "Updated by acc test"),
-					resource.TestCheckResourceAttr(rName, "type", "set_resp_headers"),
+					rcForHttpResponse.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(rNameForHttpResponse, "updated_at"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				ResourceName:      rNameForHttpResponse,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccPluginImportStateFunc(rName),
+				ImportStateIdFunc: testAccPluginImportStateFunc(rNameForHttpResponse),
 			},
 		},
 	})
 }
 
-func testAccPlugin_httpResponse_step1(baseConfig, name string) string {
+func testAccPlugin_httpResponse_step1(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_plugin" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+resource "huaweicloud_apig_plugin" "http_response" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  description = "Created by acc test"
   type        = "set_resp_headers"
   content     = jsonencode(
     {
@@ -265,17 +262,14 @@ resource "huaweicloud_apig_plugin" "test" {
     }
   )
 }
-`, baseConfig, name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
-func testAccPlugin_httpResponse_step2(baseConfig, name string) string {
+func testAccPlugin_httpResponse_step2(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_plugin" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+resource "huaweicloud_apig_plugin" "http_response" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  description = "Updated by acc test" # Description cannot be updated to a empty value.
   type        = "set_resp_headers"
   content     = jsonencode(
     {
@@ -300,78 +294,64 @@ resource "huaweicloud_apig_plugin" "test" {
     }
   )
 }
-`, baseConfig, name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func TestAccPlugin_rateLimit(t *testing.T) {
 	var (
 		plugin plugins.Plugin
 
-		rName      = "huaweicloud_apig_plugin.test"
-		name       = acceptance.RandomAccResourceName()
-		updateName = acceptance.RandomAccResourceName()
-		baseConfig = testAccPlugin_basicConfig(name)
+		name = acceptance.RandomAccResourceName()
 
-		rc = acceptance.InitResourceCheck(
-			rName,
-			&plugin,
-			getPluginFunc,
-		)
+		rNameForRateLimit = "huaweicloud_apig_plugin.rate_limit"
+		rcForRateLimit    = acceptance.InitResourceCheck(rNameForRateLimit, &plugin, getPluginFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckUserId(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      rcForRateLimit.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPlugin_rateLimit_step1(baseConfig, name),
+				Config: testAccPlugin_rateLimit_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
-					resource.TestCheckResourceAttr(rName, "type", "rate_limit"),
+					rcForRateLimit.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameForRateLimit, "type", "rate_limit"),
+					resource.TestCheckResourceAttrSet(rNameForRateLimit, "created_at"),
 				),
 			},
 			{
-				Config: testAccPlugin_rateLimit_step2(baseConfig, updateName),
+				Config: testAccPlugin_rateLimit_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "description", "Updated by acc test"),
-					resource.TestCheckResourceAttr(rName, "type", "rate_limit"),
+					rcForRateLimit.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(rNameForRateLimit, "updated_at"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				ResourceName:      rNameForRateLimit,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccPluginImportStateFunc(rName),
+				ImportStateIdFunc: testAccPluginImportStateFunc(rNameForRateLimit),
 			},
 		},
 	})
 }
 
-func testAccPlugin_rateLimit_step1(baseConfig, name string) string {
+func testAccPlugin_rateLimit_step1(name string) string {
 	return fmt.Sprintf(`
-%[1]s
+data "huaweicloud_identity_users" "test" {}
 
 resource "huaweicloud_apig_application" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s"
 }
 
-resource "huaweicloud_apig_plugin" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+resource "huaweicloud_apig_plugin" "rate_limit" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  description = "Created by acc test"
   type        = "rate_limit"
   content     = jsonencode(
     {
@@ -397,7 +377,7 @@ resource "huaweicloud_apig_plugin" "test" {
           "type": "user",
           "policies": [
             {
-              "key": "%[3]s",
+              "key": "${data.huaweicloud_identity_users.test.users[0].id}",
               "limit": 10
             }
           ]
@@ -453,22 +433,21 @@ resource "huaweicloud_apig_plugin" "test" {
     }
   )
 }
-`, baseConfig, name, acceptance.HW_USER_ID)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
-func testAccPlugin_rateLimit_step2(baseConfig, name string) string {
+func testAccPlugin_rateLimit_step2(name string) string {
 	return fmt.Sprintf(`
-%[1]s
+data "huaweicloud_identity_users" "test" {}
 
 resource "huaweicloud_apig_application" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s"
 }
 
-resource "huaweicloud_apig_plugin" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+resource "huaweicloud_apig_plugin" "rate_limit" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  description = "Updated by acc test" # Description cannot be updated to a empty value.
   type        = "rate_limit"
   content     = jsonencode(
     {
@@ -494,7 +473,7 @@ resource "huaweicloud_apig_plugin" "test" {
           "type": "user",
           "policies": [
             {
-              "key": "%[3]s",
+              "key": "${data.huaweicloud_identity_users.test.users[0].id}",
               "limit": 15
             }
           ]
@@ -550,59 +529,49 @@ resource "huaweicloud_apig_plugin" "test" {
     }
   )
 }
-`, baseConfig, name, acceptance.HW_USER_ID)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func TestAccPlugin_kafkaLog(t *testing.T) {
 	var (
 		plugin plugins.Plugin
 
-		rName      = "huaweicloud_apig_plugin.test"
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
 		baseConfig = testAccPlugin_kafkaLog_base(name)
 
-		rc = acceptance.InitResourceCheck(
-			rName,
-			&plugin,
-			getPluginFunc,
-		)
+		rNameForKafkaLog = "huaweicloud_apig_plugin.kafka_log"
+		rcForKafkaLog    = acceptance.InitResourceCheck(rNameForKafkaLog, &plugin, getPluginFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      rcForKafkaLog.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPlugin_kafkaLog_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
-					resource.TestCheckResourceAttr(rName, "type", "kafka_log"),
+					rcForKafkaLog.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameForKafkaLog, "type", "kafka_log"),
+					resource.TestCheckResourceAttrSet(rNameForKafkaLog, "created_at"),
 				),
 			},
 			{
 				Config: testAccPlugin_kafkaLog_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "description", "Updated by acc test"),
-					resource.TestCheckResourceAttr(rName, "type", "kafka_log"),
+					rcForKafkaLog.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(rNameForKafkaLog, "updated_at"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				ResourceName:      rNameForKafkaLog,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccPluginImportStateFunc(rName),
+				ImportStateIdFunc: testAccPluginImportStateFunc(rNameForKafkaLog),
 			},
 		},
 	})
@@ -620,6 +589,7 @@ locals {
   query_results     = data.huaweicloud_dms_kafka_flavors.test
   flavor            = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
   connect_addresses = split(",", huaweicloud_dms_kafka_instance.test.connect_address)
+  connect_port      = huaweicloud_dms_kafka_instance.test.port
 }
 
 resource "huaweicloud_dms_kafka_instance" "test" {
@@ -653,21 +623,20 @@ resource "huaweicloud_dms_kafka_topic" "test" {
   name        = "%[2]s"
   partitions  = 1
 }
-`, testAccPlugin_basicConfig(name), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccPlugin_kafkaLog_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_apig_plugin" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
-  name        = "%[2]s"
-  description = "Created by acc test"
+resource "huaweicloud_apig_plugin" "kafka_log" {
+  instance_id = "%[2]s"
+  name        = "%[3]s"
   type        = "kafka_log"
   content     = jsonencode(
     {
-      "broker_list": [for v in local.connect_addresses: format("%%s:%%d", v, huaweicloud_dms_kafka_instance.test.port)],
+      "broker_list": [for v in local.connect_addresses: format("%%s:%%d", v, local.connect_port)],
       "topic": "${huaweicloud_dms_kafka_topic.test.name}",
       "key": "",
       "max_retry_count": 0,
@@ -750,21 +719,20 @@ resource "huaweicloud_apig_plugin" "test" {
     }
   )
 }
-`, baseConfig, name)
+`, baseConfig, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func testAccPlugin_kafkaLog_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_apig_plugin" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
-  name        = "%[2]s"
-  description = "Updated by acc test" # Description cannot be updated to a empty value.
+resource "huaweicloud_apig_plugin" "kafka_log" {
+  instance_id = "%[2]s"
+  name        = "%[3]s"
   type        = "kafka_log"
   content     = jsonencode(
     {
-      "broker_list": [for v in local.connect_addresses: format("%%s:%%d", v, huaweicloud_dms_kafka_instance.test.port)],
+      "broker_list": [for v in local.connect_addresses: format("%%s:%%d", v, local.connect_port)],
       "topic": "${huaweicloud_dms_kafka_topic.test.name}",
       "key": "",
       "max_retry_count": 3,
@@ -853,72 +821,57 @@ resource "huaweicloud_apig_plugin" "test" {
     }
   )
 }
-`, baseConfig, name)
+`, baseConfig, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func TestAccPlugin_breaker(t *testing.T) {
 	var (
 		plugin plugins.Plugin
 
-		rName      = "huaweicloud_apig_plugin.test"
-		name       = acceptance.RandomAccResourceName()
-		updateName = acceptance.RandomAccResourceName()
-		baseConfig = testAccPlugin_basicConfig(name)
+		name = acceptance.RandomAccResourceName()
 
-		rc = acceptance.InitResourceCheck(
-			rName,
-			&plugin,
-			getPluginFunc,
-		)
+		rNameForBreaker = "huaweicloud_apig_plugin.breaker"
+		rcForBreaker    = acceptance.InitResourceCheck(rNameForBreaker, &plugin, getPluginFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      rcForBreaker.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPlugin_breaker_step1(baseConfig, name),
+				Config: testAccPlugin_breaker_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
-					resource.TestCheckResourceAttr(rName, "type", "breaker"),
+					rcForBreaker.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameForBreaker, "type", "breaker"),
+					resource.TestCheckResourceAttrSet(rNameForBreaker, "created_at"),
 				),
 			},
 			{
-				Config: testAccPlugin_breaker_step2(baseConfig, updateName),
+				Config: testAccPlugin_breaker_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "description", "Updated by acc test"),
-					resource.TestCheckResourceAttr(rName, "type", "breaker"),
+					rcForBreaker.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(rNameForBreaker, "updated_at"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				ResourceName:      rNameForBreaker,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccPluginImportStateFunc(rName),
+				ImportStateIdFunc: testAccPluginImportStateFunc(rNameForBreaker),
 			},
 		},
 	})
 }
 
-func testAccPlugin_breaker_step1(baseConfig, name string) string {
+func testAccPlugin_breaker_step1(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_plugin" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+resource "huaweicloud_apig_plugin" "breaker" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  description = "Created by acc test"
   type        = "breaker"
   content     = jsonencode(
     {
@@ -939,17 +892,14 @@ resource "huaweicloud_apig_plugin" "test" {
     }
   )
 }
-`, baseConfig, name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
-func testAccPlugin_breaker_step2(baseConfig, name string) string {
+func testAccPlugin_breaker_step2(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_plugin" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+resource "huaweicloud_apig_plugin" "breaker" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  description = "Updated by acc test" # Description cannot be updated to a empty value.
   type        = "breaker"
   content     = jsonencode(
     {
@@ -1007,5 +957,5 @@ resource "huaweicloud_apig_plugin" "test" {
     }
   )
 }
-`, baseConfig, name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
