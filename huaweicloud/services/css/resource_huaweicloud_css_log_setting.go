@@ -149,6 +149,11 @@ func resourceLogSettingRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	logSetting := utils.PathSearch("logConfiguration", getLogSettingRespBody, nil)
 	updateAt := utils.PathSearch("updateAt", logSetting, float64(0)).(float64)
+	autoEnabled := utils.PathSearch("autoEnable", logSetting, false).(bool)
+	var period string
+	if autoEnabled {
+		period = utils.PathSearch("period", logSetting, nil).(string)
+	}
 	mErr := multierror.Append(
 		nil,
 		d.Set("region", region),
@@ -157,8 +162,8 @@ func resourceLogSettingRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("base_path", utils.PathSearch("basePath", logSetting, nil)),
 		d.Set("bucket", utils.PathSearch("obsBucket", logSetting, nil)),
 		d.Set("updated_at", utils.FormatTimeStampRFC3339(int64(updateAt)/1000, false)),
-		d.Set("auto_enabled", utils.PathSearch("autoEnable", logSetting, false)),
-		d.Set("period", utils.PathSearch("period", logSetting, nil)),
+		d.Set("auto_enabled", autoEnabled),
+		d.Set("period", period),
 		d.Set("log_switch", utils.PathSearch("logSwitch", logSetting, false)),
 	)
 

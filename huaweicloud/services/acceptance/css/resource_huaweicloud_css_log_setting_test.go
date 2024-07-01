@@ -89,6 +89,13 @@ func TestAccLogSetting_elastic(t *testing.T) {
 				),
 			},
 			{
+				Config: testLogSetting_elastic_updateNull(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "auto_enabled", "false"),
+				),
+			},
+			{
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -141,6 +148,13 @@ func TestAccLogSetting_logstash(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
 			},
+			{
+				Config: testLogSetting_logstash_updateNull(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "auto_enabled", "false"),
+				),
+			},
 		},
 	})
 }
@@ -168,6 +182,20 @@ resource "huaweicloud_css_log_setting" "test" {
   base_path  = "css_repository/css-log-update"
   bucket     = huaweicloud_obs_bucket.cssObs.bucket
   period     = "00:00 GMT+08:00"
+}
+`, testAccCssCluster_basic(name, "Test@passw0rd", 1, "tag"))
+}
+
+func testLogSetting_elastic_updateNull(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_css_log_setting" "test" {
+  cluster_id = huaweicloud_css_cluster.test.id
+  agency     = "css_obs_agency"
+  base_path  = "css_repository/css-log-update"
+  bucket     = huaweicloud_obs_bucket.cssObs.bucket
+  period     = ""
 }
 `, testAccCssCluster_basic(name, "Test@passw0rd", 1, "tag"))
 }
@@ -219,6 +247,32 @@ resource "huaweicloud_css_log_setting" "test" {
   base_path  = "css_repository/logstash-log-2"
   bucket     = huaweicloud_obs_bucket.bucket2.bucket
   period     = "00:00 GMT+08:00"
+}
+`, testAccLogstashCluster_basic(name, 1, "bar"))
+}
+
+func testLogSetting_logstash_updateNull(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_obs_bucket" "bucket1" {
+  bucket        = "tf-test-css-1"
+  storage_class = "STANDARD"
+  acl           = "private"
+}
+
+resource "huaweicloud_obs_bucket" "bucket2" {
+  bucket        = "tf-test-css-2"
+  storage_class = "STANDARD"
+  acl           = "private"
+}
+
+resource "huaweicloud_css_log_setting" "test" {
+  cluster_id = huaweicloud_css_logstash_cluster.test.id
+  agency     = "css_obs_agency"
+  base_path  = "css_repository/logstash-log-2"
+  bucket     = huaweicloud_obs_bucket.bucket2.bucket
+  period     = ""
 }
 `, testAccLogstashCluster_basic(name, 1, "bar"))
 }
