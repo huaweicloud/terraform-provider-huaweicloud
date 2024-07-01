@@ -191,7 +191,7 @@ resource "huaweicloud_cfw_protection_rule" "test" {
   }
 
   destination {
-    type            = 4
+    type            = 6
     domain_set_id   = huaweicloud_cfw_domain_name_group.g2.id
     domain_set_name = huaweicloud_cfw_domain_name_group.g2.name
   }
