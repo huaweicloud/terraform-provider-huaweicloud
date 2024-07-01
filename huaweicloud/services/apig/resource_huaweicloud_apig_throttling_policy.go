@@ -3,32 +3,23 @@ package apig
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/throttles"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-type (
-	PolicyType string
-	PeriodUnit string
-)
+type PolicyType string
 
 const (
-	PeriodUnitSecond PeriodUnit = "SECOND"
-	PeriodUnitMinute PeriodUnit = "MINUTE"
-	PeriodUnitHour   PeriodUnit = "HOUR"
-	PeriodUnitDay    PeriodUnit = "DAY"
-
 	PolicyTypeExclusive   PolicyType = "API-based"
 	PolicyTypeShared      PolicyType = "API-shared"
 	PolicyTypeUser        PolicyType = "USER"
@@ -80,14 +71,8 @@ func ResourceApigThrottlingPolicyV2() *schema.Resource {
 				Description: "The ID of the dedicated instance to which the throttling policy belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5\\w]*$"),
-						"Only Chinese and English letters, digits and underscores (_) are allowed. "+
-							"The name must start with a Chinese or English letter."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The name of the throttling policy.",
 			},
 			"period": {
@@ -117,35 +102,20 @@ func ResourceApigThrottlingPolicyV2() *schema.Resource {
 				Description: "The maximum number of times the API can be accessed by a user within the same period.",
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  string(PolicyTypeExclusive),
-				ValidateFunc: validation.StringInSlice([]string{
-					string(PolicyTypeExclusive),
-					string(PolicyTypeShared),
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     string(PolicyTypeExclusive),
 				Description: "The type of the request throttling policy.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
-						"The angle brackets (< and >) are not allowed."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The description about the API throttling policy.",
 			},
 			"period_unit": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  string(PeriodUnitMinute),
-				ValidateFunc: validation.StringInSlice([]string{
-					string(PeriodUnitSecond),
-					string(PeriodUnitMinute),
-					string(PeriodUnitHour),
-					string(PeriodUnitDay),
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "MINUTE",
 				Description: "The time unit for limiting the number of API calls.",
 			},
 			"user_throttles": {
@@ -210,12 +180,11 @@ func buildThrottlingPolicyOpts(d *schema.ResourceData) (throttles.ThrottlingPoli
 		Description:    d.Get("description").(string),
 	}
 	pType := d.Get("type").(string)
-	var val int
-	var ok bool
-	if val, ok = policyType[pType]; !ok {
+	policyType, ok := policyType[pType]
+	if !ok {
 		return opt, fmt.Errorf("invalid throttling policy type: %s", pType)
 	}
-	opt.Type = val
+	opt.Type = policyType
 	return opt, nil
 }
 
@@ -346,7 +315,7 @@ func resourceThrottlingPolicyRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("max_ip_requests", resp.IpCallLimits),
 		d.Set("description", resp.Description),
 		// Attributes
-		d.Set("created_at", resp.CreateTime),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(resp.CreateTime)/1000, false)),
 	)
 
 	if resp.IsIncludeSpecialThrottle == includeSpecialThrottle {
@@ -415,9 +384,10 @@ func updateSpecThrottlingPolicies(d *schema.ResourceData, client *golangsdk.Serv
 		rmObject := rmPolicy["throttling_object_id"].(string)
 		for _, add := range addRaws.List() {
 			addPolicy := add.(map[string]interface{})
+			addObject := addPolicy["throttling_object_id"].(string)
 			// If the two lists contain the objects with the same special throttling policy id, it means that the
 			// policy is only updated (the delete and create operations will change policy ID).
-			if rmObject == addPolicy["throttling_object_id"].(string) {
+			if rmObject == addObject {
 				strategyId := rmPolicy["id"].(string)
 				limit := addPolicy["max_api_requests"].(int)
 				// Update specifies special throttling policy by strategy ID.
