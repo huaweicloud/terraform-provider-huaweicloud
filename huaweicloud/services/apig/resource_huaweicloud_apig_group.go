@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups"
@@ -57,24 +55,13 @@ func ResourceApigGroupV2() *schema.Resource {
 				Description: "The ID of the dedicated instance to which the group belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5\\w]*$"),
-						"Only chinese and english letters, digits and underscores (_) are allowed, and must start "+
-							"with a chinese or english letter. Chinese characters must be in UTF-8 or Unicode format."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The group name.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-						"The angle brackets (< and >) are not allowed."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The group description.",
 			},
 			"environment": {
@@ -89,25 +76,13 @@ func ResourceApigGroupV2() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-										ValidateFunc: validation.All(
-											validation.StringMatch(
-												regexp.MustCompile(`^[A-Za-z][\w-]*$`),
-												"Only letters, digits, hyphens (-) and underscores (_) are allowed, "+
-													"and must start with a letter."),
-											validation.StringLenBetween(3, 32),
-										),
+										Type:        schema.TypeString,
+										Required:    true,
 										Description: "The variable name.",
 									},
 									"value": {
-										Type:     schema.TypeString,
-										Required: true,
-										ValidateFunc: validation.All(
-											validation.StringMatch(regexp.MustCompile(`^[\w:/.-]*$`),
-												"Only letters, digit and following special characters are allowed: _-/.:"),
-											validation.StringLenBetween(1, 255),
-										),
+										Type:        schema.TypeString,
+										Required:    true,
 										Description: "The variable value.",
 									},
 									"id": {
