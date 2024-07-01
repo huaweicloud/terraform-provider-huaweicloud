@@ -118,5 +118,5 @@ output "retry_max_times_filter_is_useful" {
   )
 }
 
-`, testAccDmsRocketmqConsumerGroup_Base(name), name)
+`, testAccDmsRocketmqConsumerGroup_version4(name), name)
 }

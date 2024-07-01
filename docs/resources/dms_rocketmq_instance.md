@@ -44,10 +44,13 @@ The following arguments are supported:
   An instance name starts with a letter, consists of 4 to 64 characters, and can contain only letters,
   digits, underscores (_), and hyphens (-).
 
-* `engine_version` - (Required, String, ForceNew) Specifies the version of the RocketMQ engine. Value: 4.8.0.
+* `engine_version` - (Required, String, ForceNew) Specifies the version of the RocketMQ engine.
+  Valid values are **4.8.0** and **5.x**.
   Changing this parameter will create a new resource.
 
-* `storage_space` - (Required, Int) Specifies the message storage capacity, Unit: GB. Value range: 300-3000.
+* `storage_space` - (Required, Int) Specifies the message storage capacity, Unit: GB.
+  When `engine_version` is **4.8.0**, value ranges from **300** to **30000**.
+  When `engine_version` is **5.x**, value ranges from **200** to **60000**.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of a VPC.
   Changing this parameter will create a new resource.
@@ -62,15 +65,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `flavor_id` - (Required, String) Specifies a product ID. The options are as follows:
-  + **c6.4u8g.cluster**: maximum number of topics on each broker: 4000; maximum number of consumer groups
-    on each broker: 4000
-  + **c6.8u16g.cluster**: maximum number of topics on each broker: 8000; maximum number of consumer groups
-    on each broker: 8000
-  + **c6.12u24g.cluster**: maximum number of topics on each broker: 12,000; maximum number of consumer groups
-    on each broker: 12,000
-  + **c6.16u32g.cluster**: maximum number of topics on each broker: 16,000; maximum number of consumer groups
-    on each broker: 16,000
+* `flavor_id` - (Required, String) Specifies the flavor ID.
 
 * `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification.
   The options are as follows:
@@ -93,7 +88,8 @@ The following arguments are supported:
   multiple EIP IDs. This parameter is mandatory if public access is enabled (that is, enable_publicip is set to true).
   This parameter can not be updated if public access is disabled.
 
-* `broker_num` - (Optional, Int) Specifies the broker numbers. Defaults to **1**.
+* `broker_num` - (Optional, Int) Specifies the broker numbers.
+  It's only valid when `engine_version` is **4.8.0**, and defaults to **1**.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the instance.
 
