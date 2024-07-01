@@ -68,7 +68,6 @@ func ResourceApigInstanceV2() *schema.Resource {
 			"edition": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The edition of the dedicated instance.`,
 			},
 			"vpc_id": {
@@ -518,6 +517,40 @@ func updateInstanceBasicConfiguration(ctx context.Context, client *golangsdk.Ser
 	return nil
 }
 
+func updateInstanceEdition(ctx context.Context, client *golangsdk.ServiceClient, instanceId, newSpec string,
+	timeout time.Duration) error {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/postpaid-resize"
+	resizePath := client.Endpoint + httpUrl
+	resizePath = strings.ReplaceAll(resizePath, "{project_id}", client.ProjectID)
+	resizePath = strings.ReplaceAll(resizePath, "{instance_id}", instanceId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"spec_id": newSpec,
+		},
+	}
+	_, err := client.Request("POST", resizePath, &opt)
+	if err != nil {
+		return fmt.Errorf("error updating the specification of the dedicated instance (%s): %s", instanceId, err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      instanceStateRefreshFunc(client, instanceId, []string{"Running"}),
+		Timeout:      timeout,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for the status of dedicated instance (%s) to become running: %s", instanceId, err)
+	}
+
+	return nil
+}
+
 func updateInstanceEgressAccess(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	var (
 		err            error
@@ -753,6 +786,14 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.HasChanges("instance_name", "description", "security_group_id", "vpcep_service_name", "maintain_begin", "maintain_end") {
 		if err = updateInstanceBasicConfiguration(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Update specification
+	if d.HasChange("edition") {
+		if err = updateInstanceEdition(ctx, client, instanceId, d.Get("edition").(string),
+			d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
