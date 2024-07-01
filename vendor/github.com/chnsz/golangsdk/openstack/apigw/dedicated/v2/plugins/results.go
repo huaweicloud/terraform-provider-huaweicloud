@@ -30,9 +30,9 @@ type Plugin struct {
 	// The valid length is limited from `3` to `255` characters.
 	Description string `json:"remark"`
 	// The creation time.
-	CreatedAt string `json:"created_at"`
+	CreatedAt string `json:"create_time"`
 	// The latest update time.
-	UpdatedAt string `json:"updated_at"`
+	UpdatedAt string `json:"update_time"`
 }
 
 // BindResp is the structure that represents the API response of the plugin binding.
