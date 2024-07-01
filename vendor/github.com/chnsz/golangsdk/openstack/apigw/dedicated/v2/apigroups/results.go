@@ -75,6 +75,14 @@ type UrlDomian struct {
 	//     TLSv1.1
 	//     TLSv1.2
 	MinSSLVersion string `json:"min_ssl_version"`
+	// Whether to enable client certificate verification.
+	VerifiedClientCertificateEnabled bool `json:"verified_client_certificate_enabled"`
+	// Whether a trusted root certificate (CA) exists.
+	IsHasTrustedRootCA bool `json:"is_has_trusted_root_ca"`
+	// Inbound HTTP port bound to the domain name.
+	IngressHttpPort int `json:"ingress_http_port"`
+	// Inbound HTTPS port bound to the domain name.
+	IngressHttpsPort int `json:"ingress_https_port"`
 	// Whether to enable redirection from HTTP to HTTPS.
 	IsHttpRedirectToHttps bool `json:"is_http_redirect_to_https"`
 }
