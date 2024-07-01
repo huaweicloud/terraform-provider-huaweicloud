@@ -75,7 +75,8 @@ func ResourceASConfiguration() *schema.Resource {
 						},
 						"key_name": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 						"security_group_ids": {
