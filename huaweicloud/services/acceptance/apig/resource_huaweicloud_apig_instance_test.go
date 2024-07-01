@@ -76,7 +76,7 @@ func TestAccInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
-					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
+					resource.TestCheckResourceAttr(resourceName, "edition", "PROFESSIONAL"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "22:00:00"),
@@ -168,7 +168,7 @@ resource "huaweicloud_apig_instance" "test" {
   availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
   vpcep_service_name = "new_custom_apig"
 
-  edition               = "BASIC"
+  edition               = "PROFESSIONAL"
   name                  = "%[2]s"
   enterprise_project_id = "%[3]s"
   maintain_begin        = "18:00:00"
@@ -203,7 +203,7 @@ resource "huaweicloud_apig_instance" "test" {
   availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
   vpcep_service_name = "new_custom_apig"
 
-  edition               = "BASIC"
+  edition               = "PROFESSIONAL"
   name                  = "%[2]s"
   enterprise_project_id = "%[3]s"
   maintain_begin        = "18:00:00"
@@ -238,7 +238,7 @@ resource "huaweicloud_apig_instance" "test" {
   availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
   vpcep_service_name = "new_custom_apig"
 
-  edition               = "BASIC"
+  edition               = "PROFESSIONAL"
   name                  = "%[2]s"
   enterprise_project_id = "%[3]s"
   maintain_begin        = "18:00:00"

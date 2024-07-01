@@ -54,7 +54,7 @@ The following arguments are supported:
   The name can contain `3` to `64` characters, only letters, digits, hyphens (-) and underscores (_) are allowed, and
   must start with a letter.
 
-* `edition` - (Required, String, ForceNew) Specifies the edition of the dedicated instance.  
+* `edition` - (Required, String) Specifies the edition of the dedicated instance.  
   The valid values are as follows:
   + **BASIC**: Basic Edition instance.
   + **PROFESSIONAL**: Professional Edition instance.
@@ -64,8 +64,6 @@ The following arguments are supported:
   + **PROFESSIONAL_IPV6**: IPv6 instance of the Professional Edition.
   + **ENTERPRISE_IPV6**: IPv6 instance of the Enterprise Edition.
   + **PLATINUM_IPV6**: IPv6 instance of the Platinum Edition.
-  
-  Changing this will create a new resource.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC used to create the dedicated instance.  
   Changing this will create a new resource.
