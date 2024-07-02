@@ -47,6 +47,7 @@ func TestAccAppAuth_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -105,44 +106,53 @@ resource "huaweicloud_compute_instance" "test" {
   system_disk_type   = "SSD"
 
   network {
-    uuid = huaweicloud_vpc_subnet.test.id
+    uuid = "%[3]s"
   }
 }
 
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[4]s"
+}
 
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_group" "test" {
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
-resource "huaweicloud_apig_vpc_channel" "test" {
-  name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
-  port        = 80
-  algorithm   = "WRR"
-  protocol    = "HTTP"
-  path        = "/"
-  http_code   = "201"
+resource "huaweicloud_apig_channel" "test" {
+  instance_id      = local.instance_id
+  name             = "%[2]s"
+  port             = 8000
+  balance_strategy = 2
+  member_type      = "ecs"
+  type             = 2
 
-  members {
-    id = huaweicloud_compute_instance.test.id
+  health_check {
+    protocol           = "HTTPS"
+    threshold_normal   = 10  # maximum value
+    threshold_abnormal = 10  # maximum value
+    interval           = 300 # maximum value
+    timeout            = 30  # maximum value
+    path               = "/"
+    method             = "HEAD"
+    port               = 8080
+    http_codes         = "201,202,303-404"
+  }
+
+  member {
+    id   = huaweicloud_compute_instance.test.id
+    name = huaweicloud_compute_instance.test.name
   }
 }
 
 resource "huaweicloud_apig_api" "test" {
   count = 3
 
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s_${count.index}"
   type                    = "Public"
@@ -154,7 +164,7 @@ resource "huaweicloud_apig_api" "test" {
 
   web {
     path             = "/getUserAge/${count.index}"
-    vpc_channel_id   = huaweicloud_apig_vpc_channel.test.id
+    vpc_channel_id   = huaweicloud_apig_channel.test.id
     request_method   = "GET"
     request_protocol = "HTTP"
     timeout          = 30000
@@ -162,23 +172,25 @@ resource "huaweicloud_apig_api" "test" {
 }
 
 resource "huaweicloud_apig_environment" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s"
 }
 
 resource "huaweicloud_apig_api_publishment" "test" {
   count = 3
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test[count.index].id
   env_id      = huaweicloud_apig_environment.test.id
 }
 
 resource "huaweicloud_apig_application" "test" {
-  instance_id = huaweicloud_apig_instance.test.id// huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id// local.instance_id
   name        = "%[2]s"
 }
-`, common.TestBaseComputeResources(name), name)
+`, common.TestBaseComputeResources(name), name,
+		acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID,
+		acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
 func testAccAppAuth_basic_step1(baseConfig string) string {
@@ -188,7 +200,7 @@ func testAccAppAuth_basic_step1(baseConfig string) string {
 resource "huaweicloud_apig_application_authorization" "test" {
   depends_on = [huaweicloud_apig_api_publishment.test]
 
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test.id
   env_id         = huaweicloud_apig_environment.test.id
   api_ids        = slice(huaweicloud_apig_api.test[*].id, 0, 2)
@@ -203,7 +215,7 @@ func testAccAppAuth_basic_step2(baseConfig string) string {
 resource "huaweicloud_apig_application_authorization" "test" {
   depends_on = [huaweicloud_apig_api_publishment.test]
 
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test.id
   env_id         = huaweicloud_apig_environment.test.id
   api_ids        = slice(huaweicloud_apig_api.test[*].id, 1, 3)

@@ -31,7 +31,7 @@ func TestAccDataSourceThrottlingPolicies_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckUserId(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -81,7 +81,7 @@ data "huaweicloud_apig_throttling_policies" "test" {
   depends_on = [
     huaweicloud_apig_throttling_policy_associate.test,
   ]
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 # Filter by ID
@@ -93,7 +93,7 @@ data "huaweicloud_apig_throttling_policies" "filter_by_id" {
   depends_on = [
     huaweicloud_apig_throttling_policy_associate.test,
   ]
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   policy_id   = local.policy_id
 }
 
@@ -116,7 +116,7 @@ data "huaweicloud_apig_throttling_policies" "filter_by_name" {
   depends_on = [
     huaweicloud_apig_throttling_policy_associate.test,
   ]
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = local.policy_name
 }
 
@@ -139,7 +139,7 @@ data "huaweicloud_apig_throttling_policies" "filter_by_not_found_name" {
   depends_on = [
     huaweicloud_apig_throttling_policy_associate.test,
   ]
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = local.not_found_name
 }
 
@@ -162,7 +162,7 @@ data "huaweicloud_apig_throttling_policies" "filter_by_type" {
   depends_on = [
     huaweicloud_apig_throttling_policy_associate.test,
   ]
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   type        = local.policy_type
 }
 

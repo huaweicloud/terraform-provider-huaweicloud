@@ -13,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getAclPolicyFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -59,6 +58,7 @@ func TestAccAclPolicy_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc1.CheckResourceDestroy(),
@@ -139,25 +139,16 @@ func testAccAclPolicyImportStateFunc(rName string) resource.ImportStateIdFunc {
 	}
 }
 
-func testAccApigAclPolicy_base(name string) string {
+func testAccApigAclPolicy_base() string {
 	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
 }
-`, common.TestBaseNetwork(name), name)
+
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
+}
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
 func testAccApigAclPolicy_basic_step1(name, domainNames, domainIds string) string {
@@ -165,7 +156,7 @@ func testAccApigAclPolicy_basic_step1(name, domainNames, domainIds string) strin
 %[1]s
 
 resource "huaweicloud_apig_acl_policy" "ip_rule" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s_rule_ip"
   type        = "PERMIT"
   entity_type = "IP"
@@ -173,7 +164,7 @@ resource "huaweicloud_apig_acl_policy" "ip_rule" {
 }
 
 resource "huaweicloud_apig_acl_policy" "domain_rule" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s_rule_domain"
   type        = "PERMIT"
   entity_type = "DOMAIN"
@@ -181,13 +172,13 @@ resource "huaweicloud_apig_acl_policy" "domain_rule" {
 }
 
 resource "huaweicloud_apig_acl_policy" "domain_id_rule" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s_rule_domain_id"
   type        = "PERMIT"
   entity_type = "DOMAIN_ID"
   value       = "%[4]s"
 }
-`, testAccApigAclPolicy_base(name), name, domainNames, domainIds)
+`, testAccApigAclPolicy_base(), name, domainNames, domainIds)
 }
 
 func testAccApigAclPolicy_basic_step2(name, domainNames, domainIds string) string {
@@ -195,7 +186,7 @@ func testAccApigAclPolicy_basic_step2(name, domainNames, domainIds string) strin
 %[1]s
 
 resource "huaweicloud_apig_acl_policy" "ip_rule" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s_rule_ip_update"
   type        = "DENY"
   entity_type = "IP"
@@ -203,7 +194,7 @@ resource "huaweicloud_apig_acl_policy" "ip_rule" {
 }
 
 resource "huaweicloud_apig_acl_policy" "domain_rule" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s_rule_domain_update"
   type        = "DENY"
   entity_type = "DOMAIN"
@@ -211,11 +202,11 @@ resource "huaweicloud_apig_acl_policy" "domain_rule" {
 }
 
 resource "huaweicloud_apig_acl_policy" "domain_id_rule" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s_rule_domain_id_update"
   type        = "DENY"
   entity_type = "DOMAIN_ID"
   value       = "%[4]s"
 }
-`, testAccApigAclPolicy_base(name), name, domainNames, domainIds)
+`, testAccApigAclPolicy_base(), name, domainNames, domainIds)
 }

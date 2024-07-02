@@ -42,6 +42,8 @@ func TestAccChannel_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -117,16 +119,14 @@ func testAccChannel_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-  availability_zones    = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[2]s"
 }
-`, common.TestBaseComputeResources(name), name)
+
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
+}
+`, common.TestBaseComputeResources(name), acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
 func testAccChannel_basic_step1(baseConfig, name string) string {
@@ -144,12 +144,12 @@ resource "huaweicloud_compute_instance" "test" {
   system_disk_type   = "SSD"
 
   network {
-    uuid = huaweicloud_vpc_subnet.test.id
+    uuid = "%[3]s"
   }
 }
 
 resource "huaweicloud_apig_channel" "test" {
-  instance_id        = huaweicloud_apig_instance.test.id
+  instance_id        = local.instance_id
   name               = "%[2]s"
   port               = 80
   balance_strategy   = 1
@@ -173,7 +173,7 @@ resource "huaweicloud_apig_channel" "test" {
     }
   }
 }
-`, baseConfig, name)
+`, baseConfig, name, acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID)
 }
 
 func testAccChannel_basic_step2(baseConfig, name string) string {
@@ -191,12 +191,12 @@ resource "huaweicloud_compute_instance" "test" {
   system_disk_type   = "SSD"
 
   network {
-    uuid = huaweicloud_vpc_subnet.test.id
+    uuid = "%[3]s"
   }
 }
 
 resource "huaweicloud_apig_channel" "test" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   port             = 8000
   balance_strategy = 2
@@ -224,7 +224,7 @@ resource "huaweicloud_apig_channel" "test" {
     }
   }
 }
-`, baseConfig, name)
+`, baseConfig, name, acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID)
 }
 
 func TestAccChannel_eipMembers(t *testing.T) {
@@ -246,6 +246,7 @@ func TestAccChannel_eipMembers(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -291,21 +292,14 @@ func TestAccChannel_eipMembers(t *testing.T) {
 
 func testAccChannel_eipBase(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
 }
-`, common.TestBaseNetwork(name), name)
+
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
+}
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
 func testAccChannel_eipMembers_step1(baseConfig, rName string) string {
@@ -328,7 +322,7 @@ resource "huaweicloud_vpc_eip" "test" {
 }
 
 resource "huaweicloud_apig_channel" "test" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   port             = 80
   balance_strategy = 2
@@ -378,7 +372,7 @@ resource "huaweicloud_vpc_eip" "test" {
 }
 
 resource "huaweicloud_apig_channel" "test" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   port             = 80
   balance_strategy = 2

@@ -14,17 +14,18 @@ func TestAccDataEnvironments_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_apig_environments.test"
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-		rName          = acceptance.RandomAccResourceName()
+		name           = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataEnvironments_basic(rName),
+				Config: testAccDataSourceEnvironments_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dataSourceName, "environments.#", regexp.MustCompile(`[1-9]\d*`)),
@@ -34,19 +35,19 @@ func TestAccDataEnvironments_basic(t *testing.T) {
 	})
 }
 
-func testAccDataEnvironments_basic(rName string) string {
+func testAccDataSourceEnvironments_basic(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_apig_environment" "test" {
-  name        = "%s"
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
+  name        = "%[2]s"
   description = "Created by script"
 }
 
 data "huaweicloud_apig_environments" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  depends_on = [huaweicloud_apig_environment.test]
+
+  instance_id = "%[1]s"
   name        = huaweicloud_apig_environment.test.name
 }
-`, testAccEnvironment_base(rName), rName)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }

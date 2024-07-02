@@ -20,7 +20,10 @@ func TestAccDataSourceAppcodes_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -40,33 +43,28 @@ func testAccDataSourceAppcodes_basic_base() string {
 	name := acceptance.RandomAccResourceName()
 
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
 %[1]s
 
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[2]s"
+}
 
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_application" "test" {
   count = 2
 
-  instance_id = huaweicloud_apig_instance.test.id
-  name        = format("%[2]s_%%d", count.index)
+  instance_id = local.instance_id
+  name        = format("%[3]s_%%d", count.index)
 }
 
 resource "huaweicloud_apig_appcode" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test[0].id
 }
-`, common.TestBaseNetwork(name), name)
+`, common.TestBaseNetwork(name), acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func testAccDataSourceAppcodes_basic() string {
@@ -78,12 +76,12 @@ data "huaweicloud_apig_appcodes" "test" {
     huaweicloud_apig_appcode.test
   ]
 
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test[0].id
 }
 
 data "huaweicloud_apig_appcodes" "not_found" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test[1].id
 }
 `, testAccDataSourceAppcodes_basic_base())

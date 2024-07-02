@@ -13,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getThrottlingPolicyFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -42,6 +41,7 @@ func TestAccThrottlingPolicy_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -157,23 +157,14 @@ func testAccThrottlingPolicyImportStateFunc(rsName string) resource.ImportStateI
 
 func testAccApigThrottlingPolicy_base(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
 data "huaweicloud_identity_users" "test" {}
 
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
+}
 
-  availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 # If you want to test a resource (huaweicloud_apig_throttling_policy) that does not contain app-specific throttling
@@ -185,10 +176,10 @@ resource "huaweicloud_apig_instance" "test" {
 resource "huaweicloud_apig_application" "test" {
   count = 3
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s_${count.index}"
 }
-`, common.TestBaseNetwork(name), name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func testAccApigThrottlingPolicy_basic_step1(baseConfig, name string) string {
@@ -196,7 +187,7 @@ func testAccApigThrottlingPolicy_basic_step1(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_throttling_policy" "invalid_type" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   type             = "NON-Exist-Type"
   period           = 15000
@@ -213,7 +204,7 @@ func testAccApigThrottlingPolicy_basic_step2(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_throttling_policy" "invalid_app_id" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   type             = "API-based"
   period           = 15000
@@ -233,7 +224,7 @@ func testAccApigThrottlingPolicy_basic_step3(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_throttling_policy" "invalid_user_id" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   type             = "API-based"
   period           = 15000
@@ -253,7 +244,7 @@ func testAccApigThrottlingPolicy_basic_step4(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_throttling_policy" "pre_test" {
-  instance_id       = huaweicloud_apig_instance.test.id
+  instance_id       = local.instance_id
   name              = "%[2]s"
   type              = "API-based"
   period            = 15000
@@ -272,7 +263,7 @@ func testAccApigThrottlingPolicy_basic_step5(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_throttling_policy" "pre_test" {
-  instance_id       = huaweicloud_apig_instance.test.id
+  instance_id       = local.instance_id
   name              = "%[2]s"
   type              = "NON-Exist-Type"
   period            = 15000
@@ -293,7 +284,7 @@ func testAccApigThrottlingPolicy_basic_step6(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_throttling_policy" "pre_test" {
-  instance_id       = huaweicloud_apig_instance.test.id
+  instance_id       = local.instance_id
   name              = "%[2]s"
   type              = "API-based"
   period            = 15000
@@ -317,7 +308,7 @@ func testAccApigThrottlingPolicy_basic_step7(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_throttling_policy" "pre_test" {
-  instance_id       = huaweicloud_apig_instance.test.id
+  instance_id       = local.instance_id
   name              = "%[2]s"
   type              = "API-based"
   period            = 15000
@@ -341,7 +332,7 @@ func testAccApigThrottlingPolicy_basic_step8(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_throttling_policy" "test" {
-  instance_id       = huaweicloud_apig_instance.test.id
+  instance_id       = local.instance_id
   name              = "%[2]s"
   type              = "API-based"
   period            = 15000
@@ -378,7 +369,7 @@ func testAccApigThrottlingPolicy_basic_step9(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_throttling_policy" "test" {
-  instance_id       = huaweicloud_apig_instance.test.id
+  instance_id       = local.instance_id
   name              = "%[2]s"
   type              = "API-shared"
   period            = 10

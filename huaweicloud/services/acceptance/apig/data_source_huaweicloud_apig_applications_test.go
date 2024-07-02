@@ -32,6 +32,7 @@ func TestAccDataSourceApplications_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -59,13 +60,17 @@ func TestAccDataSourceApplications_basic(t *testing.T) {
 }
 
 func testAccDataSourceApplications_basic(name string) string {
-	baseConfig := testAccApigApplication_base(name)
-
 	return fmt.Sprintf(`
-%[1]s
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
+}
+
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
+}
 
 resource "huaweicloud_apig_application" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s"
 }
 
@@ -74,7 +79,7 @@ data "huaweicloud_apig_applications" "test" {
     huaweicloud_apig_application.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 # Filter by ID
@@ -83,7 +88,7 @@ locals {
 }
 
 data "huaweicloud_apig_applications" "filter_by_id" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = local.application_id
 }
 
@@ -103,7 +108,7 @@ locals {
 }
 
 data "huaweicloud_apig_applications" "filter_by_name" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = local.name
 }
 
@@ -123,7 +128,7 @@ locals {
 }
 
 data "huaweicloud_apig_applications" "filter_by_app_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   app_key     = local.app_key
 }
 
@@ -143,7 +148,7 @@ locals {
 }
 
 data "huaweicloud_apig_applications" "filter_by_created_by" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   created_by  = local.created_by
 }
 
@@ -156,5 +161,5 @@ locals {
 output "created_by_filter_is_useful" {
   value = length(local.created_by_filter_result) > 0 && alltrue(local.created_by_filter_result)
 }
-`, baseConfig, name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }

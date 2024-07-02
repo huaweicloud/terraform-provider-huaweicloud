@@ -61,6 +61,8 @@ func TestAccDataSourceApiBasicConfigurations_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -126,7 +128,7 @@ func testAccDataSourceApiBasicConfigurations_base() string {
 %[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "frontEnd" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s_front"
   function_urn     = huaweicloud_fgs_function.test[1].urn
   function_version = "latest"
@@ -134,7 +136,7 @@ resource "huaweicloud_apig_custom_authorizer" "frontEnd" {
 }
 
 resource "huaweicloud_apig_api" "test" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s"
   type                    = "Public"
@@ -168,12 +170,12 @@ resource "huaweicloud_apig_api" "test" {
 }
 
 resource "huaweicloud_apig_environment" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s"
 }
 
 resource "huaweicloud_apig_api_publishment" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   env_id      = huaweicloud_apig_environment.test.id
   api_id      = huaweicloud_apig_api.test.id
 }
@@ -190,12 +192,12 @@ data "huaweicloud_apig_api_basic_configurations" "test" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 # Filter by ID
 locals {
-  api_id = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].id
+  api_id = huaweicloud_apig_api.test.id
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_id" {
@@ -203,7 +205,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_id" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = local.api_id
 }
 
@@ -219,7 +221,7 @@ output "is_id_filter_useful" {
 
 # Filter by name (fuzzy search)
 locals {
-  api_name = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].name
+  api_name = huaweicloud_apig_api.test.name
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_name" {
@@ -227,7 +229,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_name" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = local.api_name
 }
 
@@ -242,17 +244,13 @@ output "is_name_filter_useful" {
 }
 
 # Filter by name (exact search)
-locals {
-  api_name_exact = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].name
-}
-
 data "huaweicloud_apig_api_basic_configurations" "filter_by_exact_name" {
   depends_on = [
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id    = huaweicloud_apig_instance.test.id
-  name           = local.api_name_exact
+  instance_id    = local.instance_id
+  name           = local.api_name
   precise_search = "name,req_uri"
 }
 
@@ -270,7 +268,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_not_found_name" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   name           = local.not_found_name
   precise_search = "name"
 }
@@ -289,7 +287,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_group_id" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   group_id    = local.group_id
 }
 
@@ -313,7 +311,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_type" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   type        = local.api_type
 }
 
@@ -337,7 +335,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_request_method" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   request_method = local.request_method
 }
 
@@ -361,7 +359,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_request_path" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   request_path   = local.request_path
   precise_search = "req_url"
 }
@@ -386,7 +384,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_request_protocol" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   request_protocol = local.request_protocol
 }
 
@@ -411,7 +409,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_security_authenticat
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   security_authentication = local.security_authentication
 }
 
@@ -432,7 +430,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_vpc_channel_name" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   vpc_channel_name = huaweicloud_apig_channel.test.name
 }
 
@@ -450,7 +448,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_env_id" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   env_id      = local.env_id
 }
 
@@ -474,7 +472,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_env_name" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   env_name    = local.env_name
 }
 
@@ -498,7 +496,7 @@ data "huaweicloud_apig_api_basic_configurations" "filter_by_backend_type" {
     huaweicloud_apig_api_publishment.test
   ]
 
-  instance_id  = huaweicloud_apig_instance.test.id
+  instance_id  = local.instance_id
   backend_type = local.backend_type
 }
 

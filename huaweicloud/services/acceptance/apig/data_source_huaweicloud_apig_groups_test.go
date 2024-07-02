@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccGroupsDataSource_basic(t *testing.T) {
+func TestAccDataSourceGroups_basic(t *testing.T) {
 	var (
 		all = "data.huaweicloud_apig_groups.test"
 		dc  = acceptance.InitDataSourceCheck(all)

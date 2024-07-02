@@ -43,6 +43,8 @@ func TestAccApiPublishment_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			// Before running acceptance test for each kind of APIs, please make sure the agency already assign the FGS service.
 			acceptance.TestAccPreCheckFgsAgency(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rcWithWebBackend.CheckResourceDestroy(),
@@ -52,7 +54,7 @@ func TestAccApiPublishment_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					// Publish the API with Web backend
 					rcWithWebBackend.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(webBackend, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(webBackend, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(webBackend, "env_id", "huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(webBackend, "env_name", "huaweicloud_apig_environment.test", "name"),
 					resource.TestCheckResourceAttrPair(webBackend, "api_id", "huaweicloud_apig_api.web", "id"),
@@ -61,7 +63,7 @@ func TestAccApiPublishment_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(webBackend, "publish_id"),
 					// Publish the API with FunctionGraph backend
 					rcWithFgsBackend.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(fgsBackend, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(fgsBackend, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(fgsBackend, "env_id", "huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(fgsBackend, "env_name", "huaweicloud_apig_environment.test", "name"),
 					resource.TestCheckResourceAttrPair(fgsBackend, "api_id", "huaweicloud_apig_api.func_graph", "id"),
@@ -70,7 +72,7 @@ func TestAccApiPublishment_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(fgsBackend, "publish_id"),
 					// Publish the API with Mock configuration
 					rcWithMock.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(mockBackend, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(mockBackend, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(mockBackend, "env_id", "huaweicloud_apig_environment.test", "id"),
 					resource.TestCheckResourceAttrPair(mockBackend, "env_name", "huaweicloud_apig_environment.test", "name"),
 					resource.TestCheckResourceAttrPair(mockBackend, "api_id", "huaweicloud_apig_api.mock", "id"),
@@ -103,7 +105,7 @@ func testAccApiPublishment_basic(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_api" "web" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s_web"
   type                    = "Public"
@@ -174,7 +176,7 @@ resource "huaweicloud_apig_api" "web" {
 }
 
 resource "huaweicloud_apig_api" "func_graph" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s_fgs"
   type                    = "Public"
@@ -217,7 +219,7 @@ resource "huaweicloud_apig_api" "func_graph" {
 }
 
 resource "huaweicloud_apig_api" "mock" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s_mock"
   type                    = "Public"
@@ -254,13 +256,13 @@ resource "huaweicloud_apig_api" "mock" {
 }
 
 resource "huaweicloud_apig_environment" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s"
 }
 
 # Publish the API (with Web backend) and query it
 resource "huaweicloud_apig_api_publishment" "web" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   env_id      = huaweicloud_apig_environment.test.id
   api_id      = huaweicloud_apig_api.web.id
 }
@@ -270,13 +272,13 @@ data "huaweicloud_apig_api" "web" {
     huaweicloud_apig_api_publishment.web
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.web.id
 }
 
 # Publish the API (with FunctionGraph backend) and query it
 resource "huaweicloud_apig_api_publishment" "func_graph" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   env_id      = huaweicloud_apig_environment.test.id
   api_id      = huaweicloud_apig_api.func_graph.id
 }
@@ -286,13 +288,13 @@ data "huaweicloud_apig_api" "func_graph" {
     huaweicloud_apig_api_publishment.func_graph
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.func_graph.id
 }
 
 # Publish the API (with Mock) and query it
 resource "huaweicloud_apig_api_publishment" "mock" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   env_id      = huaweicloud_apig_environment.test.id
   api_id      = huaweicloud_apig_api.mock.id
 }
@@ -302,7 +304,7 @@ data "huaweicloud_apig_api" "mock" {
     huaweicloud_apig_api_publishment.mock
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.mock.id
 }
 `, testAccApi_base(name), name)

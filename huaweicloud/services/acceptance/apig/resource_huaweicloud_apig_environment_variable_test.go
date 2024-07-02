@@ -11,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getEnvironmentVariableFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -38,6 +37,7 @@ func TestAccEnvironmentVariable_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -48,7 +48,7 @@ func TestAccEnvironmentVariable_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "value", "/stage/demo"),
-					resource.TestCheckResourceAttrPair(rName, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(rName, "group_id", "huaweicloud_apig_group.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "env_id", "huaweicloud_apig_environment.test", "id"),
 				),
@@ -92,34 +92,25 @@ func testAccEnvironmentVariableImportStateFunc() resource.ImportStateIdFunc {
 
 func testAccEnvironmentVariable_base(name string) string {
 	return fmt.Sprintf(`
-%[1]s
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
+}
 
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_environment" "test" {
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 resource "huaweicloud_apig_group" "test" {
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   description = "Created by script"
 }
-`, common.TestBaseNetwork(name), name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func testAccEnvironmentVariable_basic(name string) string {
@@ -127,7 +118,7 @@ func testAccEnvironmentVariable_basic(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_environment_variable" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   group_id    = huaweicloud_apig_group.test.id
   env_id      = huaweicloud_apig_environment.test.id
   name        = "%[2]s"
@@ -141,7 +132,7 @@ func testAccEnvironmentVariable_update(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_environment_variable" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   group_id    = huaweicloud_apig_group.test.id
   env_id      = huaweicloud_apig_environment.test.id
   name        = "%[2]s"

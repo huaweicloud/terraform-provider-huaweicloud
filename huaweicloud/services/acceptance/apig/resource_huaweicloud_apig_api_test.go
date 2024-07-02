@@ -43,6 +43,8 @@ func TestAccApi_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			// Before running acceptance test for each kind of APIs, please make sure the agency already assign the FGS service.
 			acceptance.TestAccPreCheckFgsAgency(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rcWithWebBackend.CheckResourceDestroy(),
@@ -52,7 +54,7 @@ func TestAccApi_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					// Web backend
 					rcWithWebBackend.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(webBackend, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(webBackend, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(webBackend, "group_id", "huaweicloud_apig_group.test", "id"),
 					resource.TestCheckResourceAttr(webBackend, "name", name+"_web"),
 					resource.TestCheckResourceAttr(webBackend, "type", "Public"),
@@ -116,7 +118,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "func_graph_policy.#", "0"),
 					// FunctionGraph backend
 					rcWithFgsBackend.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(webBackend, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(fgsBackend, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(fgsBackend, "group_id", "huaweicloud_apig_group.test", "id"),
 					resource.TestCheckResourceAttr(fgsBackend, "name", name+"_fgs"),
 					resource.TestCheckResourceAttr(fgsBackend, "type", "Public"),
@@ -159,7 +161,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(fgsBackend, "mock_policy.#", "0"),
 					// Mock configuration
 					rcWithMock.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(webBackend, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(mockBackend, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(mockBackend, "group_id", "huaweicloud_apig_group.test", "id"),
 					resource.TestCheckResourceAttr(mockBackend, "name", name+"_mock"),
 					resource.TestCheckResourceAttr(mockBackend, "type", "Public"),
@@ -197,7 +199,7 @@ func TestAccApi_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					// Web backend
 					rcWithWebBackend.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(webBackend, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(webBackend, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(webBackend, "group_id", "huaweicloud_apig_group.test", "id"),
 					resource.TestCheckResourceAttr(webBackend, "name", updateName+"_web"),
 					resource.TestCheckResourceAttr(webBackend, "type", "Private"),
@@ -263,7 +265,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "func_graph_policy.#", "0"),
 					// FunctionGraph backend
 					rcWithFgsBackend.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(webBackend, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(fgsBackend, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(fgsBackend, "group_id", "huaweicloud_apig_group.test", "id"),
 					resource.TestCheckResourceAttr(fgsBackend, "name", updateName+"_fgs"),
 					resource.TestCheckResourceAttr(fgsBackend, "type", "Private"),
@@ -306,7 +308,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(fgsBackend, "mock_policy.#", "0"),
 					// Mock configuration
 					rcWithMock.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(webBackend, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(mockBackend, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(mockBackend, "group_id", "huaweicloud_apig_group.test", "id"),
 					resource.TestCheckResourceAttr(mockBackend, "name", updateName+"_mock"),
 					resource.TestCheckResourceAttr(mockBackend, "type", "Private"),
@@ -382,23 +384,6 @@ func testAccApi_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-// When the backend uses the load balance channel, the number of retry count cannot exceed the number of available
-// backend servers in the load balance channel.
-resource "huaweicloud_compute_instance" "test" {
-  count = 3
-
-  name               = format("%[2]s_%%d", count.index)
-  image_id           = data.huaweicloud_images_image.test.id
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [huaweicloud_networking_secgroup.test.id]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  system_disk_type   = "SSD"
-
-  network {
-    uuid = huaweicloud_vpc_subnet.test.id
-  }
-}
-
 resource "huaweicloud_fgs_function" "test" {
   count = 2
 
@@ -422,23 +407,38 @@ resource "huaweicloud_fgs_function" "test" {
   }
 }
 
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-  availability_zones    = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[4]s"
+}
+
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_group" "test" {
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
+}
+
+// When the backend uses the load balance channel, the number of retry count cannot exceed the number of available
+// backend servers in the load balance channel.
+resource "huaweicloud_compute_instance" "test" {
+  count = 3
+
+  name               = format("%[2]s_%%d", count.index)
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  system_disk_type   = "SSD"
+
+  network {
+    uuid = "%[5]s"
+  }
 }
 
 resource "huaweicloud_apig_channel" "test" {
-  instance_id        = huaweicloud_apig_instance.test.id
+  instance_id        = local.instance_id
   name               = "%[2]s"
   port               = 80
   balance_strategy   = 1
@@ -464,7 +464,7 @@ resource "huaweicloud_apig_channel" "test" {
 }
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id        = huaweicloud_apig_instance.test.id
+  instance_id        = local.instance_id
   name               = "%[2]s"
   function_urn       = huaweicloud_fgs_function.test[0].urn
   function_alias_uri = format("%%s:!%%s", huaweicloud_fgs_function.test[0].urn, tolist(huaweicloud_fgs_function.test[0].versions)[0].aliases[0].name)
@@ -474,7 +474,9 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
   user_data          = "Demo"
   cache_age          = 15
 }
-`, common.TestBaseComputeResources(name), name, acceptance.HW_FGS_AGENCY_NAME)
+`, common.TestBaseComputeResources(name), name, acceptance.HW_FGS_AGENCY_NAME,
+		acceptance.HW_APIG_DEDICATED_INSTANCE_ID,
+		acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID)
 }
 
 func testAccApi_basic_step1(baseConfig, name string) string {
@@ -482,7 +484,7 @@ func testAccApi_basic_step1(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_api" "web" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s_web"
   type                    = "Public"
@@ -554,7 +556,7 @@ resource "huaweicloud_apig_api" "web" {
 }
 
 resource "huaweicloud_apig_api" "func_graph" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s_fgs"
   type                    = "Public"
@@ -597,7 +599,7 @@ resource "huaweicloud_apig_api" "func_graph" {
 }
 
 resource "huaweicloud_apig_api" "mock" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s_mock"
   type                    = "Public"
@@ -640,7 +642,7 @@ func testAccApi_basic_step2(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_api" "web" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s_web"
   type                    = "Private"
@@ -713,7 +715,7 @@ resource "huaweicloud_apig_api" "web" {
 }
 
 resource "huaweicloud_apig_api" "func_graph" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s_fgs"
   type                    = "Private"
@@ -757,7 +759,7 @@ resource "huaweicloud_apig_api" "func_graph" {
 }
 
 resource "huaweicloud_apig_api" "mock" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s_mock"
   type                    = "Private"

@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDataSourceApplicationQuotas_basic(t *testing.T) {
@@ -29,6 +28,7 @@ func TestAccDataSourceApplicationQuotas_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -61,30 +61,23 @@ func testAccDataSourceApplicationQuotas_basic_base() string {
 	name := acceptance.RandomAccResourceName()
 
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
+}
 
-%[1]s
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_application_quota" "test" {
-  instance_id   = huaweicloud_apig_instance.test.id
+  instance_id   = local.instance_id
   name          = "%[2]s"
   time_unit     = "MINUTE"
   call_limits   = 20
   time_interval = 2
   description   = "Created by terraform script"
 }
-`, common.TestBaseNetwork(name), name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func testAccDataSourceApplicationQuotas_basic() string {
@@ -96,7 +89,7 @@ data "huaweicloud_apig_application_quotas" "test" {
     huaweicloud_apig_application_quota.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 # Filter by ID
@@ -105,7 +98,7 @@ locals {
 }
 
 data "huaweicloud_apig_application_quotas" "filter_by_id" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   quota_id    = local.quota_id
 }
 
@@ -125,7 +118,7 @@ locals {
 }
 
 data "huaweicloud_apig_application_quotas" "filter_by_name" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = local.quota_name
 }
 
@@ -145,7 +138,7 @@ locals {
 }
 
 data "huaweicloud_apig_application_quotas" "filter_by_not_found_name" {
-  instance_id =huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = local.not_found_name
 }
 

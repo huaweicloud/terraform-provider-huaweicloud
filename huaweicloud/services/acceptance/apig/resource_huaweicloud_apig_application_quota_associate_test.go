@@ -45,7 +45,10 @@ func TestAccApplicationQuotaAssociate_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rcPart1.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -54,13 +57,13 @@ func TestAccApplicationQuotaAssociate_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rcPart1.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rNamePart1, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
+						"data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(rNamePart1, "quota_id",
 						"huaweicloud_apig_application_quota.test.0", "id"),
 					resource.TestCheckResourceAttr(rNamePart1, "applications.#", "2"),
 					rcPart2.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rNamePart2, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
+						"data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(rNamePart2, "quota_id",
 						"huaweicloud_apig_application_quota.test.1", "id"),
 					resource.TestCheckResourceAttr(rNamePart2, "applications.#", "1"),
@@ -117,34 +120,31 @@ data "huaweicloud_availability_zones" "test" {}
 
 %[1]s
 
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[2]s"
+}
 
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_application" "test" {
   count = 3
 
-  instance_id = huaweicloud_apig_instance.test.id
-  name        = format("%[2]s_%%d", count.index)
+  instance_id = local.instance_id
+  name        = format("%[3]s_%%d", count.index)
 }
 
 resource "huaweicloud_apig_application_quota" "test" {
   count = 2
 
-  instance_id   = huaweicloud_apig_instance.test.id
-  name          = format("%[2]s_%%d", count.index)
+  instance_id   = local.instance_id
+  name          = format("%[3]s_%%d", count.index)
   time_unit     = "MINUTE"
   call_limits   = 200
   time_interval = 3
 }
-`, common.TestBaseNetwork(name), name)
+`, common.TestBaseNetwork(name), acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func testAccApplicationQuotaAssociate_basic_step1(baseConfig string) string {
@@ -152,7 +152,7 @@ func testAccApplicationQuotaAssociate_basic_step1(baseConfig string) string {
 %[1]s
 
 resource "huaweicloud_apig_application_quota_associate" "part1" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   quota_id    = huaweicloud_apig_application_quota.test[0].id
 
   dynamic "applications" {
@@ -165,7 +165,7 @@ resource "huaweicloud_apig_application_quota_associate" "part1" {
 }
 
 resource "huaweicloud_apig_application_quota_associate" "part2" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   quota_id    = huaweicloud_apig_application_quota.test[1].id
 
   dynamic "applications" {
@@ -184,7 +184,7 @@ func testAccApplicationQuotaAssociate_basic_step2(baseConfig string) string {
 %[1]s
 
 resource "huaweicloud_apig_application_quota_associate" "part1" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   quota_id    = huaweicloud_apig_application_quota.test[0].id
 
   dynamic "applications" {
@@ -197,7 +197,7 @@ resource "huaweicloud_apig_application_quota_associate" "part1" {
 }
 
 resource "huaweicloud_apig_application_quota_associate" "part2" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   quota_id    = huaweicloud_apig_application_quota.test[1].id
 
   dynamic "applications" {

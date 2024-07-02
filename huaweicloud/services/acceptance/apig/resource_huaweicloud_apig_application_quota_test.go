@@ -13,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -56,7 +55,10 @@ func TestAccResourceAppQuota_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -64,7 +66,7 @@ func TestAccResourceAppQuota_basic(t *testing.T) {
 				Config: testAccAppQuota_basic(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "call_limits", "5"),
 					resource.TestCheckResourceAttr(resourceName, "time_unit", "SECOND"),
@@ -78,7 +80,7 @@ func TestAccResourceAppQuota_basic(t *testing.T) {
 				Config: testAccAppQuota_updateBasic(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttr(resourceName, "name", "update_"+name),
 					resource.TestCheckResourceAttr(resourceName, "call_limits", "6"),
 					resource.TestCheckResourceAttr(resourceName, "time_unit", "DAY"),
@@ -101,26 +103,19 @@ func TestAccResourceAppQuota_basic(t *testing.T) {
 func testAccAppQuota_basic_base() string {
 	name := acceptance.RandomAccResourceName()
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
+}
 
-%[1]s
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_application" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s"
 }
-`, common.TestBaseNetwork(name), name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func testAccAppQuota_basic(baseConfig, name string) string {
@@ -128,7 +123,7 @@ func testAccAppQuota_basic(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_application_quota" "test" {
-  instance_id   = huaweicloud_apig_instance.test.id
+  instance_id   = local.instance_id
   name          = "%[2]s"
   time_unit     = "SECOND"
   call_limits   = 5
@@ -143,7 +138,7 @@ func testAccAppQuota_updateBasic(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_application_quota" "test" {
-  instance_id   = huaweicloud_apig_instance.test.id
+  instance_id   = local.instance_id
   name          = "update_%[2]s"
   time_unit     = "DAY"
   call_limits   = 6

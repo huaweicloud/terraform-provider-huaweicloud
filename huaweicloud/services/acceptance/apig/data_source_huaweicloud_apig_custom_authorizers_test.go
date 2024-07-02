@@ -29,6 +29,7 @@ func TestAccDataSourceCustomAuthorizers_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -57,7 +58,7 @@ func testAccDataSourceCustomAuthorizers_base(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   function_urn     = huaweicloud_fgs_function.test.urn
   function_version = "latest"
@@ -82,7 +83,7 @@ data "huaweicloud_apig_custom_authorizers" "test" {
     huaweicloud_apig_custom_authorizer.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 # Filter by ID
@@ -91,7 +92,7 @@ locals {
 }
 
 data "huaweicloud_apig_custom_authorizers" "filter_by_id" {
-  instance_id  = huaweicloud_apig_instance.test.id
+  instance_id  = local.instance_id
   authorizer_id = local.authorizer_id
 }
 
@@ -111,7 +112,7 @@ locals {
 }
 
 data "huaweicloud_apig_custom_authorizers" "filter_by_name" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = local.name
 }
 
@@ -131,7 +132,7 @@ locals {
 }
 
 data "huaweicloud_apig_custom_authorizers" "filter_by_type" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   type        = local.type
 }
 

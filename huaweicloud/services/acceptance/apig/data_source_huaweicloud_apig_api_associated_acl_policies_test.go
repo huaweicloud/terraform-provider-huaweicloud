@@ -40,6 +40,8 @@ func TestAccDataSourceApiAssociatedAclPolicies_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -75,7 +77,7 @@ func testAccDataSourceApiAssociatedAclPolicies_base() string {
 %[1]s
 
 resource "huaweicloud_apig_acl_policy_associate" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   policy_id   = huaweicloud_apig_acl_policy.test.id
 
   publish_ids = [
@@ -94,7 +96,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "test" {
     huaweicloud_apig_acl_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 }
 
@@ -108,7 +110,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "filter_by_id" {
     huaweicloud_apig_acl_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   policy_id = local.policy_id
@@ -134,7 +136,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "filter_by_name" {
     huaweicloud_apig_acl_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   name = local.policy_name
@@ -160,7 +162,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "filter_by_not_found_name" {
     huaweicloud_apig_acl_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   name = local.not_found_name
@@ -186,7 +188,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "filter_by_type" {
     huaweicloud_apig_acl_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   type = local.policy_type
@@ -212,7 +214,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "filter_by_env_id" {
     huaweicloud_apig_acl_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   env_id = local.env_id
@@ -238,7 +240,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "filter_by_env_name" {
     huaweicloud_apig_acl_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   env_name = local.env_name
@@ -264,7 +266,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "filter_by_entity_type" {
     huaweicloud_apig_acl_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   entity_type = local.entity_type

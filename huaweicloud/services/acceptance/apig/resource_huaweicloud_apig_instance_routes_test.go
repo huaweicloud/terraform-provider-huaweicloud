@@ -55,6 +55,7 @@ func TestAccInstanceRoutes_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -85,20 +86,19 @@ func TestAccInstanceRoutes_basic(t *testing.T) {
 
 func testAccInstanceRoutes_base(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_apig_instance" "test" {
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  security_group_id  = huaweicloud_networking_secgroup.test.id
-  availability_zones = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
+%[1]s
 
-  edition               = "BASIC"
+// Only resource returns parameter 'vpcep_service_address'.
+resource "huaweicloud_apig_instance" "test" {
   name                  = "%[2]s"
+  edition               = "BASIC"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "0"
-  maintain_begin        = "14:00:00"
+  availability_zones    = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
 }
 `, common.TestBaseNetwork(name), name)
 }

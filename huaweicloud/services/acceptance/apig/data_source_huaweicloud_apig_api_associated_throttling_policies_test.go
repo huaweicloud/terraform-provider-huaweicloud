@@ -38,7 +38,8 @@ func TestAccDataSourceApiAssociatedThrottlingPolicies_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckUserId(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -78,17 +79,6 @@ func testAccDataSourceApiAssociatedThrottlingPolicies_base() string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
-}
-
 resource "huaweicloud_compute_instance" "test" {
   name               = "%[2]s"
   image_id           = data.huaweicloud_images_image.test.id
@@ -98,17 +88,27 @@ resource "huaweicloud_compute_instance" "test" {
   system_disk_type   = "SSD"
 
   network {
-    uuid = huaweicloud_vpc_subnet.test.id
+    uuid = "%[3]s"
   }
+}
+
+data "huaweicloud_identity_users" "test" {}
+
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[4]s"
+}
+
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_group" "test" {
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 resource "huaweicloud_apig_channel" "test" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   port             = 8000
   balance_strategy = 2
@@ -134,7 +134,7 @@ resource "huaweicloud_apig_channel" "test" {
 }
 
 resource "huaweicloud_apig_api" "test" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s"
   type                    = "Public"
@@ -197,23 +197,23 @@ resource "huaweicloud_apig_api" "test" {
 }
 
 resource "huaweicloud_apig_environment" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s"
 }
 
 resource "huaweicloud_apig_api_publishment" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
   env_id      = huaweicloud_apig_environment.test.id
 }
 
 resource "huaweicloud_apig_application" "test" {
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 resource "huaweicloud_apig_throttling_policy" "test" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   type             = "API-based"
   period           = 15000
@@ -226,18 +226,20 @@ resource "huaweicloud_apig_throttling_policy" "test" {
   }
   user_throttles {
     max_api_requests     = 30
-    throttling_object_id = "%[3]s"
+    throttling_object_id = data.huaweicloud_identity_users.test.users[0].id
   }
 }
 
 resource "huaweicloud_apig_throttling_policy_associate" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   policy_id   = huaweicloud_apig_throttling_policy.test.id
   publish_ids = [
     huaweicloud_apig_api_publishment.test.publish_id
   ]
 }
-`, common.TestBaseComputeResources(name), name, acceptance.HW_USER_ID)
+`, common.TestBaseComputeResources(name), name,
+		acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID,
+		acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
 func testAccDataSourceApiAssociatedThrottlingPolicies_basic() string {
@@ -249,7 +251,7 @@ data "huaweicloud_apig_api_associated_throttling_policies" "test" {
     huaweicloud_apig_throttling_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 }
 
@@ -263,7 +265,7 @@ data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_id" {
     huaweicloud_apig_throttling_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   policy_id = local.policy_id
@@ -289,7 +291,7 @@ data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_name" {
     huaweicloud_apig_throttling_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   name = local.policy_name
@@ -315,7 +317,7 @@ data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_not_found_
     huaweicloud_apig_throttling_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   name = local.not_found_name
@@ -341,7 +343,7 @@ data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_type" {
     huaweicloud_apig_throttling_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   type = local.policy_type
@@ -367,7 +369,7 @@ data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_env_name" 
     huaweicloud_apig_throttling_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   env_name = local.env_name
@@ -393,7 +395,7 @@ data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_period_uni
     huaweicloud_apig_throttling_policy_associate.test,
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
   period_unit = local.period_unit

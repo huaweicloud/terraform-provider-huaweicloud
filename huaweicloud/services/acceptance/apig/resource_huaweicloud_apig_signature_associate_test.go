@@ -52,6 +52,7 @@ func TestAccSignatureAssociate_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc1.CheckResourceDestroy(),
@@ -61,19 +62,19 @@ func TestAccSignatureAssociate_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc1.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName1, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
+						"data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(rName1, "signature_id",
 						"huaweicloud_apig_signature.basic", "id"),
 					resource.TestCheckResourceAttr(rName1, "publish_ids.#", "2"),
 					rc2.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName2, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
+						"data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(rName2, "signature_id",
 						"huaweicloud_apig_signature.hmac", "id"),
 					resource.TestCheckResourceAttr(rName2, "publish_ids.#", "2"),
 					rc3.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName3, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
+						"data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(rName3, "signature_id",
 						"huaweicloud_apig_signature.aes", "id"),
 					resource.TestCheckResourceAttr(rName3, "publish_ids.#", "2"),
@@ -130,17 +131,6 @@ func testAccSignatureAssociate_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
-}
-
 resource "huaweicloud_compute_instance" "test" {
   name               = "%[2]s"
   image_id           = data.huaweicloud_images_image.test.id
@@ -150,31 +140,51 @@ resource "huaweicloud_compute_instance" "test" {
   system_disk_type   = "SSD"
 
   network {
-    uuid = huaweicloud_vpc_subnet.test.id
+    uuid = "%[3]s"
   }
+}
+
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[4]s"
+}
+
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_group" "test" {
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
-resource "huaweicloud_apig_vpc_channel" "test" {
-  name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
-  port        = 80
-  algorithm   = "WRR"
-  protocol    = "HTTP"
-  path        = "/"
-  http_code   = "201"
+resource "huaweicloud_apig_channel" "test" {
+  instance_id      = local.instance_id
+  name             = "%[2]s"
+  port             = 8000
+  balance_strategy = 2
+  member_type      = "ecs"
+  type             = 2
 
-  members {
-    id = huaweicloud_compute_instance.test.id
+  health_check {
+    protocol           = "HTTPS"
+    threshold_normal   = 10  # maximum value
+    threshold_abnormal = 10  # maximum value
+    interval           = 300 # maximum value
+    timeout            = 30  # maximum value
+    path               = "/"
+    method             = "HEAD"
+    port               = 8080
+    http_codes         = "201,202,303-404"
+  }
+
+  member {
+    id   = huaweicloud_compute_instance.test.id
+    name = huaweicloud_compute_instance.test.name
   }
 }
 
 resource "huaweicloud_apig_api" "test" {
-  instance_id             = huaweicloud_apig_instance.test.id
+  instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
   name                    = "%[2]s"
   type                    = "Public"
@@ -205,7 +215,7 @@ resource "huaweicloud_apig_api" "test" {
 
   web {
     path             = "/getUserAge/{userAge}"
-    vpc_channel_id   = huaweicloud_apig_vpc_channel.test.id
+    vpc_channel_id   = huaweicloud_apig_channel.test.id
     request_method   = "GET"
     request_protocol = "HTTP"
     timeout          = 30000
@@ -218,7 +228,7 @@ resource "huaweicloud_apig_api" "test" {
     effective_mode   = "ANY"
     path             = "/getUserAge/{userAge}"
     timeout          = 30000
-    vpc_channel_id   = huaweicloud_apig_vpc_channel.test.id
+    vpc_channel_id   = huaweicloud_apig_channel.test.id
 
     backend_params {
       type     = "REQUEST"
@@ -240,36 +250,38 @@ resource "huaweicloud_apig_environment" "test" {
   count = 6
 
   name        = "%[2]s_${count.index}"
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 resource "huaweicloud_apig_api_publishment" "test" {
   count = 6
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
   env_id      = huaweicloud_apig_environment.test[count.index].id
 }
 
 resource "huaweicloud_apig_signature" "basic" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s_basic"
   type        = "basic"
 }
 
 resource "huaweicloud_apig_signature" "hmac" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s_hmac"
   type        = "hmac"
 }
 
 resource "huaweicloud_apig_signature" "aes" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s_aes"
   type        = "aes"
   algorithm   = "aes-128-cfb"
 }
-`, common.TestBaseComputeResources(name), name)
+`, common.TestBaseComputeResources(name), name,
+		acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID,
+		acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
 func testAccSignatureAssociate_basic_step1(name string) string {
@@ -277,19 +289,19 @@ func testAccSignatureAssociate_basic_step1(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_signature_associate" "basic_bind" {
-  instance_id  = huaweicloud_apig_instance.test.id
+  instance_id  = local.instance_id
   signature_id = huaweicloud_apig_signature.basic.id
   publish_ids  = slice(huaweicloud_apig_api_publishment.test[*].publish_id, 0, 2)
 }
 
 resource "huaweicloud_apig_signature_associate" "hmac_bind" {
-  instance_id  = huaweicloud_apig_instance.test.id
+  instance_id  = local.instance_id
   signature_id = huaweicloud_apig_signature.hmac.id
   publish_ids  = slice(huaweicloud_apig_api_publishment.test[*].publish_id, 2, 4)
 }
 
 resource "huaweicloud_apig_signature_associate" "aes_bind" {
-  instance_id  = huaweicloud_apig_instance.test.id
+  instance_id  = local.instance_id
   signature_id = huaweicloud_apig_signature.aes.id
   publish_ids  = slice(huaweicloud_apig_api_publishment.test[*].publish_id, 4, 6)
 }
@@ -301,19 +313,19 @@ func testAccSignatureAssociate_basic_step2(name string) string {
 %[1]s
 
 resource "huaweicloud_apig_signature_associate" "basic_bind" {
-  instance_id  = huaweicloud_apig_instance.test.id
+  instance_id  = local.instance_id
   signature_id = huaweicloud_apig_signature.basic.id
   publish_ids  = slice(huaweicloud_apig_api_publishment.test[*].publish_id, 1, 3)
 }
 
 resource "huaweicloud_apig_signature_associate" "hmac_bind" {
-  instance_id  = huaweicloud_apig_instance.test.id
+  instance_id  = local.instance_id
   signature_id = huaweicloud_apig_signature.hmac.id
   publish_ids  = slice(huaweicloud_apig_api_publishment.test[*].publish_id, 3, 5)
 }
 
 resource "huaweicloud_apig_signature_associate" "aes_bind" {
-  instance_id  = huaweicloud_apig_instance.test.id
+  instance_id  = local.instance_id
   signature_id = huaweicloud_apig_signature.aes.id
   publish_ids  = setunion(slice(huaweicloud_apig_api_publishment.test[*].publish_id, 0, 1),
     slice(huaweicloud_apig_api_publishment.test[*].publish_id, 5, 6))
