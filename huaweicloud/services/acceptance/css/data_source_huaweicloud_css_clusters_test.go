@@ -107,9 +107,56 @@ output "engine_version_filter_is_useful" {
 }
 
 func testDataSourceCssClusters_data_basic(name string) string {
-	clusterString := testAccCssCluster_basic(name, "Test@passw0rd", 7, "bar")
 	return fmt.Sprintf(`
 %[1]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[2]s"
+  engine_version = "7.10.2"
+  security_mode  = true
+  https_enabled  = true
+  password       = "Test@passw0rd"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  backup_strategy {
+    keep_days   = 7
+    start_time  = "00:00 GMT+08:00"
+    prefix      = "snapshot"
+    bucket      = huaweicloud_obs_bucket.cssObs.bucket
+    agency      = "css_obs_agency"
+    backup_path = "css_repository/acctest"
+  }
+
+  public_access {
+    bandwidth         = 5
+    whitelist_enabled = true
+    whitelist         = "116.204.111.47"
+  }
+
+  kibana_public_access {
+    bandwidth         = 5
+    whitelist_enabled = true
+    whitelist         = "116.204.111.47"
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
 
 resource "huaweicloud_css_logstash_cluster" "test" {
   name           = "%[2]s_1"
@@ -129,5 +176,5 @@ resource "huaweicloud_css_logstash_cluster" "test" {
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
 }
-`, clusterString, name)
+`, testAccCssBase(name), name)
 }
