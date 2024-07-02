@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceBackup_basic(t *testing.T) {
+func TestAccDatasourceBackups_basic(t *testing.T) {
 	rName := "data.huaweicloud_rds_backups.test"
 	dc := acceptance.InitDataSourceCheck(rName)
 
@@ -18,7 +18,7 @@ func TestAccDatasourceBackup_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceBackup_basic(),
+				Config: testAccDatasourceBackups_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "backups.0.id", "huaweicloud_rds_backup.test", "id"),
@@ -39,7 +39,7 @@ func TestAccDatasourceBackup_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourceBackup_basic() string {
+func testAccDatasourceBackups_basic() string {
 	backupConfig := testBackup_mysql_basic(acceptance.RandomAccResourceName())
 	return fmt.Sprintf(`
 %s 

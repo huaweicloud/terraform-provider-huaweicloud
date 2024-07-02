@@ -1245,18 +1245,6 @@ func buildRdsInstanceVolume(d *schema.ResourceData) *instances.Volume {
 	return volume
 }
 
-func buildRdsInstanceBackupStrategy(d *schema.ResourceData) *instances.BackupStrategy {
-	var backupStrategy *instances.BackupStrategy
-	backupRaw := d.Get("backup_strategy").([]interface{})
-
-	if len(backupRaw) == 1 {
-		backupStrategy = new(instances.BackupStrategy)
-		backupStrategy.StartTime = backupRaw[0].(map[string]interface{})["start_time"].(string)
-		backupStrategy.KeepDays = backupRaw[0].(map[string]interface{})["keep_days"].(int)
-	}
-	return backupStrategy
-}
-
 func buildRdsInstanceUnchangeableParam(d *schema.ResourceData) *instances.UnchangeableParam {
 	var unchangeableParam *instances.UnchangeableParam
 	if v, ok := d.GetOk("lower_case_table_names"); ok {
