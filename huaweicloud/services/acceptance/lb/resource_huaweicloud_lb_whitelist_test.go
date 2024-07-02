@@ -50,7 +50,7 @@ func TestAccLBV2Whitelist_basic(t *testing.T) {
 			{
 				Config: testAccLBV2WhitelistConfig_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "enable_whitelist", "true"),
+					resource.TestCheckResourceAttr(resourceName, "enable_whitelist", "false"),
 				),
 			},
 			{
@@ -107,7 +107,7 @@ resource "huaweicloud_lb_listener" "listener_1" {
 }
 
 resource "huaweicloud_lb_whitelist" "whitelist_1" {
-  enable_whitelist = true
+  enable_whitelist = false
   whitelist        = "192.168.11.1,192.168.0.1/24,192.168.201.18/8"
   listener_id      = huaweicloud_lb_listener.listener_1.id
 }

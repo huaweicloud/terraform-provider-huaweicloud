@@ -48,6 +48,7 @@ func TestAccLBV2Pool_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "APP_COOKIE"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.cookie_name", "testCookie"),
 				),
@@ -57,6 +58,7 @@ func TestAccLBV2Pool_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "lb_method", "LEAST_CONNECTIONS"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
 					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
 				),
@@ -70,29 +72,36 @@ func TestAccLBV2Pool_basic(t *testing.T) {
 	})
 }
 
-func testAccLBV2PoolConfig_basic(rName string) string {
+func testAccLBV2PoolConfig_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "%s"
+  name          = "%[1]s"
   vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "%s"
+  name            = "%[1]s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
+`, rName)
+}
+
+func testAccLBV2PoolConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_lb_pool" "pool_1" {
-  name        = "%s"
+  name        = "%[2]s"
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_lb_listener.listener_1.id
+  description = "test description"
 
   persistence {
     type        = "APP_COOKIE"
@@ -105,32 +114,19 @@ resource "huaweicloud_lb_pool" "pool_1" {
     delete = "5m"
   }
 }
-`, rName, rName, rName)
+`, testAccLBV2PoolConfig_base(rName), rName)
 }
 
 func testAccLBV2PoolConfig_update(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "%s"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-}
-
-resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "%s"
-  protocol        = "HTTP"
-  protocol_port   = 8080
-  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
-}
+%[1]s
 
 resource "huaweicloud_lb_pool" "pool_1" {
-  name              = "%s"
+  name              = "%[2]s"
   protocol          = "HTTP"
   lb_method         = "LEAST_CONNECTIONS"
   listener_id       = huaweicloud_lb_listener.listener_1.id
+  description       = "test description update"
   protection_status = "consoleProtection"
   protection_reason = "test protection reason"
 
@@ -140,5 +136,5 @@ resource "huaweicloud_lb_pool" "pool_1" {
     delete = "5m"
   }
 }
-`, rName, rName, rNameUpdate)
+`, testAccLBV2PoolConfig_base(rName), rNameUpdate)
 }

@@ -72,6 +72,42 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 	})
 }
 
+func TestAccLBV2Listener_https(t *testing.T) {
+	var listener listeners.Listener
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_lb_listener.listener_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&listener,
+		getL7ListenerResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBV2ListenerConfig_https(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "http2_enable", "false"),
+				),
+			},
+			{
+				Config: testAccLBV2ListenerConfig_https_update(rName, rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "http2_enable", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccLBV2ListenerConfig_base(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -89,11 +125,11 @@ func testAccLBV2ListenerConfig_basic(rName string) string {
 %s
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "%s"
-  description     = "created by acceptance test"
-  protocol        = "HTTP"
-  protocol_port   = 8080
-  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
+  name             = "%s"
+  description      = "created by acceptance test"
+  protocol         = "HTTP"
+  protocol_port    = 8080
+  loadbalancer_id  = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 
   tags = {
     key   = "value"
@@ -107,11 +143,12 @@ func testAccLBV2ListenerConfig_update(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
 %s
 
+%s
+
 resource "huaweicloud_lb_listener" "listener_1" {
   name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
-  admin_state_up  = "true"
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 
   tags = {
@@ -119,5 +156,38 @@ resource "huaweicloud_lb_listener" "listener_1" {
     owner = "terraform_update"
   }
 }
-`, testAccLBV2ListenerConfig_base(rName), rNameUpdate)
+`, testAccLBV2ListenerConfig_base(rName), testAccLBV2CertificateConfig_basic(rName), rNameUpdate)
+}
+
+func testAccLBV2ListenerConfig_https(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+%s
+
+resource "huaweicloud_lb_listener" "listener_1" {
+  name                      = "%s"
+  protocol                  = "TERMINATED_HTTPS"
+  protocol_port             = 443
+  loadbalancer_id           = huaweicloud_lb_loadbalancer.loadbalancer_1.id
+  default_tls_container_ref = huaweicloud_lb_certificate.certificate_1.id
+}
+`, testAccLBV2ListenerConfig_base(rName), testAccLBV2CertificateConfig_basic(rName), rName)
+}
+
+func testAccLBV2ListenerConfig_https_update(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+%s
+
+%s
+
+resource "huaweicloud_lb_listener" "listener_1" {
+  name                      = "%s"
+  protocol                  = "TERMINATED_HTTPS"
+  protocol_port             = 443
+  loadbalancer_id           = huaweicloud_lb_loadbalancer.loadbalancer_1.id
+  default_tls_container_ref = huaweicloud_lb_certificate.certificate_1.id
+  http2_enable              = true
+}
+`, testAccLBV2ListenerConfig_base(rName), testAccLBV2CertificateConfig_basic(rName), rNameUpdate)
 }
