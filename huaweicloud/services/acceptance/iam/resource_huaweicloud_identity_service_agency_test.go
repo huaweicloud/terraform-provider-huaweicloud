@@ -49,6 +49,7 @@ func TestAccIdentityServiceAgency_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheckIAMV5(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

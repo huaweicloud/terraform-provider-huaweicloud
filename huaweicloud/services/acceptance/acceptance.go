@@ -46,6 +46,7 @@ var (
 	HW_SECURITY_GROUP_ID      = os.Getenv("HW_SECURITY_GROUP_ID")
 	HW_ENTERPRISE_PROJECT_ID  = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
 	HW_ADMIN                  = os.Getenv("HW_ADMIN")
+	HW_IAM_V5                 = os.Getenv("HW_IAM_V5")
 
 	HW_CAE_ENVIRONMENT_ID     = os.Getenv("HW_CAE_ENVIRONMENT_ID")
 	HW_CAE_APPLICATION_ID     = os.Getenv("HW_CAE_APPLICATION_ID")
@@ -703,6 +704,13 @@ func TestAccPreCheckOmsInstance(t *testing.T) {
 func TestAccPreCheckAdminOnly(t *testing.T) {
 	if HW_ADMIN == "" {
 		t.Skip("Skipping test because it requires the admin privileges")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckIAMV5(t *testing.T) {
+	if HW_IAM_V5 == "" {
+		t.Skip("This environment does not support IAM v5 tests")
 	}
 }
 
