@@ -2,6 +2,7 @@ package apig
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getGroupFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -26,160 +26,141 @@ func TestAccGroup_basic(t *testing.T) {
 	var (
 		group apigroups.Group
 
-		rName      = "huaweicloud_apig_group.test"
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
-		baseConfig = testAccGroup_base(name)
-	)
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&group,
-		getGroupFunc,
+		rNameBasic = "huaweicloud_apig_group.basic"
+		rcBasic    = acceptance.InitResourceCheck(rNameBasic, &group, getGroupFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      rcBasic.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGroup_basic_step1(baseConfig, name),
+				// Check whether illegal group name ​​can be intercepted normally (create phase).
+				Config:      testAccGroup_basic_step1(),
+				ExpectError: regexp.MustCompile("Invalid parameter value"),
+			},
+			{
+				Config: testAccGroup_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "Created by script"),
+					rcBasic.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameBasic, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
+					resource.TestCheckResourceAttr(rNameBasic, "name", name),
+					resource.TestCheckResourceAttr(rNameBasic, "description", "Created by script"),
+					resource.TestCheckResourceAttrSet(rNameBasic, "created_at"),
 				),
 			},
 			{
-				Config: testAccGroup_basic_step2(baseConfig, updateName),
+				Config: testAccGroup_basic_step3(updateName),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "description", ""),
+					rcBasic.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameBasic, "name", updateName),
+					resource.TestCheckResourceAttr(rNameBasic, "description", ""),
+					resource.TestCheckResourceAttrSet(rNameBasic, "updated_at"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				ResourceName:      rNameBasic,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccGroupImportStateFunc(),
+				ImportStateIdFunc: testAccGroupImportStateFunc(rNameBasic),
 			},
 		},
 	})
 }
 
-func testAccGroupImportStateFunc() resource.ImportStateIdFunc {
+func testAccGroupImportStateFunc(rsName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		rName := "huaweicloud_apig_group.test"
-		rs, ok := s.RootModule().Resources[rName]
+		rs, ok := s.RootModule().Resources[rsName]
 		if !ok {
-			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
+			return "", fmt.Errorf("resource (%s) not found", rsName)
 		}
 		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.ID == "" {
-			return "", fmt.Errorf("missing some attributes, want '{instance_id}/{id}', but '%s/%s'",
+			return "", fmt.Errorf("missing some attributes, want '<instance_id>/<id>', but got '%s/%s'",
 				rs.Primary.Attributes["instance_id"], rs.Primary.ID)
 		}
 		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.ID), nil
 	}
 }
 
-func testAccGroup_base(name string) string {
+func testAccGroup_basic_general(name, desc string) string {
 	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
-}
-`, common.TestBaseNetwork(name), name)
+variable "instance_description" {
+  type    = string
+  default = "%[3]s"
 }
 
-func testAccGroup_basic_step1(baseConfig, name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_group" "test" {
+resource "huaweicloud_apig_group" "basic" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
-  description = "Created by script"
+  description = var.instance_description != "" ? var.instance_description : null
 }
-`, baseConfig, name)
-}
-
-func testAccGroup_basic_step2(baseConfig, name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_group" "test" {
-  name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
-}
-`, baseConfig, name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, desc)
 }
 
-func TestAccGroup_variables(t *testing.T) {
+func testAccGroup_basic_step1() string {
+	return testAccGroup_basic_general("INVALID_GROUP_NAME_WITH_SPECIAL_CHAR!", "")
+}
+
+func testAccGroup_basic_step2(name string) string {
+	return testAccGroup_basic_general(name, "Created by script")
+}
+
+func testAccGroup_basic_step3(name string) string {
+	return testAccGroup_basic_general(name, "")
+}
+
+func TestAccGroup_withVariables(t *testing.T) {
 	var (
 		group apigroups.Group
 
-		rName = "huaweicloud_apig_group.test"
-		name  = acceptance.RandomAccResourceName()
-	)
+		name = acceptance.RandomAccResourceName()
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&group,
-		getGroupFunc,
+		rNameWithVariables = "huaweicloud_apig_group.with_variables"
+		rcWithVariables    = acceptance.InitResourceCheck(rNameWithVariables, &group, getGroupFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      rcWithVariables.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				// Bind two environment to group, and create some variables.
-				Config: testAccGroup_variables(name, 0),
+				Config: testAccGroup_withVariables_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "environment.#", "2"),
+					rcWithVariables.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameWithVariables, "environment.#", "2"),
 				),
 			},
 			{
-				// Update the variables for two environments.
-				Config: testAccGroup_variables(name, 1),
+				Config: testAccGroup_withVariables_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "environment.#", "2"),
+					rcWithVariables.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameWithVariables, "environment.#", "2"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				ResourceName:      rNameWithVariables,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccGroupImportStateFunc(),
+				ImportStateIdFunc: testAccGroupImportStateFunc(rNameWithVariables),
 			},
 		},
 	})
 }
 
-func testAccGroup_variablesBase(name string) string {
+// Create two environments for the group, and add a total of three variables to the two environments.
+// Each of the two environments has a variable with the same name and different value.
+func testAccGroup_withVariables_general(name string, offset int) string {
 	return fmt.Sprintf(`
 variable "variables_configuration" {
   type = list(object({
@@ -194,26 +175,16 @@ variable "variables_configuration" {
   ]
 }
 
-%[1]s
-
 resource "huaweicloud_apig_environment" "test" {
   count = 2
 
+  instance_id = "%[1]s"
   name        = format("%[2]s_%%d", count.index)
-  instance_id = huaweicloud_apig_instance.test.id
-}
-`, testAccGroup_base(name), name)
 }
 
-// Create two environments for the group, and add a total of three variables to the two environments.
-// Each of the two environments has a variable with the same name and different value.
-func testAccGroup_variables(name string, offset int) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_group" "test" {
+resource "huaweicloud_apig_group" "with_variables" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
 
   environment {
     environment_id = huaweicloud_apig_environment.test[0].id
@@ -240,77 +211,75 @@ resource "huaweicloud_apig_group" "test" {
     }
   }
 }
-`, testAccGroup_variablesBase(name), name, offset)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, offset)
 }
 
-func TestAccGroup_urlDomains(t *testing.T) {
+func testAccGroup_withVariables_step1(name string) string {
+	return testAccGroup_withVariables_general(name, 0)
+}
+
+func testAccGroup_withVariables_step2(name string) string {
+	return testAccGroup_withVariables_general(name, 1)
+}
+
+func TestAccGroup_withUrlDomain(t *testing.T) {
 	var (
 		group apigroups.Group
-		rName = "huaweicloud_apig_group.test"
-		name  = acceptance.RandomAccResourceName()
-	)
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&group,
-		getGroupFunc,
+		name = acceptance.RandomAccResourceName()
+
+		rNameWithUrlDomain = "huaweicloud_apig_group.with_url_domain"
+		rcWithUrlDomain    = acceptance.InitResourceCheck(rNameWithUrlDomain, &group, getGroupFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      rcWithUrlDomain.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGroup_urlDomain_step1(name),
+				Config: testAccGroup_withUrlDomain_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
+					rcWithUrlDomain.CheckResourceExists(),
 					// since the order in the schema is inconsistent with the order of data obtained by the API, other parameters are not verified.
-					resource.TestCheckResourceAttr(rName, "url_domains.#", "2"),
+					resource.TestCheckResourceAttr(rNameWithUrlDomain, "url_domains.#", "2"),
+					resource.TestCheckResourceAttrSet(rNameWithUrlDomain, "url_domains.0.min_ssl_version"),
+					resource.TestCheckResourceAttr(rNameWithUrlDomain, "url_domains.0.is_http_redirect_to_https", "false"),
 				),
 			},
 			{
-				Config: testAccGroup_urlDomain_step2(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "url_domains.#", "1"),
-					resource.TestCheckResourceAttr(rName, "url_domains.0.name", "www.terraform.test3.com"),
-					resource.TestCheckResourceAttr(rName, "url_domains.0.min_ssl_version", "TLSv1.2"),
-					resource.TestCheckResourceAttr(rName, "url_domains.0.is_http_redirect_to_https", "false"),
-				),
-			},
-			{
-				Config: testAccGroup_urlDomain_step3(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "url_domains.#", "1"),
-					resource.TestCheckResourceAttr(rName, "url_domains.0.name", "www.terraform.test3.com"),
-					resource.TestCheckResourceAttr(rName, "url_domains.0.min_ssl_version", "TLSv1.1"),
-					resource.TestCheckResourceAttr(rName, "url_domains.0.is_http_redirect_to_https", "true"),
-				),
-			},
-			{
-				ResourceName:      rName,
+				ResourceName:      rNameWithUrlDomain,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccGroupImportStateFunc(),
+				ImportStateIdFunc: testAccGroupImportStateFunc(rNameWithUrlDomain),
+			},
+			{
+				Config: testAccGroup_withUrlDomain_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rcWithUrlDomain.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameWithUrlDomain, "url_domains.#", "1"),
+					resource.TestCheckResourceAttr(rNameWithUrlDomain, "url_domains.0.name", "www.terraform.test3.com"),
+					resource.TestCheckResourceAttr(rNameWithUrlDomain, "url_domains.0.min_ssl_version", "TLSv1.1"),
+					resource.TestCheckResourceAttr(rNameWithUrlDomain, "url_domains.0.is_http_redirect_to_https", "true"),
+				),
+			},
+			{
+				// Check whether illegal URL domain ​​can be intercepted normally (update phase).
+				Config:      testAccGroup_withUrlDomain_step3(name),
+				ExpectError: regexp.MustCompile("error binding domain name to the API group"),
 			},
 		},
 	})
 }
 
-func testAccGroup_urlDomain_step1(name string) string {
+func testAccGroup_withUrlDomain_step1(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_group" "test" {
+resource "huaweicloud_apig_group" "with_url_domain" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
 
   url_domains {
     name = "www.terraform.test1.com"
@@ -319,31 +288,14 @@ resource "huaweicloud_apig_group" "test" {
     name = "www.terraform.test2.com"
   }
 }
-`, testAccGroup_base(name), name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
-func testAccGroup_urlDomain_step2(name string) string {
+func testAccGroup_withUrlDomain_step2(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_group" "test" {
+resource "huaweicloud_apig_group" "with_url_domain" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
-
-  url_domains {
-    name = "www.terraform.test3.com"
-  }
-}
-`, testAccGroup_base(name), name)
-}
-
-func testAccGroup_urlDomain_step3(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_group" "test" {
-  name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
 
   url_domains {
     name                      = "www.terraform.test3.com"
@@ -351,74 +303,74 @@ resource "huaweicloud_apig_group" "test" {
     is_http_redirect_to_https = true
   }
 }
-`, testAccGroup_base(name), name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
-func TestAccGroup_DomainAccessEnabled(t *testing.T) {
+func testAccGroup_withUrlDomain_step3(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_apig_group" "with_url_domain" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+
+  url_domains {
+    name                      = "INVALID_URL_DOMAIN"
+    min_ssl_version           = "TLSv1.1"
+    is_http_redirect_to_https = true
+  }
+}
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
+}
+
+func TestAccGroup_withDomainAccess(t *testing.T) {
 	var (
 		group apigroups.Group
-		rName = "huaweicloud_apig_group.test"
-		name  = acceptance.RandomAccResourceName()
-	)
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&group,
-		getGroupFunc,
+		name = acceptance.RandomAccResourceName()
+
+		rNameWithDomainAccess = "huaweicloud_apig_group.with_domain_access"
+		rcWithDomainAccess    = acceptance.InitResourceCheck(rNameWithDomainAccess, &group, getGroupFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      rcWithDomainAccess.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGroup_DomainAccessEnabled_step1(name),
+				Config: testAccGroup_withDomainAccess_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "domain_access_enabled", "false"),
+					rcWithDomainAccess.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameWithDomainAccess, "domain_access_enabled", "false"),
 				),
 			},
 			{
-				Config: testAccGroup_DomainAccessEnabled_step2(name),
+				Config: testAccGroup_withDomainAccess_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "domain_access_enabled", "true"),
+					rcWithDomainAccess.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameWithDomainAccess, "domain_access_enabled", "true"),
 				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccGroupImportStateFunc(),
 			},
 		},
 	})
 }
 
-func testAccGroup_DomainAccessEnabled_step1(name string) string {
+func testAccGroup_withDomainAccess_general(name string, accessEnabled bool) string {
 	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_group" "test" {
+resource "huaweicloud_apig_group" "with_domain_access" {
+  instance_id           = "%[1]s"
   name                  = "%[2]s"
-  instance_id           = huaweicloud_apig_instance.test.id
-  domain_access_enabled = false
+  domain_access_enabled = %v
 }
-`, testAccGroup_base(name), name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, accessEnabled)
 }
 
-func testAccGroup_DomainAccessEnabled_step2(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_group" "test" {
-  name                  = "%[2]s"
-  instance_id           = huaweicloud_apig_instance.test.id
-  domain_access_enabled = true
+func testAccGroup_withDomainAccess_step1(name string) string {
+	return testAccGroup_withDomainAccess_general(name, false)
 }
-`, testAccGroup_base(name), name)
+
+func testAccGroup_withDomainAccess_step2(name string) string {
+	return testAccGroup_withDomainAccess_general(name, true)
 }

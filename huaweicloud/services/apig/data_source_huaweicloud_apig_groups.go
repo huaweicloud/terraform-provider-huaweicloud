@@ -167,6 +167,28 @@ func DataSourceGroups() *schema.Resource {
 	}
 }
 
+func flattenGroupsUrlDomain(urlDomains []apigroups.UrlDomian) []map[string]interface{} {
+	if len(urlDomains) == 0 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(urlDomains))
+	for i, v := range urlDomains {
+		result[i] = map[string]interface{}{
+			"id":                                  v.Id,
+			"name":                                v.DomainName,
+			"cname_status":                        v.ResolutionStatus,
+			"ssl_id":                              v.SSLId,
+			"ssl_name":                            v.SSLName,
+			"min_ssl_version":                     v.MinSSLVersion,
+			"verified_client_certificate_enabled": v.VerifiedClientCertificateEnabled,
+			"is_has_trusted_root_ca":              v.IsHasTrustedRootCA,
+		}
+	}
+
+	return result
+}
+
 func flattenGroups(group apigroups.Group, variables []map[string]interface{}) map[string]interface{} {
 	result := map[string]interface{}{
 		"id":             group.Id,
@@ -176,7 +198,7 @@ func flattenGroups(group apigroups.Group, variables []map[string]interface{}) ma
 		"created_at":     group.RegistraionTime,
 		"updated_at":     group.UpdateTime,
 		"on_sell_status": group.OnSellStatus,
-		"url_domains":    group.UrlDomians,
+		"url_domains":    flattenGroupsUrlDomain(group.UrlDomians),
 		"sl_domains":     group.Subdomains,
 		"description":    group.Description,
 		"is_default":     group.IsDefault,
