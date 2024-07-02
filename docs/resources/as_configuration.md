@@ -153,9 +153,6 @@ The `instance_config` block supports:
   data disks are optional. The [disk](#instance_config_disk_object) structure is documented below.
   Changing this will create a new resource.
 
-* `key_name` - (Required, String, ForceNew) Specifies the name of the SSH key pair used to log in to the instance.
-  Changing this will create a new resource.
-
 * `security_group_ids` - (Required, List, ForceNew) Specifies an array of one or more security group IDs.
   Changing this will create a new resource.
 
@@ -188,8 +185,25 @@ The `instance_config` block supports:
   <br/>If this parameter is not specified, the system automatically selects the DeH with the maximum available memory
   size from the DeHs that meet specifications requirements to create the ECSs, thereby balancing load of the DeHs.
 
-* `user_data` - (Optional, String, ForceNew) Specifies the user data to provide when launching the instance.
-  The file content must be encoded with Base64. Changing this will create a new resource.
+* `key_name` - (Optional, String, ForceNew) Specifies the name of the SSH key pair used to log in to the instance.
+  Changing this will create a new resource.
+
+* `user_data` - (Optional, String, ForceNew) Specifies the user data to be injected during the ECS creation process.
+  Changing this will create a new resource. For more information, see
+  [Passing User Data to ECSs](https://support.huaweicloud.com/intl/en-us/usermanual-ecs/en-us_topic_0032380449.html).
+
+  -> 1. The content to be injected must be encoded with base64. The maximum size of the content to be injected
+  (before encoding) is `32` KB.
+  <br/>2. If `key_name` is not specified, the data injected by `user_data` is the password of user `root` for logging in
+  to the ECS by default.
+  <br/>3. If both `key_name` and `user_data` are specified, `user_data` only injects user data.
+  <br/>4. This parameter is mandatory when you create a Linux ECS using the password authentication mode. Its value is
+  the initial user `root` password.
+  <br/>5. When the value of this field is used as a password, the recommended complexity for the password is as follows:
+  (1) The value ranges from `8` to `26` characters. (2) The value contains at least three of the following character
+  types: uppercase letters, lowercase letters, digits, and special characters `!@$%^-_=+[{}]:,./?`.
+
+~> Fields `key_name` and `user_data` cannot be empty together.
 
 * `public_ip` - (Optional, List, ForceNew) Specifies the EIP of the ECS instance.
   The [public_ip](#instance_config_public_ip_object) structure is documented below.
@@ -304,6 +318,9 @@ The `bandwidth` block supports:
 The `personality` block supports:
 
 * `path` - (Required, String, ForceNew) Specifies the path of the injected file. Changing this creates a new resource.
+  + For Linux OSs, specify the path, for example, **/etc/foo.txt**, for storing the injected file.
+  + For Windows, the injected file is automatically stored in the root directory of drive `C`. You only need to specify
+    the file name, for example, **foo**. The file name contains only letters and digits.
 
 * `content` - (Required, String, ForceNew) Specifies the content of the injected file, which must be encoded with base64.
   Changing this creates a new resource.

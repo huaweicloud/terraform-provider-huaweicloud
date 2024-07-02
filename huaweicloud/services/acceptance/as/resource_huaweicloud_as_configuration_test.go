@@ -98,8 +98,7 @@ func TestAccASConfiguration_spot(t *testing.T) {
 						"data.huaweicloud_images_image.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.flavor",
 						"data.huaweicloud_compute_flavors.test", "ids.0"),
-					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.key_name",
-						"huaweicloud_kps_keypair.acc_key", "id"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.key_name", ""),
 					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.security_group_ids.0",
 						"huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.charging_mode", "spot"),
@@ -420,7 +419,6 @@ resource "huaweicloud_as_configuration" "acc_as_config"{
   instance_config {
     image                  = data.huaweicloud_images_image.test.id
     flavor                 = data.huaweicloud_compute_flavors.test.ids[0]
-    key_name               = huaweicloud_kps_keypair.acc_key.id
     security_group_ids     = [huaweicloud_networking_secgroup.test.id]
     charging_mode          = "spot"
     flavor_priority_policy = "COST_FIRST"
@@ -429,9 +427,11 @@ resource "huaweicloud_as_configuration" "acc_as_config"{
     metadata = {
       some_key = "some_value"
     }
+
+# The data injected by user_data is the password of user root for logging in to the ECS by default.
     user_data = <<EOT
-#!/bin/sh
-echo "Hello World! The time is now $(date -R)!" | tee /root/output.txt
+#! /bin/bash
+echo 'root:$6$V6azyeLwcD3CHlpY$BN3VVq18fmCkj66B4zdHLWevqcxlig' | chpasswd -e
 EOT
 
     disk {
