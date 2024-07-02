@@ -267,6 +267,12 @@ func ResourceASConfiguration() *schema.Resource {
 							StateFunc:        utils.HashAndHexEncode,
 							DiffSuppressFunc: utils.SuppressUserData,
 						},
+						"admin_pass": {
+							Type:      schema.TypeString,
+							Optional:  true,
+							ForceNew:  true,
+							Sensitive: true,
+						},
 						"metadata": {
 							Type:     schema.TypeMap,
 							Optional: true,
@@ -365,6 +371,24 @@ func buildSecurityGroupIDsOpts(secGroups []interface{}) []configurations.Securit
 	return res
 }
 
+func buildMetadataOpts(configDataMap map[string]interface{}) map[string]interface{} {
+	metadataMap := configDataMap["metadata"].(map[string]interface{})
+	adminPass := configDataMap["admin_pass"].(string)
+	if metadataMap == nil && adminPass == "" {
+		return nil
+	}
+
+	resultMap := make(map[string]interface{})
+	if adminPass != "" {
+		resultMap["admin_pass"] = adminPass
+	}
+
+	for k, v := range metadataMap {
+		resultMap[k] = v
+	}
+	return resultMap
+}
+
 func buildInstanceConfig(configDataMap map[string]interface{}) configurations.InstanceConfigOpts {
 	instanceConfigOpts := configurations.InstanceConfigOpts{
 		InstanceID:           configDataMap["instance_id"].(string),
@@ -376,7 +400,7 @@ func buildInstanceConfig(configDataMap map[string]interface{}) configurations.In
 		Tenancy:              configDataMap["tenancy"].(string),
 		DedicatedHostID:      configDataMap["dedicated_host_id"].(string),
 		UserData:             []byte(configDataMap["user_data"].(string)),
-		Metadata:             configDataMap["metadata"].(map[string]interface{}),
+		Metadata:             buildMetadataOpts(configDataMap),
 		SecurityGroups:       buildSecurityGroupIDsOpts(configDataMap["security_group_ids"].([]interface{})),
 		Personality:          buildPersonalityOpts(configDataMap["personality"].([]interface{})),
 		Disk:                 buildDiskOpts(configDataMap["disk"].([]interface{})),
@@ -452,7 +476,7 @@ func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("scaling_configuration_name", asConfig.Name),
-		d.Set("instance_config", flattenInstanceConfig(asConfig.InstanceConfig)),
+		d.Set("instance_config", flattenInstanceConfig(asConfig.InstanceConfig, d)),
 		d.Set("status", normalizeConfigurationStatus(asConfig.ScalingGroupID)),
 	)
 
@@ -502,7 +526,8 @@ func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configuration
 	return gs, err
 }
 
-func flattenInstanceConfig(instanceConfig configurations.InstanceConfig) []map[string]interface{} {
+// In order to avoid triggering force_new changes, write `admin_pass` and `metadata` in local files.
+func flattenInstanceConfig(instanceConfig configurations.InstanceConfig, d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"charging_mode":          normalizeConfigurationChargingMode(instanceConfig.MarketType),
@@ -515,7 +540,8 @@ func flattenInstanceConfig(instanceConfig configurations.InstanceConfig) []map[s
 			"tenancy":                instanceConfig.Tenancy,
 			"dedicated_host_id":      instanceConfig.DedicatedHostID,
 			"user_data":              instanceConfig.UserData,
-			"metadata":               instanceConfig.Metadata,
+			"admin_pass":             d.Get("instance_config.0.admin_pass"),
+			"metadata":               d.Get("instance_config.0.metadata"),
 			"disk":                   flattenInstanceDisks(instanceConfig.Disk),
 			"public_ip":              flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
 			"security_group_ids":     flattenSecurityGroupIDs(instanceConfig.SecurityGroups),

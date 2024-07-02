@@ -102,6 +102,61 @@ resource "huaweicloud_as_configuration" "my_as_config" {
 }
 ```
 
+### AS Configuration uses password authentication for Linux ECS
+
+```hcl
+variable "flavor_id" {}
+variable "ecs_image_id" {}
+variable "security_group_id" {}
+
+resource "huaweicloud_as_configuration" "my_as_config" {
+  scaling_configuration_name = "my_as_config"
+
+  instance_config {
+    flavor             = var.flavor_id
+    image              = var.ecs_image_id
+    security_group_ids = [var.security_group_id]
+
+    user_data = <<EOT
+#! /bin/bash
+echo 'root:$6$V6azyeLwcD3CHlpY$BN3VVq18fmCkj66B4zdHLWevqcxlig' | chpasswd -e
+EOT
+
+    disk {
+      size        = 40
+      volume_type = "SSD"
+      disk_type   = "SYS"
+    }
+  }
+}
+```
+
+### AS Configuration uses password authentication for Windows ECS
+
+```hcl
+variable "flavor_id" {}
+variable "windows_image_id" {}
+variable "security_group_id" {}
+variable "admin_pass" {}
+
+resource "huaweicloud_as_configuration" "my_as_config" {
+  scaling_configuration_name = "my_as_config"
+
+  instance_config {
+    flavor             = var.flavor_id
+    image              = var.windows_image_id
+    security_group_ids = [var.security_group_id]
+    admin_pass         = var.admin_pass
+
+    disk {
+      size        = 40
+      volume_type = "SSD"
+      disk_type   = "SYS"
+    }
+  }
+}
+```
+
 ### AS Configuration uses the existing instance specifications as the template
 
 ```hcl
@@ -185,6 +240,10 @@ The `instance_config` block supports:
   <br/>If this parameter is not specified, the system automatically selects the DeH with the maximum available memory
   size from the DeHs that meet specifications requirements to create the ECSs, thereby balancing load of the DeHs.
 
+* `public_ip` - (Optional, List, ForceNew) Specifies the EIP of the ECS instance.
+  The [public_ip](#instance_config_public_ip_object) structure is documented below.
+  Changing this will create a new resource.
+
 * `key_name` - (Optional, String, ForceNew) Specifies the name of the SSH key pair used to log in to the instance.
   Changing this will create a new resource.
 
@@ -203,11 +262,19 @@ The `instance_config` block supports:
   (1) The value ranges from `8` to `26` characters. (2) The value contains at least three of the following character
   types: uppercase letters, lowercase letters, digits, and special characters `!@$%^-_=+[{}]:,./?`.
 
-~> Fields `key_name` and `user_data` cannot be empty together.
+* `admin_pass` - (Optional, String, ForceNew) Specifies the initial login password of the administrator account for
+  logging in to an ECS using password authentication. The Windows administrator is `Administrator`.
 
-* `public_ip` - (Optional, List, ForceNew) Specifies the EIP of the ECS instance.
-  The [public_ip](#instance_config_public_ip_object) structure is documented below.
-  Changing this will create a new resource.
+  -> Password complexity requirements:
+  <br/>1. Consists of `8` to `26` characters.
+  <br/>2. Contains at least three of the following character types: uppercase letters, lowercase letters, digits, and
+  special characters `!@$%^-_=+[{}]:,./?`.
+  <br/>3. The password cannot contain the username or the username in reversed order.
+  <br/>4. The Windows ECS password cannot contain the username, the username in reversed order, or more than two
+  consecutive characters in the username.
+
+~> Field `admin_pass` is used for Windows system password authentication, and `user_data` is used for Linux system
+password authentication.
 
 * `metadata` - (Optional, Map, ForceNew) Specifies the key/value pairs to make available from within the instance.
   Changing this will create a new resource.
@@ -340,15 +407,16 @@ AS configurations can be imported by their `id`, e.g.
 $ terraform import huaweicloud_as_configuration.test 18518c8a-9d15-416b-8add-2ee874751d18
 ```
 
-Note that the imported state may not be identical to your resource definition, due to `instance_config.0.instance_id`
-is missing from the API response. You can ignore changes after importing an AS configuration as below.
+Note that the imported state may not be identical to your resource definition, due to `instance_config.0.instance_id`,
+`instance_config.0.admin_pass`, and `instance_config.0.metadata` are missing from the API response.
+You can ignore changes after importing an AS configuration as below.
 
 ```
 resource "huaweicloud_as_configuration" "test" {
   ...
 
   lifecycle {
-    ignore_changes = [ instance_config.0.instance_id ]
+    ignore_changes = [ instance_config.0.instance_id, instance_config.0.admin_pass, instance_config.0.metadata ]
   }
 }
 ```
