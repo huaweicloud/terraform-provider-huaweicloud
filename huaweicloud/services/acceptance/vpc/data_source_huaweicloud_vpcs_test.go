@@ -184,6 +184,7 @@ data "huaweicloud_vpcs" "test" {
 func TestAccVpcsDataSource_tags(t *testing.T) {
 	randName1 := acceptance.RandomAccResourceName()
 	randName2 := acceptance.RandomAccResourceName()
+	randCidr := acceptance.RandomCidr()
 	dataSourceName := "data.huaweicloud_vpcs.test"
 
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
@@ -193,7 +194,7 @@ func TestAccVpcsDataSource_tags(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceVpcs_tags(randName1, randName2),
+				Config: testAccDataSourceVpcs_tags(randName1, randName2, randCidr),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "tags.foo", randName1),
@@ -205,32 +206,33 @@ func TestAccVpcsDataSource_tags(t *testing.T) {
 	})
 }
 
-func testAccDataSourceVpcs_tags(rName1, rName2 string) string {
+func testAccDataSourceVpcs_tags(rName1, rName2, randCidr string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test1" {
-  name = "%s"
-  cidr = "172.16.0.0/24"
+  name = "%[1]s"
+  cidr = "%[3]s"
   tags = {
-    foo = "%s"
+    foo = "%[1]s"
   }
 }
 
 resource "huaweicloud_vpc" "test2" {
-  name = "%s"
-  cidr = "10.12.2.0/24"
+  name = "%[2]s"
+  cidr = "%[3]s"
   tags = {
-    foo = "%s"
+    foo = "%[2]s"
   }
 }
 
 data "huaweicloud_vpcs" "test" {
+  cidr = "%[3]s"
   tags = {
-    foo = "%s"
+    foo = "%[1]s"
   }
   depends_on = [
     huaweicloud_vpc.test1,
     huaweicloud_vpc.test2,
   ]
 }
-`, rName1, rName1, rName2, rName2, rName1)
+`, rName1, rName2, randCidr)
 }
