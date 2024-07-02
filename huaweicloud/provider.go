@@ -982,12 +982,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_policies":             organizations.DataSourcePolicies(),
 
 			// Deprecated ongoing (without DeprecationMessage), used by other providers
-			"huaweicloud_vpc_route":        vpc.DataSourceVpcRouteV2(),
-			"huaweicloud_vpc_route_ids":    vpc.DataSourceVpcRouteIdsV2(),
-			"huaweicloud_vpc_route_v2":     vpc.DataSourceVpcRouteV2(),
-			"huaweicloud_vpc_route_ids_v2": vpc.DataSourceVpcRouteIdsV2(),
-			"huaweicloud_vpc_routes":       vpc.DataSourceVpcRoutes(),
-			"huaweicloud_vpc_flow_logs":    vpc.DataSourceVpcFlowLogs(),
+			"huaweicloud_vpc_route":                  vpc.DataSourceVpcRouteV2(),
+			"huaweicloud_vpc_route_ids":              vpc.DataSourceVpcRouteIdsV2(),
+			"huaweicloud_vpc_route_v2":               vpc.DataSourceVpcRouteV2(),
+			"huaweicloud_vpc_route_ids_v2":           vpc.DataSourceVpcRouteIdsV2(),
+			"huaweicloud_vpc_routes":                 vpc.DataSourceVpcRoutes(),
+			"huaweicloud_vpc_flow_logs":              vpc.DataSourceVpcFlowLogs(),
+			"huaweicloud_vpc_sub_network_interfaces": vpc.DataSourceVpcSubNetworkInterfaces(),
 
 			// Deprecated
 			"huaweicloud_antiddos":                      deprecated.DataSourceAntiDdosV1(),
