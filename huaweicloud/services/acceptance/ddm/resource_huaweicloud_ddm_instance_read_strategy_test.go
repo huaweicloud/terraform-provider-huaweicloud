@@ -7,13 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDdmInstanceReadStrategy_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceNameWithDash()
 	schemaName := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_ddm_instance_read_strategy.test"
-	pwd := acceptance.RandomPassword()
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -21,7 +21,7 @@ func TestAccDdmInstanceReadStrategy_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testDdmInstanceReadStrategy_basic(name, pwd, schemaName),
+				Config: testDdmInstanceReadStrategy_basic(name, schemaName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
 						"huaweicloud_ddm_instance.test", "id"),
@@ -29,7 +29,7 @@ func TestAccDdmInstanceReadStrategy_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testDdmInstanceReadStrategy_update(name, pwd, schemaName),
+				Config: testDdmInstanceReadStrategy_update(name, schemaName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
 						"huaweicloud_ddm_instance.test", "id"),
@@ -40,7 +40,7 @@ func TestAccDdmInstanceReadStrategy_basic(t *testing.T) {
 	})
 }
 
-func testDdmInstanceReadStrategy_basic(name, pws, schemaName string) string {
+func testDdmInstanceReadStrategy_basic(name, schemaName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -53,10 +53,10 @@ resource "huaweicloud_ddm_instance_read_strategy" "test" {
     weight = 100
   }
 }
-`, testDdmInstanceReadStrategyBase(name, pws, schemaName))
+`, testDdmInstanceReadStrategyBase(name, schemaName))
 }
 
-func testDdmInstanceReadStrategy_update(name, pws, schemaName string) string {
+func testDdmInstanceReadStrategy_update(name, schemaName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -74,11 +74,13 @@ resource "huaweicloud_ddm_instance_read_strategy" "test" {
     weight = 40
   }
 }
-`, testDdmInstanceReadStrategyBase(name, pws, schemaName))
+`, testDdmInstanceReadStrategyBase(name, schemaName))
 }
 
-func testDdmInstanceReadStrategyBase(name, pws, schemaName string) string {
+func testDdmInstanceReadStrategyBase(name, schemaName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 data "huaweicloud_vpc" "test" {
   name = "vpc-default"
 }
@@ -87,8 +89,21 @@ data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
+resource "huaweicloud_networking_secgroup_rule" "ingress" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = 3306
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+}
+
+resource "huaweicloud_networking_secgroup_rule" "egress" {
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.test.id
 }
 
 data "huaweicloud_availability_zones" "test" {}
@@ -110,18 +125,23 @@ data "huaweicloud_rds_flavors" "test" {
 }
   
 resource "huaweicloud_rds_instance" "test" {
-  name              = "%[1]s"
+  depends_on = [
+    huaweicloud_networking_secgroup_rule.ingress,
+    huaweicloud_networking_secgroup_rule.egress,
+  ]
+
+  name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
   vpc_id            = data.huaweicloud_vpc.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
   ]
 
   db {
-    password = "%[2]s"
+    password = "Huangwei!120521"
     type     = "MySQL"
     version  = "8.0"
     port     = 3306
@@ -143,7 +163,7 @@ data "huaweicloud_rds_flavors" "replica" {
 }
 	
 resource "huaweicloud_rds_read_replica_instance" "test" {
-  name                = "%[1]s-read-replica"
+  name                = "%[2]s-read-replica"
   flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
   primary_instance_id = huaweicloud_rds_instance.test.id
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
@@ -157,14 +177,19 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
 }
 
 resource "huaweicloud_ddm_instance" "test" {
-  depends_on        = [huaweicloud_rds_read_replica_instance.test]
-  name              = "%[1]s"
+  depends_on = [
+    huaweicloud_rds_read_replica_instance.test,
+    huaweicloud_networking_secgroup_rule.ingress,
+    huaweicloud_networking_secgroup_rule.egress
+  ]
+
+  name              = "%[2]s"
   flavor_id         = data.huaweicloud_ddm_flavors.test.flavors[0].id
   node_num          = 2
   engine_id         = data.huaweicloud_ddm_engines.test.engines[0].id
   vpc_id            = data.huaweicloud_vpc.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
 
   availability_zones = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -180,7 +205,7 @@ resource "huaweicloud_ddm_schema" "test" {
   data_nodes {
     id             = huaweicloud_rds_instance.test.id
     admin_user     = "root"
-    admin_password = "%[2]s"
+    admin_password = "Huangwei!120521"
   }
   
   delete_rds_data = "true"
@@ -191,5 +216,5 @@ resource "huaweicloud_ddm_schema" "test" {
     ]
   }
 }
-`, name, pws, schemaName)
+`, common.TestSecGroup(name), name, schemaName)
 }
