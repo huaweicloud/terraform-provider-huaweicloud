@@ -12,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -50,7 +49,10 @@ func TestAccApplicationAcl_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -58,7 +60,7 @@ func TestAccApplicationAcl_basic(t *testing.T) {
 				Config: testAccApplicationAcl_basic_step1(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id", "huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
 					resource.TestCheckResourceAttrPair(rName, "application_id", "huaweicloud_apig_application.test", "id"),
 					resource.TestCheckResourceAttr(rName, "type", "PERMIT"),
 					resource.TestCheckResourceAttr(rName, "values.#", "2"),
@@ -133,26 +135,19 @@ variable "cidrs" {
   default = ["127.0.0.1", "192.145.0.0/16", "127.0.0.2-192.144.0.1"]
 }
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
+}
 
-%[1]s
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_application" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = "%[2]s"
 }
-`, common.TestBaseNetwork(name), name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func testAccApplicationAcl_basic_step1(baseConfig string) string {
@@ -160,7 +155,7 @@ func testAccApplicationAcl_basic_step1(baseConfig string) string {
 %[1]s
 
 resource "huaweicloud_apig_application_acl" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test.id
   type           = "PERMIT"
   values         = slice(var.cidrs, 0, 2)
@@ -173,7 +168,7 @@ func testAccApplicationAcl_basic_step2(baseConfig string) string {
 %[1]s
 
 resource "huaweicloud_apig_application_acl" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test.id
   type           = "PERMIT"
   values         = slice(var.cidrs, 1, 3)
@@ -186,7 +181,7 @@ func testAccApplicationAcl_basic_step3(baseConfig string) string {
 %[1]s
 
 resource "huaweicloud_apig_application_acl" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test.id
   type           = "DENY"
   values         = slice(var.cidrs, 1, 3)
@@ -199,7 +194,7 @@ func testAccApplicationAcl_basic_step4(baseConfig string) string {
 %[1]s
 
 resource "huaweicloud_apig_application_acl" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test.id
   type           = "DENY"
   values         = slice(var.cidrs, 0, 2)

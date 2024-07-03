@@ -33,6 +33,7 @@ func TestAccDataSourceSignatures_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -65,11 +66,39 @@ func TestAccDataSourceSignatures_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceSignatures_basic() string {
+func testAccDataSourceSignatures_base() string {
 	name := acceptance.RandomAccResourceName()
 	signKey := acctest.RandString(16)
 	signSecret := utils.Reverse(signKey)
 
+	return fmt.Sprintf(`
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
+}
+
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
+}
+
+resource "huaweicloud_apig_signature" "with_key" {
+  instance_id = local.instance_id
+  name        = "%[2]s_with_key"
+  type        = "aes"
+  algorithm   = "aes-128-cfb"
+  key         = "%[3]s"
+  secret      = "%[4]s"
+}
+
+resource "huaweicloud_apig_signature" "without_key" {
+  instance_id = local.instance_id
+  name        = "%[2]s_without_key"
+  type        = "aes"
+  algorithm   = "aes-256-cfb"
+}
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, signKey, signSecret)
+}
+
+func testAccDataSourceSignatures_basic() string {
 	return fmt.Sprintf(`
 %s
 
@@ -78,7 +107,7 @@ data "huaweicloud_apig_signatures" "test" {
     huaweicloud_apig_signature.with_key
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 # Filter by ID
@@ -87,7 +116,7 @@ locals {
 }
 
 data "huaweicloud_apig_signatures" "filter_by_id" {
-  instance_id  = huaweicloud_apig_instance.test.id
+  instance_id  = local.instance_id
   signature_id = local.signature_id
 }
 
@@ -107,7 +136,7 @@ locals {
 }
 
 data "huaweicloud_apig_signatures" "filter_by_name" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = local.name
 }
 
@@ -127,7 +156,7 @@ locals {
 }
 
 data "huaweicloud_apig_signatures" "filter_by_type" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   type        = local.type
 }
 
@@ -147,7 +176,7 @@ locals {
 }
 
 data "huaweicloud_apig_signatures" "filter_by_algorithm" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   algorithm   = local.algorithm
 }
 
@@ -160,5 +189,5 @@ locals {
 output "algorithm_filter_is_useful" {
   value = length(local.algorithm_filter_result) > 0 && alltrue(local.algorithm_filter_result)
 }
-`, testAccSignature_aes_step1(name, signKey, signSecret))
+`, testAccDataSourceSignatures_base())
 }

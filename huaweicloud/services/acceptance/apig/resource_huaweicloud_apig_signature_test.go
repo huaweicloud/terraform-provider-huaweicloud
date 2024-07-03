@@ -13,7 +13,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -58,6 +57,7 @@ func TestAccSignature_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc1.CheckResourceDestroy(),
@@ -110,7 +110,7 @@ func testAccSignatureImportStateFunc(rName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[rName]
 		if !ok {
-			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
+			return "", fmt.Errorf("resource (%s) not found", rName)
 		}
 		if rs.Primary.Attributes["instance_id"] == "" {
 			return "", fmt.Errorf("invalid format specified for import ID, want '<instance_id>/<id>', but got '%s/%s'",
@@ -120,33 +120,10 @@ func testAccSignatureImportStateFunc(rName string) resource.ImportStateIdFunc {
 	}
 }
 
-func testAccSignature_base(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
-}
-`, common.TestBaseNetwork(name), name)
-}
-
 func testAccSignature_basic_step1(name, signKey, signSecret string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_apig_signature" "with_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_with_key"
   type        = "basic"
   key         = "%[3]s"
@@ -154,19 +131,17 @@ resource "huaweicloud_apig_signature" "with_key" {
 }
 
 resource "huaweicloud_apig_signature" "without_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_without_key"
   type        = "basic"
 }
-`, testAccSignature_base(name), name, signKey, signSecret)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, signKey, signSecret)
 }
 
 func testAccSignature_basic_step2(name, signKey, signSecret string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_apig_signature" "with_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_with_key_update"
   type        = "basic"
   key         = "%[3]s"
@@ -174,13 +149,13 @@ resource "huaweicloud_apig_signature" "with_key" {
 }
 
 resource "huaweicloud_apig_signature" "without_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_without_key_update"
   type        = "basic"
   key         = "%[3]s"
   secret      = "%[4]s"
 }
-`, testAccSignature_base(name), name, signKey, signSecret)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, signKey, signSecret)
 }
 
 func TestAccSignature_hmac(t *testing.T) {
@@ -205,6 +180,7 @@ func TestAccSignature_hmac(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc1.CheckResourceDestroy(),
@@ -255,10 +231,8 @@ func TestAccSignature_hmac(t *testing.T) {
 
 func testAccSignature_hmac_step1(name, signKey, signSecret string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_apig_signature" "with_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_with_key"
   type        = "hmac"
   key         = "%[3]s"
@@ -266,19 +240,17 @@ resource "huaweicloud_apig_signature" "with_key" {
 }
 
 resource "huaweicloud_apig_signature" "without_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_without_key"
   type        = "hmac"
 }
-`, testAccSignature_base(name), name, signKey, signSecret)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, signKey, signSecret)
 }
 
 func testAccSignature_hmac_step2(name, signKey, signSecret string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_apig_signature" "with_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_with_key_update"
   type        = "hmac"
   key         = "%[3]s"
@@ -286,13 +258,13 @@ resource "huaweicloud_apig_signature" "with_key" {
 }
 
 resource "huaweicloud_apig_signature" "without_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_without_key_update"
   type        = "hmac"
   key         = "%[3]s"
   secret      = "%[4]s"
 }
-`, testAccSignature_base(name), name, signKey, signSecret)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, signKey, signSecret)
 }
 
 func TestAccSignature_aes(t *testing.T) {
@@ -317,6 +289,7 @@ func TestAccSignature_aes(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc1.CheckResourceDestroy(),
@@ -368,10 +341,8 @@ func TestAccSignature_aes(t *testing.T) {
 
 func testAccSignature_aes_step1(name, signKey, signSecret string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_apig_signature" "with_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_with_key"
   type        = "aes"
   algorithm   = "aes-128-cfb"
@@ -380,21 +351,19 @@ resource "huaweicloud_apig_signature" "with_key" {
 }
 
 resource "huaweicloud_apig_signature" "without_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_without_key"
   type        = "aes"
   algorithm   = "aes-256-cfb"
 }
-`, testAccSignature_base(name), name, signKey, signSecret)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, signKey, signSecret)
 }
 
 // The length of the signature key and signature secret are both 16.
 func testAccSignature_aes_step2(name, signKey, signSecret string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_apig_signature" "with_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_with_key_update"
   type        = "aes"
   algorithm   = "aes-128-cfb"
@@ -403,12 +372,12 @@ resource "huaweicloud_apig_signature" "with_key" {
 }
 
 resource "huaweicloud_apig_signature" "without_key" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s_without_key_update"
   type        = "aes"
   algorithm   = "aes-256-cfb"
   key         = format("%%s%%s", "%[3]s", strrev("%[3]s")) # the length of the 256 signature key is 32.
   secret      = "%[4]s"
 }
-`, testAccSignature_base(name), name, signKey, signSecret)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, signKey, signSecret)
 }

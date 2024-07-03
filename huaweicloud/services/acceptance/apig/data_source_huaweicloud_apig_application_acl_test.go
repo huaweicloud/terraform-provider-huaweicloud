@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDataSourceApplicationAcl_basic(t *testing.T) {
@@ -22,7 +21,10 @@ func TestAccDataSourceApplicationAcl_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -52,28 +54,21 @@ variable "cidrs" {
   default = ["172.16.0.0/20", "192.168.0.0/18", "127.0.0.1"]
 }
 
-data "huaweicloud_availability_zones" "test" {}
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
+}
 
-%[1]s
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
 }
 
 resource "huaweicloud_apig_application" "test" {
   count = 2
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = format("%[2]s_%%d", count.index)
 }
-`, common.TestBaseNetwork(name), name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 func testAccDataSourceApplicationAcl_basic() string {
@@ -81,7 +76,7 @@ func testAccDataSourceApplicationAcl_basic() string {
 %[1]s
 
 resource "huaweicloud_apig_application_acl" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test[0].id
   type           = "PERMIT"
   values         = var.cidrs
@@ -92,12 +87,12 @@ data "huaweicloud_apig_application_acl" "test" {
     huaweicloud_apig_application_acl.test
   ]
 
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test[0].id
 }
 
 data "huaweicloud_apig_application_acl" "not_found" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test[1].id
 }
 `, testAccDataSourceApplicationAcl_basic_base())
@@ -106,7 +101,10 @@ data "huaweicloud_apig_application_acl" "not_found" {
 func TestAccDataSourceApplicationAcl_expectError(t *testing.T) {
 	randUUID, _ := uuid.GenerateUUID()
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -117,34 +115,11 @@ func TestAccDataSourceApplicationAcl_expectError(t *testing.T) {
 	})
 }
 
-func testAccDataSourceApplicationAcl_expectError_base() string {
-	name := acceptance.RandomAccResourceName()
-
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-%[1]s
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
-}
-`, common.TestBaseNetwork(name), name)
-}
-
 func testAccDataSourceApplicationAcl_expectError(uuid string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 data "huaweicloud_apig_application_acl" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = "%[1]s"
   application_id = "%[2]s"
 }
-`, testAccDataSourceApplicationAcl_expectError_base(), uuid)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, uuid)
 }

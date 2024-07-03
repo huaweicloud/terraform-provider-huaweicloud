@@ -38,6 +38,8 @@ func TestAccDataSourceChannels_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -46,13 +48,15 @@ func TestAccDataSourceChannels_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dataSource, "vpc_channels.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
-					resource.TestCheckResourceAttrSet(dataSource, "vpc_channels.0.id"),
-					resource.TestCheckResourceAttrSet(dataSource, "vpc_channels.0.name"),
-					resource.TestCheckResourceAttrSet(dataSource, "vpc_channels.0.member_group.0.id"),
-					resource.TestCheckResourceAttrSet(dataSource, "vpc_channels.0.member_group.0.name"),
-					resource.TestMatchResourceAttr(dataSource, "vpc_channels.0.created_at",
-						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					dcById.CheckResourceExists(),
+					resource.TestCheckResourceAttr(byId, "vpc_channels.#", "1"),
+					resource.TestCheckResourceAttrSet(byId, "vpc_channels.0.id"),
+					resource.TestCheckResourceAttrSet(byId, "vpc_channels.0.name"),
+					resource.TestCheckResourceAttr(byId, "vpc_channels.0.member_group.#", "1"),
+					resource.TestCheckResourceAttrSet(byId, "vpc_channels.0.member_group.0.id"),
+					resource.TestCheckResourceAttrSet(byId, "vpc_channels.0.member_group.0.name"),
+					resource.TestMatchResourceAttr(byId, "vpc_channels.0.created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					resource.TestCheckOutput("channel_id_filter_is_useful", "true"),
 					dcByName.CheckResourceExists(),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
@@ -85,12 +89,12 @@ resource "huaweicloud_compute_instance" "test" {
   system_disk_type   = "SSD"
 
   network {
-    uuid = huaweicloud_vpc_subnet.test.id
+    uuid = "%[3]s"
   }
 }
 
 resource "huaweicloud_apig_channel" "test" {
-  instance_id        = huaweicloud_apig_instance.test.id
+  instance_id        = local.instance_id
   name               = "%[2]s"
   port               = 80
   balance_strategy   = 1
@@ -106,7 +110,7 @@ resource "huaweicloud_apig_channel" "test" {
   }
 
   member_group {
-    name        ="%[3]s"
+    name        ="%[4]s"
     description = "Created by script"
     weight      = 1
   }
@@ -120,7 +124,8 @@ resource "huaweicloud_apig_channel" "test" {
     }
   }
 }
-`, testAccChannel_base(rName), rName, acceptance.RandomAccResourceName())
+`, testAccChannel_base(rName), rName, acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID,
+		acceptance.RandomAccResourceName())
 }
 
 func testAccDataSourceChannels_basic(rName string) string {
@@ -132,12 +137,12 @@ data "huaweicloud_apig_channels" "test" {
     huaweicloud_apig_channel.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
 }
 
 # Filter by ID
 locals {
-  channel_id = data.huaweicloud_apig_channels.test.vpc_channels[0].id
+  channel_id = huaweicloud_apig_channel.test.id
 }
 
 data "huaweicloud_apig_channels" "filter_by_id" {
@@ -145,7 +150,7 @@ data "huaweicloud_apig_channels" "filter_by_id" {
     huaweicloud_apig_channel.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   channel_id  = local.channel_id
 }
 
@@ -161,7 +166,7 @@ output "channel_id_filter_is_useful" {
 
 # Filter by name (fuzzy search)
 locals {
-  name = data.huaweicloud_apig_channels.test.vpc_channels[0].name
+  name = huaweicloud_apig_channel.test.name
 }
 
 data "huaweicloud_apig_channels" "filter_by_name" {
@@ -169,7 +174,7 @@ data "huaweicloud_apig_channels" "filter_by_name" {
     huaweicloud_apig_channel.test
   ]
 
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   name        = local.name
 }
 
@@ -184,17 +189,13 @@ output "name_filter_is_useful" {
 }
 
 # Filter by name (exact search)
-locals {
-  exact_name = data.huaweicloud_apig_channels.test.vpc_channels[0].name
-}
-
 data "huaweicloud_apig_channels" "filter_by_exact_name" {
   depends_on = [
     huaweicloud_apig_channel.test
   ]
 
-  instance_id    = huaweicloud_apig_instance.test.id
-  name           = local.exact_name
+  instance_id    = local.instance_id
+  name           = local.name
   precise_search = "name,member_group_name"
 }
 
@@ -212,7 +213,7 @@ data "huaweicloud_apig_channels" "filter_by_not_found_name" {
     huaweicloud_apig_channel.test
   ]
 
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = local.instance_id
   name           = local.not_found_name
   precise_search = "name"
 }
@@ -231,7 +232,7 @@ data "huaweicloud_apig_channels" "filter_by_member_group_id" {
     huaweicloud_apig_channel.test
   ]
 
-  instance_id     = huaweicloud_apig_instance.test.id
+  instance_id     = local.instance_id
   member_group_id = local.member_group_id
 }
 
@@ -255,7 +256,7 @@ depends_on = [
     huaweicloud_apig_channel.test
   ]
 
-  instance_id       = huaweicloud_apig_instance.test.id
+  instance_id       = local.instance_id
   member_group_name = local.member_group_name
 }
 

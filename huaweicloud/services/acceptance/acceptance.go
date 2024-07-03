@@ -48,7 +48,8 @@ var (
 	HW_ADMIN                  = os.Getenv("HW_ADMIN")
 	HW_IAM_V5                 = os.Getenv("HW_IAM_V5")
 
-	HW_APIG_DEDICATED_INSTANCE_ID = os.Getenv("HW_APIG_DEDICATED_INSTANCE_ID")
+	HW_APIG_DEDICATED_INSTANCE_ID             = os.Getenv("HW_APIG_DEDICATED_INSTANCE_ID")
+	HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID = os.Getenv("HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID")
 
 	HW_CAE_ENVIRONMENT_ID     = os.Getenv("HW_CAE_ENVIRONMENT_ID")
 	HW_CAE_APPLICATION_ID     = os.Getenv("HW_CAE_APPLICATION_ID")
@@ -582,6 +583,13 @@ func TestAccPreCheckUserId(t *testing.T) {
 func TestAccPreCheckApigSubResourcesRelatedInfo(t *testing.T) {
 	if HW_APIG_DEDICATED_INSTANCE_ID == "" {
 		t.Skip("Before running APIG acceptance tests, please ensure the env 'HW_APIG_DEDICATED_INSTANCE_ID' has been configured")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckApigChannelRelatedInfo(t *testing.T) {
+	if HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID == "" {
+		t.Skip("Before running APIG acceptance tests, please ensure the env 'HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID' has been configured")
 	}
 }
 

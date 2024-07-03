@@ -12,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -37,6 +36,7 @@ func TestAccAppcode_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -75,41 +75,19 @@ func testAccAppcodeImportIdFunc() resource.ImportStateIdFunc {
 	}
 }
 
-func testAccApigAppcode_base() string {
+func testAccAppcode_basic() string {
 	name := acceptance.RandomAccResourceName()
-
 	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
-}
-
 resource "huaweicloud_apig_application" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "%[2]s"
 }
-`, common.TestBaseNetwork(name), name)
-}
-
-func testAccAppcode_basic() string {
-	return fmt.Sprintf(`
-%[1]s
 
 resource "huaweicloud_apig_appcode" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = "%[1]s"
   application_id = huaweicloud_apig_application.test.id
 }
-`, testAccApigAppcode_base())
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
 
 // Manually configure APPCODE.
@@ -124,6 +102,7 @@ func TestAccAppcode_manuallyConfig(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -145,14 +124,20 @@ func TestAccAppcode_manuallyConfig(t *testing.T) {
 }
 
 func testAccAppcode_manuallyConfig() string {
-	code := utils.Base64EncodeString(acctest.RandString(64))
+	var (
+		name = acceptance.RandomAccResourceName()
+		code = utils.Base64EncodeString(acctest.RandString(64))
+	)
 	return fmt.Sprintf(`
-%[1]s
+resource "huaweicloud_apig_application" "test" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+}
 
 resource "huaweicloud_apig_appcode" "test" {
-  instance_id    = huaweicloud_apig_instance.test.id
+  instance_id    = "%[1]s"
   application_id = huaweicloud_apig_application.test.id
-  value          = "%[2]s"
+  value          = "%[3]s"
 }
-`, testAccApigAppcode_base(), code)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, code)
 }

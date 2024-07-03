@@ -11,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 )
 
@@ -32,7 +31,6 @@ func TestAccEnvironment_basic(t *testing.T) {
 		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
-		baseConfig = testAccEnvironment_base(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -44,12 +42,13 @@ func TestAccEnvironment_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEnvironment_basic_step1(baseConfig, name),
+				Config: testAccEnvironment_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -58,7 +57,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEnvironment_basic_step2(baseConfig, updateName),
+				Config: testAccEnvironment_basic_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -69,67 +68,45 @@ func TestAccEnvironment_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccEnvironmentImportStateFunc(),
+				ImportStateIdFunc: testAccEnvironmentImportStateFunc(rName),
 			},
 		},
 	})
 }
 
-func testAccEnvironmentImportStateFunc() resource.ImportStateIdFunc {
+func testAccEnvironmentImportStateFunc(rsName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		rName := "huaweicloud_apig_environment.test"
-		rs, ok := s.RootModule().Resources[rName]
+		rs, ok := s.RootModule().Resources[rsName]
 		if !ok {
-			return "", fmt.Errorf("resource (%s) not found: %s", rName, rs)
+			return "", fmt.Errorf("resource (%s) not found", rsName)
 		}
 		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.Attributes["name"] == "" {
-			return "", fmt.Errorf("missing some attributes, want '{instance_id}/{name}', but '%s/%s'",
+			return "", fmt.Errorf("missing some attributes, want '{instance_id}/{name}', but got '%s/%s'",
 				rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["name"])
 		}
 		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["name"]), nil
 	}
 }
 
-func testAccEnvironment_base(name string) string {
+func testAccEnvironment_basic_general(name, desc string) string {
 	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = [
-    data.huaweicloud_availability_zones.test.names[0],
-  ]
+variable "environment_description" {
+  type    = string
+  default = "%[3]s" 
 }
-`, common.TestBaseNetwork(name), name)
-}
-
-func testAccEnvironment_basic_step1(baseConfig, name string) string {
-	return fmt.Sprintf(`
-%[1]s
 
 resource "huaweicloud_apig_environment" "test" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
-  description = "Created by script"
+  description = var.environment_description != "" ? var.environment_description : null
 }
-`, baseConfig, name)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, desc)
 }
 
-func testAccEnvironment_basic_step2(baseConfig, name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_environment" "test" {
-  name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
+func testAccEnvironment_basic_step1(name string) string {
+	return testAccEnvironment_basic_general(name, "Created by script")
 }
-`, baseConfig, name)
+
+func testAccEnvironment_basic_step2(name string) string {
+	return testAccEnvironment_basic_general(name, "")
 }

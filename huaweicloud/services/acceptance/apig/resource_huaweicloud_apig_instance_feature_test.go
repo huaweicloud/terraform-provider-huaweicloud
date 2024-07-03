@@ -9,7 +9,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 )
 
@@ -40,6 +39,7 @@ func TestAccInstanceFeature_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -86,30 +86,10 @@ func testAccInstanceFeatureResourceImportStateFunc(rName string) resource.Import
 	}
 }
 
-func testAccInstanceFeature_base(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-  availability_zones    = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
-}
-`, common.TestBaseNetwork(name), name)
-}
-
 func testAccInstanceFeature_basic_step1(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_apig_instance_feature" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "ratelimit"
   enabled     = true
 
@@ -117,15 +97,13 @@ resource "huaweicloud_apig_instance_feature" "test" {
     api_limits = 200
   })
 }
-`, testAccInstanceFeature_base(name))
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
 func testAccInstanceFeature_basic_step2(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_apig_instance_feature" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   name        = "ratelimit"
   enabled     = true
 
@@ -133,5 +111,5 @@ resource "huaweicloud_apig_instance_feature" "test" {
     api_limits = 300
   })
 }
-`, testAccInstanceFeature_base(name))
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }

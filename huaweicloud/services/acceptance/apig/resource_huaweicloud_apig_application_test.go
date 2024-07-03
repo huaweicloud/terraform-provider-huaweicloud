@@ -12,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -32,7 +31,6 @@ func TestAccApplication_basic(t *testing.T) {
 		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
-		baseConfig = testAccApigApplication_base(name)
 
 		description       = "Created by script"
 		updateDescription = "Updated by script"
@@ -52,7 +50,7 @@ func TestAccApplication_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApplication_basic(baseConfig, name, description),
+				Config: testAccApplication_basic(name, description),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -63,7 +61,7 @@ func TestAccApplication_basic(t *testing.T) {
 			},
 			{
 				// update name, description and app_code.
-				Config: testAccApplication_basic(baseConfig, updateName, updateDescription),
+				Config: testAccApplication_basic(updateName, updateDescription),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
@@ -96,36 +94,16 @@ func testAccApplicationImportIdFunc() resource.ImportStateIdFunc {
 	}
 }
 
-func testAccApigApplication_base(name string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
-}
-`, common.TestBaseNetwork(name), name)
-}
-
-func testAccApplication_basic(baseConfig, name, description string) string {
+func testAccApplication_basic(name, description string) string {
 	code := utils.Base64EncodeString(acctest.RandString(64))
-	return fmt.Sprintf(`
-%[1]s
 
+	return fmt.Sprintf(`
 resource "huaweicloud_apig_application" "test" {
+  instance_id = "%[1]s"
   name        = "%[2]s"
-  instance_id = huaweicloud_apig_instance.test.id
   description = "%[3]s"
 
   app_codes = ["%[4]s"]
 }
-`, baseConfig, name, description, code)
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name, description, code)
 }

@@ -19,6 +19,7 @@ func TestAccDataSourceInstanceSupportedFeatures_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -34,12 +35,19 @@ func TestAccDataSourceInstanceSupportedFeatures_basic(t *testing.T) {
 }
 
 func testAccDataSourceInstanceSupportedFeatures_basic() string {
-	name := acceptance.RandomAccResourceName()
 	return fmt.Sprintf(`
-%[1]s
+resource "huaweicloud_apig_instance_feature" "test" {
+  instance_id = "%[1]s"
+  name        = "ratelimit"
+  enabled     = true
+
+  config = jsonencode({
+    api_limits = 200
+  })
+}
 
 data "huaweicloud_apig_instance_supported_features" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
 }
-`, testAccInstanceFeature_base(name))
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }

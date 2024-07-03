@@ -40,6 +40,7 @@ func TestAccEndpointConnectionManagement_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -70,6 +71,7 @@ func testAccEndpointConnectionManagement_base(name, nameWithNetwork string) stri
 
 data "huaweicloud_availability_zones" "test" {}
 
+// Only resource returns parameter 'vpcep_service_address'.
 resource "huaweicloud_apig_instance" "test" {
   name                  = "%[2]s"
   edition               = "BASIC"

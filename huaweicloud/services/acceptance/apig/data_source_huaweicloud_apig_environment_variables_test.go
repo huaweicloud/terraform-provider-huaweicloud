@@ -28,6 +28,7 @@ func TestAccDataSourceApigEnvironmentVariables_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -60,7 +61,7 @@ data "huaweicloud_apig_environment_variables" "test" {
     huaweicloud_apig_environment_variable.test
   ]
   
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   group_id    = huaweicloud_apig_group.test.id
 }
 
@@ -69,7 +70,7 @@ locals {
 }
 
 data "huaweicloud_apig_environment_variables" "filter_by_env_id" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   group_id    = huaweicloud_apig_group.test.id
   env_id      = local.env_id
 }
@@ -89,7 +90,7 @@ locals {
 }
 
 data "huaweicloud_apig_environment_variables" "filter_by_name" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   group_id    = huaweicloud_apig_group.test.id
   name        = local.variable_name
 }
@@ -105,7 +106,7 @@ output "is_name_filter_useful" {
 }
 
 data "huaweicloud_apig_environment_variables" "not_found" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = local.instance_id
   group_id    = huaweicloud_apig_group.test.id
   name        = "not_found"
 }

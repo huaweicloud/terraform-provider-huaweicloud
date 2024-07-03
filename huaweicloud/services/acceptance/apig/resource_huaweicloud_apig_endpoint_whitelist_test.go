@@ -12,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getEndpointWhiteListFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -60,6 +59,7 @@ func TestAccEndpointWhiteList_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -68,8 +68,7 @@ func TestAccEndpointWhiteList_basic(t *testing.T) {
 				Config: testAccEndpointWhiteList_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
 					resource.TestCheckResourceAttr(rName, "whitelists.#", "2"),
 				),
 			},
@@ -77,8 +76,7 @@ func TestAccEndpointWhiteList_basic(t *testing.T) {
 				Config: testAccEndpointWhiteList_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"huaweicloud_apig_instance.test", "id"),
+					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
 					resource.TestCheckResourceAttr(rName, "whitelists.#", "3"),
 				),
 			},
@@ -91,54 +89,27 @@ func TestAccEndpointWhiteList_basic(t *testing.T) {
 	})
 }
 
-func testAccEndpointWhiteList_base(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  availability_zones    = slice(data.huaweicloud_availability_zones.test.names, 0, 1)
-  loadbalancer_provider = "elb"
-  vpcep_service_name    = "apig_vpcep"
-
-  edition               = "BASIC"
-  name                  = "%[2]s"
-  enterprise_project_id = "0"
-  maintain_begin        = "14:00:00"
-  description           = "created by acc test"
-}
-`, common.TestBaseNetwork(rName), rName)
-}
-
 func testAccEndpointWhiteList_basic(rName string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_apig_endpoint_whitelist" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   whitelists  = [
     "iam:domain::1cc2018e40394f7c9692f1713e76234d",
     "iam:domain::2cc2018e40394f7c9692f1713e76234d",
   ]
 }
-`, testAccEndpointWhiteList_base(rName))
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
 func testAccEndpointWhiteList_update(rName string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_apig_endpoint_whitelist" "test" {
-  instance_id = huaweicloud_apig_instance.test.id
+  instance_id = "%[1]s"
   whitelists  = [
     "iam:domain::3cc2018e40394f7c9692f1713e76234d",
     "iam:domain::4cc2018e40394f7c9692f1713e76234d",
     "iam:domain::5cc2018e40394f7c9692f1713e76234d",
   ]
 }
-`, testAccEndpointWhiteList_base(rName))
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }

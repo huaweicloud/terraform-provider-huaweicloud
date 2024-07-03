@@ -11,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getCustomAuthorizerFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -41,6 +40,7 @@ func TestAccCustomAuthorizer_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -96,6 +96,7 @@ func TestAccCustomAuthorizer_backend(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -147,23 +148,8 @@ func testAccCustomAuthorizerImportStateFunc() resource.ImportStateIdFunc {
 
 func testAccCustomAuthorizer_base(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_apig_instance" "test" {
-  name                  = "%[2]s"
-  edition               = "BASIC"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  enterprise_project_id = "0"
-
-  availability_zones = try(slice(data.huaweicloud_availability_zones.test.names, 0, 1), null)
-}
-
 resource "huaweicloud_fgs_function" "test" {
-  name        = "%[2]s"
+  name        = "%[1]s"
   app         = "default"
   description = "API custom authorization test"
   handler     = "index.handler"
@@ -199,7 +185,15 @@ def handler(event, context):
         }
 EOF
 }
-`, common.TestBaseNetwork(name), name)
+
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[2]s"
+}
+
+locals {
+  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
+}
+`, name, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
 func testAccCustomAuthorizer_front_step1(baseConfig, name string) string {
@@ -207,7 +201,7 @@ func testAccCustomAuthorizer_front_step1(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   function_urn     = huaweicloud_fgs_function.test.urn
   function_version = "latest"
@@ -228,7 +222,7 @@ func testAccCustomAuthorizer_front_step2(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   function_urn     = huaweicloud_fgs_function.test.urn
   function_version = "latest"
@@ -242,7 +236,7 @@ func testAccCustomAuthorizer_backend_step1(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   function_urn     = huaweicloud_fgs_function.test.urn
   function_version = "latest"
@@ -257,7 +251,7 @@ func testAccCustomAuthorizer_backend_step2(baseConfig, name string) string {
 %[1]s
 
 resource "huaweicloud_apig_custom_authorizer" "test" {
-  instance_id      = huaweicloud_apig_instance.test.id
+  instance_id      = local.instance_id
   name             = "%[2]s"
   function_urn     = huaweicloud_fgs_function.test.urn
   function_version = "latest"
