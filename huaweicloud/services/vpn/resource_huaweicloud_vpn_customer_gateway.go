@@ -56,34 +56,69 @@ func ResourceCustomerGateway() *schema.Resource {
 					validation.StringLenBetween(1, 64),
 				),
 			},
+			"id_value": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The identifier of a customer gateway.`,
+					utils.SchemaDescInput{
+						Required: true,
+					},
+				),
+				ConflictsWith: []string{"ip", "route_mode"},
+			},
 			"ip": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The IP address of the customer gateway.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: utils.SchemaDesc(
+					`The IP address of the customer gateway.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					}),
+				ConflictsWith: []string{"id_value", "id_type"},
 			},
 			"route_mode": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "bgp",
-				ForceNew:    true,
-				Description: `The route mode of the customer gateway.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "bgp",
+				ForceNew: true,
+				Description: utils.SchemaDesc(
+					`The route mode of the customer gateway.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					}),
 				ValidateFunc: validation.StringInSlice([]string{
 					"static", "bgp",
 				}, false),
+				ConflictsWith: []string{"id_value", "id_type"},
 			},
 			"asn": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     65000,
 				ForceNew:    true,
-				Description: `The BGP ASN number of the customer gateway, only required when the route_mode is bgp, the default value is 65000.`,
+				Description: `The BGP ASN number of the customer gateway, the default value is 65000.`,
+			},
+			"id_type": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Default:       "ip",
+				ForceNew:      true,
+				Description:   `The identifier type of a customer gateway.`,
+				ConflictsWith: []string{"ip", "route_mode"},
 			},
 			"certificate_content": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"tags": common.TagsSchema(),
+			"certificate_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"serial_number": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -166,20 +201,27 @@ func resourceCustomerGatewayCreate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func buildCreateCustomerGatewayBodyParams(d *schema.ResourceData) map[string]interface{} {
-	bodyParams := map[string]interface{}{
+	return map[string]interface{}{
 		"customer_gateway": buildCreateCustomerGatewayCustomerGatewayChildBody(d),
 	}
-	return bodyParams
 }
 
 func buildCreateCustomerGatewayCustomerGatewayChildBody(d *schema.ResourceData) map[string]interface{} {
+	_, ipOk := d.GetOk("ip")
 	params := map[string]interface{}{
-		"name":       utils.ValueIgnoreEmpty(d.Get("name")),
-		"ip":         utils.ValueIgnoreEmpty(d.Get("ip")),
-		"bgp_asn":    utils.ValueIgnoreEmpty(d.Get("asn")),
-		"route_mode": utils.ValueIgnoreEmpty(d.Get("route_mode")),
-		"tags":       utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+		"name":    d.Get("name"),
+		"bgp_asn": utils.ValueIgnoreEmpty(d.Get("asn")),
+		"tags":    utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
+
+	if ipOk {
+		params["ip"] = d.Get("ip")
+		params["route_mode"] = utils.ValueIgnoreEmpty(d.Get("route_mode"))
+	} else {
+		params["id_value"] = d.Get("id_value")
+		params["id_type"] = utils.ValueIgnoreEmpty(d.Get("id_type"))
+	}
+
 	if certificateContent, ok := d.GetOk("certificate_content"); ok {
 		params["ca_certificate"] = map[string]interface{}{
 			"content": certificateContent,
@@ -229,9 +271,10 @@ func resourceCustomerGatewayRead(_ context.Context, d *schema.ResourceData, meta
 		mErr,
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("customer_gateway.name", getCustomerGatewayRespBody, nil)),
-		d.Set("ip", utils.PathSearch("customer_gateway.ip", getCustomerGatewayRespBody, nil)),
+		d.Set("id_value", utils.PathSearch("customer_gateway.id_value", getCustomerGatewayRespBody, nil)),
 		d.Set("asn", utils.PathSearch("customer_gateway.bgp_asn", getCustomerGatewayRespBody, nil)),
-		d.Set("route_mode", utils.PathSearch("customer_gateway.route_mode", getCustomerGatewayRespBody, nil)),
+		d.Set("id_type", utils.PathSearch("customer_gateway.id_type", getCustomerGatewayRespBody, nil)),
+		d.Set("certificate_id", utils.PathSearch("customer_gateway.ca_certificate.id", getCustomerGatewayRespBody, nil)),
 		d.Set("serial_number", utils.PathSearch("customer_gateway.ca_certificate.serial_number",
 			getCustomerGatewayRespBody, nil)),
 		d.Set("signature_algorithm", utils.PathSearch("customer_gateway.ca_certificate.signature_algorithm",
