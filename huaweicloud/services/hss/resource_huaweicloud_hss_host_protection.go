@@ -156,6 +156,21 @@ func convertChargingModeRequest(chargingMode string) string {
 	}
 }
 
+func closeHostProtection(client *hssv5.HssClient, region, epsId, hostId string) error {
+	closeOpts := hssv5model.SwitchHostsProtectStatusRequest{
+		Region:              region,
+		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
+		Body: &hssv5model.SwitchHostsProtectStatusRequestInfo{
+			Version:    protectionVersionNull,
+			HostIdList: []string{hostId},
+		},
+	}
+
+	_, err := client.SwitchHostsProtectStatus(&closeOpts)
+
+	return err
+}
+
 func switchHostsProtectStatus(client *hssv5.HssClient, region, epsId, hostId string, d *schema.ResourceData) error {
 	var (
 		version      = d.Get("version").(string)
@@ -198,6 +213,13 @@ func resourceHostProtectionCreate(ctx context.Context, d *schema.ResourceData, m
 	checkHostAvailableErr := checkHostAvailable(client, region, epsId, hostId)
 	if checkHostAvailableErr != nil {
 		return diag.FromErr(checkHostAvailableErr)
+	}
+
+	// Due to API limitations, when switching host protection for the first time, protection needs to be closed first.
+	err = closeHostProtection(client, region, epsId, hostId)
+	if err != nil {
+		return diag.Errorf("error closing host protection before opening HSS host (%s) protection: %s",
+			hostId, err)
 	}
 
 	err = switchHostsProtectStatus(client, region, epsId, hostId, d)
@@ -304,6 +326,13 @@ func resourceHostProtectionUpdate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if d.HasChanges("version", "charging_mode", "quota_id") {
+		// Due to API limitations, when switching host protection for the first time, protection needs to be closed first.
+		err = closeHostProtection(client, region, epsId, id)
+		if err != nil {
+			return diag.Errorf("error closing host protection before updating HSS host (%s) protection: %s",
+				id, err)
+		}
+
 		err = switchHostsProtectStatus(client, region, epsId, id, d)
 		if err != nil {
 			return diag.Errorf("error updating HSS host (%s) protection: %s", id, err)
@@ -326,16 +355,7 @@ func resourceHostProtectionDelete(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating HSS v5 client: %s", err)
 	}
 
-	closeOpts := hssv5model.SwitchHostsProtectStatusRequest{
-		Region:              region,
-		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
-		Body: &hssv5model.SwitchHostsProtectStatusRequestInfo{
-			Version:    protectionVersionNull,
-			HostIdList: []string{id},
-		},
-	}
-
-	_, err = client.SwitchHostsProtectStatus(&closeOpts)
+	err = closeHostProtection(client, region, epsId, id)
 	if err != nil {
 		return diag.Errorf("error closing HSS host (%s) protection: %s", id, err)
 	}
