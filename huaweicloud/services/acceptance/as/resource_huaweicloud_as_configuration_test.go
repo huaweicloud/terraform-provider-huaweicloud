@@ -63,15 +63,16 @@ func TestAccASConfiguration_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_config.0.metadata"},
 			},
 		},
 	})
 }
 
-func TestAccASConfiguration_spot(t *testing.T) {
+func TestAccASConfiguration_spot_ecsPassword(t *testing.T) {
 	var (
 		obj          interface{}
 		rName        = acceptance.RandomAccResourceName()
@@ -117,9 +118,57 @@ func TestAccASConfiguration_spot(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_config.0.metadata"},
+			},
+		},
+	})
+}
+
+func TestAccASConfiguration_windowsPassword(t *testing.T) {
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_configuration.acc_as_config"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASConfigurationResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccASConfiguration_windowsPassword(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.image",
+						"data.huaweicloud_images_image.windows_test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.flavor",
+						"data.huaweicloud_compute_flavors.test", "ids.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_config.0.security_group_ids.0",
+						"huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.key_name", ""),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.user_data", ""),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.admin_pass", "testTT123!"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.personality.0.path", "fbbo"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.personality.0.content", utils.Base64EncodeString("test content")),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.disk.#", "1"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_config.0.admin_pass"},
 			},
 		},
 	})
@@ -454,6 +503,39 @@ EOT
           charging_mode = "traffic"
         }
       }
+    }
+  }
+}
+`, testAccASConfiguration_base(rName), rName)
+}
+
+func testAccASConfiguration_windowsPassword(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_images_image" "windows_test" {
+  name        = "Windows Server 2019 Datacenter 64bit English"
+  visibility  = "public"
+  most_recent = true
+}
+
+resource "huaweicloud_as_configuration" "acc_as_config"{
+  scaling_configuration_name = "%[2]s"
+  instance_config {
+    image              = data.huaweicloud_images_image.windows_test.id
+    flavor             = data.huaweicloud_compute_flavors.test.ids[0]
+    security_group_ids = [huaweicloud_networking_secgroup.test.id]
+    admin_pass         = "testTT123!"
+
+    disk {
+      size        = 40
+      volume_type = "SSD"
+      disk_type   = "SYS"
+    }
+
+    personality {
+      path    = "fbbo"
+      content = base64encode("test content")
     }
   }
 }
