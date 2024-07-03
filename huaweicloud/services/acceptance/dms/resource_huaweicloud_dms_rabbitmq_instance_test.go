@@ -320,6 +320,39 @@ func TestAccDmsRabbitmqInstances_single(t *testing.T) {
 	})
 }
 
+func TestAccDmsRabbitmqInstances_publicID(t *testing.T) {
+	var instance instances.Instance
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getDmsRabbitMqInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDmsRabbitmqInstance_publicID(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "public_ip_id", "huaweicloud_vpc_eip.test.0", "id"),
+				),
+			},
+			{
+				Config: testAccDmsRabbitmqInstance_publicID_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "public_ip_id", "huaweicloud_vpc_eip.test.1", "id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDmsRabbitmqInstance_Base(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -761,4 +794,105 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
     owner = "terraform_update"
   }
 }`, common.TestBaseNetwork(rName), updateName)
+}
+
+func testEip_base() string {
+	name := acceptance.RandomAccResourceName()
+
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "test" {
+  count = 2
+
+  publicip {
+    type = "5_bgp"
+  }
+
+  bandwidth {
+    share_type  = "PER"
+    name        = "%[1]s_${count.index}"
+    size        = 5
+    charge_mode = "traffic"
+  }
+}
+`, name)
+}
+
+func testAccDmsRabbitmqInstance_publicID(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_rabbitmq_flavors.test
+  flavor        = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0]
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name        = "%s"
+  description = "rabbitmq test"
+  
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = local.flavor.id
+  engine_version    = "3.8.35"
+  storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  broker_num        = 3
+  access_user       = "user"
+  password          = "Rabbitmqtest@123"
+  public_ip_id      = huaweicloud_vpc_eip.test[0].id
+}`, common.TestBaseNetwork(rName), testEip_base(), rName)
+}
+
+func testAccDmsRabbitmqInstance_publicID_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "cluster"
+}
+
+locals {
+  query_results = data.huaweicloud_dms_rabbitmq_flavors.test
+  flavor        = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0]
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name        = "%s"
+  description = "rabbitmq test"
+  
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = local.flavor.id
+  engine_version    = "3.8.35"
+  storage_space     = local.flavor.properties[0].min_broker * local.flavor.properties[0].min_storage_per_node
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  broker_num        = 3
+  access_user       = "user"
+  password          = "Rabbitmqtest@123"
+  public_ip_id      = huaweicloud_vpc_eip.test[1].id
+}`, common.TestBaseNetwork(rName), testEip_base(), rName)
 }
