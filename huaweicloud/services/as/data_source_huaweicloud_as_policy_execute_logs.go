@@ -112,42 +112,7 @@ func DataSourcePolicyExecuteLogs() *schema.Resource {
 						"job_records": {
 							Type:     schema.TypeList,
 							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"job_name": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"job_status": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"record_type": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"record_time": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"request": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"response": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"code": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"message": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-								},
-							},
+							Elem:     policyExecuteLogDataSourceJobRecordsSchema(),
 						},
 						"metadata": {
 							Type:     schema.TypeMap,
@@ -161,17 +126,47 @@ func DataSourcePolicyExecuteLogs() *schema.Resource {
 	}
 }
 
-func dataSourcePolicyExecuteLogsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-	)
-	client, err := cfg.AutoscalingV1Client(region)
-	if err != nil {
-		return diag.Errorf("error creating AS v1 client: %s", err)
+func policyExecuteLogDataSourceJobRecordsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"job_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"job_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"record_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"record_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"request": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"response": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"message": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
 	}
+}
 
-	opts := policyexecutelogs.ListOpts{
+func buildDataSourcePolicyExecuteLogOpts(d *schema.ResourceData) policyexecutelogs.ListOpts {
+	return policyexecutelogs.ListOpts{
 		PolicyID:     d.Get("scaling_policy_id").(string),
 		LogID:        d.Get("log_id").(string),
 		ResourceID:   d.Get("scaling_resource_id").(string),
@@ -180,12 +175,41 @@ func dataSourcePolicyExecuteLogsRead(_ context.Context, d *schema.ResourceData, 
 		StartTime:    d.Get("start_time").(string),
 		EndTime:      d.Get("end_time").(string),
 	}
+}
+
+func dataSourcePolicyExecuteLogsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+		opts   = buildDataSourcePolicyExecuteLogOpts(d)
+	)
+	client, err := cfg.AutoscalingV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating AS v1 client: %s", err)
+	}
 
 	executeLogList, err := policyexecutelogs.List(client, opts)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "AS policy execute logs")
 	}
 
+	randUUID, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+
+	d.SetId(randUUID)
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("execute_logs", flattenDataSourcePolicyExecuteLogs(executeLogList, d)),
+	)
+	if mErr.ErrorOrNil() != nil {
+		return diag.Errorf("error saving AS policy execute logs data source fields: %s", mErr)
+	}
+	return nil
+}
+
+func flattenDataSourcePolicyExecuteLogs(executeLogList []policyexecutelogs.ExecuteLog, d *schema.ResourceData) []map[string]interface{} {
 	executeLogs := make([]map[string]interface{}, 0, len(executeLogList))
 	for _, executeLog := range executeLogList {
 		if val, ok := d.GetOk("status"); ok && val.(string) != executeLog.Status {
@@ -209,20 +233,7 @@ func dataSourcePolicyExecuteLogsRead(_ context.Context, d *schema.ResourceData, 
 		}
 		executeLogs = append(executeLogs, executeLogMap)
 	}
-
-	randUUID, err := uuid.GenerateUUID()
-	if err != nil {
-		return diag.Errorf("unable to generate ID: %s", err)
-	}
-	d.SetId(randUUID)
-	mErr := multierror.Append(nil,
-		d.Set("region", region),
-		d.Set("execute_logs", executeLogs),
-	)
-	if mErr.ErrorOrNil() != nil {
-		return diag.Errorf("error saving AS policy execute logs data source fields: %s", mErr)
-	}
-	return nil
+	return executeLogs
 }
 
 func flattenJobRecords(jobRecords []policyexecutelogs.JobRecord) []map[string]interface{} {

@@ -95,19 +95,19 @@ func DataSourceASConfigurations() *schema.Resource {
 									"disk": {
 										Type:        schema.TypeList,
 										Computed:    true,
-										Elem:        ConfigurationDiskSchema(),
+										Elem:        configurationDataSourceDiskSchema(),
 										Description: "The disk group information of the AS configuration.",
 									},
 									"personality": {
 										Type:        schema.TypeList,
 										Computed:    true,
-										Elem:        ConfigurationPersonalitySchema(),
+										Elem:        configurationDataSourcePersonalitySchema(),
 										Description: "The customize personality of the AS configuration.",
 									},
 									"public_ip": {
 										Type:        schema.TypeList,
 										Computed:    true,
-										Elem:        ConfigurationPublicIpSchema(),
+										Elem:        configurationDataSourcePublicIpSchema(),
 										Description: "The EIP of the ECS instance.",
 									},
 									"user_data": {
@@ -136,7 +136,7 @@ func DataSourceASConfigurations() *schema.Resource {
 	}
 }
 
-func ConfigurationDiskSchema() *schema.Resource {
+func configurationDataSourceDiskSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"size": {
@@ -163,7 +163,7 @@ func ConfigurationDiskSchema() *schema.Resource {
 	}
 }
 
-func ConfigurationPersonalitySchema() *schema.Resource {
+func configurationDataSourcePersonalitySchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"path": {
@@ -180,7 +180,7 @@ func ConfigurationPersonalitySchema() *schema.Resource {
 	}
 }
 
-func ConfigurationPublicIpSchema() *schema.Resource {
+func configurationDataSourcePublicIpSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"eip": {
@@ -225,49 +225,61 @@ func ConfigurationPublicIpSchema() *schema.Resource {
 	}
 }
 
+func buildDataSourceConfigurationOpts(d *schema.ResourceData) configurations.ListOpts {
+	return configurations.ListOpts{
+		Name:    d.Get("name").(string),
+		ImageID: d.Get("image_id").(string),
+	}
+}
+
 func dataSourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
+	var (
+		conf   = meta.(*config.Config)
+		region = conf.GetRegion(d)
+		opts   = buildDataSourceConfigurationOpts(d)
+	)
+
 	asClient, err := conf.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating autoscaling client: %s", err)
 	}
 
-	opts := configurations.ListOpts{
-		Name:    d.Get("name").(string),
-		ImageID: d.Get("image_id").(string),
-	}
 	page, err := configurations.List(asClient, opts).AllPages()
 	if err != nil {
-		return diag.Errorf("error getting AS Configuration list: %s", err)
+		return diag.Errorf("error getting AS configuration list: %s", err)
 	}
 
 	configurationList, err := page.(configurations.ConfigurationPage).Extract()
 	if err != nil {
-		return diag.Errorf("error extract to AS Configuration list: %s", err)
+		return diag.Errorf("error extract to AS configuration list: %s", err)
 	}
 
-	ids := make([]string, 0, len(configurationList))
-	elements := make([]map[string]interface{}, 0, len(configurationList))
-	for _, configuration := range configurationList {
-		configurationMap := map[string]interface{}{
-			"scaling_configuration_name": configuration.Name,
-			"instance_config":            flattenInstanceConfigs(configuration.InstanceConfig),
-			"status":                     normalizeConfigurationStatus(configuration.ScalingGroupID),
-		}
-		ids = append(ids, configuration.ID)
-		elements = append(elements, configurationMap)
-	}
-
+	ids, elements := flattenDataSourceConfigurations(configurationList)
 	d.SetId(hashcode.Strings(ids))
 	mErr := multierror.Append(nil,
 		d.Set("configurations", elements),
 		d.Set("region", region),
 	)
 	if mErr.ErrorOrNil() != nil {
-		return diag.Errorf("error setting AS Configuration fields: %s", mErr)
+		return diag.Errorf("error setting AS configuration fields: %s", mErr)
 	}
 	return nil
+}
+
+func flattenDataSourceConfigurations(configurationList []configurations.Configuration) ([]string, []map[string]interface{}) {
+	ids := make([]string, 0, len(configurationList))
+	elements := make([]map[string]interface{}, 0, len(configurationList))
+	for _, configuration := range configurationList {
+		configurationMap := map[string]interface{}{
+			"scaling_configuration_name": configuration.Name,
+			"instance_config":            flattenInstanceConfigs(configuration.InstanceConfig),
+			"status":                     normalizeDataSourceConfigurationStatus(configuration.ScalingGroupID),
+		}
+		ids = append(ids, configuration.ID)
+		elements = append(elements, configurationMap)
+	}
+
+	return ids, elements
 }
 
 func flattenInstanceConfigs(instanceConfig configurations.InstanceConfig) []map[string]interface{} {
@@ -288,6 +300,13 @@ func flattenInstanceConfigs(instanceConfig configurations.InstanceConfig) []map[
 			"personality":            flattenAsInstancePersonality(instanceConfig.Personality),
 		},
 	}
+}
+
+func normalizeDataSourceConfigurationStatus(groupIDs string) string {
+	if groupIDs != "" {
+		return "Bound"
+	}
+	return "Unbound"
 }
 
 func flattenAsInstanceDisks(disks []configurations.Disk) []map[string]interface{} {

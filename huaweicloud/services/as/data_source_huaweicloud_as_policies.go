@@ -133,27 +133,16 @@ func DataSourceASPolicies() *schema.Resource {
 	}
 }
 
-func dataSourceASPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-	)
-	client, err := cfg.AutoscalingV1Client(region)
-	if err != nil {
-		return diag.Errorf("error creating AS v1 client: %s", err)
-	}
-
-	opts := policies.ListOpts{
+func buildDataSourcePolicyOpts(d *schema.ResourceData) policies.ListOpts {
+	return policies.ListOpts{
 		GroupID:  d.Get("scaling_group_id").(string),
 		Name:     d.Get("scaling_policy_name").(string),
 		Type:     d.Get("scaling_policy_type").(string),
 		PolicyID: d.Get("scaling_policy_id").(string),
 	}
-	policyResp, err := policies.List(client, opts).Extract()
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS policies")
-	}
+}
 
+func flattenDataSourcePolicies(policyResp []policies.Policy) []map[string]interface{} {
 	policyList := make([]map[string]interface{}, 0, len(policyResp))
 	for _, policy := range policyResp {
 		policyMap := map[string]interface{}{
@@ -171,6 +160,24 @@ func dataSourceASPoliciesRead(_ context.Context, d *schema.ResourceData, meta in
 
 		policyList = append(policyList, policyMap)
 	}
+	return policyList
+}
+
+func dataSourceASPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+		opts   = buildDataSourcePolicyOpts(d)
+	)
+	client, err := cfg.AutoscalingV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating AS v1 client: %s", err)
+	}
+
+	policyResp, err := policies.List(client, opts).Extract()
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "AS policies")
+	}
 
 	randUUID, err := uuid.GenerateUUID()
 	if err != nil {
@@ -179,7 +186,7 @@ func dataSourceASPoliciesRead(_ context.Context, d *schema.ResourceData, meta in
 	d.SetId(randUUID)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("policies", policyList),
+		d.Set("policies", flattenDataSourcePolicies(policyResp)),
 	)
 
 	if mErr.ErrorOrNil() != nil {

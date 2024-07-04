@@ -3,14 +3,11 @@ package as
 import (
 	"context"
 	"fmt"
-	"log"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/lifecyclehooks"
 
@@ -52,9 +49,6 @@ func ResourceASLifecycleHook() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"ADD", "REMOVE",
-				}, false),
 			},
 			"notification_topic_urn": {
 				Type:     schema.TypeString,
@@ -69,21 +63,15 @@ func ResourceASLifecycleHook() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "ABANDON",
-				ValidateFunc: validation.StringInSlice([]string{
-					"ABANDON", "CONTINUE",
-				}, false),
 			},
 			"timeout": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      3600,
-				ValidateFunc: validation.IntBetween(300, 86400),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  3600,
 			},
 			"notification_message": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[^()<>&']{1,256}$`),
-					"The 'notification_message' of the lifecycle hook has special character"),
 			},
 			"notification_topic_name": {
 				Type:     schema.TypeString,
@@ -119,7 +107,6 @@ func resourceASLifecycleHookCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 	createOpts.Type = v
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	hook, err := lifecyclehooks.Create(client, createOpts, groupId).Extract()
 	if err != nil {
 		return diag.Errorf("error creating lifecycle hook: %s", err)
@@ -142,13 +129,23 @@ func resourceASLifecycleHookRead(_ context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error getting the specifies lifecycle hook of the autoscaling service")
 	}
-	log.Printf("[DEBUG] Retrieved lifecycle hook of AS group %s: %#v", groupId, hook)
 
-	d.Set("region", region)
-	if err = setASLifecycleHookToState(d, hook); err != nil {
-		return diag.Errorf("error setting the lifecycle hook to state: %s", err)
+	if hook == nil {
+		return diag.Errorf("error getting the specifies lifecycle hook of the autoscaling service: The hook response is empty")
 	}
-	return nil
+
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("name", hook.Name),
+		d.Set("default_result", hook.DefaultResult),
+		d.Set("timeout", hook.Timeout),
+		d.Set("notification_topic_urn", hook.NotificationTopicURN),
+		d.Set("notification_message", hook.NotificationMetadata),
+		setASLifecycleHookType(d, hook),
+		d.Set("notification_topic_name", hook.NotificationTopicName),
+		d.Set("create_time", hook.CreateTime),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceASLifecycleHookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -180,7 +177,6 @@ func resourceASLifecycleHookUpdate(ctx context.Context, d *schema.ResourceData, 
 		updateOpts.NotificationMetadata = d.Get("notification_message").(string)
 	}
 
-	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
 	groupId := d.Get("scaling_group_id").(string)
 	_, err = lifecyclehooks.Update(client, updateOpts, groupId, d.Id()).Extract()
 	if err != nil {
@@ -206,21 +202,6 @@ func resourceASLifecycleHookDelete(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func setASLifecycleHookToState(d *schema.ResourceData, hook *lifecyclehooks.Hook) error {
-	mErr := multierror.Append(
-		d.Set("name", hook.Name),
-		d.Set("default_result", hook.DefaultResult),
-		d.Set("timeout", hook.Timeout),
-		d.Set("notification_topic_urn", hook.NotificationTopicURN),
-		d.Set("notification_message", hook.NotificationMetadata),
-		setASLifecycleHookType(d, hook),
-		d.Set("notification_topic_name", hook.NotificationTopicName),
-		d.Set("create_time", hook.CreateTime),
-	)
-	err := mErr.ErrorOrNil()
-	return err
-}
-
 func setASLifecycleHookType(d *schema.ResourceData, hook *lifecyclehooks.Hook) error {
 	for k, v := range hookTypeMap {
 		if v == hook.Type {
@@ -238,6 +219,5 @@ func resourceASLifecycleHookImportState(_ context.Context, d *schema.ResourceDat
 	}
 
 	d.SetId(parts[1])
-	d.Set("scaling_group_id", parts[0])
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, d.Set("scaling_group_id", parts[0])
 }

@@ -90,15 +90,16 @@ func DataSourceLifeCycleHooks() *schema.Resource {
 }
 
 func dataSourceLifeCycleHooksRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		groupID = d.Get("scaling_group_id").(string)
+	)
 
 	client, err := cfg.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating AS v1 client: %s", err)
 	}
-
-	groupID := d.Get("scaling_group_id").(string)
 
 	lifecycleHookList, err := lifecyclehooks.List(client, groupID).Extract()
 	if err != nil {
@@ -128,6 +129,10 @@ func dataSourceLifeCycleHooksRead(_ context.Context, d *schema.ResourceData, met
 }
 
 func flattenLifecycleHooks(d *schema.ResourceData, hooks *[]lifecyclehooks.Hook) ([]map[string]interface{}, error) {
+	if hooks == nil {
+		return nil, nil
+	}
+
 	rst := make([]map[string]interface{}, 0, len(*hooks))
 	for _, hook := range *hooks {
 		hookType, ok := convertHookTypeMap[hook.Type]
