@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
+	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/instances"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/tags"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -268,6 +269,59 @@ func DataSourceASGroups() *schema.Resource {
 	}
 }
 
+func flattenDataSourceLBaaSListeners(listeners []groups.LBaaSListener) []map[string]interface{} {
+	if len(listeners) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(listeners))
+	for i, item := range listeners {
+		res[i] = map[string]interface{}{
+			"pool_id":       item.PoolID,
+			"protocol_port": item.ProtocolPort,
+			"weight":        item.Weight,
+		}
+	}
+	return res
+}
+
+func flattenDataSourceNetworks(networks []groups.Network) []map[string]interface{} {
+	res := make([]map[string]interface{}, len(networks))
+	for i, item := range networks {
+		res[i] = map[string]interface{}{
+			"id":                item.ID,
+			"ipv6_enable":       item.IPv6Enable,
+			"ipv6_bandwidth_id": item.IPv6BandWidth.ID,
+			"source_dest_check": len(item.AllowedAddressPairs) == 0,
+		}
+	}
+	return res
+}
+
+func flattenDataSourceSecurityGroups(sgs []groups.SecurityGroup) []map[string]interface{} {
+	res := make([]map[string]interface{}, len(sgs))
+	for i, item := range sgs {
+		res[i] = map[string]interface{}{
+			"id": item.ID,
+		}
+	}
+	return res
+}
+
+func getDataSourceInstancesIDs(allIns []instances.Instance) []string {
+	var allIDs = make([]string, 0, len(allIns))
+	for _, ins := range allIns {
+		// Maybe the instance is pending, so we can't get the id,
+		// so unable to delete the instance this time, maybe next time to execute
+		// terraform destroy will works
+		if ins.ID != "" {
+			allIDs = append(allIDs, ins.ID)
+		}
+	}
+
+	return allIDs
+}
+
 func dataSourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -310,10 +364,10 @@ func dataSourceASGroupRead(_ context.Context, d *schema.ResourceData, meta inter
 			"min_instance_number":                group.MinInstanceNumber,
 			"max_instance_number":                group.MaxInstanceNumber,
 			"cool_down_time":                     group.CoolDownTime,
-			"lbaas_listeners":                    flattenLBaaSListeners(group.LBaaSListeners),
+			"lbaas_listeners":                    flattenDataSourceLBaaSListeners(group.LBaaSListeners),
 			"availability_zones":                 group.AvailableZones,
-			"networks":                           flattenNetworks(group.Networks),
-			"security_groups":                    flattenSecurityGroups(group.SecurityGroups),
+			"networks":                           flattenDataSourceNetworks(group.Networks),
+			"security_groups":                    flattenDataSourceSecurityGroups(group.SecurityGroups),
 			"created_at":                         group.CreateTime,
 			"vpc_id":                             group.VpcID,
 			"detail":                             group.Detail,
@@ -329,7 +383,7 @@ func dataSourceASGroupRead(_ context.Context, d *schema.ResourceData, meta inter
 			"multi_az_scaling_policy":            group.MultiAZPriorityPolicy,
 			"description":                        group.Description,
 			"iam_agency_name":                    group.IamAgencyName,
-			"instances":                          getInstancesIDs(allIns),
+			"instances":                          getDataSourceInstancesIDs(allIns),
 		}
 
 		// save group tags
