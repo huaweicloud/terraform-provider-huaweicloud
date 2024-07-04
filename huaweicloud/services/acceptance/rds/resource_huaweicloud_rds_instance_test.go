@@ -66,7 +66,6 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "15:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "17:00"),
 					resource.TestCheckResourceAttr(resourceName, "private_dns_name_prefix", "terraformTestUpdate"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttrSet(resourceName, "db.0.password"),
 				),
 			},
@@ -154,8 +153,8 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.trigger_threshold", "15"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3306"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "div_precision_increment"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "12"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "back_log"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "2000"),
 					resource.TestCheckResourceAttr(resourceName, "binlog_retention_hours", "12"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_interval", "1"),
@@ -356,25 +355,28 @@ func TestAccRdsInstance_prePaid(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckChargingMode(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstance_prePaid(name, false),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceExists(resourceName, &instance),
-					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
-					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
-				),
-			},
-			{
-				Config: testAccRdsInstance_prePaid_update(name, true),
+				Config: testAccRdsInstance_prePaid(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
+					resource.TestCheckResourceAttrPair(resourceName, "enterprise_project_id",
+						"huaweicloud_enterprise_project.test.0", "id"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_prePaid_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "60"),
+					resource.TestCheckResourceAttrPair(resourceName, "enterprise_project_id",
+						"huaweicloud_enterprise_project.test.1", "id"),
 				),
 			},
 		},
@@ -584,14 +586,18 @@ func testAccRdsInstance_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+resource "huaweicloud_networking_secgroup" "test_update" {
+  name                 = "%s"
+  delete_default_rules = true
+}
+
 resource "huaweicloud_rds_instance" "test" {
   name                          = "%[2]s-update"
   flavor                        = "rds.pg.n1.large.2"
   availability_zone             = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id             = huaweicloud_networking_secgroup.test.id
+  security_group_id             = huaweicloud_networking_secgroup.test_update.id
   subnet_id                     = data.huaweicloud_vpc_subnet.test.id
   vpc_id                        = data.huaweicloud_vpc.test.id
-  enterprise_project_id         = "%[3]s"
   time_zone                     = "UTC+08:00"
   fixed_ip                      = "192.168.0.230"
   maintain_begin                = "15:00"
@@ -619,7 +625,7 @@ resource "huaweicloud_rds_instance" "test" {
     foo  = "bar_updated"
   }
 }
-`, testAccRdsInstance_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccRdsInstance_base(name), name)
 }
 
 func testAccRdsInstance_ha(name, replicationMode, switchStrategy string) string {
@@ -713,8 +719,8 @@ resource "huaweicloud_rds_instance" "test" {
   }
 
   parameters {
-    name  = "div_precision_increment"
-    value = "12"
+    name  = "back_log"
+    value = "2000"
   }
 }
 `, testAccRdsInstance_base(name), name)
@@ -1144,7 +1150,7 @@ resource "huaweicloud_rds_instance" "test" {
 `, testAccRdsInstance_base(name), name)
 }
 
-func testAccRdsInstance_prePaid(name string, isAutoRenew bool) string {
+func testAccRdsInstance_prePaid(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -1165,11 +1171,20 @@ data "huaweicloud_rds_flavors" "test" {
   vcpus         = 4
 }
 
+resource "huaweicloud_enterprise_project" "test" {
+  count = 2
+
+  name        = "%[2]s_${count.index}"
+  description = "terraform test"
+}
+
 resource "huaweicloud_rds_instance" "test" {
-  depends_on        = [huaweicloud_networking_secgroup_rule.ingress]
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  depends_on             = [huaweicloud_networking_secgroup_rule.ingress]
+  vpc_id                 = data.huaweicloud_vpc.test.id
+  subnet_id              = data.huaweicloud_vpc_subnet.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  lower_case_table_names = "1"
+  enterprise_project_id  = huaweicloud_enterprise_project.test[0].id
   
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0],
@@ -1194,27 +1209,46 @@ resource "huaweicloud_rds_instance" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "%[3]v"
+  auto_renew    = true
 }
-`, testAccRdsInstance_base(name), name, isAutoRenew)
+`, testAccRdsInstance_base(name), name)
 }
 
-func testAccRdsInstance_prePaid_update(name string, isAutoRenew bool) string {
+func testAccRdsInstance_prePaid_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
+
+resource "huaweicloud_networking_secgroup_rule" "ingress" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  ports             = 8634
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.test.id
+}
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "SQLServer"
   db_version    = "2019_SE"
   instance_mode = "single"
   group_type    = "dedicated"
-  vcpus         = 4
+  vcpus         = 8
+}
+
+resource "huaweicloud_enterprise_project" "test" {
+  count = 2
+
+  name        = "%[2]s_${count.index}"
+  description = "terraform test"
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  vpc_id            = data.huaweicloud_vpc.test.id
-  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  depends_on             = [huaweicloud_networking_secgroup_rule.ingress]
+  vpc_id                 = data.huaweicloud_vpc.test.id
+  subnet_id              = data.huaweicloud_vpc_subnet.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test.id
+  lower_case_table_names = "1"
+  enterprise_project_id  = huaweicloud_enterprise_project.test[1].id
   
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0],
@@ -1239,9 +1273,9 @@ resource "huaweicloud_rds_instance" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "%[3]v"
+  auto_renew    = false
 }
-`, testAccRdsInstance_base(name), name, isAutoRenew)
+`, testAccRdsInstance_base(name), name)
 }
 
 func testAccRdsInstance_restore_mysql(name string) string {

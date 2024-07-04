@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourcePgPluginParameterValueRange_basic(t *testing.T) {
+func TestAccDataSourceRdsPgPluginParameterValueRange_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	rName := "data.huaweicloud_rds_pg_plugin_parameter_value_range.test"
 	dc := acceptance.InitDataSourceCheck(rName)
@@ -31,6 +31,30 @@ func TestAccDatasourcePgPluginParameterValueRange_basic(t *testing.T) {
 	})
 }
 
+func testAccDatasourcePgPluginParameterValueRange_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = "rds.pg.n1.large.2"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+
+  db {
+    type    = "PostgreSQL"
+    version = "12"
+  }
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
+}
+`, testAccRdsInstance_base(name), name)
+}
+
 func testAccDatasourcePgPluginParameterValueRange_basic(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -39,5 +63,5 @@ data "huaweicloud_rds_pg_plugin_parameter_value_range" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "shared_preload_libraries"
 }
-`, testAccRdsInstance_basic(name))
+`, testAccDatasourcePgPluginParameterValueRange_base(name))
 }

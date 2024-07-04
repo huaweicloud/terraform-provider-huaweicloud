@@ -75,7 +75,7 @@ func buildGetMysqlDatabasePrivilegeQueryParams(dbName string) string {
 	return fmt.Sprintf("?db-name=%s&page=1&limit=100", dbName)
 }
 
-func TestAccRdsDatabasePrivilege_basic(t *testing.T) {
+func TestAccMysqlDatabasePrivilege_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()

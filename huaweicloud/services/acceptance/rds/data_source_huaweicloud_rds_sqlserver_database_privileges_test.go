@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccSQLServerDatabasePrivileges_basic(t *testing.T) {
+func TestAccDatasourceSQLServerDatabasePrivileges_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	rName := "data.huaweicloud_rds_sqlserver_database_privileges.test"
 

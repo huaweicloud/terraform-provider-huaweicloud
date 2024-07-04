@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourcePgPluginParameterValues_basic(t *testing.T) {
+func TestAccDataSourceRdsPgPluginParameterValues_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	rName := "data.huaweicloud_rds_pg_plugin_parameter_values.test"
 	dc := acceptance.InitDataSourceCheck(rName)

@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourcePgAccounts_basic(t *testing.T) {
+func TestAccDataSourceRdsPgAccounts_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	rName := "data.huaweicloud_rds_pg_accounts.test"
 	dc := acceptance.InitDataSourceCheck(rName)
@@ -40,6 +40,38 @@ func TestAccDatasourcePgAccounts_basic(t *testing.T) {
 	})
 }
 
+func testAccDatasourcePgAccounts_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = "rds.pg.n1.large.2"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  time_zone         = "UTC+08:00"
+
+  db {
+    type    = "PostgreSQL"
+    version = "12"
+  }
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
+}
+
+resource "huaweicloud_rds_pg_account" "test" {
+  instance_id = huaweicloud_rds_instance.test.id
+  name        = "%[2]s"
+  password    = "Test@12345678"
+  description = "test_description"
+}
+`, testAccRdsInstance_base(name), name)
+}
+
 func testAccDatasourcePgAccounts_basic(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -66,5 +98,5 @@ output "user_name_filter_is_useful" {
   )
 }
 
-`, testPgAccount_basic(name), name)
+`, testAccDatasourcePgAccounts_base(name), name)
 }

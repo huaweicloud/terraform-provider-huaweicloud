@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccRdsInstanceMysqlDatabaseTableRestore_basic(t *testing.T) {
+func TestAccMysqlDatabaseTableRestore_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
@@ -25,7 +25,7 @@ func TestAccRdsInstanceMysqlDatabaseTableRestore_basic(t *testing.T) {
 	})
 }
 
-func TestAccRdsInstanceMysqlDatabaseTableRestore_table(t *testing.T) {
+func TestAccMysqlDatabaseTableRestore_table(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)

@@ -124,6 +124,33 @@ func TestAccPgDatabase_basic(t *testing.T) {
 	})
 }
 
+func testPgDatabase_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  description       = "test_description"
+  flavor            = "rds.pg.n1.large.2"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  time_zone         = "UTC+08:00"
+
+  db {
+    type    = "PostgreSQL"
+    version = "12"
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
+}
+`, testAccRdsInstance_base(name), name)
+}
+
 func testPgDatabase_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -139,7 +166,7 @@ resource "huaweicloud_rds_pg_database" "test" {
   is_revoke_public_privilege = false
   description                = "test_description"
 }
-`, testAccRdsInstance_basic(name), name)
+`, testPgDatabase_base(name), name)
 }
 
 func testPgDatabase_update(name string) string {
@@ -165,5 +192,5 @@ resource "huaweicloud_rds_pg_database" "test" {
   is_revoke_public_privilege = false
   description                = ""
 }
-`, testAccRdsInstance_basic(name), name)
+`, testPgDatabase_base(name), name)
 }

@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -58,8 +57,6 @@ func TestAccMysqlBinlog_basic(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_rds_mysql_binlog.test"
-	dbPwd := fmt.Sprintf("%s%s%d", acctest.RandString(5),
-		acctest.RandStringFromCharSet(2, "!#%^*"), acctest.RandIntRange(10, 99))
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -73,7 +70,7 @@ func TestAccMysqlBinlog_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testMysqlBinlog_basic(name, dbPwd),
+				Config: testMysqlBinlog_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -82,7 +79,7 @@ func TestAccMysqlBinlog_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testMysqlBinlog_basic_update(name, dbPwd),
+				Config: testMysqlBinlog_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -99,7 +96,7 @@ func TestAccMysqlBinlog_basic(t *testing.T) {
 	})
 }
 
-func testAccRdsInstance_mysql(name, pwd string, binlogRetentionHours int) string {
+func testAccRdsInstance_mysql(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -117,11 +114,9 @@ resource "huaweicloud_rds_instance" "test" {
   subnet_id              = data.huaweicloud_vpc_subnet.test.id
   vpc_id                 = data.huaweicloud_vpc.test.id
   availability_zone      = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
-  ssl_enable             = true
-  binlog_retention_hours = %[4]v
 
   db {
-    password = "%[3]s"
+    password = "Huangwei!120521"
     type     = "MySQL"
     version  = "8.0"
     port     = 3306
@@ -131,11 +126,15 @@ resource "huaweicloud_rds_instance" "test" {
     type = "CLOUDSSD"
     size = 40
   }
+
+  lifecycle {
+    ignore_changes = [binlog_retention_hours]
+  }
 }
-`, testAccRdsInstance_base(name), name, pwd, binlogRetentionHours)
+`, testAccRdsInstance_base(name), name)
 }
 
-func testMysqlBinlog_basic(name, dbPwd string) string {
+func testMysqlBinlog_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -143,10 +142,10 @@ resource "huaweicloud_rds_mysql_binlog" "test" {
   instance_id            = huaweicloud_rds_instance.test.id
   binlog_retention_hours = 6
 }
-`, testAccRdsInstance_mysql(name, dbPwd, 6))
+`, testAccRdsInstance_mysql(name))
 }
 
-func testMysqlBinlog_basic_update(name, dbPwd string) string {
+func testMysqlBinlog_basic_update(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -155,5 +154,5 @@ resource "huaweicloud_rds_mysql_binlog" "test" {
   binlog_retention_hours = 8
 }
 
-`, testAccRdsInstance_mysql(name, dbPwd, 8))
+`, testAccRdsInstance_mysql(name))
 }

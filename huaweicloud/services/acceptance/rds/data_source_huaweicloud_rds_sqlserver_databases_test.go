@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccSQLServerDatabases_basic(t *testing.T) {
+func TestAccDatasourceSQLServerDatabases_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	rName := "data.huaweicloud_rds_sqlserver_databases.test"
 	dc := acceptance.InitDataSourceCheck(rName)
