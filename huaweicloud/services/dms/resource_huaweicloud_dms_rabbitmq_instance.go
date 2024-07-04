@@ -666,7 +666,7 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 
 	var mErr *multierror.Error
 	if d.HasChanges("name", "description", "maintain_begin", "maintain_end",
-		"security_group_id", "public_ip_id", "enterprise_project_id") {
+		"security_group_id", "enterprise_project_id") {
 		description := d.Get("description").(string)
 		updateOpts := instances.UpdateOpts{
 			Description:         &description,
@@ -678,17 +678,6 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 
 		if d.HasChange("name") {
 			updateOpts.Name = d.Get("name").(string)
-		}
-
-		if d.HasChange("public_ip_id") {
-			if pubIpID, ok := d.GetOk("public_ip_id"); ok {
-				enablePublicIP := true
-				updateOpts.EnablePublicIP = &enablePublicIP
-				updateOpts.PublicIpID = pubIpID.(string)
-			} else {
-				enablePublicIP := false
-				updateOpts.EnablePublicIP = &enablePublicIP
-			}
 		}
 
 		retryFunc := func() (interface{}, bool, error) {
@@ -708,6 +697,33 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		if err != nil {
 			e := fmt.Errorf("error updating DMS RabbitMQ Instance: %s", err)
 			mErr = multierror.Append(mErr, e)
+		}
+	}
+
+	if d.HasChange("public_ip_id") {
+		oldEIP, newEIP := d.GetChange("public_ip_id")
+		if oldEIP.(string) != "" {
+			// unbind the EIP
+			enablePublicIP := false
+			updateOpts := instances.UpdateOpts{
+				EnablePublicIP: &enablePublicIP,
+			}
+			err := rabbitmqBindOrUnbindEIP(ctx, client, d.Timeout(schema.TimeoutUpdate), updateOpts, d.Id(), "unbindInstancePublicIp")
+			if err != nil {
+				mErr = multierror.Append(mErr, err)
+			}
+		}
+		if newEIP.(string) != "" {
+			// bind the new EIP
+			enablePublicIP := true
+			updateOpts := instances.UpdateOpts{
+				EnablePublicIP: &enablePublicIP,
+				PublicIpID:     newEIP.(string),
+			}
+			err := rabbitmqBindOrUnbindEIP(ctx, client, d.Timeout(schema.TimeoutUpdate), updateOpts, d.Id(), "bindInstancePublicIp")
+			if err != nil {
+				mErr = multierror.Append(mErr, err)
+			}
 		}
 	}
 
@@ -960,4 +976,39 @@ func rabbitmqInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceI
 
 		return v, v.Status, nil
 	}
+}
+
+func rabbitmqBindOrUnbindEIP(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	updateOpts instances.UpdateOpts, id, action string) error {
+	retryFunc := func() (interface{}, bool, error) {
+		err := instances.Update(client, id, updateOpts).Err
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rabbitmqInstanceStateRefreshFunc(client, id),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      timeout,
+		DelayTimeout: 5 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating DMS RabbitMQ Instance with action(%s): %s", action, err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"CREATED"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      publicipTaskRefreshFunc(client, id, action),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 15 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for job(%s) success: %s", action, err)
+	}
+
+	return nil
 }
