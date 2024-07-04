@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -72,12 +71,6 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the name of the DMS RocketMQ instance`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"An instance name starts with a letter and can contain only letters,"+
-							"digits, underscores (_), and hyphens (-)"),
-					validation.StringLenBetween(4, 64),
-				),
 			},
 			"engine_version": {
 				Type:        schema.TypeString,
@@ -86,10 +79,9 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Description: `Specifies the version of the RocketMQ engine.`,
 			},
 			"storage_space": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the message storage capacity, Unit: GB.`,
-				ValidateFunc: validation.IntBetween(300, 3000),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the message storage capacity, Unit: GB.`,
 			},
 			"vpc_id": {
 				Type:        schema.TypeString,
