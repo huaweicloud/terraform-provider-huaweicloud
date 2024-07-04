@@ -50,7 +50,7 @@ func TestAccIdentityUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "tested by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "pwd_reset", "true"),
-					resource.TestCheckResourceAttr(resourceName, "email", "user_1@abc.com"),
+					resource.TestCheckResourceAttr(resourceName, "email", userName+"@abc.com"),
 					resource.TestCheckResourceAttr(resourceName, "password_strength", "Strong"),
 					resource.TestCheckResourceAttr(resourceName, "login_protect_verification_method", "email"),
 				),
@@ -71,7 +71,7 @@ func TestAccIdentityUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "updated by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "pwd_reset", "false"),
-					resource.TestCheckResourceAttr(resourceName, "email", "user_1@abcd.com"),
+					resource.TestCheckResourceAttr(resourceName, "email", userName+"@abcd.com"),
 					resource.TestCheckResourceAttr(resourceName, "login_protect_verification_method", ""),
 				),
 			},
@@ -91,8 +91,8 @@ func TestAccIdentityUser_external(t *testing.T) {
 	var user users.User
 	userName := acceptance.RandomAccResourceName()
 	password := acceptance.RandomPassword()
-	initXUserID := "123456789-abcdefg"
-	newXUserID := "abcdefg-123456789"
+	initXUserID := userName + "-abcdefg"
+	newXUserID := userName + "-123456789"
 	resourceName := "huaweicloud_identity_user.user_1"
 
 	rc := acceptance.InitResourceCheck(
@@ -143,10 +143,10 @@ func TestAccIdentityUser_external(t *testing.T) {
 func testAccIdentityUser_basic(name, password string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
-  name        = "%s"
-  password    = "%s"
+  name        = "%[1]s"
+  password    = "%[2]s"
   enabled     = true
-  email       = "user_1@abc.com"
+  email       = "%[1]s@abc.com"
   description = "tested by terraform"
   
   login_protect_verification_method = "email"
@@ -157,11 +157,11 @@ resource "huaweicloud_identity_user" "user_1" {
 func testAccIdentityUser_update(name, password string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
-  name        = "%s"
-  password    = "%s"
+  name        = "%[1]s"
+  password    = "%[2]s"
   pwd_reset   = false
   enabled     = false
-  email       = "user_1@abcd.com"
+  email       = "%[1]s@abcd.com"
   description = "updated by terraform"
 }
 `, name, password)
@@ -170,11 +170,11 @@ resource "huaweicloud_identity_user" "user_1" {
 func testAccIdentityUser_no_desc(name, password string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
-  name      = "%s"
-  password  = "%s"
+  name      = "%[1]s"
+  password  = "%[2]s"
   pwd_reset = false
   enabled   = false
-  email     = "user_1@abcd.com"
+  email     = "%[1]s@abcd.com"
 }
 `, name, password)
 }
@@ -182,10 +182,10 @@ resource "huaweicloud_identity_user" "user_1" {
 func testAccIdentityUser_external(name, password, xUserID string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
-  name                 = "%s"
-  password             = "%s"
+  name                 = "%[1]s"
+  password             = "%[2]s"
   description          = "IAM user with external identity id"
-  external_identity_id = "%s"
+  external_identity_id = "%[3]s"
 }
 `, name, password, xUserID)
 }
