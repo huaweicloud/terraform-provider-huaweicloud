@@ -119,8 +119,8 @@ func TestAccCssCluster_access(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
-			{
-				Config: testAccCssCluster_access(rName, "Test@passw0rd", "116.204.111.47"),
+			{ // open public access on creating cluster
+				Config: testAccCssCluster_access(rName, "Test@passw0rd", "116.204.111.47", 2),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "public_access.0.whitelist", "116.204.111.47"),
@@ -129,8 +129,24 @@ func TestAccCssCluster_access(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "kibana_public_access.0.public_ip"),
 				),
 			},
-			{
-				Config: testAccCssCluster_access(rName, "Test@passw0rd.", "116.204.111.47,121.37.117.211"),
+			{ // close public access
+				Config: testAccCssCluster_accessClose(rName, "Test@passw0rd"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+				),
+			},
+			{ // reopen public access
+				Config: testAccCssCluster_access(rName, "Test@passw0rd", "116.204.111.47", 2),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "public_access.0.whitelist", "116.204.111.47"),
+					resource.TestCheckResourceAttr(resourceName, "kibana_public_access.0.whitelist", "116.204.111.47"),
+					resource.TestCheckResourceAttrSet(resourceName, "public_access.0.public_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "kibana_public_access.0.public_ip"),
+				),
+			},
+			{ // update whitelist and bandwidth
+				Config: testAccCssCluster_access(rName, "Test@passw0rd.", "116.204.111.47,121.37.117.211", 5),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "public_access.0.whitelist",
@@ -615,7 +631,7 @@ resource "huaweicloud_css_cluster" "test" {
 `, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName, pwd, keepDays, tag)
 }
 
-func testAccCssCluster_access(rName, pwd string, whiteList string) string {
+func testAccCssCluster_access(rName, pwd string, whiteList string, bwSize int) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -652,18 +668,57 @@ resource "huaweicloud_css_cluster" "test" {
   }
 
   public_access {
-    bandwidth         = 5
+    bandwidth         = %[6]d
     whitelist_enabled = true
     whitelist         = "%[5]s"
   }
 
   kibana_public_access {
-    bandwidth         = 5
+    bandwidth         = %[6]d
     whitelist_enabled = true
     whitelist         = "%[5]s"
   }
 }
-`, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName, pwd, whiteList)
+`, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName, pwd, whiteList, bwSize)
+}
+
+func testAccCssCluster_accessClose(rName, pwd string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[3]s"
+  engine_version = "7.10.2"
+  security_mode  = true
+  https_enabled  = true
+  password       = "%[4]s"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  backup_strategy {
+    keep_days   = 7
+    start_time  = "00:00 GMT+08:00"
+    prefix      = "snapshot"
+    bucket      = huaweicloud_obs_bucket.cssObs.bucket
+    agency      = "css_obs_agency"
+    backup_path = "css_repository/acctest"
+  }
+}
+`, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName, pwd)
 }
 
 func testAccCssCluster_basic_update(rName string) string {

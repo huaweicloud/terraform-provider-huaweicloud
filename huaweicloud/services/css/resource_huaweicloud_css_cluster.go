@@ -1443,7 +1443,16 @@ func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1
 
 	switch len(nValue) - len(oValue) {
 	case -1: // delete kibana_public_access
-		_, err := cssV1Client.UpdateCloseKibana(&model.UpdateCloseKibanaRequest{ClusterId: d.Id()})
+		_, err := cssV1Client.UpdateCloseKibana(&model.UpdateCloseKibanaRequest{
+			ClusterId: d.Id(),
+			Body: &model.CloseKibanaPublicReq{
+				EipSize: utils.Int32(int32(utils.PathSearch("bandwidth", oValue[0], 0).(int))),
+				ElbWhiteList: &model.StartKibanaPublicReqElbWhitelist{
+					EnableWhiteList: utils.PathSearch("whitelist_enabled", oValue[0], false).(bool),
+					WhiteList:       utils.PathSearch("whitelist", oValue[0], "").(string),
+				},
+			},
+		})
 		if err != nil {
 			return fmt.Errorf("error diabling the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
 		}
@@ -1522,7 +1531,16 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 
 	switch len(nValue) - len(oValue) {
 	case -1: // delete public_access
-		_, err := cssV1Client.UpdateUnbindPublic(&model.UpdateUnbindPublicRequest{ClusterId: d.Id()})
+		_, err := cssV1Client.UpdateUnbindPublic(&model.UpdateUnbindPublicRequest{
+			ClusterId: d.Id(),
+			Body: &model.UnBindPublicReq{
+				Eip: &model.UnBindPublicReqEipReq{
+					BandWidth: &model.BindPublicReqEipBandWidth{
+						Size: int32(utils.PathSearch("bandwidth", oValue[0], 0).(int)),
+					},
+				},
+			},
+		})
 		if err != nil {
 			return fmt.Errorf("error diabling public access of CSS cluster: %s, err: %s", d.Id(), err)
 		}
@@ -1554,10 +1572,22 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 			return err
 		}
 
+		if whitelist, ok := d.GetOk("public_access.0.whitelist"); ok {
+			_, err := cssV1Client.StartPublicWhitelist(&model.StartPublicWhitelistRequest{
+				ClusterId: d.Id(),
+				Body: &model.StartPublicWhitelistReq{
+					WhiteList: whitelist.(string),
+				},
+			})
+			if err != nil {
+				return fmt.Errorf("error updating whitelist of public access of CSS cluster: %s, err: %s", d.Id(), err)
+			}
+		}
+
 	case 0:
 		// disable whitelist
 		if d.HasChanges("public_access.0.whitelist", "public_access.0.whitelist_enabled") {
-			if !d.Get("kibana_public_access.0.whitelist_enabled").(bool) {
+			if !d.Get("public_access.0.whitelist_enabled").(bool) {
 				_, err := cssV1Client.StopPublicWhitelist(&model.StopPublicWhitelistRequest{ClusterId: d.Id()})
 				if err != nil {
 					return fmt.Errorf("error disabling whitelist of public access of CSS cluster: %s, err: %s", d.Id(), err)
@@ -1566,11 +1596,11 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 				_, err := cssV1Client.StartPublicWhitelist(&model.StartPublicWhitelistRequest{
 					ClusterId: d.Id(),
 					Body: &model.StartPublicWhitelistReq{
-						WhiteList: d.Get("kibana_public_access.0.whitelist").(string),
+						WhiteList: d.Get("public_access.0.whitelist").(string),
 					},
 				})
 				if err != nil {
-					return fmt.Errorf("error modifing whitelist of public access of CSS cluster: %s, err: %s", d.Id(), err)
+					return fmt.Errorf("error updating whitelist of public access of CSS cluster: %s, err: %s", d.Id(), err)
 				}
 			}
 		}
