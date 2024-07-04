@@ -67,7 +67,7 @@ func TestAccDatabaseUser_basic(t *testing.T) {
 				Config: testAccDatabaseUser_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
 			{
@@ -140,8 +140,8 @@ resource "huaweicloud_dds_database_role" "test" {
 resource "huaweicloud_dds_database_user" "test" {
   instance_id = huaweicloud_dds_instance.test.id
 
-  name     = "%[2]s-update"
-  password = "HuaweiTest@12345678"
+  name     = "%[2]s"
+  password = "HuaweiTest@123"
   db_name  = "admin"
 
   roles {

@@ -1148,7 +1148,7 @@ resource "huaweicloud_dds_instance" "instance" {
   security_group_id = huaweicloud_networking_secgroup.test.id
   password          = "Terraform@1234"
   mode              = "ReplicaSet"
-  replica_set_name  = "replicaName"
+  replica_set_name  = "replicaNameUpdate"
   maintain_begin    = "02:00"
   maintain_end      = "03:00"
   description       = "test"
