@@ -95,7 +95,7 @@ func TestAccNetworkInstance_multiple(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_cc_network_instance.test"
+	rName := "huaweicloud_cc_network_instance.test2"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -111,24 +111,24 @@ func TestAccNetworkInstance_multiple(t *testing.T) {
 			{
 				Config: testNetworkInstance_multiple(name, 2),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckMultiResourcesExists(2),
-					resource.TestCheckResourceAttr("huaweicloud_cc_network_instance.test.0", "type", "vpc"),
-					resource.TestCheckResourceAttr("huaweicloud_cc_network_instance.test.1", "type", "vpc"),
-					resource.TestCheckResourceAttr("huaweicloud_cc_network_instance.test.0", "status", "ACTIVE"),
-					resource.TestCheckResourceAttr("huaweicloud_cc_network_instance.test.1", "status", "ACTIVE"),
-					resource.TestCheckResourceAttrSet("huaweicloud_cc_network_instance.test.0", "domain_id"),
-					resource.TestCheckResourceAttrSet("huaweicloud_cc_network_instance.test.1", "domain_id"),
-					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test.0", "instance_id",
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr("huaweicloud_cc_network_instance.test1", "type", "vpc"),
+					resource.TestCheckResourceAttr("huaweicloud_cc_network_instance.test2", "type", "vpc"),
+					resource.TestCheckResourceAttr("huaweicloud_cc_network_instance.test1", "status", "ACTIVE"),
+					resource.TestCheckResourceAttr("huaweicloud_cc_network_instance.test2", "status", "ACTIVE"),
+					resource.TestCheckResourceAttrSet("huaweicloud_cc_network_instance.test1", "domain_id"),
+					resource.TestCheckResourceAttrSet("huaweicloud_cc_network_instance.test2", "domain_id"),
+					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test1", "instance_id",
 						"huaweicloud_vpc.test.0", "id"),
-					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test.1", "instance_id",
+					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test2", "instance_id",
 						"huaweicloud_vpc.test.1", "id"),
-					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test.0", "region_id",
+					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test1", "region_id",
 						"huaweicloud_vpc.test.0", "region"),
-					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test.1", "region_id",
+					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test2", "region_id",
 						"huaweicloud_vpc.test.1", "region"),
-					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test.0", "cloud_connection_id",
+					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test1", "cloud_connection_id",
 						"huaweicloud_cc_connection.test", "id"),
-					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test.1", "cloud_connection_id",
+					resource.TestCheckResourceAttrPair("huaweicloud_cc_network_instance.test2", "cloud_connection_id",
 						"huaweicloud_cc_connection.test", "id"),
 				),
 			},
@@ -203,18 +203,32 @@ func testNetworkInstance_multiple(name string, count int) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_cc_network_instance" "test" {
-  count = %[2]d
-
+resource "huaweicloud_cc_network_instance" "test1" {
   type                = "vpc"
   cloud_connection_id = huaweicloud_cc_connection.test.id
-  instance_id         = huaweicloud_vpc.test[count.index].id
-  project_id          = "%[3]s"
-  region_id           = huaweicloud_vpc.test[count.index].region
-
+  instance_id         = huaweicloud_vpc.test[0].id
+  project_id          = "%[2]s"
+  region_id           = huaweicloud_vpc.test[0].region
+  
   cidrs = [
-    huaweicloud_vpc_subnet.test[count.index].cidr,
+    huaweicloud_vpc_subnet.test[0].cidr,
   ]
 }
-`, testNetworkInstanceRef(name, count), count, acceptance.HW_PROJECT_ID)
+  
+resource "huaweicloud_cc_network_instance" "test2" {
+  type                = "vpc"
+  cloud_connection_id = huaweicloud_cc_connection.test.id
+  instance_id         = huaweicloud_vpc.test[1].id
+  project_id          = "%[2]s"
+  region_id           = huaweicloud_vpc.test[1].region
+  
+  cidrs = [
+    huaweicloud_vpc_subnet.test[1].cidr,
+  ]
+
+  depends_on = [
+    huaweicloud_cc_network_instance.test1,
+  ]
+}
+`, testNetworkInstanceRef(name, count), acceptance.HW_PROJECT_ID)
 }
