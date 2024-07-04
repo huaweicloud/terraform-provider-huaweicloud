@@ -54,10 +54,13 @@ func TestAccIdentitACL_basic(t *testing.T) {
 		getIdentitACLResourceFunc,
 	)
 
+	// the runner public IP must by set
+	// otherwise, when the ACL is applied, you can't access your account
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheckRunnerPublicIP(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -77,7 +80,6 @@ func TestAccIdentitACL_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "console"),
 					resource.TestCheckResourceAttr(resourceName, "ip_ranges.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "ip_cidrs.#", "2"),
 				),
 			},
 		},
@@ -94,10 +96,13 @@ func TestAccIdentitACL_apiAccess(t *testing.T) {
 		getIdentitACLResourceFunc,
 	)
 
+	// the runner public IP must by set
+	// otherwise, when the ACL is applied, you can't access your account
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheckRunnerPublicIP(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -117,7 +122,6 @@ func TestAccIdentitACL_apiAccess(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "api"),
 					resource.TestCheckResourceAttr(resourceName, "ip_ranges.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "ip_cidrs.#", "2"),
 				),
 			},
 		},
@@ -131,15 +135,15 @@ resource "huaweicloud_identity_acl" "test" {
 
   ip_ranges {
     range       = "172.16.0.0-172.16.255.255"
-    description = "This is a basic ip range 1 for %[1]s access"
+    description = "This is a basic ip range for %[1]s access"
   }
 
   ip_cidrs {
-    cidr        = "159.138.32.195/32"
-    description = "This is a basic ip address 1 for %[1]s access"
+    cidr        = "%[2]s/32"
+    description = "This is a basic ip address for %[1]s access"
   }
 }
-`, aclType)
+`, aclType, acceptance.HW_CODEARTS_PUBLIC_IP_ADDRESS)
 }
 
 func testAccIdentityACL_update(aclType string) string {
@@ -157,13 +161,9 @@ resource "huaweicloud_identity_acl" "test" {
   }
 
   ip_cidrs {
-    cidr        = "159.138.32.195/32"
-    description = "This is a update ip address 1 for %[1]s access"
-  }
-  ip_cidrs {
-    cidr        = "159.138.32.196/32"
-    description = "This is a update ip address 2 for %[1]s access"
+    cidr        = "%[2]s/32"
+    description = "This is a update ip address for %[1]s access"
   }
 }
-`, aclType)
+`, aclType, acceptance.HW_CODEARTS_PUBLIC_IP_ADDRESS)
 }

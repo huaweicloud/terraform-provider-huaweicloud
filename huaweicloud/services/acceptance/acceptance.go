@@ -47,6 +47,7 @@ var (
 	HW_ENTERPRISE_PROJECT_ID  = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
 	HW_ADMIN                  = os.Getenv("HW_ADMIN")
 	HW_IAM_V5                 = os.Getenv("HW_IAM_V5")
+	HW_RUNNER_PUBLIC_IP       = os.Getenv("HW_RUNNER_PUBLIC_IP")
 
 	HW_APIG_DEDICATED_INSTANCE_ID             = os.Getenv("HW_APIG_DEDICATED_INSTANCE_ID")
 	HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID = os.Getenv("HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID")
@@ -728,6 +729,13 @@ func TestAccPreCheckAdminOnly(t *testing.T) {
 func TestAccPreCheckIAMV5(t *testing.T) {
 	if HW_IAM_V5 == "" {
 		t.Skip("This environment does not support IAM v5 tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRunnerPublicIP(t *testing.T) {
+	if HW_RUNNER_PUBLIC_IP == "" {
+		t.Skip("HW_RUNNER_PUBLIC_IP must be set for this acceptance test.")
 	}
 }
 
