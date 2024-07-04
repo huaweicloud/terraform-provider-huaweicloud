@@ -66,7 +66,7 @@ func TestAccThrottlingPolicy_basic(t *testing.T) {
 				Config: testAccApigThrottlingPolicy_basic_step4(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rcPre.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rNamePre, "name", name),
+					resource.TestCheckResourceAttr(rNamePre, "name", name+"_pre_test"),
 					resource.TestCheckResourceAttr(rNamePre, "description", "Created by script"),
 					resource.TestCheckResourceAttr(rNamePre, "type", "API-based"),
 					resource.TestCheckResourceAttr(rNamePre, "period", "15000"),
@@ -188,7 +188,7 @@ func testAccApigThrottlingPolicy_basic_step1(baseConfig, name string) string {
 
 resource "huaweicloud_apig_throttling_policy" "invalid_type" {
   instance_id      = local.instance_id
-  name             = "%[2]s"
+  name             = "%[2]s_invalid_type"
   type             = "NON-Exist-Type"
   period           = 15000
   period_unit      = "SECOND"
@@ -205,7 +205,7 @@ func testAccApigThrottlingPolicy_basic_step2(baseConfig, name string) string {
 
 resource "huaweicloud_apig_throttling_policy" "invalid_app_id" {
   instance_id      = local.instance_id
-  name             = "%[2]s"
+  name             = "%[2]s_invalid_app_id"
   type             = "API-based"
   period           = 15000
   period_unit      = "SECOND"
@@ -225,7 +225,7 @@ func testAccApigThrottlingPolicy_basic_step3(baseConfig, name string) string {
 
 resource "huaweicloud_apig_throttling_policy" "invalid_user_id" {
   instance_id      = local.instance_id
-  name             = "%[2]s"
+  name             = "%[2]s_invalid_user_id"
   type             = "API-based"
   period           = 15000
   period_unit      = "SECOND"
@@ -245,7 +245,7 @@ func testAccApigThrottlingPolicy_basic_step4(baseConfig, name string) string {
 
 resource "huaweicloud_apig_throttling_policy" "pre_test" {
   instance_id       = local.instance_id
-  name              = "%[2]s"
+  name              = "%[2]s_pre_test"
   type              = "API-based"
   period            = 15000
   period_unit       = "SECOND"
@@ -264,7 +264,7 @@ func testAccApigThrottlingPolicy_basic_step5(baseConfig, name string) string {
 
 resource "huaweicloud_apig_throttling_policy" "pre_test" {
   instance_id       = local.instance_id
-  name              = "%[2]s"
+  name              = "%[2]s_pre_test"
   type              = "NON-Exist-Type"
   period            = 15000
   period_unit       = "SECOND"
@@ -285,7 +285,7 @@ func testAccApigThrottlingPolicy_basic_step6(baseConfig, name string) string {
 
 resource "huaweicloud_apig_throttling_policy" "pre_test" {
   instance_id       = local.instance_id
-  name              = "%[2]s"
+  name              = "%[2]s_pre_test"
   type              = "API-based"
   period            = 15000
   period_unit       = "SECOND"
@@ -309,7 +309,7 @@ func testAccApigThrottlingPolicy_basic_step7(baseConfig, name string) string {
 
 resource "huaweicloud_apig_throttling_policy" "pre_test" {
   instance_id       = local.instance_id
-  name              = "%[2]s"
+  name              = "%[2]s_pre_test"
   type              = "API-based"
   period            = 15000
   period_unit       = "SECOND"
