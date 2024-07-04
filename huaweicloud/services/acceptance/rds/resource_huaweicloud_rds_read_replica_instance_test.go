@@ -36,7 +36,9 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 						"data.huaweicloud_rds_flavors.replica", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
-						"huaweicloud_networking_secgroup.test", "id"),
+						"huaweicloud_networking_secgroup.test_secgroup.0", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "enterprise_project_id",
+						"huaweicloud_enterprise_project.test.0", "id"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
@@ -63,7 +65,9 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 						"data.huaweicloud_rds_flavors.replica", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
-						"huaweicloud_networking_secgroup.test", "id"),
+						"huaweicloud_networking_secgroup.test_secgroup.1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "enterprise_project_id",
+						"huaweicloud_enterprise_project.test.1", "id"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8889"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
@@ -90,43 +94,73 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 	})
 }
 
-func TestAccReadReplicaInstance_withEpsId(t *testing.T) {
+func TestAccReadReplicaInstance_prePaid(t *testing.T) {
 	var replica instances.RdsInstanceResponse
 	name := acceptance.RandomAccResourceName()
 	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
-	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
-	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckMigrateEpsID(t)
-		},
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccReadReplicaInstance_withEpsId(name, srcEPS),
+				Config: testAccReadReplicaInstance_prePaid(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &replica),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", srcEPS),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
 				),
 			},
 			{
-				Config: testAccReadReplicaInstance_withEpsId(name, destEPS),
+				Config: testAccReadReplicaInstance_prePaid_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &replica),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", destEPS),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "60"),
 				),
 			},
 		},
 	})
 }
 
+func testAccReadReplicaInstance_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "MySQL"
+  db_version    = "8.0"
+  instance_mode = "single"
+  group_type    = "dedicated"
+  vcpus         = 4
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  availability_zone = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
+
+  db {
+    type    = "MySQL"
+    version = "8.0"
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 40
+  }
+}
+`, testAccRdsInstance_base(name), name)
+}
+
 func testAccReadReplicaInstance_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_rds_flavors" "replica" {
   db_type       = "MySQL"
@@ -137,16 +171,31 @@ data "huaweicloud_rds_flavors" "replica" {
   vcpus         = 2
 }
 
+resource "huaweicloud_networking_secgroup" "test_secgroup" {
+  count = 2
+
+  name                 = "%[2]s_${count.index}"
+  delete_default_rules = true
+}
+
+resource "huaweicloud_enterprise_project" "test" {
+  count = 2
+
+  name        = "%[2]s_${count.index}"
+  description = "terraform test"
+}
+
 resource "huaweicloud_rds_read_replica_instance" "test" {
-  name                = "%s"
-  description         = "test_description"
-  flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
-  primary_instance_id = huaweicloud_rds_instance.test.id
-  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  ssl_enable          = true
-  maintain_begin      = "06:00"
-  maintain_end        = "09:00"
+  name                  = "%[2]s"
+  description           = "test_description"
+  flavor                = data.huaweicloud_rds_flavors.replica.flavors[0].name
+  primary_instance_id   = huaweicloud_rds_instance.test.id
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id     = huaweicloud_networking_secgroup.test_secgroup[0].id
+  ssl_enable            = true
+  maintain_begin        = "06:00"
+  maintain_end          = "09:00"
+  enterprise_project_id = huaweicloud_enterprise_project.test[0].id
 
   db {
     port = 8888
@@ -169,12 +218,12 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     foo = "bar"
   }
 }
-`, testAccRdsInstance_mysql_step1(name), name)
+`, testAccReadReplicaInstance_base(name), name)
 }
 
 func testAccReadReplicaInstance_update(name, updateName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_rds_flavors" "replica" {
   db_type       = "MySQL"
@@ -185,16 +234,31 @@ data "huaweicloud_rds_flavors" "replica" {
   vcpus         = 2
 }
 
+resource "huaweicloud_networking_secgroup" "test_secgroup" {
+  count = 2
+
+  name                 = "%[2]s_${count.index}"
+  delete_default_rules = true
+}
+
+resource "huaweicloud_enterprise_project" "test" {
+  count = 2
+
+  name        = "%[2]s_${count.index}"
+  description = "terraform test"
+}
+
 resource "huaweicloud_rds_read_replica_instance" "test" {
-  name                = "%s"
-  description         = "test_description_update"
-  flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
-  primary_instance_id = huaweicloud_rds_instance.test.id
-  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
-  security_group_id   = huaweicloud_networking_secgroup.test.id
-  ssl_enable          = false
-  maintain_begin      = "15:00"
-  maintain_end        = "17:00"
+  name                  = "%[2]s"
+  description           = "test_description_update"
+  flavor                = data.huaweicloud_rds_flavors.replica.flavors[0].name
+  primary_instance_id   = huaweicloud_rds_instance.test.id
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id     = huaweicloud_networking_secgroup.test_secgroup[1].id
+  ssl_enable            = false
+  maintain_begin        = "15:00"
+  maintain_end          = "17:00"
+  enterprise_project_id = huaweicloud_enterprise_project.test[1].id
 
   db {
     port = 8889
@@ -217,12 +281,12 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
     foo_update = "bar_update"
   }
 }
-`, testAccRdsInstance_mysql_step1(name), updateName)
+`, testAccReadReplicaInstance_base(name), updateName)
 }
 
-func testAccReadReplicaInstance_withEpsId(name, epsId string) string {
+func testAccReadReplicaInstance_prePaid(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_rds_flavors" "replica" {
   db_type       = "MySQL"
@@ -234,18 +298,69 @@ data "huaweicloud_rds_flavors" "replica" {
 }
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
-  name                  = "%s"
+  name                  = "%[2]s"
+  description           = "test_description"
   flavor                = data.huaweicloud_rds_flavors.replica.flavors[0].name
   primary_instance_id   = huaweicloud_rds_instance.test.id
   availability_zone     = data.huaweicloud_availability_zones.test.names[0]
-  enterprise_project_id = "%s"
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  ssl_enable            = true
+  maintain_begin        = "06:00"
+  maintain_end          = "09:00"
+
+  db {
+    port = 8888
+  }
 
   volume {
-    type              = "CLOUDSSD"
-    size              = 40
-    limit_size        = 300
-    trigger_threshold = 10
+    type       = "CLOUDSSD"
+    size       = 50
+    limit_size = 0
   }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = true
 }
-`, testAccRdsInstance_mysql_step1(name), name, epsId)
+`, testAccReadReplicaInstance_base(name), name)
+}
+
+func testAccReadReplicaInstance_prePaid_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_rds_flavors" "replica" {
+  db_type       = "MySQL"
+  db_version    = "8.0"
+  instance_mode = "replica"
+  group_type    = "dedicated"
+  memory        = 4
+  vcpus         = 2
+}
+
+resource "huaweicloud_rds_read_replica_instance" "test" {
+  name                = "%[2]s"
+  description         = "test_description_update"
+  flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
+  primary_instance_id = huaweicloud_rds_instance.test.id
+  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id   = huaweicloud_networking_secgroup.test.id
+
+  db {
+    port = 8889
+  }
+
+  volume {
+    type       = "CLOUDSSD"
+    size       = 60
+    limit_size = 0
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = false
+}
+`, testAccReadReplicaInstance_base(name), name)
 }

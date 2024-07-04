@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceStoragetype_basic(t *testing.T) {
+func TestAccDatasourceStorageType_basic(t *testing.T) {
 	rName := "data.huaweicloud_rds_storage_types.test"
 	dc := acceptance.InitDataSourceCheck(rName)
 
