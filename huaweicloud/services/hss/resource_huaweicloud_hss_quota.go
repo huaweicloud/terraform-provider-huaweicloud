@@ -195,7 +195,7 @@ func resourceQuotaCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.FromErr(err)
 	}
 
-	orderId, err := jmespath.Search("orderId", createRespBody)
+	orderId, err := jmespath.Search("order_id", createRespBody)
 	if err != nil || orderId == nil || len(orderId.(string)) == 0 {
 		return diag.Errorf("error creating HSS quota: orderId is not found in API response")
 	}
