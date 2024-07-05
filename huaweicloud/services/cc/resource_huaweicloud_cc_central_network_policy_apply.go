@@ -164,18 +164,12 @@ func centralNetworkPolicyApplyWaitingForStateCompleted(ctx context.Context, d *s
 
 			status := fmt.Sprintf("%v", statusRaw)
 
-			targetStatus := []string{
-				"true",
-			}
-			if utils.StrSliceContains(targetStatus, status) {
-				return applyPolicyRespBody, "COMPLETED", nil
+			if status == "false" {
+				return applyPolicyRespBody, "PENDING", nil
 			}
 
-			pendingStatus := []string{
-				"false",
-			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return applyPolicyRespBody, "PENDING", nil
+			if status == "true" {
+				return applyPolicyRespBody, "COMPLETED", nil
 			}
 
 			return applyPolicyRespBody, status, nil
