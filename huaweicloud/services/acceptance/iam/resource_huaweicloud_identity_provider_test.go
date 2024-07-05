@@ -86,18 +86,28 @@ func TestAccIdentityProvider_oidc(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "protocol", "oidc"),
 					resource.TestCheckResourceAttr(resourceName, "access_config.0.access_type", "program_console"),
-					resource.TestCheckResourceAttr(resourceName, "access_config.0.client_id", "client_id_example"),
+					resource.TestCheckResourceAttr(resourceName, "access_config.0.client_id", "client_id_example1"),
 				),
 			},
 			{
-				Config: testAccIdentityProvider_oidc_update(name),
+				Config: testAccIdentityProvider_oidc_update_1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "oidc"),
+					resource.TestCheckResourceAttr(resourceName, "access_config.0.access_type", "program_console"),
+					resource.TestCheckResourceAttr(resourceName, "access_config.0.client_id", "client_id_example2"),
+				),
+			},
+			{
+				Config: testAccIdentityProvider_oidc_update_2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "protocol", "oidc"),
 					resource.TestCheckResourceAttr(resourceName, "status", "false"),
 					resource.TestCheckResourceAttr(resourceName, "access_config.0.access_type", "program"),
-					resource.TestCheckResourceAttr(resourceName, "access_config.0.client_id", "client_id_demo"),
+					resource.TestCheckResourceAttr(resourceName, "access_config.0.client_id", "client_id_example3"),
 				),
 			},
 		},
@@ -133,7 +143,7 @@ resource "huaweicloud_identity_provider" "provider_1" {
   access_config {
     access_type            = "program_console"
     provider_url           = "https://accounts.example.com"
-    client_id              = "client_id_example"
+    client_id              = "client_id_example1"
     authorization_endpoint = "https://accounts.example.com/o/oauth2/v2/auth"
     scopes                 = ["openid"]
     signing_key            = jsonencode(
@@ -155,7 +165,39 @@ resource "huaweicloud_identity_provider" "provider_1" {
 `, name)
 }
 
-func testAccIdentityProvider_oidc_update(name string) string {
+func testAccIdentityProvider_oidc_update_1(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_provider" "provider_1" {
+  name        = "%s"
+  protocol    = "oidc"
+  description = "unit test"
+
+  access_config {
+    access_type            = "program_console"
+    provider_url           = "https://accounts.example.com"
+    client_id              = "client_id_example2"
+    authorization_endpoint = "https://accounts.example.com/o/oauth2/v2/auth"
+    scopes                 = ["openid"]
+    signing_key            = jsonencode(
+    {
+      keys = [
+        {
+          alg = "RS256"
+          e   = "AQAB"
+          kid = "d05ef20c4512645vv1..."
+          kty = "RSA"
+          n   = "cws_cnjiwsbvweolwn_-vnl..."
+          use = "sig"
+        },
+      ]
+    }
+    )
+  }
+}
+`, name)
+}
+
+func testAccIdentityProvider_oidc_update_2(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_provider" "provider_1" {
   name        = "%s"
@@ -166,7 +208,7 @@ resource "huaweicloud_identity_provider" "provider_1" {
   access_config {
     access_type            = "program"
     provider_url           = "https://accounts.example.com"
-    client_id              = "client_id_demo"
+    client_id              = "client_id_example3"
     signing_key            = jsonencode(
     {
       keys = [
