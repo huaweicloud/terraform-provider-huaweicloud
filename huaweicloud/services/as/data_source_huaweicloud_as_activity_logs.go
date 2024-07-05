@@ -96,29 +96,47 @@ func DataSourceActivityLogs() *schema.Resource {
 	}
 }
 
+func buildDataSourceActivityLogOpts(d *schema.ResourceData) activitylogs.ListOpts {
+	return activitylogs.ListOpts{
+		StartTime: d.Get("start_time").(string),
+		EndTime:   d.Get("end_time").(string),
+	}
+}
+
 func dataSourceActivityLogsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		groupID = d.Get("scaling_group_id").(string)
+		opts    = buildDataSourceActivityLogOpts(d)
 	)
 	client, err := cfg.AutoscalingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating AS v1 client: %s", err)
 	}
 
-	var (
-		groupID = d.Get("scaling_group_id").(string)
-		opts    = activitylogs.ListOpts{
-			StartTime: d.Get("start_time").(string),
-			EndTime:   d.Get("end_time").(string),
-		}
-	)
-
 	activityLogList, err := activitylogs.List(client, groupID, opts)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "AS activity logs")
 	}
 
+	randUUID, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+
+	d.SetId(randUUID)
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("activity_logs", filterAndFlattenDataSourceLogs(activityLogList, d)),
+	)
+	if mErr.ErrorOrNil() != nil {
+		return diag.Errorf("error saving activity logs data source fields: %s", mErr)
+	}
+	return nil
+}
+
+func filterAndFlattenDataSourceLogs(activityLogList []activitylogs.ActivityLog, d *schema.ResourceData) []map[string]interface{} {
 	activityLogs := make([]map[string]interface{}, 0, len(activityLogList))
 	for _, activityLog := range activityLogList {
 		if val, ok := d.GetOk("status"); ok && val.(string) != activityLog.Status {
@@ -139,18 +157,5 @@ func dataSourceActivityLogsRead(_ context.Context, d *schema.ResourceData, meta 
 		}
 		activityLogs = append(activityLogs, activityLogMap)
 	}
-
-	randUUID, err := uuid.GenerateUUID()
-	if err != nil {
-		return diag.Errorf("unable to generate ID: %s", err)
-	}
-	d.SetId(randUUID)
-	mErr := multierror.Append(nil,
-		d.Set("region", region),
-		d.Set("activity_logs", activityLogs),
-	)
-	if mErr.ErrorOrNil() != nil {
-		return diag.Errorf("error saving activity logs data source fields: %s", mErr)
-	}
-	return nil
+	return activityLogs
 }

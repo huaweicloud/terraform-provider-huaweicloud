@@ -3,15 +3,12 @@ package as
 import (
 	"context"
 	"fmt"
-	"log"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
@@ -19,12 +16,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-var (
-	PolicyTypes       = []string{"ALARM", "SCHEDULED", "RECURRENCE"}
-	RecurrencePeriods = []string{"Daily", "Weekly", "Monthly"}
-	PolicyActions     = []string{"ADD", "REMOVE", "SET"}
 )
 
 // @API AS DELETE /autoscaling-api/v1/{project_id}/scaling_policy/{id}
@@ -52,11 +43,6 @@ func ResourceASPolicy() *schema.Resource {
 			"scaling_policy_name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z-_]+$"),
-						"only letters, digits, underscores (_), and hyphens (-) are allowed"),
-				),
 			},
 			"scaling_group_id": {
 				Type:     schema.TypeString,
@@ -64,9 +50,8 @@ func ResourceASPolicy() *schema.Resource {
 				ForceNew: true,
 			},
 			"scaling_policy_type": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice(PolicyTypes, false),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"alarm_id": {
 				Type:     schema.TypeString,
@@ -84,10 +69,9 @@ func ResourceASPolicy() *schema.Resource {
 							Required: true,
 						},
 						"recurrence_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.StringInSlice(RecurrencePeriods, false),
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 						"recurrence_value": {
 							Type:     schema.TypeString,
@@ -115,10 +99,9 @@ func ResourceASPolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"operation": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.StringInSlice(PolicyActions, false),
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 						"instance_number": {
 							Type:     schema.TypeInt,
@@ -134,10 +117,9 @@ func ResourceASPolicy() *schema.Resource {
 				},
 			},
 			"cool_down_time": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 86400),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"action": {
 				Type:     schema.TypeString,
@@ -246,7 +228,6 @@ func resourceASPolicyCreate(ctx context.Context, d *schema.ResourceData, meta in
 		createOpts.Action = policyAction
 	}
 
-	log.Printf("[DEBUG] Create AS policy Options: %#v", createOpts)
 	asPolicyId, err := policies.Create(asClient, createOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error creating AS policy: %s", err)
@@ -276,8 +257,6 @@ func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interf
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "AS policy")
 	}
-
-	log.Printf("[DEBUG] Retrieved AS policy %s: %+v", policyId, asPolicy)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -365,7 +344,6 @@ func resourceASPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		updateOpts.Action = policyAction
 	}
 
-	log.Printf("[DEBUG] Update AS policy Options: %#v", updateOpts)
 	asPolicyID, err := policies.Update(asClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error updating AS policy %s: %s", asPolicyID, err)

@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -45,18 +44,14 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 				ForceNew: true,
 			},
 			"scaling_policy_name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  `Specifies the AS policy name.`,
-				ValidateFunc: validation.StringLenBetween(1, 64),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Specifies the AS policy name.`,
 			},
 			"scaling_policy_type": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the AS policy type.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"ALARM", "SCHEDULED", "RECURRENCE",
-				}, false),
 			},
 			"bandwidth_id": {
 				Type:        schema.TypeString,
@@ -73,11 +68,10 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 				},
 			},
 			"cool_down_time": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				Description:  `Specifies the cooldown period (in seconds).`,
-				ValidateFunc: validation.IntAtMost(86400),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the cooldown period (in seconds).`,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -88,14 +82,14 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 			"scaling_policy_action": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
-				Elem:     BandWidthPolicyActionSchema(),
+				Elem:     bandWidthPolicyActionSchema(),
 				Optional: true,
 				Computed: true,
 			},
 			"scheduled_policy": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
-				Elem:     BandWidthScheduledPolicySchema(),
+				Elem:     bandWidthScheduledPolicySchema(),
 				Optional: true,
 				Computed: true,
 				ExactlyOneOf: []string{
@@ -116,7 +110,7 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 	}
 }
 
-func BandWidthPolicyActionSchema() *schema.Resource {
+func bandWidthPolicyActionSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"operation": {
@@ -124,9 +118,6 @@ func BandWidthPolicyActionSchema() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the operation to be performed. The default operation is ADD.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"ADD", "REDUCE", "SET",
-				}, false),
 			},
 			"size": {
 				Type:        schema.TypeInt,
@@ -145,7 +136,7 @@ func BandWidthPolicyActionSchema() *schema.Resource {
 	return &sc
 }
 
-func BandWidthScheduledPolicySchema() *schema.Resource {
+func bandWidthScheduledPolicySchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"launch_time": {
@@ -158,9 +149,6 @@ func BandWidthScheduledPolicySchema() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the periodic triggering type.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"Daily", "Weekly", "Monthly",
-				}, false),
 			},
 			"recurrence_value": {
 				Type:        schema.TypeString,
@@ -186,32 +174,28 @@ func BandWidthScheduledPolicySchema() *schema.Resource {
 }
 
 func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	// createBandwidthPolicy: create an AS bandwidth scaling policy
 	var (
+		conf                         = meta.(*config.Config)
+		region                       = conf.GetRegion(d)
 		createBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy"
 		createBandwidthPolicyProduct = "autoscaling"
 	)
-	createBandwidthPolicyClient, err := conf.NewServiceClient(createBandwidthPolicyProduct, region)
+
+	client, err := conf.NewServiceClient(createBandwidthPolicyProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating ASBandWidthPolicy Client: %s", err)
+		return diag.Errorf("error creating AS bandwidth policy client: %s", err)
 	}
 
-	createBandwidthPolicyPath := createBandwidthPolicyClient.Endpoint + createBandwidthPolicyHttpUrl
-	createBandwidthPolicyPath = strings.ReplaceAll(createBandwidthPolicyPath, "{project_id}", createBandwidthPolicyClient.ProjectID)
-
+	createBandwidthPolicyPath := client.Endpoint + createBandwidthPolicyHttpUrl
+	createBandwidthPolicyPath = strings.ReplaceAll(createBandwidthPolicyPath, "{project_id}", client.ProjectID)
 	createBandwidthPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateBandwidthPolicyBodyParams(d)),
 	}
-	createBandwidthPolicyOpt.JSONBody = utils.RemoveNil(buildCreateBandwidthPolicyBodyParams(d))
-	createBandwidthPolicyResp, err := createBandwidthPolicyClient.Request("POST", createBandwidthPolicyPath, &createBandwidthPolicyOpt)
+
+	createBandwidthPolicyResp, err := client.Request("POST", createBandwidthPolicyPath, &createBandwidthPolicyOpt)
 	if err != nil {
-		return diag.Errorf("error creating ASBandWidthPolicy: %s", err)
+		return diag.Errorf("error creating AS bandwidth policy: %s", err)
 	}
 
 	createBandwidthPolicyRespBody, err := utils.FlattenResponse(createBandwidthPolicyResp)
@@ -220,8 +204,8 @@ func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	id, err := jmespath.Search("scaling_policy_id", createBandwidthPolicyRespBody)
-	if err != nil {
-		return diag.Errorf("error creating ASBandWidthPolicy: ID is not found in API response")
+	if err != nil || id == nil {
+		return diag.Errorf("error creating AS bandwidth policy: ID is not found in API response")
 	}
 	d.SetId(id.(string))
 
@@ -278,37 +262,32 @@ func buildCreateBandwidthPolicyScheduledPolicyChildBody(d *schema.ResourceData) 
 }
 
 func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getBandwidthPolicy: Query the AS bandwidth scaling policy
 	var (
+		conf                      = meta.(*config.Config)
+		region                    = conf.GetRegion(d)
+		mErr                      *multierror.Error
 		getBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
 		getBandwidthPolicyProduct = "autoscaling"
 	)
-	getBandwidthPolicyClient, err := conf.NewServiceClient(getBandwidthPolicyProduct, region)
+
+	client, err := conf.NewServiceClient(getBandwidthPolicyProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating ASBandWidthPolicy Client: %s", err)
+		return diag.Errorf("error creating AS bandwidth policy client: %s", err)
 	}
 
-	getBandwidthPolicyPath := getBandwidthPolicyClient.Endpoint + getBandwidthPolicyHttpUrl
-	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{project_id}", getBandwidthPolicyClient.ProjectID)
+	getBandwidthPolicyPath := client.Endpoint + getBandwidthPolicyHttpUrl
+	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{project_id}", client.ProjectID)
 	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{id}", d.Id())
-
 	getBandwidthPolicyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getBandwidthPolicyResp, err := getBandwidthPolicyClient.Request("GET", getBandwidthPolicyPath, &getBandwidthPolicyOpt)
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving ASBandWidthPolicy")
 	}
 
-	getBandwidthPolicyRespBody, err := utils.FlattenResponse(getBandwidthPolicyResp)
+	getBandwidthPolicyResp, err := client.Request("GET", getBandwidthPolicyPath, &getBandwidthPolicyOpt)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving AS bandwidth policy")
+	}
+
+	respBody, err := utils.FlattenResponse(getBandwidthPolicyResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -316,16 +295,16 @@ func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, me
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("scaling_policy_name", utils.PathSearch("scaling_policy.scaling_policy_name", getBandwidthPolicyRespBody, nil)),
-		d.Set("scaling_policy_type", utils.PathSearch("scaling_policy.scaling_policy_type", getBandwidthPolicyRespBody, nil)),
-		d.Set("bandwidth_id", utils.PathSearch("scaling_policy.scaling_resource_id", getBandwidthPolicyRespBody, nil)),
-		d.Set("scaling_resource_type", utils.PathSearch("scaling_policy.scaling_resource_type", getBandwidthPolicyRespBody, nil)),
-		d.Set("alarm_id", utils.PathSearch("scaling_policy.alarm_id", getBandwidthPolicyRespBody, nil)),
-		d.Set("cool_down_time", utils.PathSearch("scaling_policy.cool_down_time", getBandwidthPolicyRespBody, nil)),
-		d.Set("description", utils.PathSearch("scaling_policy.description", getBandwidthPolicyRespBody, nil)),
-		d.Set("status", utils.PathSearch("scaling_policy.policy_status", getBandwidthPolicyRespBody, nil)),
-		d.Set("scaling_policy_action", flattenGetBandwidthPolicyResponseBodyScalingPolicyAction(getBandwidthPolicyRespBody)),
-		d.Set("scheduled_policy", flattenGetBandwidthPolicyResponseBodyScheduledPolicy(getBandwidthPolicyRespBody)),
+		d.Set("scaling_policy_name", utils.PathSearch("scaling_policy.scaling_policy_name", respBody, nil)),
+		d.Set("scaling_policy_type", utils.PathSearch("scaling_policy.scaling_policy_type", respBody, nil)),
+		d.Set("bandwidth_id", utils.PathSearch("scaling_policy.scaling_resource_id", respBody, nil)),
+		d.Set("scaling_resource_type", utils.PathSearch("scaling_policy.scaling_resource_type", respBody, nil)),
+		d.Set("alarm_id", utils.PathSearch("scaling_policy.alarm_id", respBody, nil)),
+		d.Set("cool_down_time", utils.PathSearch("scaling_policy.cool_down_time", respBody, nil)),
+		d.Set("description", utils.PathSearch("scaling_policy.description", respBody, nil)),
+		d.Set("status", utils.PathSearch("scaling_policy.policy_status", respBody, nil)),
+		d.Set("scaling_policy_action", flattenGetBandwidthPolicyResponseBodyScalingPolicyAction(respBody)),
+		d.Set("scheduled_policy", flattenGetBandwidthPolicyResponseBodyScheduledPolicy(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -370,10 +349,7 @@ func flattenGetBandwidthPolicyResponseBodyScheduledPolicy(resp interface{}) []in
 }
 
 func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	updateBandwidthPolicyhasChanges := []string{
+	updateBandwidthPolicyChanges := []string{
 		"scaling_policy_name",
 		"scaling_policy_type",
 		"bandwidth_id",
@@ -385,31 +361,30 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 		"scheduled_policy",
 	}
 
-	if d.HasChanges(updateBandwidthPolicyhasChanges...) {
+	if d.HasChanges(updateBandwidthPolicyChanges...) {
 		// updateBandwidthPolicy: update the AS bandwidth scaling policy
 		var (
+			conf                         = meta.(*config.Config)
+			region                       = conf.GetRegion(d)
 			updateBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
 			updateBandwidthPolicyProduct = "autoscaling"
 		)
-		updateBandwidthPolicyClient, err := conf.NewServiceClient(updateBandwidthPolicyProduct, region)
+		client, err := conf.NewServiceClient(updateBandwidthPolicyProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating ASBandWidthPolicy Client: %s", err)
+			return diag.Errorf("error creating AS bandwidth policy client: %s", err)
 		}
 
-		updateBandwidthPolicyPath := updateBandwidthPolicyClient.Endpoint + updateBandwidthPolicyHttpUrl
-		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{project_id}", updateBandwidthPolicyClient.ProjectID)
+		updateBandwidthPolicyPath := client.Endpoint + updateBandwidthPolicyHttpUrl
+		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{project_id}", client.ProjectID)
 		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{id}", d.Id())
-
 		updateBandwidthPolicyOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+			JSONBody:         utils.RemoveNil(buildUpdateBandwidthPolicyBodyParams(d)),
 		}
-		updateBandwidthPolicyOpt.JSONBody = utils.RemoveNil(buildUpdateBandwidthPolicyBodyParams(d))
-		_, err = updateBandwidthPolicyClient.Request("PUT", updateBandwidthPolicyPath, &updateBandwidthPolicyOpt)
+
+		_, err = client.Request("PUT", updateBandwidthPolicyPath, &updateBandwidthPolicyOpt)
 		if err != nil {
-			return diag.Errorf("error updating ASBandWidthPolicy: %s", err)
+			return diag.Errorf("error updating AS bandwidth policy: %s", err)
 		}
 	}
 	return resourceASBandWidthPolicyRead(ctx, d, meta)
