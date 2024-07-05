@@ -21,10 +21,6 @@ fixes #xxx
 ## PR Checklist
 
 * [ ] Tests added/passed.
-* [ ] Documentation updated.
-* [ ] Schema updated.
-
-## Acceptance Steps Performed
 
 ```
 make testacc TEST='./huaweicloud' TESTARGS='-run=TestAccSomethingV0_basic'
@@ -34,3 +30,6 @@ make testacc TEST='./huaweicloud' TESTARGS='-run=TestAccSomethingV0_basic'
 PASS
 ok      github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud       70.796s
 ```
+
+* [ ] Documentation updated.
+* [ ] Schema updated.
