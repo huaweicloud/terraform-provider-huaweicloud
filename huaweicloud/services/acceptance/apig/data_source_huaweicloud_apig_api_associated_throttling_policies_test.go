@@ -257,7 +257,7 @@ data "huaweicloud_apig_api_associated_throttling_policies" "test" {
 
 # Filter by ID
 locals {
-  policy_id = data.huaweicloud_apig_api_associated_throttling_policies.test.policies[0].id
+  policy_id = huaweicloud_apig_throttling_policy.test.id
 }
 
 data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_id" {
@@ -283,7 +283,7 @@ output "is_id_filter_useful" {
 
 # Filter by name
 locals {
-  policy_name = data.huaweicloud_apig_api_associated_throttling_policies.test.policies[0].name
+  policy_name = huaweicloud_apig_throttling_policy.test.name
 }
 
 data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_name" {
@@ -335,7 +335,7 @@ output "is_name_not_found_filter_useful" {
 
 # Filter by type
 locals {
-  policy_type = data.huaweicloud_apig_api_associated_throttling_policies.test.policies[0].type
+  policy_type = huaweicloud_apig_throttling_policy.test.type
 }
 
 data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_type" {
@@ -361,7 +361,7 @@ output "is_type_filter_useful" {
 
 # Filter by env name
 locals {
-  env_name = data.huaweicloud_apig_api_associated_throttling_policies.test.policies[0].env_name
+  env_name = huaweicloud_apig_environment.test.name
 }
 
 data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_env_name" {
@@ -387,7 +387,7 @@ output "is_env_name_filter_useful" {
 
 # Filter by period unit
 locals {
-  period_unit = data.huaweicloud_apig_api_associated_throttling_policies.test.policies[0].period_unit
+  period_unit = huaweicloud_apig_throttling_policy.test.period_unit
 }
 
 data "huaweicloud_apig_api_associated_throttling_policies" "filter_by_period_unit" {

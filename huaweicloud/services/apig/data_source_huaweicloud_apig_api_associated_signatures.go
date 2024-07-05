@@ -129,7 +129,7 @@ func buildListApiAssociatedSignaturesParams(d *schema.ResourceData) string {
 		res = fmt.Sprintf("%s&sign_id=%v", res, v)
 	}
 	if v, ok := d.GetOk("name"); ok {
-		res = fmt.Sprintf("%s&signature_name=%v", res, v)
+		res = fmt.Sprintf("%s&sign_name=%v", res, v)
 	}
 	return res
 }

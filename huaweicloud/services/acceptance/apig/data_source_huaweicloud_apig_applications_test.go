@@ -84,7 +84,7 @@ data "huaweicloud_apig_applications" "test" {
 
 # Filter by ID
 locals {
-  application_id = data.huaweicloud_apig_applications.test.applications[0].id
+  application_id = huaweicloud_apig_application.test.id
 }
 
 data "huaweicloud_apig_applications" "filter_by_id" {
@@ -104,10 +104,14 @@ output "application_id_filter_is_useful" {
 
 # Filter by name
 locals {
-  name = data.huaweicloud_apig_applications.test.applications[0].name
+  name = huaweicloud_apig_application.test.name
 }
 
 data "huaweicloud_apig_applications" "filter_by_name" {
+  depends_on = [
+    huaweicloud_apig_application.test
+  ]
+
   instance_id = local.instance_id
   name        = local.name
 }
@@ -124,7 +128,7 @@ output "name_filter_is_useful" {
 
 # Filter by app_key
 locals {
-  app_key = data.huaweicloud_apig_applications.test.applications[0].app_key
+  app_key = huaweicloud_apig_application.test.app_key
 }
 
 data "huaweicloud_apig_applications" "filter_by_app_key" {
@@ -144,7 +148,7 @@ output "app_key_filter_is_useful" {
 
 # Filter by created_by
 locals {
-  created_by = data.huaweicloud_apig_applications.test.applications[0].created_by
+  created_by = data.huaweicloud_apig_applications.filter_by_id.applications[0].created_by
 }
 
 data "huaweicloud_apig_applications" "filter_by_created_by" {
