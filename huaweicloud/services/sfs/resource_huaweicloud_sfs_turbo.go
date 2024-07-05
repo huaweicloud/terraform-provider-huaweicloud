@@ -2,6 +2,7 @@ package sfs
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares"
@@ -360,6 +362,9 @@ func resourceSFSTurboRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	n, err := shares.Get(sfsClient, d.Id()).Extract()
 	if err != nil {
+		if hasSpecifyErrorCode403(err, "SFS.TURBO.9000") {
+			err = golangsdk.ErrDefault404{}
+		}
 		return common.CheckDeletedDiag(d, err, "SFS Turbo")
 	}
 
@@ -599,6 +604,9 @@ func resourceSFSTurboDelete(ctx context.Context, d *schema.ResourceData, meta in
 	} else {
 		err = shares.Delete(sfsClient, resourceId).ExtractErr()
 		if err != nil {
+			if hasSpecifyErrorCode403(err, "SFS.TURBO.9000") || hasSpecifyErrorCode400(err, "SFS.TURBO.0002") {
+				err = golangsdk.ErrDefault404{}
+			}
 			return common.CheckDeletedDiag(d, err, "SFS Turbo")
 		}
 	}
@@ -653,4 +661,44 @@ func waitForSFSTurboSubStatus(sfsClient *golangsdk.ServiceClient, shareId string
 		}
 		return r, status, nil
 	}
+}
+
+// When the SFS Turbo does not exist, the response body example of the details interface is as follows:
+// {"errCode":"SFS.TURBO.0002","errMsg":"cluster not found"}
+func hasSpecifyErrorCode400(err error, specCode string) bool {
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var response interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
+			errorCode, parseErr := jmespath.Search("errCode", response)
+			if parseErr != nil {
+				log.Printf("[WARN] failed to parse errCode from response body: %s", parseErr)
+			}
+
+			if errorCode == specCode {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// When the SFS Turbo does not exist, the response body example of the details interface is as follows:
+// {"errCode":"SFS.TURBO.9000","errMsg":"no privileges to operate"}
+func hasSpecifyErrorCode403(err error, specCode string) bool {
+	if errCode, ok := err.(golangsdk.ErrDefault403); ok {
+		var response interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
+			errorCode, parseErr := jmespath.Search("errCode", response)
+			if parseErr != nil {
+				log.Printf("[WARN] failed to parse errCode from response body: %s", parseErr)
+			}
+
+			if errorCode == specCode {
+				return true
+			}
+		}
+	}
+
+	return false
 }
