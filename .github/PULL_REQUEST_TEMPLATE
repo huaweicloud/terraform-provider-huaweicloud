@@ -20,6 +20,8 @@ fixes #xxx
 
 ## PR Checklist
 
+<!-- Before submitting resources, please check the following items and provide the corresponding verification results. -->
+
 * [ ] Tests added/passed.
 
 ```
