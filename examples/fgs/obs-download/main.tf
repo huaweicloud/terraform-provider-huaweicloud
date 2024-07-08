@@ -43,7 +43,7 @@ def handler (event, context):
 
     srcBucket = context.getUserData('srcBucket')    # Enter the name of the bucket where the actual file to be downloaded is stored.
     srcObjName = context.getUserData('srcObjName')  # Enter the name of the actual file to be downloaded, for example, file.txt.
-    srcObjPath = context.getUserData('srcObjPath')  # Enter the directoty of the actual file to be downloaded, for example, for_download/.
+    srcObjPath = context.getUserData('srcObjPath')  # Enter the directory of the actual file to be downloaded, for example, for_download/.
 
     if srcBucket is None or srcObjName is None:
         logger.error("Please set environment variables srcBucket and srcObjName.")
