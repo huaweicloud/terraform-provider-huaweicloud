@@ -57,10 +57,12 @@ func getSQLAlarmRuleResourceFunc(cfg *config.Config, state *terraform.ResourceSt
 }
 
 func TestAccSQLAlarmRule_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_lts_sql_alarm_rule.test"
+	var (
+		obj      interface{}
+		name     = acceptance.RandomAccResourceName()
+		rName    = "huaweicloud_lts_sql_alarm_rule.test"
+		password = acceptance.RandomPassword()
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -74,31 +76,40 @@ func TestAccSQLAlarmRule_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testSQLAlarmRule_basic(name),
+				Config: testSQLAlarmRule_basic(name, password),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", "created by terraform"),
 					resource.TestCheckResourceAttr(rName, "condition_expression", "t>0"),
 					resource.TestCheckResourceAttr(rName, "alarm_level", "CRITICAL"),
-					resource.TestCheckResourceAttr(rName, "status", "RUNNING"),
+					resource.TestCheckResourceAttr(rName, "status", "STOPPING"),
 					resource.TestCheckResourceAttr(rName, "frequency.0.type", "HOURLY"),
 					resource.TestCheckResourceAttrPair(rName, "sql_requests.0.log_group_id",
 						"huaweicloud_lts_group.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "sql_requests.0.log_stream_id",
 						"huaweicloud_lts_stream.test", "id"),
+					resource.TestCheckResourceAttr(rName, "notification_rule.0.language", "en-us"),
+					resource.TestCheckResourceAttrPair(rName, "notification_rule.0.template_name",
+						"huaweicloud_lts_notification_template.test", "name"),
+					resource.TestCheckResourceAttrPair(rName, "notification_rule.0.user_name",
+						"huaweicloud_identity_user.test", "name"),
+					resource.TestCheckResourceAttrPair(rName, "notification_rule.0.topics.0.name",
+						"huaweicloud_smn_topic.test", "name"),
+					resource.TestCheckResourceAttrPair(rName, "notification_rule.0.topics.0.topic_urn",
+						"huaweicloud_smn_topic.test", "topic_urn"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 				),
 			},
 			{
-				Config: testSQLAlarmRule_basic_update(name),
+				Config: testSQLAlarmRule_basic_update(name, password),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "condition_expression", "t>2"),
 					resource.TestCheckResourceAttr(rName, "alarm_level", "INFO"),
-					resource.TestCheckResourceAttr(rName, "status", "STOPPING"),
+					resource.TestCheckResourceAttr(rName, "status", "RUNNING"),
 					resource.TestCheckResourceAttr(rName, "frequency.0.type", "DAILY"),
 					resource.TestCheckResourceAttr(rName, "frequency.0.hour_of_day", "6"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
@@ -108,12 +119,15 @@ func TestAccSQLAlarmRule_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"notification_rule",
+				},
 			},
 		},
 	})
 }
 
-func testSQLAlarmRule_basic(name string) string {
+func testSQLAlarmRule_basic(name, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -122,6 +136,7 @@ resource "huaweicloud_lts_sql_alarm_rule" "test" {
   description          = "created by terraform"
   condition_expression = "t>0"
   alarm_level          = "CRITICAL"
+  status               = "STOPPING"
 
   sql_requests {
     title                  = "%[2]s_sql"
@@ -135,11 +150,22 @@ resource "huaweicloud_lts_sql_alarm_rule" "test" {
   frequency {
     type = "HOURLY"
   }
+
+  notification_rule {
+    template_name = huaweicloud_lts_notification_template.test.name
+    user_name     = huaweicloud_identity_user.test.name
+    language      = "en-us"
+
+    topics {
+      name      = huaweicloud_smn_topic.test.name
+      topic_urn = huaweicloud_smn_topic.test.topic_urn
+    }
+  }
 }
-`, testAccLtsStream_basic(name), name)
+`, testAlarmRule_base(name, password), name)
 }
 
-func testSQLAlarmRule_basic_update(name string) string {
+func testSQLAlarmRule_basic_update(name, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -147,7 +173,7 @@ resource "huaweicloud_lts_sql_alarm_rule" "test" {
   name                 = "%[2]s"
   condition_expression = "t>2"
   alarm_level          = "INFO"
-  status               = "STOPPING"
+  status               = "RUNNING"
 
   sql_requests {
     title                  = "%[2]s_sql"
@@ -162,6 +188,17 @@ resource "huaweicloud_lts_sql_alarm_rule" "test" {
     type        = "DAILY"
     hour_of_day = 6
   }
+
+  notification_rule {
+    template_name = huaweicloud_lts_notification_template.test.name
+    user_name     = huaweicloud_identity_user.test.name
+    language      = "en-us"
+
+    topics {
+      name      = huaweicloud_smn_topic.test.name
+      topic_urn = huaweicloud_smn_topic.test.topic_urn
+    }
+  }
 }
-`, testAccLtsStream_basic(name), name)
+`, testAlarmRule_base(name, password), name)
 }

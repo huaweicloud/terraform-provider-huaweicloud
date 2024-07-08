@@ -59,7 +59,6 @@ func TestAccLtsStream_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -70,46 +69,20 @@ func TestAccLtsStream_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "stream_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "filter_count", "0"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrPair(resourceName, "group_id", "huaweicloud_lts_group.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.terraform", ""),
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testLtsStreamImportState(resourceName),
-			},
-		},
-	})
-}
-
-func TestAccLtsStream_ttl(t *testing.T) {
-	var (
-		stream       interface{}
-		rName        = acceptance.RandomAccResourceName()
-		resourceName = "huaweicloud_lts_stream.test"
-		rc           = acceptance.InitResourceCheck(resourceName, &stream, getLtsStreamResourceFunc)
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccLtsStream_ttl(rName),
+				Config: testAccLtsStream_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "stream_name", rName),
-					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "60"),
-					resource.TestCheckResourceAttr(resourceName, "filter_count", "0"),
-					resource.TestCheckResourceAttrSet(resourceName, "enterprise_project_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttrPair(resourceName, "group_id", "huaweicloud_lts_group.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 				),
 			},
 			{
@@ -142,32 +115,49 @@ func testAccLtsStream_basic(rName string) string {
 resource "huaweicloud_lts_group" "test" {
   group_name  = "%[1]s"
   ttl_in_days = 30
-}
 
-resource "huaweicloud_lts_stream" "test" {
-  group_id              = huaweicloud_lts_group.test.id
-  stream_name           = "%[1]s"
-  enterprise_project_id = "%[2]s"
-}
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccLtsStream_ttl(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_lts_group" "test" {
-  group_name  = "%[1]s"
-  ttl_in_days = 30
+  tags = {
+    owner = "terraform"
+  }
 }
 
 resource "huaweicloud_lts_stream" "test" {
   group_id    = huaweicloud_lts_group.test.id
   stream_name = "%[1]s"
   ttl_in_days = 60
+
+  tags = {
+    foo       = "bar"
+    terraform = ""
+  }
 }
 `, rName)
 }
 
-func TestAccLtsStream_tags(t *testing.T) {
+func testAccLtsStream_update(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name  = "%[1]s"
+  ttl_in_days = 30
+
+  tags = {
+    owner = "terraform"
+  }
+}
+
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
+  stream_name = "%[1]s"
+  ttl_in_days = 60
+
+  tags = {
+    owner = "terraform"
+  }
+}
+`, rName)
+}
+
+func TestAccLtsStream_epsId(t *testing.T) {
 	var (
 		stream       interface{}
 		rName        = acceptance.RandomAccResourceName()
@@ -178,39 +168,30 @@ func TestAccLtsStream_tags(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLtsStream_tags_step1(rName),
+				Config: testAccLtsStream_epsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.terraform", ""),
+					resource.TestCheckResourceAttr(resourceName, "stream_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
-				Config: testAccLtsStream_tags_step2(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
-				),
-			},
-			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl_in_days"},
-				ImportStateIdFunc:       testLtsStreamImportState(resourceName),
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testLtsStreamImportState(resourceName),
 			},
 		},
 	})
 }
 
-func testAccLtsStream_tags_step1(rName string) string {
+func testAccLtsStream_epsId(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_lts_group" "test" {
   group_name  = "%[1]s"
@@ -218,35 +199,9 @@ resource "huaweicloud_lts_group" "test" {
 }
 
 resource "huaweicloud_lts_stream" "test" {
-  group_id    = huaweicloud_lts_group.test.id
-  stream_name = "%[1]s"
-
-  tags = {
-    foo       = "bar"
-    terraform = ""
-  }
+  group_id              = huaweicloud_lts_group.test.id
+  stream_name           = "%[1]s"
+  enterprise_project_id = "%[2]s"
 }
-`, rName)
-}
-
-func testAccLtsStream_tags_step2(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_lts_group" "test" {
-  group_name  = "%[1]s"
-  ttl_in_days = 30
-
-  tags = {
-    key = "log-group"
-  }
-}
-
-resource "huaweicloud_lts_stream" "test" {
-  group_id    = huaweicloud_lts_group.test.id
-  stream_name = "%[1]s"
-
-  tags = {
-    owner = "terraform"
-  }
-}
-`, rName)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

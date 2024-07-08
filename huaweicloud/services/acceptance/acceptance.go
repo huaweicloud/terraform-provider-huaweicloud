@@ -4,6 +4,7 @@ package acceptance
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -360,9 +361,9 @@ var (
 	HW_LTS_AGENCY_PROJECT_ID  = os.Getenv("HW_LTS_AGENCY_PROJECT_ID")
 	HW_LTS_AGENCY_DOMAIN_NAME = os.Getenv("HW_LTS_AGENCY_DOMAIN_NAME")
 	HW_LTS_AGENCY_NAME        = os.Getenv("HW_LTS_AGENCY_NAME")
-
-	HW_LTS_CCE_HOST_GROUP_ID = os.Getenv("HW_LTS_CCE_HOST_GROUP_ID")
-	HW_LTS_CCE_CLUSTER_ID    = os.Getenv("HW_LTS_CCE_CLUSTER_ID")
+	// The ID list of the LTS hosts. Using commas (,) to separate multiple IDs (At least two UUIDs we need).
+	HW_LTS_HOST_IDS       = os.Getenv("HW_LTS_HOST_IDS")
+	HW_LTS_CCE_CLUSTER_ID = os.Getenv("HW_LTS_CCE_CLUSTER_ID")
 
 	HW_LTS_LOG_CONVERGE_ORGANIZATION_ID       = os.Getenv("HW_LTS_LOG_CONVERGE_ORGANIZATION_ID")
 	HW_LTS_LOG_CONVERGE_MANAGEMENT_ACCOUNT_ID = os.Getenv("HW_LTS_LOG_CONVERGE_MANAGEMENT_ACCOUNT_ID")
@@ -1474,10 +1475,17 @@ func TestAccPreCheckLTSCrossAccountAccess(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckLTSCCEAccess(t *testing.T) {
-	if HW_LTS_LOG_STREAM_ID == "" || HW_LTS_LOG_GROUP_ID == "" ||
-		HW_LTS_CCE_CLUSTER_ID == "" || HW_LTS_CCE_HOST_GROUP_ID == "" {
-		t.Skip("The cce access config of HW_LTS_LOG_STREAM_ID, HW_LTS_LOG_GROUP_ID, HW_LTS_CCE_CLUSTER_ID" +
-			" and HW_LTS_CCE_HOST_GROUP_ID must be set for the acceptance test")
+	if HW_LTS_CCE_CLUSTER_ID == "" {
+		t.Skip("The cce access config of HW_LTS_CCE_CLUSTER_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLTSHostGroup(t *testing.T) {
+	// LTS host groups support updating associated hosts, so at least one host is required to create and update each host group.
+	hostIds := strings.Split(HW_LTS_HOST_IDS, ",")
+	if len(hostIds) < 2 {
+		t.Skip("The length of HW_LTS_HOST_IDS must be at least 2 for the host group acceptance test")
 	}
 }
 

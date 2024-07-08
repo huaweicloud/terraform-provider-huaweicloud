@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccDatasourceCceAccesses_basic(t *testing.T) {
@@ -34,7 +33,8 @@ func TestAccDatasourceCceAccesses_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckProjectID(t)
+			acceptance.TestAccPreCheckLTSCCEAccess(t)
+			acceptance.TestAccPreCheckLTSHostGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		ExternalProviders: map[string]resource.ExternalProvider{
@@ -55,8 +55,7 @@ func TestAccDatasourceCceAccesses_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(byName, "accesses.0.log_stream_id", "huaweicloud_lts_stream.test", "id"),
 					resource.TestCheckResourceAttr(byName, "accesses.0.host_group_ids.#", "1"),
 					resource.TestCheckResourceAttrPair(byName, "accesses.0.host_group_ids.0", "huaweicloud_lts_host_group.test", "id"),
-					resource.TestCheckResourceAttrPair(byName, "accesses.0.cluster_id", "huaweicloud_cce_cluster.test", "id"),
-					resource.TestCheckResourceAttr(byName, "accesses.0.access_config.#", "1"),
+					resource.TestCheckResourceAttr(byName, "accesses.0.cluster_id", acceptance.HW_LTS_CCE_CLUSTER_ID),
 					resource.TestCheckResourceAttr(byName, "accesses.0.access_config.0.path_type", "container_file"),
 					resource.TestCheckResourceAttr(byName, "accesses.0.access_config.0.paths.#", "1"),
 					resource.TestCheckResourceAttr(byName, "accesses.0.access_config.0.paths.0", "/var"),
@@ -120,102 +119,28 @@ func TestAccDatasourceCceAccesses_basic(t *testing.T) {
 
 func testAccDatasourceCceAccesses_base(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
-data "huaweicloud_images_images" "test" {
-  visibility   = "public"
-  architecture = "x86"
-  os           = "Ubuntu"
-}
-
-%[1]s
-
-resource "huaweicloud_networking_secgroup" "test" {
-  # install ICAgent needs the access rule with port 22 and cannot delete the default rules.
-  # Without using EIP, that is a safe way to using SSH access rule.
-  name = "%[2]s"
-}
-
-resource "huaweicloud_compute_instance" "test" {
-  name                = "%[2]s"
-  image_id            = data.huaweicloud_images_images.test.images[0].id
-  flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids  = [huaweicloud_networking_secgroup.test.id]
-
-  network {
-    uuid = huaweicloud_vpc_subnet.test.id
-  }
-
-  system_disk_type = "SAS"
-  system_disk_size = 50
-
-  data_disks {
-    type = "SAS"
-    size = "10"
-  }
-
-  # install IC agent
-  user_data = <<EOF
-#! /bin/bash
-set +o history;
-curl https://icagent-cn-north-4.obs.cn-north-4.myhuaweicloud.com/ICAgent_linux/apm_agent_install.sh > \
-apm_agent_install.sh && REGION=cn-north-4 bash apm_agent_install.sh -ak %[3]s -sk %[4]s -region cn-north-4 -projectid %[5]s \
--accessip 100.125.12.150 -obsdomain obs.cn-north-4.myhuaweicloud.com -accessdomain lts-access.cn-north-4.myhuaweicloud.com;
-set -o history;
-EOF
-}
-
-# wait 2 minutes for the lts service to discover the server
-resource "null_resource" "test" {
-  depends_on = [huaweicloud_compute_instance.test]
-
-  provisioner "local-exec" {
-    interpreter = ["bash", "-c"]
-    command     = "sleep 120;"
-  }
-}
-
 resource "huaweicloud_lts_host_group" "test" {
-  depends_on = [null_resource.test]
-
-  name     = "%[2]s"
+  name     = "%[1]s"
   type     = "linux"
-  host_ids = [
-    huaweicloud_compute_instance.test.id
-  ]
-}
-
-resource "huaweicloud_cce_cluster" "test" {
-  name                   = replace("%[2]s", "_", "-")
-  flavor_id              = "cce.s1.small"
-  vpc_id                 = huaweicloud_vpc.test.id
-  subnet_id              = huaweicloud_vpc_subnet.test.id
-  container_network_type = "overlay_l2"
+  host_ids = split(",", "%[2]s")
 }
 
 resource "huaweicloud_lts_group" "test" {
-  group_name  = "%[2]s"
+  group_name  = "%[1]s"
   ttl_in_days = 30
 }
 
 resource "huaweicloud_lts_stream" "test" {
   group_id    = huaweicloud_lts_group.test.id
-  stream_name = "%[2]s"
+  stream_name = "%[1]s"
 }
 
 resource "huaweicloud_lts_cce_access" "test" {
-  name           = "%[2]s"
+  name           = "%[1]s"
   log_group_id   = huaweicloud_lts_group.test.id
   log_stream_id  = huaweicloud_lts_stream.test.id
   host_group_ids = [huaweicloud_lts_host_group.test.id]
-  cluster_id     = huaweicloud_cce_cluster.test.id
+  cluster_id     = "%[3]s"
 
   access_config {
     path_type            = "container_file"
@@ -286,7 +211,7 @@ resource "huaweicloud_lts_cce_access" "test" {
     foo = "bar"
     key = "value"
   }
-}`, common.TestVpc(name), name, acceptance.HW_ACCESS_KEY, acceptance.HW_SECRET_KEY, acceptance.HW_PROJECT_ID)
+}`, name, acceptance.HW_LTS_HOST_IDS, acceptance.HW_LTS_CCE_CLUSTER_ID)
 }
 
 func testAccDatasourceCceAccesses_basic(name string) string {
@@ -326,7 +251,7 @@ output "is_not_found_name_filter_useful" {
 
 # Filter by log group name
 locals {
-  log_group_name = data.huaweicloud_lts_cce_accesses.filter_by_name.accesses[0].log_group_name
+  log_group_name = huaweicloud_lts_cce_access.test.log_group_name
 }
 
 data "huaweicloud_lts_cce_accesses" "filter_by_log_group_name" {
@@ -345,7 +270,7 @@ output "is_log_group_name_filter_useful" {
 
 # Filter by log stream name
 locals {
-  log_stream_name = data.huaweicloud_lts_cce_accesses.filter_by_name.accesses[0].log_stream_name
+  log_stream_name = huaweicloud_lts_cce_access.test.log_stream_name
 }
 
 data "huaweicloud_lts_cce_accesses" "filter_by_log_stream_name" {
@@ -364,10 +289,14 @@ output "is_log_stream_name_filter_useful" {
 
 # Filter by tags
 locals {
-  tags = data.huaweicloud_lts_cce_accesses.filter_by_name.accesses[0].tags
+  tags = huaweicloud_lts_cce_access.test.tags
 }
 
 data "huaweicloud_lts_cce_accesses" "filter_by_tags" {
+  depends_on = [
+    huaweicloud_lts_cce_access.test
+  ]
+
   tags = local.tags
 }
 

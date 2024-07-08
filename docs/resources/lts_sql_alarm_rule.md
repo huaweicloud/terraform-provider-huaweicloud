@@ -181,3 +181,21 @@ The sql alarm rule can be imported using the `id`, e.g.
 ```bash
 $ terraform import huaweicloud_lts_sql_alarm_rule.test ed8a4e02-b017-4c22-919d-8877b10cf505
 ```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response. The missing attributes include: `notification_rule`.
+It is generally recommended running `terraform plan` after importing a certificate.
+You can then decide if changes should be applied to the certificate, or the resource definition should be updated to
+align with the certificate. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_lts_sql_alarm_rule" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      notification_rule,
+    ]
+  }
+}
+```

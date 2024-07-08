@@ -125,7 +125,7 @@ locals {
 output "is_log_stream_name_filter_useful" {
   value = length(local.log_stream_name_filter_result) > 0 && alltrue(local.log_stream_name_filter_result)
 }
-`, testAOMAccess_allWorkloads(name))
+`, testAOMAccess_basic_step1(name))
 }
 
 func testDataSourceDataSourceAOMAccesses_logGroupNotExist() string {
