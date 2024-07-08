@@ -64,13 +64,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: misspell
-        uses: reviewdog/action-misspell@v1
+        uses: reviewdog/action-misspell@v1.21.0
         with:
           github_token: ${{ secrets.github_token }}
           locale: "US"
           ignore: |
-            "cancelled"
             "analyses"
+            "cancelled"
+            "classis"
           pattern: |
             *.md
             *.tf
+          exclude: |
+            ./vendor/*
