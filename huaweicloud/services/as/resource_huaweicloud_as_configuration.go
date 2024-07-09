@@ -464,7 +464,8 @@ func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta
 	configId := d.Id()
 	asConfig, err := configurations.Get(asClient, configId).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS configuration")
+		// When the resource does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving AS configuration")
 	}
 
 	// update InstanceID if necessary
@@ -505,7 +506,8 @@ func resourceASConfigurationDelete(_ context.Context, d *schema.ResourceData, me
 	}
 
 	if delErr := configurations.Delete(asClient, configId).ExtractErr(); delErr != nil {
-		return diag.Errorf("error deleting AS configuration: %s", delErr)
+		// When the resource does not exist, the response HTTP status code of the delete API is 404.
+		return common.CheckDeletedDiag(d, delErr, "error deleting AS configuration")
 	}
 
 	return nil
