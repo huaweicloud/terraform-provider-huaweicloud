@@ -20,11 +20,9 @@ fixes #xxx
 
 ## PR Checklist
 
-* [ ] Tests added/passed.
-* [ ] Documentation updated.
-* [ ] Schema updated.
+<!-- Before submitting resources, please check the following items and provide the corresponding verification results. -->
 
-## Acceptance Steps Performed
+* [ ] Tests added/passed.
 
 ```
 make testacc TEST='./huaweicloud' TESTARGS='-run=TestAccSomethingV0_basic'
@@ -34,3 +32,24 @@ make testacc TEST='./huaweicloud' TESTARGS='-run=TestAccSomethingV0_basic'
 PASS
 ok      github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud       70.796s
 ```
+
+* [ ] Documentation updated.
+* [ ] Schema updated.
+* [ ] CheckDeleted.
+
+  - **a. During query operation (Read Context)**
+    aa. Resource not found
+    \>>>>>> Paste the screenshot here <<<<<<
+
+    <!-- If the resource depends the parent resource(s), please provide the related check result(s) of the CheckDeleted validation.
+    ab. Related resources (parent resources) not found
+    \>>>>>> Paste the screenshot here <<<<<<
+    -->
+  - **b. During delete/disassociate/unbind operation (Delete Context)**
+    ba. Resource not found
+    \>>>>>> Paste the screenshot here <<<<<<
+
+    <!-- If the resource depends the parent resource(s), please provide the related check result(s) of the CheckDeleted validation.
+    bb. Related resources (parent resources) not found
+    \>>>>>> Paste the screenshot here <<<<<<
+    -->
