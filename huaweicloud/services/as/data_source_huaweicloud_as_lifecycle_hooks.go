@@ -11,7 +11,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/lifecyclehooks"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -103,7 +102,7 @@ func dataSourceLifeCycleHooksRead(_ context.Context, d *schema.ResourceData, met
 
 	lifecycleHookList, err := lifecyclehooks.List(client, groupID).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS lifecycle hooks")
+		return diag.Errorf("error retrieving lifecycle hooks in AS group %s: %s", groupID, err)
 	}
 
 	lifecycleHooks, err := flattenLifecycleHooks(d, lifecycleHookList)

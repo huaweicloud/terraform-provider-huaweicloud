@@ -10,7 +10,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policyexecutelogs"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -190,7 +189,7 @@ func dataSourcePolicyExecuteLogsRead(_ context.Context, d *schema.ResourceData, 
 
 	executeLogList, err := policyexecutelogs.List(client, opts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS policy execute logs")
+		return diag.Errorf("error retrieving AS policy execute logs: %s", err)
 	}
 
 	randUUID, err := uuid.GenerateUUID()
