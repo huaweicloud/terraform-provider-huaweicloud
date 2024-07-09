@@ -284,6 +284,7 @@ func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, me
 
 	getBandwidthPolicyResp, err := client.Request("GET", getBandwidthPolicyPath, &getBandwidthPolicyOpt)
 	if err != nil {
+		// When the resource does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving AS bandwidth policy")
 	}
 
