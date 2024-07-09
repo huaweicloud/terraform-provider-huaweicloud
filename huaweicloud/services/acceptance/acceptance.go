@@ -96,12 +96,16 @@ var (
 	HW_RAM_ENABLE_FLAG               = os.Getenv("HW_RAM_ENABLE_FLAG")
 	HW_RAM_SHARE_INVITATION_ID       = os.Getenv("HW_RAM_SHARE_INVITATION_ID")
 
-	HW_CDN_DOMAIN_NAME              = os.Getenv("HW_CDN_DOMAIN_NAME")
-	HW_CDN_DOMAIN_URL               = os.Getenv("HW_CDN_DOMAIN_URL")
-	HW_CDN_CERT_PATH                = os.Getenv("HW_CDN_CERT_PATH")
-	HW_CDN_PRIVATE_KEY_PATH         = os.Getenv("HW_CDN_PRIVATE_KEY_PATH")
-	HW_CDN_ENABLE_FLAG              = os.Getenv("HW_CDN_ENABLE_FLAG")
-	HW_CDN_TIMESTAMP                = os.Getenv("HW_CDN_TIMESTAMP")
+	HW_CDN_DOMAIN_NAME      = os.Getenv("HW_CDN_DOMAIN_NAME")
+	HW_CDN_DOMAIN_URL       = os.Getenv("HW_CDN_DOMAIN_URL")
+	HW_CDN_CERT_PATH        = os.Getenv("HW_CDN_CERT_PATH")
+	HW_CDN_PRIVATE_KEY_PATH = os.Getenv("HW_CDN_PRIVATE_KEY_PATH")
+	HW_CDN_ENABLE_FLAG      = os.Getenv("HW_CDN_ENABLE_FLAG")
+	HW_CDN_TIMESTAMP        = os.Getenv("HW_CDN_TIMESTAMP")
+	HW_CDN_START_TIME       = os.Getenv("HW_CDN_START_TIME")
+	HW_CDN_END_TIME         = os.Getenv("HW_CDN_END_TIME")
+	HW_CDN_STAT_TYPE        = os.Getenv("HW_CDN_STAT_TYPE")
+
 	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
 	HW_CERTIFICATE_CHAIN_PATH       = os.Getenv("HW_CERTIFICATE_CHAIN_PATH")
 	HW_CERTIFICATE_PRIVATE_KEY_PATH = os.Getenv("HW_CERTIFICATE_PRIVATE_KEY_PATH")
@@ -1952,5 +1956,12 @@ func TestAccPrecheckDcFlag(t *testing.T) {
 func TestAccPrecheckTimeStamp(t *testing.T) {
 	if HW_CDN_TIMESTAMP == "" {
 		t.Skip("HW_CDN_TIMESTAMP must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckCDNAnalytics(t *testing.T) {
+	if HW_CDN_START_TIME == "" || HW_CDN_END_TIME == "" || HW_CDN_STAT_TYPE == "" {
+		t.Skip("HW_CDN_START_TIME, HW_CDN_END_TIME, and HW_CDN_STAT_TYPE must be set for the acceptance test")
 	}
 }
