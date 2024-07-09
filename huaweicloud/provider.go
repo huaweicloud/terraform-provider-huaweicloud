@@ -660,6 +660,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_function_events":       fgs.DataSourceFunctionEvents(),
 			"huaweicloud_fgs_function_triggers":     fgs.DataSourceFunctionTriggers(),
 			"huaweicloud_fgs_functions":             fgs.DataSourceFunctionGraphFunctions(),
+			"huaweicloud_fgs_quotas":                fgs.DataSourceQuotas(),
 
 			"huaweicloud_ga_accelerators":       ga.DataSourceAccelerators(),
 			"huaweicloud_ga_address_groups":     ga.DataSourceAddressGroups(),
