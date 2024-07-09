@@ -255,7 +255,8 @@ func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interf
 	policyId := d.Id()
 	asPolicy, err := policies.Get(asClient, policyId).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS policy")
+		// When the resource does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving AS policy")
 	}
 
 	mErr := multierror.Append(nil,
@@ -367,7 +368,8 @@ func resourceASPolicyDelete(_ context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if delErr := policies.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
-		return diag.Errorf("error deleting AS policy: %s", delErr)
+		// When the resource does not exist, the response HTTP status code of the delete API is 404.
+		return common.CheckDeletedDiag(d, delErr, "error deleting AS policy")
 	}
 
 	return nil
