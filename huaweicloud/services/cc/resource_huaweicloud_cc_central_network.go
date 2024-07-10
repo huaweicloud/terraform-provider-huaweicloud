@@ -191,23 +191,15 @@ func centralNetworkWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 
 			status := fmt.Sprintf("%v", statusRaw)
 
-			targetStatus := []string{
-				"AVAILABLE",
+			if utils.StrSliceContains([]string{"FAILED", "DELETED"}, status) {
+				return createCentralNetworkWaitingRespBody, "", fmt.Errorf("unexpected status '%s'", status)
 			}
-			if utils.StrSliceContains(targetStatus, status) {
+
+			if status == "AVAILABLE" {
 				return createCentralNetworkWaitingRespBody, "COMPLETED", nil
 			}
 
-			pendingStatus := []string{
-				"CREATING",
-				"UPDATING",
-				"DELETING",
-			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return createCentralNetworkWaitingRespBody, "PENDING", nil
-			}
-
-			return createCentralNetworkWaitingRespBody, status, nil
+			return createCentralNetworkWaitingRespBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -414,21 +406,15 @@ func deleteCentralNetworkWaitingForStateCompleted(ctx context.Context, d *schema
 
 			status := fmt.Sprintf("%v", statusRaw)
 
-			targetStatus := []string{
-				"DELETED",
+			if status == "FAILED" {
+				return deleteCentralNetworkWaitingRespBody, "", fmt.Errorf("unexpected status '%s'", status)
 			}
-			if utils.StrSliceContains(targetStatus, status) {
+
+			if status == "DELETED" {
 				return deleteCentralNetworkWaitingRespBody, "COMPLETED", nil
 			}
 
-			pendingStatus := []string{
-				"DELETING",
-			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return deleteCentralNetworkWaitingRespBody, "PENDING", nil
-			}
-
-			return deleteCentralNetworkWaitingRespBody, status, nil
+			return deleteCentralNetworkWaitingRespBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
