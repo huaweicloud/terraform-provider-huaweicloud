@@ -26,7 +26,7 @@ import (
 // @API Kafka PUT /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
 // @API Kafka GET /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
 // @API Kafka DELETE /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota
-// @API Kafka GET /v2/{project_id}/instances/{instance_id}/tasks
+// @API Kafka GET /v2/{project_id}/instances/{instance_id}/tasks/{task_id}
 // @API Kafka GET /v2/{project_id}/instances/{instance_id}
 func ResourceDmsKafkaUserClientQuota() *schema.Resource {
 	return &schema.Resource{
@@ -144,9 +144,13 @@ func resourceDmsKafkaUserClientQuotaCreate(ctx context.Context, d *schema.Resour
 		return diag.Errorf("error creating DMS kafka user client quota: %v", err)
 	}
 
-	_, err = utils.FlattenResponse(r.(*http.Response))
+	createQuotaRespBody, err := utils.FlattenResponse(r.(*http.Response))
 	if err != nil {
 		return diag.FromErr(err)
+	}
+	jobId := utils.PathSearch("job_id", createQuotaRespBody, "")
+	if jobId == "" {
+		return diag.Errorf("error creating DMS kafka user client quota: job_id is not found in API response")
 	}
 
 	user := d.Get("user").(string)
@@ -159,7 +163,7 @@ func resourceDmsKafkaUserClientQuotaCreate(ctx context.Context, d *schema.Resour
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATED"},
 		Target:       []string{"SUCCESS"},
-		Refresh:      userClientQuotaTaskRefreshFunc(createKafkaUserClientQuotaClient, instanceID, d, "kafkaClientQuotaCreate"),
+		Refresh:      kafkaInstanceTaskStatusRefreshFunc(createKafkaUserClientQuotaClient, instanceID, jobId.(string)),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        1 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -183,88 +187,6 @@ func buildKafkaUserClientQuotaBodyParams(d *schema.ResourceData) map[string]inte
 		"consumer-byte-rate": utils.ValueIgnoreEmpty(d.Get("consumer_byte_rate")),
 	}
 	return bodyParams
-}
-
-func userClientQuotaTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID string,
-	d *schema.ResourceData, taskName string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		// getUserClientQuotaTask: query user client quota task
-		getUserClientQuotaTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks"
-		getUserClientQuotaTaskPath := client.Endpoint + getUserClientQuotaTaskHttpUrl
-		getUserClientQuotaTaskPath = strings.ReplaceAll(getUserClientQuotaTaskPath, "{project_id}",
-			client.ProjectID)
-		getUserClientQuotaTaskPath = strings.ReplaceAll(getUserClientQuotaTaskPath, "{instance_id}", instanceID)
-
-		getUserClientQuotaTaskPathOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-		getUserClientQuotaTaskPathResp, err := client.Request("GET", getUserClientQuotaTaskPath,
-			&getUserClientQuotaTaskPathOpt)
-
-		if err != nil {
-			return nil, "QUERY ERROR", err
-		}
-
-		getUserClientQuotaTaskRespBody, err := utils.FlattenResponse(getUserClientQuotaTaskPathResp)
-		if err != nil {
-			return nil, "PARSE ERROR", err
-		}
-
-		task := filterUserClientQuotaTask(taskName, d, getUserClientQuotaTaskRespBody)
-		if task == nil {
-			return nil, "NIL ERROR", fmt.Errorf("can not find the task of the quota")
-		}
-		status := utils.PathSearch("status", task, "").(string)
-		return task, status, nil
-	}
-}
-
-func filterUserClientQuotaTask(taskName string, d *schema.ResourceData, resp interface{}) interface{} {
-	taskJson := utils.PathSearch("tasks", resp, make([]interface{}, 0))
-	taskArray := taskJson.([]interface{})
-	if len(taskArray) < 1 {
-		return nil
-	}
-
-	rawUser, rawUserOK := d.GetOk("user")
-	rawUserDefault := d.Get("user_default").(bool)
-	rawClient, rawClientOK := d.GetOk("client")
-	rawClientDefault := d.Get("client_default").(bool)
-
-	for _, task := range taskArray {
-		name := utils.PathSearch("name", task, nil)
-		params := utils.PathSearch("params", task, nil).(string)
-		paramsData := []byte(params)
-		var paramsJons interface{}
-		err := json.Unmarshal(paramsData, &paramsJons)
-		if err != nil {
-			fmt.Println(err)
-		}
-		userClientQuota := utils.PathSearch("new_kafka_user_client_quota", paramsJons, nil)
-		user := utils.PathSearch("user", userClientQuota, nil)
-		userDefault := utils.PathSearch(`"user-default"`, userClientQuota, false).(bool)
-		client := utils.PathSearch("client", userClientQuota, nil)
-		clientDefault := utils.PathSearch(`"client-default"`, userClientQuota, false).(bool)
-		if taskName != name {
-			continue
-		}
-		if rawUserOK && rawUser != user {
-			continue
-		}
-		if rawUserDefault != userDefault {
-			continue
-		}
-		if rawClientOK && rawClient != client {
-			continue
-		}
-		if rawClientDefault != clientDefault {
-			continue
-		}
-
-		return task
-	}
-
-	return nil
 }
 
 func resourceDmsKafkaUserClientQuotaRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -404,16 +326,21 @@ func resourceDmsKafkaUserClientQuotaUpdate(ctx context.Context, d *schema.Resour
 		return diag.Errorf("error updating the quota: %v", err)
 	}
 
-	_, err = utils.FlattenResponse(r.(*http.Response))
+	updateQuotaRespBody, err := utils.FlattenResponse(r.(*http.Response))
 	if err != nil {
 		return diag.FromErr(err)
+	}
+
+	jobId := utils.PathSearch("job_id", updateQuotaRespBody, "")
+	if jobId == "" {
+		return diag.Errorf("error updating the quota: job_id is not found in API response")
 	}
 
 	// The quota modification triggers a related task, if the task status is SUCCESS, the quota has been modified.
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATED"},
 		Target:       []string{"SUCCESS"},
-		Refresh:      userClientQuotaTaskRefreshFunc(updateKafkaUserClientQuotaClient, instanceID, d, "kafkaClientQuotaModify"),
+		Refresh:      kafkaInstanceTaskStatusRefreshFunc(updateKafkaUserClientQuotaClient, instanceID, jobId.(string)),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        1 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -460,7 +387,7 @@ func resourceDmsKafkaUserClientQuotaDelete(ctx context.Context, d *schema.Resour
 		retry, err := handleOperationConflictError(deleteErr)
 		return deleteKafkaUserClientQuotaResp, retry, err
 	}
-	_, retryErr := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	r, retryErr := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     KafkaInstanceStateRefreshFunc(deleteKafkaUserClientQuotaClient, instanceID),
@@ -474,11 +401,20 @@ func resourceDmsKafkaUserClientQuotaDelete(ctx context.Context, d *schema.Resour
 		return diag.Errorf("error deleting the quota: %v", err)
 	}
 
+	disablePluginRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	jobId := utils.PathSearch("job_id", disablePluginRespBody, "")
+	if jobId == "" {
+		return diag.Errorf("error deleting the quota: job_id is not found in API response")
+	}
+
 	// The quota deletion triggers a related task, if the task status is SUCCESS, the quota has been deleted.
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATED"},
 		Target:       []string{"SUCCESS"},
-		Refresh:      userClientQuotaTaskRefreshFunc(deleteKafkaUserClientQuotaClient, instanceID, d, "kafkaClientQuotaDelete"),
+		Refresh:      kafkaInstanceTaskStatusRefreshFunc(deleteKafkaUserClientQuotaClient, instanceID, jobId.(string)),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        1 * time.Second,
 		PollInterval: 5 * time.Second,
