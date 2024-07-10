@@ -11,7 +11,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -165,7 +164,7 @@ func dataSourceImageTriggersRead(_ context.Context, d *schema.ResourceData, meta
 
 	listImageTriggersResp, err := listImageTriggersClient.Request("GET", listImageTriggersPath, &listImageTriggersOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving SWR image triggers")
+		return diag.Errorf("error querying SWR image triggers: %v", err)
 	}
 
 	listImageTriggersRespBody, err := utils.FlattenResponse(listImageTriggersResp)
