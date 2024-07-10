@@ -870,12 +870,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_turbos":            sfs.DataSourceTurbos(),
 			"huaweicloud_sfs_turbo_obs_targets": sfs.DataSourceSfsTurboObsTargets(),
 
-			"huaweicloud_swr_organizations":       swr.DataSourceOrganizations(),
-			"huaweicloud_swr_repositories":        swr.DataSourceRepositories(),
-			"huaweicloud_swr_shared_repositories": swr.DataSourceSharedRepositories(),
-			"huaweicloud_swr_image_triggers":      swr.DataSourceImageTriggers(),
-			"huaweicloud_swr_image_tags":          swr.DataSourceImageTags(),
-			"huaweicloud_swr_shared_accounts":     swr.DataSourceSharedAccounts(),
+			"huaweicloud_swr_organizations":            swr.DataSourceOrganizations(),
+			"huaweicloud_swr_repositories":             swr.DataSourceRepositories(),
+			"huaweicloud_swr_shared_repositories":      swr.DataSourceSharedRepositories(),
+			"huaweicloud_swr_image_triggers":           swr.DataSourceImageTriggers(),
+			"huaweicloud_swr_image_tags":               swr.DataSourceImageTags(),
+			"huaweicloud_swr_shared_accounts":          swr.DataSourceSharedAccounts(),
+			"huaweicloud_swr_image_retention_policies": swr.DataSourceImageRetentionPolicies(),
 
 			"huaweicloud_tms_resource_types": tms.DataSourceResourceTypes(),
 
