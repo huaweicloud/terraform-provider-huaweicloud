@@ -92,18 +92,6 @@ resource "huaweicloud_vpc_eip" "test" {
   }
 }
 
-resource "huaweicloud_compute_instance" "test" {
-  name               = "%[2]s"
-  image_id           = data.huaweicloud_images_image.test.id
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [huaweicloud_networking_secgroup.test.id]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-
-  network {
-    uuid = huaweicloud_vpc_subnet.test.id
-  }
-}
-
 resource "huaweicloud_nat_gateway" "test" {
   name                  = "%[2]s"
   spec                  = "2"
@@ -111,7 +99,7 @@ resource "huaweicloud_nat_gateway" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   enterprise_project_id = "0"
 }
-`, common.TestBaseComputeResources(name), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccPublicSnatRule_basic_step_1(name string) string {
@@ -319,4 +307,53 @@ resource "huaweicloud_nat_snat_rule" "test" {
   description    = "Created by terraform"
 }
 `, testAccPublicSnatRule_associatedGlobalEIP_base(name))
+}
+
+func TestAccPublicSnatRule_netWorkId(t *testing.T) {
+	var (
+		obj snats.Rule
+
+		rName = "huaweicloud_nat_snat_rule.test"
+		name  = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getPublicSnatRuleResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPublicSnatRule_netWorkId(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "nat_gateway_id", "huaweicloud_nat_gateway.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "floating_ip_id", "huaweicloud_vpc_eip.test.0", "id"),
+					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+				),
+			},
+		},
+	})
+}
+
+func testAccPublicSnatRule_netWorkId(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_nat_snat_rule" "test" {
+  nat_gateway_id = huaweicloud_nat_gateway.test.id
+  network_id     = huaweicloud_vpc_subnet.test.id
+  floating_ip_id = huaweicloud_vpc_eip.test[0].id
+  description    = "Created by acc test"
+}
+`, testAccPublicSnatRule_base(name))
 }

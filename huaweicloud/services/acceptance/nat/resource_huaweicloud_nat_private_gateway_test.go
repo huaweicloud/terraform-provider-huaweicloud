@@ -108,6 +108,7 @@ func testAccPrivateGateway_basic_step_2(name, relatedConfig string) string {
 resource "huaweicloud_nat_private_gateway" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   name                  = "%[2]s"
+  spec                  = "Medium"
   enterprise_project_id = "0"
 
   tags = {
