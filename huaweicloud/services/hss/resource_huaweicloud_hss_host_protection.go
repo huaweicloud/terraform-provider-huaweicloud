@@ -3,9 +3,11 @@ package hss
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -41,6 +43,10 @@ func ResourceHostProtection() *schema.Resource {
 			StateContext: resourceHostProtectionImportState,
 		},
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -65,9 +71,14 @@ func ResourceHostProtection() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"is_wait_host_available": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			// Attributes
@@ -113,6 +124,30 @@ func ResourceHostProtection() *schema.Resource {
 			},
 		},
 	}
+}
+
+func getProtectionHost(client *hssv5.HssClient, region, epsId, hostId string) (*hssv5model.Host, error) {
+	request := hssv5model.ListHostStatusRequest{
+		Region:              &region,
+		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
+		HostId:              utils.String(hostId),
+	}
+
+	resp, err := client.ListHostStatus(&request)
+	if err != nil {
+		return nil, fmt.Errorf("error querying HSS hosts: %s", err)
+	}
+
+	if resp == nil || resp.DataList == nil {
+		return nil, fmt.Errorf("the host (%s) for HSS host protection does not exist", hostId)
+	}
+
+	hostList := *resp.DataList
+	if len(hostList) == 0 {
+		return nil, fmt.Errorf("the host (%s) does not exist", hostId)
+	}
+
+	return &hostList[0], nil
 }
 
 func checkHostAvailable(client *hssv5.HssClient, region, epsId, hostId string) error {
@@ -197,6 +232,34 @@ func switchHostsProtectStatus(client *hssv5.HssClient, region, epsId, hostId str
 	return nil
 }
 
+func waitingForHostAvailable(ctx context.Context, client *hssv5.HssClient, region, epsId, hostId string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			host, err := getProtectionHost(client, region, epsId, hostId)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			agentStatus := utils.StringValue(host.AgentStatus)
+			if agentStatus == hostAgentStatusOnline {
+				return host, "COMPLETED", nil
+			}
+
+			return host, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+
+	return err
+}
+
 func resourceHostProtectionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
@@ -210,9 +273,15 @@ func resourceHostProtectionCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating HSS v5 client: %s", err)
 	}
 
-	checkHostAvailableErr := checkHostAvailable(client, region, epsId, hostId)
-	if checkHostAvailableErr != nil {
-		return diag.FromErr(checkHostAvailableErr)
+	if d.Get("is_wait_host_available").(bool) {
+		if err := waitingForHostAvailable(ctx, client, region, epsId, hostId, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.Errorf("error waiting for host (%s) agent status to become online: %s", hostId, err)
+		}
+	} else {
+		checkHostAvailableErr := checkHostAvailable(client, region, epsId, hostId)
+		if checkHostAvailableErr != nil {
+			return diag.FromErr(checkHostAvailableErr)
+		}
 	}
 
 	// Due to API limitations, when switching host protection for the first time, protection needs to be closed first.
