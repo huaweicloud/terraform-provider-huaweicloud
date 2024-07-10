@@ -775,13 +775,13 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceASGroupRead(ctx, d, meta)
 }
 
-func forceDeleteASGroup(ctx context.Context, asClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func forceDeleteASGroup(ctx context.Context, asClient *golangsdk.ServiceClient, d *schema.ResourceData) diag.Diagnostics {
 	if err := groups.ForceDelete(asClient, d.Id()).ExtractErr(); err != nil {
-		return fmt.Errorf("error deleting AS group %s: %s", d.Id(), err)
+		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "error deleting AS group")
 	}
 
 	if err := waitingForASGroupDeleted(ctx, asClient, d.Id(), d.Timeout(schema.TimeoutDelete)); err != nil {
-		return fmt.Errorf("error waiting for AS group deleted %s: %s", d.Id(), err)
+		return diag.Errorf("error waiting for AS group deleted %s: %s", d.Id(), err)
 	}
 	return nil
 }
@@ -823,14 +823,20 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if _, ok := d.GetOk("force_delete"); ok {
-		err := forceDeleteASGroup(ctx, asClient, d)
+		return forceDeleteASGroup(ctx, asClient, d)
+	}
+
+	page, err := instances.List(asClient, d.Id(), nil).AllPages()
+	if err != nil {
+		// When the Group ID does not exist, the query instance list interface will also report an error,
+		// and the 404 error judgment also needs to be performed.
+		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "error getting instances in AS group")
+	}
+	allIns, err := page.(instances.InstancePage).Extract()
+	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	allIns, err := getInstancesInGroup(asClient, d.Id(), nil)
-	if err != nil {
-		return diag.Errorf("error listing instances of AS group: %s", err)
-	}
 	if len(allIns) > 0 {
 		// remove all instances from group
 		if err := deleteAllInstancesFromASGroup(ctx, asClient, d, allIns); err != nil {
@@ -839,7 +845,7 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if delErr := groups.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
-		return diag.Errorf("error deleting AS group: %s", delErr)
+		return common.CheckDeletedDiag(d, parseGroupResponseError(delErr), "error deleting AS group")
 	}
 	return nil
 }
