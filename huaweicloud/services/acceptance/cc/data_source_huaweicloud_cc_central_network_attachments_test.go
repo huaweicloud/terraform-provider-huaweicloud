@@ -178,12 +178,12 @@ resource "huaweicloud_cc_central_network_attachment" "test" {
   name                         = "%[3]s"
   description                  = "This is a demo"
   central_network_id           = huaweicloud_cc_central_network.test.id
-  enterprise_router_id         = huaweicloud_er_instance.er2.id
-  enterprise_router_project_id = "%[5]s"
-  enterprise_router_region_id  = "%[2]s"
+  enterprise_router_id         = huaweicloud_er_instance.er1.id
+  enterprise_router_project_id = "%[4]s"
+  enterprise_router_region_id  = "%[1]s"
   global_dc_gateway_id         = "%[6]s"
-  global_dc_gateway_project_id = "%[5]s"
-  global_dc_gateway_region_id  = "%[2]s"
+  global_dc_gateway_project_id = "%[4]s"
+  global_dc_gateway_region_id  = "%[1]s"
 
   depends_on = [
     huaweicloud_cc_central_network_policy_apply.test,
