@@ -2539,6 +2539,10 @@ func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	_, err = domains.Delete(cdnClient, d.Id(), opts).Extract()
 	if err != nil {
+		// When the domain does not exist, the deletion API will report an error and return the following information:
+		// {"error": {"error_code": "CDN.0000","error_msg": "domain is null or more than one."}}.
+		// The error code "CDN.0000" indicates an internal system error and cannot be used to prove that the resource
+		// no longer exists, so the logic of checkDeleted is not added.
 		return diag.Errorf("error deleting CDN domain (%s): %s", d.Id(), err)
 	}
 

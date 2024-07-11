@@ -136,6 +136,7 @@ func resourceBillingOptionRead(_ context.Context, d *schema.ResourceData, meta i
 
 	resp, err := hcCdnClient.ShowChargeModes(&request)
 	if err != nil {
+		// The billing model is always valuable and there is no need to pay attention to scenarios where resources do not exist.
 		return diag.Errorf("error retrieving CDN billing option: %s", err)
 	}
 
