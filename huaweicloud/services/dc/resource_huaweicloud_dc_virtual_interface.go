@@ -365,7 +365,8 @@ func resourceVirtualInterfaceRead(_ context.Context, d *schema.ResourceData, met
 	interfaceId := d.Id()
 	resp, err := interfaces.Get(client, interfaceId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "virtual interface")
+		// When the interface does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving DC virtual interface")
 	}
 	log.Printf("[DEBUG] The response of virtual interface is: %#v", resp)
 
@@ -543,7 +544,8 @@ func resourceVirtualInterfaceDelete(_ context.Context, d *schema.ResourceData, m
 	interfaceId := d.Id()
 	err = interfaces.Delete(client, interfaceId)
 	if err != nil {
-		return diag.Errorf("error deleting virtual interface (%s): %s", interfaceId, err)
+		// When the interface does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting DC virtual interface")
 	}
 
 	return nil
