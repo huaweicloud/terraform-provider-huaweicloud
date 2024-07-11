@@ -654,8 +654,8 @@ resource "huaweicloud_vpn_gateway" "test" {
 func testGateway_GMcertificate(name string, cert certificate) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpn_gateway_availability_zones" "test" {
-  attachment_type = "er"
-  flavor          = "GM"
+  attachment_type = "vpc"
+  flavor          = "gm"
 }
 
 resource "huaweicloud_vpc" "test" {
