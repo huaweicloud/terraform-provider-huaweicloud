@@ -297,6 +297,11 @@ func resourceWebTamperProtectionDelete(_ context.Context, d *schema.ResourceData
 
 	_, err = client.SetWtpProtectionStatusInfo(&opts)
 	if err != nil {
+		// Repeatedly closing web tamper protection, API will not report errors.
+		// If the host does not exist, closing web tamper protection will result in an error as follows:
+		// {"error_code": "00000010","error_description": "拒绝访问"}
+		// The API documentation does not provide any explanatory information about this error,
+		// so the logic of checkDeleted is not added.
 		return diag.Errorf("error closing HSS web tamper protection: %s", err)
 	}
 
