@@ -18,8 +18,8 @@ import (
 )
 
 var ComponentResourceNotFoundCodes = []string{
-	"CAE.01500404",
-	"CAE.01500208",
+	"CAE.01500208", // Application or component does not found.
+	"CAE.01500404", // Environment does not found.
 }
 
 // @API CAE POST /v1/{project_id}/cae/applications/{application_id}/components
@@ -330,7 +330,7 @@ func GetComponentById(cfg *config.Config, region, environmentId, applicationId, 
 	}
 	resp, err := client.Request("GET", getPath, &getComponentOpt)
 	if err != nil {
-		return nil, ParseQueryError400(err, ComponentResourceNotFoundCodes)
+		return nil, err
 	}
 
 	getComponentRespBody, err := utils.FlattenResponse(resp)
@@ -347,7 +347,7 @@ func resourceComponentRead(_ context.Context, d *schema.ResourceData, meta inter
 	componentId := d.Id()
 	componentRespBody, err := GetComponentById(cfg, region, d.Get("environment_id").(string), d.Get("application_id").(string), componentId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParseQueryError400(err, ComponentResourceNotFoundCodes),
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", ComponentResourceNotFoundCodes...),
 			fmt.Sprintf("error retrieving CAE component (%s): %s", componentId, err))
 	}
 

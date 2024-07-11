@@ -10,6 +10,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cae"
@@ -39,7 +40,7 @@ func getComponentConfigurationsFunc(cfg *config.Config, state *terraform.Resourc
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, cae.ParseQueryError400(err, cae.ConfigRelatedResourcesNotFoundCodes)
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", cae.ConfigRelatedResourcesNotFoundCodes...)
 	}
 
 	respBody, err := utils.FlattenResponse(requestResp)
