@@ -24,6 +24,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// ResourceHostedConnect Due to insufficient test conditions, the current resource has not been tested and verified.
 // @API DC DELETE /v3/{project_id}/dcaas/hosted-connects/{id}
 // @API DC PUT /v3/{project_id}/dcaas/hosted-connects/{id}
 // @API DC GET /v3/{project_id}/dcaas/hosted-connects/{id}
