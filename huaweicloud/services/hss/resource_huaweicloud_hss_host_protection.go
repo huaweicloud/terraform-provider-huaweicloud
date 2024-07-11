@@ -426,6 +426,11 @@ func resourceHostProtectionDelete(_ context.Context, d *schema.ResourceData, met
 
 	err = closeHostProtection(client, region, epsId, id)
 	if err != nil {
+		// Repeatedly closing host protection, API will not report errors.
+		// If the host does not exist, closing host protection will result in an error as follows:
+		// {"error_code": "00000010","error_description": "拒绝访问"}
+		// The API documentation does not provide any explanatory information about this error,
+		// so the logic of checkDeleted is not added.
 		return diag.Errorf("error closing HSS host (%s) protection: %s", id, err)
 	}
 
