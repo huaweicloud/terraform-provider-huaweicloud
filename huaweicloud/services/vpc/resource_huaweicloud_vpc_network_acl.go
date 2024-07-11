@@ -118,21 +118,20 @@ func networkAclRuleSchema() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"source_ip_address": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: utils.ValidateCIDR,
 			},
 			"destination_ip_address": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: utils.ValidateCIDR,
 			},
 			"source_port": {
 				Type:     schema.TypeString,
