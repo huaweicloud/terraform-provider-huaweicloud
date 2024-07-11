@@ -212,7 +212,8 @@ func resourcePublicGatewayRead(_ context.Context, d *schema.ResourceData, meta i
 	gatewayId := d.Id()
 	resp, err := gateways.Get(client, gatewayId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "NAT Gateway")
+		// If the NAT gateway does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving NAT Gateway")
 	}
 
 	mErr := multierror.Append(nil,
@@ -296,8 +297,10 @@ func resourcePublicGatewayDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	gatewayId := d.Id()
-	if err = gateways.Delete(client, gatewayId); err != nil {
-		return diag.Errorf("unable to delete NAT gateway (%s): %s", gatewayId, err)
+	err = gateways.Delete(client, gatewayId)
+	if err != nil {
+		// If the NAT gateway does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "err deleting NAT gateway")
 	}
 
 	stateConf := &resource.StateChangeConf{

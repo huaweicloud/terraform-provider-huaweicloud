@@ -154,7 +154,7 @@ func buildPublicSnatRuleCreateOpts(d *schema.ResourceData) (snats.CreateOpts, er
 
 	sourceType := d.Get("source_type").(int)
 	if sourceType == 1 && subnetId != "" {
-		return result, fmt.Errorf("In the DC (Direct Connect) scenario (source_type is 1), only the parameter 'cidr' " +
+		return result, fmt.Errorf("in the DC (Direct Connect) scenario (source_type is 1), only the parameter 'cidr' " +
 			"is valid, and the parameter 'subnet_id' must be empty")
 	}
 	result.SourceType = sourceType
@@ -226,7 +226,8 @@ func resourcePublicSnatRuleRead(_ context.Context, d *schema.ResourceData, meta 
 
 	resp, err := snats.Get(natClient, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Public SNAT rule")
+		// If the SNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving SNAT rule")
 	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -320,7 +321,8 @@ func resourcePublicSnatRuleDelete(ctx context.Context, d *schema.ResourceData, m
 	gatewayId := d.Get("nat_gateway_id").(string)
 	err = snats.Delete(client, gatewayId, ruleId)
 	if err != nil {
-		return diag.Errorf("error deleting public SNAT rule (%s): %s", ruleId, err)
+		// If the SNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting SNAT rule")
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
