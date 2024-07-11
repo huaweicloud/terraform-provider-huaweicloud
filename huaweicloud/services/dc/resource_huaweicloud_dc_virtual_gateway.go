@@ -128,7 +128,8 @@ func resourceVirtualGatewayRead(_ context.Context, d *schema.ResourceData, meta 
 	gatewayId := d.Id()
 	resp, err := gateways.Get(client, gatewayId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "virtual gateway")
+		// When the gateway does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving DC virtual gateway")
 	}
 
 	mErr := multierror.Append(nil,
@@ -189,7 +190,8 @@ func resourceVirtualGatewayDelete(_ context.Context, d *schema.ResourceData, met
 	gatewayId := d.Id()
 	err = gateways.Delete(client, gatewayId)
 	if err != nil {
-		return diag.Errorf("error deleting virtual gateway (%s): %s", gatewayId, err)
+		// When the gateway does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting DC virtual gateway")
 	}
 
 	return nil
