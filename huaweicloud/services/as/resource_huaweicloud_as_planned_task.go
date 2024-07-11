@@ -277,7 +277,10 @@ func resourcePlannedTaskRead(_ context.Context, d *schema.ResourceData, meta int
 	)
 	plannedTasksResp, err := scheduledtasks.List(client, listOpts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS planned task")
+		// When the group does not exist, the API response body is an empty list.
+		// It seems that `CheckDeletedDiag` here has no practical significance.
+		// In order to avoid unknown problems, this part of the code is retained.
+		return common.CheckDeletedDiag(d, err, "error retrieving AS planned task")
 	}
 
 	var mErr *multierror.Error
@@ -365,7 +368,8 @@ func resourcePlannedTaskDelete(_ context.Context, d *schema.ResourceData, meta i
 		taskId  = d.Id()
 	)
 	if err := scheduledtasks.Delete(asClient, groupID, taskId); err != nil {
-		return diag.Errorf("error deleting AS planned task (%s): %s", taskId, err)
+		// When the group or task does not exist, the response HTTP status code of the delete API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting AS planned task")
 	}
 
 	return nil
