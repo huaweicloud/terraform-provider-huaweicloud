@@ -2,6 +2,7 @@ package hss
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"regexp"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -363,10 +365,55 @@ func resourceHostGroupDelete(_ context.Context, d *schema.ResourceData, meta int
 
 	_, err = client.DeleteHostsGroup(&request)
 	if err != nil {
-		return diag.Errorf("error deleting host group (%s): %s", groupId, err)
+		return common.CheckDeletedDiag(d, parseDeleteHostGroupResponseError(err), "error deleting host group")
 	}
 
 	return nil
+}
+
+// When the host group does not exist, the response code for deleting the API is `400`,
+// and the response body is as follows:
+// {"status_code":400,"request_id":"f17e56c2e92584cfd4614ab467cd6a1b","error_code":"",
+// "error_message":"{\"error_code\":\"00100090\",\"error_description\":\"Failed to load server groups.\"}",
+// "encoded_authorization_message":""}
+func parseDeleteHostGroupResponseError(err error) error {
+	var errObj map[string]interface{}
+	if jsonErr := json.Unmarshal([]byte(err.Error()), &errObj); jsonErr != nil {
+		log.Printf("[WARN] failed to unmarshal error object: %s", jsonErr)
+		return err
+	}
+
+	statusCode, parseStatusCodeErr := jmespath.Search("status_code", errObj)
+	if parseStatusCodeErr != nil || statusCode == nil {
+		log.Printf("[WARN] failed to parse status_code from response body: %s", parseStatusCodeErr)
+		return err
+	}
+
+	if statusCodeFloat, ok := statusCode.(float64); ok && int(statusCodeFloat) == 400 {
+		errorMessage, parseErrorMessageErr := jmespath.Search("error_message", errObj)
+		if parseErrorMessageErr != nil || errorMessage == nil {
+			log.Printf("[WARN] failed to parse error_message: %s", parseErrorMessageErr)
+			return err
+		}
+
+		var errMsgObj map[string]interface{}
+		if errMsgJson := json.Unmarshal([]byte(errorMessage.(string)), &errMsgObj); errMsgJson != nil {
+			log.Printf("[WARN] failed to unmarshal error_message: %s", errMsgJson)
+			return err
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code", errMsgObj)
+		if errorCodeErr != nil || errorCode == nil {
+			log.Printf("[WARN] failed to extract error_code: %s", errorCodeErr)
+			return err
+		}
+
+		if errorCode == "00100090" {
+			return golangsdk.ErrDefault404{}
+		}
+	}
+
+	return err
 }
 
 func resourceHostGroupImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
