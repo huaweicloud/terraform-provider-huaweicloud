@@ -13,7 +13,6 @@ import (
 func TestAccDatasourcePrivateGateways_basic(t *testing.T) {
 	var (
 		name           = acceptance.RandomAccResourceName()
-		baseConfig     = testAccPrivateGatewaysDataSource_base()
 		dataSourceName = "data.huaweicloud_nat_private_gateways.test"
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
 
@@ -49,7 +48,7 @@ func TestAccDatasourcePrivateGateways_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourcePrivateGateways_basic(baseConfig, name),
+				Config: testAccDatasourcePrivateGateways_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					dcByName.CheckResourceExists(),
@@ -83,9 +82,7 @@ func TestAccDatasourcePrivateGateways_basic(t *testing.T) {
 	})
 }
 
-func testAccPrivateGatewaysDataSource_base() string {
-	name := acceptance.RandomAccResourceNameWithDash()
-
+func testAccPrivateGatewaysDataSource_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -103,7 +100,7 @@ resource "huaweicloud_nat_private_gateway" "test" {
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccDatasourcePrivateGateways_basic(baseConfig, name string) string {
+func testAccDatasourcePrivateGateways_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -265,5 +262,5 @@ locals {
 output "tags_filter_is_useful" {
   value = alltrue(local.tags_filter_result) && length(local.tags_filter_result) > 0
 }
-`, baseConfig, name)
+`, testAccPrivateGatewaysDataSource_base(name))
 }
