@@ -15,6 +15,7 @@ func TestAccLifecycleHookCallBack_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckASScalingGroupID(t)
 			acceptance.TestAccPreCheckASLifecycleActionKey(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -41,6 +42,7 @@ func TestAccLifecycleHookCallBack_withInstanceIdAndHookName(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckASScalingGroupID(t)
 			acceptance.TestAccPreCheckASINSTANCEID(t)
 			acceptance.TestAccPreCheckASLifecycleHookName(t)
 		},
