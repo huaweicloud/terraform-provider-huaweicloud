@@ -161,7 +161,7 @@ func TestAccConnection_haRole(t *testing.T) {
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_vpn_connection.test"
-	ipAddress := "172.16.1.3"
+	ipAddress := "172.16.1.5"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -215,6 +215,7 @@ resource "huaweicloud_vpn_connection" "test" {
   peer_subnets        = ["192.168.55.0/24"]
   vpn_type            = "static"
   psk                 = "Test@123"
+  enable_nqa          = true
 
   tags = {
     key = "val"
