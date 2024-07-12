@@ -214,7 +214,8 @@ func resourcePublicDnatRuleRead(_ context.Context, d *schema.ResourceData, meta 
 	ruleId := d.Id()
 	resp, err := dnats.Get(client, ruleId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "DNAT rule")
+		// If the DNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving DNAT rule")
 	}
 
 	mErr := multierror.Append(nil,
@@ -301,7 +302,8 @@ func resourcePublicDnatRuleDelete(ctx context.Context, d *schema.ResourceData, m
 	)
 	err = dnats.Delete(client, gatewayId, ruleId)
 	if err != nil {
-		return diag.Errorf("error deleting DNAT rule (%s): %s", ruleId, err)
+		// If the DNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting DNAT rule")
 	}
 
 	stateConf := &resource.StateChangeConf{
