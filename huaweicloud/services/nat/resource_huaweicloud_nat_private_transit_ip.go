@@ -117,7 +117,8 @@ func resourcePrivateTransitIpRead(_ context.Context, d *schema.ResourceData, met
 
 	resp, err := transitips.Get(natClient, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Transit IP (Private NAT)")
+		// If the transit IP does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving transit IP (private NAT)")
 	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -163,7 +164,8 @@ func resourcePrivateTransitIpDelete(_ context.Context, d *schema.ResourceData, m
 	transitIpId := d.Id()
 	err = transitips.Delete(client, transitIpId)
 	if err != nil {
-		return diag.Errorf("error deleting transit IP (Private NAT) (%s): %s", transitIpId, err)
+		// If the transit IP does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting transit IP (private NAT)")
 	}
 
 	return nil
