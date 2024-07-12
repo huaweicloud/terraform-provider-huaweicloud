@@ -47,6 +47,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID which is formatted `<instance_id>/<user_name>`.
 
+* `role` - Indicates the user role.
+
+* `default_app` - Indicates whether the application is the default application.
+
+* `created_at` - Indicates the create time.
+
 ## Import
 
 DMS kafka users can be imported using the kafka instance ID and user name separated by a slash, e.g.
