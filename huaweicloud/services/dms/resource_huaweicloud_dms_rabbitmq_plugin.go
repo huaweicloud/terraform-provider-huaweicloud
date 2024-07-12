@@ -2,9 +2,8 @@ package dms
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -23,7 +22,7 @@ import (
 // @API RabbitMQ PUT /v2/{project_id}/instances/{instance_id}/rabbitmq/plugins
 // @API RabbitMQ GET /v2/{project_id}/instances/{instance_id}/rabbitmq/plugins
 // @API RabbitMQ GET /v2/{project_id}/instances/{instance_id}
-// @API RabbitMQ GET /v2/{project_id}/instances/{instance_id}/tasks
+// @API RabbitMQ GET /v2/{project_id}/instances/{instance_id}/tasks/{task_id}
 func ResourceDmsRabbitmqPlugin() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsRabbitmqPluginCreate,
@@ -111,11 +110,11 @@ func resourceDmsRabbitmqPluginCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	retryFunc := func() (interface{}, bool, error) {
-		_, err = createRabbitmqPluginClient.Request("PUT", createRabbitmqPluginPath, &reqOpt)
+		resp, err := createRabbitmqPluginClient.Request("PUT", createRabbitmqPluginPath, &reqOpt)
 		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		return resp, retry, err
 	}
-	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     rabbitmqInstanceStateRefreshFunc(createRabbitmqPluginClient, instanceID),
@@ -124,9 +123,17 @@ func resourceDmsRabbitmqPluginCreate(ctx context.Context, d *schema.ResourceData
 		DelayTimeout: 1 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
-
 	if err != nil {
 		return diag.Errorf("error enabling the plugin: %s", err)
+	}
+
+	enablePluginRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	jobId := utils.PathSearch("job_id", enablePluginRespBody, "")
+	if jobId == "" {
+		return diag.Errorf("error enabling the plugin: job_id is not found in API response")
 	}
 
 	name := d.Get("name").(string)
@@ -137,7 +144,7 @@ func resourceDmsRabbitmqPluginCreate(ctx context.Context, d *schema.ResourceData
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATED"},
 		Target:       []string{"SUCCESS"},
-		Refresh:      rabbitmqPluginTaskRefreshFunc(createRabbitmqPluginClient, instanceID, name, "rabbitmqPluginModify"),
+		Refresh:      rabbitmqInstanceTaskStatusRefreshFunc(createRabbitmqPluginClient, instanceID, jobId.(string)),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        1 * time.Second,
 		PollInterval: 2 * time.Second,
@@ -202,7 +209,7 @@ func resourceDmsRabbitmqPluginRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("name", name),
 		d.Set("enable", enable),
 		d.Set("version", utils.PathSearch("version", plugin, nil)),
-		d.Set("running", utils.PathSearch("running", plugin, nil)),
+		d.Set("running", utils.PathSearch("running", plugin, false)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -233,11 +240,11 @@ func resourceDmsRabbitmqPluginDelete(ctx context.Context, d *schema.ResourceData
 	}
 
 	retryFunc := func() (interface{}, bool, error) {
-		_, err = deleteRabbitmqPluginClient.Request("PUT", deleteRabbitmqPluginPath, &reqOpt)
+		resp, err := deleteRabbitmqPluginClient.Request("PUT", deleteRabbitmqPluginPath, &reqOpt)
 		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		return resp, retry, err
 	}
-	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     rabbitmqInstanceStateRefreshFunc(deleteRabbitmqPluginClient, instanceID),
@@ -250,12 +257,20 @@ func resourceDmsRabbitmqPluginDelete(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error disabling the plugin: %s", err)
 	}
 
+	disablePluginRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	jobId := utils.PathSearch("job_id", disablePluginRespBody, "")
+	if jobId == "" {
+		return diag.Errorf("error disabling the plugin: job_id is not found in API response")
+	}
+
 	// The RabbitMQ disabling plugin is done if the status of its task is SUCCESS.
-	name := d.Get("name").(string)
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATED"},
 		Target:       []string{"SUCCESS"},
-		Refresh:      rabbitmqPluginTaskRefreshFunc(deleteRabbitmqPluginClient, instanceID, name, "rabbitmqPluginModify"),
+		Refresh:      rabbitmqInstanceTaskStatusRefreshFunc(deleteRabbitmqPluginClient, instanceID, jobId.(string)),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        1 * time.Second,
 		PollInterval: 2 * time.Second,
@@ -268,63 +283,29 @@ func resourceDmsRabbitmqPluginDelete(ctx context.Context, d *schema.ResourceData
 	return resourceDmsRabbitmqPluginRead(ctx, d, cfg)
 }
 
-func rabbitmqPluginTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID, pluginName, taskName string) resource.StateRefreshFunc {
+func rabbitmqInstanceTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		// getRabbitmqPluginTask: get RabbitMQ plugin task
-		getRabbitmqPluginTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks"
-		getRabbitmqPluginTaskPath := client.Endpoint + getRabbitmqPluginTaskHttpUrl
-		getRabbitmqPluginTaskPath = strings.ReplaceAll(getRabbitmqPluginTaskPath, "{project_id}",
-			client.ProjectID)
-		getRabbitmqPluginTaskPath = strings.ReplaceAll(getRabbitmqPluginTaskPath, "{instance_id}", instanceID)
-
-		reqOpt := golangsdk.RequestOpts{
+		getRabbitmqTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks/{task_id}"
+		getRabbitmqTaskPath := client.Endpoint + getRabbitmqTaskHttpUrl
+		getRabbitmqTaskPath = strings.ReplaceAll(getRabbitmqTaskPath, "{project_id}", client.ProjectID)
+		getRabbitmqTaskPath = strings.ReplaceAll(getRabbitmqTaskPath, "{instance_id}", instanceID)
+		getRabbitmqTaskPath = strings.ReplaceAll(getRabbitmqTaskPath, "{task_id}", taskID)
+		opt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 		}
-		getRabbitmqPluginTaskResp, err := client.Request("GET", getRabbitmqPluginTaskPath, &reqOpt)
-
+		getRabbitmqTaskResp, err := client.Request("GET", getRabbitmqTaskPath, &opt)
 		if err != nil {
 			return nil, "QUERY ERROR", err
 		}
-
-		getRabbitmqPluginTaskRespBody, err := utils.FlattenResponse(getRabbitmqPluginTaskResp)
+		getRabbitmqTaskRespBody, err := utils.FlattenResponse(getRabbitmqTaskResp)
 		if err != nil {
 			return nil, "PARSE ERROR", err
 		}
 
-		task := getRabbitmqPluginTask(taskName, pluginName, getRabbitmqPluginTaskRespBody)
-		if task == nil {
-			return nil, "NOT FOUND", nil
+		status := utils.PathSearch("tasks[0].status", getRabbitmqTaskRespBody, "").(string)
+		if status == "" {
+			return nil, "ERROR", fmt.Errorf("error getting task status")
 		}
-		status := utils.PathSearch("status", task, "").(string)
-		return task, status, nil
+		return getRabbitmqTaskRespBody, status, nil
 	}
-}
-
-// resp is a struct including a list of tasks, the task example as below:
-// {
-// "name": "rabbitmqPluginModify",
-// "params": "{\"enable\":true,\"plugins\":\"rabbitmq_delayed_message_exchange\"}\n",
-// "status": "SUCCESS",
-// ...
-// }
-
-func getRabbitmqPluginTask(taskName string, pluginName string, resp interface{}) interface{} {
-	pluginTasks := utils.PathSearch(fmt.Sprintf("tasks|[?name=='%s']", taskName), resp, make([]interface{}, 0)).([]interface{})
-
-	for _, task := range pluginTasks {
-		params := utils.PathSearch("params", task, nil).(string)
-		paramsData := []byte(params)
-		var paramsJons interface{}
-		err := json.Unmarshal(paramsData, &paramsJons)
-		if err != nil {
-			log.Printf("[WARN] error parsing params from the plugin task %#v", task)
-			return nil
-		}
-		plugins := utils.PathSearch("plugins", paramsJons, nil)
-		if pluginName == plugins {
-			return task
-		}
-	}
-
-	return nil
 }
