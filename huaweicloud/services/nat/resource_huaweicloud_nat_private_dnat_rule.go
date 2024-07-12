@@ -147,7 +147,8 @@ func resourcePrivateDnatRuleRead(_ context.Context, d *schema.ResourceData, meta
 
 	resp, err := dnats.Get(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Private DNAT rule")
+		// If the private DNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving private DNAT rule")
 	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -225,7 +226,8 @@ func resourcePrivateDnatRuleDelete(_ context.Context, d *schema.ResourceData, me
 	ruleId := d.Id()
 	err = dnats.Delete(client, ruleId)
 	if err != nil {
-		return diag.Errorf("error deleting DNAT rule (Private NAT) (%s): %s", ruleId, err)
+		// If the private DNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting private DNAT rule")
 	}
 
 	return nil
