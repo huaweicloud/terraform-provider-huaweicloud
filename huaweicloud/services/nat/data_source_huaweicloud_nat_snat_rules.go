@@ -13,7 +13,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -188,7 +187,7 @@ func dataSourceSnatRulesRead(_ context.Context, d *schema.ResourceData, meta int
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving SNAT rules")
+		return diag.Errorf("error retrieving SNAT rules %s", err)
 	}
 
 	listSnatRulesRespJson, err := json.Marshal(listSnatRulesResp)

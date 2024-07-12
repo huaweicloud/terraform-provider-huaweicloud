@@ -18,7 +18,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -160,7 +159,7 @@ func dataSourcePrivateTransitIpsRead(_ context.Context, d *schema.ResourceData, 
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving transit IPs")
+		return diag.Errorf("error retrieving transit IPs %s", err)
 	}
 
 	listTransitIpsRespJson, err := json.Marshal(listTransitIpsResp)
