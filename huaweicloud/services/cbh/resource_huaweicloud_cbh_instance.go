@@ -1138,7 +1138,9 @@ func resourceCBHInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	expression := fmt.Sprintf("[?server_id == '%s']|[0]", d.Id())
 	instance := utils.PathSearch(expression, instances, nil)
 	if instance == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+		// Before deleting the CBH instance, it is necessary to first call the query API to obtain the resource_id of
+		// the instance. If the instance cannot be found, then execute the logic of checkDeleted.
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error deleting the CBH instance")
 	}
 
 	resourceId := utils.PathSearch("resource_info.resource_id", instance, "").(string)
