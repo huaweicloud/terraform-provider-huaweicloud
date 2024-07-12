@@ -551,9 +551,6 @@ func createConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 
 			createConnectionWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
 			}
 			createConnectionWaitingResp, err := createConnectionWaitingClient.Request("GET", createConnectionWaitingPath, &createConnectionWaitingOpt)
 			if err != nil {
@@ -571,19 +568,16 @@ func createConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 
 			status := fmt.Sprintf("%v", statusRaw)
 
+			if status == "ERROR" {
+				return createConnectionWaitingRespBody, status, nil
+			}
+
 			targetStatus := []string{
 				"ACTIVE",
 				"DOWN",
 			}
 			if utils.StrSliceContains(targetStatus, status) {
 				return createConnectionWaitingRespBody, "COMPLETED", nil
-			}
-
-			unexpectedStatus := []string{
-				"ERROR",
-			}
-			if utils.StrSliceContains(unexpectedStatus, status) {
-				return createConnectionWaitingRespBody, status, nil
 			}
 
 			return createConnectionWaitingRespBody, "PENDING", nil
@@ -618,9 +612,6 @@ func resourceConnectionRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	getConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getConnectionResp, err := getConnectionClient.Request("GET", getConnectionPath, &getConnectionOpt)
 
@@ -774,9 +765,6 @@ func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		updateConnectionOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateConnectionOpt.JSONBody = utils.RemoveNil(buildUpdateConnectionBodyParams(d))
 		_, err = updateConnectionClient.Request("PUT", updateConnectionPath, &updateConnectionOpt)
@@ -900,9 +888,6 @@ func updateConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 
 			updateConnectionWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
 			}
 			updateConnectionWaitingResp, err := updateConnectionWaitingClient.Request("GET", updateConnectionWaitingPath, &updateConnectionWaitingOpt)
 			if err != nil {
@@ -920,19 +905,16 @@ func updateConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 
 			status := fmt.Sprintf("%v", statusRaw)
 
+			if status == "ERROR" {
+				return updateConnectionWaitingRespBody, status, nil
+			}
+
 			targetStatus := []string{
 				"ACTIVE",
 				"DOWN",
 			}
 			if utils.StrSliceContains(targetStatus, status) {
 				return updateConnectionWaitingRespBody, "COMPLETED", nil
-			}
-
-			unexpectedStatus := []string{
-				"ERROR",
-			}
-			if utils.StrSliceContains(unexpectedStatus, status) {
-				return updateConnectionWaitingRespBody, status, nil
 			}
 
 			return updateConnectionWaitingRespBody, "PENDING", nil
@@ -1004,9 +986,6 @@ func deleteConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 
 			deleteConnectionWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
 			}
 			deleteConnectionWaitingResp, err := deleteConnectionWaitingClient.Request("GET", deleteConnectionWaitingPath, &deleteConnectionWaitingOpt)
 			if err != nil {
@@ -1029,10 +1008,7 @@ func deleteConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 
 			status := fmt.Sprintf("%v", statusRaw)
 
-			unexpectedStatus := []string{
-				"ERROR",
-			}
-			if utils.StrSliceContains(unexpectedStatus, status) {
+			if status == "ERROR" {
 				return deleteConnectionWaitingRespBody, status, nil
 			}
 
