@@ -1,6 +1,7 @@
 package hss
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -45,8 +46,12 @@ func TestAccDataSourceWebTamperHosts_basic(t *testing.T) {
 }
 
 func testDataSourceWebTamperHosts_basic() string {
-	return `
-data "huaweicloud_hss_webtamper_hosts" "test" {}
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_hss_webtamper_hosts" "test" {
+  depends_on = [huaweicloud_hss_webtamper_protection.test]
+}
 
 # Filter using host ID.
 locals {
@@ -101,5 +106,5 @@ data "huaweicloud_hss_webtamper_hosts" "not_found" {
 output "not_found_validation_pass" {
   value = length(data.huaweicloud_hss_webtamper_hosts.not_found.hosts) == 0
 }
-`
+`, testAccWebTamperProtection_basic())
 }
