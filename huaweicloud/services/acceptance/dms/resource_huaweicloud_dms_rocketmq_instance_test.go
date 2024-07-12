@@ -691,34 +691,33 @@ func testDmsRocketMQInstance_withEpsId(name, epsId string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dms_rocketmq_instance" "test" {
-	name                  = "%s"
-	engine_version        = "4.8.0"
-	storage_space         = 300
-	vpc_id                = huaweicloud_vpc.test.id
-	subnet_id             = huaweicloud_vpc_subnet.test.id
-	security_group_id     = huaweicloud_networking_secgroup.test.id
-	enterprise_project_id = "%s"
+  name                  = "%s"
+  engine_version        = "4.8.0"
+  storage_space         = 300
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id = "%s"
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
+    data.huaweicloud_availability_zones.test.names[2],
+  ]
   
-	availability_zones = [
-	  data.huaweicloud_availability_zones.test.names[0],
-	  data.huaweicloud_availability_zones.test.names[1],
-	  data.huaweicloud_availability_zones.test.names[2],
-	]
-  
-	charging_mode = "prePaid"
-	period_unit   = "month"
-	period        = 1
-	auto_renew    = true
-  
-	flavor_id         = "c6.4u8g.cluster"
-	storage_spec_code = "dms.physical.storage.high.v2"
-	broker_num        = 1
-	enable_acl        = true
-  
-	tags = {
-	  key1 = "value1"
-	  key2 = "value2"
-	}
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = true
+
+  flavor_id         = "c6.4u8g.cluster"
+  storage_spec_code = "dms.physical.storage.high.v2"
+  broker_num        = 1
+  enable_acl        = true
+
+  tags = {
+    key1 = "value1"
+    key2 = "value2"
   }
-`, common.TestBaseNetwork(name), name, epsId)
+}`, common.TestBaseNetwork(name), name, epsId)
 }

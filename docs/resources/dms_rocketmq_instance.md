@@ -85,8 +85,7 @@ The following arguments are supported:
 * `enable_publicip` - (Optional, Bool) Specifies whether to enable public access. By default, public access is disabled.
 
 * `publicip_id` - (Optional, String) Specifies the ID of the EIP bound to the instance. Use commas (,) to separate
-  multiple EIP IDs. This parameter is mandatory if public access is enabled (that is, enable_publicip is set to true).
-  This parameter can not be updated if public access is disabled.
+  multiple EIP IDs. It is mandatory if `enable_publicip` is **true** and should be empty when `enable_publicip` is **false**.
 
 * `broker_num` - (Optional, Int) Specifies the broker numbers.
   It's only valid when `engine_version` is **4.8.0**, and defaults to **1**.

@@ -147,7 +147,6 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 			"publicip_id": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				Computed:         true,
 				DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
 				Description:      `Specifies the ID of the EIP bound to the instance.`,
 			},
@@ -592,8 +591,6 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		"security_group_id",
 		"retention_policy",
 		"enable_acl",
-		"enable_publicip",
-		"publicip_id",
 	}
 
 	// updateRocketmqInstance: update DMS rocketmq instance
@@ -609,16 +606,14 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 	updateRocketmqInstancePath := updateRocketmqInstanceClient.Endpoint + updateRocketmqInstanceHttpUrl
 	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{project_id}", updateRocketmqInstanceClient.ProjectID)
 	updateRocketmqInstancePath = strings.ReplaceAll(updateRocketmqInstancePath, "{instance_id}", fmt.Sprintf("%v", instanceId))
-
+	updateRocketmqInstanceOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
 	if d.HasChanges(updateRocketmqInstanceHasChanges...) {
-		updateRocketmqInstanceOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				204,
-			},
-		}
 		updateRocketmqInstanceOpt.JSONBody = utils.RemoveNil(buildUpdateRocketmqInstanceBodyParams(d))
-
 		retryFunc := func() (interface{}, bool, error) {
 			_, err := updateRocketmqInstanceClient.Request("PUT", updateRocketmqInstancePath, &updateRocketmqInstanceOpt)
 			retry, err := handleMultiOperationsError(err)
@@ -636,12 +631,6 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 
 		if err != nil {
 			return diag.Errorf("error updating DMS RocketMQ instance: %s", err)
-		}
-
-		if d.HasChange("enable_publicip") {
-			if err = waitUpdatePublicipSuccess(ctx, d, updateRocketmqInstanceClient); err != nil {
-				return diag.FromErr(err)
-			}
 		}
 	}
 
@@ -668,10 +657,39 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		}
 	}
 
+	// unbind EIP
+	if d.HasChanges("enable_publicip", "publicip_id") {
+		oldIDs, _ := d.GetChange("publicip_id")
+		if len(oldIDs.(string)) > 0 {
+			updateRocketmqInstanceOpt.JSONBody = map[string]interface{}{
+				"enable_publicip": false,
+			}
+			if err = rocketmqBindOrUnbindEIP(ctx, updateRocketmqInstanceClient, d.Timeout(schema.TimeoutUpdate),
+				updateRocketmqInstanceOpt, d.Id(), "unbindInstancePublicIp"); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	if d.HasChanges("flavor_id", "broker_num", "storage_space") {
 		err := resizeRocketmqInstance(ctx, updateRocketmqInstanceClient, d)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	// bind EIP
+	if d.HasChanges("enable_publicip", "publicip_id") {
+		newIDs := d.Get("publicip_id")
+		if len(newIDs.(string)) > 0 {
+			updateRocketmqInstanceOpt.JSONBody = map[string]interface{}{
+				"enable_publicip": true,
+				"publicip_id":     newIDs,
+			}
+			if err = rocketmqBindOrUnbindEIP(ctx, updateRocketmqInstanceClient, d.Timeout(schema.TimeoutUpdate),
+				updateRocketmqInstanceOpt, d.Id(), "bindInstancePublicIp"); err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -716,14 +734,47 @@ func buildUpdateRocketmqInstanceBodyParams(d *schema.ResourceData) map[string]in
 		bodyParams["name"] = utils.ValueIgnoreEmpty(d.Get("name"))
 	}
 
-	if d.HasChange("enable_publicip") {
-		bodyParams["enable_publicip"] = utils.ValueIgnoreEmpty(d.Get("enable_publicip"))
+	return bodyParams
+}
+
+func rocketmqBindOrUnbindEIP(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	updateOpt golangsdk.RequestOpts, id, action string) error {
+	updateHttpUrl := "v2/{project_id}/instances/{instance_id}"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", id)
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := client.Request("PUT", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rocketmqInstanceStateRefreshFunc(client, id),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+
+	if err != nil {
+		return fmt.Errorf("error updating DMS RocketMQ instance with action(%s): %s", action, err)
 	}
 
-	if d.HasChange("publicip_id") {
-		bodyParams["publicip_id"] = utils.ValueIgnoreEmpty(d.Get("publicip_id"))
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"CREATED"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      publicipTaskRefreshFunc(client, id, action),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 15 * time.Second,
 	}
-	return bodyParams
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for job(%s) success: %s", action, err)
+	}
+
+	return nil
 }
 
 func resourceDmsRocketMQInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -837,7 +888,7 @@ func resourceDmsRocketMQInstanceRead(_ context.Context, d *schema.ResourceData, 
 	// get configs
 	configNames := getConfigsNameList(d.Get("configs").(*schema.Set).List())
 	if len(configNames) > 0 {
-		if configs, err := getRocketmqConfgs(getRocketmqInstanceClient, d.Id(), configNames); err == nil {
+		if configs, err := getRocketmqConfigs(getRocketmqInstanceClient, d.Id(), configNames); err == nil {
 			mErr = multierror.Append(mErr,
 				d.Set("configs", configs),
 			)
@@ -865,7 +916,7 @@ func getConfigsNameList(configs []interface{}) []string {
 	return rst
 }
 
-func getRocketmqConfgs(client *golangsdk.ServiceClient, instanceId string, configsName []string) ([]map[string]interface{}, error) {
+func getRocketmqConfigs(client *golangsdk.ServiceClient, instanceId string, configsName []string) ([]map[string]interface{}, error) {
 	getConfigsHttpUrl := "v2/{project_id}/rocketmq/instances/{instance_id}/configs"
 	getConfigsPath := client.Endpoint + getConfigsHttpUrl
 	getConfigsPath = strings.ReplaceAll(getConfigsPath, "{project_id}", client.ProjectID)
@@ -1019,30 +1070,6 @@ func publicipTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID, taskNa
 	}
 }
 
-func waitUpdatePublicipSuccess(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	// The RocketMQ enabling or disabling publicip is done if the status of its task is SUCCESS.
-	actionName := "unbindInstancePublicIp"
-	if d.Get("enable_publicip").(bool) {
-		actionName = "bindInstancePublicIp"
-	}
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"CREATED"},
-		Target:       []string{"SUCCESS"},
-		Refresh:      publicipTaskRefreshFunc(client, d.Id(), actionName),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        1 * time.Second,
-		PollInterval: 2 * time.Second,
-	}
-
-	_, err := stateConf.WaitForStateContext(ctx)
-
-	if err != nil {
-		return fmt.Errorf("error waiting for enabling or diabling publicip to be done: %s", err)
-	}
-
-	return nil
-}
-
 func resizeRocketmqInstance(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	if d.HasChange("flavor_id") {
 		resizeBodyParams := map[string]interface{}{
@@ -1060,16 +1087,6 @@ func resizeRocketmqInstance(ctx context.Context, client *golangsdk.ServiceClient
 			"oper_type":      "horizontal",
 			"new_broker_num": d.Get("broker_num"),
 		}
-
-		// the increased publicip IDs are used for brokers which will be extended if public access is already enabled.
-		if d.Get("enable_publicip").(bool) {
-			// get increased publicip IDs.
-			oldPublicipIds, newPublicipIds := d.GetChange("publicip_id")
-			publicipIds := getExtendIpids(oldPublicipIds.(string), newPublicipIds.(string))
-
-			resizeBodyParams["publicip_id"] = publicipIds
-		}
-
 		if err := doRocketmqInstanceResize(ctx, client, d, resizeBodyParams); err != nil {
 			return err
 		}
@@ -1161,17 +1178,4 @@ func getPublicipInfoByAddresses(meta interface{}, region, epsID string, resp int
 		ipAddressList[i] = ip.PublicAddress
 	}
 	return ipIdList, ipAddressList, nil
-}
-
-func getExtendIpids(old, new string) string {
-	oldIpidList := strings.Split(old, ",")
-	newIpidList := strings.Split(new, ",")
-	extendIpidList := make([]string, 0, len(newIpidList))
-	for _, ipid := range newIpidList {
-		if !utils.StrSliceContains(oldIpidList, ipid) {
-			extendIpidList = append(extendIpidList, ipid)
-		}
-	}
-	extendIpids := strings.Join(extendIpidList, ",")
-	return extendIpids
 }
