@@ -48,6 +48,7 @@ func ResourceWebTamperProtection() *schema.Resource {
 			"quota_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 			"is_dynamics_protect": {
 				Type:     schema.TypeBool,
@@ -254,13 +255,6 @@ func resourceWebTamperProtectionUpdate(ctx context.Context, d *schema.ResourceDa
 	checkHostAvailableErr := checkHostAvailable(client, region, epsId, hostId)
 	if checkHostAvailableErr != nil {
 		return diag.FromErr(checkHostAvailableErr)
-	}
-
-	if d.HasChange("quota_id") {
-		err = openWebTamperProtection(client, cfg, hostId, d)
-		if err != nil {
-			return diag.Errorf("error updating HSS web tamper protection: %s", err)
-		}
 	}
 
 	if d.HasChange("is_dynamics_protect") {
