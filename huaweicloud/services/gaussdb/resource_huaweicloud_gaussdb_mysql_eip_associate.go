@@ -3,14 +3,12 @@ package gaussdb
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
 
@@ -159,7 +157,8 @@ func resourceGaussMysqlEipAssociateRead(_ context.Context, d *schema.ResourceDat
 	getResp, err := client.Request("GET", getPath, &getOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseMysqlProxyError(err), "error retrieving EIP associated with GaussDB MySQL")
+		return common.CheckDeletedDiag(d, parseMysqlProxyEipAssociateError(err), "error retrieving EIP associated "+
+			"with GaussDB MySQL")
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -249,22 +248,7 @@ func resourceGaussMysqlEipAssociateDelete(ctx context.Context, d *schema.Resourc
 	return nil
 }
 
-func checkGaussDBMySQLProxyJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string,
-	timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Pending", "Running"},
-		Target:       []string{"Completed"},
-		Refresh:      gaussDBMysqlDatabaseStatusRefreshFunc(client, jobID),
-		Timeout:      timeout,
-		PollInterval: 2 * time.Second,
-	}
-	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-		return fmt.Errorf("error waiting for job(%s) to be completed: %s ", jobID, err)
-	}
-	return nil
-}
-
-func parseMysqlProxyError(err error) error {
+func parseMysqlProxyEipAssociateError(err error) error {
 	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
 		var apiError interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
