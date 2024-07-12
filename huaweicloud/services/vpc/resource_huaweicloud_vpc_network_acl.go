@@ -646,14 +646,22 @@ func updateRules(client *golangsdk.ServiceClient, d *schema.ResourceData, ruleTy
 	if len(oldRules.([]interface{})) > 0 {
 		err := networkAclRemoveRules(client, oldRules.([]interface{}), ruleType, id)
 		if err != nil {
-			return err
+			return fmt.Errorf("error updating rules: %s", err)
 		}
 	}
 
 	if len(newRules.([]interface{})) > 0 {
 		err := networkAclInsertRules(client, newRules.([]interface{}), ruleType, id)
 		if err != nil {
-			return err
+			// if failed to insert the new rules, insert the old rules back
+			if len(oldRules.([]interface{})) > 0 {
+				rollBackErr := networkAclInsertRules(client, oldRules.([]interface{}), ruleType, id)
+				if rollBackErr != nil {
+					return fmt.Errorf("error updating rules: %s, failed to roll back: %s", err, rollBackErr)
+				}
+				return fmt.Errorf("error updating rules: %s, it's rolled back", err)
+			}
+			return fmt.Errorf("error updating rules: %s", err)
 		}
 	}
 
