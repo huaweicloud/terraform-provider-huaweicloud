@@ -38,9 +38,8 @@ func TestAccDatasourceConnections_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "connections.0.created_at"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "connections.0.routes.#"),
 					resource.TestCheckResourceAttr(dataSourceName, "connections.0.routes.0.name", name),
-					resource.TestCheckResourceAttr(dataSourceName, "connections.0.routes.0.cidr", "10.169.0.0/24"),
+					resource.TestCheckResourceAttr(dataSourceName, "connections.0.routes.0.cidr", "10.169.0.0/16"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "connections.0.queues.#"),
-					resource.TestCheckResourceAttr(dataSourceName, "connections.0.queues.0.name", name),
 					resource.TestCheckResourceAttrSet(dataSourceName, "connections.0.hosts.#"),
 					resource.TestCheckResourceAttr(dataSourceName, "connections.0.hosts.0.ip", "172.0.0.2"),
 					resource.TestCheckResourceAttr(dataSourceName, "connections.0.hosts.0.name", name),
@@ -63,13 +62,6 @@ func testDatasourceConnections_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_dli_queue" "test" {
-  name          = "%[2]s"
-  cu_count      = 16
-  resource_mode = 1
-  vpc_cidr      = "10.169.0.0/16"
-}
-
 locals {
   tags = {
     foo  = "bar"
@@ -81,10 +73,9 @@ resource "huaweicloud_dli_datasource_connection" "test" {
   name      = "%[2]s"
   vpc_id    = huaweicloud_vpc.test.id
   subnet_id = huaweicloud_vpc_subnet.test.id
-  queues    = [huaweicloud_dli_queue.test.name]
 
   routes {
-    cidr = "10.169.0.0/24"
+    cidr = "10.169.0.0/16"
     name = "%[2]s"
   }
 
@@ -103,7 +94,7 @@ data "huaweicloud_dli_datasource_connections" "test" {
 }
 
 locals {
-  name = data.huaweicloud_dli_datasource_connections.test.connections[0].name
+  name = huaweicloud_dli_datasource_connection.test.name
 }
 
 data "huaweicloud_dli_datasource_connections" "filter_by_name" {

@@ -136,10 +136,10 @@ func DataSourceDliFlinkjarJobs() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						// The runtime_config is a json string.
 						"runtime_config": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeString,
 							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 						"resume_max_num": {
 							Type:     schema.TypeInt,
@@ -218,8 +218,10 @@ func (w *FlinkjarJobsDSWrapper) ListFlinkJobs() (*gjson.Result, error) {
 
 	uri := "/v1.0/{project_id}/streaming/jobs"
 	params := map[string]any{
-		"queue_name": w.Get("queue_name"),
-		"tags":       w.getTags(),
+		"queue_name":  w.Get("queue_name"),
+		"tags":        w.getTags(),
+		"job_type":    "flink_jar_job",
+		"show_detail": true,
 	}
 	params = utils.RemoveNil(params)
 	return httphelper.New(client).

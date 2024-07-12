@@ -2,6 +2,7 @@ package dli
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,13 +11,28 @@ import (
 )
 
 func TestAccDataSourceDliSqlJobs_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_dli_sql_jobs.test"
-	rName := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(dataSource)
+	var (
+		dataSource = "data.huaweicloud_dli_sql_jobs.test"
+		rName      = acceptance.RandomAccResourceName()
+		dc         = acceptance.InitDataSourceCheck(dataSource)
+
+		byJobId   = "data.huaweicloud_dli_sql_jobs.job_id_filter"
+		dcByJobId = acceptance.InitDataSourceCheck(byJobId)
+
+		byType   = "data.huaweicloud_dli_sql_jobs.type_filter"
+		dcByType = acceptance.InitDataSourceCheck(byType)
+
+		byStatus   = "data.huaweicloud_dli_sql_jobs.status_filter"
+		dcByStatus = acceptance.InitDataSourceCheck(byStatus)
+
+		byQueueName   = "data.huaweicloud_dli_sql_jobs.queue_name_filter"
+		dcByQueueName = acceptance.InitDataSourceCheck(byQueueName)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDliSQLQueueName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -24,14 +40,18 @@ func TestAccDataSourceDliSqlJobs_basic(t *testing.T) {
 				Config: testDataSourceDataSourceDliSqlJobs_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSource, "jobs.0.id"),
-					resource.TestCheckResourceAttrSet(dataSource, "jobs.0.type"),
-					resource.TestCheckResourceAttrSet(dataSource, "jobs.0.status"),
-					resource.TestCheckResourceAttrSet(dataSource, "jobs.0.queue_name"),
-
+					resource.TestMatchResourceAttr(dataSource, "jobs.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					dcByJobId.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(byJobId, "jobs.0.id"),
+					resource.TestCheckResourceAttrSet(byJobId, "jobs.0.type"),
+					resource.TestCheckResourceAttrSet(byJobId, "jobs.0.status"),
+					resource.TestCheckResourceAttrSet(byJobId, "jobs.0.queue_name"),
 					resource.TestCheckOutput("job_id_filter_is_useful", "true"),
+					dcByType.CheckResourceExists(),
 					resource.TestCheckOutput("type_filter_is_useful", "true"),
+					dcByStatus.CheckResourceExists(),
 					resource.TestCheckOutput("status_filter_is_useful", "true"),
+					dcByQueueName.CheckResourceExists(),
 					resource.TestCheckOutput("queue_name_filter_is_useful", "true"),
 				),
 			},
@@ -49,14 +69,14 @@ data "huaweicloud_dli_sql_jobs" "test" {
   ]
 }
 
+locals {
+  job_id = huaweicloud_dli_sql_job.test.id
+}
+
 data "huaweicloud_dli_sql_jobs" "job_id_filter" {
   job_id = local.job_id
 }
-  
-locals {
-  job_id = data.huaweicloud_dli_sql_jobs.test.jobs[0].id
-}
-  
+
 output "job_id_filter_is_useful" {
   value = length(data.huaweicloud_dli_sql_jobs.job_id_filter.jobs) > 0 && alltrue(
     [for v in data.huaweicloud_dli_sql_jobs.job_id_filter.jobs[*].id : v == local.job_id]
@@ -66,11 +86,11 @@ output "job_id_filter_is_useful" {
 data "huaweicloud_dli_sql_jobs" "type_filter" {
   type = local.type
 }
-  
+
 locals {
-  type = data.huaweicloud_dli_sql_jobs.test.jobs[0].type
+  type = data.huaweicloud_dli_sql_jobs.job_id_filter.jobs[0].type
 }
-  
+
 output "type_filter_is_useful" {
   value = length(data.huaweicloud_dli_sql_jobs.type_filter.jobs) > 0 && alltrue(
     [for v in data.huaweicloud_dli_sql_jobs.type_filter.jobs[*].type : v == local.type]
@@ -80,25 +100,25 @@ output "type_filter_is_useful" {
 data "huaweicloud_dli_sql_jobs" "status_filter" {
   status = local.status
 }
-  
+
 locals {
-  status = data.huaweicloud_dli_sql_jobs.test.jobs[0].status
+  status = huaweicloud_dli_sql_job.test.status
 }
-  
+
 output "status_filter_is_useful" {
   value = length(data.huaweicloud_dli_sql_jobs.status_filter.jobs) > 0 && alltrue(
     [for v in data.huaweicloud_dli_sql_jobs.status_filter.jobs[*].status : v == local.status]
   )
 }
 
+locals {
+  queue_name = huaweicloud_dli_sql_job.test.queue_name
+}
+
 data "huaweicloud_dli_sql_jobs" "queue_name_filter" {
   queue_name = local.queue_name
 }
-  
-locals {
-  queue_name = data.huaweicloud_dli_sql_jobs.test.jobs[0].queue_name
-}
-  
+
 output "queue_name_filter_is_useful" {
   value = length(data.huaweicloud_dli_sql_jobs.queue_name_filter.jobs) > 0 && alltrue(
     [for v in data.huaweicloud_dli_sql_jobs.queue_name_filter.jobs[*].queue_name : v == local.queue_name]

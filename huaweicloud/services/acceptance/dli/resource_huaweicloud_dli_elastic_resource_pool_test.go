@@ -40,6 +40,7 @@ func TestAccElasticResourcePool_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckDliElasticResourcePool(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -69,7 +70,7 @@ func TestAccElasticResourcePool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "min_cu", "64"),
 					resource.TestCheckResourceAttr(resourceName, "max_cu", "112"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
 					waitForDeletionCooldownComplete(),
 					waitForCUModificationComplete(resourceName),
 				),
@@ -163,5 +164,5 @@ resource "huaweicloud_dli_elastic_resource_pool" "test" {
   min_cu                = 64
   enterprise_project_id = "%[2]s"
 }
-`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, name, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
 }

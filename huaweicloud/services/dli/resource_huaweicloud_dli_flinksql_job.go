@@ -427,7 +427,8 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	if d.Get("type").(string) == flinkjob.JobTypeFlinkOpenSourceSql {
+	_, ok := d.GetOk("graph_type")
+	if d.Get("type").(string) == flinkjob.JobTypeFlinkOpenSourceSql && ok {
 		v3Client, err := config.DliV3Client(region)
 		if err != nil {
 			return diag.Errorf("error creating DLI v3 client: %s", err)
