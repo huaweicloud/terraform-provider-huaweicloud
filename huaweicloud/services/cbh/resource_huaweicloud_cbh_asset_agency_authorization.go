@@ -114,6 +114,9 @@ func resourceAssetAgencyAuthorizationRead(_ context.Context, d *schema.ResourceD
 
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
+		// This resource is an operational resource, the create method supports enabling and disabling authorization.
+		// The API for querying will not report errors and has no parameters, and will always be successful.
+		// So the logic of checkDeleted is not added.
 		return diag.FromErr(err)
 	}
 
