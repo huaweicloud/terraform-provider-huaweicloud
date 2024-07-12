@@ -13,7 +13,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -213,7 +212,7 @@ func dataSourceDnatRulesRead(_ context.Context, d *schema.ResourceData, meta int
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving private DNAT rule")
+		return diag.Errorf("error retrieving DNAT rules %s", err)
 	}
 
 	listDnatRulesRespJson, err := json.Marshal(listDnatRulesResp)

@@ -18,7 +18,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -176,7 +175,7 @@ func dataSourcePrivateGatewaysRead(_ context.Context, d *schema.ResourceData, me
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving private NAT Gateway")
+		return diag.Errorf("error retrieving private NAT gateways %s", err)
 	}
 
 	listGatewaysRespJson, err := json.Marshal(listGatewaysResp)

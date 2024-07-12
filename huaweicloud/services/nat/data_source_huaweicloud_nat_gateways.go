@@ -17,7 +17,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -166,7 +165,7 @@ func dataSourcePublicGatewaysRead(_ context.Context, d *schema.ResourceData, met
 	listGatewaysResp, err := listGatewaysClient.Request("GET", listGatewaysPath, &listGatewaysOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving NAT Gateway")
+		return diag.Errorf("error retrieving NAT gateways %s", err)
 	}
 
 	listGatewaysRespBody, err := utils.FlattenResponse(listGatewaysResp)
