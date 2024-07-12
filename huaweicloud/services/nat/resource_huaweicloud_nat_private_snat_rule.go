@@ -135,7 +135,8 @@ func resourcePrivateSnatRuleRead(_ context.Context, d *schema.ResourceData, meta
 
 	resp, err := snats.Get(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Private SNAT rule")
+		// If the private SNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving private SNAT rule")
 	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -188,7 +189,8 @@ func resourcePrivateSnatRuleDelete(_ context.Context, d *schema.ResourceData, me
 	ruleId := d.Id()
 	err = snats.Delete(client, ruleId)
 	if err != nil {
-		return diag.Errorf("error deleting private SNAT rule (%s): %s", ruleId, err)
+		// If the private SNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting private SNAT rule")
 	}
 
 	return nil
