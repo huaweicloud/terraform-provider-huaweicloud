@@ -97,6 +97,9 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "port", "3339"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_weight.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "readonly_nodes_weight.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "multiStatementType"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "Loose"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.elem_type", "system"),
 				),
 			},
 			{
@@ -117,6 +120,9 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "port", "3338"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_weight.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "readonly_nodes_weight.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "looseImciApThreshold"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "6000"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.elem_type", "system"),
 				),
 			},
 			{
@@ -135,6 +141,7 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 					"new_node_weight",
 					"proxy_mode",
 					"readonly_nodes_weight",
+					"parameters",
 				},
 			},
 		},
@@ -201,6 +208,12 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
     id     = local.sort_nodes[1].id
     weight = 30
   }
+
+  parameters {
+    name      = "multiStatementType"
+    value     = "Loose"
+    elem_type = "system"
+  }
 }
 `, testAccMysqlProxy_base(rName), rName)
 }
@@ -235,6 +248,12 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
     id     = local.sort_nodes[3].id
     weight = 30
   }
+
+  parameters {
+    name      = "looseImciApThreshold"
+    value     = "6000"
+    elem_type = "system"
+  }
 }
 `, testAccMysqlProxy_base(rName), updateName)
 }
@@ -268,6 +287,12 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   readonly_nodes_weight {
     id     = local.sort_nodes[3].id
     weight = 30
+  }
+
+  parameters {
+    name      = "looseImciApThreshold"
+    value     = "6000"
+    elem_type = "system"
   }
 }
 `, testAccMysqlProxy_base(rName), updateName)
