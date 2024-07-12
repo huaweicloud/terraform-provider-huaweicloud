@@ -162,7 +162,8 @@ func resourcePrivateGatewayRead(_ context.Context, d *schema.ResourceData, meta 
 
 	resp, err := gateways.Get(natClient, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Private NAT gateway")
+		// If the private NAT gateway does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving private NAT gateway")
 	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -228,7 +229,8 @@ func resourcePrivateGatewayDelete(_ context.Context, d *schema.ResourceData, met
 	gatewayId := d.Id()
 	err = gateways.Delete(client, gatewayId)
 	if err != nil {
-		return diag.Errorf("error deleting private NAT gateway (%s): %s", gatewayId, err)
+		// If the private NAT gateway does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting private NAT gateway")
 	}
 
 	return nil
