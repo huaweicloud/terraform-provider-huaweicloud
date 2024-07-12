@@ -397,7 +397,12 @@ func resourceQuotaDelete(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	if err = common.UnsubscribePrePaidResource(d, cfg, []string{id}); err != nil {
-		return diag.Errorf("error unsubscribe HSS quota (%s): %s", id, err)
+		// When the resource does not exist, the API for unsubscribing prePaid resource will return a `400` status code,
+		// and the response body is as follows:
+		// {"error_code": "CBC.30000067",
+		// "error_msg": "Unsubscription not supported. This resource has been deleted or the subscription to this resource has
+		// not been synchronized to ..."}
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "CBC.30000067"), "error unsubscribe HSS quota")
 	}
 
 	if err := waitingForQuotaDeleted(ctx, client, id, epsId, d.Timeout(schema.TimeoutDelete)); err != nil {
