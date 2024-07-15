@@ -83,11 +83,10 @@ func ResourceOrganizationalPolicyAssignment() *schema.Resource {
 				Description: "The function URN used to create the custom policy.",
 			},
 			"period": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				Description:   "The period of the policy rule check.",
-				ConflictsWith: []string{"policy_filter"},
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The period of the policy rule check.",
 			},
 			"policy_filter": {
 				Type:     schema.TypeList,
@@ -115,11 +114,10 @@ func ResourceOrganizationalPolicyAssignment() *schema.Resource {
 							Description: "The resource type of the filtered resources.",
 						},
 						"resource_id": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ConflictsWith: []string{"policy_filter.0.tag_key"},
-							Description:   "The resource ID used to filter a specified resources.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The resource ID used to filter a specified resources.",
 						},
 						"tag_key": {
 							Type:        schema.TypeString,

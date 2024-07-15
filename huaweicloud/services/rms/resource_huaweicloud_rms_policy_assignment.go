@@ -74,16 +74,14 @@ func ResourcePolicyAssignment() *schema.Resource {
 				Description:  "The description of the policy assignment.",
 			},
 			"policy_definition_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Description:   "The ID of the policy definition.",
-				ConflictsWith: []string{"custom_policy"},
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The ID of the policy definition.",
 			},
 			"period": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Description:   "The period of the policy rule check.",
-				ConflictsWith: []string{"policy_filter"},
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The period of the policy rule check.",
 			},
 			"policy_filter": {
 				Type:     schema.TypeList,
@@ -107,10 +105,9 @@ func ResourcePolicyAssignment() *schema.Resource {
 							Description: "The resource type of the filtered resources.",
 						},
 						"resource_id": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							ConflictsWith: []string{"policy_filter.0.tag_key"},
-							Description:   "The resource ID used to filter a specified resources.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The resource ID used to filter a specified resources.",
 						},
 						"tag_key": {
 							Type:        schema.TypeString,
@@ -125,8 +122,7 @@ func ResourcePolicyAssignment() *schema.Resource {
 						},
 					},
 				},
-				Description:   "The configuration used to filter resources.",
-				ConflictsWith: []string{"period"},
+				Description: "The configuration used to filter resources.",
 			},
 			"custom_policy": {
 				Type:     schema.TypeList,
