@@ -253,7 +253,7 @@ func resourceDNSRecordsetRead(_ context.Context, d *schema.ResourceData, meta in
 
 	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	version := getApiVersionByZoneType(zoneType)
@@ -329,7 +329,7 @@ func resourceDNSRecordsetUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	if zoneType == "private" {
@@ -457,7 +457,7 @@ func resourceDNSRecordsetDelete(ctx context.Context, d *schema.ResourceData, met
 
 	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	version := getApiVersionByZoneType(zoneType)

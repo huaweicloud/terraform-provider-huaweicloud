@@ -167,7 +167,7 @@ func resourceDNSRecordSetV2Read(_ context.Context, d *schema.ResourceData, meta 
 
 	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	n, err := recordsets.Get(dnsClient, zoneID, recordsetID).Extract()
@@ -216,7 +216,7 @@ func resourceDNSRecordSetV2Update(ctx context.Context, d *schema.ResourceData, m
 
 	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	if d.HasChanges("description", "ttl", "records") {
@@ -285,7 +285,7 @@ func resourceDNSRecordSetV2Delete(ctx context.Context, d *schema.ResourceData, m
 
 	dnsClient, _, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	err = recordsets.Delete(dnsClient, zoneID, recordsetID).ExtractErr()
