@@ -151,8 +151,7 @@
               "publicip_id": {
                 "type": "string",
                 "description": "Specifies the ID of the EIP bound to the instance.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "region": {
                 "type": "string",

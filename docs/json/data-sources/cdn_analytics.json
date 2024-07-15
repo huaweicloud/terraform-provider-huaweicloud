@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_analytics": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the action name. Possible values are **summary** and **detail**.",
+                "required": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name list.",
+                "required": true
+              },
+              "end_time": {
+                "type": "number",
+                "description": "Specifies the end timestamp of the query.",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project that the resource belongs to.",
+                "optional": true
+              },
+              "group_by": {
+                "type": "string",
+                "description": "Specifies the data grouping mode.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interval": {
+                "type": "number",
+                "description": "Specifies the query interval, in seconds.",
+                "optional": true
+              },
+              "result": {
+                "type": "string",
+                "description": "Indicated the data organized according to the specified grouping mode.",
+                "computed": true
+              },
+              "service_area": {
+                "type": "string",
+                "description": "Specifies the service area.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "Specifies the start timestamp of the query.",
+                "required": true
+              },
+              "stat_type": {
+                "type": "string",
+                "description": "Specifies the network resource consumption statistics.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

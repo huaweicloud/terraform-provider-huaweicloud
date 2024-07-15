@@ -126,6 +126,13 @@
                 "required": true,
                 "forcenew": true
               },
+              "new_tenant_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
               "partition_num": {
                 "type": "number",
                 "computed": true
@@ -153,13 +160,19 @@
                 "type": "string",
                 "optional": true
               },
-              "public_ip_ids": {
+              "public_ip_address": {
                 "type": [
                   "list",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "computed": true
+              },
+              "public_ip_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
               },
               "region": {
                 "type": "string",

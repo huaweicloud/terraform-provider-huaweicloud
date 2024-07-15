@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_image_retention_policies": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "organization": {
+                "type": "string",
+                "description": "Specifies the name of the organization to which the image belongs.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the data source. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repository": {
+                "type": "string",
+                "description": "Specifies the name of the repository to which the image belongs.",
+                "required": true
+              },
+              "retention_policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "algorithm": "string",
+                      "id": "number",
+                      "rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "params": "string",
+                            "tag_selectors": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "kind": "string",
+                                  "pattern": "string"
+                                }
+                              ]
+                            ],
+                            "template": "string"
+                          }
+                        ]
+                      ],
+                      "scope": "string"
+                    }
+                  ]
+                ],
+                "description": "All retention policies that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

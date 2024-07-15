@@ -27,6 +27,12 @@
               "instance_config": {
                 "block": {
                   "attributes": {
+                    "admin_pass": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
                     "charging_mode": {
                       "type": "string",
                       "optional": true,
@@ -71,7 +77,8 @@
                     },
                     "key_name": {
                       "type": "string",
-                      "required": true,
+                      "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "metadata": {

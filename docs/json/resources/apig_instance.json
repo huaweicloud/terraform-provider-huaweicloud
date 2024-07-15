@@ -32,8 +32,7 @@
               "edition": {
                 "type": "string",
                 "description": "The edition of the dedicated instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "egress_address": {
                 "type": "string",

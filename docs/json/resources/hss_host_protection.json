@@ -28,6 +28,7 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "host_id": {
@@ -46,6 +47,10 @@
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "is_wait_host_available": {
+                "type": "bool",
+                "optional": true
               },
               "open_time": {
                 "type": "string",
