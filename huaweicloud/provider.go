@@ -943,6 +943,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_event_subscriptions":     dws.DataSourceEventSubscriptions(),
 
 			"huaweicloud_dws_availability_zones": dws.DataSourceDwsAvailabilityZones(),
+			"huaweicloud_dws_clusters":           dws.DataSourceDwsClusters(),
 			"huaweicloud_dws_quotas":             dws.DataSourceDwsQuotas(),
 			"huaweicloud_dws_snapshots":          dws.DataSourceDwsSnapshots(),
 			"huaweicloud_dws_workload_queues":    dws.DataSourceWorkloadQueues(),
