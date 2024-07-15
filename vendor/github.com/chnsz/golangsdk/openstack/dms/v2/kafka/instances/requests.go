@@ -295,12 +295,13 @@ func List(client *golangsdk.ServiceClient, opts ListOpsBuilder) pagination.Pager
 }
 
 type ResizeInstanceOpts struct {
-	NewSpecCode     *string `json:"new_spec_code,omitempty"`
-	NewStorageSpace *int    `json:"new_storage_space,omitempty"`
-	OperType        *string `json:"oper_type,omitempty"`
-	NewBrokerNum    *int    `json:"new_broker_num,omitempty"`
-	NewProductID    *string `json:"new_product_id,omitempty"`
-	PublicIpID      *string `json:"publicip_id,omitempty"`
+	NewSpecCode     *string  `json:"new_spec_code,omitempty"`
+	NewStorageSpace *int     `json:"new_storage_space,omitempty"`
+	OperType        *string  `json:"oper_type,omitempty"`
+	NewBrokerNum    *int     `json:"new_broker_num,omitempty"`
+	NewProductID    *string  `json:"new_product_id,omitempty"`
+	PublicIpID      *string  `json:"publicip_id,omitempty"`
+	TenantIps       []string `json:"tenant_ips,omitempty"`
 }
 
 func Resize(client *golangsdk.ServiceClient, id string, opts ResizeInstanceOpts) (string, error) {

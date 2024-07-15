@@ -269,6 +269,48 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 	})
 }
 
+func TestAccKafkaInstance_publicIp(t *testing.T) {
+	var instance instances.Instance
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_dms_kafka_instance.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getKafkaInstanceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKafkaInstance_publicIp(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "broker_num", "3"),
+					resource.TestCheckResourceAttr(resourceName, "public_ip_ids.#", "3"),
+				),
+			},
+			{
+				Config: testAccKafkaInstance_publicIp_update(rName, 5),
+				ExpectError: regexp.MustCompile("error resizing instance: the old EIP ID should not be changed, and the adding nums of " +
+					"EIP ID should be same as the adding broker nums"),
+			},
+			{
+				Config: testAccKafkaInstance_publicIp_update(rName, 4),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "broker_num", "4"),
+					resource.TestCheckResourceAttr(resourceName, "public_ip_ids.#", "4"),
+				),
+			},
+		},
+	})
+}
+
 func testAccKafkaInstance_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -656,4 +698,111 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     owner = "terraform_update"
   }
 }`, baseNetwork, updateName)
+}
+
+func testAccKafkaInstance_publicIpBase(count int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "test" {
+  count = %d
+
+  publicip {
+    type = "5_bgp"
+  }
+
+  bandwidth {
+    name        = "test_eip_${count.index}"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+`, count)
+}
+
+func testAccKafkaInstance_publicIp(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_kafka_flavors" "test" {
+  type      = "cluster"
+  flavor_id = "c6.2u4g.cluster"
+}
+
+locals {
+  flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
+}
+
+%s
+
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name              = "%s"
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor_id          = local.flavor.id
+  storage_spec_code  = local.flavor.ios[0].storage_spec_code
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
+    data.huaweicloud_availability_zones.test.names[2]
+  ]
+
+  engine_version = "2.7"
+  storage_space  = 300
+  broker_num     = 3
+  arch_type      = "X86"
+  public_ip_ids  = [
+    huaweicloud_vpc_eip.test[0].id,
+    huaweicloud_vpc_eip.test[1].id,
+    huaweicloud_vpc_eip.test[2].id
+  ]
+}`, common.TestBaseNetwork(rName), testAccKafkaInstance_publicIpBase(3), rName)
+}
+
+func testAccKafkaInstance_publicIp_update(rName string, brokerNum int) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_kafka_flavors" "test" {
+  type      = "cluster"
+  flavor_id = "c6.2u4g.cluster"
+}
+
+locals {
+  flavor = data.huaweicloud_dms_kafka_flavors.test.flavors[0]
+}
+
+%s
+
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name              = "%s"
+  vpc_id            = huaweicloud_vpc.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.test.id
+
+  flavor_id          = local.flavor.id
+  storage_spec_code  = local.flavor.ios[0].storage_spec_code
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
+    data.huaweicloud_availability_zones.test.names[2]
+  ]
+  
+  engine_version = "2.7"
+  storage_space  = 600
+  broker_num     = %d
+  arch_type      = "X86"
+  new_tenant_ips = ["192.168.0.79"]
+  public_ip_ids  = [
+    huaweicloud_vpc_eip.test[0].id,
+    huaweicloud_vpc_eip.test[1].id,
+    huaweicloud_vpc_eip.test[2].id,
+    huaweicloud_vpc_eip.test[3].id
+  ]
+}`, common.TestBaseNetwork(rName), testAccKafkaInstance_publicIpBase(4), rName, brokerNum)
 }

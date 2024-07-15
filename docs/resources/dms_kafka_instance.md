@@ -141,6 +141,10 @@ The following arguments are supported:
 * `broker_num` - (Optional, Int) Specifies the broker numbers.
   It is required when creating an instance with `flavor_id`.
 
+* `new_tenant_ips` - (Optional, List) Specifies the IPv4 private IP addresses for the new brokers.
+
+  -> The number of specified IP addresses must be less than or equal to the number of new brokers.
+
 * `access_user` - (Optional, String, ForceNew) Specifies the username of SASL_SSL user. A username consists of 4
   to 64 characters and supports only letters, digits, and hyphens (-). Changing this creates a new instance resource.
 
@@ -180,7 +184,7 @@ The following arguments are supported:
   and `maintain_end` must be set in pairs. If parameter `maintain_end` is left blank, parameter
   `maintain_begin` is also blank. In this case, the system automatically allocates the default end time 06:00.
 
-* `public_ip_ids` - (Optional, List, ForceNew) Specifies the IDs of the elastic IP address (EIP)
+* `public_ip_ids` - (Optional, List) Specifies the IDs of the elastic IP address (EIP)
   bound to the DMS Kafka instance. Changing this creates a new instance resource.
   + If the instance is created with `flavor_id`, the total number of public IPs is equal to `broker_num`.
   + If the instance is created with `product_id`, the total number of public IPs must provide as follows:
@@ -191,6 +195,11 @@ The following arguments are supported:
   | 300MB | 3 |
   | 600MB | 4 |
   | 1,200MB | 8 |
+
+  -> Only support to **add** public IP nums when `broker_num` adding and the instance is **created** with public IP
+  **enabled** and using `flavor_id`.
+
+  ~> The parameter behavior of `public_ip_ids` has been changed from `list` to `set`.
 
 * `retention_policy` - (Optional, String) Specifies the action to be taken when the memory usage reaches the disk
   capacity threshold. The valid values are as follows:
@@ -262,6 +271,7 @@ In addition to all arguments above, the following attributes are exported:
 * `management_connect_address` - Indicates the Kafka Manager connection address of a Kafka instance.
 * `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
 * `charging_mode` - Indicates the charging mode of the instance.
+* `public_ip_address` - Indicates the public IP addresses list of the instance.
 
 The `cross_vpc_accesses` block supports:
 

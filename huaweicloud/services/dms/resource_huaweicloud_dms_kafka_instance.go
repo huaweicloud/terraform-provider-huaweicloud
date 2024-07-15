@@ -142,6 +142,11 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"new_tenant_ips": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"product_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -178,9 +183,8 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Computed: true,
 			},
 			"public_ip_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"security_protocol": {
@@ -253,6 +257,11 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			"enable_public_ip": {
 				Type:     schema.TypeBool,
 				Computed: true,
+			},
+			"public_ip_address": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"used_storage_space": {
 				Type:     schema.TypeInt,
@@ -563,7 +572,7 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 
 	if ids, ok := d.GetOk("public_ip_ids"); ok {
 		createOpts.EnablePublicIP = true
-		createOpts.PublicIpID = strings.Join(utils.ExpandToStringList(ids.([]interface{})), ",")
+		createOpts.PublicIpID = strings.Join(utils.ExpandToStringList(ids.(*schema.Set).List()), ",")
 	}
 
 	var availableZones []string
@@ -889,6 +898,10 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.Errorf("error initializing DMS Kafka(v2) client: %s", err)
 	}
+	eipClient, err := cfg.NetworkingV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating networking client: %s", err)
+	}
 
 	v, err := instances.Get(client, d.Id()).Extract()
 	if err != nil {
@@ -910,6 +923,22 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 	var chargingMode = "postPaid"
 	if v.ChargingMode == 0 {
 		chargingMode = "prePaid"
+	}
+
+	var publicIpIds []string
+	var publicIpAddrs []string
+	if v.PublicConnectionAddress != "" {
+		addressList := getPublicIPAddresses(v.PublicConnectionAddress)
+		publicIps, err := common.GetEipsbyAddresses(eipClient, addressList, "all_granted_eps")
+		if err != nil {
+			mErr = multierror.Append(mErr, err)
+		}
+		publicIpIds = make([]string, len(publicIps))
+		publicIpAddrs = make([]string, len(publicIps))
+		for i, ip := range publicIps {
+			publicIpIds[i] = ip.ID
+			publicIpAddrs[i] = ip.PublicAddress
+		}
 	}
 
 	mErr = multierror.Append(mErr,
@@ -953,6 +982,8 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		d.Set("access_user", v.AccessUser),
 		d.Set("cross_vpc_accesses", crossVpcAccess),
 		d.Set("charging_mode", chargingMode),
+		d.Set("public_ip_ids", publicIpIds),
+		d.Set("public_ip_address", publicIpAddrs),
 	)
 
 	// set tags
@@ -971,6 +1002,16 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	return setKafkaInstanceParameters(ctx, d, client)
+}
+
+func getPublicIPAddresses(rawParam string) []string {
+	allAddressPortList := strings.Split(rawParam, ",")
+	rst := make([]string, 0, len(allAddressPortList))
+	for _, addressPort := range allAddressPortList {
+		address := strings.Split(addressPort, ":")[0]
+		rst = append(rst, address)
+	}
+	return rst
 }
 
 func setKafkaInstanceParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
@@ -1207,6 +1248,29 @@ func resizeKafkaInstance(ctx context.Context, d *schema.ResourceData, meta inter
 			OperType:     &operType,
 			NewBrokerNum: &brokerNum,
 		}
+		oldNum, newNum := d.GetChange("broker_num")
+		if d.HasChange("public_ip_ids") {
+			// precheck
+			oldRaw, newRaw := d.GetChange("public_ip_ids")
+			add := newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
+			sub := oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
+			allow := (sub.Len() == 0) && (add.Len() == newNum.(int)-oldNum.(int))
+			if !allow {
+				return fmt.Errorf("error resizing instance: the old EIP ID should not be changed, and the adding nums of " +
+					"EIP ID should be same as the adding broker nums")
+			}
+
+			publicIpIds := strings.Join(utils.ExpandToStringList(add.List()), ",")
+			resizeOpts.PublicIpID = &publicIpIds
+		}
+		if v, ok := d.GetOk("new_tenant_ips"); ok {
+			// precheck
+			if len(v.([]interface{})) > newNum.(int)-oldNum.(int) {
+				return fmt.Errorf("error resizing instance: the nums of new tenant IP must be less than the adding broker nums")
+			}
+			resizeOpts.TenantIps = utils.ExpandToStringList(v.([]interface{}))
+		}
+
 		log.Printf("[DEBUG] Resize Kafka instance broker number options: %s", utils.MarshalValue(resizeOpts))
 
 		if err := doKafkaInstanceResize(ctx, d, client, resizeOpts); err != nil {
