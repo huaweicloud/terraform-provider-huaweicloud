@@ -83,6 +83,13 @@ The following arguments are supported:
 
   Defaults to **OFF**.
 
+* `consistence_mode` - (Optional, String) Specifies the consistency mode of the proxy. Value options:
+  + **session**: session consistency.
+  + **global**: global consistency.
+  + **eventual**: eventual consistency.
+
+  Defaults to **eventual**.
+
 <a name="node_weight_struct"></a>
 The `master_node_weight` and `readonly_nodes_weight` block supports:
 

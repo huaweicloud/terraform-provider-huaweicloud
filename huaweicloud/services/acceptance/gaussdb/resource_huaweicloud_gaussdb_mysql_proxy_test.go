@@ -101,6 +101,7 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "multiStatementType"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "Loose"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.elem_type", "system"),
+					resource.TestCheckResourceAttr(resourceName, "consistence_mode", "session"),
 				),
 			},
 			{
@@ -125,6 +126,7 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "looseImciApThreshold"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "6000"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.elem_type", "system"),
+					resource.TestCheckResourceAttr(resourceName, "consistence_mode", "eventual"),
 				),
 			},
 			{
@@ -201,6 +203,7 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   new_node_weight          = 20
   port                     = 3339
   transaction_split        = "ON"
+  consistence_mode         = "session"
 
   master_node_weight {
     id     = local.sort_nodes[0].id
@@ -237,6 +240,7 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   new_node_weight          = 20
   port                     = 3338
   transaction_split        = "OFF"
+  consistence_mode         = "eventual"
 
   master_node_weight {
     id     = local.sort_nodes[0].id
@@ -278,6 +282,7 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   new_node_weight          = 20
   port                     = 3338
   transaction_split        = "OFF"
+  consistence_mode         = "eventual"
 
   master_node_weight {
     id     = local.sort_nodes[0].id
