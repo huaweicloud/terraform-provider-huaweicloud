@@ -346,7 +346,8 @@ var (
 	HW_IOTDA_ACCESS_ADDRESS      = os.Getenv("HW_IOTDA_ACCESS_ADDRESS")
 	HW_IOTDA_BATCHTASK_FILE_PATH = os.Getenv("HW_IOTDA_BATCHTASK_FILE_PATH")
 
-	HW_DWS_MUTIL_AZS = os.Getenv("HW_DWS_MUTIL_AZS")
+	HW_DWS_MUTIL_AZS  = os.Getenv("HW_DWS_MUTIL_AZS")
+	HW_DWS_CLUSTER_ID = os.Getenv("HW_DWS_CLUSTER_ID")
 
 	HW_DCS_ACCOUNT_WHITELIST = os.Getenv("HW_DCS_ACCOUNT_WHITELIST")
 
@@ -1767,6 +1768,13 @@ func TestAccPreCheckIOTDABatchTaskFilePath(t *testing.T) {
 func TestAccPreCheckMutilAZ(t *testing.T) {
 	if HW_DWS_MUTIL_AZS == "" {
 		t.Skip("HW_DWS_MUTIL_AZS must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDwsClusterId(t *testing.T) {
+	if HW_DWS_CLUSTER_ID == "" {
+		t.Skip("HW_DWS_CLUSTER_ID must be set for the acceptance test")
 	}
 }
 
