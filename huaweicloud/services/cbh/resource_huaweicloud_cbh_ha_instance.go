@@ -1077,13 +1077,21 @@ func resourceHAInstanceDelete(ctx context.Context, d *schema.ResourceData, meta 
 	for _, serverId := range ids {
 		expression := fmt.Sprintf("[?server_id == '%s']|[0]", serverId)
 		instance := utils.PathSearch(expression, instances, nil)
+		if instance == nil {
+			continue
+		}
 		instanceList = append(instanceList, instance)
 		resourceId := utils.PathSearch("resource_info.resource_id", instance, "").(string)
+		if resourceId == "" {
+			continue
+		}
 		resourceIDs = append(resourceIDs, resourceId)
 	}
 
 	if len(instanceList) == 0 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+		// Before deleting the CBH HA instance, it is necessary to first call the query API to obtain the resource_id of
+		// the instances. If the instances cannot be found, then execute the logic of checkDeleted.
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error deleting the CBH HA instance")
 	}
 
 	if len(resourceIDs) == 0 {
