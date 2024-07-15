@@ -30,6 +30,7 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   availability_zones = var.availability_zones
   flavor_id          = "c6.4u8g.cluster"
   storage_spec_code  = "dms.physical.storage.high.v2"
+  broker_num         = 1
 }
 ```
 
@@ -87,8 +88,8 @@ The following arguments are supported:
 * `publicip_id` - (Optional, String) Specifies the ID of the EIP bound to the instance. Use commas (,) to separate
   multiple EIP IDs. It is mandatory if `enable_publicip` is **true** and should be empty when `enable_publicip` is **false**.
 
-* `broker_num` - (Optional, Int) Specifies the broker numbers.
-  It's only valid when `engine_version` is **4.8.0**, and defaults to **1**.
+* `broker_num` - (Optional, Int) Specifies the broker numbers. It's **required** when instance architecture is
+  **cluster**. Defaults to **1** when instance architecture is **single node**.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the instance.
 
