@@ -96,6 +96,16 @@ The following arguments are supported:
 
   Defaults to **CLOSED**.
 
+* `open_access_control` - (Optional, Bool) Specifies whether to enable access control.
+
+* `access_control_type` - (Optional, String) Specifies the access control mode. Value options:
+  + **white**: indicates the whitelist.
+  + **black**: indicates the blacklist.
+
+* `access_control_ip_list` - (Optional, List) Specifies the list of IP addresses that control access. A maximum of
+  **300** IP addresses or CIDR blocks can be added.
+  The [access_control_ip_list](#access_control_ip_list_struct) structure is documented below.
+
 <a name="node_weight_struct"></a>
 The `master_node_weight` and `readonly_nodes_weight` block supports:
 
@@ -114,6 +124,13 @@ The `parameters` block supports:
 * `value` - (Required, String) Specifies the value of the parameter.
 
 * `elem_type` - (Required, String) Specifies the parent tag type of the parameter.
+
+<a name="access_control_ip_list_struct"></a>
+The `access_control_ip_list` block supports:
+
+* `ip` - (Required, String) Specifies the IP address or CIDR block.
+
+* `description` - (Optional, String) Specifies the remarks. Character length: **0-50**. Angle brackets (<>) are not allowed.
 
 ## Attribute Reference
 
