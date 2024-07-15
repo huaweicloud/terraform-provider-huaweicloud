@@ -55,13 +55,20 @@ func ResourceDmsRocketMQTopic() *schema.Resource {
 					validation.StringLenBetween(3, 64),
 				),
 			},
+			"message_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "Specifies the message type of the topic.",
+			},
 			"brokers": {
 				Type:        schema.TypeList,
 				Elem:        rocketMQTopicBrokerRefSchema(),
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: "schema: Required; Specifies the list of associated brokers of the topic.",
+				Description: "Specifies the list of associated brokers of the topic.",
 			},
 			"queue_num": {
 				Type:         schema.TypeInt,
@@ -70,6 +77,26 @@ func ResourceDmsRocketMQTopic() *schema.Resource {
 				ForceNew:     true,
 				Description:  `Specifies the number of queues.`,
 				ValidateFunc: validation.IntBetween(1, 50),
+			},
+			"queues": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Specifies the queue info of the topic.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"broker": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Specifies the associated broker.`,
+						},
+						"queue_num": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Specifies the number of the queues.`,
+						},
+					},
+				},
 			},
 			"permission": {
 				Type:        schema.TypeString,
@@ -167,10 +194,12 @@ func resourceDmsRocketMQTopicCreate(ctx context.Context, d *schema.ResourceData,
 
 func buildCreateRocketmqTopicBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":       utils.ValueIgnoreEmpty(d.Get("name")),
-		"brokers":    buildCreateRocketmqTopicBrokersChildBody(d),
-		"queue_num":  utils.ValueIgnoreEmpty(d.Get("queue_num")),
-		"permission": utils.ValueIgnoreEmpty(d.Get("permission")),
+		"name":         d.Get("name"),
+		"message_type": utils.ValueIgnoreEmpty(d.Get("message_type")),
+		"brokers":      utils.ValueIgnoreEmpty(buildCreateRocketmqTopicBrokersChildBody(d)),
+		"queue_num":    utils.ValueIgnoreEmpty(d.Get("queue_num")),
+		"queues":       utils.ValueIgnoreEmpty(buildCreateRocketmqTopicQueuesChildBody(d)),
+		"permission":   utils.ValueIgnoreEmpty(d.Get("permission")),
 	}
 	return bodyParams
 }
@@ -183,6 +212,25 @@ func buildCreateRocketmqTopicBrokersChildBody(d *schema.ResourceData) []string {
 	params := make([]string, 0)
 	for _, param := range rawParams {
 		params = append(params, utils.PathSearch("name", param, "").(string))
+	}
+	return params
+}
+
+func buildCreateRocketmqTopicQueuesChildBody(d *schema.ResourceData) []map[string]interface{} {
+	rawParams := d.Get("queues").([]interface{})
+	if len(rawParams) == 0 {
+		return nil
+	}
+	params := make([]map[string]interface{}, 0)
+	for _, rawParam := range rawParams {
+		param, ok := rawParam.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		params = append(params, map[string]interface{}{
+			"broker":    param["broker"],
+			"queue_num": param["queue_num"],
+		})
 	}
 	return params
 }
@@ -291,12 +339,11 @@ func resourceDmsRocketMQTopicRead(_ context.Context, d *schema.ResourceData, met
 		mErr,
 		d.Set("region", region),
 		d.Set("name", topic),
-		d.Set("total_read_queue_num", utils.PathSearch("total_read_queue_num",
-			getRocketmqTopicRespBody, nil)),
-		d.Set("total_write_queue_num", utils.PathSearch("total_write_queue_num",
-			getRocketmqTopicRespBody, nil)),
+		d.Set("total_read_queue_num", utils.PathSearch("total_read_queue_num", getRocketmqTopicRespBody, nil)),
+		d.Set("total_write_queue_num", utils.PathSearch("total_write_queue_num", getRocketmqTopicRespBody, nil)),
 		d.Set("permission", utils.PathSearch("permission", getRocketmqTopicRespBody, nil)),
 		d.Set("brokers", flattenGetRocketmqTopicResponseBodyBrokerRef(getRocketmqTopicRespBody)),
+		d.Set("message_type", utils.PathSearch("message_type", getRocketmqTopicRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
