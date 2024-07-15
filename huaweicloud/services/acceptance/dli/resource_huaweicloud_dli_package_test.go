@@ -186,7 +186,10 @@ func TestAccDliPackage_not_groupName(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDliUpdatedOwner(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -201,6 +204,7 @@ func TestAccDliPackage_not_groupName(t *testing.T) {
 						name, acceptance.HW_REGION_NAME)),
 					resource.TestCheckResourceAttr(resourceName, "object_name", "simple_pyspark_test_DLF_refresh.py"),
 					resource.TestCheckResourceAttr(resourceName, "status", "READY"),
+					resource.TestCheckResourceAttr(resourceName, "owner", acceptance.HW_DLI_UPDATED_OWNER),
 				),
 			},
 			{
@@ -210,6 +214,7 @@ func TestAccDliPackage_not_groupName(t *testing.T) {
 					resource.TestCheckNoResourceAttr(resourceName, "group_name"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "owner", acceptance.HW_DLI_OWNER),
 				),
 			},
 		},
@@ -224,12 +229,13 @@ resource "huaweicloud_dli_package" "test" {
   depends_on  = [huaweicloud_obs_bucket_object.test]
   type        = "modelFile"
   object_path = "https://${huaweicloud_obs_bucket.test.bucket_domain_name}/dli/packages/simple_pyspark_test_DLF_refresh.py"
+  owner       = "%s"
 
   tags = {
     foo = "bar"
   }
 }
-`, testAccDliPackage_base(name))
+`, testAccDliPackage_base(name), acceptance.HW_DLI_UPDATED_OWNER)
 }
 
 func testAccDliPackage_not_groupName_update(name string) string {
@@ -240,56 +246,11 @@ resource "huaweicloud_dli_package" "test" {
   depends_on  = [huaweicloud_obs_bucket_object.test]
   type        = "modelFile"
   object_path = "https://${huaweicloud_obs_bucket.test.bucket_domain_name}/dli/packages/simple_pyspark_test_DLF_refresh.py"
+  owner       = "%s"
 
   tags = {
     owner = "terraform"
   }
 }
-`, testAccDliPackage_base(name))
-}
-
-func TestAccDliPackage_owner(t *testing.T) {
-	var (
-		pkg          resources.Resource
-		name         = acceptance.RandomAccResourceNameWithDash()
-		resourceName = "huaweicloud_dli_package.test"
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&pkg,
-		getPackageResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDliOwner(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDliPackage_owner(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "owner", acceptance.HW_DLI_OWNER),
-				),
-			},
-		},
-	})
-}
-
-func testAccDliPackage_owner(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_dli_package" "test" {
-  depends_on  = [huaweicloud_obs_bucket_object.test]
-  group_name  = "%s"
-  type        = "pyFile"
-  object_path = "https://${huaweicloud_obs_bucket.test.bucket_domain_name}/dli/packages/simple_pyspark_test_DLF_refresh.py"
-  owner       = "%s"
-}
-`, testAccDliPackage_base(name), name, acceptance.HW_DLI_OWNER)
+`, testAccDliPackage_base(name), acceptance.HW_DLI_OWNER)
 }

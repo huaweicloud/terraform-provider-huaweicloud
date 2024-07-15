@@ -69,7 +69,9 @@ func TestAccDatasourceConnection_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -80,6 +82,10 @@ func TestAccDatasourceConnection_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttrPair(rName, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "subnet_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(rName, "routes.0.name", "test"),
+					resource.TestCheckResourceAttr(rName, "routes.0.cidr", "10.169.0.0/24"),
+					resource.TestCheckResourceAttr(rName, "hosts.0.ip", "172.0.0.2"),
+					resource.TestCheckResourceAttr(rName, "hosts.0.name", "test.test.com"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 				),
 			},
@@ -88,11 +94,10 @@ func TestAccDatasourceConnection_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "routes.0.name", "test"),
-					resource.TestCheckResourceAttr(rName, "routes.0.cidr", "10.169.0.0/24"),
-					resource.TestCheckResourceAttr(rName, "queues.0", name),
-					resource.TestCheckResourceAttr(rName, "hosts.0.ip", "172.0.0.2"),
-					resource.TestCheckResourceAttr(rName, "hosts.0.name", "test.test.com"),
+					resource.TestCheckResourceAttr(rName, "routes.0.name", "test2"),
+					resource.TestCheckResourceAttr(rName, "routes.0.cidr", "10.169.32.0/24"),
+					resource.TestCheckResourceAttr(rName, "hosts.0.ip", "172.0.0.3"),
+					resource.TestCheckResourceAttr(rName, "hosts.0.name", "test.test2.com"),
 				),
 			},
 			{
@@ -130,6 +135,16 @@ resource "huaweicloud_dli_datasource_connection" "test" {
   vpc_id    = huaweicloud_vpc.test.id
   subnet_id = huaweicloud_vpc_subnet.test.id
 
+  routes {
+    cidr = "10.169.0.0/24"
+    name = "test"
+  }
+
+  hosts {
+    ip   = "172.0.0.2"
+    name = "test.test.com"
+  }
+
   tags = {
     foo = "bar"
   }
@@ -137,34 +152,30 @@ resource "huaweicloud_dli_datasource_connection" "test" {
 `, testDatasourceConnectionbase(name), name)
 }
 
+// When binding a queue, the resource pool where the queue is located will be associated with the datasource connection,
+// and currently no queue information is returned.
 func testDatasourceConnection_basic_update(name string) string {
 	return fmt.Sprintf(`
 %s
-
-resource "huaweicloud_dli_queue" "test" {
-  name          = "%s"
-  cu_count      = 16
-  resource_mode = 1
-  vpc_cidr      = "10.169.0.0/16"
-}
 
 resource "huaweicloud_dli_datasource_connection" "test" {
   name      = "%s"
   vpc_id    = huaweicloud_vpc.test.id
   subnet_id = huaweicloud_vpc_subnet.test.id
 
-  queues = [huaweicloud_dli_queue.test.name]
-
   routes {
-    cidr = "10.169.0.0/24"
-    name = "test"
-
+    cidr = "10.169.32.0/24"
+    name = "test2"
   }
 
   hosts {
-    ip   = "172.0.0.2"
-    name = "test.test.com"
+    ip   = "172.0.0.3"
+    name = "test.test2.com"
+  }
+
+  tags = {
+    foo = "bar"
   }
 }
-`, testDatasourceConnectionbase(name), name, name)
+`, testDatasourceConnectionbase(name), name)
 }

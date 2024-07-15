@@ -35,28 +35,36 @@ func TestAccResourceDliFlinkJob_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDliGenaralQueueName(t)
+			acceptance.TestAccPreCheckDliFlinkVersion(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFlinkJobResource_basic(name, acceptance.HW_REGION_NAME),
+				Config: testAccFlinkJobResource_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "status", "job_running"),
-					resource.TestCheckResourceAttr(resourceName, "type", "flink_sql_job"),
-					resource.TestCheckResourceAttr(resourceName, "queue_name", name),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "run_mode", "exclusive_cluster"),
+					resource.TestCheckResourceAttr(resourceName, "type", "flink_opensource_sql_job"),
+					resource.TestCheckResourceAttr(resourceName, "queue_name", acceptance.HW_DLI_GENERAL_QUEUE_NAME),
+					resource.TestCheckResourceAttr(resourceName, "runtime_config.dli_sql_sqlasync_enabled", "true"),
 				),
 			},
 			{
-				Config: testAccFlinkJobResource_update(name, acceptance.HW_REGION_NAME),
+				Config: testAccFlinkJobResource_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttrPair(resourceName, "obs_bucket", "huaweicloud_obs_bucket.test", "bucket"),
+					resource.TestCheckResourceAttr(resourceName, "smn_topic", name),
+					resource.TestCheckResourceAttr(resourceName, "runtime_config.dli_sql_sqlasync_enabled", "false"),
 				),
 			},
 			{
@@ -69,137 +77,63 @@ func TestAccResourceDliFlinkJob_basic(t *testing.T) {
 	})
 }
 
-func testAccFlinkJobResource_base(name, region string) string {
-	return fmt.Sprintf(`
-variable "sql" {
-  type    = string
-  default = <<EOF
-CREATE SOURCE STREAM car_infos (
-  car_id STRING,
-  car_owner STRING,
-  car_brand STRING,
-  car_price INT
-)
-WITH (
-  type = "dis",
-  region = "%[1]s",
-  channel = "%[2]s_input",
-  partition_count = "1",
-  encode = "csv",
-  field_delimiter = ","
-);
-
-CREATE SINK STREAM audi_cheaper_than_30w (
-  car_id STRING,
-  car_owner STRING,
-  car_brand STRING,
-  car_price INT
-)
-WITH (
-  type = "dis",
-  region = "%[1]s",
-  channel = "%[2]s_output",
-  partition_key = "car_owner",
-  encode = "csv",
-  field_delimiter = ","
-);
-
-INSERT INTO audi_cheaper_than_30w
-SELECT *
-FROM car_infos
-WHERE car_brand = "audia4" and car_price < 30;
-
-
-CREATE SINK STREAM car_info_data (
-  car_id STRING,
-  car_owner STRING,
-  car_brand STRING,
-  car_price INT
-)
-WITH (
-  type ="dis",
-  region = "%[1]s",
-  channel = "%[2]s_input",
-  partition_key = "car_owner",
-  encode = "csv",
-  field_delimiter = ","
-);
-
-INSERT INTO car_info_data
-SELECT "1", "lilei", "bmw320i", 28;
-INSERT INTO car_info_data
-SELECT "2", "hanmeimei", "audia4", 27;
-EOF
-
-}
-
-resource "huaweicloud_dis_stream" "stream_input" {
-  stream_name     = "%[2]s_input"
-  partition_count = 1
-  data_type       = "CSV"
-  csv_delimiter   = ","
-}
-
-resource "huaweicloud_dis_stream" "stream_output" {
-  stream_name     = "%[2]s_output"
-  partition_count = 1
-  data_type       = "CSV"
-  csv_delimiter   = ","
-}
-
-resource "huaweicloud_dli_queue" "test" {
-  name          = "%[2]s"
-  cu_count      = 16
-  queue_type    = "general"
-  resource_mode = 1
-}
-`, region, name)
-}
-
-func testAccFlinkJobResource_basic(name string, region string) string {
+func testAccFlinkJobResource_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_dli_flinksql_job" "test" {
-  depends_on = [
-    huaweicloud_dis_stream.stream_input,
-    huaweicloud_dis_stream.stream_output,
-  ]
-
-  name       = "%[2]s"
-  type       = "flink_sql_job"
-  sql        = var.sql
-  run_mode   = "exclusive_cluster"
-  queue_name = huaweicloud_dli_queue.test.name
+  name          = "%[2]s"
+  type          = "flink_opensource_sql_job"
+  run_mode      = "exclusive_cluster"
+  sql           = local.opensourceSql
+  queue_name    = "%[3]s"
+  flink_version = "%[4]s"
+  
+  runtime_config = {
+    "dli_sql_sqlasync_enabled"= true
+  }
 
   tags = {
     foo = "bar"
   }
 }
-`, testAccFlinkJobResource_base(name, region), name)
+`, testAccFlinkJobResource_base(), name, acceptance.HW_DLI_GENERAL_QUEUE_NAME, acceptance.HW_DLI_FLINK_VERSION)
 }
 
-func testAccFlinkJobResource_update(name, region string) string {
+func testAccFlinkJobResource_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_dli_flinksql_job" "test" {
-  depends_on = [
-    huaweicloud_dis_stream.stream_input,
-    huaweicloud_dis_stream.stream_output,
-  ]
+resource "huaweicloud_obs_bucket" "test" {
+  bucket        = replace("%[2]s", "_", "-")
+  acl           = "private"
+  force_destroy = true
+}
 
-  name       = "%[2]s"
-  type       = "flink_sql_job"
-  sql        = var.sql
-  run_mode   = "exclusive_cluster"
-  queue_name = huaweicloud_dli_queue.test.name
+resource "huaweicloud_smn_topic" "test" {
+  name         = "%[2]s"
+  display_name = "The display name of topic"
+}
+
+resource "huaweicloud_dli_flinksql_job" "test" {
+  name          = "%[2]s"
+  type          = "flink_opensource_sql_job"
+  run_mode      = "exclusive_cluster"
+  sql           = local.opensourceSql
+  queue_name    = "%[3]s"
+  flink_version = "%[4]s"
+  obs_bucket    = huaweicloud_obs_bucket.test.bucket
+  smn_topic     = huaweicloud_smn_topic.test.name
+ 
+  runtime_config = {
+    "dli_sql_sqlasync_enabled"= false
+  }
 
   tags = {
     owner = "terraform"
   }
 }
-`, testAccFlinkJobResource_base(name, region), name)
+`, testAccFlinkJobResource_base(), name, acceptance.HW_DLI_GENERAL_QUEUE_NAME, acceptance.HW_DLI_FLINK_VERSION)
 }
 
 func TestAccResourceDliFlinkJob_streamGraph(t *testing.T) {
@@ -219,7 +153,13 @@ func TestAccResourceDliFlinkJob_streamGraph(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDliGenaralQueueName(t)
+			// The current flink version does not support generating stream graph.
+			acceptance.TestAccPreCheckDliFlinkStreamGraph(t)
+			acceptance.TestAccPreCheckDliFlinkVersion(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -257,8 +197,8 @@ func TestAccResourceDliFlinkJob_streamGraph(t *testing.T) {
 	})
 }
 
-func testAccResourceDliFlinkJob_streamGraph_base(name string) string {
-	return fmt.Sprintf(`
+func testAccFlinkJobResource_base() string {
+	return `
 locals {
   opensourceSql = <<EOF
 create table dataGenSource(
@@ -281,14 +221,7 @@ create table printSink(
 insert into printSink select * from dataGenSource;
 EOF
 }
-
-resource "huaweicloud_dli_queue" "test" {
-  name          = "%[1]s"
-  cu_count      = 16
-  queue_type    = "general"
-  resource_mode = 1
-}
-`, name)
+`
 }
 
 func testAccResourceDliFlinkJob_streamGraph_step1(name, staticEstimatorConfig string) string {
@@ -297,16 +230,16 @@ func testAccResourceDliFlinkJob_streamGraph_step1(name, staticEstimatorConfig st
 
 resource "huaweicloud_dli_flinksql_job" "test" {
   name                    = "%s"
-  flink_version           = "1.12"
+  flink_version           = "%s"
   type                    = "flink_opensource_sql_job"
   run_mode                = "exclusive_cluster"
   sql                     = local.opensourceSql
-  queue_name              = huaweicloud_dli_queue.test.name
+  queue_name              = "%s"
   graph_type              = "job_graph"
   static_estimator        = true
   static_estimator_config = jsonencode(%s)
 }
-`, testAccResourceDliFlinkJob_streamGraph_base(name), name, staticEstimatorConfig)
+`, testAccFlinkJobResource_base(), name, acceptance.HW_DLI_GENERAL_QUEUE_NAME, acceptance.HW_DLI_FLINK_VERSION, staticEstimatorConfig)
 }
 
 func testAccResourceDliFlinkJob_streamGraph_step2(name, operatorConfig string) string {
@@ -314,13 +247,13 @@ func testAccResourceDliFlinkJob_streamGraph_step2(name, operatorConfig string) s
 %s
 resource "huaweicloud_dli_flinksql_job" "test" {
   name            = "%s"
-  flink_version   = "1.12"
+  flink_version   = "%s"
   type            = "flink_opensource_sql_job"
   run_mode        = "exclusive_cluster"
   sql             = local.opensourceSql
-  queue_name      = huaweicloud_dli_queue.test.name
+  queue_name      = "%s"
   graph_type      = "simple_graph"
   operator_config = jsonencode(%s)
 }
-`, testAccResourceDliFlinkJob_streamGraph_base(name), name, operatorConfig)
+`, testAccFlinkJobResource_base(), name, acceptance.HW_DLI_GENERAL_QUEUE_NAME, acceptance.HW_DLI_FLINK_VERSION, operatorConfig)
 }

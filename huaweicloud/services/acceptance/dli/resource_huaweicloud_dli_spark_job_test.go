@@ -37,6 +37,7 @@ func TestAccDliSparkJobV2_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDliGenaralQueueName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      testAccCheckDliSparkJobDestroy,
@@ -45,8 +46,7 @@ func TestAccDliSparkJobV2_basic(t *testing.T) {
 				Config: testAccDliSparkJob_basic(rName, dashName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					acceptance.TestCheckResourceAttrWithVariable(resourceName, "queue_name",
-						"${huaweicloud_dli_queue.test.name}"),
+					resource.TestCheckResourceAttr(resourceName, "queue_name", acceptance.HW_DLI_GENERAL_QUEUE_NAME),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
@@ -78,16 +78,10 @@ func testAccCheckDliSparkJobDestroy(s *terraform.State) error {
 
 func testAccDliSparkJob_basic(name, dashName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dli_queue" "test" {
-  name       = "%s"
-  cu_count   = 16
-  queue_type = "general"
-}
-
 %s
 
 resource "huaweicloud_dli_spark_job" "test" {
-  queue_name = huaweicloud_dli_queue.test.name
+  queue_name = "%s"
   name       = "%s"
   app_name   = "${huaweicloud_dli_package.test.group_name}/${huaweicloud_dli_package.test.object_name}"
   
@@ -96,5 +90,5 @@ resource "huaweicloud_dli_spark_job" "test" {
     huaweicloud_obs_bucket_object.test,
   ]
 }
-`, name, testAccDliPackage_basic(dashName), name)
+`, testAccDliPackage_basic(dashName), acceptance.HW_DLI_GENERAL_QUEUE_NAME, name)
 }

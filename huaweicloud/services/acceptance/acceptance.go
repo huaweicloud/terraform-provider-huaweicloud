@@ -125,6 +125,13 @@ var (
 	HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH     = os.Getenv("HW_DLI_DS_AUTH_KRB_TAB_OBS_PATH")
 	HW_DLI_AGENCY_FLAG                  = os.Getenv("HW_DLI_AGENCY_FLAG")
 	HW_DLI_OWNER                        = os.Getenv("HW_DLI_OWNER")
+	HW_DLI_ELASTIC_RESOURCE_POOL_NAMES  = os.Getenv("HW_DLI_ELASTIC_RESOURCE_POOL_NAMES")
+	HW_DLI_SQL_QUEUE_NAME               = os.Getenv("HW_DLI_SQL_QUEUE_NAME")
+	HW_DLI_GENERAL_QUEUE_NAME           = os.Getenv("HW_DLI_GENERAL_QUEUE_NAME")
+	HW_DLI_UPDATED_OWNER                = os.Getenv("HW_DLI_UPDATED_OWNER")
+	HW_DLI_FLINK_VERSION                = os.Getenv("HW_DLI_FLINK_VERSION")
+	HW_DLI_FLINK_STREAM_GRAPH           = os.Getenv("HW_DLI_FLINK_STREAM_GRAPH")
+	HW_DLI_ELASTIC_RESOURCE_POOL        = os.Getenv("HW_DLI_ELASTIC_RESOURCE_POOL")
 
 	HW_GITHUB_REPO_HOST        = os.Getenv("HW_GITHUB_REPO_HOST")        // Repository host (Github, Gitlab, Gitee)
 	HW_GITHUB_PERSONAL_TOKEN   = os.Getenv("HW_GITHUB_PERSONAL_TOKEN")   // Personal access token (Github, Gitlab, Gitee)
@@ -945,6 +952,65 @@ func TestAccPreCheckDliAgency(t *testing.T) {
 func TestAccPreCheckDliOwner(t *testing.T) {
 	if HW_DLI_OWNER == "" {
 		t.Skip("HW_DLI_OWNER must be set for DLI datasource DLI agency acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliElasticResourcePoolName(t *testing.T) {
+	// Elastic resource pools for associating DLI datasource enhanced connection.
+	// Therefore, two elastic resource pools are provided, one for initial binding and the other for updating binding.
+	// Using commas (,) to separate two elastic resource pools.
+	// The CU of the latter must be large and can be associated with multiple queues.
+	// In the test case, the HW_DLI_SQL_QUEUE_NAME and HW_DLI_GENERAL_QUEUE_NAME belong to the latter resource pool.
+	names := strings.Split(HW_DLI_ELASTIC_RESOURCE_POOL_NAMES, ",")
+	if len(names) < 2 {
+		t.Skip("Before running acceptance tests related to elastic resource pool, " +
+			"please ensure +the 'HW_DLI_ELASTIC_RESOURCE_POOL_NAMES' has been configured")
+	}
+
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliSQLQueueName(t *testing.T) {
+	if HW_DLI_SQL_QUEUE_NAME == "" {
+		t.Skip("HW_DLI_SQL_QUEUE_NAME must be set for DLI acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliGenaralQueueName(t *testing.T) {
+	if HW_DLI_GENERAL_QUEUE_NAME == "" {
+		t.Skip("HW_DLI_GENERAL_QUEUE_NAME must be set for DLI acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliUpdatedOwner(t *testing.T) {
+	if HW_DLI_UPDATED_OWNER == "" {
+		t.Skip("HW_DLI_UPDATED_OWNER must be set for DLI acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliFlinkVersion(t *testing.T) {
+	if HW_DLI_FLINK_VERSION == "" {
+		t.Skip("HW_DLI_FLINK_VERSION must be set for DLI acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDliFlinkStreamGraph(t *testing.T) {
+	if HW_DLI_FLINK_STREAM_GRAPH == "" {
+		t.Skip("HW_DLI_FLINK_STREAM_GRAPH must be set for DLI acceptance tests.")
+	}
+}
+
+// Since it takes at least one hour to execute the elastic resource pool resource test case,
+// this variable is provided to distinguish the full test cases.
+// lintignore:AT003
+func TestAccPreCheckDliElasticResourcePool(t *testing.T) {
+	if HW_DLI_ELASTIC_RESOURCE_POOL == "" {
+		t.Skip("HW_DLI_ELASTIC_RESOURCE_POOL must be set for DLI acceptance tests.")
 	}
 }
 
