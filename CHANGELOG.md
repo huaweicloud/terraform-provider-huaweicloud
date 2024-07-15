@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.66.1 (July 15, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_network_acl: add roll back for updating rules [GH-5201]
+
 ## 1.66.0 (June 29, 2024)
 
 * **New Resource:**
