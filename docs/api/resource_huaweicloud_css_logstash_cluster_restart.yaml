@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_logstash_cluster_restart
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/reboot:
+        POST:
+            tag: CSS

@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sfs_turbo_du_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SFSTurbo
+paths:
+    /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/{feature}/tasks:
+        POST:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/{feature}/tasks/{task_id}:
+        DELETE:
+            tag: SFSTurbo
+        GET:
+            tag: SFSTurbo

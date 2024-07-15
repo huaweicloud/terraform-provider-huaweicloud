@@ -16,6 +16,6 @@ paths:
             tag: RabbitMQ
         PUT:
             tag: RabbitMQ
-    /v2/{project_id}/instances/{instance_id}/tasks:
+    /v2/{project_id}/instances/{instance_id}/tasks/{task_id}:
         GET:
             tag: RabbitMQ
