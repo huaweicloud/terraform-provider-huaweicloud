@@ -1167,6 +1167,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_domain_name_group":    cfw.ResourceDomainNameGroup(),
 			"huaweicloud_cfw_lts_log":              cfw.ResourceLtsLog(),
 			"huaweicloud_cfw_dns_resolution":       cfw.ResourceDNSResolution(),
+			"huaweicloud_cfw_capture_task":         cfw.ResourceCaptureTask(),
 
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 
