@@ -136,3 +136,53 @@ resource "huaweicloud_hss_quota" "test" {
 }
 `, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
+
+func TestAccQuota_periodUnitIsYear(t *testing.T) {
+	var (
+		obj   interface{}
+		rName = "huaweicloud_hss_quota.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getQuotaFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccQuota_periodUnitIsYear_basic(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "version", "hss.version.premium"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttrSet(rName, "used_status"),
+					resource.TestCheckResourceAttrSet(rName, "charging_mode"),
+					resource.TestCheckResourceAttrSet(rName, "expire_time"),
+					resource.TestCheckResourceAttrSet(rName, "shared_quota"),
+					resource.TestCheckResourceAttrSet(rName, "is_trial_quota"),
+					resource.TestCheckResourceAttrSet(rName, "enterprise_project_name"),
+				),
+			},
+		},
+	})
+}
+
+func testAccQuota_periodUnitIsYear_basic() string {
+	return `
+resource "huaweicloud_hss_quota" "test" {
+  version               = "hss.version.premium"
+  period_unit           = "year"
+  period                = 1
+  auto_renew            = "false"
+  enterprise_project_id = "0"
+}
+`
+}
