@@ -10,18 +10,20 @@ import (
 )
 
 func TestAccDatasourceCDNDomains_basic(t *testing.T) {
-	rName := "data.huaweicloud_cdn_domains.test"
-	dc := acceptance.InitDataSourceCheck(rName)
+	var (
+		rName      = "data.huaweicloud_cdn_domains.test"
+		dc         = acceptance.InitDataSourceCheck(rName)
+		domainName = generateDomainName()
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCDN(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceDomains_basic(),
+				Config: testAccDatasourceDomains_basic(domainName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "domains.0.id"),
@@ -45,7 +47,7 @@ func TestAccDatasourceCDNDomains_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourceDomains_basic() string {
+func testAccDatasourceDomains_basic(domainName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -124,5 +126,5 @@ output "enterprise_project_id_filter_is_useful" {
     [for v in data.huaweicloud_cdn_domains.enterprise_project_id_filter.domains[*].enterprise_project_id : v == local.enterprise_project_id]
   )  
 }
-`, testAccCdnDomain_basic)
+`, testAccCdnDomain_basic(domainName))
 }
