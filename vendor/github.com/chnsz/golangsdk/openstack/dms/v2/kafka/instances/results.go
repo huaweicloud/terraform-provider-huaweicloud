@@ -91,6 +91,7 @@ type Instance struct {
 	Ipv6ConnectAddresses       []string           `json:"ipv6_connect_addresses"`
 	ConnectorEnalbe            bool               `json:"connector_enable"`
 	ConnectorID                string             `json:"connector_id"`
+	ConnectorNodeNum           int                `json:"connector_node_num"`
 	RestEnable                 bool               `json:"rest_enable"`
 	RestConnectAddress         string             `json:"rest_connect_address"`
 	MessageQueryInstEnable     bool               `json:"message_query_inst_enable"`
@@ -104,6 +105,8 @@ type Instance struct {
 	CesVersion                 string             `json:"ces_version"`
 	AccessUser                 string             `json:"access_user"`
 	Tags                       []tags.ResourceTag `json:"tags"`
+	CertReplaced               bool               `json:"cert_replaced"`
+	SslTwoWayEnable            bool               `json:"ssl_two_way_enable"`
 }
 
 type Task struct {

@@ -71,6 +71,9 @@ type CreateOps struct {
 	// Indicates the ID of a subnet.
 	SubnetID string `json:"subnet_id" required:"true"`
 
+	// Whether to enable the IPv6.
+	Ipv6Enable bool `json:"ipv6_enable,omitempty"`
+
 	// Indicates the ID of an AZ.
 	// The parameter value can be left blank or an empty array.
 	AvailableZones []string `json:"available_zones" required:"true"`
@@ -115,6 +118,9 @@ type CreateOps struct {
 
 	// Indicates whether to enable SSL-encrypted access.
 	SslEnable bool `json:"ssl_enable,omitempty"`
+
+	// Whether to enable vpc client plain
+	VpcClientPlain bool `json:"vpc_client_plain,omitempty"`
 
 	// Indicates the protocol to use after SASL is enabled.
 	KafkaSecurityProtocol string `json:"kafka_security_protocol,omitempty"`
