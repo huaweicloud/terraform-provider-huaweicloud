@@ -1,6 +1,7 @@
 package cdn
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,7 +14,11 @@ func TestAccDatasourceStatistics_basic(t *testing.T) {
 	dc := acceptance.InitDataSourceCheck(rName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckCDN(t)
+			acceptance.TestAccPrecheckCDNAnalytics(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -28,13 +33,19 @@ func TestAccDatasourceStatistics_basic(t *testing.T) {
 }
 
 func testAccDatasourceStatistics_basic() string {
-	return `
+	return fmt.Sprintf(`
 data "huaweicloud_cdn_domain_statistics" "test" {
-  action      = "location_detail"
-  start_time  = 1662019200000
-  end_time    = 1662021000000
-  domain_name = "terraform.test.huaweicloud.com"
-  stat_type   = "req_num"
+  domain_name           = "%[1]s"
+  stat_type             = "%[2]s"
+  start_time            = "%[3]s"
+  end_time              = "%[4]s"
+  action                = "location_detail"
+  interval              = 3600
+  group_by              = "domain"
+  country               = "cn"
+  province              = "beijing"
+  isp                   = "yidong"
+  enterprise_project_id = "0"
 }
-`
+`, acceptance.HW_CDN_DOMAIN_NAME, acceptance.HW_CDN_STAT_TYPE, acceptance.HW_CDN_START_TIME, acceptance.HW_CDN_END_TIME)
 }
