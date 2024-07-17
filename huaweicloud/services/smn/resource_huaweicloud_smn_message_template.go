@@ -248,7 +248,7 @@ func resourceSmnMessageTemplateDelete(_ context.Context, d *schema.ResourceData,
 	}
 	_, err = deleteMessageTemplateClient.Request("DELETE", deleteMessageTemplatePath, &deleteMessageTemplateOpt)
 	if err != nil {
-		return diag.Errorf("error deleting SMN message template: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting SMN message template")
 	}
 
 	return nil
