@@ -72,6 +72,8 @@ func TestAccHostGroup_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccHostGroupImportStateIDFunc(rName),
+				// The field `unprotect_host_ids` will be filled in during the creation and editing operations.
+				// We only need to add ignore to the test case and do not need to make special instructions in the document.
 				ImportStateVerifyIgnore: []string{
 					"unprotect_host_ids",
 				},
@@ -116,12 +118,6 @@ resource "huaweicloud_hss_host_group" "test" {
   name                  = "%[2]s"
   host_ids              = slice(huaweicloud_compute_instance.test[*].id, 0, 1)
   enterprise_project_id = "%[3]s"
-
-  lifecycle {
-    ignore_changes = [
-      unprotect_host_ids,
-    ]
-  }
 }
 `, testAccHostGroup_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -134,12 +130,6 @@ resource "huaweicloud_hss_host_group" "test" {
   name                  = "%[2]s-update"
   host_ids              = huaweicloud_compute_instance.test[*].id
   enterprise_project_id = "%[3]s"
-
-  lifecycle {
-    ignore_changes = [
-      unprotect_host_ids,
-    ]
-  }
 }
 `, testAccHostGroup_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
