@@ -262,10 +262,14 @@ data "huaweicloud_apig_api_associated_plugins" "test" {
 
 # Filter by ID
 locals {
-  plugin_id = data.huaweicloud_apig_api_associated_plugins.test.plugins[0].id
+  plugin_id = huaweicloud_apig_plugin.test.id
 }
 
 data "huaweicloud_apig_api_associated_plugins" "filter_by_id" {
+  depends_on = [
+    huaweicloud_apig_plugin_associate.test,
+  ]
+
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
@@ -284,10 +288,14 @@ output "is_id_filter_useful" {
 
 # Filter by name
 locals {
-  plugin_name = data.huaweicloud_apig_api_associated_plugins.test.plugins[0].name
+  plugin_name = huaweicloud_apig_plugin.test.name
 }
 
 data "huaweicloud_apig_api_associated_plugins" "filter_by_name" {
+  depends_on = [
+    huaweicloud_apig_plugin_associate.test,
+  ]
+
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
@@ -328,10 +336,14 @@ output "is_name_not_found_filter_useful" {
 
 # Filter by type
 locals {
-  plugin_type = data.huaweicloud_apig_api_associated_plugins.test.plugins[0].type
+  plugin_type = huaweicloud_apig_plugin.test.type
 }
 
 data "huaweicloud_apig_api_associated_plugins" "filter_by_type" {
+  depends_on = [
+    huaweicloud_apig_plugin_associate.test
+  ]
+
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
@@ -350,7 +362,7 @@ output "is_type_filter_useful" {
 
 # Filter by env ID
 locals {
-  env_id = data.huaweicloud_apig_api_associated_plugins.test.plugins[0].env_id
+  env_id = huaweicloud_apig_plugin_associate.test[0].env_id
 }
 
 data "huaweicloud_apig_api_associated_plugins" "filter_by_env_id" {
@@ -372,10 +384,14 @@ output "is_env_id_filter_useful" {
 
 # Filter by env name
 locals {
-  env_name = data.huaweicloud_apig_api_associated_plugins.test.plugins[0].env_name
+  env_name = huaweicloud_apig_environment.test[0].name
 }
 
 data "huaweicloud_apig_api_associated_plugins" "filter_by_env_name" {
+  depends_on = [
+    huaweicloud_apig_plugin_associate.test
+  ]
+
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
