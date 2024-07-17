@@ -91,7 +91,7 @@ func TestAccVirtualInterface_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccVirtualInterface_update(updateName, vlan),
+				Config: testAccVirtualInterface_update1(updateName, vlan),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "direct_connect_id", acceptance.HW_DC_DIRECT_CONNECT_ID),
@@ -114,6 +114,15 @@ func TestAccVirtualInterface_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttr(rName, "tags.foo1", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value_update"),
+				),
+			},
+			{
+				Config: testAccVirtualInterface_update2(updateName, vlan),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "direct_connect_id", acceptance.HW_DC_DIRECT_CONNECT_ID),
+					resource.TestCheckResourceAttr(rName, "enable_bfd", "true"),
+					resource.TestCheckResourceAttr(rName, "enable_nqa", "false"),
 				),
 			},
 			{
@@ -236,7 +245,7 @@ resource "huaweicloud_dc_virtual_interface" "test" {
 `, testAccVirtualInterface_base(name), acceptance.HW_DC_DIRECT_CONNECT_ID, name, vlan)
 }
 
-func testAccVirtualInterface_update(name string, vlan int) string {
+func testAccVirtualInterface_update1(name string, vlan int) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -250,6 +259,38 @@ resource "huaweicloud_dc_virtual_interface" "test" {
   bandwidth         = 10
   enable_bfd        = false
   enable_nqa        = true
+
+  remote_ep_group = [
+    "1.1.1.0/30",
+    "1.1.2.0/30",
+  ]
+
+  address_family       = "ipv4"
+  local_gateway_v4_ip  = "1.1.1.1/30"
+  remote_gateway_v4_ip = "1.1.1.2/30"
+
+  tags = {
+    foo1 = "bar"
+    key  = "value_update"
+  }
+}
+`, testAccVirtualInterface_base(name), acceptance.HW_DC_DIRECT_CONNECT_ID, name, vlan)
+}
+
+func testAccVirtualInterface_update2(name string, vlan int) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dc_virtual_interface" "test" {
+  direct_connect_id = "%[2]s"
+  vgw_id            = huaweicloud_dc_virtual_gateway.test.id
+  name              = "%[3]s"
+  type              = "private"
+  route_mode        = "static"
+  vlan              = %[4]d
+  bandwidth         = 10
+  enable_bfd        = true
+  enable_nqa        = false
 
   remote_ep_group = [
     "1.1.1.0/30",
