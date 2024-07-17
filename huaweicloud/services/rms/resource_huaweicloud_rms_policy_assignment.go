@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 	"strings"
 	"time"
 
@@ -57,21 +56,15 @@ func ResourcePolicyAssignment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\w-]*$`),
-						"Only letters, digits, hyphens and underscores are allowed."),
-					validation.StringLenBetween(1, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 				Description: "The name of the policy assignment.",
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 512),
-				Description:  "The description of the policy assignment.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The description of the policy assignment.",
 			},
 			"policy_definition_id": {
 				Type:        schema.TypeString,
