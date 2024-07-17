@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.66.2 (July 17, 2024)
+
+BUG FIXES:
+
+* resource/huaweicloud_cts_data_tracker: add nil check before set agency_name [GH-5219]
+
 ## 1.66.1 (July 15, 2024)
 
 ENHANCEMENTS:
