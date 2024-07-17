@@ -298,8 +298,11 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("organization_enabled", ctsTracker.IsOrganizationTracker),
 		d.Set("validate_file", ctsTracker.IsSupportValidate),
 		d.Set("kms_id", ctsTracker.KmsId),
-		d.Set("agency_name", ctsTracker.AgencyName.Value()),
 	)
+
+	if ctsTracker.AgencyName != nil {
+		mErr = multierror.Append(mErr, d.Set("agency_name", ctsTracker.AgencyName.Value()))
+	}
 
 	if ctsTracker.ObsInfo != nil {
 		bucketName := ctsTracker.ObsInfo.BucketName
