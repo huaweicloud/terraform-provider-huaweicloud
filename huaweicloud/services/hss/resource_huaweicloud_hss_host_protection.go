@@ -21,13 +21,14 @@ import (
 )
 
 const (
-	QueryAllEpsValue        string = "all_granted_eps"
-	protectionVersionNull   string = "hss.version.null"
-	hostAgentStatusOnline   string = "online"
-	chargingModePacketCycle string = "packet_cycle"
-	chargingModeOnDemand    string = "on_demand"
-	chargingModePrePaid     string = "prePaid"
-	chargingModePostPaid    string = "postPaid"
+	QueryAllEpsValue              string = "all_granted_eps"
+	protectionVersionNull         string = "hss.version.null"
+	hostAgentStatusOnline         string = "online"
+	chargingModePacketCycle       string = "packet_cycle"
+	chargingModeOnDemand          string = "on_demand"
+	chargingModePrePaid           string = "prePaid"
+	chargingModePostPaid          string = "postPaid"
+	getProtectionHostNeedRetryMsg string = "The host cannot be found temporarily, please try again later."
 )
 
 // @API HSS GET /v5/{project_id}/host-management/hosts
@@ -144,7 +145,7 @@ func getProtectionHost(client *hssv5.HssClient, region, epsId, hostId string) (*
 
 	hostList := *resp.DataList
 	if len(hostList) == 0 {
-		return nil, fmt.Errorf("the host (%s) does not exist", hostId)
+		return nil, fmt.Errorf("%s", getProtectionHostNeedRetryMsg)
 	}
 
 	return &hostList[0], nil
@@ -240,6 +241,10 @@ func waitingForHostAvailable(ctx context.Context, client *hssv5.HssClient, regio
 		Refresh: func() (interface{}, string, error) {
 			host, err := getProtectionHost(client, region, epsId, hostId)
 			if err != nil {
+				if err.Error() == getProtectionHostNeedRetryMsg {
+					return nil, "PENDING", nil
+				}
+
 				return nil, "ERROR", err
 			}
 
