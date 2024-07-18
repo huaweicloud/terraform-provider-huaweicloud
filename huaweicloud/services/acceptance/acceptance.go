@@ -846,7 +846,7 @@ func TestAccPreCheckHighCostAllow(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckScm(t *testing.T) {
+func TestAccPreCheckCCMCertificateImport(t *testing.T) {
 	if HW_CERTIFICATE_KEY_PATH == "" || HW_CERTIFICATE_CHAIN_PATH == "" ||
 		HW_CERTIFICATE_PRIVATE_KEY_PATH == "" || HW_CERTIFICATE_SERVICE == "" ||
 		HW_CERTIFICATE_PROJECT == "" || HW_CERTIFICATE_PROJECT_UPDATED == "" {
