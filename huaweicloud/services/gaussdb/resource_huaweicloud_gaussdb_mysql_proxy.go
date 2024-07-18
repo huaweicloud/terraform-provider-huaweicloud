@@ -2,19 +2,35 @@ package gaussdb
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
 
-	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/pagination"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy
 // @API GaussDBforMySQL GET /v3/{project_id}/jobs
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/port
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/flavor
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/enlarge
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/reduce
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/rename
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/weight
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/new-node-auto-add
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxies
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}/proxy
 func ResourceGaussDBProxy() *schema.Resource {
 	return &schema.Resource{
@@ -23,16 +39,16 @@ func ResourceGaussDBProxy() *schema.Resource {
 		UpdateContext: resourceGaussDBProxyUpdate,
 		DeleteContext: resourceGaussDBProxyDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceGaussDBMySQLProxyImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
-		Schema: map[string]*schema.Schema{ // request and response parameters
+		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -47,52 +63,341 @@ func ResourceGaussDBProxy() *schema.Resource {
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"node_num": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"proxy_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"proxy_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"route_mode": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"subnet_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"master_node_weight": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     gaussDBMysqlProxyNodeWeightSchema(),
+			},
+			"readonly_nodes_weight": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem:     gaussDBMysqlProxyNodeWeightSchema(),
+			},
+			"new_node_auto_add_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"new_node_weight": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"new_node_auto_add_status"},
+			},
+			"port": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 			"address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"port": {
-				Type:     schema.TypeInt,
+			"nodes": {
+				Type:     schema.TypeList,
 				Computed: true,
+				Elem:     gaussDBMysqlProxyNodeSchema(),
 			},
 		},
 	}
 }
 
+func gaussDBMysqlProxyNodeWeightSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"weight": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func gaussDBMysqlProxyNodeSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"role": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"az_code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"frozen_flag": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
 func resourceGaussDBProxyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy"
+		product = "gaussdb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating GaussDB client: %s ", err)
+		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	createOpts := instances.ProxyOpts{
-		Flavor:  d.Get("flavor").(string),
-		NodeNum: d.Get("node_num").(int),
-	}
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", d.Get("instance_id").(string))
 
-	instanceId := d.Get("instance_id").(string)
-	n, err := instances.EnableProxy(client, instanceId, createOpts).ExtractJobResponse()
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	createOpt.JSONBody = utils.RemoveNil(buildCreateGaussDBMysqlProxyBodyParams(d))
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating gaussdb_mysql_proxy: %s", err)
+		return diag.Errorf("error creating GaussDB MySQL proxy: %s", err)
 	}
-	d.SetId(instanceId)
 
-	if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
-		return diag.Errorf("error waiting for gaussdb_mysql_proxy job: %s", err)
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	jobId := utils.PathSearch("job_id", createRespBody, nil)
+	if jobId == nil {
+		return diag.Errorf("error creating GaussDB MySQL proxy: job_id is not found in API response")
+	}
+
+	searchExpression := "proxy_list[?proxy.status=='ENABLING PROXY']|[0].proxy.pool_id"
+	proxyId, err := getGaussDBProxy(client, d.Get("instance_id").(string), searchExpression)
+	if err != nil {
+		return diag.Errorf("error retrieving GaussDB MySQL proxy: %s", err)
+	}
+	d.SetId(proxyId.(string))
+
+	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if _, ok := d.GetOk("port"); ok {
+		err = updateGaussDBMySQLPort(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceGaussDBProxyRead(ctx, d, meta)
 }
 
-func resourceGaussDBProxyRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	return nil
+func buildCreateGaussDBMysqlProxyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"flavor_ref":               d.Get("flavor"),
+		"node_num":                 d.Get("node_num"),
+		"proxy_name":               utils.ValueIgnoreEmpty(d.Get("proxy_name")),
+		"proxy_mode":               utils.ValueIgnoreEmpty(d.Get("proxy_mode")),
+		"route_mode":               utils.ValueIgnoreEmpty(d.Get("route_mode")),
+		"nodes_read_weight":        buildCreateGaussDBMySQLProxyNodesReadWeightBody(d),
+		"subnet_id":                utils.ValueIgnoreEmpty(d.Get("subnet_id")),
+		"new_node_auto_add_status": utils.ValueIgnoreEmpty(d.Get("new_node_auto_add_status")),
+		"new_node_weight":          utils.ValueIgnoreEmpty(d.Get("new_node_weight")),
+	}
+	return bodyParams
+}
+
+func buildCreateGaussDBMySQLProxyNodesReadWeightBody(d *schema.ResourceData) []map[string]interface{} {
+	masterNodeRawParams := d.Get("master_node_weight").([]interface{})
+	readonlyNodesRawParams := d.Get("readonly_nodes_weight").(*schema.Set).List()
+	length := len(masterNodeRawParams) + len(readonlyNodesRawParams)
+	if length == 0 {
+		return nil
+	}
+	rst := make([]map[string]interface{}, 0, length)
+	for _, v := range masterNodeRawParams {
+		raw := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"id":     raw["id"],
+			"weight": raw["weight"],
+		})
+	}
+	for _, v := range readonlyNodesRawParams {
+		raw := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"id":     raw["id"],
+			"weight": raw["weight"],
+		})
+	}
+	return rst
+}
+
+func resourceGaussDBProxyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		product = "gaussdb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating GaussDB client: %s", err)
+	}
+	searchExpression := fmt.Sprintf("proxy_list[?proxy.pool_id=='%s']|[0]", d.Id())
+	proxy, err := getGaussDBProxy(client, d.Get("instance_id").(string), searchExpression)
+	if err != nil {
+		return common.CheckDeletedDiag(d, parseMysqlProxyError(err), "error retrieving GaussDB MySQL proxy")
+	}
+
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("flavor", utils.PathSearch("proxy.flavor_ref", proxy, nil)),
+		d.Set("node_num", utils.PathSearch("proxy.node_num", proxy, nil)),
+		d.Set("proxy_name", utils.PathSearch("proxy.name", proxy, nil)),
+		d.Set("route_mode", utils.PathSearch("proxy.route_mode", proxy, nil)),
+		d.Set("subnet_id", utils.PathSearch("proxy.subnet_id", proxy, nil)),
+		d.Set("master_node_weight", flattenGaussDBProxyResponseBodyMasterNodeWeight(proxy)),
+		d.Set("readonly_nodes_weight", flattenGaussDBProxyResponseBodyReadonlyNodesWeight(proxy, d)),
+		d.Set("new_node_auto_add_status", utils.PathSearch("proxy.new_node_auto_add_status", proxy, nil)),
+		d.Set("port", utils.PathSearch("proxy.port", proxy, nil)),
+		d.Set("address", utils.PathSearch("proxy.address", proxy, nil)),
+		d.Set("nodes", flattenGaussDBProxyResponseBodyNodes(proxy)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenGaussDBProxyResponseBodyMasterNodeWeight(proxy interface{}) []interface{} {
+	rst := make([]interface{}, 0, 1)
+	rst = append(rst, map[string]interface{}{
+		"id":     utils.PathSearch("master_node.id", proxy, nil),
+		"weight": utils.PathSearch("master_node.weight", proxy, nil),
+	})
+	return rst
+}
+
+func flattenGaussDBProxyResponseBodyReadonlyNodesWeight(proxy interface{}, d *schema.ResourceData) []interface{} {
+	readonlyNodesJson := utils.PathSearch("readonly_nodes", proxy, make([]interface{}, 0))
+	readonlyNodeArray := readonlyNodesJson.([]interface{})
+	if len(readonlyNodeArray) < 1 {
+		return nil
+	}
+	readonlyNodesWeightRaw := d.Get("readonly_nodes_weight").(*schema.Set).List()
+	readonlyNodesRawMap := make(map[string]bool)
+	for _, v := range readonlyNodesWeightRaw {
+		readonlyNodesRawMap[v.(map[string]interface{})["id"].(string)] = true
+	}
+	rst := make([]interface{}, 0, len(readonlyNodesWeightRaw))
+	for _, v := range readonlyNodeArray {
+		id := utils.PathSearch("id", v, "").(string)
+		if readonlyNodesRawMap[id] {
+			rst = append(rst, map[string]interface{}{
+				"id":     id,
+				"weight": utils.PathSearch("weight", v, nil),
+			})
+		}
+	}
+	return rst
+}
+
+func flattenGaussDBProxyResponseBodyNodes(proxy interface{}) []interface{} {
+	nodesJson := utils.PathSearch("proxy.nodes", proxy, make([]interface{}, 0))
+	nodeArray := nodesJson.([]interface{})
+	if len(nodeArray) < 1 {
+		return nil
+	}
+	rst := make([]interface{}, 0, len(nodeArray))
+	for _, v := range nodeArray {
+		rst = append(rst, map[string]interface{}{
+			"id":          utils.PathSearch("id", v, nil),
+			"status":      utils.PathSearch("status", v, nil),
+			"name":        utils.PathSearch("name", v, nil),
+			"role":        utils.PathSearch("role", v, nil),
+			"az_code":     utils.PathSearch("az_code", v, nil),
+			"frozen_flag": utils.PathSearch("frozen_flag", v, nil),
+		})
+	}
+	return rst
+}
+
+func getGaussDBProxy(client *golangsdk.ServiceClient, instanceId, expression string) (interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxies"
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceId)
+
+	listMysqlDatabasesResp, err := pagination.ListAllItems(
+		client,
+		"offset",
+		listPath,
+		&pagination.QueryOpts{MarkerField: ""})
+
+	if err != nil {
+		return nil, err
+	}
+
+	listRespJson, err := json.Marshal(listMysqlDatabasesResp)
+	if err != nil {
+		return nil, err
+	}
+	var listRespBody interface{}
+	err = json.Unmarshal(listRespJson, &listRespBody)
+	if err != nil {
+		return nil, err
+	}
+	proxy := utils.PathSearch(expression, listRespBody, nil)
+	if proxy == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+	return proxy, nil
 }
 
 func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -102,45 +407,490 @@ func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating GaussDB client: %s ", err)
 	}
 
-	if d.HasChange("node_num") {
-		oldnum, newnum := d.GetChange("node_num")
-		if newnum.(int) < oldnum.(int) {
-			return diag.Errorf("error updating gaussdb_mysql_proxy %s: new node num should be greater than old num", d.Id())
-		}
-
-		enlargeSize := newnum.(int) - oldnum.(int)
-		enlargeProxyOpts := instances.EnlargeProxyOpts{
-			NodeNum: enlargeSize,
-		}
-
-		lp, err := instances.EnlargeProxy(client, d.Id(), enlargeProxyOpts).ExtractJobResponse()
+	if d.HasChange("flavor") {
+		err = updateGaussDBMySQLFlavor(ctx, d, client)
 		if err != nil {
-			return diag.Errorf("error enlarging gaussdb_mysql_proxy: %s", err)
+			return diag.FromErr(err)
 		}
+	}
 
-		if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), lp.JobID); err != nil {
-			return diag.Errorf("error waiting for gaussdb_mysql_proxy job: %s", err)
+	if d.HasChange("node_num") {
+		oldNum, newNum := d.GetChange("node_num")
+		if oldNum.(int) < newNum.(int) {
+			err = enlargeGaussDBMySQLProxyNumber(ctx, d, client, newNum.(int)-oldNum.(int))
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		} else {
+			err = reduceGaussDBMySQLProxyNumber(ctx, d, client, oldNum.(int)-newNum.(int))
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
+	if d.HasChange("proxy_name") {
+		err = updateGaussDBMySQLProxyName(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("port") {
+		err = updateGaussDBMySQLPort(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("master_node_weight", "readonly_nodes_weight") {
+		err = updateGaussDBMySQLNodesWeight(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("new_node_auto_add_status", "new_node_weight") {
+		err = updateGaussDBMySQLNewNode(d, client)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	return resourceGaussDBProxyRead(ctx, d, meta)
 }
 
-func resourceGaussDBProxyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
+func updateGaussDBMySQLFlavor(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/flavor"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateGaussDBMySQLFlavorBodyParams(d))
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("error creating GaussDB client: %s ", err)
+		return fmt.Errorf("error updating GaussDB MySQL proxy flavor: %s", err)
 	}
 
-	dp, err := instances.DeleteProxy(client, d.Id()).ExtractJobResponse()
+	updateRespBody, err := utils.FlattenResponse(updateResp)
 	if err != nil {
-		return diag.Errorf("error deleting gaussdb_mysql_proxy: %s", err)
+		return err
 	}
 
-	if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutDelete)/time.Second), dp.JobID); err != nil {
-		return diag.Errorf("error waiting for gaussdb_mysql_proxy job: %s", err)
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy flavor: job_id is not found in API response")
+	}
+
+	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
 	}
 
 	return nil
+}
+
+func buildUpdateGaussDBMySQLFlavorBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"flavor_ref": d.Get("flavor"),
+	}
+	return bodyParams
+}
+
+func enlargeGaussDBMySQLProxyNumber(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	number int) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/enlarge"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildEnlargeGaussDBMySQLProxyNumberBodyParams(d, number))
+
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error enlarging GaussDB MySQL proxy number: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return fmt.Errorf("error enlarging GaussDB MySQL proxy number: job_id is not found in API response")
+	}
+
+	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildEnlargeGaussDBMySQLProxyNumberBodyParams(d *schema.ResourceData, number int) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"node_num": number,
+		"proxy_id": d.Id(),
+	}
+	return bodyParams
+}
+
+func reduceGaussDBMySQLProxyNumber(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	number int) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/reduce"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildReduceGaussDBMySQLProxyNumberBodyParams(number))
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error reducing GaussDB MySQL proxy number: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return fmt.Errorf("error reducing GaussDB MySQL proxy number: job_id is not found in API response")
+	}
+
+	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildReduceGaussDBMySQLProxyNumberBodyParams(number int) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"node_num": number,
+	}
+	return bodyParams
+}
+
+func updateGaussDBMySQLProxyName(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/rename"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateGaussDBMySQLProxyNameBodyParams(d))
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy name: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	result := utils.PathSearch("result", updateRespBody, "").(string)
+	if result != "success" {
+		return fmt.Errorf("error updating GaussDB MySQL proxy name: result is: %s", result)
+	}
+
+	return nil
+}
+
+func buildUpdateGaussDBMySQLProxyNameBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"alias": d.Get("proxy_name"),
+	}
+	return bodyParams
+}
+
+func updateGaussDBMySQLPort(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/port"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateGaussDBMySQLPortBodyParams(d))
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy port: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		// if the port is not change, then the job_id is null
+		return nil
+	}
+
+	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildUpdateGaussDBMySQLPortBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"port": d.Get("port"),
+	}
+	return bodyParams
+}
+
+func updateGaussDBMySQLNodesWeight(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/weight"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = buildUpdateGaussDBMySQLNodesWeightBodyParams(d)
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL nodes weight associated with proxy: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return fmt.Errorf("error updating GaussDB MySQL nodes weight associated with proxy: job_id is not " +
+			"found in API response")
+	}
+
+	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildUpdateGaussDBMySQLNodesWeightBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := make(map[string]interface{})
+	if len(d.Get("master_node_weight").([]interface{})) > 0 {
+		masterNodeWeight := d.Get("master_node_weight").([]interface{})[0].(map[string]interface{})["weight"]
+		bodyParams["master_weight"] = masterNodeWeight
+	}
+	if len(d.Get("readonly_nodes_weight").(*schema.Set).List()) > 0 {
+		readonlyNodesRawParams := d.Get("readonly_nodes_weight").(*schema.Set).List()
+		readonlyNodesWeightParam := make([]map[string]interface{}, len(readonlyNodesRawParams))
+		for i, v := range readonlyNodesRawParams {
+			raw := v.(map[string]interface{})
+			readonlyNodesWeightParam[i] = map[string]interface{}{
+				"id":     raw["id"],
+				"weight": raw["weight"],
+			}
+		}
+		bodyParams["readonly_nodes"] = readonlyNodesWeightParam
+	}
+	return bodyParams
+}
+
+func updateGaussDBMySQLNewNode(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/new-node-auto-add"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateGaussDBMySQLNewNodeBodyParams(d))
+
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL new node automatically associate with proxy: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	result := utils.PathSearch("result", updateRespBody, "").(string)
+	if result != "success" {
+		return fmt.Errorf("error updating GaussDB MySQL new node automatically associate with proxy: result is: %s",
+			result)
+	}
+
+	return nil
+}
+
+func buildUpdateGaussDBMySQLNewNodeBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"switch_status": d.Get("new_node_auto_add_status"),
+		"weight":        utils.ValueIgnoreEmpty(d.Get("new_node_weight")),
+	}
+	return bodyParams
+}
+
+func resourceGaussDBProxyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy"
+		product = "gaussdb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating GaussDB client: %s", err)
+	}
+
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{instance_id}", d.Get("instance_id").(string))
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	deleteOpt.JSONBody = utils.RemoveNil(buildDeleteGaussDBMySQLProxyBodyParams(d))
+
+	deleteResp, err := client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return common.CheckDeletedDiag(d, parseMysqlProxyError(err), "error deleting GaussDB MySQL proxy")
+	}
+
+	deleteRespBody, err := utils.FlattenResponse(deleteResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	jobId := utils.PathSearch("job_id", deleteRespBody, nil)
+	if jobId == nil {
+		return diag.Errorf("error deleting GaussDB MySQL proxy: job_id is not found in API response")
+	}
+
+	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	return nil
+}
+
+func buildDeleteGaussDBMySQLProxyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"proxy_ids": []string{d.Id()},
+	}
+	return bodyParams
+}
+
+func checkGaussDBMySQLProxyJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Pending", "Running"},
+		Target:       []string{"Completed"},
+		Refresh:      gaussDBMysqlDatabaseStatusRefreshFunc(client, jobID),
+		Timeout:      timeout,
+		PollInterval: 10 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for GaussDB MySQL proxy job (%s) to be completed: %s ", jobID, err)
+	}
+	return nil
+}
+
+func parseMysqlProxyError(err error) error {
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return err
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return err
+		}
+
+		if errorCode == "DBS.201028" {
+			return golangsdk.ErrDefault404(errCode)
+		}
+	}
+	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return err
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return err
+		}
+
+		if errorCode == "DBS.200932" {
+			return golangsdk.ErrDefault404{}
+		}
+	}
+	return err
+}
+
+func resourceGaussDBMySQLProxyImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
+	error) {
+	parts := strings.Split(d.Id(), "/")
+
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<id>")
+	}
+
+	d.SetId(parts[1])
+	mErr := multierror.Append(nil,
+		d.Set("instance_id", parts[0]),
+	)
+
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
