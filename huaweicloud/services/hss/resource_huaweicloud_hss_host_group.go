@@ -298,6 +298,11 @@ func resourceHostGroupRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("unprotect_host_num", resp.UnprotectHostNum),
 	)
 
+	if len(d.Get("unprotect_host_ids").([]interface{})) == 0 {
+		// The reason for writing an empty array to `unprotect_host_ids` is to avoid unexpected changes
+		mErr = multierror.Append(mErr, d.Set("unprotect_host_ids", make([]string, 0)))
+	}
+
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving host group fields: %s", err)
 	}
