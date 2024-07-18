@@ -186,7 +186,6 @@ func resourceSmnLogtankDelete(_ context.Context, d *schema.ResourceData, meta in
 	if err = logtank.Delete(client, topicUrn, logtankID).ExtractErr(); err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting SMN logtank")
 	}
-	d.SetId("")
 
 	return nil
 }
