@@ -455,7 +455,7 @@ func ResourceComputeInstance() *schema.Resource {
 				RequiredWith: []string{"spot_duration"},
 			},
 
-			"user_id": { // required if in prePaid charging mode with key_pair.
+			"user_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -584,11 +584,6 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	nicClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating networking v2 client: %s", err)
-	}
-
-	// user_id is required if in prePaid charging mode with key_pair
-	if err := validateComputeInstanceConfig(d, cfg); err != nil {
-		return diag.FromErr(err)
 	}
 
 	// Determines the Image ID using the following rules:
@@ -1479,18 +1474,6 @@ func getOpSvcUserID(d *schema.ResourceData, conf *config.Config) string {
 		return v.(string)
 	}
 	return conf.UserID
-}
-
-func validateComputeInstanceConfig(d *schema.ResourceData, conf *config.Config) error {
-	_, hasSSH := d.GetOk("key_pair")
-	if d.Get("charging_mode").(string) == "prePaid" && hasSSH {
-		if getOpSvcUserID(d, conf) == "" {
-			return fmt.Errorf("user_id must be specified when charging_mode is set to prePaid and " +
-				"the ECS is logged in using an SSH key")
-		}
-	}
-
-	return nil
 }
 
 func buildInstanceNicsRequest(d *schema.ResourceData) []cloudservers.Nic {
