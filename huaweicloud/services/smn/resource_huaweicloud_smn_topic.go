@@ -396,9 +396,9 @@ func resourceTopicDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating SMN client: %s", err)
 	}
 
-	result := topics.Delete(client, d.Id())
-	if result.Err != nil {
-		return diag.Errorf("error deleting SMN topic: %s", result.Err)
+	err = topics.Delete(client, d.Id()).ExtractErr()
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error deleting SMN topic")
 	}
 
 	stateConf := &resource.StateChangeConf{

@@ -2,9 +2,7 @@ package smn
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -22,13 +20,17 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var messageDetectionNonUpdatableParams = []string{"topic_urn", "protocol", "endpoint", "extension"}
+var (
+	messageDetectionNonUpdatableParams = []string{"topic_urn", "protocol", "endpoint", "extension"}
 
-var detectionResultMap = map[string]string{
-	"0": "available",
-	"1": "unexecuted",
-	"2": "unavailable",
-}
+	detectionResultMap = map[string]string{
+		"0": "available",
+		"1": "unexecuted",
+		"2": "unavailable",
+	}
+
+	detectionNotFoundCodes = []string{"SMN.00013030"}
+)
 
 // @API SMN POST /v2/{project_id}/notifications/topics/{topic_urn}/detection
 // @API SMN GET /v2/{project_id}/notifications/topics/{topic_urn}/detection/{task_id}
@@ -160,10 +162,9 @@ func resourceMessageDetectionRead(_ context.Context, d *schema.ResourceData, met
 	}
 	resp, err := getMessageDetectionDetail(client, topicUrn, d.Id())
 	if err != nil {
-		if hasErrorCode(err, "SMN.00013030") {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error querying SMN message detection detail")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", detectionNotFoundCodes...),
+			"error querying SMN message detection detail")
 	}
 	status := fmt.Sprintf("%v", utils.PathSearch("status", resp, float64(0)).(float64))
 	mErr := multierror.Append(
@@ -242,22 +243,4 @@ func getMessageDetectionDetail(client *golangsdk.ServiceClient, topicUrn, id str
 	}
 
 	return getMessageDetectionRespBody, nil
-}
-
-func hasErrorCode(err error, expectCode string) bool {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var response interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search("error_code", response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse error_code from response body: %s", parseErr)
-			}
-
-			if errorCode == expectCode {
-				return true
-			}
-		}
-	}
-
-	return false
 }
