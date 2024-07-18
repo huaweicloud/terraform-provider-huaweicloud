@@ -1654,11 +1654,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_turbo_obs_target": sfs.ResourceOBSTarget(),
 			"huaweicloud_sfs_turbo_perm_rule":  sfs.ResourceSFSTurboPermRule(),
 
-			"huaweicloud_smn_topic":             smn.ResourceTopic(),
-			"huaweicloud_smn_subscription":      smn.ResourceSubscription(),
-			"huaweicloud_smn_message_template":  smn.ResourceSmnMessageTemplate(),
-			"huaweicloud_smn_logtank":           smn.ResourceSmnLogtank(),
-			"huaweicloud_smn_message_detection": smn.ResourceMessageDetection(),
+			"huaweicloud_smn_topic":                      smn.ResourceTopic(),
+			"huaweicloud_smn_subscription":               smn.ResourceSubscription(),
+			"huaweicloud_smn_message_template":           smn.ResourceSmnMessageTemplate(),
+			"huaweicloud_smn_logtank":                    smn.ResourceSmnLogtank(),
+			"huaweicloud_smn_message_detection":          smn.ResourceMessageDetection(),
+			"huaweicloud_smn_subscription_filter_policy": smn.ResourceSubscriptionFilterPolicy(),
 
 			"huaweicloud_sms_server_template": sms.ResourceServerTemplate(),
 			"huaweicloud_sms_task":            sms.ResourceMigrateTask(),
