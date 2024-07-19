@@ -1104,7 +1104,7 @@ func TestAccPreCheckAadForwardRule(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckScmCertificateName(t *testing.T) {
+func TestAccPreCheckCCMCertificateName(t *testing.T) {
 	if HW_CERTIFICATE_NAME == "" {
 		t.Skip("HW_CERTIFICATE_NAME must be set for SCM acceptance tests.")
 	}

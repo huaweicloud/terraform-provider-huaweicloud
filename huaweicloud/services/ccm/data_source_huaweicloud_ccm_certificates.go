@@ -14,11 +14,9 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -26,7 +24,7 @@ import (
 // @API CCM GET /v3/scm/certificates
 func DataSourceCertificates() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: resourceCertificatesRead,
+		ReadContext: datasourceCertificatesRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -34,34 +32,25 @@ func DataSourceCertificates() *schema.Resource {
 				Computed: true,
 			},
 			"status": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Certificate status.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"ALL", "PAID", "ISSUED", "CHECKING", "CANCELCHECKING", "UNPASSED", "EXPIRED", "REVOKING", "REVOKED",
-					"UPLOAD", "CHECKING_ORG", "ISSUING", "SUPPLEMENTCHECKING",
-				}, false),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"enterprise_project_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The enterprise project id of the project.`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"deploy_support": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `Whether to support deployment.`,
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Certificate name.`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"certificates": {
-				Type:        schema.TypeList,
-				Elem:        certificatesCertificateSchema(),
-				Computed:    true,
-				Description: `Certificate list. For details, see Data structure of the Certificate field.`,
+				Type:     schema.TypeList,
+				Elem:     certificatesCertificateSchema(),
+				Computed: true,
 			},
 		},
 	}
@@ -71,142 +60,121 @@ func certificatesCertificateSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Certificate ID.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Certificate name.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"domain": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Domain name associated with the certificate.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"sans": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Additional domain name associated with the certificate.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"signature_algorithm": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Signature algorithm.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"deploy_support": {
-				Type:        schema.TypeBool,
-				Computed:    true,
-				Description: `Whether to support deployment.`,
+				Type:     schema.TypeBool,
+				Computed: true,
 			},
 			"type": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Certificate type.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"brand": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Certificate authority.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"expire_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Certificate expiration time.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"domain_type": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Domain name type.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"validity_period": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `Certificate validity period, in months.`,
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 			"status": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Certificate status.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"domain_count": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `Number of domain names that can be associated with the certificate.`,
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 			"wildcard_count": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `Number of wildcard domain names that can be associated with the certificate.`,
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 			"description": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Certificate description.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"enterprise_project_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The enterprise project id of the project.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
 	return &sc
 }
 
-func resourceCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// listCertificates: Query the List of SCM certificates.
+func datasourceCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		listCertificatesHttpUrl = "v3/scm/certificates"
-		listCertificatesProduct = "scm"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v3/scm/certificates"
+		product = "scm"
 	)
-	listCertificatesClient, err := conf.NewServiceClient(listCertificatesProduct, region)
+
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Certificates Client: %s", err)
+		return diag.Errorf("error creating CCM client: %s", err)
 	}
 
-	listCertificatesPath := listCertificatesClient.Endpoint + listCertificatesHttpUrl
-
-	listCertificatesqueryParams := buildListCertificatesQueryParams(d)
-	listCertificatesPath += listCertificatesqueryParams
-
-	listCertificatesResp, err := pagination.ListAllItems(
-		listCertificatesClient,
+	listPath := client.Endpoint + httpUrl
+	listPath += buildListCertificatesQueryParams(d)
+	listResp, err := pagination.ListAllItems(
+		client,
 		"offset",
-		listCertificatesPath,
+		listPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Certificates")
+		return diag.Errorf("error retrieving CCM SSL certificates: %s", err)
 	}
 
-	listCertificatesRespJson, err := json.Marshal(listCertificatesResp)
+	listRespJson, err := json.Marshal(listResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	var listCertificatesRespBody interface{}
-	err = json.Unmarshal(listCertificatesRespJson, &listCertificatesRespBody)
+	var listRespBody interface{}
+	err = json.Unmarshal(listRespJson, &listRespBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
 		d.Set("certificates", filterListCertificatesBodyCertificate(
-			flattenListCertificatesBodyCertificate(listCertificatesRespBody), d)),
+			flattenListCertificatesBodyCertificate(listRespBody), d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

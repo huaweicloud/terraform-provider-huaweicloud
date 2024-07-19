@@ -10,13 +10,13 @@ import (
 )
 
 func TestAccDatasourceCertificates_basic(t *testing.T) {
-	rName := "data.huaweicloud_scm_certificates.test"
+	rName := "data.huaweicloud_ccm_certificates.test"
 	dc := acceptance.InitDataSourceCheck(rName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckScmCertificateName(t)
+			acceptance.TestAccPreCheckCCMCertificateName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -40,7 +40,7 @@ func TestAccDatasourceCertificates_basic(t *testing.T) {
 
 func testAccDatasourceCertificates_basic() string {
 	return fmt.Sprintf(`
-data "huaweicloud_scm_certificates" "test" {
+data "huaweicloud_ccm_certificates" "test" {
   name = "%s"
 }
 `, acceptance.HW_CERTIFICATE_NAME)
