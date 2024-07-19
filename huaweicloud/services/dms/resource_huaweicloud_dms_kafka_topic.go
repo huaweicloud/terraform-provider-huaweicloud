@@ -4,12 +4,16 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/topics"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -154,7 +158,66 @@ func resourceDmsKafkaTopicCreate(ctx context.Context, d *schema.ResourceData, me
 
 	// use topic name as the resource ID
 	d.SetId(v.Name)
+
+	// wait for topic create complete
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      kafkaTopicCreateRefreshFunc(dmsV2Client, d),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        1 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error waiting for DMS kafka topic created: %s", err)
+	}
+
 	return resourceDmsKafkaTopicRead(ctx, d, meta)
+}
+
+func getKafkaTopic(client *golangsdk.ServiceClient, d *schema.ResourceData) (*topics.Topic, error) {
+	instanceID := d.Get("instance_id").(string)
+	allTopics, err := topics.List(client, instanceID).Extract()
+	if err != nil {
+		return nil, err
+	}
+
+	topicID := d.Id()
+	isFound := false
+	var found topics.Topic
+	for _, item := range allTopics {
+		if item.Name == topicID {
+			found = item
+			isFound = true
+			break
+		}
+	}
+	if !isFound {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte("the topic not exist"),
+			},
+		}
+	}
+	return &found, nil
+}
+
+func kafkaTopicCreateRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		topic, err := getKafkaTopic(client, d)
+		if err != nil {
+			if errCode, ok := err.(golangsdk.ErrDefault404); ok {
+				if reflect.DeepEqual(errCode.Body, []byte("the topic not exist")) {
+					return topic, "PENDING", nil
+				}
+				return false, "QUERY ERROR", err
+			}
+
+			return nil, "QUERY ERROR", err
+		}
+
+		return topic, "SUCCESS", nil
+	}
 }
 
 func buildKafkaTopicParameters(params []interface{}) []topics.ConfigParam {
@@ -176,43 +239,24 @@ func resourceDmsKafkaTopicRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	instanceID := d.Get("instance_id").(string)
-	allTopics, err := topics.List(dmsV2Client, instanceID).Extract()
+	topic, err := getKafkaTopic(dmsV2Client, d)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "DMS kafka topic")
+		return common.CheckDeletedDiag(d, err, "error retrieving topic")
 	}
-
-	topicID := d.Id()
-	isFound := false
-	var found topics.Topic
-	for _, item := range allTopics {
-		if item.Name == topicID {
-			found = item
-			isFound = true
-			break
-		}
-	}
-
-	if !isFound {
-		d.SetId("")
-		return nil
-	}
-
-	log.Printf("[DEBUG] DMS kafka topic %s: %+v", d.Id(), found)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
-		d.Set("name", found.Name),
-		d.Set("partitions", found.Partition),
-		d.Set("replicas", found.Replication),
-		d.Set("aging_time", found.RetentionTime),
-		d.Set("sync_replication", found.SyncReplication),
-		d.Set("sync_flushing", found.SyncMessageFlush),
-		d.Set("configs", flattenConfigs(found.Configs)),
-		d.Set("description", found.Description),
-		d.Set("created_at", utils.FormatTimeStampRFC3339(found.CreatedAt/1000, false)),
-		d.Set("policies_only", found.PoliciesOnly),
-		d.Set("type", setTopicType(found.TopicType)),
+		d.Set("name", topic.Name),
+		d.Set("partitions", topic.Partition),
+		d.Set("replicas", topic.Replication),
+		d.Set("aging_time", topic.RetentionTime),
+		d.Set("sync_replication", topic.SyncReplication),
+		d.Set("sync_flushing", topic.SyncMessageFlush),
+		d.Set("configs", flattenConfigs(topic.Configs)),
+		d.Set("description", topic.Description),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(topic.CreatedAt/1000, false)),
+		d.Set("policies_only", topic.PoliciesOnly),
+		d.Set("type", setTopicType(topic.TopicType)),
 	)
 
 	if mErr.ErrorOrNil() != nil {
@@ -314,13 +358,20 @@ func resourceDmsKafkaTopicDelete(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
+	// check delete
+	_, err = getKafkaTopic(dmsV2Client, d)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error deleting DMS kafka topic")
+	}
+
 	topicID := d.Id()
 	instanceID := d.Get("instance_id").(string)
 	response, err := topics.Delete(dmsV2Client, instanceID, []string{topicID}).Extract()
 	if err != nil {
-		return diag.Errorf("error deleting DMS kafka topic: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting DMS kafka topic")
 	}
 
+	// the API will return success even deleting a non exist topic
 	var success bool
 	for _, item := range response {
 		if item.Name == topicID {
