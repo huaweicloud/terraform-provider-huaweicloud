@@ -151,7 +151,7 @@ func datasourceCertificatesRead(_ context.Context, d *schema.ResourceData, meta 
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return diag.Errorf("error retrieving CCM SSL certificates.")
+		return diag.Errorf("error retrieving CCM SSL certificates: %s", err)
 	}
 
 	listRespJson, err := json.Marshal(listResp)

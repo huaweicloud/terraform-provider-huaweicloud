@@ -493,6 +493,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_node_pool":           cce.DataSourceCCENodePoolV3(),
 			"huaweicloud_cci_namespaces":          cci.DataSourceCciNamespaces(),
 
+			"huaweicloud_ccm_certificates":               ccm.DataSourceCertificates(),
 			"huaweicloud_ccm_private_certificate_export": ccm.DataSourceCcmPrivateCertificateExport(),
 
 			"huaweicloud_cdn_domain_statistics":   cdn.DataSourceStatistics(),
@@ -867,6 +868,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
+			// Deprecated, use `huaweicloud_ccm_certificates` instead
 			"huaweicloud_scm_certificates": ccm.DataSourceCertificates(),
 
 			"huaweicloud_sfs_file_system":       sfs.DataSourceSFSFileSystemV2(),

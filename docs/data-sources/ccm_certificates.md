@@ -45,7 +45,7 @@ The following arguments are supported:
   
   Defaults to **ALL**.
 
-* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the CCM certificate belongs.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the CCM certificates belong.
   This field is only valid for enterprise users. For enterprise users, all resources with permission will be queried
   when this field is not specified.
 
