@@ -10,7 +10,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -85,7 +84,7 @@ func dataSourceWafReferenceTablesRead(_ context.Context, d *schema.ResourceData,
 	}
 	r, err := valuelists.List(client, opts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error obtain WAF reference table information")
+		return diag.Errorf("error retrieving WAF reference tables %s", err)
 	}
 
 	if len(r.Items) == 0 {

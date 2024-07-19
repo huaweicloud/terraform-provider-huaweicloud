@@ -10,7 +10,6 @@ import (
 
 	instances "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_instances"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
@@ -143,7 +142,7 @@ func dataSourceWafDedicatedInstanceRead(_ context.Context, d *schema.ResourceDat
 
 		rst, err := instances.ListInstance(client, opts)
 		if err != nil {
-			return common.CheckDeletedDiag(d, err, "Error obtain WAF dedicated instance information.")
+			return diag.Errorf("error retrieving WAF dedicated instances %s", err)
 		}
 		items = rst.Items
 	}
