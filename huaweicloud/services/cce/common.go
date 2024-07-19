@@ -74,6 +74,28 @@ func resourceNodeExtendParamsSchema(conflictList []string) *schema.Schema {
 					Optional: true,
 					ForceNew: true,
 				},
+				"market_type": {
+					Type:     schema.TypeString,
+					Optional: true,
+					ForceNew: true,
+					Description: utils.SchemaDesc(
+						"",
+						utils.SchemaDescInput{
+							Internal: true,
+						},
+					),
+				},
+				"spot_price": {
+					Type:     schema.TypeString,
+					Optional: true,
+					ForceNew: true,
+					Description: utils.SchemaDesc(
+						"",
+						utils.SchemaDescInput{
+							Internal: true,
+						},
+					),
+				},
 			},
 		},
 	}
@@ -136,6 +158,8 @@ func buildResourceNodeExtendParams(extendParamsRaw []interface{}) map[string]int
 			"agency_name":           utils.ValueIgnoreEmpty(extendParams["agency_name"]),
 			"kube-reserved-mem":     utils.ValueIgnoreEmpty(extendParams["kube_reserved_mem"]),
 			"system-reserved-mem":   utils.ValueIgnoreEmpty(extendParams["system_reserved_mem"]),
+			"marketType":            utils.ValueIgnoreEmpty(extendParams["market_type"]),
+			"spotPrice":             utils.ValueIgnoreEmpty(extendParams["spot_price"]),
 		}
 
 		return res
