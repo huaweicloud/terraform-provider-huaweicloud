@@ -29,12 +29,12 @@ const (
 // @API CCM POST /v3/scm/certificates/{certificate_id}/push
 // @API CCM DELETE /v3/scm/certificates/{certificate_id}
 // @API CCM GET /v3/scm/certificates/{certificate_id}
-func ResourceCCMCertificateImportCertificate() *schema.Resource {
+func ResourceCertificateImport() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCCMCertificateImportCreate,
-		UpdateContext: resourceCCMCertificateImportUpdate,
-		ReadContext:   resourceCCMCertificateImportRead,
-		DeleteContext: resourceCCMCertificateImportDelete,
+		CreateContext: resourceCertificateImportCreate,
+		UpdateContext: resourceCertificateImportUpdate,
+		ReadContext:   resourceCertificateImportRead,
+		DeleteContext: resourceCertificateImportDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -137,7 +137,7 @@ func ResourceCCMCertificateImportCertificate() *schema.Resource {
 	}
 }
 
-func resourceCCMCertificateImportCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCertificateImportCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.ScmV3Client(conf.GetRegion(d))
 	if err != nil {
@@ -164,7 +164,7 @@ func resourceCCMCertificateImportCreate(ctx context.Context, d *schema.ResourceD
 	targets := d.Get("target").([]interface{})
 	parseTargetsAndPush(client, d, targets)
 
-	return resourceCCMCertificateImportRead(ctx, d, meta)
+	return resourceCertificateImportRead(ctx, d, meta)
 }
 
 // parseTargetsAndPush pushes the certificate to the service.
@@ -215,7 +215,7 @@ func parseTargetsAndPush(c *golangsdk.ServiceClient, d *schema.ResourceData, tar
 	d.Set("target", tag)
 }
 
-func resourceCCMCertificateImportUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCertificateImportUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.ScmV3Client(conf.GetRegion(d))
 	if err != nil {
@@ -262,7 +262,7 @@ func resourceCCMCertificateImportUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	return resourceCCMCertificateImportRead(ctx, d, meta)
+	return resourceCertificateImportRead(ctx, d, meta)
 }
 
 func pushCertificateToService(id string, pushOpts certificates.PushOpts, client *golangsdk.ServiceClient) error {
@@ -280,7 +280,7 @@ func pushCertificateToService(id string, pushOpts certificates.PushOpts, client 
 	return nil
 }
 
-func resourceCCMCertificateImportRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCertificateImportRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	client, err := conf.ScmV3Client(region)
@@ -328,7 +328,7 @@ func buildAuthtificatesAttribute(authentifications []certificates.Authentificati
 	return auth
 }
 
-func resourceCCMCertificateImportDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCertificateImportDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.ScmV3Client(conf.GetRegion(d))
 	if err != nil {

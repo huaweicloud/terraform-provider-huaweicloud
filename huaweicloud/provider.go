@@ -1141,7 +1141,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ccm_certificate_push":    ccm.ResourceCcmCertificatePush(),
 			"huaweicloud_ccm_private_ca":          ccm.ResourcePrivateCertificateAuthority(),
 			"huaweicloud_ccm_private_certificate": ccm.ResourceCcmPrivateCertificate(),
-			"huaweicloud_scm_certificate":         ccm.ResourceCCMCertificateImportCertificate(),
+			"huaweicloud_ccm_certificate_import":  ccm.ResourceCertificateImport(),
 
 			"huaweicloud_cdm_cluster":        cdm.ResourceCdmCluster(),
 			"huaweicloud_cdm_cluster_action": cdm.ResourceClusterAction(),
@@ -1881,6 +1881,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_vip_associate_v2": vpc.ResourceNetworkingVIPAssociateV2(),
 			"huaweicloud_fgs_function_v2":             fgs.ResourceFgsFunctionV2(),
 			"huaweicloud_cdn_domain_v1":               cdn.ResourceCdnDomain(),
+			"huaweicloud_scm_certificate":             ccm.ResourceCertificateImport(),
 
 			// Deprecated
 			"huaweicloud_apig_vpc_channel":               deprecated.ResourceApigVpcChannelV2(),
