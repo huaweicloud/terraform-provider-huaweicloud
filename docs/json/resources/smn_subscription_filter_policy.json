@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_smn_subscription_filter_policy": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "subscription_urn": {
+                "type": "string",
+                "description": "Specifies the resource identifier of the subscriber.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "filter_policies": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the filter policy name. The policy name must be unique.",
+                      "required": true
+                    },
+                    "string_equals": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "Specifies the string array for exact match.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the message filter policies of a subscriber."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SMN",
+            "name": "Simple Message Notification",
+            "catalog": "Management & Governance",
+            "name_cn": "消息通知服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_scm_certificates": {
+        "huaweicloud_ccm_certificates": {
           "block": {
             "attributes": {
               "certificates": {
@@ -59,10 +59,10 @@
             }
           },
           "product": {
-            "short": "SCM",
-            "name": "SSL Certificate Manager",
+            "short": "CCM",
+            "name": "Cloud Certificate Manager Service",
             "catalog": "Security & Compliance",
-            "name_cn": "SSL证书管理",
+            "name_cn": "云证书管理服务",
             "catalog_cn": "安全与合规"
           }
         }

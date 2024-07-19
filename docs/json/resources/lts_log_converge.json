@@ -20,6 +20,12 @@
                 "required": true,
                 "forcenew": true
               },
+              "management_project_id": {
+                "type": "string",
+                "description": "The administrator project ID that required for first-time use.",
+                "optional": true,
+                "computed": true
+              },
               "member_account_id": {
                 "type": "string",
                 "description": "The member account ID to which the converged logs belong.",
