@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.66.3 (July 19, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node: add spot support [GH-5245]
+
 ## 1.66.2 (July 17, 2024)
 
 BUG FIXES:
