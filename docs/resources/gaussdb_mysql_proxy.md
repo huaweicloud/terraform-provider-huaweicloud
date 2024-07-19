@@ -74,6 +74,9 @@ The following arguments are supported:
 
 * `port` - (Optional, Int) Specifies the port of the proxy.
 
+* `parameters` - (Optional, List) Specifies the list of parameters to be set to the GaussDB MySQL proxy after launched.
+  The [parameters](#parameters_struct) structure is documented below.
+
 <a name="node_weight_struct"></a>
 The `master_node_weight` and `readonly_nodes_weight` block supports:
 
@@ -83,6 +86,15 @@ The `master_node_weight` and `readonly_nodes_weight` block supports:
   + If `route_mode` is **0**, the value is **0** to **1000**.
   + If `route_mode` is **1**, the value for the primary node is **0** and the value for read replicas is **0** or **1**.
   + If `route_mode` is **2**, the value for the primary node is **1** and the value for read replicas is **0** or **1**.
+
+<a name="parameters_struct"></a>
+The `parameters` block supports:
+
+* `name` - (Required, String) Specifies the name of the parameter.
+
+* `value` - (Required, String) Specifies the value of the parameter.
+
+* `elem_type` - (Required, String) Specifies the parent tag type of the parameter.
 
 ## Attribute Reference
 
@@ -136,10 +148,10 @@ $ terraform import huaweicloud_gaussdb_mysql_proxy.test <instance_id>/<id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
-API response. The missing attribute is: `new_node_weight`, `proxy_mode`, `readonly_nodes_weight`. It is generally
-recommended running `terraform plan` after importing a GaussDB MySQL proxy. You can then decide if changes should be
-applied to the GaussDB MySQL proxy, or the resource definition should be updated to align with the GaussDB MySQL proxy.
-Also you can ignore changes as below.
+API response. The missing attribute is: `new_node_weight`, `proxy_mode`, `readonly_nodes_weight` and `parameters`. It is
+generally recommended running `terraform plan` after importing a GaussDB MySQL proxy. You can then decide if changes
+should be applied to the GaussDB MySQL proxy, or the resource definition should be updated to align with the GaussDB
+MySQL proxy. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_gaussdb_mysql_proxy" "test" {
@@ -147,7 +159,7 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
 
   lifecycle {
     ignore_changes = [
-      new_node_weight, proxy_mode, readonly_nodes_weight,
+      new_node_weight, proxy_mode, readonly_nodes_weight, parameters,
     ]
   }
 }

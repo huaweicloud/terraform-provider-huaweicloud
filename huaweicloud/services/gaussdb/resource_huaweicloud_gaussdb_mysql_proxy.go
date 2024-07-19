@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -24,6 +25,7 @@ import (
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy
 // @API GaussDBforMySQL GET /v3/{project_id}/jobs
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/port
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/configurations
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/flavor
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/enlarge
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/reduce
@@ -31,6 +33,7 @@ import (
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/weight
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/new-node-auto-add
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxies
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/configurations
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}/proxy
 func ResourceGaussDBProxy() *schema.Resource {
 	return &schema.Resource{
@@ -115,6 +118,27 @@ func ResourceGaussDBProxy() *schema.Resource {
 			},
 			"port": {
 				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"parameters": {
+				Type: schema.TypeSet,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"elem_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
 				Optional: true,
 				Computed: true,
 			},
@@ -234,6 +258,13 @@ func resourceGaussDBProxyCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	if _, ok := d.GetOk("parameters"); ok {
+		err = updateGaussDBMySQLParameters(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGaussDBProxyRead(ctx, d, meta)
 }
 
@@ -308,6 +339,13 @@ func resourceGaussDBProxyRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("address", utils.PathSearch("proxy.address", proxy, nil)),
 		d.Set("nodes", flattenGaussDBProxyResponseBodyNodes(proxy)),
 	)
+
+	parameters, err := getGaussDBProxyParameters(d, client)
+	if err != nil {
+		log.Printf("[WARN] fetching GaussDB MySQL proxy paremeters failed: %s", err)
+	} else {
+		mErr = multierror.Append(d.Set("parameters", parameters))
+	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -400,6 +438,68 @@ func getGaussDBProxy(client *golangsdk.ServiceClient, instanceId, expression str
 	return proxy, nil
 }
 
+func getGaussDBProxyParameters(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/configurations"
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{instance_id}", d.Get("instance_id").(string))
+	listPath = strings.ReplaceAll(listPath, "{proxy_id}", d.Id())
+
+	listMysqlDatabasesResp, err := pagination.ListAllItems(
+		client,
+		"offset",
+		listPath,
+		&pagination.QueryOpts{MarkerField: ""})
+
+	if err != nil {
+		return nil, err
+	}
+
+	listRespJson, err := json.Marshal(listMysqlDatabasesResp)
+	if err != nil {
+		return nil, err
+	}
+	var listRespBody interface{}
+	err = json.Unmarshal(listRespJson, &listRespBody)
+	if err != nil {
+		return nil, err
+	}
+	return flattenGaussDBProxyParameters(listRespBody, d), nil
+}
+
+func flattenGaussDBProxyParameters(resp interface{}, d *schema.ResourceData) []interface{} {
+	if resp == nil {
+		return nil
+	}
+	parameters := d.Get("parameters").(*schema.Set).List()
+	if len(parameters) == 0 {
+		return nil
+	}
+	parametersMap := make(map[string]bool)
+	for _, v := range parameters {
+		name := v.(map[string]interface{})["name"].(string)
+		parametersMap[name] = true
+	}
+
+	curJson := utils.PathSearch("configurations", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		name := utils.PathSearch("name", v, "").(string)
+		if parametersMap[name] {
+			rst = append(rst, map[string]interface{}{
+				"name":      utils.PathSearch("name", v, nil),
+				"value":     utils.PathSearch("value", v, nil),
+				"elem_type": utils.PathSearch("elem_type", v, nil),
+			})
+		}
+	}
+	return rst
+}
+
 func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
@@ -452,6 +552,13 @@ func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChanges("new_node_auto_add_status", "new_node_weight") {
 		err = updateGaussDBMySQLNewNode(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("parameters") {
+		err = updateGaussDBMySQLParameters(d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -774,6 +881,45 @@ func buildUpdateGaussDBMySQLNewNodeBodyParams(d *schema.ResourceData) map[string
 	bodyParams := map[string]interface{}{
 		"switch_status": d.Get("new_node_auto_add_status"),
 		"weight":        utils.ValueIgnoreEmpty(d.Get("new_node_weight")),
+	}
+	return bodyParams
+}
+
+func updateGaussDBMySQLParameters(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/configurations"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateGaussDBMySQLParametersBodyParams(d))
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy parameters: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateGaussDBMySQLParametersBodyParams(d *schema.ResourceData) map[string]interface{} {
+	parametersRaw := d.Get("parameters").(*schema.Set).List()
+	parameters := make([]map[string]interface{}, len(parametersRaw))
+	for i, v := range parametersRaw {
+		raw := v.(map[string]interface{})
+		parameters[i] = map[string]interface{}{
+			"name":      raw["name"],
+			"value":     raw["value"],
+			"elem_type": raw["elem_type"],
+		}
+	}
+	bodyParams := map[string]interface{}{
+		"configurations": parameters,
 	}
 	return bodyParams
 }
