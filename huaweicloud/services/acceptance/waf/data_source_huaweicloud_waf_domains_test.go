@@ -86,5 +86,5 @@ output "enterprise_project_id_filter_is_useful" {
     [for v in data.huaweicloud_waf_domains.enterprise_project_id_filter.domains[*].enterprise_project_id : v == local.enterprise_project_id]
   )  
 }
-`, testAccWafDomainV1_update2(name, domainName))
+`, testAccWafDomainV1_policy(name, domainName))
 }

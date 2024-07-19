@@ -596,11 +596,19 @@ resource "huaweicloud_waf_domain" "domain_1" {
 
 func testAccWafDomainV1_base_withEpsID(randName, epsID string) string {
 	return fmt.Sprintf(`
-%s
+resource "huaweicloud_waf_cloud_instance" "test" {
+  resource_spec_code    = "enterprise"
+  enterprise_project_id = "%[2]s"
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "false"
+}
 
 resource "huaweicloud_waf_certificate" "certificate_1" {
-  name                  = "%s"
-  enterprise_project_id = "%s"
+  name                  = "%[1]s"
+  enterprise_project_id = "%[2]s"
 
   certificate = <<EOT
 -----BEGIN CERTIFICATE-----
@@ -662,7 +670,7 @@ EOT
   ]
 
 }
-`, testAccCloudInstance_basic_withEpsID(epsID), randName, epsID)
+`, randName, epsID)
 }
 
 func testAccWafDomainV1_basic_withEpsID(randName, domainName, epsID string) string {
