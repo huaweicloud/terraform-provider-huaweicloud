@@ -29,12 +29,12 @@ const (
 // @API CCM POST /v3/scm/certificates/{certificate_id}/push
 // @API CCM DELETE /v3/scm/certificates/{certificate_id}
 // @API CCM GET /v3/scm/certificates/{certificate_id}
-func ResourceScmCertificate() *schema.Resource {
+func ResourceCertificateImport() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceScmCertificateCreate,
-		UpdateContext: resourceScmCertificateUpdate,
-		ReadContext:   resourceScmCertificateRead,
-		DeleteContext: resourceScmCertificateDelete,
+		CreateContext: resourceCertificateImportCreate,
+		UpdateContext: resourceCertificateImportUpdate,
+		ReadContext:   resourceCertificateImportRead,
+		DeleteContext: resourceCertificateImportDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -137,11 +137,11 @@ func ResourceScmCertificate() *schema.Resource {
 	}
 }
 
-func resourceScmCertificateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCertificateImportCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	scmClient, err := conf.ScmV3Client(conf.GetRegion(d))
+	client, err := conf.ScmV3Client(conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating SCM client: %s", err)
+		return diag.Errorf("error creating CCM client: %s", err)
 	}
 
 	importOpts := certificates.ImportOpts{
@@ -153,19 +153,18 @@ func resourceScmCertificateCreate(ctx context.Context, d *schema.ResourceData, m
 	log.Printf("[DEBUG] Imported certificate options %s: %#v", d.Id(), importOpts)
 	importOpts.PrivateKey = d.Get("private_key").(string)
 
-	c, err := certificates.Import(scmClient, importOpts).Extract()
+	c, err := certificates.Import(client, importOpts).Extract()
 	if err != nil {
-		return diag.Errorf("error importing certificate: %s", err)
+		return diag.Errorf("error importing CCM certificate: %s", err)
 	}
 	// If all has been successful, set the ID on the resource
 	d.SetId(c.CertificateId)
 
 	// Get targets and push certificate to the target service.
 	targets := d.Get("target").([]interface{})
-	log.Printf("[DEBUG] SCM Certificate target: %#v", targets)
-	parseTargetsAndPush(scmClient, d, targets)
+	parseTargetsAndPush(client, d, targets)
 
-	return resourceScmCertificateRead(ctx, d, meta)
+	return resourceCertificateImportRead(ctx, d, meta)
 }
 
 // parseTargetsAndPush pushes the certificate to the service.
@@ -216,11 +215,11 @@ func parseTargetsAndPush(c *golangsdk.ServiceClient, d *schema.ResourceData, tar
 	d.Set("target", tag)
 }
 
-func resourceScmCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCertificateImportUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	scmClient, err := conf.ScmV3Client(conf.GetRegion(d))
+	client, err := conf.ScmV3Client(conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating SCM client: %s", err)
+		return diag.Errorf("error creating CCM client: %s", err)
 	}
 	oldVal, newVal := d.GetChange("target")
 	newPushCert, err := parsePushCertificateToMap(newVal.([]interface{}))
@@ -237,7 +236,7 @@ func resourceScmCertificateUpdate(ctx context.Context, d *schema.ResourceData, m
 				TargetService: service,
 			}
 			log.Printf("[DEBUG] Find new services and start to push. %#v", pushOpts)
-			err := pushCertificateToService(d.Id(), pushOpts, scmClient)
+			err := pushCertificateToService(d.Id(), pushOpts, client)
 			if err != nil {
 				d.Set("target", oldVal)
 				return diag.FromErr(err)
@@ -253,7 +252,7 @@ func resourceScmCertificateUpdate(ctx context.Context, d *schema.ResourceData, m
 					TargetProject: project.(string),
 					TargetService: service,
 				}
-				err := pushCertificateToService(d.Id(), pushOpts, scmClient)
+				err := pushCertificateToService(d.Id(), pushOpts, client)
 				if err != nil {
 					d.Set("target", oldVal)
 					return diag.FromErr(err)
@@ -263,16 +262,16 @@ func resourceScmCertificateUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	return resourceScmCertificateRead(ctx, d, meta)
+	return resourceCertificateImportRead(ctx, d, meta)
 }
 
-func pushCertificateToService(id string, pushOpts certificates.PushOpts, scmClient *golangsdk.ServiceClient) error {
+func pushCertificateToService(id string, pushOpts certificates.PushOpts, client *golangsdk.ServiceClient) error {
 	if strings.Compare(pushOpts.TargetService, targetServiceCdn) != 0 && len(pushOpts.TargetProject) == 0 {
 		return fmt.Errorf("the argument of \"project\" cannot be empty, "+
 			"it can be empty when pushed to the CDN service only. "+
 			"\r\ncertificate_id: %s, service: %s", id, pushOpts.TargetService)
 	}
-	err := certificates.Push(scmClient, id, pushOpts).ExtractErr()
+	err := certificates.Push(client, id, pushOpts).ExtractErr()
 	if err != nil {
 		// Parse 'err' to print more error messages.
 		errMsg := processErr(err)
@@ -281,14 +280,14 @@ func pushCertificateToService(id string, pushOpts certificates.PushOpts, scmClie
 	return nil
 }
 
-func resourceScmCertificateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCertificateImportRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	scmClient, err := conf.ScmV3Client(region)
+	client, err := conf.ScmV3Client(region)
 	if err != nil {
-		return diag.Errorf("error creating SCM client: %s", err)
+		return diag.Errorf("error creating CCM client: %s", err)
 	}
-	certDetail, err := certificates.Get(scmClient, d.Id()).Extract()
+	certDetail, err := certificates.Get(client, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error obtain certificate information")
 	}
@@ -309,7 +308,7 @@ func resourceScmCertificateRead(_ context.Context, d *schema.ResourceData, meta 
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting SCM certificate attributes: %s", err)
+		return diag.Errorf("error setting CCM certificate attributes: %s", err)
 	}
 
 	return nil
@@ -329,15 +328,15 @@ func buildAuthtificatesAttribute(authentifications []certificates.Authentificati
 	return auth
 }
 
-func resourceScmCertificateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCertificateImportDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	scmClient, err := conf.ScmV3Client(conf.GetRegion(d))
+	client, err := conf.ScmV3Client(conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating SCM client: %s", err)
+		return diag.Errorf("error creating CCM client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting certificate: %s", d.Id())
-	err = certificates.Delete(scmClient, d.Id()).ExtractErr()
+	err = certificates.Delete(client, d.Id()).ExtractErr()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting certificate")
 	}

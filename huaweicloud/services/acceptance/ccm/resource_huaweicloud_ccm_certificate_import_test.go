@@ -14,17 +14,17 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getSCMResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getCertificateImportResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.ScmV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating SCM client: %s", err)
+		return nil, fmt.Errorf("error creating CCM client: %s", err)
 	}
 	return certificates.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccScmCertification_basic(t *testing.T) {
+func TestAccCertificateImport_basic(t *testing.T) {
 	var certInfo certificates.CertificateEscrowInfo
-	resourceName := "huaweicloud_scm_certificate.certificate_1"
+	resourceName := "huaweicloud_ccm_certificate_import.certificate_1"
 
 	rName := acceptance.RandomAccResourceNameWithDash()
 	rUpdateName := acceptance.RandomAccResourceNameWithDash()
@@ -32,19 +32,19 @@ func TestAccScmCertification_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&certInfo,
-		getSCMResourceFunc,
+		getCertificateImportResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckScm(t)
+			acceptance.TestAccPreCheckCCMCertificateImport(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScmCertificateV3_basic(rName),
+				Config: testAccCertificateImport_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -52,7 +52,7 @@ func TestAccScmCertification_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScmCertificateV3_basic(rUpdateName),
+				Config: testAccCertificateImport_basic(rUpdateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rUpdateName),
@@ -69,9 +69,9 @@ func TestAccScmCertification_basic(t *testing.T) {
 	})
 }
 
-func TestAccScmCertification_push(t *testing.T) {
+func TestAccCertificateImport_push(t *testing.T) {
 	var certInfo certificates.CertificateEscrowInfo
-	resourceName := "huaweicloud_scm_certificate.certificate_2"
+	resourceName := "huaweicloud_ccm_certificate_import.certificate_2"
 
 	rName := acceptance.RandomAccResourceNameWithDash()
 	service := acceptance.HW_CERTIFICATE_SERVICE
@@ -81,31 +81,31 @@ func TestAccScmCertification_push(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&certInfo,
-		getSCMResourceFunc,
+		getCertificateImportResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckScm(t)
+			acceptance.TestAccPreCheckCCMCertificateImport(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScmCertificateV3_push(rName, defaultProject, service),
+				Config: testAccCertificateImport_push(rName, defaultProject, service),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					testAccCheckScmV3CertificatePushExists(resourceName, service, defaultProject),
+					testCertificateImportPushExists(resourceName, service, defaultProject),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
 				),
 			},
 			{
-				Config: testAccScmCertificateV3_push(rName, newProject, service),
+				Config: testAccCertificateImport_push(rName, newProject, service),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					testAccCheckScmV3CertificatePushExists(resourceName, service, newProject),
+					testCertificateImportPushExists(resourceName, service, newProject),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
 				),
@@ -114,9 +114,9 @@ func TestAccScmCertification_push(t *testing.T) {
 	})
 }
 
-func TestAccScmCertification_batchPush(t *testing.T) {
+func TestAccCertificateImport_batchPush(t *testing.T) {
 	var certInfo certificates.CertificateEscrowInfo
-	resourceName := "huaweicloud_scm_certificate.certificate_3"
+	resourceName := "huaweicloud_ccm_certificate_import.certificate_3"
 
 	rName := acceptance.RandomAccResourceNameWithDash()
 	service := acceptance.HW_CERTIFICATE_SERVICE
@@ -125,22 +125,22 @@ func TestAccScmCertification_batchPush(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&certInfo,
-		getSCMResourceFunc,
+		getCertificateImportResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckScm(t)
+			acceptance.TestAccPreCheckCCMCertificateImport(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScmCertificateV3_batchPush(rName),
+				Config: testAccCertificateImport_batchPush(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					testAccCheckScmV3CertificatePushExists(resourceName, service, defaultProject),
+					testCertificateImportPushExists(resourceName, service, defaultProject),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
 				),
@@ -149,7 +149,7 @@ func TestAccScmCertification_batchPush(t *testing.T) {
 	})
 }
 
-func testAccCheckScmV3CertificatePushExists(
+func testCertificateImportPushExists(
 	certResourceName string, service string, project string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// Get the resource info by certificateResorceName
@@ -173,9 +173,9 @@ func testAccCheckScmV3CertificatePushExists(
 	}
 }
 
-func testAccScmCertificateV3_basic(name string) string {
+func testAccCertificateImport_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_scm_certificate" "certificate_1" {
+resource "huaweicloud_ccm_certificate_import" "certificate_1" {
   name              = "%s"
   certificate       = file("%s")
   certificate_chain = file("%s")
@@ -184,9 +184,9 @@ resource "huaweicloud_scm_certificate" "certificate_1" {
 		acceptance.HW_CERTIFICATE_PRIVATE_KEY_PATH)
 }
 
-func testAccScmCertificateV3_push(name string, project string, service string) string {
+func testAccCertificateImport_push(name string, project string, service string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_scm_certificate" "certificate_2" {
+resource "huaweicloud_ccm_certificate_import" "certificate_2" {
   name              = "%s"
   certificate       = file("%s")
   certificate_chain = file("%s")
@@ -200,9 +200,9 @@ resource "huaweicloud_scm_certificate" "certificate_2" {
 		acceptance.HW_CERTIFICATE_PRIVATE_KEY_PATH, project, service)
 }
 
-func testAccScmCertificateV3_batchPush(name string) string {
+func testAccCertificateImport_batchPush(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_scm_certificate" "certificate_3" {
+resource "huaweicloud_ccm_certificate_import" "certificate_3" {
   name              = "%s"
   certificate       = file("%s")
   certificate_chain = file("%s")
