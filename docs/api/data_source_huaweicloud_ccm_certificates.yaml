@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_scm_certificates
+    title: data_source_huaweicloud_ccm_certificates
     description: ""
 schemes:
     - https

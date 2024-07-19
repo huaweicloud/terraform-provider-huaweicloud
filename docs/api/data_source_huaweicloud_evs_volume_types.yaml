@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_evs_volume_types
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EVS
+paths:
+    /v2/{project_id}/types:
+        GET:
+            tag: EVS
