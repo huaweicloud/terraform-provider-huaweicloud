@@ -65,6 +65,9 @@ The following arguments are supported:
 * `log_mapping_config` - (Required, List) Specifies the log converge configurations.  
   The [log_mapping_config](#converge_log_mapping_config) structure is documented below.
 
+* `management_project_id` - (Optional, String) Specifies the administrator project ID that required for
+  first-time use.
+
 <a name="converge_log_mapping_config"></a>
 The `log_mapping_config` block supports:
 

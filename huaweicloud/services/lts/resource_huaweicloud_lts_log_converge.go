@@ -127,6 +127,12 @@ func ResourceLogConverge() *schema.Resource {
 				},
 				Description: `The log converge configurations.`,
 			},
+			"management_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The administrator project ID that required for first-time use.`,
+			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -187,7 +193,8 @@ func buildModifyLogConvergeBodyParams(d *schema.ResourceData) map[string]interfa
 		"management_account_id": d.Get("management_account_id"),
 		"member_account_id":     d.Get("member_account_id"),
 		// Optional parameters
-		"log_mapping_config": buildLogMappingConfigsBodyParams(d.Get("log_mapping_config").(*schema.Set)),
+		"log_mapping_config":    buildLogMappingConfigsBodyParams(d.Get("log_mapping_config").(*schema.Set)),
+		"management_project_id": utils.ValueIgnoreEmpty(d.Get("management_project_id")),
 	}
 }
 
@@ -291,6 +298,7 @@ func resourceLogConvergeRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("member_account_id", utils.PathSearch("member_account_id", respBody, nil)),
 		d.Set("management_account_id", utils.PathSearch("management_account_id", respBody, nil)),
 		d.Set("log_mapping_config", utils.PathSearch("log_mapping_config", respBody, nil)),
+		d.Set("management_project_id", utils.PathSearch("management_project_id", respBody, nil)),
 		// Attributes
 		d.Set("created_at", utils.FormatTimeStampRFC3339(
 			int64(utils.PathSearch("create_time", respBody, float64(0)).(float64))/1000, false)),
