@@ -12,9 +12,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
@@ -41,6 +43,10 @@ func ResourceProtectionRule() *schema.Resource {
 		DeleteContext: resourceProtectionRuleDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceProtectionRuleImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Delete: schema.DefaultTimeout(3 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -372,13 +378,13 @@ func resourceProtectionRuleCreate(ctx context.Context, d *schema.ResourceData, m
 		createProtectionRuleHttpUrl = "v1/{project_id}/acl-rule"
 		createProtectionRuleProduct = "cfw"
 	)
-	createProtectionRuleClient, err := conf.NewServiceClient(createProtectionRuleProduct, region)
+	client, err := conf.NewServiceClient(createProtectionRuleProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating ProtectionRule Client: %s", err)
+		return diag.Errorf("error creating CFW client: %s", err)
 	}
 
-	createProtectionRulePath := createProtectionRuleClient.Endpoint + createProtectionRuleHttpUrl
-	createProtectionRulePath = strings.ReplaceAll(createProtectionRulePath, "{project_id}", createProtectionRuleClient.ProjectID)
+	createProtectionRulePath := client.Endpoint + createProtectionRuleHttpUrl
+	createProtectionRulePath = strings.ReplaceAll(createProtectionRulePath, "{project_id}", client.ProjectID)
 
 	createProtectionRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -388,9 +394,9 @@ func resourceProtectionRuleCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	createProtectionRuleOpt.JSONBody = utils.RemoveNil(buildCreateProtectionRuleBodyParams(d))
-	createProtectionRuleResp, err := createProtectionRuleClient.Request("POST", createProtectionRulePath, &createProtectionRuleOpt)
+	createProtectionRuleResp, err := client.Request("POST", createProtectionRulePath, &createProtectionRuleOpt)
 	if err != nil {
-		return diag.Errorf("error creating ProtectionRule: %s", err)
+		return diag.Errorf("error creating protection rule: %s", err)
 	}
 
 	createProtectionRuleRespBody, err := utils.FlattenResponse(createProtectionRuleResp)
@@ -400,7 +406,7 @@ func resourceProtectionRuleCreate(ctx context.Context, d *schema.ResourceData, m
 
 	id, err := jmespath.Search("data.rules[0].id", createProtectionRuleRespBody)
 	if err != nil {
-		return diag.Errorf("error creating ProtectionRule: ID is not found in API response: %s", err)
+		return diag.Errorf("error creating protection rule: ID is not found in API response: %s", err)
 	}
 	d.SetId(id.(string))
 
@@ -549,49 +555,19 @@ func resourceProtectionRuleRead(_ context.Context, d *schema.ResourceData, meta 
 	var mErr *multierror.Error
 
 	// getProtectionRule: Query the CFW Protection Rule detail
-	var (
-		getProtectionRuleHttpUrl = "v1/{project_id}/acl-rules"
-		getProtectionRuleProduct = "cfw"
-	)
-	getProtectionRuleClient, err := conf.NewServiceClient(getProtectionRuleProduct, region)
+	getProtectionRuleProduct := "cfw"
+	client, err := conf.NewServiceClient(getProtectionRuleProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating ProtectionRule Client: %s", err)
+		return diag.Errorf("error creating CFW Client: %s", err)
 	}
 
-	getProtectionRulePath := getProtectionRuleClient.Endpoint + getProtectionRuleHttpUrl
-	getProtectionRulePath = strings.ReplaceAll(getProtectionRulePath, "{project_id}", getProtectionRuleClient.ProjectID)
-
-	getProtectionRulequeryParams := buildGetProtectionRuleQueryParams(d)
-	getProtectionRulePath += getProtectionRulequeryParams
-
-	getPotectionRulesOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getProtectionRuleResp, err := getProtectionRuleClient.Request("GET", getProtectionRulePath, &getPotectionRulesOpt)
-
+	objectID := d.Get("object_id").(string)
+	rule, err := GetProtectionRule(client, d.Id(), objectID)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving protection rule")
+		return common.CheckDeletedDiag(d, parseError(err), "error retrieving protection rule")
 	}
 
-	getProtectionRuleRespBody, err := utils.FlattenResponse(getProtectionRuleResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	rules, err := jmespath.Search("data.records", getProtectionRuleRespBody)
-	if err != nil {
-		diag.Errorf("error parsing data.records from response= %#v", getProtectionRuleRespBody)
-	}
-
-	rule, err := FilterRules(rules.([]interface{}), d.Id())
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving protection rule")
-	}
-
-	count, err := getRuleHitCount(getProtectionRuleClient, d.Id())
+	count, err := getRuleHitCount(client, d.Id())
 	if err != nil {
 		return diag.Errorf("error retrieving protection rule hit count: %s", err)
 	}
@@ -627,17 +603,40 @@ func resourceProtectionRuleRead(_ context.Context, d *schema.ResourceData, meta 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func FilterRules(rules []interface{}, id string) (interface{}, error) {
-	if len(rules) != 0 {
-		for _, v := range rules {
-			rule := v.(map[string]interface{})
-			if rule["rule_id"] == id {
-				return v, nil
-			}
-		}
+func GetProtectionRule(client *golangsdk.ServiceClient, id, objectID string) (interface{}, error) {
+	httpUrl := "v1/{project_id}/acl-rules"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	return nil, golangsdk.ErrDefault404{}
+	offset := 0
+	for {
+		path := fmt.Sprintf("%s?object_id=%s&limit=100&offset=%d", path, objectID, offset)
+		resp, err := client.Request("GET", path, &opt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		findRuleStr := fmt.Sprintf("data.records[?rule_id=='%s']|[0]", id)
+		rule := utils.PathSearch(findRuleStr, respBody, nil)
+		if rule != nil {
+			return rule, nil
+		}
+
+		offset += 100
+		total := utils.PathSearch("data.total", respBody, float64(0))
+		if int(total.(float64)) <= offset {
+			return nil, golangsdk.ErrDefault404{}
+		}
+	}
 }
 
 func getRuleHitCount(client *golangsdk.ServiceClient, id string) (interface{}, error) {
@@ -648,9 +647,6 @@ func getRuleHitCount(client *golangsdk.ServiceClient, id string) (interface{}, e
 	getProtectionRuleHitCountOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody:         buildRuleHitCountBodyParams(id),
-		OkCodes: []int{
-			200,
-		},
 	}
 
 	getProtectionRuleHitCountResp, err := client.Request("POST", getProtectionRuleHitCountPath, &getProtectionRuleHitCountOpt)
@@ -807,13 +803,6 @@ func flattenGetProtectionRuleResponseBodyRuleServiceItem(resp interface{}) []int
 	return rst
 }
 
-func buildGetProtectionRuleQueryParams(d *schema.ResourceData) string {
-	res := "?offset=0&limit=1024"
-	res = fmt.Sprintf("%s&object_id=%v", res, d.Get("object_id"))
-
-	return res
-}
-
 func resourceProtectionRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -842,57 +831,51 @@ func resourceProtectionRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 		updateProtectionRuleHitCountHttpUrl = "v1/{project_id}/acl-rule/count"
 		updateProtectionRuleProduct         = "cfw"
 	)
-	updateProtectionRuleClient, err := conf.NewServiceClient(updateProtectionRuleProduct, region)
+	client, err := conf.NewServiceClient(updateProtectionRuleProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating ProtectionRule Client: %s", err)
+		return diag.Errorf("error creating CFW Client: %s", err)
 	}
 
 	if d.HasChanges(updateProtectionRulehasChanges...) {
 		// updateProtectionRule: Update the configuration of CFW Protection Rule
-		updateProtectionRulePath := updateProtectionRuleClient.Endpoint + updateProtectionRuleHttpUrl
-		updateProtectionRulePath = strings.ReplaceAll(updateProtectionRulePath, "{project_id}", updateProtectionRuleClient.ProjectID)
+		updateProtectionRulePath := client.Endpoint + updateProtectionRuleHttpUrl
+		updateProtectionRulePath = strings.ReplaceAll(updateProtectionRulePath, "{project_id}", client.ProjectID)
 		updateProtectionRulePath = strings.ReplaceAll(updateProtectionRulePath, "{id}", d.Id())
 
 		updateProtectionRuleOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateProtectionRuleOpt.JSONBody = utils.RemoveNil(buildUpdateProtectionRuleBodyParams(d))
-		_, err = updateProtectionRuleClient.Request("PUT", updateProtectionRulePath, &updateProtectionRuleOpt)
+		_, err = client.Request("PUT", updateProtectionRulePath, &updateProtectionRuleOpt)
 		if err != nil {
-			return diag.Errorf("error updating ProtectionRule: %s", err)
+			return diag.Errorf("error updating protection rule: %s", err)
 		}
 	}
 
 	if d.HasChange("sequence") {
 		// updateProtectionRuleOrder: Update the order of CFW Protection Rule
-		updateProtectionRuleOrderPath := updateProtectionRuleClient.Endpoint + updateProtectionRuleOrderHttpUrl
-		updateProtectionRuleOrderPath = strings.ReplaceAll(updateProtectionRuleOrderPath, "{project_id}", updateProtectionRuleClient.ProjectID)
+		updateProtectionRuleOrderPath := client.Endpoint + updateProtectionRuleOrderHttpUrl
+		updateProtectionRuleOrderPath = strings.ReplaceAll(updateProtectionRuleOrderPath, "{project_id}", client.ProjectID)
 		updateProtectionRuleOrderPath = strings.ReplaceAll(updateProtectionRuleOrderPath, "{id}", d.Id())
 
 		updateProtectionRuleOrderOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateProtectionRuleOrderOpt.JSONBody = utils.RemoveNil(buildUpdateProtectionRuleRequestBodyOrderRuleAclDto(d.Get("sequence")))
-		_, err = updateProtectionRuleClient.Request("PUT", updateProtectionRuleOrderPath, &updateProtectionRuleOrderOpt)
+		_, err = client.Request("PUT", updateProtectionRuleOrderPath, &updateProtectionRuleOrderOpt)
 		if err != nil {
 			return diag.Errorf("error updating protection rule order: %s", err)
 		}
 	}
 
 	if d.HasChange("rule_hit_count") {
-		updateRuleHitCountPath := updateProtectionRuleClient.Endpoint + updateProtectionRuleHitCountHttpUrl
-		updateRuleHitCountPath = strings.ReplaceAll(updateRuleHitCountPath, "{project_id}", updateProtectionRuleClient.ProjectID)
+		updateRuleHitCountPath := client.Endpoint + updateProtectionRuleHitCountHttpUrl
+		updateRuleHitCountPath = strings.ReplaceAll(updateRuleHitCountPath, "{project_id}", client.ProjectID)
 		updateRuleHitCountOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			JSONBody:         buildRuleHitCountBodyParams(d.Id()),
 		}
-		_, err := updateProtectionRuleClient.Request("DELETE", updateRuleHitCountPath, &updateRuleHitCountOpt)
+		_, err := client.Request("DELETE", updateRuleHitCountPath, &updateRuleHitCountOpt)
 		if err != nil {
 			return diag.Errorf("error updating protection rule hit count: %s", err)
 		}
@@ -1000,7 +983,7 @@ func buildUpdateProtectionRuleRequestBodyIpRegionDto(rawParams interface{}) []ma
 	return nil
 }
 
-func resourceProtectionRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProtectionRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 
@@ -1009,33 +992,51 @@ func resourceProtectionRuleDelete(_ context.Context, d *schema.ResourceData, met
 		deleteProtectionRuleHttpUrl = "v1/{project_id}/acl-rule/{id}"
 		deleteProtectionRuleProduct = "cfw"
 	)
-	deleteProtectionRuleClient, err := conf.NewServiceClient(deleteProtectionRuleProduct, region)
+	client, err := conf.NewServiceClient(deleteProtectionRuleProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating ProtectionRule Client: %s", err)
+		return diag.Errorf("error creating CFW client: %s", err)
 	}
 
-	deleteProtectionRulePath := deleteProtectionRuleClient.Endpoint + deleteProtectionRuleHttpUrl
-	deleteProtectionRulePath = strings.ReplaceAll(deleteProtectionRulePath, "{project_id}", deleteProtectionRuleClient.ProjectID)
+	deleteProtectionRulePath := client.Endpoint + deleteProtectionRuleHttpUrl
+	deleteProtectionRulePath = strings.ReplaceAll(deleteProtectionRulePath, "{project_id}", client.ProjectID)
 	deleteProtectionRulePath = strings.ReplaceAll(deleteProtectionRulePath, "{id}", d.Id())
 
 	deleteProtectionRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	_, err = deleteProtectionRuleClient.Request("DELETE", deleteProtectionRulePath, &deleteProtectionRuleOpt)
+	_, err = client.Request("DELETE", deleteProtectionRulePath, &deleteProtectionRuleOpt)
 	if err != nil {
-		return diag.Errorf("error deleting ProtectionRule: %s", err)
+		return common.CheckDeletedDiag(d, parseError(err), "error deleting protection rule")
 	}
 
-	return nil
+	err = deleteProtectionRuleWaitingForCompleted(ctx, client, d.Id(), d.Get("object_id").(string), d.Timeout(schema.TimeoutDelete))
+	return common.CheckDeletedDiag(d, parseError(err), "error deleting protection rule")
+}
+
+func deleteProtectionRuleWaitingForCompleted(ctx context.Context, client *golangsdk.ServiceClient, id, objectID string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETE"},
+		Refresh: func() (interface{}, string, error) {
+			rule, err := GetProtectionRule(client, id, objectID)
+			if rule != nil {
+				return rule, "PENDING", nil
+			}
+			return nil, "COMPLETE", err
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
 func resourceProtectionRuleImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 2)
+	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import id, must be <object_id>/<id>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <object_id>/<id>")
 	}
 
 	d.Set("object_id", parts[0])

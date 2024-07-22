@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
@@ -623,43 +625,16 @@ func resourceACLRuleRead(_ context.Context, d *schema.ResourceData, meta interfa
 	var mErr *multierror.Error
 
 	// getACLRule: Query the CFW ACL rule detail
-	var (
-		getACLRuleHttpUrl = "v1/{project_id}/acl-rules"
-		getACLRuleProduct = "cfw"
-	)
+	getACLRuleProduct := "cfw"
 	getACLRuleClient, err := conf.NewServiceClient(getACLRuleProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CFW client: %s", err)
 	}
 
-	getACLRulePath := getACLRuleClient.Endpoint + getACLRuleHttpUrl
-	getACLRulePath = strings.ReplaceAll(getACLRulePath, "{project_id}", getACLRuleClient.ProjectID)
-
-	getACLRulequeryParams := buildGetProtectionRuleQueryParams(d)
-	getACLRulePath += getACLRulequeryParams
-
-	getPotectionRulesOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getACLRuleResp, err := getACLRuleClient.Request("GET", getACLRulePath, &getPotectionRulesOpt)
-
+	objectID := d.Get("object_id").(string)
+	rule, err := GetACLRule(getACLRuleClient, d.Id(), objectID)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving ACL rule")
-	}
-
-	getACLRuleRespBody, err := utils.FlattenResponse(getACLRuleResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	rules, err := jmespath.Search("data.records", getACLRuleRespBody)
-	if err != nil {
-		return diag.Errorf("error parsing data.records from response= %#v", getACLRuleRespBody)
-	}
-
-	rule, err := FilterRules(rules.([]interface{}), d.Id())
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving ACL rule")
+		return common.CheckDeletedDiag(d, parseError(err), "error retrieving ACL rule")
 	}
 
 	count, err := getRuleHitCount(getACLRuleClient, d.Id())
@@ -721,6 +696,42 @@ func resourceACLRuleRead(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func GetACLRule(client *golangsdk.ServiceClient, id, objectID string) (interface{}, error) {
+	httpUrl := "v1/{project_id}/acl-rules"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	offset := 0
+	for {
+		path := fmt.Sprintf("%s?object_id=%s&limit=100&offset=%d", path, objectID, offset)
+		resp, err := client.Request("GET", path, &opt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		findRuleStr := fmt.Sprintf("data.records[?rule_id=='%s']|[0]", id)
+		rule := utils.PathSearch(findRuleStr, respBody, nil)
+		if rule != nil {
+			return rule, nil
+		}
+
+		offset += 100
+		total := utils.PathSearch("data.total", respBody, float64(0))
+		if int(total.(float64)) <= offset {
+			return nil, golangsdk.ErrDefault404{}
+		}
+	}
 }
 
 func flattenGetACLRuleResponseBodyRuleCustomServices(resp interface{}) []interface{} {
@@ -885,7 +896,7 @@ func resourceACLRuleUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceACLRuleRead(ctx, d, meta)
 }
 
-func resourceACLRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceACLRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 
@@ -908,16 +919,37 @@ func resourceACLRuleDelete(_ context.Context, d *schema.ResourceData, meta inter
 	}
 	_, err = deleteACLRuleClient.Request("DELETE", deleteACLRulePath, &deleteACLRuleOpt)
 	if err != nil {
-		return diag.Errorf("error deleting ACL rule: %s", err)
+		return common.CheckDeletedDiag(d, parseError(err), "error deleting ACL rule")
 	}
 
-	return nil
+	err = deleteACLRuleWaitingForCompleted(ctx, deleteACLRuleClient, d.Id(), d.Get("object_id").(string), d.Timeout(schema.TimeoutDelete))
+	return common.CheckDeletedDiag(d, parseError(err), "error deleting ACL rule")
+}
+
+func deleteACLRuleWaitingForCompleted(ctx context.Context, client *golangsdk.ServiceClient, id, objectID string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETE"},
+		Refresh: func() (interface{}, string, error) {
+			rule, err := GetACLRule(client, id, objectID)
+			if rule != nil {
+				return rule, "PENDING", nil
+			}
+			return nil, "COMPLETE", err
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
 func resourceACLRuleImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 2)
+	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import id, must be <object_id>/<id>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <object_id>/<id>")
 	}
 
 	d.Set("object_id", parts[0])
