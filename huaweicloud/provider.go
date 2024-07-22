@@ -614,6 +614,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rabbitmq_plugins":        dms.DataSourceDmsRabbitmqPlugins(),
 			"huaweicloud_dms_rabbitmq_instances":      dms.DataSourceDmsRabbitMQInstances(),
 			"huaweicloud_dms_rabbitmq_extend_flavors": dms.DataSourceDmsRabbitmqExtendFlavors(),
+			"huaweicloud_dms_rabbitmq_vhosts":         dms.DataSourceDmsRabbitmqVhosts(),
 
 			"huaweicloud_dms_rocketmq_broker":                dms.DataSourceDmsRocketMQBroker(),
 			"huaweicloud_dms_rocketmq_instances":             dms.DataSourceDmsRocketMQInstances(),
@@ -1294,6 +1295,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dms_rabbitmq_instance": dms.ResourceDmsRabbitmqInstance(),
 			"huaweicloud_dms_rabbitmq_plugin":   dms.ResourceDmsRabbitmqPlugin(),
+			"huaweicloud_dms_rabbitmq_vhost":    dms.ResourceDmsRabbitmqVhost(),
 
 			"huaweicloud_dms_rocketmq_instance":       dms.ResourceDmsRocketMQInstance(),
 			"huaweicloud_dms_rocketmq_consumer_group": dms.ResourceDmsRocketMQConsumerGroup(),
