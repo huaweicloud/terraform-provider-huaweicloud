@@ -77,6 +77,12 @@ The following arguments are supported:
 * `parameters` - (Optional, List) Specifies the list of parameters to be set to the GaussDB MySQL proxy after launched.
   The [parameters](#parameters_struct) structure is documented below.
 
+* `transaction_split` - (Optional, String) Specifies whether the proxy transaction splitting is enabled. Value options:
+  + **ON**: Transaction splitting is enabled.
+  + **OFF**: Transaction splitting is disabled.
+
+  Defaults to **OFF**.
+
 <a name="node_weight_struct"></a>
 The `master_node_weight` and `readonly_nodes_weight` block supports:
 

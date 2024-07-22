@@ -32,6 +32,7 @@ import (
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/rename
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/weight
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/new-node-auto-add
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/transaction-split
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxies
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/configurations
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}/proxy
@@ -139,6 +140,11 @@ func ResourceGaussDBProxy() *schema.Resource {
 						},
 					},
 				},
+				Optional: true,
+				Computed: true,
+			},
+			"transaction_split": {
+				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
@@ -265,6 +271,13 @@ func resourceGaussDBProxyCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	if transactionSplit, ok := d.GetOk("transaction_split"); ok && transactionSplit.(string) == "ON" {
+		err = updateGaussDBMySQLTransactionSplit(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGaussDBProxyRead(ctx, d, meta)
 }
 
@@ -339,6 +352,12 @@ func resourceGaussDBProxyRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("address", utils.PathSearch("proxy.address", proxy, nil)),
 		d.Set("nodes", flattenGaussDBProxyResponseBodyNodes(proxy)),
 	)
+	transactionSplit := utils.PathSearch("proxy.transaction_split", proxy, "").(string)
+	if transactionSplit == "true" {
+		mErr = multierror.Append(mErr, d.Set("transaction_split", "ON"))
+	} else {
+		mErr = multierror.Append(mErr, d.Set("transaction_split", "OFF"))
+	}
 
 	parameters, err := getGaussDBProxyParameters(d, client)
 	if err != nil {
@@ -559,6 +578,13 @@ func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChange("parameters") {
 		err = updateGaussDBMySQLParameters(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("transaction_split") {
+		err = updateGaussDBMySQLTransactionSplit(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -920,6 +946,50 @@ func buildUpdateGaussDBMySQLParametersBodyParams(d *schema.ResourceData) map[str
 	}
 	bodyParams := map[string]interface{}{
 		"configurations": parameters,
+	}
+	return bodyParams
+}
+
+func updateGaussDBMySQLTransactionSplit(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/transaction-split"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateGaussDBMySQLTransactionSplitBodyParams(d))
+
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy transaction split: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy transaction split: job_id is not found in API response")
+	}
+
+	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildUpdateGaussDBMySQLTransactionSplitBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"transaction_split": d.Get("transaction_split"),
+		"proxy_id_list":     []string{d.Id()},
 	}
 	return bodyParams
 }

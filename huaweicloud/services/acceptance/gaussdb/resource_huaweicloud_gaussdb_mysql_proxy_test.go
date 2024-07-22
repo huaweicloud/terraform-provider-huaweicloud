@@ -95,6 +95,7 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "new_node_auto_add_status", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "port", "3339"),
+					resource.TestCheckResourceAttr(resourceName, "transaction_split", "ON"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_weight.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "readonly_nodes_weight.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "multiStatementType"),
@@ -118,6 +119,7 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "new_node_auto_add_status", "ON"),
 					resource.TestCheckResourceAttr(resourceName, "new_node_weight", "20"),
 					resource.TestCheckResourceAttr(resourceName, "port", "3338"),
+					resource.TestCheckResourceAttr(resourceName, "transaction_split", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_weight.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "readonly_nodes_weight.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "looseImciApThreshold"),
@@ -198,6 +200,7 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   new_node_auto_add_status = "OFF"
   new_node_weight          = 20
   port                     = 3339
+  transaction_split        = "ON"
 
   master_node_weight {
     id     = local.sort_nodes[0].id
@@ -233,6 +236,7 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   new_node_auto_add_status = "ON"
   new_node_weight          = 20
   port                     = 3338
+  transaction_split        = "OFF"
 
   master_node_weight {
     id     = local.sort_nodes[0].id
@@ -273,6 +277,7 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   new_node_auto_add_status = "ON"
   new_node_weight          = 20
   port                     = 3338
+  transaction_split        = "OFF"
 
   master_node_weight {
     id     = local.sort_nodes[0].id
