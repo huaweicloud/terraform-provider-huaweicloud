@@ -572,13 +572,13 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	// since the POST method has no `period`, update backup strategy for it
 	backupStrategyRaw := d.Get("backup_strategy").([]interface{})
 	if len(backupStrategyRaw) == 1 {
 		period := backupStrategyRaw[0].(map[string]interface{})["period"].(string)
 		if period != "" && !isEqualPeriod(period, "1,2,3,4,5,6,7") {
-			_, err = instances.CreateBackupPolicy(client, instance.Id, resourceDdsBackupStrategy(d))
-			if err != nil {
-				return diag.Errorf("error creating backup strategy of the DDS instance %s: %s", instance.Id, err)
+			if err := createBackupStrategy(ctx, client, d); err != nil {
+				return diag.FromErr(err)
 			}
 		}
 	}
@@ -591,16 +591,17 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if secondLevelMonitoringEnabled := d.Get("second_level_monitoring_enabled").(bool); secondLevelMonitoringEnabled {
-		_, err = instances.UpdateSecondsLevelMonitoring(client, instance.Id, secondLevelMonitoringEnabled)
+		err = UpdateSecondsLevelMonitoring(ctx, client, d.Timeout(schema.TimeoutCreate), instance.Id,
+			secondLevelMonitoringEnabled)
 		if err != nil {
-			return diag.Errorf("error setting second level monitoring of the DDS instance %s: %s", instance.Id, err)
+			return diag.FromErr(err)
 		}
 	}
 
 	if slowLogDesensitization := d.Get("slow_log_desensitization").(string); slowLogDesensitization == "off" {
-		err = instances.UpdateSlowLogStatus(client, instance.Id, slowLogDesensitization)
+		err = UpdateSlowLogStatus(ctx, client, d.Timeout(schema.TimeoutCreate), instance.Id, slowLogDesensitization)
 		if err != nil {
-			return diag.Errorf("error setting slow log desensitization of the DDS instance %s: %s", instance.Id, err)
+			return diag.FromErr(err)
 		}
 	}
 
@@ -650,6 +651,29 @@ func isEqualPeriod(old, new string) bool {
 	sort.Strings(newArray)
 
 	return reflect.DeepEqual(oldArray, newArray)
+}
+
+func createBackupStrategy(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := instances.CreateBackupPolicy(client, d.Id(), resourceDdsBackupStrategy(d))
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"normal"},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+
+	if err != nil {
+		return fmt.Errorf("error creating backup strategy of the DDS instance: %s ", err)
+	}
+
+	return nil
 }
 
 func updateBalancerStatus(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
@@ -752,6 +776,52 @@ func updateClientNetworkRanges(ctx context.Context, client *golangsdk.ServiceCli
 	})
 	if err != nil {
 		return fmt.Errorf("error updating client network ranges: %s", err)
+	}
+
+	return nil
+}
+
+func UpdateSecondsLevelMonitoring(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId string, enabled bool) error {
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := instances.UpdateSecondsLevelMonitoring(client, instanceId, enabled)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      timeout,
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating second level monitoring of the DDS instance %s: %s ", instanceId, err)
+	}
+
+	return nil
+}
+
+func UpdateSlowLogStatus(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId, slowLogStatus string) error {
+	retryFunc := func() (interface{}, bool, error) {
+		err := instances.UpdateSlowLogStatus(client, instanceId, slowLogStatus)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      timeout,
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating slow log desensitization of the DDS instance %s: %s", instanceId, err)
 	}
 
 	return nil
@@ -1201,42 +1271,18 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if d.HasChange("second_level_monitoring_enabled") {
-		retryFunc := func() (interface{}, bool, error) {
-			_, err = instances.UpdateSecondsLevelMonitoring(client, instanceId, d.Get("second_level_monitoring_enabled").(bool))
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
-		}
-		_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
-			WaitTarget:   []string{"normal"},
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			DelayTimeout: 1 * time.Second,
-			PollInterval: 10 * time.Second,
-		})
+		err = UpdateSecondsLevelMonitoring(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId,
+			d.Get("second_level_monitoring_enabled").(bool))
 		if err != nil {
-			return diag.Errorf("error updating second level monitoring of the DDS instance %s: %s ", instanceId, err)
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("slow_log_desensitization") {
-		retryFunc := func() (interface{}, bool, error) {
-			err = instances.UpdateSlowLogStatus(client, instanceId, d.Get("slow_log_desensitization").(string))
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
-		}
-		_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
-			WaitTarget:   []string{"normal"},
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			DelayTimeout: 1 * time.Second,
-			PollInterval: 10 * time.Second,
-		})
+		err = UpdateSlowLogStatus(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId,
+			d.Get("slow_log_desensitization").(string))
 		if err != nil {
-			return diag.Errorf("error setting slow log desensitization of the DDS instance %s: %s", instanceId, err)
+			return diag.FromErr(err)
 		}
 	}
 
