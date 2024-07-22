@@ -16,14 +16,15 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API RabbitMQ PUT /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts
-// @API RabbitMQ POST /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts
-// @API RabbitMQ GET /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts
-func ResourceDmsRabbitmqVhost() *schema.Resource {
+// @API RabbitMQ PUT /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges
+// @API RabbitMQ POST /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges
+// @API RabbitMQ GET /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges
+func ResourceDmsRabbitmqExchange() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDmsRabbitmqVhostCreate,
-		ReadContext:   resourceDmsRabbitmqVhostRead,
-		DeleteContext: resourceDmsRabbitmqVhostDelete,
+		CreateContext: resourceDmsRabbitmqExchangeCreate,
+		ReadContext:   resourceDmsRabbitmqExchangeRead,
+		DeleteContext: resourceDmsRabbitmqExchangeDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -40,20 +41,43 @@ func ResourceDmsRabbitmqVhost() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"vhost": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"tracing": {
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"auto_delete": {
 				Type:     schema.TypeBool,
+				Required: true,
+				ForceNew: true,
+			},
+			"durable": {
+				Type:     schema.TypeBool,
+				Optional: true,
 				Computed: true,
+				ForceNew: true,
+			},
+			"internal": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 		},
 	}
 }
 
-func resourceDmsRabbitmqVhostCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDmsRabbitmqExchangeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("dmsv2", region)
@@ -62,30 +86,41 @@ func resourceDmsRabbitmqVhostCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	instanceID := d.Get("instance_id").(string)
+	vhost := d.Get("vhost").(string)
 	name := d.Get("name").(string)
 
-	createHttpUrl := "v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts"
+	createHttpUrl := "v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges"
 	createPath := client.Endpoint + createHttpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceID)
+	createPath = strings.ReplaceAll(createPath, "{vhost}", vhost)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody: map[string]interface{}{
-			"name": name,
-		},
+		JSONBody:         utils.RemoveNil(buildRabbitmqExchangeRequestBody(d)),
 	}
 	_, err = client.Request("PUT", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating vhost: %s", err)
+		return diag.Errorf("error creating exchange: %s", err)
 	}
 
-	id := fmt.Sprintf("%s/%s", instanceID, name)
+	id := fmt.Sprintf("%s/%s/%s", instanceID, vhost, name)
 	d.SetId(id)
 
-	return resourceDmsRabbitmqVhostRead(ctx, d, cfg)
+	return resourceDmsRabbitmqExchangeRead(ctx, d, cfg)
 }
 
-func resourceDmsRabbitmqVhostRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func buildRabbitmqExchangeRequestBody(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":        d.Get("name"),
+		"type":        d.Get("type"),
+		"auto_delete": d.Get("auto_delete"),
+		"durable":     utils.ValueIgnoreEmpty(d.Get("durable")),
+		"internal":    utils.ValueIgnoreEmpty(d.Get("internal")),
+	}
+	return bodyParams
+}
+
+func resourceDmsRabbitmqExchangeRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("dmsv2", region)
@@ -94,32 +129,38 @@ func resourceDmsRabbitmqVhostRead(_ context.Context, d *schema.ResourceData, met
 	}
 
 	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 2 {
-		return diag.Errorf("invalid ID format, must be <instance_id>/<name>")
+	if len(parts) != 3 {
+		return diag.Errorf("invalid ID format, must be <instance_id>/<vhost>/<name>")
 	}
 	instanceID := parts[0]
-	name := parts[1]
+	vhost := parts[1]
+	name := parts[2]
 
-	vhost, err := GetRabbitmqVhost(client, instanceID, name)
+	exchange, err := GetRabbitmqExchange(client, instanceID, vhost, name)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving the vhost")
+		return common.CheckDeletedDiag(d, err, "error retrieving the exchange")
 	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("instance_id", instanceID),
+		d.Set("vhost", vhost),
 		d.Set("name", name),
-		d.Set("tracing", utils.PathSearch("tracing", vhost, false)),
+		d.Set("type", utils.PathSearch("type", exchange, nil)),
+		d.Set("auto_delete", utils.PathSearch("auto_delete", exchange, nil)),
+		d.Set("durable", utils.PathSearch("durable", exchange, nil)),
+		d.Set("internal", utils.PathSearch("internal", exchange, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func GetRabbitmqVhost(client *golangsdk.ServiceClient, instanceID, name string) (interface{}, error) {
-	listHttpUrl := "v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts"
+func GetRabbitmqExchange(client *golangsdk.ServiceClient, instanceID, vhost, name string) (interface{}, error) {
+	listHttpUrl := "v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges"
 	listPath := client.Endpoint + listHttpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceID)
+	listPath = strings.ReplaceAll(listPath, "{vhost}", vhost)
 	listOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
@@ -131,11 +172,11 @@ func GetRabbitmqVhost(client *golangsdk.ServiceClient, instanceID, name string) 
 		currentPath := listPath + fmt.Sprintf("&offset=%d", offset)
 		listResp, err := client.Request("GET", currentPath, &listOpt)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving the vhosts list: %s", err)
+			return nil, fmt.Errorf("error retrieving the exchanges list: %s", err)
 		}
 		listRespBody, err := utils.FlattenResponse(listResp)
 		if err != nil {
-			return nil, fmt.Errorf("error flattening the vhosts list: %s", err)
+			return nil, fmt.Errorf("error flattening the exchanges list: %s", err)
 		}
 
 		searchPath := fmt.Sprintf("items[?name=='%s']|[0]", name)
@@ -144,7 +185,7 @@ func GetRabbitmqVhost(client *golangsdk.ServiceClient, instanceID, name string) 
 			return result, nil
 		}
 
-		// `total` means the number of all `vhost`, and type is float64.
+		// `total` means the number of all `exchange`, and type is float64.
 		offset += pageLimit
 		total := utils.PathSearch("total", listRespBody, float64(0))
 		if int(total.(float64)) <= offset {
@@ -153,7 +194,7 @@ func GetRabbitmqVhost(client *golangsdk.ServiceClient, instanceID, name string) 
 	}
 }
 
-func resourceDmsRabbitmqVhostDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDmsRabbitmqExchangeDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("dmsv2", region)
@@ -162,12 +203,14 @@ func resourceDmsRabbitmqVhostDelete(_ context.Context, d *schema.ResourceData, m
 	}
 
 	instanceID := d.Get("instance_id").(string)
+	vhost := d.Get("vhost").(string)
 	name := d.Get("name").(string)
 
-	deleteHttpUrl := "v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts"
+	deleteHttpUrl := "v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges"
 	deletePath := client.Endpoint + deleteHttpUrl
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
 	deletePath = strings.ReplaceAll(deletePath, "{instance_id}", instanceID)
+	deletePath = strings.ReplaceAll(deletePath, "{vhost}", vhost)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
@@ -180,7 +223,7 @@ func resourceDmsRabbitmqVhostDelete(_ context.Context, d *schema.ResourceData, m
 
 	_, err = client.Request("POST", deletePath, &deleteOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error deleting vhost")
+		return common.CheckDeletedDiag(d, err, "error deleting exchange")
 	}
 
 	return nil
