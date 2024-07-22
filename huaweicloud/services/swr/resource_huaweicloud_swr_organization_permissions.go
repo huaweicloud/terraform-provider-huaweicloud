@@ -265,7 +265,7 @@ func resourceSWROrganizationPermissionsDelete(_ context.Context, d *schema.Resou
 
 	err = namespaces.DeleteAccess(swrClient, userIDs, nameSpace).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting SWR organization permission: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting SWR organization permission")
 	}
 
 	return nil
