@@ -105,6 +105,12 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"ipv6_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"manager_user": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -245,6 +251,12 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"vpc_client_plain": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"tags": common.TagsSchema(),
 			"engine": {
 				Type:     schema.TypeString,
@@ -293,6 +305,63 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			},
 			"management_connect_address": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"extend_times": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"ipv6_connect_addresses": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"connector_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"connector_node_num": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"storage_resource_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"storage_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cert_replaced": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"is_logical_volume": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"message_query_inst_enable": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"node_num": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"pod_connect_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"public_bandwidth": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"ssl_two_way_enable": {
+				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			// Typo, it is only kept in the code, will not be shown in the docs.
@@ -553,6 +622,8 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 		SslEnable:             d.Get("ssl_enable").(bool),
 		KafkaSecurityProtocol: d.Get("security_protocol").(string),
 		SaslEnabledMechanisms: utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List()),
+		Ipv6Enable:            d.Get("ipv6_enable").(bool),
+		VpcClientPlain:        d.Get("vpc_client_plain").(bool),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -692,6 +763,8 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 		SslEnable:             d.Get("ssl_enable").(bool),
 		KafkaSecurityProtocol: d.Get("security_protocol").(string),
 		SaslEnabledMechanisms: utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List()),
+		Ipv6Enable:            d.Get("ipv6_enable").(bool),
+		VpcClientPlain:        d.Get("vpc_client_plain").(bool),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -940,6 +1013,7 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 			publicIpAddrs[i] = ip.PublicAddress
 		}
 	}
+	createdAt, _ := strconv.Atoi(v.CreatedAt)
 
 	mErr = multierror.Append(mErr,
 		d.Set("region", cfg.GetRegion(d)),
@@ -956,6 +1030,7 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		d.Set("vpc_id", v.VPCID),
 		d.Set("security_group_id", v.SecurityGroupID),
 		d.Set("network_id", v.SubnetID),
+		d.Set("ipv6_enable", v.Ipv6Enable),
 		d.Set("available_zones", availableZoneIDs),
 		d.Set("availability_zones", availableZoneCodes),
 		d.Set("broker_num", v.BrokerNum),
@@ -984,6 +1059,21 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		d.Set("charging_mode", chargingMode),
 		d.Set("public_ip_ids", publicIpIds),
 		d.Set("public_ip_address", publicIpAddrs),
+		d.Set("vpc_client_plain", v.VpcClientPlain),
+		d.Set("extend_times", v.ExtendTimes),
+		d.Set("connector_id", v.ConnectorID),
+		d.Set("connector_node_num", v.ConnectorNodeNum),
+		d.Set("storage_resource_id", v.StorageResourceID),
+		d.Set("storage_type", v.StorageType),
+		d.Set("ipv6_connect_addresses", v.Ipv6ConnectAddresses),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(createdAt)/1000, false)),
+		d.Set("cert_replaced", v.CertReplaced),
+		d.Set("is_logical_volume", v.IsLogicalVolume),
+		d.Set("message_query_inst_enable", v.MessageQueryInstEnable),
+		d.Set("node_num", v.NodeNum),
+		d.Set("pod_connect_address", v.PodConnectAddress),
+		d.Set("public_bandwidth", v.PublicBandWidth),
+		d.Set("ssl_two_way_enable", v.SslTwoWayEnable),
 	)
 
 	// set tags

@@ -116,6 +116,9 @@ The following arguments are supported:
 
   ~> The parameter behavior of `availability_zones` has been changed from `list` to `set`.
 
+* `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether to enable IPv6. Defaults to **false**.
+  Changing this creates a new instance resource.
+
 * `arch_type` - (Optional, String, ForceNew) Specifies the CPU architecture. Valid value is **X86**.
   Changing this creates a new instance resource.
 
@@ -219,8 +222,11 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the Kafka instance.
 
-* `ssl_enable` - (Optional, Bool, ForceNew) Specifies whether the Kafka SASL_SSL is enabled.  
+* `ssl_enable` - (Optional, Bool, ForceNew) Specifies whether the Kafka SASL_SSL is enabled.
   Changing this creates a new resource.
+
+* `vpc_client_plain` - (Optional, Bool, ForceNew) Specifies whether the intra-VPC plaintext access is enabled.
+  Defaults to **false**. Changing this creates a new resource.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the DMS Kafka instance.
 
@@ -272,6 +278,20 @@ In addition to all arguments above, the following attributes are exported:
 * `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
 * `charging_mode` - Indicates the charging mode of the instance.
 * `public_ip_address` - Indicates the public IP addresses list of the instance.
+* `extend_times` - Indicates the extend times. If the value exceeds **20**, disk expansion is no longer allowed.
+* `connector_id` - Indicates the connector ID.
+* `connector_node_num` - Indicates the number of connector node.
+* `storage_resource_id` - Indicates the storage resource ID.
+* `storage_type` - Indicates the storage type.
+* `ipv6_connect_addresses` - Indicates the IPv6 connect addresses list.
+* `created_at` - Indicates the create time.
+* `cert_replaced` - Indicates whether the certificate can be replaced.
+* `is_logical_volume` - Indicates whether the instance is a new instance.
+* `message_query_inst_enable` - Indicates whether message query is enabled.
+* `node_num` - Indicates the node quantity.
+* `pod_connect_address` - Indicates the connection address on the tenant side.
+* `public_bandwidth` - Indicates the public network access bandwidth.
+* `ssl_two_way_enable` - Indicates whether to enable two-way authentication.
 
 The `cross_vpc_accesses` block supports:
 
