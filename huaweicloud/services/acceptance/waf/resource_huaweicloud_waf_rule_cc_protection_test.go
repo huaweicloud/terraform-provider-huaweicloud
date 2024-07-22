@@ -160,7 +160,7 @@ func TestAccRuleCCProtection_withEpsID(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "policy_id", "huaweicloud_waf_policy.policy_1", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(rName, "protective_action", "log"),
+					resource.TestCheckResourceAttr(rName, "protective_action", "block"),
 					resource.TestCheckResourceAttr(rName, "rate_limit_mode", "other"),
 					resource.TestCheckResourceAttr(rName, "other_user_identifier", "test_referer"),
 					resource.TestCheckResourceAttr(rName, "limit_num", "20"),
@@ -272,7 +272,7 @@ resource "huaweicloud_waf_rule_cc_protection" "test" {
   policy_id             = huaweicloud_waf_policy.policy_1.id
   name                  = "%s"
   enterprise_project_id = "%s"
-  protective_action     = "log"
+  protective_action     = "block"
   rate_limit_mode       = "other"
   other_user_identifier = "test_referer"
   limit_num             = 20
