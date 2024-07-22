@@ -149,7 +149,7 @@ func dataSourceFloatingPtrrecordsRead(_ context.Context, d *schema.ResourceData,
 
 // @API DNS GET /v2/reverse/floatingips
 func (w *FloatingPtrrecordsDSWrapper) ListPtrRecords() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns")
+	client, err := w.NewClient(w.Config, "dns_region")
 	if err != nil {
 		return nil, err
 	}

@@ -21,6 +21,12 @@ func DataSourceNameservers() *schema.Resource {
 		ReadContext: dataSourceNameserversRead,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+			},
 			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -113,7 +119,7 @@ func dataSourceNameserversRead(_ context.Context, d *schema.ResourceData, meta i
 
 // @API DNS GET /v2/nameservers
 func (w *NameserversDSWrapper) ListNameServers() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns")
+	client, err := w.NewClient(w.Config, "dns_region")
 	if err != nil {
 		return nil, err
 	}
@@ -135,6 +141,7 @@ func (w *NameserversDSWrapper) ListNameServers() (*gjson.Result, error) {
 func (w *NameserversDSWrapper) listNameServersToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
+		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("nameservers", schemas.SliceToList(body.Get("nameservers"),
 			func(nameserver gjson.Result) any {
 				return map[string]any{
