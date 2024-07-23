@@ -870,7 +870,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
 			// Deprecated, use `huaweicloud_ccm_certificates` instead
-			"huaweicloud_scm_certificates": ccm.DataSourceCertificates(),
+			"huaweicloud_ccm_private_certificates": ccm.DataSourcePrivateCertificates(),
+			"huaweicloud_scm_certificates":         ccm.DataSourceCertificates(),
 
 			"huaweicloud_sfs_file_system":       sfs.DataSourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbos":            sfs.DataSourceTurbos(),
