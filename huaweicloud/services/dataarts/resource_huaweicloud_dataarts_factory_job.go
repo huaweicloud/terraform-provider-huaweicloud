@@ -831,7 +831,7 @@ func buildCronDependJobs(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"jobs":             utils.ValueIgnoreEmpty(raw["jobs"]),
+			"jobs":             raw["jobs"],
 			"dependPeriod":     utils.ValueIgnoreEmpty(raw["depend_period"]),
 			"dependFailPolicy": utils.ValueIgnoreEmpty(raw["depend_fail_policy"]),
 		}

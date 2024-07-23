@@ -263,3 +263,233 @@ func testFactoryJobImportState(name string) resource.ImportStateIdFunc {
 		return rs.Primary.Attributes["workspace_id"] + "/" + rs.Primary.ID, nil
 	}
 }
+
+func TestAccFactoryJob_batch_singleTask_job(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_dataarts_factory_job.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getFactoryJobResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFactoryJob_batch_singleTask_job_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
+					resource.TestCheckResourceAttr(rName, "process_type", "BATCH"),
+					resource.TestCheckResourceAttr(rName, "nodes.0.type", "DLISQL"),
+					resource.TestCheckResourceAttr(rName, "schedule.0.type", "CRON"),
+					resource.TestCheckResourceAttr(rName, "schedule.0.cron.0.expression", "0 0 0 * * ?"),
+					resource.TestCheckResourceAttr(rName, "schedule.0.cron.0.depend_jobs.0.jobs.#", "1"),
+					resource.TestCheckResourceAttrPair(rName, "schedule.0.cron.0.depend_jobs.0.jobs.0",
+						"huaweicloud_dataarts_factory_job.test2", "id"),
+				),
+			},
+			{
+				Config: testAccFactoryJob_batch_singleTask_job_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "schedule.0.cron.0.depend_jobs.0.jobs.#", "0"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testFactoryJobImportState(rName),
+			},
+		},
+	})
+}
+
+func testAccFactoryJob_batch_singleTask_job_base(name string) string {
+	return fmt.Sprintf(`
+
+resource "huaweicloud_dli_database" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_dataarts_factory_job" "test2" {
+  name         = "%[1]s_2"
+  workspace_id = "%[2]s"
+  process_type = "BATCH"
+
+  nodes {
+    name = "%[1]s_2"
+    type = "DLISQL"
+
+    location {
+      x = 10
+      y = 11
+    }
+
+    properties {
+      name  = "database"
+      value = huaweicloud_dli_database.test.name
+    }
+
+    properties {
+      name  = "queueName"
+      value = "default"
+    }
+
+    properties {
+      name  = "statementOrScript"
+      value = "SCRIPT"
+    }
+
+    properties {
+      name  = "overloadRetryInterval"
+      value = "300 sec"
+    }
+
+    properties {
+      name  = "maximumOverloadRetries"
+      value = "0"
+    }
+  }
+
+  schedule {
+    type = "CRON"
+
+    cron {
+      start_time = "2024-07-23T13:08:37+08"
+      expression = "0 0 0 * * ?"
+    }
+  }
+}
+`, name, acceptance.HW_DATAARTS_WORKSPACE_ID)
+}
+
+func testAccFactoryJob_batch_singleTask_job_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dataarts_factory_job" "test" {
+  name         = "%[2]s_1"
+  workspace_id = "%[3]s"
+  process_type = "BATCH"
+  
+  nodes {
+    name = "%[2]s_1"
+    type = "DLISQL"
+
+    location {
+      x = 10
+      y = 11
+    }
+  
+    properties {
+      name  = "database"
+      value = huaweicloud_dli_database.test.name
+    }
+  
+    properties {
+      name  = "queueName"
+      value = "default"
+    }
+  
+    properties {
+      name  = "statementOrScript"
+      value = "SCRIPT"
+    }
+
+    properties {
+      name  = "overloadRetryInterval"
+      value = "300 sec"
+    }
+
+    properties {
+      name  = "maximumOverloadRetries"
+      value = "0"
+    }
+  }
+  
+  schedule {
+    type = "CRON"
+
+    cron {
+      start_time = "2024-07-23T13:08:37+08"
+      expression = "0 0 0 * * ?"
+
+      depend_jobs {
+        jobs = [huaweicloud_dataarts_factory_job.test2.id]
+      }
+    }
+  }
+}
+`, testAccFactoryJob_batch_singleTask_job_base(name), name, acceptance.HW_DATAARTS_WORKSPACE_ID)
+}
+
+func testAccFactoryJob_batch_singleTask_job_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dataarts_factory_job" "test" {
+  name         = "%[2]s_1"
+  workspace_id = "%[3]s"
+  process_type = "BATCH"
+
+  nodes {
+    name = "%[2]s_1"
+    type = "DLISQL"
+
+    location {
+      x = 10
+      y = 11
+    }
+
+    properties {
+      name  = "database"
+      value = huaweicloud_dli_database.test.name
+    }
+
+    properties {
+      name  = "queueName"
+      value = "default"
+    }
+
+    properties {
+      name  = "statementOrScript"
+      value = "SCRIPT"
+    }
+
+    properties {
+      name  = "overloadRetryInterval"
+      value = "300 sec"
+    }
+
+    properties {
+      name  = "maximumOverloadRetries"
+      value = "0"
+    }
+  }
+
+  schedule {
+    type = "CRON"
+
+    cron {
+      start_time = "2024-07-23T13:08:37+08"
+      expression = "0 0 0 * * ?"
+
+      depend_jobs {
+        jobs = []
+      }
+    }
+  }
+}
+`, testAccFactoryJob_batch_singleTask_job_base(name), name, acceptance.HW_DATAARTS_WORKSPACE_ID)
+}
