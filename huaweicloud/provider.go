@@ -871,6 +871,7 @@ func Provider() *schema.Provider {
 
 			// Deprecated, use `huaweicloud_ccm_certificates` instead
 			"huaweicloud_ccm_private_certificates": ccm.DataSourcePrivateCertificates(),
+			"huaweicloud_ccm_private_cas":          ccm.DataSourcePrivateCas(),
 			"huaweicloud_scm_certificates":         ccm.DataSourceCertificates(),
 
 			"huaweicloud_sfs_file_system":       sfs.DataSourceSFSFileSystemV2(),
