@@ -35,6 +35,7 @@ import (
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/transaction-split
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/session-consistence
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxies
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/{engine_name}/proxy-version
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/configurations
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}/proxy
 func ResourceGaussDBProxy() *schema.Resource {
@@ -162,6 +163,14 @@ func ResourceGaussDBProxy() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     gaussDBMysqlProxyNodeSchema(),
+			},
+			"current_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"can_upgrade": {
+				Type:     schema.TypeBool,
+				Computed: true,
 			},
 		},
 	}
@@ -380,6 +389,16 @@ func resourceGaussDBProxyRead(_ context.Context, d *schema.ResourceData, meta in
 		mErr = multierror.Append(d.Set("parameters", parameters))
 	}
 
+	version, err := getGaussDBProxyVersion(d, client)
+	if err != nil {
+		log.Printf("[WARN] fetching GaussDB MySQL proxy version failed: %s", err)
+	} else {
+		mErr = multierror.Append(
+			d.Set("current_version", utils.PathSearch("current_version", version, nil)),
+			d.Set("can_upgrade", utils.PathSearch("can_upgrade", version, nil)),
+		)
+	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -501,6 +520,29 @@ func getGaussDBProxyParameters(d *schema.ResourceData, client *golangsdk.Service
 		return nil, err
 	}
 	return flattenGaussDBProxyParameters(listRespBody, d), nil
+}
+
+func getGaussDBProxyVersion(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/{engine_name}/proxy-version"
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Get("instance_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{proxy_id}", d.Id())
+	getPath = strings.ReplaceAll(getPath, "{engine_name}", "taurusproxy")
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
 }
 
 func flattenGaussDBProxyParameters(resp interface{}, d *schema.ResourceData) []interface{} {

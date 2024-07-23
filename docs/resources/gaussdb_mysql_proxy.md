@@ -120,6 +120,10 @@ In addition to all arguments above, the following attributes are exported:
 * `nodes` - Indicates the node information of the proxy.
   The [nodes](#nodes_struct) structure is documented below.
 
+* `current_version` - Indicates the current version of the proxy.
+
+* `can_upgrade` - Indicates whether the proxy can be upgrade.
+
 <a name="nodes_struct"></a>
 The `nodes` block supports:
 
