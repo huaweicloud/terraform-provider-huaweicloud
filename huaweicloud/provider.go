@@ -412,6 +412,8 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"huaweicloud_aom_multi_account_aggregation_rules": aom.DataSourceMultiAccountAggregationRules(),
+
 			"huaweicloud_apig_acl_policies":                       apig.DataSourceAclPolicies(),
 			"huaweicloud_apig_api_associated_acl_policies":        apig.DataSourceApiAssociatedAclPolicies(),
 			"huaweicloud_apig_api_associated_applications":        apig.DataSourceApiAssociatedApplications(),
@@ -1039,15 +1041,16 @@ func Provider() *schema.Provider {
 			"huaweicloud_access_analyzer":              accessanalyzer.ResourceAccessAnalyzer(),
 			"huaweicloud_access_analyzer_archive_rule": accessanalyzer.ResourceArchiveRule(),
 
-			"huaweicloud_aom_alarm_rule":             aom.ResourceAlarmRule(),
-			"huaweicloud_aom_event_alarm_rule":       aom.ResourceEventAlarmRule(),
-			"huaweicloud_aom_service_discovery_rule": aom.ResourceServiceDiscoveryRule(),
-			"huaweicloud_aom_alarm_action_rule":      aom.ResourceAlarmActionRule(),
-			"huaweicloud_aom_alarm_silence_rule":     aom.ResourceAlarmSilenceRule(),
-			"huaweicloud_aom_cmdb_application":       aom.ResourceCmdbApplication(),
-			"huaweicloud_aom_cmdb_component":         aom.ResourceCmdbComponent(),
-			"huaweicloud_aom_cmdb_environment":       aom.ResourceCmdbEnvironment(),
-			"huaweicloud_aom_prom_instance":          aom.ResourcePromInstance(),
+			"huaweicloud_aom_alarm_rule":                     aom.ResourceAlarmRule(),
+			"huaweicloud_aom_event_alarm_rule":               aom.ResourceEventAlarmRule(),
+			"huaweicloud_aom_service_discovery_rule":         aom.ResourceServiceDiscoveryRule(),
+			"huaweicloud_aom_alarm_action_rule":              aom.ResourceAlarmActionRule(),
+			"huaweicloud_aom_alarm_silence_rule":             aom.ResourceAlarmSilenceRule(),
+			"huaweicloud_aom_cmdb_application":               aom.ResourceCmdbApplication(),
+			"huaweicloud_aom_cmdb_component":                 aom.ResourceCmdbComponent(),
+			"huaweicloud_aom_cmdb_environment":               aom.ResourceCmdbEnvironment(),
+			"huaweicloud_aom_prom_instance":                  aom.ResourcePromInstance(),
+			"huaweicloud_aom_multi_account_aggregation_rule": aom.ResourceMultiAccountAggregationRule(),
 
 			"huaweicloud_rfs_stack": rfs.ResourceStack(),
 
