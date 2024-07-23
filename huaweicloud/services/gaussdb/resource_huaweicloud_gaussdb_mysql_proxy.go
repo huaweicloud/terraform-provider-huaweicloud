@@ -33,6 +33,7 @@ import (
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/weight
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/new-node-auto-add
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/transaction-split
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/session-consistence
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxies
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/configurations
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}/proxy
@@ -144,6 +145,11 @@ func ResourceGaussDBProxy() *schema.Resource {
 				Computed: true,
 			},
 			"transaction_split": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"consistence_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -278,6 +284,13 @@ func resourceGaussDBProxyCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	if consistenceMode, ok := d.GetOk("consistence_mode"); ok && consistenceMode != "eventual" {
+		err = updateGaussDBMySQLConsistenceMode(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGaussDBProxyRead(ctx, d, meta)
 }
 
@@ -349,6 +362,7 @@ func resourceGaussDBProxyRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("readonly_nodes_weight", flattenGaussDBProxyResponseBodyReadonlyNodesWeight(proxy, d)),
 		d.Set("new_node_auto_add_status", utils.PathSearch("proxy.new_node_auto_add_status", proxy, nil)),
 		d.Set("port", utils.PathSearch("proxy.port", proxy, nil)),
+		d.Set("consistence_mode", utils.PathSearch("proxy.consistence_mode", proxy, nil)),
 		d.Set("address", utils.PathSearch("proxy.address", proxy, nil)),
 		d.Set("nodes", flattenGaussDBProxyResponseBodyNodes(proxy)),
 	)
@@ -585,6 +599,13 @@ func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChange("transaction_split") {
 		err = updateGaussDBMySQLTransactionSplit(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("consistence_mode") {
+		err = updateGaussDBMySQLConsistenceMode(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -990,6 +1011,56 @@ func buildUpdateGaussDBMySQLTransactionSplitBodyParams(d *schema.ResourceData) m
 	bodyParams := map[string]interface{}{
 		"transaction_split": d.Get("transaction_split"),
 		"proxy_id_list":     []string{d.Id()},
+	}
+	return bodyParams
+}
+
+func updateGaussDBMySQLConsistenceMode(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/session-consistence"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = buildUpdateGaussDBMySQLConsistenceModeBodyParams(d)
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy consistence mode: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy consistence mode: job_id is not found in API response")
+	}
+
+	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildUpdateGaussDBMySQLConsistenceModeBodyParams(d *schema.ResourceData) map[string]interface{} {
+	consistenceMode := d.Get("consistence_mode").(string)
+	bodyParams := map[string]interface{}{
+		"consistence_mode": consistenceMode,
+	}
+	if consistenceMode == "session" {
+		bodyParams["session_consistence"] = true
+	} else {
+		bodyParams["session_consistence"] = false
 	}
 	return bodyParams
 }
