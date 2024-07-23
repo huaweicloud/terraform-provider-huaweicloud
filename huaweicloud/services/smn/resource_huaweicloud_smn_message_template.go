@@ -149,9 +149,6 @@ func resourceSmnMessageTemplateUpdate(ctx context.Context, d *schema.ResourceDat
 
 		updateMessageTemplateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateMessageTemplateOpt.JSONBody = utils.RemoveNil(buildUpdateMessageTemplateBodyParams(d))
 		_, err = updateMessageTemplateClient.Request("PUT", updateMessageTemplatePath, &updateMessageTemplateOpt)
@@ -192,9 +189,6 @@ func resourceSmnMessageTemplateRead(_ context.Context, d *schema.ResourceData, m
 
 	getMessageTemplateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getMessageTemplateResp, err := getMessageTemplateClient.Request("GET",
 		getMessageTemplatePath, &getMessageTemplateOpt)
@@ -242,9 +236,6 @@ func resourceSmnMessageTemplateDelete(_ context.Context, d *schema.ResourceData,
 
 	deleteMessageTemplateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	_, err = deleteMessageTemplateClient.Request("DELETE", deleteMessageTemplatePath, &deleteMessageTemplateOpt)
 	if err != nil {
