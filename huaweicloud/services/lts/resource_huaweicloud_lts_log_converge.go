@@ -1,6 +1,7 @@
 package lts
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"strings"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -126,6 +128,11 @@ func ResourceLogConverge() *schema.Resource {
 					},
 				},
 				Description: `The log converge configurations.`,
+				// Since this structure uses full coverage logic, only the overall changes need to be identified.
+				DiffSuppressFunc: func(_, _, _ string, d *schema.ResourceData) bool {
+					oldConfig, newConfig := d.GetChange("log_mapping_config")
+					return buildLogMappingConfigCompareObj(oldConfig.(*schema.Set)) == buildLogMappingConfigCompareObj(newConfig.(*schema.Set))
+				},
 			},
 			"management_project_id": {
 				Type:        schema.TypeString,
@@ -145,6 +152,49 @@ func ResourceLogConverge() *schema.Resource {
 			},
 		},
 	}
+}
+
+// Use fields other than target_log_stream_id to calculate hash value.
+// Since the target_log_stream_name field is a required field, and the ID is strongly related to the name (the service
+// will verify it). If the ID is changed, the name will definitely change accordingly.
+// So, only the ID needs to be calculated.
+func buildLogStreamConfigCompareObj(obj *schema.Set) int {
+	var buf bytes.Buffer
+	for _, val := range obj.List() {
+		m := val.(map[string]interface{})
+		if m["source_log_stream_id"] != nil {
+			buf.WriteString(fmt.Sprintf("%v-", m["source_log_stream_id"]))
+		}
+		if m["target_log_stream_ttl"] != nil {
+			buf.WriteString(fmt.Sprintf("%v-", m["target_log_stream_ttl"]))
+		}
+		if m["target_log_stream_name"] != nil {
+			buf.WriteString(fmt.Sprintf("%v-", m["target_log_stream_name"]))
+		}
+	}
+	return hashcode.String(buf.String())
+}
+
+// Use fields other than target_log_group_id to calculate hash value.
+// Since the target_log_group_name field is a required field, and the ID is strongly related to the name (the service
+// will verify it). If the ID is changed, the name will definitely change accordingly.
+// So, only the ID needs to be calculated.
+func buildLogMappingConfigCompareObj(obj *schema.Set) int {
+	var buf bytes.Buffer
+	for _, val := range obj.List() {
+		m := val.(map[string]interface{})
+		if m["source_log_group_id"] != nil {
+			buf.WriteString(fmt.Sprintf("%v-", m["source_log_group_id"]))
+		}
+		if m["target_log_group_name"] != nil {
+			buf.WriteString(fmt.Sprintf("%v-", m["target_log_group_name"]))
+		}
+		if cfg := m["log_stream_config"]; cfg != nil {
+			configs := cfg.(*schema.Set)
+			buf.WriteString(fmt.Sprintf("%v-", buildLogStreamConfigCompareObj(configs)))
+		}
+	}
+	return hashcode.String(buf.String())
 }
 
 func buildLogMappingStreamConfigsBodyParams(streamConfigs *schema.Set) []interface{} {
