@@ -729,6 +729,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_kms_key":      dew.DataSourceKmsKey(),
 			"huaweicloud_kms_data_key": dew.DataSourceKmsDataKeyV1(),
+			"huaweicloud_kms_grants":   dew.DataSourceKmsGrants(),
 			"huaweicloud_kps_keypairs": dew.DataSourceKeypairs(),
 
 			"huaweicloud_iotda_device_certificates":  iotda.DataSourceDeviceCertificates(),
