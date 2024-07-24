@@ -7,36 +7,30 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/cbr/v3/vaults"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 )
 
-func getVaultResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.CbrV3Client(acceptance.HW_REGION_NAME)
+func getVaultResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("cbr", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating CBR v3 client: %s", err)
+		return nil, fmt.Errorf("error creating CBR client: %s", err)
 	}
-	return vaults.Get(c, state.Primary.ID).Extract()
+	return cbr.GetVaultById(client, state.Primary.ID)
 }
 
 func TestAccVault_backupServer(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		resourceName = "huaweicloud_cbr_vault.test"
 		name         = acceptance.RandomAccResourceName()
 		updateName   = acceptance.RandomAccResourceName()
 		basicConfig  = testAccVault_base(name)
-	)
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&vault,
-		getVaultResourceFunc,
+		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -49,14 +43,20 @@ func TestAccVault_backupServer(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "200"),
-					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
+					resource.TestCheckResourceAttr(resourceName, "auto_expand", "false"),
+					resource.TestCheckResourceAttr(resourceName, "auto_bind", "false"),
+					resource.TestCheckResourceAttr(resourceName, "auto_expand", "false"),
+					resource.TestCheckResourceAttr(resourceName, "bind_rules.%", "0"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "policy.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "backup_name_prefix", "test-prefix-"),
 					resource.TestCheckResourceAttr(resourceName, "is_multi_az", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "resources.0.excludes.#", "2"),
@@ -199,16 +199,12 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_replicationServer(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		resourceName = "huaweicloud_cbr_vault.test"
 		name         = acceptance.RandomAccResourceName()
-	)
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&vault,
-		getVaultResourceFunc,
+		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -253,18 +249,14 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_prePaidServer(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		resourceName = "huaweicloud_cbr_vault.test"
 		name         = acceptance.RandomAccResourceName()
 		updateName   = acceptance.RandomAccResourceName()
 		basicConfig  = testAccVault_base(name)
-	)
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&vault,
-		getVaultResourceFunc,
+		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -388,18 +380,14 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_volume(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		resourceName = "huaweicloud_cbr_vault.test"
 		name         = acceptance.RandomAccResourceName()
 		updateName   = acceptance.RandomAccResourceName()
 		basicConfig  = testAccVault_base(name)
-	)
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&vault,
-		getVaultResourceFunc,
+		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -487,17 +475,13 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_backupTurbo(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		resourceName = "huaweicloud_cbr_vault.test"
 		name         = acceptance.RandomAccResourceName()
 		updateName   = acceptance.RandomAccResourceName()
-	)
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&vault,
-		getVaultResourceFunc,
+		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -600,16 +584,12 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_replicationTurbo(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		resourceName = "huaweicloud_cbr_vault.test"
 		name         = acceptance.RandomAccResourceName()
-	)
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&vault,
-		getVaultResourceFunc,
+		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -654,16 +634,12 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_AutoBind(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		randName     = acceptance.RandomAccResourceName()
 		resourceName = "huaweicloud_cbr_vault.test"
-	)
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&vault,
-		getVaultResourceFunc,
+		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -739,23 +715,14 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_bindPolicies(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		randName     = acceptance.RandomAccResourceName()
 		mainRcName   = "huaweicloud_cbr_vault.test"
 		legacyRcName = "huaweicloud_cbr_vault.legacy"
-	)
 
-	mainRc := acceptance.InitResourceCheck(
-		mainRcName,
-		&vault,
-		getVaultResourceFunc,
-	)
-
-	legacyRc := acceptance.InitResourceCheck(
-		legacyRcName,
-		&vault,
-		getVaultResourceFunc,
+		mainRc   = acceptance.InitResourceCheck(mainRcName, &vault, getVaultResourceFunc)
+		legacyRc = acceptance.InitResourceCheck(legacyRcName, &vault, getVaultResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -828,7 +795,7 @@ variable "backup_configuration" {
 resource "huaweicloud_cbr_policy" "backup" {
   count = 2
 
-  name            = "%[1]s"
+  name            = format("%[1]s_%%d", count.index)
   type            = "backup"
   backup_quantity = 5
 
@@ -925,18 +892,14 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_backupWorkspace(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		resourceName = "huaweicloud_cbr_vault.test"
 		name         = acceptance.RandomAccResourceName()
 		updateName   = acceptance.RandomAccResourceName()
 		basicConfig  = testAccVault_backupWorkspace_base(name)
-	)
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&vault,
-		getVaultResourceFunc,
+		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -1074,7 +1037,7 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_backupVMware(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		resourceName  = "huaweicloud_cbr_vault.test"
 		resourceName1 = "huaweicloud_cbr_vault.test.0"
@@ -1083,6 +1046,7 @@ func TestAccVault_backupVMware(t *testing.T) {
 
 		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
@@ -1147,7 +1111,7 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_backupFile(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		resourceName  = "huaweicloud_cbr_vault.test"
 		resourceName1 = "huaweicloud_cbr_vault.test.0"
@@ -1220,18 +1184,14 @@ resource "huaweicloud_cbr_vault" "test" {
 
 func TestAccVault_withEpsId(t *testing.T) {
 	var (
-		vault vaults.Vault
+		vault interface{}
 
 		resourceName = "huaweicloud_cbr_vault.test"
 		name         = acceptance.RandomAccResourceName()
 		updateName   = acceptance.RandomAccResourceName()
 		basicConfig  = testAccVault_base(name)
-	)
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&vault,
-		getVaultResourceFunc,
+		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
