@@ -366,7 +366,9 @@ func resourceSwrImageRetentionPolicyDelete(_ context.Context, d *schema.Resource
 	_, err = deleteSwrImageRetentionPolicyClient.Request("DELETE",
 		deleteSwrImageRetentionPolicyPath, &deleteSwrImageRetentionPolicyOpt)
 	if err != nil {
-		return diag.Errorf("error deleting SWR image retention policy: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "errors|[0].errorCode", "SVCSTG.SWR.4000306"),
+			"error deleting SWR image retention policy")
 	}
 
 	return nil

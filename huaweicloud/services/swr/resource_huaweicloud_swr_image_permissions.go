@@ -301,7 +301,7 @@ func resourceSwrImagePermissionsDelete(_ context.Context, d *schema.ResourceData
 
 	err = deleteSwrImagePermissions(d, deleteSwrImagePermissionsClient, d.Get("users").([]interface{}))
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error deleting SWR image permissions")
 	}
 
 	return nil
@@ -370,7 +370,7 @@ func deleteSwrImagePermissions(d *schema.ResourceData, client *golangsdk.Service
 	_, err := client.Request("DELETE", deleteSwrImagePermissionsPath,
 		&deleteSwrImagePermissionsOpt)
 	if err != nil {
-		return fmt.Errorf("error deleting SWR image permissions: %s", err)
+		return err
 	}
 	return nil
 }

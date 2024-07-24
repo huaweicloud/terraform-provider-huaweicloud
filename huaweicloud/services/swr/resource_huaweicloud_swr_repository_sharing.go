@@ -142,7 +142,9 @@ func resourceSWRRepositorySharingRead(_ context.Context, d *schema.ResourceData,
 
 	domain, err := domains.Get(client, organization, repository, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving SWR repository sharing")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "errorCode", "SVCSTG.SWR.4001090"),
+			"error retrieving SWR repository sharing")
 	}
 
 	mErr := multierror.Append(

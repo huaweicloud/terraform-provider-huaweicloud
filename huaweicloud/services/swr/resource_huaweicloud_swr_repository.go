@@ -200,7 +200,7 @@ func resourceSWRRepositoryDelete(_ context.Context, d *schema.ResourceData, meta
 	organization := d.Get("organization").(string)
 	err = repositories.Delete(client, organization, d.Id()).ExtractErr()
 	if err != nil {
-		diag.Errorf("error deleting SWR repository: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting SWR repository")
 	}
 
 	return nil
