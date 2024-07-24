@@ -104,6 +104,11 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "Loose"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.elem_type", "system"),
 					resource.TestCheckResourceAttr(resourceName, "consistence_mode", "session"),
+					resource.TestCheckResourceAttr(resourceName, "open_access_control", "true"),
+					resource.TestCheckResourceAttr(resourceName, "access_control_type", "white"),
+					resource.TestCheckResourceAttr(resourceName, "access_control_ip_list.0.ip", "3.3.3.3"),
+					resource.TestCheckResourceAttr(resourceName, "access_control_ip_list.0.description",
+						"test description"),
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 					resource.TestCheckResourceAttrSet(resourceName, "current_version"),
 					resource.TestCheckResourceAttrSet(resourceName, "can_upgrade"),
@@ -141,6 +146,11 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "6000"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.elem_type", "system"),
 					resource.TestCheckResourceAttr(resourceName, "consistence_mode", "eventual"),
+					resource.TestCheckResourceAttr(resourceName, "open_access_control", "false"),
+					resource.TestCheckResourceAttr(resourceName, "access_control_type", "black"),
+					resource.TestCheckResourceAttr(resourceName, "access_control_ip_list.0.ip", "4.4.4.4"),
+					resource.TestCheckResourceAttr(resourceName, "access_control_ip_list.0.description",
+						"test description update"),
 				),
 			},
 			{
@@ -219,6 +229,13 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   transaction_split        = "ON"
   consistence_mode         = "session"
   connection_pool_type     = "SESSION"
+  open_access_control      = true
+  access_control_type      = "white"
+
+  access_control_ip_list {
+    ip          = "3.3.3.3"
+    description = "test description"
+  }
 
   master_node_weight {
     id     = local.sort_nodes[0].id
@@ -257,6 +274,13 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   transaction_split        = "OFF"
   consistence_mode         = "eventual"
   connection_pool_type     = "CLOSED"
+  open_access_control      = false
+  access_control_type      = "black"
+
+  access_control_ip_list {
+    ip          = "4.4.4.4"
+    description = "test description update"
+  }
 
   master_node_weight {
     id     = local.sort_nodes[0].id
@@ -300,6 +324,13 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   transaction_split        = "OFF"
   consistence_mode         = "eventual"
   connection_pool_type     = "CLOSED"
+  open_access_control      = false
+  access_control_type      = "black"
+
+  access_control_ip_list {
+    ip          = "4.4.4.4"
+    description = "test description update"
+  }
 
   master_node_weight {
     id     = local.sort_nodes[0].id

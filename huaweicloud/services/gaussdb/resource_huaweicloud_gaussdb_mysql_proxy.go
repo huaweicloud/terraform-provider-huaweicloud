@@ -35,6 +35,9 @@ import (
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/transaction-split
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/session-consistence
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/connection-pool-type
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/access-control-switch
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/access-control
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/ipgroup
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxies
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/{engine_name}/proxy-version
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/configurations
@@ -161,6 +164,23 @@ func ResourceGaussDBProxy() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"open_access_control": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"access_control_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"access_control_ip_list": {
+				Type:         schema.TypeSet,
+				Optional:     true,
+				Computed:     true,
+				Elem:         gaussDBMysqlProxyAccessControlIpListSchema(),
+				RequiredWith: []string{"access_control_type"},
+			},
 			"address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -196,6 +216,23 @@ func gaussDBMysqlProxyNodeWeightSchema() *schema.Resource {
 			"weight": {
 				Type:     schema.TypeInt,
 				Required: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func gaussDBMysqlProxyAccessControlIpListSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"ip": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -317,6 +354,20 @@ func resourceGaussDBProxyCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	if _, ok := d.GetOk("open_access_control"); ok {
+		err = updateGaussDBMySQLOpenAccessControl(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("access_control_type"); ok {
+		err = updateGaussDBMySQLAccessControlRule(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGaussDBProxyRead(ctx, d, meta)
 }
 
@@ -416,6 +467,20 @@ func resourceGaussDBProxyRead(_ context.Context, d *schema.ResourceData, meta in
 		mErr = multierror.Append(
 			d.Set("current_version", utils.PathSearch("current_version", version, nil)),
 			d.Set("can_upgrade", utils.PathSearch("can_upgrade", version, nil)),
+		)
+	}
+
+	accessControl, err := getGaussDBProxyAccessControl(d, client)
+	if err != nil {
+		log.Printf("[WARN] fetching GaussDB MySQL proxy access control failed: %s", err)
+	} else {
+		openAccessControl := utils.PathSearch("enable_ip_group", accessControl, nil)
+		accessControlType := utils.PathSearch("type", accessControl, nil)
+		accessControlIpList := flattenGaussDBProxyAccessControlIpList(accessControl)
+		mErr = multierror.Append(
+			d.Set("open_access_control", openAccessControl),
+			d.Set("access_control_type", accessControlType),
+			d.Set("access_control_ip_list", accessControlIpList),
 		)
 	}
 
@@ -595,6 +660,46 @@ func flattenGaussDBProxyParameters(resp interface{}, d *schema.ResourceData) []i
 	return rst
 }
 
+func getGaussDBProxyAccessControl(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/ipgroup"
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Get("instance_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{proxy_id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving GaussDB MySQL access control: %s", err)
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
+func flattenGaussDBProxyAccessControlIpList(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	curJson := utils.PathSearch("ip_group.ip_list", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"ip":          utils.PathSearch("ip", v, nil),
+			"description": utils.PathSearch("description", v, nil),
+		})
+	}
+	return rst
+}
+
 func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
@@ -675,6 +780,20 @@ func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChange("connection_pool_type") {
 		err = updateGaussDBMySQLConnectionPoolType(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("open_access_control") {
+		err = updateGaussDBMySQLOpenAccessControl(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("access_control_type", "access_control_ip_list") {
+		err = updateGaussDBMySQLAccessControlRule(d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1175,6 +1294,73 @@ func buildUpdateGaussDBMySQLConnectionPoolTypeBodyParams(d *schema.ResourceData)
 	bodyParams := map[string]interface{}{
 		"connection_pool_type": d.Get("connection_pool_type"),
 	}
+	return bodyParams
+}
+
+func updateGaussDBMySQLOpenAccessControl(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/access-control-switch"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateGaussDBMySQLOpenAccessControlBodyParams(d))
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy access control switch: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateGaussDBMySQLOpenAccessControlBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"open_access_control": d.Get("open_access_control"),
+	}
+	return bodyParams
+}
+
+func updateGaussDBMySQLAccessControlRule(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/access-control"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateGaussDBMySQLAccessControlRuleBodyParams(d))
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy access control: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateGaussDBMySQLAccessControlRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"type": d.Get("access_control_type"),
+	}
+	accessControlIpList := make([]interface{}, 0)
+	for _, v := range d.Get("access_control_ip_list").(*schema.Set).List() {
+		raw := v.(map[string]interface{})
+		accessControlIpList = append(accessControlIpList, map[string]interface{}{
+			"ip":          raw["ip"],
+			"description": raw["description"],
+		})
+	}
+	bodyParams["ip_list"] = accessControlIpList
 	return bodyParams
 }
 
