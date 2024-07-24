@@ -34,6 +34,7 @@ import (
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/new-node-auto-add
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/transaction-split
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/session-consistence
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/connection-pool-type
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxies
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/{engine_name}/proxy-version
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/configurations
@@ -155,8 +156,17 @@ func ResourceGaussDBProxy() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"connection_pool_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"address": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"switch_connection_pool_type_enabled": {
+				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			"nodes": {
@@ -300,6 +310,13 @@ func resourceGaussDBProxyCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	if connectionPoolType, ok := d.GetOk("connection_pool_type"); ok && connectionPoolType == "SESSION" {
+		err = updateGaussDBMySQLConnectionPoolType(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceGaussDBProxyRead(ctx, d, meta)
 }
 
@@ -372,6 +389,9 @@ func resourceGaussDBProxyRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("new_node_auto_add_status", utils.PathSearch("proxy.new_node_auto_add_status", proxy, nil)),
 		d.Set("port", utils.PathSearch("proxy.port", proxy, nil)),
 		d.Set("consistence_mode", utils.PathSearch("proxy.consistence_mode", proxy, nil)),
+		d.Set("connection_pool_type", utils.PathSearch("proxy.connection_pool_type", proxy, nil)),
+		d.Set("switch_connection_pool_type_enabled", utils.PathSearch("proxy.switch_connection_pool_type_enabled",
+			proxy, nil)),
 		d.Set("address", utils.PathSearch("proxy.address", proxy, nil)),
 		d.Set("nodes", flattenGaussDBProxyResponseBodyNodes(proxy)),
 	)
@@ -648,6 +668,13 @@ func resourceGaussDBProxyUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChange("consistence_mode") {
 		err = updateGaussDBMySQLConsistenceMode(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("connection_pool_type") {
+		err = updateGaussDBMySQLConnectionPoolType(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1103,6 +1130,50 @@ func buildUpdateGaussDBMySQLConsistenceModeBodyParams(d *schema.ResourceData) ma
 		bodyParams["session_consistence"] = true
 	} else {
 		bodyParams["session_consistence"] = false
+	}
+	return bodyParams
+}
+
+func updateGaussDBMySQLConnectionPoolType(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/connection-pool-type"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateGaussDBMySQLConnectionPoolTypeBodyParams(d))
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy connection pool type: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return fmt.Errorf("error updating GaussDB MySQL proxy connection pool type: job_id is not found in API response")
+	}
+
+	err = checkGaussDBMySQLProxyJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildUpdateGaussDBMySQLConnectionPoolTypeBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"connection_pool_type": d.Get("connection_pool_type"),
 	}
 	return bodyParams
 }

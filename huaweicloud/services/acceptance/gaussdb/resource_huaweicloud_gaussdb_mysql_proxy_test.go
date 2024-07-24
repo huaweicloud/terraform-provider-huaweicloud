@@ -96,6 +96,8 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "new_node_auto_add_status", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "port", "3339"),
 					resource.TestCheckResourceAttr(resourceName, "transaction_split", "ON"),
+					resource.TestCheckResourceAttr(resourceName, "connection_pool_type", "SESSION"),
+					resource.TestCheckResourceAttr(resourceName, "switch_connection_pool_type_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_weight.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "readonly_nodes_weight.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "multiStatementType"),
@@ -131,6 +133,8 @@ func TestAccGaussDBMySQLProxy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "new_node_weight", "20"),
 					resource.TestCheckResourceAttr(resourceName, "port", "3338"),
 					resource.TestCheckResourceAttr(resourceName, "transaction_split", "OFF"),
+					resource.TestCheckResourceAttr(resourceName, "connection_pool_type", "CLOSED"),
+					resource.TestCheckResourceAttr(resourceName, "switch_connection_pool_type_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "master_node_weight.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "readonly_nodes_weight.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "looseImciApThreshold"),
@@ -214,6 +218,7 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   port                     = 3339
   transaction_split        = "ON"
   consistence_mode         = "session"
+  connection_pool_type     = "SESSION"
 
   master_node_weight {
     id     = local.sort_nodes[0].id
@@ -251,6 +256,7 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   port                     = 3338
   transaction_split        = "OFF"
   consistence_mode         = "eventual"
+  connection_pool_type     = "CLOSED"
 
   master_node_weight {
     id     = local.sort_nodes[0].id
@@ -293,6 +299,7 @@ resource "huaweicloud_gaussdb_mysql_proxy" "test" {
   port                     = 3338
   transaction_split        = "OFF"
   consistence_mode         = "eventual"
+  connection_pool_type     = "CLOSED"
 
   master_node_weight {
     id     = local.sort_nodes[0].id
