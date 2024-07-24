@@ -17,7 +17,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -157,7 +156,7 @@ func dataSourceRepositoriesRead(_ context.Context, d *schema.ResourceData, meta 
 	for {
 		listRepositoriesResp, err := listRepositoriesClient.Request("GET", listRepositoriesPath, &listRepositoriesOpt)
 		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving SWR repositories")
+			return diag.Errorf("error querying SWR repositories: %s", err)
 		}
 		listRepositoriesRespBody, err := utils.FlattenResponse(listRepositoriesResp)
 		if err != nil {
