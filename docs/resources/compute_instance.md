@@ -466,9 +466,32 @@ The `bandwidth` block supports:
 * `extend_param` - (Optional, Map, ForceNew) Specifies the additional EIP information.
   Changing this creates a new instance.
 
-  -> Currently, only the `charging_mode` key is supported and the value can be *prePaid* or *postPaid*.
-  This parameter is **mandatory** when the created ECS is billed in yearly/monthly payments and
-  bound with a pay-per-use EIP. In such a case, `charging_mode` must be set to *postPaid*.
+  -> Currently, only the `charging_mode` key is supported and the value can be **prePaid** or **postPaid**.  
+    The value combinations of the `charging_mode` of instance, this `charging_mode` and `charge_mode` are shown in this table.
+
+  <!-- markdownlint-disable MD033 -->
+  <table class="tg"><thead>
+    <tr>
+      <th class="tg-0pky"><span style="font-weight:bold">charging_mode</span> of instance</th>
+      <th class="tg-0pky">this <span style="font-weight:bold">charging_mode</span></th>
+      <th class="tg-0pky"><span style="font-weight:bold">charge_mode</span></th>
+    </tr></thead>
+  <tbody>
+    <tr>
+      <td class="tg-0pky" rowspan="2"><span style="font-weight:bold">prePaid</span></td>
+      <td class="tg-0pky"><span style="font-weight:bold">prePaid</span> (default value)</td>
+      <td class="tg-0pky"><span style="font-weight:bold">bandwidth</span></td>
+    </tr>
+    <tr>
+      <td class="tg-fymr"><span style="font-weight:bold">postPaid</span></td>
+      <td class="tg-0pky"><span style="font-weight:bold">traffic</span> or <span style="font-weight:bold">bandwidth</span></td>
+    </tr>
+    <tr>
+      <td class="tg-0pky"><span style="font-weight:bold">postPaid</span></td>
+      <td class="tg-0pky"><span style="font-weight:bold">postPaid</span> (default value)</td>
+      <td class="tg-0pky"><span style="font-weight:bold">traffic</span> or <span style="font-weight:bold">bandwidth</span></td>
+    </tr>
+  </tbody></table>
 
 The `scheduler_hints` block supports:
 
