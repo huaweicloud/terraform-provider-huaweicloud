@@ -2,67 +2,24 @@ package cfw
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
-
-	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cfw"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getACLRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
-	// getACLRule: Query the CFW ACL Rule detail
-	var (
-		getACLRuleHttpUrl = "v1/{project_id}/acl-rules"
-		getACLRuleProduct = "cfw"
-	)
-	getACLRuleClient, err := conf.NewServiceClient(getACLRuleProduct, region)
+	client, err := conf.NewServiceClient("cfw", region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating ACLRule Client: %s", err)
+		return nil, fmt.Errorf("error creating CFW client: %s", err)
 	}
 
-	getACLRulePath := getACLRuleClient.Endpoint + getACLRuleHttpUrl
-	getACLRulePath = strings.ReplaceAll(getACLRulePath, "{project_id}", getACLRuleClient.ProjectID)
-
-	getACLRulequeryParams := buildGetACLRuleQueryParams(state)
-	getACLRulePath += getACLRulequeryParams
-
-	getPotectionRulesOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getACLRuleResp, err := getACLRuleClient.Request("GET", getACLRulePath, &getPotectionRulesOpt)
-
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving ACL rule: %s", err)
-	}
-
-	getACLRuleRespBody, err := utils.FlattenResponse(getACLRuleResp)
-	if err != nil {
-		return nil, err
-	}
-
-	rules, err := jmespath.Search("data.records", getACLRuleRespBody)
-	if err != nil {
-		diag.Errorf("error parsing data.records from response= %#v", getACLRuleRespBody)
-	}
-
-	return cfw.FilterRules(rules.([]interface{}), state.Primary.ID)
-}
-
-func buildGetACLRuleQueryParams(state *terraform.ResourceState) string {
-	res := "?offset=0&limit=1024"
-	res = fmt.Sprintf("%s&object_id=%v", res, state.Primary.Attributes["object_id"])
-
-	return res
+	return cfw.GetACLRule(client, state.Primary.ID, state.Primary.Attributes["object_id"])
 }
 
 func TestAccACLRule_basic(t *testing.T) {

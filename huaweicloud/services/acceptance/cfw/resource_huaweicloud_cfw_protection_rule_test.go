@@ -2,70 +2,24 @@ package cfw
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
-
-	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cfw"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getProtectionRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
-	// getProtectionRule: Query the CFW Protection Rule detail
-	var (
-		getProtectionRuleHttpUrl = "v1/{project_id}/acl-rules"
-		getProtectionRuleProduct = "cfw"
-	)
-	getProtectionRuleClient, err := conf.NewServiceClient(getProtectionRuleProduct, region)
+	client, err := conf.NewServiceClient("cfw", region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating ProtectionRule Client: %s", err)
+		return nil, fmt.Errorf("error creating CFW client: %s", err)
 	}
 
-	getProtectionRulePath := getProtectionRuleClient.Endpoint + getProtectionRuleHttpUrl
-	getProtectionRulePath = strings.ReplaceAll(getProtectionRulePath, "{project_id}", getProtectionRuleClient.ProjectID)
-
-	getProtectionRulequeryParams := buildGetProtectionRuleQueryParams(state)
-	getProtectionRulePath += getProtectionRulequeryParams
-
-	getPotectionRulesOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getProtectionRuleResp, err := getProtectionRuleClient.Request("GET", getProtectionRulePath, &getPotectionRulesOpt)
-
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving protection rule: %s", err)
-	}
-
-	getProtectionRuleRespBody, err := utils.FlattenResponse(getProtectionRuleResp)
-	if err != nil {
-		return nil, err
-	}
-
-	rules, err := jmespath.Search("data.records", getProtectionRuleRespBody)
-	if err != nil {
-		diag.Errorf("error parsing data.records from response= %#v", getProtectionRuleRespBody)
-	}
-
-	return cfw.FilterRules(rules.([]interface{}), state.Primary.ID)
-}
-
-func buildGetProtectionRuleQueryParams(state *terraform.ResourceState) string {
-	res := "?offset=0&limit=1024"
-	res = fmt.Sprintf("%s&object_id=%v", res, state.Primary.Attributes["object_id"])
-
-	return res
+	return cfw.GetProtectionRule(client, state.Primary.ID, state.Primary.Attributes["object_id"])
 }
 
 func TestAccProtectionRule_basic(t *testing.T) {
