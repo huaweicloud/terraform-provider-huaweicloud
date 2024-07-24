@@ -2,7 +2,6 @@ package cse
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"regexp"
@@ -13,16 +12,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/services"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 )
 
-type microserviceError struct {
-	Detail    string `json:"detail"`
-	ErrorCode string `json:"errorCode"`
-	ErrorMsg  string `json:"errorMessage"`
+var microserviceNotFoundCodes = []string{
+	"400012",
 }
 
 // @API CSE DELETE /v2/{project_id}/registry/microservices/{serviceId}
@@ -140,23 +136,6 @@ func resourceMicroserviceCreate(ctx context.Context, d *schema.ResourceData, met
 	return resourceMicroserviceRead(ctx, d, meta)
 }
 
-func parseMicroserviceError(respErr error) error {
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		var apiError microserviceError
-		if err := json.Unmarshal(errCode.Body, &apiError); err != nil {
-			return fmt.Errorf("the error format is incorrect: %s", err)
-		}
-		if apiError.ErrorCode == "400012" && strings.Contains(apiError.ErrorMsg, "not exist") {
-			return golangsdk.ErrDefault404{
-				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte("the microservice engine has been deleted"),
-				},
-			}
-		}
-	}
-	return respErr
-}
-
 func resourceMicroserviceRead(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	token, err := GetAuthorizationToken(d.Get("connect_address").(string), d.Get("admin_user").(string),
 		d.Get("admin_pass").(string))
@@ -167,7 +146,9 @@ func resourceMicroserviceRead(_ context.Context, d *schema.ResourceData, _ inter
 	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
 	resp, err := services.Get(client, d.Id(), token)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseMicroserviceError(err), "CSE Microservice")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "errorCode", microserviceNotFoundCodes...),
+			"CSE Microservice")
 	}
 
 	mErr := multierror.Append(nil,

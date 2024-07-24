@@ -26,7 +26,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var DefaultVersion = "CSE2"
+var (
+	DefaultVersion = "CSE2"
+
+	engineNotFoundCodes = []string{
+		"SVCSTG.00501116",
+		"SVCSTG.00501125",
+	}
+)
 
 // @API CSE DELETE /v2/{project_id}/enginemgr/engines/{engineId}
 // @API CSE GET /v2/{project_id}/enginemgr/engines/{engineId}
@@ -367,15 +374,8 @@ func resourceMicroserviceEngineDelete(ctx context.Context, d *schema.ResourceDat
 
 func parseEngineJobError(respErr error) error {
 	var apiErr engines.ErrorResponse
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr == nil && (apiErr.ErrCode == "SVCSTG.00501116") {
-			return golangsdk.ErrDefault404{
-				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte("the microservice engine has been deleted"),
-				},
-			}
-		}
+	if _, ok := respErr.(golangsdk.ErrDefault400); ok {
+		return common.ConvertExpected400ErrInto404Err(respErr, "error_code", engineNotFoundCodes...)
 	}
 	if errCode, ok := respErr.(golangsdk.ErrDefault401); ok {
 		pErr := json.Unmarshal(errCode.Body, &apiErr)
