@@ -2,7 +2,6 @@ package cse
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"reflect"
@@ -13,14 +12,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var internalPropertyKeys = []string{"engineID", "engineName"}
+var (
+	internalPropertyKeys  = []string{"engineID", "engineName"}
+	instanceNotFoundCodes = []string{
+		"400017",
+	}
+)
 
 // @API CSE GET /v2/{project_id}/registry/microservices/{serviceId}/instances/{instanceId}
 // @API CSE DELETE /v2/{project_id}/registry/microservices/{serviceId}/instances/{instanceId}
@@ -264,7 +267,9 @@ func resourceMicroserviceInstanceRead(_ context.Context, d *schema.ResourceData,
 	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
 	resp, err := instances.Get(client, d.Get("microservice_id").(string), d.Id(), token)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseMicroserviceInstanceError(err), "error retrieving Microservice instance")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "errorCode", instanceNotFoundCodes...),
+			"error retrieving Microservice instance")
 	}
 
 	mErr := multierror.Append(nil,
@@ -295,21 +300,6 @@ func resourceMicroserviceInstanceDelete(_ context.Context, d *schema.ResourceDat
 
 	d.SetId("")
 	return nil
-}
-
-func parseMicroserviceInstanceError(respErr error) error {
-	var apiErr instances.ErrorResponse
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr == nil && (apiErr.ErrCode == "400017") {
-			return golangsdk.ErrDefault404{
-				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte("the microservice instance does not exist"),
-				},
-			}
-		}
-	}
-	return respErr
 }
 
 func resourceMicroserviceInstanceImportState(_ context.Context, d *schema.ResourceData,
