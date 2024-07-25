@@ -121,7 +121,7 @@ func dataSourceLineGroupsRead(_ context.Context, d *schema.ResourceData, meta in
 
 // @API DNS GET /v2.1/linegroups
 func (w *LineGroupsDSWrapper) ListLineGroups() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns")
+	client, err := w.NewClient(w.Config, "dns_region")
 	if err != nil {
 		return nil, err
 	}

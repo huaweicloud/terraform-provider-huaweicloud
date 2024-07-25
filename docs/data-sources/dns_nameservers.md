@@ -22,6 +22,9 @@ data "huaweicloud_dns_nameservers" "test" {
 
 The following arguments are supported:
 
+* `region` - (Optional, String) Specifies the region in which to query the resource.
+  If omitted, the provider-level region will be used.
+
 * `type` - (Optional, String) Specifies the type of the name server.
   The valid values are as follows:
    + **public**
