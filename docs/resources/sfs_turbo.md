@@ -146,6 +146,10 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the file system. Changing this
   will create a new resource.
 
+* `backup_id` - (Optional, String, ForceNew) Specifies the backup ID.
+
+  -> This parameter is mandatory when a file system is created from a backup.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the SFS Turbo.
 
 -> **NOTE:**

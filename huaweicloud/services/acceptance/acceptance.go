@@ -412,6 +412,8 @@ var (
 
 	HW_DMS_ROCKETMQ_INSTANCE_ID = os.Getenv("HW_DMS_ROCKETMQ_INSTANCE_ID")
 	HW_DMS_ROCKETMQ_TOPIC_NAME  = os.Getenv("HW_DMS_ROCKETMQ_TOPIC_NAME")
+
+	HW_SFS_TURBO_BACKUP_ID = os.Getenv("HW_SFS_TURBO_BACKUP_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -2046,5 +2048,12 @@ func TestAccPrecheckTimeStamp(t *testing.T) {
 func TestAccPrecheckCDNAnalytics(t *testing.T) {
 	if HW_CDN_START_TIME == "" || HW_CDN_END_TIME == "" || HW_CDN_STAT_TYPE == "" {
 		t.Skip("HW_CDN_START_TIME, HW_CDN_END_TIME, and HW_CDN_STAT_TYPE must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckSFSTurboBackupId(t *testing.T) {
+	if HW_SFS_TURBO_BACKUP_ID == "" {
+		t.Skip("HW_SFS_TURBO_BACKUP_ID must be set for the acceptance test")
 	}
 }

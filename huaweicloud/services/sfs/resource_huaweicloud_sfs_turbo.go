@@ -152,6 +152,12 @@ func ResourceSFSTurbo() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"backup_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"tags":          common.TagsSchema(),
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
@@ -224,6 +230,7 @@ func buildTurboCreateOpts(cfg *config.Config, d *schema.ResourceData) shares.Cre
 			SubnetID:            d.Get("subnet_id").(string),
 			SecurityGroupID:     d.Get("security_group_id").(string),
 			AvailabilityZone:    d.Get("availability_zone").(string),
+			BackupID:            d.Get("backup_id").(string),
 			ShareType:           convertShareType(d),
 			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 			Metadata:            buildTurboMetadataOpts(d),
@@ -382,6 +389,7 @@ func resourceSFSTurboRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("export_location", n.ExportLocation),
 		d.Set("crypt_key_id", n.CryptKeyID),
 		d.Set("enterprise_project_id", n.EnterpriseProjectId),
+		d.Set("backup_id", n.BackupId),
 		d.Set("size", flattenSize(n)),
 		d.Set("status", flattenStatus(n)),
 	)
