@@ -35,6 +35,9 @@ import (
 // @API APIG POST /v2/{project_id}/apigw/instances{instance_id}/ingress-eip
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/ingress-eip
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/instance-tags
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports
+// @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports/{ingress_port_id}
 func ResourceApigInstanceV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,
@@ -187,6 +190,35 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The address (full name) of the VPC endpoint service.`,
+			},
+			"custom_ingress_ports": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "Specified the list of the instance custom ingress ports.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"protocol": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Specified protocol of the custom ingress port.",
+						},
+						"port": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: "Specified port of the custom ingress port.",
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The ID of the custom ingress port.",
+						},
+						"status": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The current status of the custom ingress port.",
+						},
+					},
+				},
 			},
 			// Deprecated arguments
 			"available_zones": {
@@ -367,6 +399,12 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error waiting for the status of dedicated instance (%s) to become running: %s", instanceId, err)
 	}
 
+	if v, ok := d.GetOk("custom_ingress_ports"); ok {
+		if err := addCustomIngressPorts(client, instanceId, v.(*schema.Set).List()); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceInstanceRead(ctx, d, meta)
 }
 
@@ -462,11 +500,35 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 		// Deprecated
 		d.Set("create_time", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", respBody, float64(0)).(float64))/1000, false)),
 	)
+	if resp, err := getCustomIngressPorts(client, instanceId); err != nil {
+		mErr = multierror.Append(mErr, err)
+	} else {
+		mErr = multierror.Append(mErr, d.Set("custom_ingress_ports", flattenCustomIngressPorts(resp)))
+	}
 
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error saving resource fields of the dedicated instance: %s", mErr)
 	}
 	return nil
+}
+
+func flattenCustomIngressPorts(resp interface{}) []map[string]interface{} {
+	customIngressPorts := utils.PathSearch("ingress_port_infos", resp, make([]interface{}, 0)).([]interface{})
+	if len(customIngressPorts) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(customIngressPorts))
+	for i, v := range customIngressPorts {
+		result[i] = map[string]interface{}{
+			"protocol": utils.PathSearch("protocol", v, ""),
+			"port":     utils.PathSearch("ingress_port", v, 0),
+			"id":       utils.PathSearch("ingress_port_id", v, ""),
+			"status":   utils.PathSearch("status", v, ""),
+		}
+	}
+
+	return result
 }
 
 func buildUpdateInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -835,7 +897,93 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	if d.HasChange("custom_ingress_ports") {
+		oldRaws, newRaws := d.GetChange("custom_ingress_ports")
+		err = updateCustomIngressPorts(client, oldRaws, newRaws, instanceId)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceInstanceRead(ctx, d, meta)
+}
+
+func addCustomIngressPorts(client *golangsdk.ServiceClient, instanceId string, ingressPorts []interface{}) error {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
+
+	for _, ingressPort := range ingressPorts {
+		opts := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody: map[string]interface{}{
+				"protocol":     utils.PathSearch("protocol", ingressPort, nil),
+				"ingress_port": utils.PathSearch("port", ingressPort, 0),
+			},
+		}
+		_, err := client.Request("POST", createPath, &opts)
+		if err != nil {
+			return fmt.Errorf("error adding custom ingerss port to the dedicated instance: %s", err)
+		}
+	}
+	return nil
+}
+
+func getCustomIngressPorts(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
+	// Currently, a maximum of 40 custom ingress ports can be created. Limit default value is 20.
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports?limit=500"
+	httpPath := client.Endpoint + httpUrl
+	httpPath = strings.ReplaceAll(httpPath, "{project_id}", client.ProjectID)
+	httpPath = strings.ReplaceAll(httpPath, "{instance_id}", instanceId)
+	opts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	resp, err := client.Request("GET", httpPath, &opts)
+	if err != nil {
+		return nil, fmt.Errorf("error getting custom ingerss port form the instance (%s) : %s", instanceId, err)
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func removeCustomIngressPorts(client *golangsdk.ServiceClient, instanceId string, customIngressPorts []interface{}) error {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports/{ingress_port_id}"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	path = strings.ReplaceAll(path, "{instance_id}", instanceId)
+
+	for _, v := range customIngressPorts {
+		deletePath := strings.ReplaceAll(path, "{ingress_port_id}", utils.PathSearch("id", v, "").(string))
+		opts := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		_, err := client.Request("DELETE", deletePath, &opts)
+		if err != nil {
+			return fmt.Errorf("error removing custom ingerss port form the instance (%s) : %s", instanceId, err)
+		}
+	}
+
+	return nil
+}
+
+func updateCustomIngressPorts(client *golangsdk.ServiceClient, oldRaws, newRaws interface{}, instanceId string) error {
+	var (
+		addRaws    = newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
+		removeRaws = oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
+	)
+	if removeRaws.Len() > 0 {
+		if err := removeCustomIngressPorts(client, instanceId, removeRaws.List()); err != nil {
+			return err
+		}
+	}
+
+	if addRaws.Len() > 0 {
+		if err := addCustomIngressPorts(client, instanceId, addRaws.List()); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

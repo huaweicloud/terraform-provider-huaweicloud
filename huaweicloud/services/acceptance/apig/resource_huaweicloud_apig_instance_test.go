@@ -69,6 +69,11 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "0"),
 					resource.TestCheckResourceAttr(resourceName, "egress_address", ""),
 					resource.TestCheckResourceAttr(resourceName, "ingress_address", ""),
+					resource.TestCheckResourceAttr(resourceName, "custom_ingress_ports.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "custom_ingress_ports.0.protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "custom_ingress_ports.0.port", "3662"),
+					resource.TestCheckResourceAttrSet(resourceName, "custom_ingress_ports.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "custom_ingress_ports.0.status"),
 				),
 			},
 			{
@@ -92,6 +97,7 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "egress_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "ingress_address"),
+					resource.TestCheckResourceAttr(resourceName, "custom_ingress_ports.#", "2"),
 				),
 			},
 			{
@@ -103,6 +109,7 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ingress_bandwidth_size", "6"),
 					resource.TestCheckResourceAttrSet(resourceName, "egress_address"),
 					resource.TestCheckResourceAttrSet(resourceName, "ingress_address"),
+					resource.TestCheckResourceAttr(resourceName, "custom_ingress_ports.#", "0"),
 				),
 			},
 			{
@@ -147,6 +154,11 @@ resource "huaweicloud_apig_instance" "test" {
     foo = "bar"
     key = "value"
   }
+
+  custom_ingress_ports {
+    protocol = "HTTP"
+    port     = 3662
+  }
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -181,6 +193,16 @@ resource "huaweicloud_apig_instance" "test" {
   tags = {
     foo    = "baar"
     newKey = "value"
+  }
+
+  custom_ingress_ports {
+    protocol = "HTTP"
+    port     = 3662
+  }
+
+  custom_ingress_ports {
+    protocol = "HTTPS"
+    port     = 3665
   }
 }
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
