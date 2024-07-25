@@ -412,6 +412,8 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"huaweicloud_aom_alarm_action_rules":              aom.DataSourceAomAlarmActionRules(),
+			"huaweicloud_aom_prom_instances":                  aom.DataSourceAomPromInstances(),
 			"huaweicloud_aom_multi_account_aggregation_rules": aom.DataSourceMultiAccountAggregationRules(),
 
 			"huaweicloud_apig_acl_policies":                       apig.DataSourceAclPolicies(),
