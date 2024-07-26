@@ -79,6 +79,13 @@ func TestAccVpcRTBRoute_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccVpcRTBRoute_update(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -127,7 +134,7 @@ func TestAccVpcRTBRoute_vip(t *testing.T) {
 	})
 }
 
-func testAccVpcRTBRoute_basic(rName string) string {
+func testAccVpcRTBRoute_base(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test1" {
   name = "%s_1"
@@ -144,6 +151,12 @@ resource "huaweicloud_vpc_peering_connection" "test" {
   vpc_id      = huaweicloud_vpc.test1.id
   peer_vpc_id = huaweicloud_vpc.test2.id
 }
+`, rName, rName, rName)
+}
+
+func testAccVpcRTBRoute_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_vpc_route" "test" {
   vpc_id      = huaweicloud_vpc.test1.id
@@ -152,7 +165,21 @@ resource "huaweicloud_vpc_route" "test" {
   nexthop     = huaweicloud_vpc_peering_connection.test.id
   description = "peering route"
 }
-`, rName, rName, rName)
+`, testAccVpcRTBRoute_base(rName))
+}
+
+func testAccVpcRTBRoute_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_route" "test" {
+  vpc_id      = huaweicloud_vpc.test1.id
+  destination = huaweicloud_vpc.test2.cidr
+  type        = "peering"
+  nexthop     = huaweicloud_vpc_peering_connection.test.id
+  description = ""
+}
+`, testAccVpcRTBRoute_base(rName))
 }
 
 func testAccVpcRTBRoute_vip(rName string) string {
