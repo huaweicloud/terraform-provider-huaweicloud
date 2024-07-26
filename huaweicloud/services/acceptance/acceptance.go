@@ -350,6 +350,8 @@ var (
 
 	HW_EVS_AVAILABILITY_ZONE_GPSSD2 = os.Getenv("HW_EVS_AVAILABILITY_ZONE_GPSSD2")
 	HW_EVS_AVAILABILITY_ZONE_ESSD2  = os.Getenv("HW_EVS_AVAILABILITY_ZONE_ESSD2")
+	HW_EVS_TRANSFER_ID              = os.Getenv("HW_EVS_TRANSFER_ID")
+	HW_EVS_TRANSFER_AUTH_KEY        = os.Getenv("HW_EVS_TRANSFER_AUTH_KEY")
 
 	HW_ECS_LAUNCH_TEMPLATE_ID = os.Getenv("HW_ECS_LAUNCH_TEMPLATE_ID")
 
@@ -2063,5 +2065,12 @@ func TestAccPrecheckCDNAnalytics(t *testing.T) {
 func TestAccPrecheckSFSTurboBackupId(t *testing.T) {
 	if HW_SFS_TURBO_BACKUP_ID == "" {
 		t.Skip("HW_SFS_TURBO_BACKUP_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckEVSTransferAccepter(t *testing.T) {
+	if HW_EVS_TRANSFER_ID == "" || HW_EVS_TRANSFER_AUTH_KEY == "" {
+		t.Skip("HW_EVS_TRANSFER_ID and HW_EVS_TRANSFER_AUTH_KEY must be set for the acceptance test")
 	}
 }
