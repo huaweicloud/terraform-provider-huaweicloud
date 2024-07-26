@@ -559,6 +559,9 @@ func Provider() *schema.Provider {
 			// DataArts DataService
 			"huaweicloud_dataarts_dataservice_apis": dataarts.DataSourceDataServiceApis(),
 
+			// DataArts Factory
+			"huaweicloud_dataarts_factory_jobs": dataarts.DataSourceFactoryJobs(),
+
 			"huaweicloud_dbss_flavors": dbss.DataSourceDbssFlavors(),
 
 			"huaweicloud_dc_connections":        dc.DataSourceDcConnections(),
