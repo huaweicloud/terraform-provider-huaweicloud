@@ -117,6 +117,7 @@ var (
 	HW_CERTIFICATE_NAME             = os.Getenv("HW_CERTIFICATE_NAME")
 	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER            = os.Getenv("HW_SMS_SOURCE_SERVER")
+	HW_CCM_SSL_CERTIFICATE_ID       = os.Getenv("HW_CCM_SSL_CERTIFICATE_ID")
 
 	HW_DLI_AUTHORIZED_USER_NAME         = os.Getenv("HW_DLI_AUTHORIZED_USER_NAME")
 	HW_DLI_FLINK_JAR_OBS_PATH           = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
@@ -1109,6 +1110,13 @@ func TestAccPreCheckAadForwardRule(t *testing.T) {
 func TestAccPreCheckCCMCertificateName(t *testing.T) {
 	if HW_CERTIFICATE_NAME == "" {
 		t.Skip("HW_CERTIFICATE_NAME must be set for SCM acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCCMSSLCertificateId(t *testing.T) {
+	if HW_CCM_SSL_CERTIFICATE_ID == "" {
+		t.Skip("HW_CCM_SSL_CERTIFICATE_ID must be set for CCM SSL acceptance tests.")
 	}
 }
 
