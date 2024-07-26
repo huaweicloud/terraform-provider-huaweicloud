@@ -85,10 +85,11 @@ func testAccNetworkInterface_basic(rName string) string {
 %s
 
 resource "huaweicloud_vpc_network_interface" "test" {
-  name      = "%s"
-  subnet_id = huaweicloud_vpc_subnet.test.id
-  allowed_addresses  = ["192.168.1.5"]
-  dhcp_lease_time    = "2h"
+  name              = "%s"
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  fixed_ip_v4       = "192.168.0.111"
+  allowed_addresses = ["192.168.1.5"]
+  dhcp_lease_time   = "2h"
 }
 `, testAccNetwork_base(rName), rName)
 }
@@ -102,6 +103,7 @@ func testAccNetworkInterface_update(rName string) string {
 resource "huaweicloud_vpc_network_interface" "test" {
   subnet_id          = huaweicloud_vpc_subnet.test.id
   security_group_ids = [huaweicloud_networking_secgroup.secgroup_1.id]
+  dhcp_lease_time    = "1h"
 }
 `, testAccNetwork_base(rName), testAccSecGroup_basic(rName))
 }
