@@ -331,6 +331,7 @@ var (
 	HW_AS_INSTANCE_ID          = os.Getenv("HW_AS_INSTANCE_ID")
 	HW_AS_LIFECYCLE_HOOK_NAME  = os.Getenv("HW_AS_LIFECYCLE_HOOK_NAME")
 
+	// Common
 	HW_DATAARTS_WORKSPACE_ID                               = os.Getenv("HW_DATAARTS_WORKSPACE_ID")
 	HW_DATAARTS_CDM_NAME                                   = os.Getenv("HW_DATAARTS_CDM_NAME")
 	HW_DATAARTS_MANAGER_ID                                 = os.Getenv("HW_DATAARTS_MANAGER_ID")
@@ -343,11 +344,16 @@ var (
 	HW_DATAARTS_BUILTIN_RULE_ID                            = os.Getenv("HW_DATAARTS_BUILTIN_RULE_ID")
 	HW_DATAARTS_BUILTIN_RULE_NAME                          = os.Getenv("HW_DATAARTS_BUILTIN_RULE_NAME")
 	HW_DATAARTS_SUBJECT_ID                                 = os.Getenv("HW_DATAARTS_SUBJECT_ID")
-	HW_DATAARTS_CONNECTION_NAME                            = os.Getenv("HW_DATAARTS_CONNECTION_NAME")
 	HW_DATAARTS_ARCHITECTURE_USER_ID                       = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_ID")
 	HW_DATAARTS_ARCHITECTURE_USER_NAME                     = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_NAME")
 	HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_ID   = os.Getenv("HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_ID")
 	HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_NAME = os.Getenv("HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_NAME")
+	// Management Center
+	HW_DATAARTS_CONNECTION_ID   = os.Getenv("HW_DATAARTS_CONNECTION_ID")
+	HW_DATAARTS_CONNECTION_NAME = os.Getenv("HW_DATAARTS_CONNECTION_NAME")
+	// Data Service
+	HW_DATAARTS_REVIEWER_NAME  = os.Getenv("HW_DATAARTS_REVIEWER_NAME")
+	HW_DATAARTS_LTS_QUEUE_NAME = os.Getenv("HW_DATAARTS_LTS_QUEUE_NAME")
 
 	HW_EVS_AVAILABILITY_ZONE_GPSSD2 = os.Getenv("HW_EVS_AVAILABILITY_ZONE_GPSSD2")
 	HW_EVS_AVAILABILITY_ZONE_ESSD2  = os.Getenv("HW_EVS_AVAILABILITY_ZONE_ESSD2")
@@ -1740,6 +1746,20 @@ func TestAccPreCheckDataArtsWorkSpaceID(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckDataArtsReviewerName(t *testing.T) {
+	if HW_DATAARTS_REVIEWER_NAME == "" {
+		t.Skip("HW_DATAARTS_REVIEWER_NAME must be set for DataService tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsRelatedLtsQueueName(t *testing.T) {
+	if HW_DATAARTS_LTS_QUEUE_NAME == "" {
+		t.Skip("HW_DATAARTS_LTS_QUEUE_NAME must be set for the DataService tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckDataArtsManagerID(t *testing.T) {
 	if HW_DATAARTS_MANAGER_ID == "" {
 		t.Skip("This environment does not support DataArts Studio permission set tests")
@@ -1796,6 +1816,13 @@ func TestAccPreCheckDataArtsSubjectID(t *testing.T) {
 func TestAccPreCheckDataArtsConnectionName(t *testing.T) {
 	if HW_DATAARTS_CONNECTION_NAME == "" {
 		t.Skip("HW_DATAARTS_CONNECTION_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsConnectionID(t *testing.T) {
+	if HW_DATAARTS_CONNECTION_ID == "" {
+		t.Skip("HW_DATAARTS_CONNECTION_ID must be set for the acceptance test")
 	}
 }
 
