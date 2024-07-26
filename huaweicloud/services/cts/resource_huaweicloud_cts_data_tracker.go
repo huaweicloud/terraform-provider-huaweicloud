@@ -400,9 +400,12 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 		nil,
 		d.Set("region", region),
 		d.Set("name", ctsTracker.TrackerName),
-		d.Set("lts_enabled", ctsTracker.Lts.IsLtsEnabled),
 		d.Set("validate_file", ctsTracker.IsSupportValidate),
 	)
+
+	if ctsTracker.Lts != nil {
+		mErr = multierror.Append(mErr, d.Set("lts_enabled", ctsTracker.Lts.IsLtsEnabled))
+	}
 
 	if ctsTracker.AgencyName != nil {
 		mErr = multierror.Append(mErr, d.Set("agency_name", ctsTracker.AgencyName.Value()))
