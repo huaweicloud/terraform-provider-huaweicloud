@@ -53,4 +53,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `auth_key` - The identity authentication key for volume transfer.
 
+  -> The `auth_key` field is used to accept the volume transfer, after the volume transfer is successfully accepted,
+     the volume transfer resource will no longer exist.
+
 * `created_at` - The creation time of the volume transfer record, in RFC3339 format.
