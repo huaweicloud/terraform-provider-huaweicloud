@@ -11,13 +11,19 @@ type Subscription struct {
 }
 
 type SubscriptionGet struct {
-	TopicUrn        string `json:"topic_urn"`
-	Protocol        string `json:"protocol"`
-	SubscriptionUrn string `json:"subscription_urn"`
-	Owner           string `json:"owner"`
-	Endpoint        string `json:"endpoint"`
-	Remark          string `json:"remark"`
-	Status          int    `json:"status"`
+	TopicUrn        string         `json:"topic_urn"`
+	Protocol        string         `json:"protocol"`
+	SubscriptionUrn string         `json:"subscription_urn"`
+	Owner           string         `json:"owner"`
+	Endpoint        string         `json:"endpoint"`
+	Remark          string         `json:"remark"`
+	Status          int            `json:"status"`
+	FilterPolicies  []FilterPolicy `json:"filter_polices"`
+}
+
+type FilterPolicy struct {
+	Name         string   `json:"name"`
+	StringEquals []string `json:"string_equals"`
 }
 
 // Extract will get the subscription object out of the commonResult object.
