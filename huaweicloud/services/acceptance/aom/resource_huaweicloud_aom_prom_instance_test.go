@@ -68,7 +68,7 @@ func TestAccPromInstance_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: tesAOMPromInstance_basic(rName),
+				Config: testAOMPromInstance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "prom_name", rName),
@@ -90,7 +90,7 @@ func TestAccPromInstance_basic(t *testing.T) {
 	})
 }
 
-func tesAOMPromInstance_basic(name string) string {
+func testAOMPromInstance_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_prom_instance" "test" {
   prom_name             = "%s"
