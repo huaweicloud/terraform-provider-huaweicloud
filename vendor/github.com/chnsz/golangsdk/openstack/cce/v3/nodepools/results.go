@@ -61,6 +61,12 @@ type Spec struct {
 	PodSecurityGroups []PodSecurityGroupSpec `json:"podSecurityGroups"`
 	// Node security group configurations
 	CustomSecurityGroups []string `json:"customSecurityGroups"`
+	// label (k8s tag) policy on existing nodes
+	LabelPolicyOnExistingNodes string `json:"labelPolicyOnExistingNodes"`
+	// tag policy on existing nodes
+	UserTagPolicyOnExistingNodes string `json:"userTagsPolicyOnExistingNodes"`
+	// taint policy on existing nodes
+	TaintPolicyOnExistingNodes string `json:"taintPolicyOnExistingNodes"`
 }
 
 type AutoscalingSpec struct {

@@ -307,6 +307,9 @@ func TestAccNodePool_tagsLabelsTaints(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "taints.0.key", "test_key"),
 					resource.TestCheckResourceAttr(resourceName, "taints.0.value", "test_value"),
 					resource.TestCheckResourceAttr(resourceName, "taints.0.effect", "NoSchedule"),
+					resource.TestCheckResourceAttr(resourceName, "tag_policy_on_existing_nodes", "ignore"),
+					resource.TestCheckResourceAttr(resourceName, "label_policy_on_existing_nodes", "ignore"),
+					resource.TestCheckResourceAttr(resourceName, "taint_policy_on_existing_nodes", "ignore"),
 				),
 			},
 			{
@@ -324,6 +327,9 @@ func TestAccNodePool_tagsLabelsTaints(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "taints.1.key", "new_test_key"),
 					resource.TestCheckResourceAttr(resourceName, "taints.1.value", "new_test_value"),
 					resource.TestCheckResourceAttr(resourceName, "taints.1.effect", "NoSchedule"),
+					resource.TestCheckResourceAttr(resourceName, "tag_policy_on_existing_nodes", "refresh"),
+					resource.TestCheckResourceAttr(resourceName, "label_policy_on_existing_nodes", "refresh"),
+					resource.TestCheckResourceAttr(resourceName, "taint_policy_on_existing_nodes", "refresh"),
 				),
 			},
 		},
@@ -348,6 +354,10 @@ resource "huaweicloud_cce_node_pool" "test" {
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+
+  tag_policy_on_existing_nodes   = "ignore"
+  label_policy_on_existing_nodes = "ignore"
+  taint_policy_on_existing_nodes = "ignore"
 
   root_volume {
     size       = 40
@@ -396,6 +406,10 @@ resource "huaweicloud_cce_node_pool" "test" {
   scale_down_cooldown_time = 0
   priority                 = 0
   type                     = "vm"
+
+  tag_policy_on_existing_nodes   = "refresh"
+  label_policy_on_existing_nodes = "refresh"
+  taint_policy_on_existing_nodes = "refresh"
 
   root_volume {
     size       = 40

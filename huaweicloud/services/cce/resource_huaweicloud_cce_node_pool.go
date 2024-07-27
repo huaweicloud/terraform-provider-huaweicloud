@@ -196,6 +196,21 @@ func ResourceNodePool() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"label_policy_on_existing_nodes": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"tag_policy_on_existing_nodes": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"taint_policy_on_existing_nodes": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"current_node_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -306,6 +321,9 @@ func buildNodePoolCreateOpts(d *schema.ResourceData) (*nodepools.CreateOpts, err
 			NodeManagement: nodepools.NodeManagementSpec{
 				ServerGroupReference: d.Get("ecs_group_id").(string),
 			},
+			LabelPolicyOnExistingNodes:   d.Get("label_policy_on_existing_nodes").(string),
+			UserTagPolicyOnExistingNodes: d.Get("tag_policy_on_existing_nodes").(string),
+			TaintPolicyOnExistingNodes:   d.Get("taint_policy_on_existing_nodes").(string),
 		},
 	}
 
@@ -417,6 +435,9 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("data_volumes", flattenResourceNodeDataVolume(d, s.Spec.NodeTemplate.DataVolumes)),
 		d.Set("root_volume", flattenResourceNodeRootVolume(d, s.Spec.NodeTemplate.RootVolume)),
 		d.Set("initialized_conditions", s.Spec.NodeTemplate.InitializedConditions),
+		d.Set("label_policy_on_existing_nodes", s.Spec.LabelPolicyOnExistingNodes),
+		d.Set("tag_policy_on_existing_nodes", s.Spec.UserTagPolicyOnExistingNodes),
+		d.Set("taint_policy_on_existing_nodes", s.Spec.TaintPolicyOnExistingNodes),
 	)
 
 	if s.Spec.NodeTemplate.BillingMode != 0 {
@@ -461,6 +482,9 @@ func buildNodePoolUpdateOpts(d *schema.ResourceData) (*nodepools.UpdateOpts, err
 				Taints:                buildResourceNodeTaint(d),
 				InitializedConditions: utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
 			},
+			LabelPolicyOnExistingNodes:   d.Get("label_policy_on_existing_nodes").(string),
+			UserTagPolicyOnExistingNodes: d.Get("tag_policy_on_existing_nodes").(string),
+			TaintPolicyOnExistingNodes:   d.Get("taint_policy_on_existing_nodes").(string),
 		},
 	}
 	return &updateOpts, nil

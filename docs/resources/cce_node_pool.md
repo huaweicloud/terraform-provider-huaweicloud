@@ -271,6 +271,15 @@ The following arguments are supported:
 * `taints` - (Optional, List) Specifies the taints configuration of the nodes to set anti-affinity.
   The structure is described below.
 
+* `tag_policy_on_existing_nodes` - (Optional, String) Specifies the tag policy on existing nodes.
+  The value can be **ignore** and **refresh**, defaults to **ignore**.
+
+* `label_policy_on_existing_nodes` - (Optional, String) Specifies the label policy on existing nodes.
+  The value can be **ignore** and **refresh**, defaults to **refresh**.
+
+* `taint_policy_on_existing_nodes` - (Optional, String) Specifies the taint policy on existing nodes.
+  The value can be **ignore** and **refresh**, defaults to **refresh**.
+
 The `root_volume` block supports:
 
 * `size` - (Required, Int, ForceNew) Specifies the disk size in GB. Changing this parameter will create a new resource.
