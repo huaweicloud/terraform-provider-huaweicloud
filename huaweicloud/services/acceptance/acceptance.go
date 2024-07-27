@@ -263,7 +263,8 @@ var (
 	HW_MODELARTS_USER_LOGIN_PASSWORD = os.Getenv("HW_MODELARTS_USER_LOGIN_PASSWORD")
 
 	// The CMDB sub-application ID of AOM service
-	HW_AOM_SUB_APPLICATION_ID = os.Getenv("HW_AOM_SUB_APPLICATION_ID")
+	HW_AOM_SUB_APPLICATION_ID                    = os.Getenv("HW_AOM_SUB_APPLICATION_ID")
+	HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE = os.Getenv("HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE")
 
 	// the ID of ECS instance which has installed uniagent
 	HW_COC_INSTANCE_ID = os.Getenv("HW_COC_INSTANCE_ID")
@@ -1588,6 +1589,13 @@ func TestAccPreCheckLTSLogConvergeMappingConfig(t *testing.T) {
 func TestAccPreCheckAomSubApplicationId(t *testing.T) {
 	if HW_AOM_SUB_APPLICATION_ID == "" {
 		t.Skip("HW_AOM_SUB_APPLICATION_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckMultiAccountAggregationRuleEnable(t *testing.T) {
+	if HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE == "" {
+		t.Skip("HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE must be set for the acceptance test")
 	}
 }
 
