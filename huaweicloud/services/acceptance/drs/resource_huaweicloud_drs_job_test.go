@@ -264,7 +264,7 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd, false, 1),
+				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd, false),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -306,7 +306,7 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd, true, 2),
+				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd, true),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
@@ -323,22 +323,21 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 	})
 }
 
-func testAccRdsMysqlDatabse(dbname string, i int) string {
+func testAccRdsMysqlDatabse(dbname string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_rds_mysql_database" "test%[2]v" {
+resource "huaweicloud_rds_mysql_database" "test" {
   instance_id   = huaweicloud_rds_instance.test1.id
-  name          = "%[1]s-%[2]v"
+  name          = "%[1]s"
   character_set = "utf8"
 }
-`, dbname, i)
+`, dbname)
 }
 
-func testAccDrsJob_synchronize_mysql(name, dbName, pwd string, autoRenew bool, i int) string {
+func testAccDrsJob_synchronize_mysql(name, dbName, pwd string, autoRenew bool) string {
 	netConfig := common.TestBaseNetwork(name)
 	sourceDb := testAccDrsJob_mysql(1, dbName, pwd, "192.168.0.58")
 	destDb := testAccDrsJob_mysql(2, dbName, pwd, "192.168.0.59")
-	database1 := testAccRdsMysqlDatabse(dbName, 1)
-	database2 := testAccRdsMysqlDatabse(dbName, 2)
+	database := testAccRdsMysqlDatabse(dbName)
 
 	return fmt.Sprintf(`
 %[1]s
@@ -353,16 +352,14 @@ data "huaweicloud_availability_zones" "test" {}
 
 %[5]s
 
-%[6]s
-
 resource "huaweicloud_drs_job" "test" {
-  name           = "%[7]s"
+  name           = "%[6]s"
   type           = "sync"
   engine_type    = "mysql"
   direction      = "up"
   net_type       = "vpc"
   migration_type = "FULL_INCR_TRANS"
-  description    = "%[7]s"
+  description    = "%[6]s"
   force_destroy  = true
 
   source_db {
@@ -370,7 +367,7 @@ resource "huaweicloud_drs_job" "test" {
     ip          = huaweicloud_rds_instance.test1.fixed_ip
     port        = 3306
     user        = "root"
-    password    = "%[8]s"
+    password    = "%[7]s"
     vpc_id      = huaweicloud_rds_instance.test1.vpc_id
     subnet_id   = huaweicloud_rds_instance.test1.subnet_id
   }
@@ -381,12 +378,12 @@ resource "huaweicloud_drs_job" "test" {
     port        = 3306
     engine_type = "mysql"
     user        = "root"
-    password    = "%[8]s"
+    password    = "%[7]s"
     instance_id = huaweicloud_rds_instance.test2.id
     subnet_id   = huaweicloud_rds_instance.test2.subnet_id
   }
 
-  databases = [huaweicloud_rds_mysql_database.test%[9]v.name]
+  databases = [huaweicloud_rds_mysql_database.test.name]
 
   policy_config {
     filter_ddl_policy = "drop_database"
@@ -397,7 +394,7 @@ resource "huaweicloud_drs_job" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "%[10]v"
+  auto_renew    = "%[8]v"
 
   limit_speed {
     speed      = "15"
@@ -411,7 +408,7 @@ resource "huaweicloud_drs_job" "test" {
     ]
   }
 }
-`, netConfig, testAccSecgroupRule, sourceDb, destDb, database1, database2, name, pwd, i, autoRenew)
+`, netConfig, testAccSecgroupRule, sourceDb, destDb, database, name, pwd, autoRenew)
 }
 
 func TestAccResourceDrsJob_dualAZ(t *testing.T) {
@@ -538,7 +535,7 @@ resource "huaweicloud_drs_job" "test" {
     subnet_id   = huaweicloud_rds_instance.test2.subnet_id
   }
 
-  databases = [huaweicloud_rds_mysql_database.test1.name]
+  databases = [huaweicloud_rds_mysql_database.test.name]
 
   lifecycle {
     ignore_changes = [
@@ -546,5 +543,5 @@ resource "huaweicloud_drs_job" "test" {
     ]
   }
 }
-`, netConfig, testAccSecgroupRule, sourceDb, destDb, testAccRdsMysqlDatabse(dbName, 1), name, pwd)
+`, netConfig, testAccSecgroupRule, sourceDb, destDb, testAccRdsMysqlDatabse(dbName), name, pwd)
 }

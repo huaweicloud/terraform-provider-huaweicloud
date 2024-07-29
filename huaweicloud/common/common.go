@@ -391,9 +391,13 @@ func GetResourceIDsByOrder(client *golangsdk.ServiceClient, orderId string, only
 		OnlyMainResource: onlyMainResource,
 	}
 	resp, err := resources.List(client, listOpts)
-	if err != nil || resp == nil || resp.TotalCount < 1 {
+	if err != nil {
 		return nil, fmt.Errorf("error getting order (%s) details: %s", orderId, err)
 	}
+	if resp == nil || resp.TotalCount < 1 {
+		return nil, fmt.Errorf("error getting order (%s) details: response empty", orderId)
+	}
+
 	rst := make([]string, len(resp.Resources))
 	for i, v := range resp.Resources {
 		rst[i] = v.ResourceId
