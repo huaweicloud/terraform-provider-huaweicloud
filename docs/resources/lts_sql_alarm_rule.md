@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_sql_alarm_rule"
-description: ""
+description: |-
+  Manages an LTS SQL alarm rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_lts_sql_alarm_rule
@@ -179,7 +180,7 @@ In addition to all arguments above, the following attributes are exported:
 The sql alarm rule can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_lts_sql_alarm_rule.test ed8a4e02-b017-4c22-919d-8877b10cf505
+$ terraform import huaweicloud_lts_sql_alarm_rule.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the

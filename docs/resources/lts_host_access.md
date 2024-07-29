@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_host_access"
-description: ""
+description: |-
+  Manages an LTS host access resource within HuaweiCloud.
 ---
 
 # huaweicloud_lts_host_access
@@ -40,7 +41,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the host access name. The name consists of 1 to 64 characters.
+* `name` - (Required, String, ForceNew) Specifies the host access name. The name consists of `1` to `64` characters.
   Only letters, digits, underscores (_), and periods (.) are allowed, and the period cannot be the first or last character.
   Changing this parameter will create a new resource.
 
@@ -134,9 +135,9 @@ The `windows_log_info` block supports:
 * `time_offset` - (Required, Int) Specifies the collection time offset. This time takes effect only for the first
   time to ensure that the logs are not collected repeatedly.
 
-  + When `time_offset_unit` is set to **day**, the value ranges from 1 to 7 days.
-  + When `time_offset_unit` is set to **hour**, the value ranges from 1 to 168 hours.
-  + When `time_offset_unit` is set to **sec**, the value ranges from 1 to 604800 seconds.
+  + When `time_offset_unit` is set to **day**, the value ranges from `1` to `7` days.
+  + When `time_offset_unit` is set to **hour**, the value ranges from `1` to `168` hours.
+  + When `time_offset_unit` is set to **sec**, the value ranges from `1` to `604,800` seconds.
 
 ## Attribute Reference
 
@@ -155,5 +156,5 @@ In addition to all arguments above, the following attributes are exported:
 The host access can be imported using the `name`, e.g.
 
 ```bash
-$ terraform import huaweicloud_lts_host_access.test access-demo
+$ terraform import huaweicloud_lts_host_access.test <name>
 ```

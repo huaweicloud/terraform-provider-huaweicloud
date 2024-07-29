@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_waf_access"
-description: ""
+description: |-
+  Manages an LTS access WAF logs configuration resource within HuaweiCloud.
 ---
 
 # huaweicloud_lts_waf_access
@@ -14,16 +15,16 @@ Manages an LTS access WAF logs configuration resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-variable "enterprise_project_id" {}
 variable "lts_group_id" {}
 variable "lts_attack_stream_id" {}
 variable "lts_access_stream_id" {}
+variable "enterprise_project_id" {}
 
 resource "huaweicloud_lts_waf_access" "test" {
-  enterprise_project_id = var.enterprise_project_id
   lts_group_id          = var.lts_group_id
   lts_attack_stream_id  = var.lts_attack_stream_id
   lts_access_stream_id  = var.lts_access_stream_id
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
