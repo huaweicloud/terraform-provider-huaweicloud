@@ -108,16 +108,20 @@ var (
 	HW_CDN_END_TIME         = os.Getenv("HW_CDN_END_TIME")
 	HW_CDN_STAT_TYPE        = os.Getenv("HW_CDN_STAT_TYPE")
 
-	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
-	HW_CERTIFICATE_CHAIN_PATH       = os.Getenv("HW_CERTIFICATE_CHAIN_PATH")
-	HW_CERTIFICATE_PRIVATE_KEY_PATH = os.Getenv("HW_CERTIFICATE_PRIVATE_KEY_PATH")
-	HW_CERTIFICATE_SERVICE          = os.Getenv("HW_CERTIFICATE_SERVICE")
-	HW_CERTIFICATE_PROJECT          = os.Getenv("HW_CERTIFICATE_PROJECT")
-	HW_CERTIFICATE_PROJECT_UPDATED  = os.Getenv("HW_CERTIFICATE_PROJECT_UPDATED")
-	HW_CERTIFICATE_NAME             = os.Getenv("HW_CERTIFICATE_NAME")
-	HW_DMS_ENVIRONMENT              = os.Getenv("HW_DMS_ENVIRONMENT")
-	HW_SMS_SOURCE_SERVER            = os.Getenv("HW_SMS_SOURCE_SERVER")
-	HW_CCM_SSL_CERTIFICATE_ID       = os.Getenv("HW_CCM_SSL_CERTIFICATE_ID")
+	// CCM environment
+	HW_CCM_CERTIFICATE_CONTENT_PATH    = os.Getenv("HW_CCM_CERTIFICATE_CONTENT_PATH")
+	HW_CCM_CERTIFICATE_CHAIN_PATH      = os.Getenv("HW_CCM_CERTIFICATE_CHAIN_PATH")
+	HW_CCM_PRIVATE_KEY_PATH            = os.Getenv("HW_CCM_PRIVATE_KEY_PATH")
+	HW_CCM_ENC_CERTIFICATE_PATH        = os.Getenv("HW_CCM_ENC_CERTIFICATE_PATH")
+	HW_CCM_ENC_PRIVATE_KEY_PATH        = os.Getenv("HW_CCM_ENC_PRIVATE_KEY_PATH")
+	HW_CCM_CERTIFICATE_SERVICE         = os.Getenv("HW_CCM_CERTIFICATE_SERVICE")
+	HW_CCM_CERTIFICATE_PROJECT         = os.Getenv("HW_CCM_CERTIFICATE_PROJECT")
+	HW_CCM_CERTIFICATE_PROJECT_UPDATED = os.Getenv("HW_CCM_CERTIFICATE_PROJECT_UPDATED")
+	HW_CCM_CERTIFICATE_NAME            = os.Getenv("HW_CCM_CERTIFICATE_NAME")
+	HW_CCM_SSL_CERTIFICATE_ID          = os.Getenv("HW_CCM_SSL_CERTIFICATE_ID")
+
+	HW_DMS_ENVIRONMENT   = os.Getenv("HW_DMS_ENVIRONMENT")
+	HW_SMS_SOURCE_SERVER = os.Getenv("HW_SMS_SOURCE_SERVER")
 
 	HW_DLI_AUTHORIZED_USER_NAME         = os.Getenv("HW_DLI_AUTHORIZED_USER_NAME")
 	HW_DLI_FLINK_JAR_OBS_PATH           = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
@@ -848,14 +852,24 @@ func TestAccPreCheckHighCostAllow(t *testing.T) {
 	}
 }
 
-// lintignore:AT003
-func TestAccPreCheckCCMCertificateImport(t *testing.T) {
-	if HW_CERTIFICATE_KEY_PATH == "" || HW_CERTIFICATE_CHAIN_PATH == "" ||
-		HW_CERTIFICATE_PRIVATE_KEY_PATH == "" || HW_CERTIFICATE_SERVICE == "" ||
-		HW_CERTIFICATE_PROJECT == "" || HW_CERTIFICATE_PROJECT_UPDATED == "" {
-		t.Skip("HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH, " +
-			"HW_CERTIFICATE_SERVICE, HW_CERTIFICATE_PROJECT and HW_CERTIFICATE_TARGET_UPDATED " +
-			"can not be empty for SCM certificate tests")
+func TestAccPreCheckCCMBaseCertificateImport(t *testing.T) {
+	if HW_CCM_CERTIFICATE_CONTENT_PATH == "" || HW_CCM_CERTIFICATE_CHAIN_PATH == "" || HW_CCM_PRIVATE_KEY_PATH == "" {
+		t.Skip("HW_CCM_CERTIFICATE_CONTENT_PATH, HW_CCM_CERTIFICATE_CHAIN_PATH and HW_CCM_PRIVATE_KEY_PATH " +
+			"must be set for CCM certificate import tests.")
+	}
+}
+
+func TestAccPreCheckCCMEncCertificateImport(t *testing.T) {
+	if HW_CCM_ENC_CERTIFICATE_PATH == "" || HW_CCM_ENC_PRIVATE_KEY_PATH == "" {
+		t.Skip("HW_CCM_ENC_CERTIFICATE_PATH and HW_CCM_ENC_PRIVATE_KEY_PATH " +
+			"must be set for CCM certificate enc import tests.")
+	}
+}
+
+func TestAccPreCheckCCMCertificatePush(t *testing.T) {
+	if HW_CCM_CERTIFICATE_SERVICE == "" || HW_CCM_CERTIFICATE_PROJECT == "" || HW_CCM_CERTIFICATE_PROJECT_UPDATED == "" {
+		t.Skip("HW_CCM_CERTIFICATE_SERVICE, HW_CCM_CERTIFICATE_PROJECT and HW_CCM_CERTIFICATE_PROJECT_UPDATED " +
+			"must be set for CCM push certificate tests.")
 	}
 }
 
@@ -1108,8 +1122,8 @@ func TestAccPreCheckAadForwardRule(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckCCMCertificateName(t *testing.T) {
-	if HW_CERTIFICATE_NAME == "" {
-		t.Skip("HW_CERTIFICATE_NAME must be set for SCM acceptance tests.")
+	if HW_CCM_CERTIFICATE_NAME == "" {
+		t.Skip("HW_CCM_CERTIFICATE_NAME must be set for CCM SSL acceptance tests.")
 	}
 }
 
