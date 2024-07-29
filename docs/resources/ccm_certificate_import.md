@@ -102,7 +102,7 @@ The `target` block supports:
 
 * `project` - (Optional, List) Specifies the projects where the service you want to push a certificate to.
   The same certificate can be pushed repeatedly to the same WAF or ELB service in the same `project`, but the CDN service
-  can only be pushed once.
+  can only be pushed once. This parameter is required when pushing certificate to `WAF` or `ELB` service.
 
 ## Attribute Reference
 
@@ -153,4 +153,23 @@ The CCM certificate import resource can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_ccm_certificate_import.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `certificate`, `certificate_chain`,
+`private_key` and `target`.
+It is generally recommended running `terraform plan` after importing a resource.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
+with the resource. Also, you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_ccm_certificate_import" "test" {
+  ...
+  
+  lifecycle {
+    ignore_changes = [
+      certificate, certificate_chain, private_key, target,
+    ]
+  }
+}
 ```

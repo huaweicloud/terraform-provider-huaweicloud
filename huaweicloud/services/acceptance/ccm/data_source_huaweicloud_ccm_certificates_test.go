@@ -43,5 +43,5 @@ func testAccDatasourceCertificates_basic() string {
 data "huaweicloud_ccm_certificates" "test" {
   name = "%s"
 }
-`, acceptance.HW_CERTIFICATE_NAME)
+`, acceptance.HW_CCM_CERTIFICATE_NAME)
 }

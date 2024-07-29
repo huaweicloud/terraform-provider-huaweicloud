@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -19,9 +18,6 @@ import (
 )
 
 const (
-	maxErrorMessageLen = 200
-	ellipsisString     = "..."
-
 	targetServiceCdn = "CDN"
 )
 
@@ -137,6 +133,74 @@ func ResourceCertificateImport() *schema.Resource {
 	}
 }
 
+func buildPushOpts(targetService, targetProject string) certificates.PushOpts {
+	return certificates.PushOpts{
+		TargetService: targetService,
+		TargetProject: targetProject,
+	}
+}
+
+func pushCertificateToCDNService(client *golangsdk.ServiceClient, d *schema.ResourceData) map[string]interface{} {
+	err := certificates.Push(client, d.Id(), buildPushOpts(targetServiceCdn, "")).ExtractErr()
+	if err != nil {
+		log.Printf("[WARN] error pushing certificate (%s) to CDN service: %s", d.Id(), err)
+		return nil
+	}
+
+	return map[string]interface{}{
+		"service": targetServiceCdn,
+		"project": []string{},
+	}
+}
+
+func pushCertificateToNonCDNService(client *golangsdk.ServiceClient, d *schema.ResourceData,
+	targetMap map[string]interface{}) map[string]interface{} {
+	var (
+		service           = targetMap["service"].(string)
+		projects          = targetMap["project"].([]interface{})
+		projectAttributes = make([]string, 0, len(projects))
+	)
+
+	for _, project := range projects {
+		if project.(string) == "" {
+			log.Printf("[WARN] the argument `project` cannot be empty when pushing certificate to Non-CDN service (%s)", service)
+			continue
+		}
+
+		err := certificates.Push(client, d.Id(), buildPushOpts(service, project.(string))).ExtractErr()
+		if err != nil {
+			log.Printf("[WARN] error pushing certificate (%s) to %s service: %s", d.Id(), service, err)
+			continue
+		}
+
+		projectAttributes = append(projectAttributes, project.(string))
+	}
+
+	return map[string]interface{}{
+		"service": service,
+		"project": projectAttributes,
+	}
+}
+
+func pushCertificateAndSetTargetAttribute(client *golangsdk.ServiceClient, d *schema.ResourceData) {
+	var (
+		targets          = d.Get("target").([]interface{})
+		targetAttributes = make([]map[string]interface{}, 0, len(targets))
+	)
+
+	for _, target := range targets {
+		targetMap := target.(map[string]interface{})
+		if targetMap["service"].(string) == targetServiceCdn {
+			targetAttributes = append(targetAttributes, pushCertificateToCDNService(client, d))
+			continue
+		}
+		targetAttributes = append(targetAttributes, pushCertificateToNonCDNService(client, d, targetMap))
+	}
+	if err := d.Set("target", targetAttributes); err != nil {
+		log.Printf("[ERROR] error setting `target` attribute to local state: %s", err)
+	}
+}
+
 func resourceCertificateImportCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.ScmV3Client(conf.GetRegion(d))
@@ -147,72 +211,41 @@ func resourceCertificateImportCreate(ctx context.Context, d *schema.ResourceData
 	importOpts := certificates.ImportOpts{
 		Name:             d.Get("name").(string),
 		Certificate:      d.Get("certificate").(string),
-		PrivateKey:       "***",
+		PrivateKey:       d.Get("private_key").(string),
 		CertificateChain: d.Get("certificate_chain").(string),
 	}
-	log.Printf("[DEBUG] Imported certificate options %s: %#v", d.Id(), importOpts)
-	importOpts.PrivateKey = d.Get("private_key").(string)
-
 	c, err := certificates.Import(client, importOpts).Extract()
 	if err != nil {
 		return diag.Errorf("error importing CCM certificate: %s", err)
 	}
-	// If all has been successful, set the ID on the resource
 	d.SetId(c.CertificateId)
-
-	// Get targets and push certificate to the target service.
-	targets := d.Get("target").([]interface{})
-	parseTargetsAndPush(client, d, targets)
+	pushCertificateAndSetTargetAttribute(client, d)
 
 	return resourceCertificateImportRead(ctx, d, meta)
 }
 
-// parseTargetsAndPush pushes the certificate to the service.
-// If the push fails, only the target attributes are updated.
-func parseTargetsAndPush(c *golangsdk.ServiceClient, d *schema.ResourceData, targets []interface{}) {
-	var tag = make([]map[string]interface{}, 0, len(targets))
+func buildUpdatePushOpts(newPushCert, oldPushCert map[string]*schema.Set) ([]certificates.PushOpts, error) {
+	pushOptResults := make([]certificates.PushOpts, 0, len(newPushCert))
 
-	for _, pushInfo := range targets {
-		service := pushInfo.(map[string]interface{})["service"].(string)
-		projects := pushInfo.(map[string]interface{})["project"].([]interface{})
+	for service, newProjects := range newPushCert {
+		oldProjects, ok := oldPushCert[service]
+		if service == targetServiceCdn && !ok {
+			pushOptResults = append(pushOptResults, buildPushOpts(targetServiceCdn, ""))
+			continue
+		}
 
-		t := map[string]interface{}{}
-
-		if strings.Compare(service, targetServiceCdn) == 0 {
-			pushOpts := certificates.PushOpts{
-				TargetService: service,
+		projectToAdd := newProjects
+		if oldProjects != nil {
+			projectToAdd = newProjects.Difference(oldProjects)
+		}
+		for _, project := range projectToAdd.List() {
+			if project == "" {
+				return nil, fmt.Errorf("the argument `project` cannot be empty when pushing certificate to Non-CDN service (%s)", service)
 			}
-			log.Printf("[DEBUG] Push certificate to CDN Service. %#v", pushOpts)
-			err := pushCertificateToService(d.Id(), pushOpts, c)
-			if err == nil {
-				t["service"] = service
-				t["project"] = []string{}
-				tag = append(tag, t)
-			} else {
-				log.Printf("[WARN] Push to CDN failed: %#v", pushOpts)
-			}
-		} else {
-			var proj = make([]string, 0, len(projects))
-
-			for _, p := range projects {
-				pushOpts := certificates.PushOpts{
-					TargetProject: p.(string),
-					TargetService: service,
-				}
-				log.Printf("[DEBUG] Push certificate to services. %#v", pushOpts)
-				err := pushCertificateToService(d.Id(), pushOpts, c)
-				if err == nil {
-					proj = append(proj, p.(string))
-				} else {
-					log.Printf("[WARN] Push failed: %#v", pushOpts)
-				}
-			}
-			t["service"] = service
-			t["project"] = proj
-			tag = append(tag, t)
+			pushOptResults = append(pushOptResults, buildPushOpts(service, project.(string)))
 		}
 	}
-	d.Set("target", tag)
+	return pushOptResults, nil
 }
 
 func resourceCertificateImportUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -229,55 +262,19 @@ func resourceCertificateImportUpdate(ctx context.Context, d *schema.ResourceData
 	oldPushCert, _ := parsePushCertificateToMap(oldVal.([]interface{}))
 
 	// extract the new push service
-	for service, newProjects := range newPushCert {
-		oldProjects, ok := oldPushCert[service]
-		if strings.Compare(service, targetServiceCdn) == 0 && !ok {
-			pushOpts := certificates.PushOpts{
-				TargetService: service,
-			}
-			log.Printf("[DEBUG] Find new services and start to push. %#v", pushOpts)
-			err := pushCertificateToService(d.Id(), pushOpts, client)
-			if err != nil {
-				d.Set("target", oldVal)
-				return diag.FromErr(err)
-			}
-		} else {
-			projectToAdd := newProjects
-			if oldProjects != nil {
-				projectToAdd = newProjects.Difference(oldProjects)
-			}
-			log.Printf("[DEBUG] Find new services to push. %s: %#v", service, projectToAdd)
-			for _, project := range projectToAdd.List() {
-				pushOpts := certificates.PushOpts{
-					TargetProject: project.(string),
-					TargetService: service,
-				}
-				err := pushCertificateToService(d.Id(), pushOpts, client)
-				if err != nil {
-					d.Set("target", oldVal)
-					return diag.FromErr(err)
-				}
-				log.Printf("[DEBUG] Successfully push the certificate to the %s of %s.", service, project)
-			}
+	pushOptArrays, err := buildUpdatePushOpts(newPushCert, oldPushCert)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	for _, pushOpts := range pushOptArrays {
+		err := certificates.Push(client, d.Id(), pushOpts).ExtractErr()
+		if err != nil {
+			_ = d.Set("target", oldVal)
+			return diag.Errorf("error pushing certificate (%s) to CDN service in update operation: %s", d.Id(), err)
 		}
 	}
-
 	return resourceCertificateImportRead(ctx, d, meta)
-}
-
-func pushCertificateToService(id string, pushOpts certificates.PushOpts, client *golangsdk.ServiceClient) error {
-	if strings.Compare(pushOpts.TargetService, targetServiceCdn) != 0 && len(pushOpts.TargetProject) == 0 {
-		return fmt.Errorf("the argument of \"project\" cannot be empty, "+
-			"it can be empty when pushed to the CDN service only. "+
-			"\r\ncertificate_id: %s, service: %s", id, pushOpts.TargetService)
-	}
-	err := certificates.Push(client, id, pushOpts).ExtractErr()
-	if err != nil {
-		// Parse 'err' to print more error messages.
-		errMsg := processErr(err)
-		return fmt.Errorf(errMsg)
-	}
-	return nil
 }
 
 func resourceCertificateImportRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -291,10 +288,8 @@ func resourceCertificateImportRead(_ context.Context, d *schema.ResourceData, me
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error obtain certificate information")
 	}
-	log.Printf("[DEBUG] Retrieved certificate %s: %#v", d.Id(), certDetail)
 
-	// convert the type of 'certDetail.Authentifications' to TypeList
-	auths := buildAuthtificatesAttribute(certDetail.Authentifications)
+	auths := flattenAuthenticationAttribute(certDetail.Authentifications)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("status", certDetail.Status),
@@ -314,9 +309,9 @@ func resourceCertificateImportRead(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func buildAuthtificatesAttribute(authentifications []certificates.Authentification) []map[string]interface{} {
-	auth := make([]map[string]interface{}, 0, len(authentifications))
-	for _, v := range authentifications {
+func flattenAuthenticationAttribute(authentications []certificates.Authentification) []map[string]interface{} {
+	auth := make([]map[string]interface{}, 0, len(authentications))
+	for _, v := range authentications {
 		a := map[string]interface{}{
 			"record_name":  v.RecordName,
 			"record_type":  v.RecordType,
@@ -335,7 +330,6 @@ func resourceCertificateImportDelete(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating CCM client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting certificate: %s", d.Id())
 	err = certificates.Delete(client, d.Id()).ExtractErr()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting certificate")
@@ -344,6 +338,8 @@ func resourceCertificateImportDelete(_ context.Context, d *schema.ResourceData, 
 	return nil
 }
 
+// Parse the pushed service configuration into a map structure.
+// The key indicates service name, and the value indicates the project set
 func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]*schema.Set, error) {
 	serviceMapping := map[string]*schema.Set{}
 
@@ -353,39 +349,16 @@ func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]*schem
 
 		projects, ok := serviceMapping[targetService]
 		if !ok {
-			projects = &schema.Set{F: schema.HashString}
+			projects = schema.NewSet(schema.HashString, nil)
 		}
 		for _, proj := range targetProjectArr {
 			projectName := proj.(string)
 			if projects.Contains(projectName) {
-				return nil, fmt.Errorf("there are duplicate projects for the same service, service = %s, project = %s", targetService, projectName)
+				return nil, fmt.Errorf("duplicate project (%s) for the same service (%s)", projectName, targetService)
 			}
 			projects.Add(projectName)
 		}
 		serviceMapping[targetService] = projects
-
-		log.Printf("[DEBUG] Push certificate service mapping: %#v", serviceMapping)
 	}
 	return serviceMapping, nil
-}
-
-func processErr(err error) string {
-	var errMsg string
-	if err500, ok := err.(golangsdk.ErrDefault500); ok {
-		errBody := string(err500.Body)
-		// Maybe the text in the body is very long, only 200 characters printed。
-		if len(errBody) >= maxErrorMessageLen {
-			errBody = errBody[0:maxErrorMessageLen] + ellipsisString
-		}
-		// If 'err' is an ErrDefault500 object, the following information will be printed.
-		log.Printf("[ERROR] Push certificate service error. URL: %s, Body: %s",
-			err500.URL, errBody)
-		errMsg = fmt.Sprintf("push certificate service error: "+
-			"Bad request with: [%s %s], error message: %s", err500.Method, err500.URL, errBody)
-	} else {
-		// If 'err' is other error object, the default information will be printed.
-		log.Printf("[ERROR] Push certificate service error: %s, \n%v", err.Error(), err)
-		errMsg = fmt.Sprintf("push certificate service error: %s", err)
-	}
-	return errMsg
 }
