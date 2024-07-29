@@ -18,10 +18,13 @@ type ImportOptsBuilder interface {
 
 // ImportOpts is the struct be used in the Import operation
 type ImportOpts struct {
-	Name             string `json:"name,omitempty" required:"true"`
-	Certificate      string `json:"certificate" required:"true"`
-	PrivateKey       string `json:"private_key" required:"true"`
-	CertificateChain string `json:"certificate_chain,omitempty"`
+	Name                string `json:"name,omitempty" required:"true"`
+	Certificate         string `json:"certificate" required:"true"`
+	PrivateKey          string `json:"private_key" required:"true"`
+	CertificateChain    string `json:"certificate_chain,omitempty"`
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
+	EncCertificate      string `json:"enc_certificate,omitempty"`
+	EncPrivateKey       string `json:"enc_private_key,omitempty"`
 }
 
 // ToCertificateImportMap casts a CreateOpts struct to a map.

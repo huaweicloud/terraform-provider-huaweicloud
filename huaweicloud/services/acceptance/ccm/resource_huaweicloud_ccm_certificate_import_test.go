@@ -15,12 +15,15 @@ import (
 )
 
 var (
-	certificatePath   = acceptance.HW_CCM_CERTIFICATE_CONTENT_PATH
-	chainPath         = acceptance.HW_CCM_CERTIFICATE_CHAIN_PATH
-	keyPath           = acceptance.HW_CCM_PRIVATE_KEY_PATH
-	serviceName       = acceptance.HW_CCM_CERTIFICATE_SERVICE
-	projectName       = acceptance.HW_CCM_CERTIFICATE_PROJECT
-	projectUpdateName = acceptance.HW_CCM_CERTIFICATE_PROJECT_UPDATED
+	certificatePath     = acceptance.HW_CCM_CERTIFICATE_CONTENT_PATH
+	chainPath           = acceptance.HW_CCM_CERTIFICATE_CHAIN_PATH
+	keyPath             = acceptance.HW_CCM_PRIVATE_KEY_PATH
+	encCertificatePath  = acceptance.HW_CCM_ENC_CERTIFICATE_PATH
+	encKeyPath          = acceptance.HW_CCM_ENC_PRIVATE_KEY_PATH
+	enterpriseProjectID = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+	serviceName         = acceptance.HW_CCM_CERTIFICATE_SERVICE
+	projectName         = acceptance.HW_CCM_CERTIFICATE_PROJECT
+	projectUpdateName   = acceptance.HW_CCM_CERTIFICATE_PROJECT_UPDATED
 )
 
 func getCertificateImportResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -48,6 +51,8 @@ func TestAccCertificateImport_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckCCMBaseCertificateImport(t)
+			acceptance.TestAccPreCheckCCMEncCertificateImport(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -58,6 +63,7 @@ func TestAccCertificateImport_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", enterpriseProjectID),
 					resource.TestCheckResourceAttrSet(resourceName, "push_support"),
 					resource.TestCheckResourceAttrSet(resourceName, "authentifications.#"),
 					resource.TestCheckResourceAttrSet(resourceName, "domain"),
@@ -67,10 +73,16 @@ func TestAccCertificateImport_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"certificate", "certificate_chain", "private_key"},
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"certificate",
+					"certificate_chain",
+					"private_key",
+					"enc_certificate",
+					"enc_private_key",
+				},
 			},
 		},
 	})
@@ -194,11 +206,14 @@ func testCertificateImportPushExists(
 func testAccCertificateImport_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_ccm_certificate_import" "test" {
-  name              = "%[1]s"
-  certificate       = file("%[2]s")
-  certificate_chain = file("%[3]s")
-  private_key       = file("%[4]s")
-}`, name, certificatePath, chainPath, keyPath)
+  name                  = "%[1]s"
+  certificate           = file("%[2]s")
+  certificate_chain     = file("%[3]s")
+  private_key           = file("%[4]s")
+  enc_certificate       = file("%[5]s")
+  enc_private_key       = file("%[6]s")
+  enterprise_project_id = "%[7]s"
+}`, name, certificatePath, chainPath, keyPath, encCertificatePath, encKeyPath, enterpriseProjectID)
 }
 
 func testAccCertificateImport_push(name string) string {
