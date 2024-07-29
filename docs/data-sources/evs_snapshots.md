@@ -92,3 +92,5 @@ The `snapshots` block supports:
 * `volume_id` - The ID of the cloudvolume to which the snapshot belongs.
 
 * `service_type` - Service type. Valid values can be **EVS**, **DSS**, and **DESS**.
+
+* `metadata` - The user-defined metadata key-value pair.

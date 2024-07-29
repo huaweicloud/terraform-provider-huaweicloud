@@ -112,6 +112,11 @@ func snapshotSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"metadata": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 	return &sc
@@ -227,6 +232,7 @@ func flattenListSnapshotsBody(resp interface{}) []interface{} {
 			"updated_at":   utils.PathSearch("updated_at", v, nil),
 			"volume_id":    utils.PathSearch("volume_id", v, nil),
 			"service_type": utils.PathSearch("service_type", v, nil),
+			"metadata":     utils.PathSearch("metadata", v, nil),
 		})
 	}
 	return rst
