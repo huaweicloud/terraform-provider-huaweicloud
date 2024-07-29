@@ -153,7 +153,8 @@ func pushCertificateToCDNService(client *golangsdk.ServiceClient, d *schema.Reso
 	}
 }
 
-func pushCertificateToNonCDNService(client *golangsdk.ServiceClient, d *schema.ResourceData, targetMap map[string]interface{}) map[string]interface{} {
+func pushCertificateToNonCDNService(client *golangsdk.ServiceClient, d *schema.ResourceData,
+	targetMap map[string]interface{}) map[string]interface{} {
 	var (
 		service           = targetMap["service"].(string)
 		projects          = targetMap["project"].([]interface{})
@@ -338,7 +339,7 @@ func resourceCertificateImportDelete(_ context.Context, d *schema.ResourceData, 
 }
 
 // Parse the pushed service configuration into a map structure.
-// The key indicates service name, and the value indicates the projects set
+// The key indicates service name, and the value indicates the project set
 func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]*schema.Set, error) {
 	serviceMapping := map[string]*schema.Set{}
 
@@ -348,7 +349,7 @@ func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]*schem
 
 		projects, ok := serviceMapping[targetService]
 		if !ok {
-			projects = &schema.Set{F: schema.HashString}
+			projects = schema.NewSet(schema.HashString, nil)
 		}
 		for _, proj := range targetProjectArr {
 			projectName := proj.(string)

@@ -852,6 +852,7 @@ func TestAccPreCheckHighCostAllow(t *testing.T) {
 	}
 }
 
+// lintignore:AT003
 func TestAccPreCheckCCMBaseCertificateImport(t *testing.T) {
 	if HW_CCM_CERTIFICATE_CONTENT_PATH == "" || HW_CCM_CERTIFICATE_CHAIN_PATH == "" || HW_CCM_PRIVATE_KEY_PATH == "" {
 		t.Skip("HW_CCM_CERTIFICATE_CONTENT_PATH, HW_CCM_CERTIFICATE_CHAIN_PATH and HW_CCM_PRIVATE_KEY_PATH " +
@@ -859,6 +860,7 @@ func TestAccPreCheckCCMBaseCertificateImport(t *testing.T) {
 	}
 }
 
+// lintignore:AT003
 func TestAccPreCheckCCMEncCertificateImport(t *testing.T) {
 	if HW_CCM_ENC_CERTIFICATE_PATH == "" || HW_CCM_ENC_PRIVATE_KEY_PATH == "" {
 		t.Skip("HW_CCM_ENC_CERTIFICATE_PATH and HW_CCM_ENC_PRIVATE_KEY_PATH " +
@@ -866,6 +868,7 @@ func TestAccPreCheckCCMEncCertificateImport(t *testing.T) {
 	}
 }
 
+// lintignore:AT003
 func TestAccPreCheckCCMCertificatePush(t *testing.T) {
 	if HW_CCM_CERTIFICATE_SERVICE == "" || HW_CCM_CERTIFICATE_PROJECT == "" || HW_CCM_CERTIFICATE_PROJECT_UPDATED == "" {
 		t.Skip("HW_CCM_CERTIFICATE_SERVICE, HW_CCM_CERTIFICATE_PROJECT and HW_CCM_CERTIFICATE_PROJECT_UPDATED " +
