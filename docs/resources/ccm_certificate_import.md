@@ -17,11 +17,16 @@ SSL certificate to other HuaweiCloud services.
 ### Load the certificate contents from the local files
 
 ```hcl
+variable "enterprise_project_id" {}
+
 resource "huaweicloud_ccm_certificate_import" "test" {
-  name              = "certificate_name"
-  certificate       = file("your_directory/xxx_ca.crt")
-  certificate_chain = file("your_directory/xxx_ca_chain.crt")
-  private_key       = file("your_directory/xxx_server.key")
+  name                  = "certificate_name"
+  certificate           = file("your_directory/xxx_ca.crt")
+  certificate_chain     = file("your_directory/xxx_ca_chain.crt")
+  private_key           = file("your_directory/xxx_server.key")
+  enc_certificate       = file("your_directory/xxx_enc_ca.crt")
+  enc_private_key       = file("your_directory/xxx_enc_server.key")
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -72,14 +77,14 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `certificate` - (Required, String, ForceNew) Specifies the content of the SSL certificate, PEM format.
+* `certificate` - (Required, String, ForceNew) Specifies the content of the SSL certificate.
   The certificate content can include intermediate certificates and root certificates.
   If the certificate chain is passed in using the field `certificate_chain`, then the field `certificate` only takes
   the certificate content itself. Using the escape character `\n` or `\r\n` to replace carriage return and line feed.
 
   Changing this parameter will create a new resource.
 
-* `private_key` - (Required, String, ForceNew) Specifies the private encrypted key of the SSL certificate, PEM format.
+* `private_key` - (Required, String, ForceNew) Specifies the private encrypted key of the SSL certificate.
   The private key protected by password cannot be uploaded. The carriage return character must be replaced with the
   escape character `\n` or `\r\n`.
 
@@ -88,6 +93,23 @@ The following arguments are supported:
 * `certificate_chain` - (Optional, String, ForceNew) Specifies the certificate chain of the SSL certificate.
   The certificate chain can also be passed in through `certificate`. Using the escape character `\n` or `\r\n` to
   replace carriage return and line feed characters.
+
+  Changing this parameter will create a new resource.
+
+* `enc_certificate` - (Optional, String, ForceNew) Specifies the encrypted content of the state secret certificate.
+  Using the escape character `\n` or `\r\n` to replace carriage return and line feed characters.
+
+  Changing this parameter will create a new resource.
+
+* `enc_private_key` - (Optional, String, ForceNew) Specifies the encrypted private key of the state secret certificate.
+  Password-protected private keys cannot be uploaded, and using the escape character `\n` or `\r\n` to replace carriage
+  return and line feed characters.
+
+  Changing this parameter will create a new resource.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID. This parameter is only
+  valid for enterprise users. Resources under all authorized enterprise projects of the tenant will be queried by default
+  if this parameter is not specified for enterprise users.
 
   Changing this parameter will create a new resource.
 
@@ -157,7 +179,7 @@ $ terraform import huaweicloud_ccm_certificate_import.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `certificate`, `certificate_chain`,
-`private_key` and `target`.
+`private_key`, `enc_certificate`, `enc_private_key` and `target`.
 It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
 with the resource. Also, you can ignore changes as below.
@@ -168,7 +190,7 @@ resource "huaweicloud_ccm_certificate_import" "test" {
   
   lifecycle {
     ignore_changes = [
-      certificate, certificate_chain, private_key, target,
+      certificate, certificate_chain, private_key, enc_certificate, enc_private_key, target,
     ]
   }
 }

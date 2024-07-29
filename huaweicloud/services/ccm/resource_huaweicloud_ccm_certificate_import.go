@@ -65,6 +65,18 @@ func ResourceCertificateImport() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 			},
+			"enc_certificate": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: utils.SuppressNewLineDiffs,
+			},
+			"enc_private_key": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: utils.SuppressNewLineDiffs,
+			},
 			"target": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -81,7 +93,12 @@ func ResourceCertificateImport() *schema.Resource {
 						},
 					}},
 			},
-
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"domain": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -209,10 +226,13 @@ func resourceCertificateImportCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	importOpts := certificates.ImportOpts{
-		Name:             d.Get("name").(string),
-		Certificate:      d.Get("certificate").(string),
-		PrivateKey:       d.Get("private_key").(string),
-		CertificateChain: d.Get("certificate_chain").(string),
+		Name:                d.Get("name").(string),
+		Certificate:         d.Get("certificate").(string),
+		PrivateKey:          d.Get("private_key").(string),
+		CertificateChain:    d.Get("certificate_chain").(string),
+		EnterpriseProjectID: conf.GetEnterpriseProjectID(d),
+		EncCertificate:      d.Get("enc_certificate").(string),
+		EncPrivateKey:       d.Get("enc_private_key").(string),
 	}
 	c, err := certificates.Import(client, importOpts).Extract()
 	if err != nil {
@@ -300,6 +320,7 @@ func resourceCertificateImportRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("domain_count", certDetail.DomainCount),
 		d.Set("not_before", certDetail.NotBefore),
 		d.Set("not_after", certDetail.NotAfter),
+		d.Set("enterprise_project_id", certDetail.EnterpriseProjectID),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
