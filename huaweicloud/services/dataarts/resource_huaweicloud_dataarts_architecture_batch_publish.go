@@ -15,11 +15,11 @@ import (
 )
 
 // @API DataArtsStudio POST /v2/{project_id}/design/approvals/batch-publish
-func ResourceArchitectureBatchPublishment() *schema.Resource {
+func ResourceArchitectureBatchPublish() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceArchitectureBatchPublishmentCreate,
-		ReadContext:   resourceArchitectureBatchPublishmentRead,
-		DeleteContext: resourceArchitectureBatchPublishmentDelete,
+		CreateContext: resourceArchitectureBatchPublishCreate,
+		ReadContext:   resourceArchitectureBatchPublishRead,
+		DeleteContext: resourceArchitectureBatchPublishDelete,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -78,7 +78,7 @@ func ResourceArchitectureBatchPublishment() *schema.Resource {
 	}
 }
 
-func resourceArchitectureBatchPublishmentCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceArchitectureBatchPublishCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -99,7 +99,7 @@ func resourceArchitectureBatchPublishmentCreate(_ context.Context, d *schema.Res
 			"workspace":    d.Get("workspace_id").(string),
 			"Content-Type": "application/json;charset=UTF-8",
 		},
-		JSONBody: utils.RemoveNil(buildCreateArchitectureBatchPublishmentBodyParams(d)),
+		JSONBody: utils.RemoveNil(buildCreateArchitectureBatchPublishtBodyParams(d)),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -138,7 +138,7 @@ func resourceArchitectureBatchPublishmentCreate(_ context.Context, d *schema.Res
 	return nil
 }
 
-func buildCreateArchitectureBatchPublishmentBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateArchitectureBatchPublishtBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"approver_user_id":   d.Get("approver_user_id"),
 		"approver_user_name": d.Get("approver_user_name"),
@@ -158,11 +158,11 @@ func buildBusinessInfos(bizInfos []interface{}) []interface{} {
 	return result
 }
 
-func resourceArchitectureBatchPublishmentRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceArchitectureBatchPublishRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceArchitectureBatchPublishmentDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceArchitectureBatchPublishDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := `This resource is only a one-time action resource for publshing resource. Deleting this resource will
 	not change the status of the currently published resource, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{

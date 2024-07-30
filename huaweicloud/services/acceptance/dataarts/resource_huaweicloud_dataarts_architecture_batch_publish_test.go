@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccResourceArchitectureBatchPublishment_basic(t *testing.T) {
+func TestAccResourceArchitectureBatchPublish_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
@@ -22,17 +22,17 @@ func TestAccResourceArchitectureBatchPublishment_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArchitectureBatchPublishment_basic(),
+				Config: testAccArchitectureBatchPublish_basic(),
 			},
 			{
-				Config:      testAccArchitectureBatchPublishment_expectErr(),
+				Config:      testAccArchitectureBatchPublish_expectErr(),
 				ExpectError: regexp.MustCompile(`The definition has been released and does not support resubmission`),
 			},
 		},
 	})
 }
 
-func testAccArchitectureBatchPublishment_base() string {
+func testAccArchitectureBatchPublish_base() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dataarts_architecture_reviewer" "test" {
   workspace_id = "%[1]s"
@@ -43,11 +43,11 @@ resource "huaweicloud_dataarts_architecture_reviewer" "test" {
 		acceptance.HW_DATAARTS_ARCHITECTURE_USER_NAME)
 }
 
-func testAccArchitectureBatchPublishment_basic() string {
+func testAccArchitectureBatchPublish_basic() string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_dataarts_architecture_batch_publishment" "test" {
+resource "huaweicloud_dataarts_architecture_batch_publish" "test" {
   workspace_id       = "%s"
   approver_user_id   = huaweicloud_dataarts_architecture_reviewer.test.user_id
   approver_user_name = huaweicloud_dataarts_architecture_reviewer.test.user_name
@@ -58,14 +58,14 @@ resource "huaweicloud_dataarts_architecture_batch_publishment" "test" {
     biz_type = "SUBJECT"
   }
 }
-`, testAccArchitectureBatchPublishment_base(), acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_ARCHITECTURE_SUBJECT_BIZ_ID)
+`, testAccArchitectureBatchPublish_base(), acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_ARCHITECTURE_SUBJECT_BIZ_ID)
 }
 
-func testAccArchitectureBatchPublishment_expectErr() string {
+func testAccArchitectureBatchPublish_expectErr() string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_dataarts_architecture_batch_publishment" "test_error" {
+resource "huaweicloud_dataarts_architecture_batch_publish" "test_error" {
   workspace_id       = "%s"
   approver_user_id   = huaweicloud_dataarts_architecture_reviewer.test.user_id
   approver_user_name = huaweicloud_dataarts_architecture_reviewer.test.user_name
@@ -76,5 +76,5 @@ resource "huaweicloud_dataarts_architecture_batch_publishment" "test_error" {
     biz_type = "SUBJECT"
   }
 }
-`, testAccArchitectureBatchPublishment_base(), acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_ARCHITECTURE_SUBJECT_BIZ_ID)
+`, testAccArchitectureBatchPublish_base(), acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DATAARTS_ARCHITECTURE_SUBJECT_BIZ_ID)
 }

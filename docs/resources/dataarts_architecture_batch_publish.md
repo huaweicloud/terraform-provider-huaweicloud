@@ -1,12 +1,12 @@
 ---
 subcategory: "DataArts Studio"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_dataarts_architecture_batch_publishment"
+page_title: "HuaweiCloud: huaweicloud_dataarts_architecture_batch_publish"
 description: |-
   Manages a DataArts Architecture batch publish resource within HuaweiCloud.
 ---
 
-# huaweicloud_dataarts_architecture_batch_publishment
+# huaweicloud_dataarts_architecture_batch_publish
 
 Manages a DataArts Architecture batch publish resource within HuaweiCloud.
 
@@ -20,7 +20,7 @@ variable "approver_user_id" {}
 variable "approver_user_name" {}
 variable "biz_id" {}
 
-resource "huaweicloud_dataarts_architecture_batch_publishment" "test" {
+resource "huaweicloud_dataarts_architecture_batch_publish" "test" {
   workspace_id       = var.workspace_id
   approver_user_id   = var.approver_user_id
   approver_user_name = var.approver_user_name
