@@ -513,6 +513,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_logs":                cdn.DataSourceCdnLogs(),
 			"huaweicloud_cdn_analytics":           cdn.DataSourceCdnAnalytics(),
 
+			"huaweicloud_ces_metrics": ces.DataSourceCesMetrics(),
+
 			"huaweicloud_cfw_firewalls":             cfw.DataSourceFirewalls(),
 			"huaweicloud_cfw_address_groups":        cfw.DataSourceCfwAddressGroups(),
 			"huaweicloud_cfw_address_group_members": cfw.DataSourceCfwAddressGroupMembers(),
