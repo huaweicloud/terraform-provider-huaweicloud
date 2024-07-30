@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_aom_prom_instances
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AOM
+paths:
+    /v1/{project_id}/aom/prometheus:
+        GET:
+            tag: AOM

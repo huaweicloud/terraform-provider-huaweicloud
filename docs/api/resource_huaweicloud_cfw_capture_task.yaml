@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cfw_capture_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CFW
+paths:
+    /v1/{project_id}/capture-task:
+        GET:
+            tag: CFW
+        POST:
+            tag: CFW
+    /v1/{project_id}/capture-task/batch-delete:
+        POST:
+            tag: CFW
+    /v1/{project_id}/capture-task/stop:
+        POST:
+            tag: CFW

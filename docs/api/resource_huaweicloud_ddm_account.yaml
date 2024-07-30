@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: DDM
 paths:
+    /v1/{project_id}/instances/{instance_id}:
+        GET:
+            tag: DDM
     /v1/{project_id}/instances/{instance_id}/users:
         GET:
             tag: DDM

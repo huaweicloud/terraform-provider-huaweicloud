@@ -18,6 +18,14 @@ paths:
             tag: APIG
         PUT:
             tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports:
+        GET:
+            tag: APIG
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/custom-ingress-ports/{ingress_port_id}:
+        DELETE:
+            tag: APIG
     /v2/{project_id}/apigw/instances/{instance_id}/eip:
         DELETE:
             tag: APIG
