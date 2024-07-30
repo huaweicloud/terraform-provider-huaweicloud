@@ -124,14 +124,12 @@ func networkAclRuleSchema() *schema.Resource {
 				Optional: true,
 			},
 			"source_ip_address": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: utils.ValidateCIDR,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"destination_ip_address": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: utils.ValidateCIDR,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"source_port": {
 				Type:     schema.TypeString,
