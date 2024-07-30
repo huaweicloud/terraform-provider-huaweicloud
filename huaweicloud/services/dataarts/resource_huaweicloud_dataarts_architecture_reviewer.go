@@ -17,6 +17,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var workspaceIdNotFound = "DLG.0818"
+
 // @API DataArtsStudio POST /v2/{project_id}/design/approvals/users
 // @API DataArtsStudio GET /v2/{project_id}/design/approvals/users
 // @API DataArtsStudio DELETE /v2/{project_id}/design/approvals/users
@@ -146,7 +148,8 @@ func resourceArchitectureReviewerRead(_ context.Context, d *schema.ResourceData,
 	}
 	getArchitectureReviewerResp, err := getArchitectureReviewerClient.Request("GET", getArchitectureReviewerPath, &getArchitectureReviewerOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "DataArts Studio architecture reviewer")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", workspaceIdNotFound),
+			"DataArts Studio architecture reviewer")
 	}
 
 	getArchitectureReviewerRespBody, err := utils.FlattenResponse(getArchitectureReviewerResp)
