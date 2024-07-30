@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## 1.67.0 (July 30, 2024)
+
+* **New Resource:**
+  + `huaweicloud_dataarts_dataservice_api_debug` [GH-5306]
+  + `huaweicloud_dataarts_architecture_batch_publishment` [GH-5302]
+  + `huaweicloud_rds_pg_account_privileges` [GH-5293]
+  + `huaweicloud_evs_volume_transfer_accepter` [GH-5290]
+  + `huaweicloud_rds_pg_database_privilege` [GH-5284]
+  + `huaweicloud_evs_volume_transfer` [GH-5277]
+
+* **New Data Source:**
+  + `huaweicloud_dataarts_dataservice_instances` [GH-5297]
+  + `huaweicloud_organizations_trusted_services` [GH-5295]
+  + `huaweicloud_organizations_services` [GH-5294]
+  + `huaweicloud_kms_keys` [GH-5289]
+  + `huaweicloud_ccm_private_ca_export` [GH-5285]
+  + `huaweicloud_cfw_capture_task_results` [GH-5280]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_mysql_proxy: add access control support [GH-5270]
+
 ## 1.66.3 (July 19, 2024)
 
 ENHANCEMENTS:
