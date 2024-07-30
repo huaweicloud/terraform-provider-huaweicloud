@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dws_logical_clusters": {
+          "block": {
+            "attributes": {
+              "add_enable": {
+                "type": "bool",
+                "description": "Whether the logical cluster can be added.",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "Specified the cluster ID of the DWS.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "logical_clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster_rings": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ring_hosts": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "back_ip": "string",
+                                  "cpu_cores": "number",
+                                  "disk_size": "number",
+                                  "host_name": "string",
+                                  "memory": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "delete_enable": "bool",
+                      "edit_enable": "bool",
+                      "first_logical_cluster": "bool",
+                      "id": "string",
+                      "name": "string",
+                      "restart_enable": "bool",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "All logical clusters that match the filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

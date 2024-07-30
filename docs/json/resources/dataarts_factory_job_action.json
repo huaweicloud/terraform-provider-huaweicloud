@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_factory_job_action": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specified the action type of the job.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_name": {
+                "type": "string",
+                "description": "Specified the name of the job.",
+                "required": true,
+                "forcenew": true
+              },
+              "process_type": {
+                "type": "string",
+                "description": "Specified the type of the job.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the job.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specified the ID of the workspace.",
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

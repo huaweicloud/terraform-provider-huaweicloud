@@ -1,0 +1,39 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_evs_volume_transfer_accepter": {
+          "block": {
+            "attributes": {
+              "auth_key": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "transfer_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "EVS",
+            "name": "Elastic Volume Service",
+            "catalog": "Storage",
+            "name_cn": "云硬盘",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

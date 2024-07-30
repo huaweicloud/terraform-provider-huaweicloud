@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_organizations_trusted_services": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "trusted_services": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enabled_at": "string",
+                      "service_principal": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of service principals for the services that are integrated with Organizations.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

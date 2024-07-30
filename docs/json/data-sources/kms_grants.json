@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_kms_grants": {
+          "block": {
+            "attributes": {
+              "grants": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "creator": "string",
+                      "grantee_principal": "string",
+                      "id": "string",
+                      "key_id": "string",
+                      "name": "string",
+                      "operations": [
+                        "list",
+                        "string"
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the grants.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_id": {
+                "type": "string",
+                "description": "Specifies the key ID to which the grants belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

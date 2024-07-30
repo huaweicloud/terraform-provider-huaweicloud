@@ -38,6 +38,22 @@
                 "type": "number",
                 "computed": true
               },
+              "enc_certificate": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "enc_private_key": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

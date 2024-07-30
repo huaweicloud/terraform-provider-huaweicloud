@@ -32,6 +32,10 @@
                 "optional": true,
                 "computed": true
               },
+              "cert_replaced": {
+                "type": "bool",
+                "computed": true
+              },
               "charging_mode": {
                 "type": "string",
                 "optional": true,
@@ -39,6 +43,18 @@
                 "forcenew": true
               },
               "connect_address": {
+                "type": "string",
+                "computed": true
+              },
+              "connector_id": {
+                "type": "string",
+                "computed": true
+              },
+              "connector_node_num": {
+                "type": "number",
+                "computed": true
+              },
+              "created_at": {
                 "type": "string",
                 "computed": true
               },
@@ -83,12 +99,33 @@
                 "optional": true,
                 "computed": true
               },
+              "extend_times": {
+                "type": "number",
+                "computed": true
+              },
               "flavor_id": {
                 "type": "string",
                 "optional": true
               },
               "id": {
                 "type": "string",
+                "computed": true
+              },
+              "ipv6_connect_addresses": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "ipv6_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "is_logical_volume": {
+                "type": "bool",
                 "computed": true
               },
               "maintain_begin": {
@@ -117,6 +154,10 @@
                 "computed": true,
                 "forcenew": true
               },
+              "message_query_inst_enable": {
+                "type": "bool",
+                "computed": true
+              },
               "name": {
                 "type": "string",
                 "required": true
@@ -132,6 +173,10 @@
                   "string"
                 ],
                 "optional": true
+              },
+              "node_num": {
+                "type": "number",
+                "computed": true
               },
               "partition_num": {
                 "type": "number",
@@ -152,6 +197,10 @@
                 "optional": true,
                 "forcenew": true
               },
+              "pod_connect_address": {
+                "type": "string",
+                "computed": true
+              },
               "port": {
                 "type": "number",
                 "computed": true
@@ -159,6 +208,10 @@
               "product_id": {
                 "type": "string",
                 "optional": true
+              },
+              "public_bandwidth": {
+                "type": "number",
+                "computed": true
               },
               "public_ip_address": {
                 "type": [
@@ -202,7 +255,15 @@
                 "computed": true,
                 "forcenew": true
               },
+              "ssl_two_way_enable": {
+                "type": "bool",
+                "computed": true
+              },
               "status": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_resource_id": {
                 "type": "string",
                 "computed": true
               },
@@ -215,6 +276,10 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "storage_type": {
+                "type": "string",
+                "computed": true
               },
               "tags": {
                 "type": [
@@ -238,6 +303,12 @@
               "user_name": {
                 "type": "string",
                 "computed": true
+              },
+              "vpc_client_plain": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "vpc_id": {
                 "type": "string",

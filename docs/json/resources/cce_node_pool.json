@@ -66,6 +66,11 @@
                 "optional": true,
                 "forcenew": true
               },
+              "label_policy_on_existing_nodes": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "labels": {
                 "type": [
                   "map",
@@ -155,12 +160,22 @@
                 "optional": true,
                 "forcenew": true
               },
+              "tag_policy_on_existing_nodes": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "tags": {
                 "type": [
                   "map",
                   "string"
                 ],
                 "optional": true
+              },
+              "taint_policy_on_existing_nodes": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",

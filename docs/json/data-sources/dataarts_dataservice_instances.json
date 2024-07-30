@@ -1,0 +1,109 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_dataservice_instances": {
+          "block": {
+            "attributes": {
+              "create_user": {
+                "type": "string",
+                "description": "The create user name of the exclusive clusters to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "all_namespace_publish_api_num": "number",
+                      "api_publishable_num": "number",
+                      "availability_zone": "string",
+                      "create_user": "string",
+                      "created_at": "string",
+                      "current_namespace_publish_api_num": "number",
+                      "deletable": "bool",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "external_address": "string",
+                      "flavor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "disk_size": "number",
+                            "id": "string",
+                            "memory": "number",
+                            "name": "string",
+                            "vcpus": "number"
+                          }
+                        ]
+                      ],
+                      "gateway_version": "string",
+                      "id": "string",
+                      "intranet_address": "string",
+                      "intranet_address_ipv6": "string",
+                      "name": "string",
+                      "node_num": "number",
+                      "nodes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "create_user": "string",
+                            "created_at": "string",
+                            "gateway_version": "string",
+                            "id": "string",
+                            "name": "string",
+                            "private_ip": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "private_zone_id": "string",
+                      "private_zone_name": "string",
+                      "public_zone_id": "string",
+                      "public_zone_name": "string",
+                      "security_group_id": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "All exclusive clusters that match the filter parameters.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The exclusive cluster name to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the exclusive clusters are located.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the exclusive clusters belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_factory_jobs": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "created_by": "string",
+                      "directory": "string",
+                      "end_time": "string",
+                      "is_single_task_job": "bool",
+                      "last_instance_end_time": "string",
+                      "last_instance_status": "string",
+                      "name": "string",
+                      "owner": "string",
+                      "priority": "number",
+                      "process_type": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "updated_by": "string"
+                    }
+                  ]
+                ],
+                "description": "All jobs that match the filter parameters.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specified the job name to be queried.",
+                "optional": true
+              },
+              "process_type": {
+                "type": "string",
+                "description": "Specified the job type to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the jobs belong.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

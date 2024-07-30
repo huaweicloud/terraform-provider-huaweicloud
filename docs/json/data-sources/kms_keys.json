@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_kms_keys": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the keys belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_algorithm": {
+                "type": "string",
+                "description": "Specifies the key generation algorithm.",
+                "optional": true
+              },
+              "key_state": {
+                "type": "string",
+                "description": "Specifies the key current status",
+                "optional": true
+              },
+              "keys": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "default_key_flag": "string",
+                      "enterprise_project_id": "string",
+                      "expiration_time": "string",
+                      "id": "string",
+                      "key_algorithm": "string",
+                      "key_alias": "string",
+                      "key_description": "string",
+                      "key_rotation_enabled": "string",
+                      "key_state": "string",
+                      "key_type": "string",
+                      "key_usage": "string",
+                      "keystore_id": "string",
+                      "origin": "string",
+                      "scheduled_deletion_date": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the keys.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

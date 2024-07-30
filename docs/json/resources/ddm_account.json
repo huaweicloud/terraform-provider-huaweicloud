@@ -8,8 +8,7 @@
               "description": {
                 "type": "string",
                 "description": "Specifies the description of the DDM account.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -35,7 +34,7 @@
               },
               "permissions": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "description": "Specifies the basic permissions of the DDM account.",
@@ -69,7 +68,7 @@
                   },
                   "description": "Specifies the schemas that associated with the account."
                 },
-                "nesting_mode": "list"
+                "nesting_mode": "set"
               }
             }
           },

@@ -1,0 +1,104 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dws_clusters": {
+          "block": {
+            "attributes": {
+              "clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "created_at": "string",
+                      "endpoints": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "connect_info": "string",
+                            "jdbc_url": "string"
+                          }
+                        ]
+                      ],
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "node_type": "string",
+                      "nodes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "number_of_node": "number",
+                      "port": "number",
+                      "public_endpoints": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "jdbc_url": "string",
+                            "public_connect_info": "string"
+                          }
+                        ]
+                      ],
+                      "public_ip": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "eip_id": "string",
+                            "public_bind_type": "string"
+                          }
+                        ]
+                      ],
+                      "recent_event": "number",
+                      "security_group_id": "string",
+                      "status": "string",
+                      "sub_status": "string",
+                      "subnet_id": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "task_status": "string",
+                      "updated_at": "string",
+                      "user_name": "string",
+                      "version": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "All clusters that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

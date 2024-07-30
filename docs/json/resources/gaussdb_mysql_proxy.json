@@ -5,7 +5,30 @@
         "huaweicloud_gaussdb_mysql_proxy": {
           "block": {
             "attributes": {
+              "access_control_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "address": {
+                "type": "string",
+                "computed": true
+              },
+              "can_upgrade": {
+                "type": "bool",
+                "computed": true
+              },
+              "connection_pool_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "consistence_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "current_version": {
                 "type": "string",
                 "computed": true
               },
@@ -52,6 +75,11 @@
                 ],
                 "computed": true
               },
+              "open_access_control": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "port": {
                 "type": "number",
                 "optional": true,
@@ -82,9 +110,34 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "switch_connection_pool_type_enabled": {
+                "type": "bool",
+                "computed": true
+              },
+              "transaction_split": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               }
             },
             "block_types": {
+              "access_control_ip_list": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ip": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
               "master_node_weight": {
                 "block": {
                   "attributes": {

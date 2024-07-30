@@ -1,0 +1,141 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_capture_task": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the capture task.",
+                "computed": true
+              },
+              "duration": {
+                "type": "number",
+                "description": "The capture task duration.",
+                "required": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "The ID of the firewall instance.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "max_packets": {
+                "type": "number",
+                "description": "The maximum number of packets captured.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The capture task name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The status of the capture task.",
+                "computed": true
+              },
+              "stop_capture": {
+                "type": "bool",
+                "description": "Whether to stop the capture.",
+                "optional": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "The ID of the capture task.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time of the capture task.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "destination": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "description": "The address.",
+                      "required": true
+                    },
+                    "address_type": {
+                      "type": "number",
+                      "description": "The address type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The destination configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "service": {
+                "block": {
+                  "attributes": {
+                    "dest_port": {
+                      "type": "string",
+                      "description": "The destination port.",
+                      "optional": true
+                    },
+                    "protocol": {
+                      "type": "number",
+                      "description": "The protocol type.",
+                      "required": true
+                    },
+                    "source_port": {
+                      "type": "string",
+                      "description": "The source port.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The service configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "source": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "description": "The address.",
+                      "required": true
+                    },
+                    "address_type": {
+                      "type": "number",
+                      "description": "The address type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The source configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
