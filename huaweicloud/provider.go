@@ -1019,6 +1019,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_sent_invitations":     organizations.DataSourceOrganizationsSentInvitations(),
 			"huaweicloud_organizations_received_invitations": organizations.DataSourceOrganizationsReceivedInvitations(),
 			"huaweicloud_organizations_services":             organizations.DataSourceOrganizationsServices(),
+			"huaweicloud_organizations_trusted_services":     organizations.DataSourceOrganizationsTrustedServices(),
 
 			// Deprecated ongoing (without DeprecationMessage), used by other providers
 			"huaweicloud_vpc_route":                  vpc.DataSourceVpcRouteV2(),
