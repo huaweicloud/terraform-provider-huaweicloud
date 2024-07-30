@@ -1625,6 +1625,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_mysql_database_table_restore": rds.ResourceMysqlDatabaseTableRestore(),
 			"huaweicloud_rds_pg_account":                   rds.ResourcePgAccount(),
 			"huaweicloud_rds_pg_account_roles":             rds.ResourcePgAccountRoles(),
+			"huaweicloud_rds_pg_account_privileges":        rds.ResourcePgAccountPrivileges(),
 			"huaweicloud_rds_pg_database":                  rds.ResourcePgDatabase(),
 			"huaweicloud_rds_pg_database_privilege":        rds.ResourcePgDatabasePrivilege(),
 			"huaweicloud_rds_sqlserver_account":            rds.ResourceSQLServerAccount(),
