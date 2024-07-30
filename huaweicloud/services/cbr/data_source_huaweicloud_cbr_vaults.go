@@ -215,7 +215,7 @@ func filterVaults(all []interface{}, d *schema.ResourceData) []interface{} {
 	rst := make([]interface{}, 0, len(all))
 
 	for _, v := range all {
-		if param, ok := d.GetOk("entity_type"); ok &&
+		if param, ok := d.GetOk("consistent_level"); ok &&
 			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("billing.consistent_level", v, nil)) {
 			continue
 		}
