@@ -190,7 +190,8 @@ func resourceArchitectureSubjectRead(_ context.Context, d *schema.ResourceData, 
 		path := fmt.Sprintf("%s&offset=%v", getSubjectPath, currentTotal)
 		getSubjectResp, err := getSubjectClient.Request("GET", path, &getSubjectOpt)
 		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving DataArts Architecture subject")
+			return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", workspaceIdNotFound),
+				"error retrieving DataArts Architecture subject")
 		}
 		getSubjectRespBody, err := utils.FlattenResponse(getSubjectResp)
 		if err != nil {
