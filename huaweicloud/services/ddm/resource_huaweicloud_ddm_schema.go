@@ -464,7 +464,7 @@ func handleOperationError(err error, operateType string, operateObj string) (boo
 			return true, err
 		}
 	}
-	return false, fmt.Errorf("error %s DDM %s: %s", operateType, operateObj, err)
+	return false, err
 }
 
 func waitForInstanceRunning(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string,
