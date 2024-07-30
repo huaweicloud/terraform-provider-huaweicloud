@@ -1571,9 +1571,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_architecture_data_standard_template": dataarts.ResourceDataStandardTemplate(),
 			"huaweicloud_dataarts_architecture_reviewer":               dataarts.ResourceDataArtsArchitectureReviewer(),
 			// DataArts Factory
-			"huaweicloud_dataarts_factory_resource": dataarts.ResourceFactoryResource(),
-			"huaweicloud_dataarts_factory_job":      dataarts.ResourceFactoryJob(),
-			"huaweicloud_dataarts_factory_script":   dataarts.ResourceDataArtsFactoryScript(),
+			"huaweicloud_dataarts_factory_resource":   dataarts.ResourceFactoryResource(),
+			"huaweicloud_dataarts_factory_job_action": dataarts.ResourceFactoryJobAction(),
+			"huaweicloud_dataarts_factory_job":        dataarts.ResourceFactoryJob(),
+			"huaweicloud_dataarts_factory_script":     dataarts.ResourceDataArtsFactoryScript(),
 			// DataArts Security
 			"huaweicloud_dataarts_security_data_recognition_rule":    dataarts.ResourceSecurityRule(),
 			"huaweicloud_dataarts_security_data_secrecy_level":       dataarts.ResourceSecurityDataSecrecyLevel(),
