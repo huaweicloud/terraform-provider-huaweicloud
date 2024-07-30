@@ -223,6 +223,10 @@ func filterVaults(all []interface{}, d *schema.ResourceData) []interface{} {
 			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("billing.size", v, nil)) {
 			continue
 		}
+		if param, ok := d.GetOk("auto_expand_enabled"); ok &&
+			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("auto_expand", v, nil)) {
+			continue
+		}
 
 		rst = append(rst, v)
 	}
