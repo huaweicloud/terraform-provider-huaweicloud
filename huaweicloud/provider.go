@@ -515,6 +515,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_ces_agent_dimensions": ces.DataSourceCesAgentDimensions(),
 			"huaweicloud_ces_metrics":          ces.DataSourceCesMetrics(),
+			"huaweicloud_ces_resource_groups":  ces.DataSourceCesGroups(),
 
 			"huaweicloud_cfw_firewalls":             cfw.DataSourceFirewalls(),
 			"huaweicloud_cfw_address_groups":        cfw.DataSourceCfwAddressGroups(),
