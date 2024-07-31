@@ -417,6 +417,7 @@ func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	resp, err := cloudvolumes.Get(evsV2Client, d.Id()).Extract()
 	if err != nil {
+		// When the resource does not exist, calling the query API will return a `404` status code.
 		return common.CheckDeletedDiag(d, err, "EVS volume")
 	}
 
@@ -634,6 +635,9 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	v, err := cloudvolumes.Get(evsV2Client, d.Id()).Extract()
 	if err != nil {
+		// Before deleting a resource, check if the resource exists first,
+		// if resource does not exist, perform checkDeleted processing.
+		// When the resource does not exist, calling the query API will return a `404` status code.
 		return common.CheckDeletedDiag(d, err, "EVS volume")
 	}
 
