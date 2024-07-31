@@ -26,6 +26,13 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the disk list.
   If omitted, the provider-level region will be used.
 
+* `volume_id` - (Optional, String) Specifies the ID for the disk.
+
+* `name` - (Optional, String) Specifies the name for the disks. This field will undergo a fuzzy matching query, the
+  query result is for all disks whose names contain this value.
+
+* `volume_type_id` - (Optional, String) Specifies the type ID for the disks.
+
 * `availability_zone` - (Optional, String) Specifies the availability zone for the disks.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID for filtering.

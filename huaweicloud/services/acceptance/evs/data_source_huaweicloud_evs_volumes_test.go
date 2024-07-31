@@ -24,6 +24,11 @@ func TestAccEvsVolumesDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "volumes.#", "5"),
+
+					resource.TestCheckOutput("is_volume_id_filter_useful", "true"),
+					resource.TestCheckOutput("is_name_filter_useful", "true"),
+					resource.TestCheckOutput("is_availability_zone_filter_useful", "true"),
+					resource.TestCheckOutput("is_enterprise_project_id_filter_useful", "true"),
 				),
 			},
 		},
@@ -101,6 +106,61 @@ data "huaweicloud_evs_volumes" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   server_id         = huaweicloud_compute_instance.test.id
   status            = "in-use"
+}
+
+# Filter using volume ID
+data "huaweicloud_evs_volumes" "volume_id_filter" {
+  volume_id = data.huaweicloud_evs_volumes.test.volumes.0.id
+}
+
+locals {
+  volume_id = data.huaweicloud_evs_volumes.test.volumes.0.id
+}
+
+output "is_volume_id_filter_useful" {
+  value = length(data.huaweicloud_evs_volumes.volume_id_filter.volumes) > 0 && alltrue(
+    [for v in data.huaweicloud_evs_volumes.volume_id_filter.volumes[*].id : v == local.volume_id]
+  )
+}
+
+# Filter using name
+data "huaweicloud_evs_volumes" "name_filter" {
+  name = data.huaweicloud_evs_volumes.test.volumes.0.name
+}
+
+# The name parameter is a fuzzy query, so only the number of query results is verified
+output "is_name_filter_useful" {
+  value = length(data.huaweicloud_evs_volumes.name_filter.volumes) > 0
+}
+
+# Filter using availability_zone
+data "huaweicloud_evs_volumes" "availability_zone_filter" {
+  availability_zone = data.huaweicloud_evs_volumes.test.volumes.0.availability_zone
+}
+
+locals {
+  availability_zone = data.huaweicloud_evs_volumes.test.volumes.0.availability_zone
+}
+
+output "is_availability_zone_filter_useful" {
+  value = length(data.huaweicloud_evs_volumes.availability_zone_filter.volumes) > 0 && alltrue(
+    [for v in data.huaweicloud_evs_volumes.availability_zone_filter.volumes[*].availability_zone : v == local.availability_zone]
+  )
+}
+
+# Filter using enterprise_project_id
+data "huaweicloud_evs_volumes" "enterprise_project_id_filter" {
+  enterprise_project_id = data.huaweicloud_evs_volumes.test.volumes.0.enterprise_project_id
+}
+
+locals {
+  enterprise_project_id = data.huaweicloud_evs_volumes.test.volumes.0.enterprise_project_id
+}
+
+output "is_enterprise_project_id_filter_useful" {
+  value = length(data.huaweicloud_evs_volumes.enterprise_project_id_filter.volumes) > 0 && alltrue(
+    [for v in data.huaweicloud_evs_volumes.enterprise_project_id_filter.volumes[*].enterprise_project_id : v == local.enterprise_project_id]
+  )
 }
 `, testAccEvsVolumesDataSource_base(rName))
 }
