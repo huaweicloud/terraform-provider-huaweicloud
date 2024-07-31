@@ -406,7 +406,7 @@ func resourceCTSNotificationDelete(_ context.Context, d *schema.ResourceData, me
 
 	_, err = ctsClient.DeleteNotification(&deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting CTS key events notification: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting CTS key events notification")
 	}
 
 	return nil

@@ -478,7 +478,10 @@ func resourceCTSDataTrackerDelete(_ context.Context, d *schema.ResourceData, met
 
 	_, err = ctsClient.DeleteTracker(&deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting CTS data tracker %s: %s", trackerName, err)
+		return common.CheckDeletedDiag(d,
+			convertExpected403ErrInto404Err(err, "CTS.0013"),
+			fmt.Sprintf("error deleting CTS data tracker %s", trackerName),
+		)
 	}
 
 	return nil
