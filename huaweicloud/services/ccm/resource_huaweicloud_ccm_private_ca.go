@@ -27,6 +27,7 @@ import (
 // @API CCM GET /v1/private-certificate-authorities/{ca_id}
 // @API CCM GET /v1/private-certificate-authorities/{ca_id}/tags
 // @API CCM DELETE /v1/private-certificate-authorities/{ca_id}
+// @API CCM POST /v1/private-certificate-authorities/{ca_id}/enable
 // @API CCM POST /v1/private-certificate-authorities/{ca_id}/disable
 // @API CCM DELETE /v1/private-certificate-authorities/{ca_id}/tags/delete
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -185,6 +186,10 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"action": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"auto_renew":    common.SchemaAutoRenew(nil),
 			"tags":          common.TagsSchema(),
@@ -306,6 +311,12 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.FromErr(err)
 		}
 
+		if d.Get("action").(string) == "disable" {
+			if err := disablePrivateCA(createPrivateCAClient, d); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
 		return resourcePrivateCARead(ctx, d, meta)
 	}
 
@@ -332,7 +343,45 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
+	if d.Get("action").(string) == "disable" {
+		if err := disablePrivateCA(createPrivateCAClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourcePrivateCARead(ctx, d, meta)
+}
+
+func enablePrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	enableHttpUrl := "v1/private-certificate-authorities/{ca_id}/enable"
+	enablePath := client.Endpoint + enableHttpUrl
+	enablePath = strings.ReplaceAll(enablePath, "{ca_id}", d.Id())
+	enableOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+	}
+
+	_, err := client.Request("POST", enablePath, &enableOpt)
+	if err != nil {
+		return fmt.Errorf("error enabling CCM private CA: %s", err)
+	}
+	return nil
+}
+
+func disablePrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	disableHttpUrl := "v1/private-certificate-authorities/{ca_id}/disable"
+	disablePath := client.Endpoint + disableHttpUrl
+	disablePath = strings.ReplaceAll(disablePath, "{ca_id}", d.Id())
+	disableOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+	}
+
+	_, err := client.Request("POST", disablePath, &disableOpt)
+	if err != nil {
+		return fmt.Errorf("error disabling CCM private CA: %s", err)
+	}
+	return nil
 }
 
 func buildOrderPrivateCABodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
@@ -596,7 +645,7 @@ func resourcePrivateCADelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 	status := utils.PathSearch("status", getPrivateCARespBody, nil).(string)
-	if !(status == "EXPIRED" || status == "DISABLE") {
+	if !(status == "EXPIRED" || status == "DISABLED") {
 		disablePrivateCAPath := privateCAPath + "/disable"
 		_, err = privateCAClient.Request("POST", disablePrivateCAPath, &privateCAOpt)
 		if err != nil {
@@ -641,7 +690,7 @@ func privateCAStatusRefreshFunc(id, region string, cfg *config.Config) resource.
 	}
 }
 
-func resourcePrivateCAUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePrivateCAUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	privateCAClient, err := cfg.NewServiceClient("ccm", region)
@@ -671,7 +720,21 @@ func resourcePrivateCAUpdate(_ context.Context, d *schema.ResourceData, meta int
 			}
 		}
 	}
-	return nil
+
+	if d.HasChange("action") {
+		var actionErr error
+		switch d.Get("action").(string) {
+		case "enable":
+			actionErr = enablePrivateCA(privateCAClient, d)
+		case "disable":
+			actionErr = disablePrivateCA(privateCAClient, d)
+		}
+
+		if actionErr != nil {
+			return diag.FromErr(actionErr)
+		}
+	}
+	return resourcePrivateCARead(ctx, d, meta)
 }
 
 func createTags(id string, createTagsClient *golangsdk.ServiceClient, tags map[string]interface{},
