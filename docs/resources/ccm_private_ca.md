@@ -112,6 +112,15 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.
   Changing this parameter will create a new resource.
 
+* `action` - (Optional, String) Specifies the operation action of the CCM private CA.
+  Valid values are **enable** and **disable**.
+
+  -> 1. The **enable** operation is allowed only when the CA status is **DISABLED**.
+  <br/>2. The **disable** operation is allowed only when the CA status is **ACTIVED** or **EXPIRED**.
+  <br/>3. The status of the newly created CA is **ACTIVED**.
+  <br/>4. The child CA's certificate status will remain consistent with the parent CA, so enabling or disabling the child
+  CA alone may not be effective.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the billing mode of the private CA.
   The valid values are **prePaid** and **postPaid**. Defaults to **postPaid**.
   Changing this parameter will create a new resource.
@@ -180,7 +189,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The private CA ID in UUID format.
 
-* `status` - The current phase of the private CA.
+* `status` - The current phase of the private CA. Valid values are as follows:
+  + **PENDING**: The CA certificate is to be activated.
+  + **ACTIVED**: The CA certificate is activated.
+  + **DISABLED**: The CA certificate is disabled.
+  + **DELETED**: The CA certificate is to be deleted as scheduled.
+  + **EXPIRED**: The CA certificate has expired.
+
+  Only private CAs with status `ACTIVED` can be used to issue certificates.
 
 * `issuer_name` - The name of the parent CA. For a root CA, the value of this parameter is null.
 
@@ -212,8 +228,8 @@ $ terraform import huaweicloud_ccm_private_ca.private_ca_1 bf30b49d-9d5e-4d91-bc
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `validity`, `key_usages`, `pending_days`.
-
+API response, security or some other reason. The missing attributes include: `validity`, `key_usages`, `pending_days`,
+`action`.
 It is generally recommended running `terraform plan` after importing a private CA. You can then decide if changes should
 be applied to it, also you can ignore changes as below.
 
@@ -223,7 +239,7 @@ resource "huaweicloud_ccm_private_ca" "test" {
 
   lifecycle {
     ignore_changes = [
-      validity, key_usages, pending_days
+      validity, key_usages, pending_days, action,
     ]
   }
 }
