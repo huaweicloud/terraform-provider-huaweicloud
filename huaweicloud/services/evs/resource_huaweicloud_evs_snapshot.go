@@ -125,6 +125,7 @@ func resourceEvsSnapshotV2Read(_ context.Context, d *schema.ResourceData, meta i
 
 	v, err := snapshots.Get(evsClient, d.Id()).Extract()
 	if err != nil {
+		// When the resource does not exist, calling the query API will return a `404` status code.
 		return common.CheckDeletedDiag(d, err, "snapshot")
 	}
 
@@ -172,6 +173,7 @@ func resourceEvsSnapshotV2Delete(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if err := snapshots.Delete(evsClient, d.Id()).ExtractErr(); err != nil {
+		// When the resource does not exist, calling the delete API will return a `404` status code.
 		return common.CheckDeletedDiag(d, err, "snapshot")
 	}
 
