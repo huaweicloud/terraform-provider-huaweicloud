@@ -566,9 +566,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_cluster_tags":              css.DataSourceCssClusterTags(),
 			"huaweicloud_css_log_backup_records":        css.DataSourceCssLogBackupRecords(),
 
+			"huaweicloud_dataarts_studio_data_connections": dataarts.DataSourceDataConnections(),
+			"huaweicloud_dataarts_studio_workspaces":       dataarts.DataSourceDataArtsStudioWorkspaces(),
+			// DataArts Architecture
 			"huaweicloud_dataarts_architecture_ds_template_optionals": dataarts.DataSourceTemplateOptionalFields(),
-			"huaweicloud_dataarts_studio_data_connections":            dataarts.DataSourceDataConnections(),
-			"huaweicloud_dataarts_studio_workspaces":                  dataarts.DataSourceDataArtsStudioWorkspaces(),
+			"huaweicloud_dataarts_architecture_model_statistic":       dataarts.DataSourceArchitectureModelStatistic(),
 			// DataArts DataService
 			"huaweicloud_dataarts_dataservice_apis":      dataarts.DataSourceDataServiceApis(),
 			"huaweicloud_dataarts_dataservice_instances": dataarts.DataSourceDataServiceInstances(),
