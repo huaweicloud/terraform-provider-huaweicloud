@@ -1595,10 +1595,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_security_permission_set_member":    dataarts.ResourceSecurityPermissionSetMember(),
 			"huaweicloud_dataarts_security_permission_set_privilege": dataarts.ResourceSecurityPermissionSetPrivilege(),
 			// DataArts DataService
-			"huaweicloud_dataarts_dataservice_api":       dataarts.ResourceDataServiceApi(),
-			"huaweicloud_dataarts_dataservice_api_debug": dataarts.ResourceDataServiceApiDebug(),
-			"huaweicloud_dataarts_dataservice_app":       dataarts.ResourceDataServiceApp(),
-			"huaweicloud_dataarts_dataservice_catalog":   dataarts.ResourceDatatServiceCatalog(),
+			"huaweicloud_dataarts_dataservice_api":         dataarts.ResourceDataServiceApi(),
+			"huaweicloud_dataarts_dataservice_api_debug":   dataarts.ResourceDataServiceApiDebug(),
+			"huaweicloud_dataarts_dataservice_api_publish": dataarts.ResourceDataServiceApiPublish(),
+			"huaweicloud_dataarts_dataservice_app":         dataarts.ResourceDataServiceApp(),
+			"huaweicloud_dataarts_dataservice_catalog":     dataarts.ResourceDatatServiceCatalog(),
 
 			"huaweicloud_mpc_transcoding_template":       mpc.ResourceTranscodingTemplate(),
 			"huaweicloud_mpc_transcoding_template_group": mpc.ResourceTranscodingTemplateGroup(),
