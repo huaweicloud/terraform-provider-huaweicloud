@@ -99,7 +99,7 @@ func TestAccDataServiceApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "description", "Updated by terraform script"),
 					resource.TestCheckResourceAttr(rName, "manager", acceptance.HW_DATAARTS_REVIEWER_NAME),
 					resource.TestCheckResourceAttr(rName, "path", "/terraform/auto/resource_query/{resource_type}/{resource_name}"),
-					resource.TestCheckResourceAttr(rName, "protocol", "PROTOCOL_TYPE_HTTP"),
+					resource.TestCheckResourceAttr(rName, "protocol", "PROTOCOL_TYPE_HTTPS"),
 					resource.TestCheckResourceAttr(rName, "request_type", "REQUEST_TYPE_GET"),
 					resource.TestCheckResourceAttr(rName, "request_params.#", "2"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.type", "DLI"),
@@ -170,6 +170,7 @@ resource "huaweicloud_dataarts_dataservice_catalog" "test" {
   count = 2
 
   workspace_id = "%[1]s"
+  dlm_type     = "EXCLUSIVE"
   name         = format("%[2]s_%%d", count.index)
 }
 
@@ -207,6 +208,8 @@ func testAccDataServiceApi_basic_step1(basicConfig, name string) string {
 
 resource "huaweicloud_dataarts_dataservice_api" "test" {
   workspace_id = "%[2]s"
+  dlm_type     = "EXCLUSIVE"
+
   type         = "API_SPECIFIC_TYPE_CONFIGURATION"
   catalog_id   = huaweicloud_dataarts_dataservice_catalog.test[0].id
   name         = "%[3]s"
@@ -311,6 +314,8 @@ func testAccDataServiceApi_basic_step2(basicConfig, name string) string {
 
 resource "huaweicloud_dataarts_dataservice_api" "test" {
   workspace_id = "%[2]s"
+  dlm_type     = "EXCLUSIVE"
+
   type         = "API_SPECIFIC_TYPE_CONFIGURATION"
   catalog_id   = huaweicloud_dataarts_dataservice_catalog.test[1].id
   name         = "%[3]s"
@@ -318,7 +323,7 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
   auth_type    = "IAM"
   manager      = "%[4]s"
   path         = "/terraform/auto/resource_query/{resource_type}/{resource_name}"
-  protocol     = "PROTOCOL_TYPE_HTTP"
+  protocol     = "PROTOCOL_TYPE_HTTPS"
   request_type = "REQUEST_TYPE_GET"
   visibility   = "PROJECT"
 

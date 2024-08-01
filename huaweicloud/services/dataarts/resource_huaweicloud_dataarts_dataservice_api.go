@@ -574,7 +574,7 @@ func buildModifyDataServiceApiBodyParams(client *golangsdk.ServiceClient, d *sch
 		"visibility":        d.Get("visibility"),
 		"request_paras":     buildApiRequestParamsBodyParams(d.Get("request_params").(*schema.Set)),
 		"datasource_config": buildApiDataSourceConfigBodyParams(client, workspaceId, d.Get("datasource_config").([]interface{})),
-		"backend_config":    buildApiBackendConfigBodyParams(d.Get("backend_config").([]interface{})),
+		"backend_config":    utils.RemoveNil(buildApiBackendConfigBodyParams(d.Get("backend_config").([]interface{}))),
 	}
 	return bodyParams
 }
