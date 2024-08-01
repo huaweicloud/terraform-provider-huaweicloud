@@ -18,7 +18,7 @@ func TestAccDataServiceApiDebug_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
 			acceptance.TestAccPreCheckDataArtsReviewerName(t)
-			acceptance.TestAccPreCheckDataArtsRelatedLtsQueueName(t)
+			acceptance.TestAccPreCheckDataArtsRelatedDliQueueName(t)
 		},
 
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -118,7 +118,7 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
 		name,
 		acceptance.HW_DATAARTS_REVIEWER_NAME,
 		acceptance.HW_DATAARTS_CONNECTION_ID,
-		acceptance.HW_DATAARTS_LTS_QUEUE_NAME)
+		acceptance.HW_DATAARTS_DLI_QUEUE_NAME)
 }
 
 func testAccDataServiceApiDebug_basic() string {

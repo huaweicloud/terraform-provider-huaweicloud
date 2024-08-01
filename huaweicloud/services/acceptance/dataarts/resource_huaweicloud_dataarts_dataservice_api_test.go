@@ -41,7 +41,9 @@ func TestAccDataServiceApi_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
-			acceptance.TestAccPreCheckDataArtsManagerName(t)
+			acceptance.TestAccPreCheckDataArtsReviewerName(t)
+			acceptance.TestAccPreCheckDataArtsConnectionID(t)
+			acceptance.TestAccPreCheckDataArtsRelatedDliQueueName(t)
 		},
 
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -56,20 +58,18 @@ func TestAccDataServiceApi_basic(t *testing.T) {
 						"huaweicloud_dataarts_dataservice_catalog.test.0", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", "Created by terraform script"),
-					resource.TestCheckResourceAttr(rName, "manager", acceptance.HW_DATAARTS_MANAGER_NAME),
+					resource.TestCheckResourceAttr(rName, "manager", acceptance.HW_DATAARTS_REVIEWER_NAME),
 					resource.TestCheckResourceAttr(rName, "path", "/terraform/auto/resource_create/{resource_type}/{resource_name}"),
 					resource.TestCheckResourceAttr(rName, "protocol", "PROTOCOL_TYPE_HTTPS"),
 					resource.TestCheckResourceAttr(rName, "request_type", "REQUEST_TYPE_POST"),
 					resource.TestCheckResourceAttr(rName, "request_params.#", "6"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.type", "DLI"),
-					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.connection_id",
-						"huaweicloud_dataarts_studio_data_connection.test", "id"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.connection_id", acceptance.HW_DATAARTS_CONNECTION_ID),
 					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.database",
 						"huaweicloud_dli_database.test", "name"),
 					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.datatable",
 						"huaweicloud_dli_table.test", "name"),
-					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.queue",
-						"huaweicloud_dli_queue.test", "name"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.queue", acceptance.HW_DATAARTS_DLI_QUEUE_NAME),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.#", "1"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.0.name", "configuration"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.0.mapping", "configuration"),
@@ -97,20 +97,18 @@ func TestAccDataServiceApi_basic(t *testing.T) {
 						"huaweicloud_dataarts_dataservice_catalog.test.1", "id"),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", "Updated by terraform script"),
-					resource.TestCheckResourceAttr(rName, "manager", acceptance.HW_DATAARTS_MANAGER_NAME),
+					resource.TestCheckResourceAttr(rName, "manager", acceptance.HW_DATAARTS_REVIEWER_NAME),
 					resource.TestCheckResourceAttr(rName, "path", "/terraform/auto/resource_query/{resource_type}/{resource_name}"),
 					resource.TestCheckResourceAttr(rName, "protocol", "PROTOCOL_TYPE_HTTP"),
 					resource.TestCheckResourceAttr(rName, "request_type", "REQUEST_TYPE_GET"),
 					resource.TestCheckResourceAttr(rName, "request_params.#", "2"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.type", "DLI"),
-					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.connection_id",
-						"huaweicloud_dataarts_studio_data_connection.test", "id"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.connection_id", acceptance.HW_DATAARTS_CONNECTION_ID),
 					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.database",
 						"huaweicloud_dli_database.test", "name"),
 					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.datatable",
 						"huaweicloud_dli_table.test", "name"),
-					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.queue",
-						"huaweicloud_dli_queue.test", "name"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.queue", acceptance.HW_DATAARTS_DLI_QUEUE_NAME),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.#", "0"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.response_params.#", "3"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.#", "0"),
@@ -176,28 +174,6 @@ resource "huaweicloud_dataarts_studio_data_connection" "test" {
   config       = jsonencode({
     "cdm_property_enable": "false"
   })
-}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[2]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_dli_elastic_resource_pool" "test" {
-  name                  = "%[2]s"
-  min_cu                = 64
-  max_cu                = 64
-  cidr                  = cidrsubnet(huaweicloud_vpc.test.cidr, 3, 1)
-  enterprise_project_id = "0"
-}
-
-resource "huaweicloud_dli_queue" "test" {
-  elastic_resource_pool_name = huaweicloud_dli_elastic_resource_pool.test.name
-  resource_mode              = 1
-
-  # basic configuration
-  name     = "%[2]s"
-  cu_count = 16
 }
 
 // Under root path.
@@ -304,10 +280,10 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
 
   datasource_config {
     type          = "DLI"
-    connection_id = huaweicloud_dataarts_studio_data_connection.test.id
+    connection_id = "%[5]s"
     database      = huaweicloud_dli_database.test.name
     datatable     = huaweicloud_dli_table.test.name
-    queue         = huaweicloud_dli_queue.test.name
+    queue         = "%[6]s"
     access_mode   = "SQL"
 
     backend_params {
@@ -332,7 +308,12 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
     }
   }
 }
-`, basicConfig, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_MANAGER_NAME)
+`, basicConfig,
+		acceptance.HW_DATAARTS_WORKSPACE_ID,
+		name,
+		acceptance.HW_DATAARTS_REVIEWER_NAME,
+		acceptance.HW_DATAARTS_CONNECTION_ID,
+		acceptance.HW_DATAARTS_DLI_QUEUE_NAME)
 }
 
 func testAccDataServiceApi_basic_step2(basicConfig, name string) string {
@@ -369,10 +350,10 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
 
   datasource_config {
     type          = "DLI"
-    connection_id = huaweicloud_dataarts_studio_data_connection.test.id
+    connection_id = "%[5]s"
     database      = huaweicloud_dli_database.test.name
     datatable     = huaweicloud_dli_table.test.name
-    queue         = huaweicloud_dli_queue.test.name
+    queue         = "%[6]s"
 
     response_params {
       name        = "configuration"
@@ -396,5 +377,9 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
     }
   }
 }
-`, basicConfig, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_MANAGER_NAME)
+`, basicConfig, acceptance.HW_DATAARTS_WORKSPACE_ID,
+		name,
+		acceptance.HW_DATAARTS_REVIEWER_NAME,
+		acceptance.HW_DATAARTS_CONNECTION_ID,
+		acceptance.HW_DATAARTS_DLI_QUEUE_NAME)
 }
