@@ -179,7 +179,7 @@ func ResourceDataServiceApi() *schema.Resource {
 			"hosts": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Elem:        apiHostsSchema(),
 				Description: `The API host configuration, for exclusive type.`,
 			},
 		},
@@ -520,6 +520,40 @@ func apiBackendConfigConstantParamsElemSchema() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `The description of the constant parameter.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func apiHostsSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"instance_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The cluster ID to which the API belongs.`,
+			},
+			"instance_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The cluster name to which the API belongs.`,
+			},
+			"intranet_host": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The intranet address.`,
+			},
+			"external_host": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The exrernal address.`,
+			},
+			"domains": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The list of gateway damains.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
