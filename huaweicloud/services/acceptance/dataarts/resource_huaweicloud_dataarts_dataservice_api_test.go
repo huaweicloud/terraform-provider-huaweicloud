@@ -114,7 +114,6 @@ func TestAccDataServiceApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.#", "0"),
 					resource.TestCheckResourceAttrSet(rName, "create_user"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
-					waitForDeletionCooldownComplete(),
 				),
 			},
 			{
@@ -166,16 +165,6 @@ func testAccDataServiceApi_base() string {
 	name := acceptance.RandomAccResourceName()
 
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_data_connection" "test" {
-  workspace_id = "%[1]s"
-  type         = "DLI"
-  env_type     = "0"
-  name         = "%[2]s"
-  config       = jsonencode({
-    "cdm_property_enable": "false"
-  })
-}
-
 // Under root path.
 resource "huaweicloud_dataarts_dataservice_catalog" "test" {
   count = 2
@@ -377,7 +366,8 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
     }
   }
 }
-`, basicConfig, acceptance.HW_DATAARTS_WORKSPACE_ID,
+`, basicConfig,
+		acceptance.HW_DATAARTS_WORKSPACE_ID,
 		name,
 		acceptance.HW_DATAARTS_REVIEWER_NAME,
 		acceptance.HW_DATAARTS_CONNECTION_ID,
