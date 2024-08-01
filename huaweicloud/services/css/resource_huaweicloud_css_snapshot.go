@@ -131,6 +131,8 @@ func resourceCssSnapshotRead(_ context.Context, d *schema.ResourceData, meta int
 	clusterID := d.Get("cluster_id").(string)
 	snapList, err := snapshots.List(cssClient, clusterID).Extract()
 	if err != nil {
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = ConvertExpectedHwSdkErrInto404Err(err, 403, "CSS.0015", "")
 		return common.CheckDeletedDiag(d, err, "snapshot")
 	}
 
@@ -143,9 +145,7 @@ func resourceCssSnapshotRead(_ context.Context, d *schema.ResourceData, meta int
 		}
 	}
 	if snap.ID == "" {
-		log.Printf("[INFO] the snapshot %s does not exist", d.Id())
-		d.SetId("")
-		return nil
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
 	log.Printf("[DEBUG] retrieved the sanpshot %s: %+v", d.Id(), snap)
@@ -173,7 +173,9 @@ func resourceCssSnapshotDelete(_ context.Context, d *schema.ResourceData, meta i
 
 	clusterID := d.Get("cluster_id").(string)
 	if err := snapshots.Delete(cssClient, clusterID, d.Id()).ExtractErr(); err != nil {
-		return diag.Errorf("error deleting CSS cluster snapshot: %s", err)
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = ConvertExpectedHwSdkErrInto404Err(err, 403, "CSS.0015", "")
+		return common.CheckDeletedDiag(d, err, "error deleting CSS cluster snapshot")
 	}
 
 	return nil

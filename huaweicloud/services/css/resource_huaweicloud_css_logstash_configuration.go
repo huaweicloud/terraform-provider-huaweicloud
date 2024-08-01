@@ -3,6 +3,7 @@ package css
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -177,7 +178,16 @@ func resourceLogstashConfigurationRead(_ context.Context, d *schema.ResourceData
 		Name:      d.Get("name").(string),
 	})
 	if err != nil {
-		common.CheckDeletedDiag(d, err, "CSS logstash cluster configuration")
+		// "CSS.0001": Incorrect parameters. Status code is 400.
+		// This error code is a general parameter error identification code.
+		// It needs to match the corresponding error message to determine whether to convert it from 400 error to 404 error. e.g.
+		// {"errCode": "CSS.0001","externalMessage": "CSS.0001 : Incorrect parameters. (conf not exist)"}
+		// Use the string (conf not exist) to confirm that it needs to be converted to a 404 error
+		err = ConvertExpectedHwSdkErrInto404Err(err, http.StatusBadRequest, "CSS.0001", "conf not exist")
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		// {"errCode": "CSS.0015","externalMessage": "No resources are found or the access is denied."}
+		err = ConvertExpectedHwSdkErrInto404Err(err, http.StatusForbidden, "CSS.0015", "")
+		return common.CheckDeletedDiag(d, err, "error querying CSS logstash cluster configuration")
 	}
 
 	mErr = multierror.Append(
@@ -247,7 +257,16 @@ func resourceLogstashConfigurationDelete(_ context.Context, d *schema.ResourceDa
 		},
 	})
 	if err != nil {
-		return diag.Errorf("error deleting CSS logstash cluster configuration: %s", err)
+		// 1. "CSS.0001" : Incorrect parameters. Status code is 400.
+		// This error code is a general parameter error identification code.
+		// It needs to match the corresponding error message to determine whether to convert it from 400 error to 404 error. e.g.
+		// {"errCode": "CSS.0001","externalMessage": "CSS.0001 : Incorrect parameters. (conf not exist)"}
+		// Use the string (conf not exist) to confirm that it needs to be converted to a 404 error
+		err = ConvertExpectedHwSdkErrInto404Err(err, http.StatusBadRequest, "CSS.0001", "conf not exist")
+		// 2. "CSS.0015": The cluster does not exist. Status code is 403.
+		// {"errCode": "CSS.0015","externalMessage": "No resources are found or the access is denied."}
+		err = ConvertExpectedHwSdkErrInto404Err(err, http.StatusForbidden, "CSS.0015", "")
+		return common.CheckDeletedDiag(d, err, "error deleting CSS logstash cluster configuration")
 	}
 
 	return nil

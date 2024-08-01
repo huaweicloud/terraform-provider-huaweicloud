@@ -167,7 +167,8 @@ func resourceLogstashCustomTemplateDelete(_ context.Context, d *schema.ResourceD
 
 	_, err = cssV1Client.Request("DELETE", deleteCustomTemplatePath, &deleteCustomTemplateOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CSS logstash cluster custom template: %s", err)
+		err = common.ConvertExpected400ErrInto404Err(err, "errCode", "CSS.0001")
+		return common.CheckDeletedDiag(d, err, "error deleting CSS logstash cluster custom template")
 	}
 
 	return nil

@@ -129,10 +129,10 @@ func resourceLogstashCertificateRead(_ context.Context, d *schema.ResourceData, 
 
 	getCertificateResp, err := cssV1Client.Request("GET", getCertificatePath, &getCertificatePathOpt)
 	if err != nil {
-		if hasErrorCode(err, "CSS.0015") {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "CSS logstash cluster custom certificate")
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		// {"errCode": "CSS.0015","externalMessage": "No resources are found or the access is denied."}
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		return common.CheckDeletedDiag(d, err, "error querying CSS logstash cluster custom certificate")
 	}
 
 	getCertificateRespBody, err := utils.FlattenResponse(getCertificateResp)
@@ -175,7 +175,10 @@ func resourceLogstashCertificateDelete(_ context.Context, d *schema.ResourceData
 
 	_, err = cssV1Client.Request("DELETE", deleteCertificatePath, &deleteCertificateOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CSS logstash cluster custom certificate: %s", err)
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		// {"errCode": "CSS.0015","externalMessage": "No resources are found or the access is denied."}
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		return common.CheckDeletedDiag(d, err, "error deleting CSS logstash cluster custom certificate")
 	}
 
 	return nil

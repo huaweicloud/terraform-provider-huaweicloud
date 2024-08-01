@@ -827,6 +827,8 @@ func resourceCssClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	clusterDetail, err := cssV1Client.ShowClusterDetail(&model.ShowClusterDetailRequest{ClusterId: d.Id()})
 	if err != nil {
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = ConvertExpectedHwSdkErrInto404Err(err, http.StatusForbidden, "CSS.0015", "")
 		return common.CheckDeletedDiag(d, err, "CSS cluster")
 	}
 
@@ -1635,7 +1637,9 @@ func resourceCssClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 	_, err = cssV1Client.DeleteCluster(&model.DeleteClusterRequest{ClusterId: d.Id()})
 	if err != nil {
-		return diag.Errorf("delete CSS cluster %s failed, error: %s", d.Id(), err)
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = ConvertExpectedHwSdkErrInto404Err(err, http.StatusForbidden, "CSS.0015", "")
+		return common.CheckDeletedDiag(d, err, "error deleting the CSS cluster")
 	}
 
 	err = checkClusterDeleteResult(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutDelete))
