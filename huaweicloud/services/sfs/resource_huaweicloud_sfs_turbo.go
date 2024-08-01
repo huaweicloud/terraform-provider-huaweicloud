@@ -323,11 +323,12 @@ func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"100"},
-		Target:       []string{"200"},
-		Refresh:      waitForSFSTurboStatus(sfsClient, resp.ID),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      createWaitForSFSTurboStatus(sfsClient, resp.ID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		PollInterval: 3 * time.Second,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 	_, stateErr := stateConf.WaitForStateContext(ctx)
 	if stateErr != nil {
@@ -510,11 +511,12 @@ func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			}
 		}
 		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"121"},
-			Target:       []string{"221", "200"},
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
 			Refresh:      waitForSFSTurboSubStatus(sfsClient, resourceId),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			PollInterval: 5 * time.Second,
+			Delay:        10 * time.Second,
+			PollInterval: 10 * time.Second,
 		}
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
@@ -558,11 +560,12 @@ func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			return diag.Errorf("error updating security group ID of SFS Turbo: %s", err)
 		}
 		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"132"},
-			Target:       []string{"232", "200"},
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
 			Refresh:      waitForSFSTurboSubStatus(sfsClient, resourceId),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			PollInterval: 5 * time.Second,
+			Delay:        10 * time.Second,
+			PollInterval: 10 * time.Second,
 		}
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
@@ -620,12 +623,12 @@ func resourceSFSTurboDelete(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"100", "200"},
-		Target:     []string{"deleted"},
-		Refresh:    waitForSFSTurboStatus(sfsClient, resourceId),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"PENDING"},
+		Target:       []string{"DELETED"},
+		Refresh:      deleteWaitForSFSTurboStatus(sfsClient, resourceId),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
@@ -635,39 +638,62 @@ func resourceSFSTurboDelete(ctx context.Context, d *schema.ResourceData, meta in
 	return nil
 }
 
-func waitForSFSTurboStatus(sfsClient *golangsdk.ServiceClient, shareId string) resource.StateRefreshFunc {
+func createWaitForSFSTurboStatus(sfsClient *golangsdk.ServiceClient, shareId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		r, err := shares.Get(sfsClient, shareId).Extract()
+		resp, err := shares.Get(sfsClient, shareId).Extract()
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted shared File %s", shareId)
-				return r, "deleted", nil
-			}
-			return r, "error", err
+			return nil, "ERROR", err
 		}
 
-		return r, r.Status, nil
+		if utils.StrSliceContains([]string{"303", "800"}, resp.Status) {
+			return resp, "ERROR", fmt.Errorf("unexpected status: '%s'", resp.Status)
+		}
+
+		if utils.StrSliceContains([]string{"200"}, resp.Status) {
+			return resp, "COMPLETED", nil
+		}
+
+		return resp, "PENDING", nil
+	}
+}
+
+func deleteWaitForSFSTurboStatus(sfsClient *golangsdk.ServiceClient, shareId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := shares.Get(sfsClient, shareId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return "Resource Not Found", "DELETED", nil
+			}
+			return nil, "ERROR", err
+		}
+
+		return resp, "PENDING", nil
 	}
 }
 
 func waitForSFSTurboSubStatus(sfsClient *golangsdk.ServiceClient, shareId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		r, err := shares.Get(sfsClient, shareId).Extract()
+		resp, err := shares.Get(sfsClient, shareId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted shared File %s", shareId)
-				return r, "deleted", nil
+				return "Resource Not Found", "DELETED", nil
 			}
-			return r, "error", err
+			return nil, "ERROR", err
 		}
 
-		var status string
-		if r.SubStatus != "" {
-			status = r.SubStatus
-		} else {
-			status = r.Status
+		// '321' indicate expansion failed
+		// '332' indicate changing security group failed
+		if utils.StrSliceContains([]string{"321", "332"}, resp.SubStatus) {
+			return resp, "ERROR", fmt.Errorf("unexpected status: '%s'", resp.SubStatus)
 		}
-		return r, status, nil
+
+		// '221' indicate expansion succeeded
+		// '232' indicate changing security group succeeded
+		if utils.StrSliceContains([]string{"221", "232"}, resp.SubStatus) {
+			return resp, "COMPLETED", nil
+		}
+
+		return resp, "PENDING", nil
 	}
 }
 
