@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_notification_template"
-description: ""
+description: |-
+  Manages an LTS notification template resource within HuaweiCloud.  
 ---
 
 # huaweicloud_lts_notification_template

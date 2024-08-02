@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_structuring_custom_templates"
-description: ""
+description: |-
+  Use this data source to get the list of LTS structuring custom templates.
 ---
 
 # huaweicloud_lts_structuring_custom_templates

@@ -2,12 +2,13 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_transfer"
-description: ""
+description: |-
+  Manages an LTS transfer task resource within HuaweiCloud.
 ---
 
 # huaweicloud_lts_transfer
 
-Manages an LTS transfer task resource within HuaweiCloud.  
+Manages an LTS transfer task resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -153,11 +154,11 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `log_group_id` - (Required, String, ForceNew) Log group ID.  
+* `log_group_id` - (Required, String, ForceNew) Log group ID.
 
   Changing this parameter will create a new resource.
 
-* `log_streams` - (Required, List, ForceNew) The list of log streams.  
+* `log_streams` - (Required, List, ForceNew) The list of log streams.
 
   Changing this parameter will create a new resource.
   The [log_streams](#LtsTransfer_LogStreams) structure is documented below.
@@ -257,18 +258,18 @@ The `log_transfer_detail` block supports:
 * `obs_bucket_name` - (Optional, String) OBS bucket name.  
   This parameter is mandatory when you create an OBS transfer task.
 
-* `obs_transfer_path` - (Optional, String) OBS bucket path, which is the log transfer destination.  
+* `obs_transfer_path` - (Optional, String) OBS bucket path, which is the log transfer destination.
 
-* `obs_dir_prefix_name` - (Optional, String) Custom transfer path of an OBS transfer task.  
+* `obs_dir_prefix_name` - (Optional, String) Custom transfer path of an OBS transfer task.
 
-* `obs_prefix_name` - (Optional, String) Transfer file prefix of an OBS transfer task.  
+* `obs_prefix_name` - (Optional, String) Transfer file prefix of an OBS transfer task.
 
-* `obs_eps_id` - (Optional, String) Enterprise project ID of an OBS transfer task.  
+* `obs_eps_id` - (Optional, String) Enterprise project ID of an OBS transfer task.
 
-* `obs_encrypted_enable` - (Optional, Bool) Whether OBS bucket encryption is enabled.  
+* `obs_encrypted_enable` - (Optional, Bool) Whether OBS bucket encryption is enabled.
 
 * `obs_encrypted_id` - (Optional, String) KMS key ID for an OBS transfer task.  
-  This parameter is mandatory if encryption is enabled for the target OBS bucket.  
+  This parameter is mandatory if encryption is enabled for the target OBS bucket.
 
 * `obs_time_zone` - (Optional, String) Time zone for an OBS transfer task.  
   For details, see [Time Zone List for OBS Transfer](https://support.huaweicloud.com/intl/en-us/api-lts/lts_api_0111.html).
@@ -303,12 +304,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `log_group_name` - Log group name.  
+* `log_group_name` - Log group name.
 
 ## Import
 
 The LTS transfer task can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_lts_transfer.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_lts_transfer.test <id>
 ```

@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_structuring_custom_configuration"
-description: ""
+description: |-
+  Manages an LTS structuring custom configuration resource within HuaweiCloud.
 ---
 
 # huaweicloud_lts_structuring_custom_configuration

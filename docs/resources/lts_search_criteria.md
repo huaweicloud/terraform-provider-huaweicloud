@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_search_criteria"
-description: ""
+description: |-
+  Manages an LTS search criteria resource within HuaweiCloud.
 ---
 
 # huaweicloud_lts_search_criteria
@@ -60,7 +61,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The search criteria can be imported using the group ID, stream ID, and resource ID separated by a slash, e.g.
+The search criteria can be imported using the group ID, stream ID, and resource ID separated by the slashes, e.g.
 
 ```bash
 $ terraform import huaweicloud_lts_search_criteria.test <log_group_id>/<log_stream_id>/<id>

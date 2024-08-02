@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_cce_access"
-description: ""
+description: |-
+  Manages an LTS CCE access resource within HuaweiCloud.
 ---
 
 # huaweicloud_lts_cce_access
@@ -130,7 +131,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CCE access.
 
-* `binary_collect` - (Optional, Bool) Specifies whether collect in binary format. Default is false.
+* `binary_collect` - (Optional, Bool) Specifies whether collect in binary format. Default is **false**.
 
 * `log_split` - (Optional, Bool) Specifies whether to split log. Default is false.
 
@@ -163,7 +164,7 @@ The `access_config` block supports:
 
 * `stdout` - (Optional, Bool) Specifies whether output is standard. Default is false.
 
-* `stderr` - (Optional, Bool) Specifies whether error output is standard. Default is false.
+* `stderr` - (Optional, Bool) Specifies whether error output is standard. Default is **false**.
 
  ->  If the value of `path_type` is **container_stdout**, `stdout` or `stderr` must be **true**.
 

@@ -135,7 +135,7 @@ The `log_stream_config` block supports:
 
 * `target_log_stream_id` - (Optional, String) Specifies the ID of the log stream for source side.
 
-  -> If you want to use an existing log group, this parameter (`target_log_stream_id`) is required.
+  -> If you want to use an existing log stream, this parameter (`target_log_stream_id`) is required.
 
 ## Attribute Reference
 
