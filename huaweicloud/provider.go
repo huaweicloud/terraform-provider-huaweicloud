@@ -1930,6 +1930,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_account_associate":       organizations.ResourceAccountAssociate(),
 			"huaweicloud_organizations_account_invite":          organizations.ResourceAccountInvite(),
 			"huaweicloud_organizations_account_invite_accepter": organizations.ResourceAccountInviteAccepter(),
+			"huaweicloud_organizations_account_invite_decliner": organizations.ResourceAccountInviteDecliner(),
 			"huaweicloud_organizations_trusted_service":         organizations.ResourceTrustedService(),
 			"huaweicloud_organizations_policy":                  organizations.ResourcePolicy(),
 			"huaweicloud_organizations_policy_attach":           organizations.ResourcePolicyAttach(),
