@@ -18,6 +18,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var tableModelErrCodes = []string{
+	"DLG.0818", // Workspace not found.
+	"DLG.6019", // Resource not found.
+	"DLG.3902", // Resource ID value is incorrect.
+}
+
 // @API DataArtsStudio POST /v2/{project_id}/design/table-model
 // @API DataArtsStudio DELETE /v2/{project_id}/design/table-model
 // @API DataArtsStudio GET /v2/{project_id}/design/table-model
@@ -894,10 +900,8 @@ func resourceTableModelRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	getTableModelResp, err := getTableModelClient.Request("GET", getTableModelPath, &getTableModelOpt)
 	if err != nil {
-		if hasErrorCode(err, "DLG.6019") {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving table model")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", tableModelErrCodes...),
+			"error retrieving table model")
 	}
 	getTableModelRespBody, err := utils.FlattenResponse(getTableModelResp)
 	if err != nil {
