@@ -66,6 +66,9 @@ The following arguments are supported:
 * `domain_access_enabled` - (Optional, Bool) Specifies whether to use the debugging domain name to access the APIs
   within the group. The default value is `true`.
 
+* `force_destroy` - (Optional, Bool) Specifies whether to delete all sub-resources (for API) when deleting this group.  
+  Defaults to **false**.
+
 <a name="group_environment"></a>
 The `environment` block supports:
 

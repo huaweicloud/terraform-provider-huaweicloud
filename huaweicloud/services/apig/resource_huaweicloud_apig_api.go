@@ -1761,6 +1761,24 @@ func resourceApiUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	return resourceApiRead(ctx, d, meta)
 }
 
+func deleteApi(client *golangsdk.ServiceClient, instanceId, apiId string) error {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/apis/{api_id}"
+	unpublishPath := client.Endpoint + httpUrl
+	unpublishPath = strings.ReplaceAll(unpublishPath, "{project_id}", client.ProjectID)
+	unpublishPath = strings.ReplaceAll(unpublishPath, "{instance_id}", instanceId)
+	unpublishPath = strings.ReplaceAll(unpublishPath, "{api_id}", apiId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	_, err := client.Request("DELETE", unpublishPath, &opt)
+	return err
+}
+
 func resourceApiDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
@@ -1772,7 +1790,7 @@ func resourceApiDelete(_ context.Context, d *schema.ResourceData, meta interface
 		instanceId = d.Get("instance_id").(string)
 		apiId      = d.Id()
 	)
-	if err = apis.Delete(client, instanceId, apiId).ExtractErr(); err != nil {
+	if err = deleteApi(client, instanceId, apiId); err != nil {
 		return diag.Errorf("unable to delete the API (%s): %s", apiId, err)
 	}
 
