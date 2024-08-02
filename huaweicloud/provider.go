@@ -572,6 +572,7 @@ func Provider() *schema.Provider {
 			// DataArts Architecture
 			"huaweicloud_dataarts_architecture_ds_template_optionals": dataarts.DataSourceTemplateOptionalFields(),
 			"huaweicloud_dataarts_architecture_model_statistic":       dataarts.DataSourceArchitectureModelStatistic(),
+			"huaweicloud_dataarts_architecture_table_models":          dataarts.DataSourceArchitectureTableModels(),
 			// DataArts DataService
 			"huaweicloud_dataarts_dataservice_apis":      dataarts.DataSourceDataServiceApis(),
 			"huaweicloud_dataarts_dataservice_instances": dataarts.DataSourceDataServiceInstances(),
