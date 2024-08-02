@@ -179,7 +179,7 @@ func ResourceDataServiceApi() *schema.Resource {
 			"hosts": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Elem:        apiHostsSchema(),
 				Description: `The API host configuration, for exclusive type.`,
 			},
 		},
@@ -526,6 +526,40 @@ func apiBackendConfigConstantParamsElemSchema() *schema.Resource {
 	return &sc
 }
 
+func apiHostsSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"instance_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The cluster ID to which the API belongs.`,
+			},
+			"instance_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The cluster name to which the API belongs.`,
+			},
+			"intranet_host": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The intranet address.`,
+			},
+			"external_host": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The exrernal address.`,
+			},
+			"domains": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The list of gateway damains.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+	return &sc
+}
+
 func buildModifyDataServiceApiBodyParams(client *golangsdk.ServiceClient, d *schema.ResourceData, workspaceId string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"catalog_id":        d.Get("catalog_id"),
@@ -540,7 +574,7 @@ func buildModifyDataServiceApiBodyParams(client *golangsdk.ServiceClient, d *sch
 		"visibility":        d.Get("visibility"),
 		"request_paras":     buildApiRequestParamsBodyParams(d.Get("request_params").(*schema.Set)),
 		"datasource_config": buildApiDataSourceConfigBodyParams(client, workspaceId, d.Get("datasource_config").([]interface{})),
-		"backend_config":    buildApiBackendConfigBodyParams(d.Get("backend_config").([]interface{})),
+		"backend_config":    utils.RemoveNil(buildApiBackendConfigBodyParams(d.Get("backend_config").([]interface{}))),
 	}
 	return bodyParams
 }
