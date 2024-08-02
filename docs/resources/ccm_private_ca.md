@@ -2,7 +2,8 @@
 subcategory: "Cloud Certificate Manager (CCM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ccm_private_ca"
-description: ""
+description: |
+  Manages CCM private CA resource within HuaweiCloud.
 ---
 
 # huaweicloud_ccm_private_ca
@@ -35,7 +36,7 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
 }
 ```
 
-### create a suboridinate private CA
+### create a subordinate private CA
 
 ```hcl
 variable "root_issuer_id" {}
@@ -95,11 +96,11 @@ The following arguments are supported:
 * `issuer_id` - (Optional, String, ForceNew) Specifies the ID of the parent CA. It's **required** for subordinate CA.
   Changing this parameter will create a new resource.
 
-* `path_length` - (Optional, Int, ForceNew) Specifies the Length of the CA certificate path. The valid value is
+* `path_length` - (Optional, Int, ForceNew) Specifies the length of the CA certificate path. The valid value is
   limited between `0` to `6`. If you want to create a root CA, this parameter is **not required** by default and the
   value will be set to `7` in return. Changing this parameter will create a new resource.
 
-* `key_usages` - (Optional, List, ForceNew) Specifies the Key usage of private CA. It's a list of string.
+* `key_usages` - (Optional, List, ForceNew) Specifies the key usage of private CA. It's a list of string.
   Options are: **digitalSignature**, **nonRepudiation**, **keyEncipherment**, **dataEncipherment**, **keyAgreement**,
   **keyCertSign**, **cRLSign**, **encipherOnly**, **decipherOnly**.
   This parameter is [digitalSignature,keyCertSign,cRLSign] by default and only support to customize when you create a
@@ -125,7 +126,7 @@ The following arguments are supported:
   The valid values are **prePaid** and **postPaid**. Defaults to **postPaid**.
   Changing this parameter will create a new resource.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto-renew is enabled.
   Valid values are **true** and **false**. Defaults to **false**.
   Changing this parameter will create a new resource.
 
@@ -168,7 +169,9 @@ The `validity` block supports:
   and subordinate CA is no longer than 20 years. Changing this parameter will create a new resource. When creating a
   subordinate CA, the validity must less than the root CA.
 
-* `started_at` - (Optional, String, ForceNew) Specifies the start time of validity.
+* `started_at` - (Optional, String, ForceNew) Specifies the start time of validity. The value is a timestamp in milliseconds.
+  For example, `1722840237000` indicates `2024-08-05 14:43:57`. The value of `started_at` cannot be earlier than `5` minutes
+  from the current time.
   Changing this parameter will create a new resource.
 
 <a name="block-crl_configuration"></a>
@@ -200,17 +203,20 @@ In addition to all arguments above, the following attributes are exported:
 
 * `issuer_name` - The name of the parent CA. For a root CA, the value of this parameter is null.
 
-* `gen_mode` - The generation method of the private CA.
+* `gen_mode` - The generation method of the private CA. Valid values are as follows:
+  + **GENERATE**: The certificate is generated through the PCA system.
+  + **IMPORT**: The certificate is imported externally.
+  + **CSR**: The CSR is imported externally and issued by the internal CA. The private key is not managed in PCA.
 
 * `serial_number` - The serial number of the private CA.
 
-* `created_at` - The create time of the private CA.
+* `created_at` - The creation time of the private CA.
 
-* `expired_at` - The expire time of the private CA.
+* `expired_at` - The expiration time of the private CA.
 
 * `free_quota` - The free quota of the private certificate.
 
-* `crl_dis_point` - The address of the CRL file in the OBS bucket.
+* `crl_configuration/crl_dis_point` - The address of the CRL file in the OBS bucket.
 
 ## Timeouts
 
@@ -224,12 +230,12 @@ This resource provides the following timeouts configuration options:
 Private CA can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_ccm_private_ca.private_ca_1 bf30b49d-9d5e-4d91-bcf2-75bc73f67306
+$ terraform import huaweicloud_ccm_private_ca.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `validity`, `key_usages`, `pending_days`,
-`action`.
+`action`, `auto_renew`.
 It is generally recommended running `terraform plan` after importing a private CA. You can then decide if changes should
 be applied to it, also you can ignore changes as below.
 
@@ -239,7 +245,7 @@ resource "huaweicloud_ccm_private_ca" "test" {
 
   lifecycle {
     ignore_changes = [
-      validity, key_usages, pending_days, action,
+      validity, key_usages, pending_days, action, auto_renew,
     ]
   }
 }

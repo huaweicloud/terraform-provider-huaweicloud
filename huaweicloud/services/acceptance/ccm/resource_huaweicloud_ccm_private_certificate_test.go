@@ -45,7 +45,7 @@ func getCertificateResourceFunc(conf *config.Config, state *terraform.ResourceSt
 
 func TestAccCcmPrivateCertificate_basic(t *testing.T) {
 	var obj interface{}
-	rName := acceptance.RandomAccResourceName()
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_ccm_private_certificate.test"
 
 	rc := acceptance.InitResourceCheck(
@@ -136,7 +136,7 @@ resource "huaweicloud_ccm_private_certificate" "test" {
     fooo = "bar"
     keye = "value"
   }
-}`, tesPrivateCA_base(commonName), commonName)
+}`, tesPrivateCA_postpaid_root(commonName), commonName)
 }
 
 // lintignore:AT004
@@ -164,5 +164,5 @@ resource "huaweicloud_ccm_private_certificate" "test" {
     foo = "bar"
     key = "value"
   }
-}`, tesPrivateCA_base(commonName), commonName)
+}`, tesPrivateCA_postpaid_root(commonName), commonName)
 }
