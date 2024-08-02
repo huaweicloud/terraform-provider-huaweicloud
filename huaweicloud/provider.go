@@ -1504,11 +1504,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_upgrade_package":     iotda.ResourceUpgradePackage(),
 			"huaweicloud_iotda_batchtask":           iotda.ResourceBatchTask(),
 
-			"huaweicloud_kms_key":                dew.ResourceKmsKey(),
-			"huaweicloud_kps_keypair":            dew.ResourceKeypair(),
-			"huaweicloud_kms_grant":              dew.ResourceKmsGrant(),
-			"huaweicloud_kms_dedicated_keystore": dew.ResourceKmsDedicatedKeystore(),
-			"huaweicloud_kms_key_material":       dew.ResourceKmsKeyMaterial(),
+			"huaweicloud_kms_data_encrypt_decrypt": dew.ResourceKmsDataEncryptDecrypt(),
+			"huaweicloud_kms_key":                  dew.ResourceKmsKey(),
+			"huaweicloud_kps_keypair":              dew.ResourceKeypair(),
+			"huaweicloud_kms_grant":                dew.ResourceKmsGrant(),
+			"huaweicloud_kms_dedicated_keystore":   dew.ResourceKmsDedicatedKeystore(),
+			"huaweicloud_kms_key_material":         dew.ResourceKmsKeyMaterial(),
 
 			"huaweicloud_lb_certificate":  lb.ResourceCertificateV2(),
 			"huaweicloud_lb_l7policy":     lb.ResourceL7PolicyV2(),
