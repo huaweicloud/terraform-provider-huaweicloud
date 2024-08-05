@@ -85,9 +85,6 @@ func resourceConnectionHealthCheckCreate(ctx context.Context, d *schema.Resource
 
 	createConnectionHealthCheckOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			201,
-		},
 	}
 	createConnectionHealthCheckOpt.JSONBody = utils.RemoveNil(buildCreateConnectionHealthCheckBodyParams(d))
 	createConnectionHealthCheckResp, err := createConnectionHealthCheckClient.Request("POST",
@@ -142,9 +139,6 @@ func resourceConnectionHealthCheckRead(_ context.Context, d *schema.ResourceData
 
 	getConnectionHealthCheckOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getConnectionHealthCheckResp, err := getConnectionHealthCheckClient.Request("GET",
 		getConnectionHealthCheckPath, &getConnectionHealthCheckOpt)
@@ -191,14 +185,14 @@ func resourceConnectionHealthCheckDelete(_ context.Context, d *schema.ResourceDa
 
 	deleteConnectionHealthCheckOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
 	}
 	_, err = deleteConnectionHealthCheckClient.Request("DELETE", deleteConnectionHealthCheckPath,
 		&deleteConnectionHealthCheckOpt)
 	if err != nil {
-		return diag.Errorf("error deleting ConnectionHealthCheck: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "VPN.0001"),
+			"error deleting ConnectionHealthCheck",
+		)
 	}
 
 	return nil
