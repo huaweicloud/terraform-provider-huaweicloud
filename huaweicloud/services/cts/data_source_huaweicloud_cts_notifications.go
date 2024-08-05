@@ -10,7 +10,6 @@ import (
 
 	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -192,7 +191,7 @@ func dataSourceNotificationsRead(_ context.Context, d *schema.ResourceData, meta
 
 	response, err := ctsClient.ListNotifications(listOpts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CTS key event notification")
+		return diag.Errorf("error retrieving CTS key event notification: %s", err)
 	}
 	randUUID, err := uuid.GenerateUUID()
 	if err != nil {

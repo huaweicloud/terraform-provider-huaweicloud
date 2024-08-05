@@ -363,7 +363,7 @@ func resourceCTSTrackerDelete(_ context.Context, d *schema.ResourceData, meta in
 
 		_, err = ctsClient.DeleteTracker(&deleteOpts)
 		if err != nil {
-			return diag.Errorf("error deleting CTS system tracker %s: %s", trackerName, err)
+			return common.CheckDeletedDiag(d, convertExpected403ErrInto404Err(err, "CTS.0013"), "error deleting CTS system tracker")
 		}
 		return nil
 	}
@@ -532,5 +532,14 @@ func updateSystemTrackerStatus(c *client.CtsClient, status string) error {
 	}
 
 	_, err := c.UpdateTracker(&statusReq)
+	return err
+}
+
+func convertExpected403ErrInto404Err(err error, errCode string) error {
+	if responseErr, ok := err.(*sdkerr.ServiceResponseError); ok {
+		if responseErr.StatusCode == http.StatusForbidden && responseErr.ErrorCode == errCode {
+			return golangsdk.ErrDefault404{}
+		}
+	}
 	return err
 }
