@@ -38,6 +38,11 @@ func DataSourceCfwServiceGroupMembers() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the key word.`,
 			},
+			"group_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the service group type.`,
+			},
 			"item_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -115,7 +120,7 @@ func newServiceGroupMembersDSWrapper(d *schema.ResourceData, meta interface{}) *
 
 func dataSourceCfwServiceGroupMembersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newServiceGroupMembersDSWrapper(d, meta)
-	lisSerIteRst, err := wrapper.ListServiceItems()
+	listServiceItemsRst, err := wrapper.ListServiceItems()
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -126,7 +131,7 @@ func dataSourceCfwServiceGroupMembersRead(_ context.Context, d *schema.ResourceD
 	}
 	d.SetId(id)
 
-	err = wrapper.listServiceItemsToSchema(lisSerIteRst)
+	err = wrapper.listServiceItemsToSchema(listServiceItemsRst)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -143,9 +148,10 @@ func (w *ServiceGroupMembersDSWrapper) ListServiceItems() (*gjson.Result, error)
 
 	uri := "/v1/{project_id}/service-items"
 	params := map[string]any{
-		"set_id":         w.Get("group_id"),
-		"key_word":       w.Get("key_word"),
-		"fw_instance_id": w.Get("fw_instance_id"),
+		"set_id":                 w.Get("group_id"),
+		"key_word":               w.Get("key_word"),
+		"fw_instance_id":         w.Get("fw_instance_id"),
+		"query_service_set_type": w.Get("group_type"),
 	}
 	params = utils.RemoveNil(params)
 	return httphelper.New(client).
@@ -170,13 +176,13 @@ func (w *ServiceGroupMembersDSWrapper) listServiceItemsToSchema(body *gjson.Resu
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("records", schemas.SliceToList(body.Get("data.records"),
-			func(record gjson.Result) any {
+			func(records gjson.Result) any {
 				return map[string]any{
-					"item_id":     record.Get("item_id").Value(),
-					"protocol":    record.Get("protocol").Value(),
-					"source_port": record.Get("source_port").Value(),
-					"dest_port":   record.Get("dest_port").Value(),
-					"description": record.Get("description").Value(),
+					"item_id":     records.Get("item_id").Value(),
+					"protocol":    records.Get("protocol").Value(),
+					"source_port": records.Get("source_port").Value(),
+					"dest_port":   records.Get("dest_port").Value(),
+					"description": records.Get("description").Value(),
 				}
 			},
 		)),

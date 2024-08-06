@@ -31,6 +31,9 @@ The following arguments are supported:
 
 * `key_word` - (Optional, String) Specifies the key word.
 
+* `group_type` - (Optional, String) Specifies the service group type.
+  The value can be **0** (custom service group), **1** (predefined service group).
+
 * `item_id` - (Optional, String) Specifies the service group member ID.
 
 * `fw_instance_id` - (Optional, String) Specifies the firewall instance ID.
