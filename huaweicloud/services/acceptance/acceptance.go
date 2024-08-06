@@ -82,6 +82,8 @@ var (
 
 	HW_WAF_ENABLE_FLAG = os.Getenv("HW_WAF_ENABLE_FLAG")
 
+	HW_DEW_ENABLE_FLAG = os.Getenv("HW_DEW_ENABLE_FLAG")
+
 	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID      = os.Getenv("HW_DEST_PROJECT_ID")
 	HW_DEST_PROJECT_ID_TEST = os.Getenv("HW_DEST_PROJECT_ID_TEST")
@@ -2125,5 +2127,14 @@ func TestAccPrecheckSFSTurboBackupId(t *testing.T) {
 func TestAccPrecheckEVSTransferAccepter(t *testing.T) {
 	if HW_EVS_TRANSFER_ID == "" || HW_EVS_TRANSFER_AUTH_KEY == "" {
 		t.Skip("HW_EVS_TRANSFER_ID and HW_EVS_TRANSFER_AUTH_KEY must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckDewFlag(t *testing.T) {
+	// The key pair operation task, such as key pair bind or unbind task
+	// Query the task execution status(running or failed)
+	if HW_DEW_ENABLE_FLAG == "" {
+		t.Skip("HW_DEW_ENABLE_FLAG must be set for the acceptance test")
 	}
 }
