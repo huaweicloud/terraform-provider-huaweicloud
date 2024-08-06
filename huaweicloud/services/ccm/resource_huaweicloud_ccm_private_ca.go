@@ -524,6 +524,8 @@ func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta inter
 
 	getRespBody, err := readPrivateCA(client, d)
 	if err != nil {
+		// When the resource does not exist, the response status code of the query API is 400. The response body example
+		// is: {"error_code": "PCA.10010002","error_msg": "XXX"}
 		return common.CheckDeletedDiag(d,
 			common.ConvertExpected400ErrInto404Err(err, "error_code", "PCA.10010002"),
 			"error retrieving CCM private CA")
@@ -607,6 +609,8 @@ func flattenCrlConfiguration(resp interface{}) []interface{} {
 
 func deletePrepaidPrivateCA(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) diag.Diagnostics {
 	if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+		// When the resource does not exist, the response status code of the query API is 400. The response body example
+		// is: {"error_code": "CBC.30000067","error_msg": "XXX"}
 		return common.CheckDeletedDiag(d,
 			common.ConvertExpected400ErrInto404Err(err, "error_code", "CBC.30000067"),
 			"error unsubscribing CCM private CA")
