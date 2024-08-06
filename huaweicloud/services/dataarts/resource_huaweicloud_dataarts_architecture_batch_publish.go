@@ -38,23 +38,8 @@ func ResourceArchitectureBatchPublish() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Specifies the list of the business information.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"biz_id": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Specifies the ID of the object to be published.`,
-						},
-						"biz_type": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Specifies the type of the object to be published.`,
-						},
-					},
-				},
+				Description: "Specifies the list of objects to be published.",
+				Elem:        bizInfoSchema(),
 			},
 			"approver_user_id": {
 				Type:        schema.TypeString,
@@ -72,7 +57,32 @@ func ResourceArchitectureBatchPublish() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Whether to automatically review.",
+				Description: "Specifies whether to automatically review.",
+			},
+			"schedule_time": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Specifies scheduling time of the DataArts quality job.",
+			},
+		},
+	}
+}
+
+func bizInfoSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"biz_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the ID of the object to be published.`,
+			},
+			"biz_type": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the type of the object to be published.`,
 			},
 		},
 	}
@@ -82,7 +92,6 @@ func resourceArchitectureBatchPublishCreate(_ context.Context, d *schema.Resourc
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v2/{project_id}/design/approvals/batch-publish"
 		product = "dataarts"
 	)
 
@@ -90,61 +99,64 @@ func resourceArchitectureBatchPublishCreate(_ context.Context, d *schema.Resourc
 	if err != nil {
 		return diag.Errorf("error creating DataArts Studio client: %s", err)
 	}
-	createPath := client.Endpoint + httpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 
-	createOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"workspace":    d.Get("workspace_id").(string),
-			"Content-Type": "application/json;charset=UTF-8",
-		},
-		JSONBody: utils.RemoveNil(buildCreateArchitectureBatchPublishtBodyParams(d)),
-	}
-
-	createResp, err := client.Request("POST", createPath, &createOpt)
-	if err != nil {
-		return diag.Errorf("error publishing DataArts Architecture resource: %s", err)
-	}
-
-	createRespBody, err := utils.FlattenResponse(createResp)
+	groupId, err := batchPublishResource(client, d, true)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	groupId := utils.PathSearch("data.value.group_id", createRespBody, nil)
-	if groupId == nil {
-		return diag.Errorf("error creating DataArts Architecture batch publishment: ID is not found in API response")
-	}
-
-	publishStatus := utils.PathSearch("data.value.operation_status", createRespBody, nil)
-	errMsgs := make([]string, 0)
-	if publishStatus == "FAILED" {
-		for _, v := range utils.PathSearch("data.value.groups", createRespBody, make([]interface{}, 0)).([]interface{}) {
-			if utils.PathSearch("operation_status", v, nil) != "FAILED" {
-				continue
-			}
-			bizId := utils.PathSearch("biz_id", v, "").(string)
-			failedMsg := utils.PathSearch("remark", v, "").(string)
-			errMsgs = append(errMsgs, fmt.Sprintf("%s | %s;", bizId, failedMsg))
-		}
-	}
-
-	if len(errMsgs) > 0 {
-		return diag.Errorf("error publishing some resources: %s", strings.Join(errMsgs, "\n"))
 	}
 
 	d.SetId(groupId.(string))
 	return nil
 }
 
-func buildCreateArchitectureBatchPublishtBodyParams(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
+func batchPublishResource(client *golangsdk.ServiceClient, d *schema.ResourceData, isPublish bool) (interface{}, error) {
+	httpUrl := "v2/{project_id}/design/approvals/batch-publish"
+	publisPath := client.Endpoint + httpUrl
+	publisPath = strings.ReplaceAll(publisPath, "{project_id}", client.ProjectID)
+
+	publisOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"workspace":    d.Get("workspace_id").(string),
+			"Content-Type": "application/json;charset=UTF-8",
+		},
+		JSONBody: buildActionArchitectureResourceBodyParams(d, isPublish),
+	}
+
+	resp, err := client.Request("POST", publisPath, &publisOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error publishing DataArts Architecture resource: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	groupId := utils.PathSearch("data.value.group_id", respBody, nil)
+	if groupId == nil {
+		return nil, fmt.Errorf("error creating DataArts Architecture batch publishment: ID is not found in API response")
+	}
+
+	errMsg := getActionErrMsgs(respBody)
+	if errMsg != "" {
+		return nil, fmt.Errorf("error publishing some resources: %s", errMsg)
+	}
+	return groupId, nil
+}
+
+func buildActionArchitectureResourceBodyParams(d *schema.ResourceData, isPublish bool) map[string]interface{} {
+	params := map[string]interface{}{
 		"approver_user_id":   d.Get("approver_user_id"),
 		"approver_user_name": d.Get("approver_user_name"),
 		"biz_infos":          buildBusinessInfos(d.Get("biz_infos").([]interface{})),
-		"fast_approval":      utils.ValueIgnoreEmpty(d.Get("fast_approval")),
+		"fast_approval":      d.Get("fast_approval"),
 	}
+
+	if isPublish {
+		params["schedule_time"] = utils.ValueIgnoreEmpty(d.Get("schedule_time"))
+	}
+	return params
 }
 
 func buildBusinessInfos(bizInfos []interface{}) []interface{} {
@@ -163,8 +175,8 @@ func resourceArchitectureBatchPublishRead(_ context.Context, _ *schema.ResourceD
 }
 
 func resourceArchitectureBatchPublishDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := `This resource is only a one-time action resource for publshing resource. Deleting this resource will
-	not change the status of the currently published resource, but will only remove the resource information from the tfstate file.`
+	errorMsg := `This resource is only a one-time action resource for publshing resources. Deleting this resource will not clear
+	the corresponding request record, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
