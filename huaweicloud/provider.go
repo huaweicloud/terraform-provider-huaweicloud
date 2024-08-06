@@ -1621,6 +1621,8 @@ func Provider() *schema.Provider {
 			// DataArts DataService
 			"huaweicloud_dataarts_dataservice_api":             dataarts.ResourceDataServiceApi(),
 			"huaweicloud_dataarts_dataservice_api_action":      dataarts.ResourceDataServiceApiAction(),
+			"huaweicloud_dataarts_dataservice_api_auth":        dataarts.ResourceDataServiceApiAuth(),
+			"huaweicloud_dataarts_dataservice_api_auth_action": dataarts.ResourceDataServiceApiAuthAction(),
 			"huaweicloud_dataarts_dataservice_api_debug":       dataarts.ResourceDataServiceApiDebug(),
 			"huaweicloud_dataarts_dataservice_api_publish":     dataarts.ResourceDataServiceApiPublish(),
 			"huaweicloud_dataarts_dataservice_api_publishment": dataarts.ResourceDataServiceApiPublishment(),
