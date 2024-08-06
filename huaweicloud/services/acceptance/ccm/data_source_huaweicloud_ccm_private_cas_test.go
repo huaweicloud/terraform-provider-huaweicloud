@@ -168,5 +168,5 @@ locals {
 output "sort_filter_is_useful" {
   value = local.asc_first_id == local.desc_last_id
 }
-`, tesPrivateCA_basic(name))
+`, tesPrivateCA_postpaid_subordinate(name))
 }

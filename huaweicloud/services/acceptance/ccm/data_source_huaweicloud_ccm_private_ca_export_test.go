@@ -12,7 +12,7 @@ import (
 func TestAccDataSourcePrivateCaExport_basic(t *testing.T) {
 	var (
 		dataSource = "data.huaweicloud_ccm_private_ca_export.test"
-		rName      = acceptance.RandomAccResourceName()
+		rName      = acceptance.RandomAccResourceNameWithDash()
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 	)
 
@@ -40,5 +40,5 @@ func testDataSourceDataSourcePrivateCaExport_basic(name string) string {
 data "huaweicloud_ccm_private_ca_export" "test" {
   ca_id = huaweicloud_ccm_private_ca.test_root.id
 }
-`, tesPrivateCA_base(name))
+`, tesPrivateCA_postpaid_root(name))
 }
