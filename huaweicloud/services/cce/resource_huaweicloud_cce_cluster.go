@@ -319,18 +319,15 @@ func ResourceCluster() *schema.Resource {
 			"component_configurations": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"configurations": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -1049,6 +1046,30 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
+	if d.HasChange("component_configurations") {
+		var (
+			updateClusterConfigurationsHttpUrl = "api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/master/configuration"
+		)
+
+		updateClusterConfigurationsPath := cceClient.Endpoint + updateClusterConfigurationsHttpUrl
+		updateClusterConfigurationsPath = strings.ReplaceAll(updateClusterConfigurationsPath, "{project_id}", cfg.GetProjectID(region))
+		updateClusterConfigurationsPath = strings.ReplaceAll(updateClusterConfigurationsPath, "{cluster_id}", clusterId)
+
+		updateClusterConfigurationsOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+
+		bodyParams, err := buildUpdateClusterConfigurationsBodyParams(d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		updateClusterConfigurationsOpt.JSONBody = bodyParams
+		_, err = cceClient.Request("PUT", updateClusterConfigurationsPath, &updateClusterConfigurationsOpt)
+		if err != nil {
+			return diag.Errorf("error updating CCE cluster configurations: %s", err)
+		}
+	}
+
 	if d.HasChange("auto_renew") {
 		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
@@ -1072,6 +1093,47 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	return resourceClusterRead(ctx, d, meta)
+}
+
+func buildUpdateClusterConfigurationsBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	configurationsPackages, err := buildConfigurationsPackagesBodyParams(d)
+	if err != nil {
+		return nil, err
+	}
+	bodyParams := map[string]interface{}{
+		"apiVersion": "v3",
+		"kind":       "Configuration",
+		"metadata": map[string]interface{}{
+			"name": "configuration",
+		},
+		"spec": map[string]interface{}{
+			"packages": configurationsPackages,
+		},
+	}
+	return bodyParams, nil
+}
+
+func buildConfigurationsPackagesBodyParams(d *schema.ResourceData) ([]map[string]interface{}, error) {
+	packagesRaw := d.Get("component_configurations").([]interface{})
+	bodyParams := make([]map[string]interface{}, len(packagesRaw))
+	for i, v := range packagesRaw {
+		packageRaw := v.(map[string]interface{})
+		bodyParams[i] = map[string]interface{}{
+			"name": packageRaw["name"],
+		}
+
+		if configurationsRaw := packageRaw["configurations"].(string); configurationsRaw != "" {
+			var configurations interface{}
+			err := json.Unmarshal([]byte(configurationsRaw), &configurations)
+			if err != nil {
+				err = fmt.Errorf("error unmarshalling configurations of %s: %s", packageRaw["name"].(string), err)
+				return nil, err
+			}
+			bodyParams[i]["configurations"] = configurations
+		}
+	}
+
+	return bodyParams, nil
 }
 
 func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
