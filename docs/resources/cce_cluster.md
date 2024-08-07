@@ -153,6 +153,31 @@ resource "huaweicloud_cce_cluster" "cluster" {
 }
 ```
 
+### Cluster with Component Configurations
+
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+
+resource "huaweicloud_cce_cluster" "cluster" {
+  name                   = "cluster"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = var.vpc_id
+  subnet_id              = var.subnet_id
+  container_network_type = "overlay_l2"
+
+  component_configurations {
+    name           = "kube-apiserver"
+    configurations = jsonencode([
+      {
+        name  = "default-not-ready-toleration-seconds"
+        value = "100"
+      }
+    ])
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -266,10 +291,9 @@ The following arguments are supported:
   The [object](#cce_cluster_extend_params) structure is documented below.
   Changing this parameter will create a new cluster resource.
 
-* `component_configurations` - (Optional, List, ForceNew) Specifies the kubernetes component configurations.
+* `component_configurations` - (Optional, List) Specifies the kubernetes component configurations.
   For details, see [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-cce/cce_10_0213.html).
   The [object](#cce_cluster_component_configurations) structure is documented below.
-  Changing this parameter will create a new cluster resource.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CCE cluster.
   Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
@@ -363,11 +387,9 @@ The `extend_params` block supports:
 <a name="cce_cluster_component_configurations"></a>
 The `component_configurations` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the component name.
-  Changing this parameter will create a new cluster resource.
+* `name` - (Required, String) Specifies the component name.
 
-* `configurations` - (Optional, String, ForceNew) Specifies JSON string of the component configurations.
-  Changing this parameter will create a new cluster resource.
+* `configurations` - (Optional, String) Specifies JSON string of the component configurations.
 
 ## Attribute Reference
 
