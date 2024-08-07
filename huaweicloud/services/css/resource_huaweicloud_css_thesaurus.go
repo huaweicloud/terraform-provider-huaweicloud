@@ -3,6 +3,7 @@ package css
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -56,15 +57,18 @@ func ResourceCssthesaurus() *schema.Resource {
 			"main_object": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				AtLeastOneOf: []string{"main_object", "stop_object", "synonym_object"},
 			},
 			"stop_object": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"synonym_object": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -81,21 +85,30 @@ func ResourceCssthesaurus() *schema.Resource {
 func ResourceCssthesaurusCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
+	clusterID := d.Get("cluster_id").(string)
 	cssV1Client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
-	opts := buildThesaurusCreateParameters(d)
-	clusterId := d.Get("cluster_id").(string)
 
-	loadErr := thesaurus.Load(cssV1Client, clusterId, *opts)
-	if loadErr.Err != nil {
-		return diag.Errorf("load thesaurus to css cluster failed. cluster_id: %s,error: %s", clusterId, loadErr.Err)
+	addCustomThesaurusHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/thesaurus"
+	addCustomThesaurusPath := cssV1Client.Endpoint + addCustomThesaurusHttpUrl
+	addCustomThesaurusPath = strings.ReplaceAll(addCustomThesaurusPath, "{project_id}", cssV1Client.ProjectID)
+	addCustomThesaurusPath = strings.ReplaceAll(addCustomThesaurusPath, "{cluster_id}", clusterID)
+
+	addCustomThesaurusOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	addCustomThesaurusOpt.JSONBody = buildThesaurusCreateParameters(d)
+	_, err = cssV1Client.Request("POST", addCustomThesaurusPath, &addCustomThesaurusOpt)
+	if err != nil {
+		return diag.Errorf("error adding CSS cluster custom thesaurus: %s", err)
 	}
 
-	d.SetId(clusterId)
+	d.SetId(clusterID)
 
-	createResultErr := checkThesaurusLoadResult(ctx, cssV1Client, clusterId, d.Timeout(schema.TimeoutCreate))
+	createResultErr := checkThesaurusLoadResult(ctx, cssV1Client, clusterID, d.Timeout(schema.TimeoutCreate))
 	if createResultErr != nil {
 		return diag.FromErr(createResultErr)
 	}
@@ -107,22 +120,30 @@ func ResourceCssthesaurusUpdate(ctx context.Context, d *schema.ResourceData, met
 	return ResourceCssthesaurusCreate(ctx, d, meta)
 }
 
-func buildThesaurusCreateParameters(d *schema.ResourceData) *thesaurus.LoadThesaurusReq {
-	opts := thesaurus.LoadThesaurusReq{
-		BucketName: d.Get("bucket_name").(string),
+func buildThesaurusCreateParameters(d *schema.ResourceData) map[string]interface{} {
+	opts := map[string]interface{}{
+		"bucketName": d.Get("bucket_name").(string),
 	}
 
-	if obj, ok := d.GetOk("main_object"); ok {
-		opts.MainObject = obj.(string)
+	// nil or "Default" indicates no change, "" or "Unused" indicates that this value is cleared.
+	if obj, ok := d.GetOk("main_object"); ok && obj.(string) != "Default" {
+		opts["mainObject"] = convertUnusedToNullString(obj.(string))
 	}
-	if obj, ok := d.GetOk("stop_object"); ok {
-		opts.StopObject = obj.(string)
+	if obj, ok := d.GetOk("stop_object"); ok && obj.(string) != "Default" {
+		opts["stopObject"] = convertUnusedToNullString(obj.(string))
 	}
-	if obj, ok := d.GetOk("synonym_object"); ok {
-		opts.SynonymObject = obj.(string)
+	if obj, ok := d.GetOk("synonym_object"); ok && obj.(string) != "Default" {
+		opts["synonymObject"] = convertUnusedToNullString(obj.(string))
 	}
 
-	return &opts
+	return opts
+}
+
+func convertUnusedToNullString(str string) string {
+	if str == "Unused" {
+		return ""
+	}
+	return str
 }
 
 func ResourceCssthesaurusRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -135,14 +156,15 @@ func ResourceCssthesaurusRead(_ context.Context, d *schema.ResourceData, meta in
 
 	detail, err := thesaurus.Get(cssV1Client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "CSS cluster thesaurus")
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		return common.CheckDeletedDiag(d, err, "error querying CSS cluster thesaurus")
 	}
 
 	mErr := multierror.Append(
 		d.Set("cluster_id", detail.ClusterId),
 		d.Set("bucket_name", detail.Bucket),
 		d.Set("main_object", detail.MainObj),
-		d.Set("stop_object", detail.StopObj),
 		d.Set("stop_object", detail.StopObj),
 		d.Set("synonym_object", detail.SynonymObj),
 		d.Set("status", detail.Status),
@@ -164,7 +186,9 @@ func ResourceCssthesaurusDelete(ctx context.Context, d *schema.ResourceData, met
 
 	errResult := thesaurus.Delete(cssV1Client, clusterId)
 	if errResult.Err != nil {
-		return diag.Errorf("delete CSS cluster thesaurus failed. %s", errResult.Err)
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = common.ConvertExpected403ErrInto404Err(errResult.Err, "errCode", "CSS.0015")
+		return common.CheckDeletedDiag(d, err, "error deleting CSS cluster thesaurus")
 	}
 
 	errCheckRt := checkThesaurusDeleteResult(ctx, cssV1Client, clusterId, d.Timeout(schema.TimeoutDelete))
@@ -214,7 +238,7 @@ func checkThesaurusDeleteResult(ctx context.Context, client *golangsdk.ServiceCl
 				}
 				return nil, "failed", err
 			}
-			if resp != nil && resp.MainObj == "" && resp.StopObj == "" && resp.SynonymObj == "" {
+			if resp != nil && resp.MainObj == "Unused" && resp.StopObj == "Unused" && resp.SynonymObj == "Unused" {
 				return resp, "Done", nil
 			}
 			return resp, "Pending", nil
