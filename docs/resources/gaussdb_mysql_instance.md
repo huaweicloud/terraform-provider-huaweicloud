@@ -68,17 +68,13 @@ The following arguments are supported:
 * `security_group_id` - (Optional, String, ForceNew) Specifies the security group ID. Required if the selected subnet
   doesn't enable network ACL. Changing this parameter will create a new resource.
 
-* `configuration_id` - (Optional, String, ForceNew) Specifies the configuration ID. Changing this parameter will create
-  a new resource.
-
-* `configuration_name` - (Optional, String, ForceNew) Specifies the configuration name. Changing this parameter will create
-  a new resource.
-
 * `dedicated_resource_id` - (Optional, String, ForceNew) Specifies the dedicated resource ID. Changing this parameter
   will create a new resource.
 
 * `dedicated_resource_name` - (Optional, String, ForceNew) Specifies the dedicated resource name. Changing this parameter
   will create a new resource.
+
+* `configuration_id` - (Optional, String) Specifies the configuration ID.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id. Required if EPS enabled.
 
@@ -118,6 +114,9 @@ The following arguments are supported:
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
+* `parameters` - (Optional, List) Specifies an array of one or more parameters to be set to the instance after launched.
+  The [parameters](#parameters_struct) structure is documented below.
+
 * `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already
   existed.
 
@@ -148,6 +147,13 @@ The `backup_strategy` block supports:
 * `audit_log_enabled` - (Optional, Bool) Specifies whether audit log is enabled. The default value is `false`.
 
 * `sql_filter_enabled` - (Optional, Bool) Specifies whether sql filter is enabled. The default value is `false`.
+
+<a name="parameters_struct"></a>
+The `parameters` block supports:
+
+* `name` - (Required, String) Specifies the name of the parameter.
+
+* `value` - (Required, String) Specifies the value of the parameter.
 
 ## Attribute Reference
 
@@ -182,6 +188,24 @@ This resource provides the following timeouts configuration options:
 
 GaussDB instance can be imported using the `id`, e.g.
 
+```bash
+$ terraform import huaweicloud_gaussdb_mysql_instance.test <id>
 ```
-$ terraform import huaweicloud_gaussdb_mysql_instance.instance_1 1a801c1e01e6458d8eed810912e29d0cin07
+
+Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
+API response. The missing attribute is: `table_name_case_sensitivity`, `enterprise_project_id`, `password` and
+`parameters`. It is generally recommended running `terraform plan` after importing a GaussDB MySQL instance. You can
+then decide if changes should be applied to the GaussDB MySQL instance, or the resource definition should be updated to
+align with the GaussDB MySQL instance. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_gaussdb_mysql_instance" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      new_node_weight, proxy_mode, readonly_nodes_weight, parameters,
+    ]
+  }
+}
 ```
