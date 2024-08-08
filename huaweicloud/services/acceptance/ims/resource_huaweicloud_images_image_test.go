@@ -16,22 +16,43 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 )
 
-func TestAccImsImage_basic(t *testing.T) {
-	var image cloudimages.Image
+func getImageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	imsClient, err := cfg.ImageV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating IMS v2 client: %s", err)
+	}
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := rName + "-update"
-	resourceName := "huaweicloud_images_image.test"
+	img, err := ims.GetCloudImage(imsClient, state.Primary.ID)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving image: %s", err)
+	}
+
+	return &img, nil
+}
+
+func TestAccImsImage_basic(t *testing.T) {
+	var (
+		image        cloudimages.Image
+		rName        = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+		rNameUpdate  = rName + "-update"
+		resourceName = "huaweicloud_images_image.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&image,
+		getImageResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckImsImageDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccImsImage_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "min_ram", "0"),
@@ -43,7 +64,7 @@ func TestAccImsImage_basic(t *testing.T) {
 			{
 				Config: testAccImsImage_update(rName, rNameUpdate, 1024, 4096),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "description",
@@ -58,7 +79,7 @@ func TestAccImsImage_basic(t *testing.T) {
 			{
 				Config: testAccImsImage_update(rName, rNameUpdate, 4096, 8192),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "description",
@@ -73,7 +94,7 @@ func TestAccImsImage_basic(t *testing.T) {
 			{
 				Config: testAccImsImage_update(rName, rNameUpdate, 0, 0),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "description",
@@ -95,20 +116,27 @@ func TestAccImsImage_basic(t *testing.T) {
 }
 
 func TestAccImsImage_withEpsId(t *testing.T) {
-	var image cloudimages.Image
+	var (
+		image        cloudimages.Image
+		rName        = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+		resourceName = "huaweicloud_images_image.test"
+	)
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_images_image.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&image,
+		getImageResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckImsImageDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccImsImage_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
@@ -118,21 +146,28 @@ func TestAccImsImage_withEpsId(t *testing.T) {
 }
 
 func TestAccImsImage_wholeImage_withServer(t *testing.T) {
-	var image cloudimages.Image
+	var (
+		image        cloudimages.Image
+		rName        = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+		rNameUpdate  = rName + "-update"
+		resourceName = "huaweicloud_images_image.test"
+	)
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := rName + "-update"
-	resourceName := "huaweicloud_images_image.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&image,
+		getImageResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckImsImageDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccImsImage_wholeImage_withServer(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -142,7 +177,7 @@ func TestAccImsImage_wholeImage_withServer(t *testing.T) {
 			{
 				Config: testAccImsImage_wholeImage_withServer_update(rName, rNameUpdate, 1024, 4096),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "min_ram", "1024"),
@@ -155,7 +190,7 @@ func TestAccImsImage_wholeImage_withServer(t *testing.T) {
 			{
 				Config: testAccImsImage_wholeImage_withServer_update(rName, rNameUpdate, 4096, 8192),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "min_ram", "4096"),
@@ -168,7 +203,7 @@ func TestAccImsImage_wholeImage_withServer(t *testing.T) {
 			{
 				Config: testAccImsImage_wholeImage_withServer_update(rName, rNameUpdate, 0, 0),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "min_ram", "0"),
@@ -189,11 +224,18 @@ func TestAccImsImage_wholeImage_withServer(t *testing.T) {
 }
 
 func TestAccImsImage_wholeImage_withBackup(t *testing.T) {
-	var image cloudimages.Image
+	var (
+		image        cloudimages.Image
+		rName        = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+		rNameUpdate  = rName + "-update"
+		resourceName = "huaweicloud_images_image.test"
+	)
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := rName + "-update"
-	resourceName := "huaweicloud_images_image.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&image,
+		getImageResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -201,12 +243,12 @@ func TestAccImsImage_wholeImage_withBackup(t *testing.T) {
 			acceptance.TestAccPreCheckImsBackupId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckImsImageDestroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccImsImage_wholeImage_withBackup(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -216,7 +258,7 @@ func TestAccImsImage_wholeImage_withBackup(t *testing.T) {
 			{
 				Config: testAccImsImage_wholeImage_withBackup_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImsImageExists(resourceName, &image),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -231,54 +273,6 @@ func TestAccImsImage_wholeImage_withBackup(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckImsImageDestroy(s *terraform.State) error {
-	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	imageClient, err := cfg.ImageV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating Image: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_images_image" {
-			continue
-		}
-
-		_, err := ims.GetCloudImage(imageClient, rs.Primary.ID)
-		if err == nil {
-			return fmt.Errorf("image still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckImsImageExists(n string, image *cloudimages.Image) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("IMS Resource not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("no ID is set")
-		}
-
-		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		imageClient, err := cfg.ImageV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating Image: %s", err)
-		}
-
-		found, err := ims.GetCloudImage(imageClient, rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-
-		*image = *found
-		return nil
-	}
 }
 
 func testAccImsImage_basic(rName string) string {
