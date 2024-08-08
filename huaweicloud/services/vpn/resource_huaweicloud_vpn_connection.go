@@ -379,9 +379,6 @@ func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	createConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			201,
-		},
 	}
 	createConnectionOpt.JSONBody = utils.RemoveNil(buildCreateConnectionBodyParams(d))
 	createConnectionResp, err := createConnectionClient.Request("POST", createConnectionPath, &createConnectionOpt)
@@ -947,13 +944,10 @@ func resourceConnectionDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 	deleteConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
 	}
 	_, err = deleteConnectionClient.Request("DELETE", deleteConnectionPath, &deleteConnectionOpt)
 	if err != nil {
-		return diag.Errorf("error deleting VPN connection: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting VPN connection")
 	}
 
 	err = deleteConnectionWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
