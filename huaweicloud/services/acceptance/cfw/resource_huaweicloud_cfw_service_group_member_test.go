@@ -26,7 +26,7 @@ func getServiceGroupMemberResourceFunc(cfg *config.Config, state *terraform.Reso
 	)
 	getServiceGroupMemberClient, err := cfg.NewServiceClient(getServiceGroupMemberProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating CFW Client: %s", err)
+		return nil, fmt.Errorf("error creating CFW client: %s", err)
 	}
 
 	getServiceGroupMemberPath := getServiceGroupMemberClient.Endpoint + getServiceGroupMemberHttpUrl
@@ -37,9 +37,6 @@ func getServiceGroupMemberResourceFunc(cfg *config.Config, state *terraform.Reso
 
 	getServiceGroupMemberOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getServiceGroupMemberResp, err := getServiceGroupMemberClient.Request("GET", getServiceGroupMemberPath, &getServiceGroupMemberOpt)
 	if err != nil {
