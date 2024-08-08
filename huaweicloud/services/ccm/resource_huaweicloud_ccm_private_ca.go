@@ -157,12 +157,6 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"crl_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-						},
 						"obs_bucket_name": {
 							Type:     schema.TypeString,
 							Required: true,
@@ -176,6 +170,13 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 						"crl_dis_point": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						"crl_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: "schema: Computed",
 						},
 					},
 				},

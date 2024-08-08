@@ -177,9 +177,6 @@ The `validity` block supports:
 <a name="block-crl_configuration"></a>
 The `crl_configuration` block supports:
 
-* `crl_name` - (Optional, String, ForceNew) Specifies the name of the certificate revocation list.
-  It is [issuer_name] by default. Changing this parameter will create a new resource.
-
 * `obs_bucket_name` - (Required, String, ForceNew) Specifies the OBS bucket name.
   Changing this parameter will create a new resource.
 
@@ -217,6 +214,8 @@ In addition to all arguments above, the following attributes are exported:
 * `free_quota` - The free quota of the private certificate.
 
 * `crl_configuration/crl_dis_point` - The address of the CRL file in the OBS bucket.
+
+* `crl_configuration/crl_name` - The name of the certificate revocation list.
 
 ## Timeouts
 
