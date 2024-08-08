@@ -890,6 +890,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_sdrs_domain": sdrs.DataSourceSDRSDomain(),
 
+			"huaweicloud_secmaster_workflows": secmaster.DataSourceSecmasterWorkflows(),
+
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
 
 			"huaweicloud_smn_topics":            smn.DataSourceTopics(),
