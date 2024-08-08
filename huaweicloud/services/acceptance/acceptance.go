@@ -121,6 +121,7 @@ var (
 	HW_CCM_CERTIFICATE_PROJECT_UPDATED = os.Getenv("HW_CCM_CERTIFICATE_PROJECT_UPDATED")
 	HW_CCM_CERTIFICATE_NAME            = os.Getenv("HW_CCM_CERTIFICATE_NAME")
 	HW_CCM_SSL_CERTIFICATE_ID          = os.Getenv("HW_CCM_SSL_CERTIFICATE_ID")
+	HW_CCM_ENABLE_FLAG                 = os.Getenv("HW_CCM_ENABLE_FLAG")
 
 	HW_DMS_ENVIRONMENT   = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER = os.Getenv("HW_SMS_SOURCE_SERVER")
@@ -1150,6 +1151,13 @@ func TestAccPreCheckCCMCertificateName(t *testing.T) {
 func TestAccPreCheckCCMSSLCertificateId(t *testing.T) {
 	if HW_CCM_SSL_CERTIFICATE_ID == "" {
 		t.Skip("HW_CCM_SSL_CERTIFICATE_ID must be set for CCM SSL acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCCMEnableFlag(t *testing.T) {
+	if HW_CCM_ENABLE_FLAG == "" {
+		t.Skip("Skip the CCM acceptance tests.")
 	}
 }
 
