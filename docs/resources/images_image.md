@@ -67,6 +67,18 @@ resource "huaweicloud_images_image" "test" {
 }
 ```
 
+### Creating a data image from the data disk bound to the ECS instance
+
+```hcl
+variable "image_name" {}
+variable "volume_id" {}
+
+resource "huaweicloud_images_image" "test" {
+  name      = var.image_name
+  volume_id = var.volume_id
+}
+```
+
 ### Creating a whole image from CBR backup
 
 ```hcl
@@ -99,6 +111,10 @@ The following arguments are supported:
 * `image_url` - (Optional, String, ForceNew) The URL of the external image file in the OBS bucket. This parameter is
   mandatory when you create a private image from an external file uploaded to an OBS bucket. The format is *OBS bucket
   name:Image file name*.
+
+* `volume_id` - (Optional, String, ForceNew) Specifies the ID of the data disk. This parameter is mandatory when you
+  create a private data image from an ECS, and the data disk must be bound to the ECS instance.
+  Changing this parameter will create a new resource.
 
 * `min_ram` - (Optional, Int) The minimum memory of the image in the unit of MB. The default value is 0,
   indicating that the memory is not restricted.
