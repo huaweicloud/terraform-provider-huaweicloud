@@ -124,7 +124,7 @@ func dataSourceAomPromInstancesRead(_ context.Context, d *schema.ResourceData, m
 	listInstancesPath := client.Endpoint + listInstancesHttpUrl + buildListInstancesQueryParams(d)
 	listInstancesOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(d),
+		MoreHeaders:      buildHeadersForDataSource(cfg, d),
 	}
 	listInstancesResp, err := client.Request("GET", listInstancesPath, &listInstancesOpt)
 	if err != nil {

@@ -96,10 +96,9 @@ func TestAccMultiAccountAggregationRule_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"enterprise_project_id"},
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -124,7 +123,6 @@ func testMultiAccountAggregationRule_basic(name string) string {
 resource "huaweicloud_aom_multi_account_aggregation_rule" "test" {
   instance_id            = huaweicloud_aom_prom_instance.test.id
   send_to_source_account = true
-  enterprise_project_id  = "0"
 
   accounts {
     id   = "%s"

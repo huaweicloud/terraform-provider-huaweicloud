@@ -93,22 +93,8 @@ func ResourceMultiAccountAggregationRule() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 		},
 	}
-}
-
-func buildHeaders(d *schema.ResourceData) map[string]string {
-	moreHeaders := map[string]string{
-		"Content-Type": "application/json",
-	}
-	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		moreHeaders["Enterprise-Project-Id"] = v.(string)
-	}
-	return moreHeaders
 }
 
 func resourceMultiAccountAggregationRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -124,8 +110,10 @@ func resourceMultiAccountAggregationRuleCreate(ctx context.Context, d *schema.Re
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(d),
-		JSONBody:         utils.RemoveNil(buildMultiAccountAggregationRuleBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildMultiAccountAggregationRuleBodyParams(d)),
 	}
 
 	_, err = client.Request("POST", createPath, &createOpt)
@@ -210,13 +198,15 @@ func resourceMultiAccountAggregationRuleRead(_ context.Context, d *schema.Resour
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func listMultiAccountAggregationRules(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+func getMultiAccountAggregationRule(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
 	listHttpUrl := "v1/{project_id}/aom/aggr-config"
 	listPath := client.Endpoint + listHttpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(d),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	listResp, err := client.Request("GET", listPath, &listOpt)
@@ -226,15 +216,6 @@ func listMultiAccountAggregationRules(client *golangsdk.ServiceClient, d *schema
 	listRespBody, err := utils.FlattenResponse(listResp)
 	if err != nil {
 		return nil, fmt.Errorf("error flattening multi account aggregation rule: %s", err)
-	}
-
-	return listRespBody, nil
-}
-
-func getMultiAccountAggregationRule(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
-	listRespBody, err := listMultiAccountAggregationRules(client, d)
-	if err != nil {
-		return nil, err
 	}
 
 	jsonPath := fmt.Sprintf("[?dest_prometheus_id=='%s']|[0]", d.Id())
@@ -296,8 +277,10 @@ func resourceMultiAccountAggregationRuleUpdate(ctx context.Context, d *schema.Re
 		updatePath = strings.ReplaceAll(updatePath, "{metric_aggr_id}", d.Id())
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders:      buildHeaders(d),
-			JSONBody:         utils.RemoveNil(buildMultiAccountAggregationRuleBodyParams(d)),
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildMultiAccountAggregationRuleBodyParams(d)),
 		}
 
 		_, err = client.Request("PUT", updatePath, &updateOpt)
@@ -329,7 +312,9 @@ func resourceMultiAccountAggregationRuleDelete(_ context.Context, d *schema.Reso
 	deletePath = strings.ReplaceAll(deletePath, "{metric_aggr_id}", d.Id())
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(d),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
