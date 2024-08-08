@@ -2,11 +2,15 @@ package aom
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -92,6 +96,14 @@ func DataSourceMultiAccountAggregationRules() *schema.Resource {
 	}
 }
 
+func buildHeadersForDataSource(cfg *config.Config, d *schema.ResourceData) map[string]string {
+	moreHeaders := map[string]string{
+		"Content-Type":          "application/json",
+		"Enterprise-Project-Id": cfg.DataGetEnterpriseProjectID(d),
+	}
+	return moreHeaders
+}
+
 func dataSourceMultiAccountAggregationRulesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -100,7 +112,7 @@ func dataSourceMultiAccountAggregationRulesRead(_ context.Context, d *schema.Res
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	results, err := listMultiAccountAggregationRules(client, d)
+	results, err := listMultiAccountAggregationRules(cfg, client, d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -117,6 +129,27 @@ func dataSourceMultiAccountAggregationRulesRead(_ context.Context, d *schema.Res
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func listMultiAccountAggregationRules(cfg *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	listHttpUrl := "v1/{project_id}/aom/aggr-config"
+	listPath := client.Endpoint + listHttpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildHeadersForDataSource(cfg, d),
+	}
+
+	listResp, err := client.Request("GET", listPath, &listOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving multi account aggregation rule: %s", err)
+	}
+	listRespBody, err := utils.FlattenResponse(listResp)
+	if err != nil {
+		return nil, fmt.Errorf("error flattening multi account aggregation rule: %s", err)
+	}
+
+	return listRespBody, nil
 }
 
 func flattenRules(rules []interface{}) []interface{} {

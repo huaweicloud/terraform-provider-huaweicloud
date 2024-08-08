@@ -54,8 +54,6 @@ The following arguments are supported:
 * `send_to_source_account` - (Optional, Bool) Specifies whether the member accounts retain metric data after they are
   connected to the prometheus instance for aggregation.
 
-* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the prometheus instance belongs.
-
 <a name="accounts_struct"></a>
 The `accounts` block supports:
 
@@ -88,22 +86,4 @@ The AOM multi account aggregation rule resource can be imported using the `id`, 
 
 ```bash
 $ terraform import huaweicloud_aom_multi_account_aggregation_rule.test <id>
-```
-
-Note that the imported state may not be identical to your resource definition, due to some attributes missing from
-the API response. The missing attributes include: `enterprise_project_id`.
-It is generally recommended running `terraform plan` after importing a multi account aggregation rule.
-You can then decide if changes should be applied to the multi account aggregation rule, or the resource definition
-should be updated to align with the multi account aggregation rule. Also you can ignore changes as below.
-
-```hcl
-resource "huaweicloud_aom_multi_account_aggregation_rule" "test" {
-  ...
-
-  lifecycle {
-    ignore_changes = [
-      enterprise_project_id,
-    ]
-  }
-}
 ```
