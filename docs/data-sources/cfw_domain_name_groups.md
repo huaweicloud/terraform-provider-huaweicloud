@@ -36,7 +36,9 @@ The following arguments are supported:
 * `key_word` - (Optional, String) Specifies the key word.
 
 * `type` - (Optional, String) Specifies the domain name group type.
-  **0** means URL filtering, **1** means domain parse.
+  The value can be:
+  + **0**: means application type;
+  + **1**: means network type.
 
 * `config_status` - (Optional, String) Specifies the configuration status.
   The valid values are as follows:
