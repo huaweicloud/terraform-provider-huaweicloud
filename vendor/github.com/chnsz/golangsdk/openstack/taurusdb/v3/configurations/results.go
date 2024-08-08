@@ -21,3 +21,17 @@ func (lr ListResult) Extract() ([]Configuration, error) {
 	err := lr.Result.ExtractInto(&a)
 	return a.Configurations, err
 }
+
+type JobResponse struct {
+	JobID string `json:"job_id"`
+}
+
+type JobResult struct {
+	golangsdk.Result
+}
+
+func (r JobResult) ExtractJobResponse() (*JobResponse, error) {
+	var job JobResponse
+	err := r.ExtractInto(&job)
+	return &job, err
+}

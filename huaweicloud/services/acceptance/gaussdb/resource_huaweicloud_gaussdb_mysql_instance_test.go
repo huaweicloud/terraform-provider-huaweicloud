@@ -38,6 +38,12 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "sql_filter_enabled", "true"),
+					resource.TestCheckResourceAttrPair(resourceName, "configuration_id",
+						"huaweicloud_gaussdb_mysql_parameter_template.test.0", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "configuration_name",
+						"huaweicloud_gaussdb_mysql_parameter_template.test.0", "name"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "default_authentication_plugin"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "mysql_native_password"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -52,9 +58,26 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "read_replicas", "4"),
 					resource.TestCheckResourceAttr(resourceName, "audit_log_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "sql_filter_enabled", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "configuration_id",
+						"huaweicloud_gaussdb_mysql_parameter_template.test.1", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "configuration_name",
+						"huaweicloud_gaussdb_mysql_parameter_template.test.1", "name"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "binlog_gtid_simple_recovery"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "ON"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"table_name_case_sensitivity",
+					"enterprise_project_id",
+					"password",
+					"parameters",
+				},
 			},
 		},
 	})
@@ -184,17 +207,30 @@ func testAccCheckGaussDBInstanceExists(n string, instance *instances.TaurusDBIns
 
 func testAccGaussDBInstanceConfig_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_gaussdb_mysql_flavors" "test" {
-  engine = "gaussdb-mysql"
+  engine  = "gaussdb-mysql"
   version = "8.0"
 }
 
+resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
+  count = 2
+
+  name              = "%[2]s_${count.index}"
+  datastore_engine  = "gaussdb-mysql"
+  datastore_version = "8.0"
+
+  parameter_values = {
+    default_authentication_plugin = "sha256_password"
+    binlog_gtid_simple_recovery   = "OFF"
+  }
+}
+
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
-  name                     = "%s"
+  name                     = "%[2]s"
   password                 = "Test@12345678"
   flavor                   = data.huaweicloud_gaussdb_mysql_flavors.test.flavors[0].name
   vpc_id                   = huaweicloud_vpc.test.id
@@ -205,6 +241,12 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   read_replicas            = 2
   enterprise_project_id    = "0"
   sql_filter_enabled       = true
+  configuration_id         = huaweicloud_gaussdb_mysql_parameter_template.test[0].id
+
+  parameters {
+    name  = "default_authentication_plugin"
+    value = "mysql_native_password"
+  }
 
   backup_strategy {
     start_time = "09:00-10:00"
@@ -221,17 +263,30 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
 
 func testAccGaussDBInstanceConfig_basicUpdate(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_gaussdb_mysql_flavors" "test" {
-  engine = "gaussdb-mysql"
+  engine  = "gaussdb-mysql"
   version = "8.0"
 }
 
+resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
+  count = 2
+
+  name              = "%[2]s_${count.index}"
+  datastore_engine  = "gaussdb-mysql"
+  datastore_version = "8.0"
+
+  parameter_values = {
+    default_authentication_plugin = "sha256_password"
+    binlog_gtid_simple_recovery   = "OFF"
+  }
+}
+
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
-  name                     = "%s"
+  name                     = "%[2]s"
   password                 = "Test@123456789"
   flavor                   = data.huaweicloud_gaussdb_mysql_flavors.test.flavors[1].name
   vpc_id                   = huaweicloud_vpc.test.id
@@ -243,6 +298,12 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   enterprise_project_id    = "0"
   audit_log_enabled        = true
   sql_filter_enabled       = false
+  configuration_id         = huaweicloud_gaussdb_mysql_parameter_template.test[1].id
+
+  parameters {
+    name  = "binlog_gtid_simple_recovery"
+    value = "ON"
+  }
 
   backup_strategy {
     start_time = "12:00-13:00"

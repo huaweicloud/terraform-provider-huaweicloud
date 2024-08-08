@@ -22,12 +22,15 @@ import (
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
+	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/parameters"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/sqlfilter"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+type ctxType string
 
 // @API GaussDBforMySQL GET /v3/{project_id}/instances
 // @API GaussDBforMySQL GET /v3/{project_id}/configurations
@@ -37,6 +40,7 @@ import (
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/sql-filter/switch
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/backups/policy/update
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/restart
 // @API GaussDBforMySQL GET /v3/{project_id}/jobs
 // @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/tags/action
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/name
@@ -45,14 +49,16 @@ import (
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/nodes/enlarge
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}/nodes/{nodeID}
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/volume/extend
-// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/backups/policy/update
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}/proxy
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/enlarge
+// @API GaussDBforMySQL PUT /v3/{project_id}/configurations/{configuration_id}/apply
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/configurations
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy
 // @API GaussDBforMySQL GET /v3/{project_id}/instance/{instance_id}/audit-log/switch-status
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/sql-filter/switch
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/tags
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/configurations
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -124,13 +130,6 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
-			},
-			"configuration_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -231,17 +230,22 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"proxy_flavor": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
-			},
-			"proxy_node_num": {
-				Type:       schema.TypeInt,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
+			"parameters": {
+				Type: schema.TypeSet,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+				Optional: true,
+				Computed: true,
 			},
 			"force_import": {
 				Type:     schema.TypeBool,
@@ -348,6 +352,26 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
+			},
+
+			// Deprecated
+			"proxy_flavor": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
+			},
+			"proxy_node_num": {
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
+			},
+			"configuration_name": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "Deprecated",
 			},
 		},
 	}
@@ -588,6 +612,12 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if parametersRaw := d.Get("parameters").(*schema.Set); parametersRaw.Len() > 0 {
+		if err = initializeParameters(ctx, d, client, parametersRaw.List()); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -600,7 +630,55 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceGaussDBInstanceRead(ctx, d, meta)
 }
 
-func resourceGaussDBInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func buildGaussDBMySQLParameters(params []interface{}) parameters.UpdateParametersOpts {
+	values := make(map[string]string)
+	for _, v := range params {
+		key := v.(map[string]interface{})["name"].(string)
+		value := v.(map[string]interface{})["value"].(string)
+		values[key] = value
+	}
+	return parameters.UpdateParametersOpts{ParameterValues: values}
+}
+
+func initializeParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, parametersRaw []interface{}) error {
+	updateOpts := buildGaussDBMySQLParameters(parametersRaw)
+	restartRequired, err := modifyParameters(ctx, client, d, schema.TimeoutCreate, &updateOpts)
+	if err != nil {
+		return err
+	}
+
+	if restartRequired {
+		return restartGaussDBMySQLInstance(ctx, client, d, schema.TimeoutCreate)
+	}
+	return nil
+}
+
+func restartGaussDBMySQLInstance(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	opts := instances.RestartOpts{}
+	// If parameters which requires restart changed, reboot the instance.
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.Restart(client, d.Id(), opts).ExtractJobResponse()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error restarting GaussDB MySQL instance (%s): %s", d.Id(), err)
+	}
+
+	job := r.(*instances.JobResponse)
+	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
+}
+
+func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.GaussdbV3Client(region)
@@ -681,7 +759,10 @@ func resourceGaussDBInstanceRead(_ context.Context, d *schema.ResourceData, meta
 		log.Printf("[WARN] error fetching tags of Gaussdb mysql instance (%s): %s", d.Id(), err)
 	}
 
-	return diag.FromErr(mErr.ErrorOrNil())
+	diagErr := setGaussDBMySQLParameters(ctx, d, client)
+	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
+
+	return resErr
 }
 
 func setConfigurationId(d *schema.ResourceData, client *golangsdk.ServiceClient, configurationId string) {
@@ -805,6 +886,57 @@ func setAuditLog(d *schema.ResourceData, client *golangsdk.ServiceClient, instan
 	d.Set("audit_log_enabled", status)
 }
 
+func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
+	parametersList, err := parameters.List(client, d.Id())
+	if err != nil {
+		return nil
+	}
+
+	var configurationRestart bool
+	var params []map[string]interface{}
+	rawParameterList := d.Get("parameters").(*schema.Set).List()
+	rawParameterMap := make(map[string]bool)
+	for _, rawParameter := range rawParameterList {
+		rawParameterMap[rawParameter.(map[string]interface{})["name"].(string)] = true
+	}
+	for _, v := range parametersList {
+		if v.RestartRequired {
+			configurationRestart = true
+		}
+		if rawParameterMap[v.Name] {
+			p := map[string]interface{}{
+				"name":  v.Name,
+				"value": v.Value,
+			}
+			params = append(params, p)
+		}
+	}
+
+	var diagnostics diag.Diagnostics
+	if len(params) > 0 {
+		if err = d.Set("parameters", params); err != nil {
+			log.Printf("error saving parameters to GaussDB MySQL instance (%s): %s", d.Id(), err)
+		}
+		if ctx.Value(ctxType("parametersChanged")) == "true" {
+			diagnostics = append(diagnostics, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "Parameters Changed",
+				Detail:   "Parameters changed which needs reboot.",
+			})
+		}
+	}
+	if configurationRestart && ctx.Value(ctxType("configurationChanged")) == "true" {
+		diagnostics = append(diagnostics, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Configuration Changed",
+			Detail:   "Configuration changed which needs reboot.",
+		})
+	}
+	if len(diagnostics) > 0 {
+		return diagnostics
+	}
+	return nil
+}
 func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -876,6 +1008,29 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChange("sql_filter_enabled") {
 		err = switchSQLFilter(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("configuration_id") {
+		ctx, err = updateConfiguration(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		// if parameters is set, it should be modified
+		if params, ok := d.GetOk("parameters"); ok {
+			updateOpts := buildGaussDBMySQLParameters(params.(*schema.Set).List())
+			_, err = modifyParameters(ctx, client, d, schema.TimeoutUpdate, &updateOpts)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
+	if d.HasChange("parameters") && !d.HasChanges("configuration_id") {
+		ctx, err = updateRdsParameters(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1436,6 +1591,85 @@ func switchSQLFilter(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 	}
 	job := r.(*sqlfilter.JobResponse)
 	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(schema.TimeoutUpdate))
+}
+
+func updateConfiguration(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) (context.Context, error) {
+	opts := configurations.ApplyOpts{
+		InstanceIds: []string{d.Id()},
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := configurations.Apply(client, d.Get("configuration_id").(string), opts).ExtractJobResponse()
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return ctx, fmt.Errorf("error updating GausdDB MySQL instance configuration: %s ", err)
+	}
+
+	// wait 30 seconds for the instance apply configuration completed
+	// lintignore:R018
+	time.Sleep(30 * time.Second)
+
+	// Sending configurationChanged to Read to warn users the instance needs a reboot.
+	ctx = context.WithValue(ctx, ctxType("configurationChanged"), "true")
+
+	return ctx, nil
+}
+
+func updateRdsParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) (context.Context, error) {
+	o, n := d.GetChange("parameters")
+	os, ns := o.(*schema.Set), n.(*schema.Set)
+	change := ns.Difference(os)
+	if change.Len() > 0 {
+		updateOpts := buildGaussDBMySQLParameters(change.List())
+		restartRequired, err := modifyParameters(ctx, client, d, schema.TimeoutUpdate, &updateOpts)
+		if err != nil {
+			return ctx, err
+		}
+		if restartRequired {
+			// Sending parametersChanged to Read to warn users the instance needs a reboot.
+			ctx = context.WithValue(ctx, ctxType("parametersChanged"), "true")
+		}
+	}
+
+	return ctx, nil
+}
+
+func modifyParameters(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string,
+	parameterOpts *parameters.UpdateParametersOpts) (bool, error) {
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := parameters.Update(client, d.Id(), *parameterOpts).ExtractJobResponse()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return false, fmt.Errorf("error modifying parameters for GaussDB MySQL instance (%s): %s", d.Id(), err)
+	}
+	job := r.(*parameters.JobResponse)
+	err = checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
+	if err != nil {
+		return false, err
+	}
+	return job.RestartRequired, nil
 }
 
 func checkGaussDBMySQLJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {

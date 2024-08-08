@@ -50,6 +50,10 @@ func actionURL(c *golangsdk.ServiceClient, instanceID string) string {
 	return c.ServiceURL("instances", instanceID, "action")
 }
 
+func restartURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "restart")
+}
+
 func jobURL(sc *golangsdk.ServiceClient) string {
 	return sc.ServiceURL("jobs")
 }

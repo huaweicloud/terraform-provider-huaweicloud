@@ -441,3 +441,33 @@ func ListDeh(client *golangsdk.ServiceClient) pagination.Pager {
 
 	return pageList
 }
+
+type RestartOpts struct {
+	Delay bool `json:"delay"`
+}
+
+type RestartBuilder interface {
+	ToRestartMap() (map[string]interface{}, error)
+}
+
+func (opts RestartOpts) ToRestartMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func Restart(client *golangsdk.ServiceClient, instanceId string, opts RestartBuilder) (r JobResult) {
+	b, err := opts.ToRestartMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(restartURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
