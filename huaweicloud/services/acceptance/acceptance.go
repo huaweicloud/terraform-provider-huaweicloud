@@ -358,8 +358,9 @@ var (
 	HW_DATAARTS_CONNECTION_ID   = os.Getenv("HW_DATAARTS_CONNECTION_ID")
 	HW_DATAARTS_CONNECTION_NAME = os.Getenv("HW_DATAARTS_CONNECTION_NAME")
 	// Data Service
-	HW_DATAARTS_REVIEWER_NAME  = os.Getenv("HW_DATAARTS_REVIEWER_NAME")
-	HW_DATAARTS_DLI_QUEUE_NAME = os.Getenv("HW_DATAARTS_DLI_QUEUE_NAME")
+	HW_DATAARTS_REVIEWER_NAME       = os.Getenv("HW_DATAARTS_REVIEWER_NAME")
+	HW_DATAARTS_DLI_QUEUE_NAME      = os.Getenv("HW_DATAARTS_DLI_QUEUE_NAME")
+	HW_DATAARTS_INSTANCE_ID_IN_APIG = os.Getenv("HW_DATAARTS_INSTANCE_ID_IN_APIG")
 
 	HW_EVS_AVAILABILITY_ZONE_GPSSD2 = os.Getenv("HW_EVS_AVAILABILITY_ZONE_GPSSD2")
 	HW_EVS_AVAILABILITY_ZONE_ESSD2  = os.Getenv("HW_EVS_AVAILABILITY_ZONE_ESSD2")
@@ -1791,6 +1792,13 @@ func TestAccPreCheckDataArtsReviewerName(t *testing.T) {
 func TestAccPreCheckDataArtsRelatedDliQueueName(t *testing.T) {
 	if HW_DATAARTS_DLI_QUEUE_NAME == "" {
 		t.Skip("HW_DATAARTS_DLI_QUEUE_NAME must be set for the DataService tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDataArtsDataServiceApigInstanceId(t *testing.T) {
+	if HW_DATAARTS_INSTANCE_ID_IN_APIG == "" {
+		t.Skip("HW_DATAARTS_INSTANCE_ID_IN_APIG must be set for the DataService tests")
 	}
 }
 
