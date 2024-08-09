@@ -84,7 +84,7 @@ func TestAccKmsGrant_basic(t *testing.T) {
 				Config: testKmsGrant_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "operations.#", "2"),
+					resource.TestCheckResourceAttr(rName, "operations.#", "8"),
 					resource.TestCheckResourceAttrPair(rName, "key_id", "huaweicloud_kms_key.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "grantee_principal", "huaweicloud_identity_user.test", "id"),
 					resource.TestCheckResourceAttrSet(rName, "creator"),
@@ -119,8 +119,18 @@ resource "huaweicloud_identity_user" "test" {
 resource "huaweicloud_kms_grant" "test" {
   key_id             = huaweicloud_kms_key.test.id
   grantee_principal  = huaweicloud_identity_user.test.id
-  operations         = ["create-datakey", "encrypt-datakey"]
   retiring_principal = huaweicloud_identity_user.test.id
+
+  operations = [
+    "create-datakey",
+    "create-datakey-without-plaintext",
+    "describe-key",
+    "encrypt-data",
+    "decrypt-data",
+    "decrypt-datakey",
+    "retire-grant",
+    "encrypt-datakey"
+  ]
 }
 `, name, name)
 }
