@@ -49,6 +49,21 @@ resource "huaweicloud_images_image" "ims_test_file" {
 }
 ```
 
+### Creating a data image from OBS bucket
+
+```hcl
+variable "image_name" {}
+variable "image_url" {}
+variable "os_type" {}
+
+resource "huaweicloud_images_image" "test" {
+  name      = var.image_name
+  image_url = var.image_url
+  min_disk  = 40
+  os_type   = var.os_type
+}
+```
+
 ### Creating a whole image from an existing ECS
 
 ```hcl
@@ -128,6 +143,11 @@ The following arguments are supported:
 * `min_disk` - (Optional, Int, ForceNew) The minimum size of the system disk in the unit of GB. This parameter is
   mandatory when you create a private image from an external file uploaded to an OBS bucket. The value ranges from 1 GB
   to 1024 GB.
+
+* `os_type` - (Optional, String, ForceNew) Specifies the operating system type of the data image. The value can be
+  **Windows** or **Linux**. This parameter is valid and mandatory only when you create a private data image from an
+  external file uploaded to an OBS bucket. In other cases, it is only used as an attribute.
+  Changing this parameter will create a new resource.
 
 * `os_version` - (Optional, String, ForceNew) The OS version. This parameter is valid when you create a private image
   from an external file uploaded to an OBS bucket.

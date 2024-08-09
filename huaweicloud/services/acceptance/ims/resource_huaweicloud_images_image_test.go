@@ -59,6 +59,7 @@ func TestAccImsImage_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "max_ram", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "os_type"),
 				),
 			},
 			{
@@ -172,6 +173,7 @@ func TestAccImsImage_wholeImage_withServer(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "os_type"),
 				),
 			},
 			{
@@ -253,6 +255,7 @@ func TestAccImsImage_wholeImage_withBackup(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "os_type"),
 				),
 			},
 			{
@@ -306,10 +309,70 @@ func TestAccImsImage_dataImage_withVolumeId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrPair(resourceName, "volume_id", "huaweicloud_evs_volume.test", "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "os_type"),
 				),
 			},
 			{
 				Config: testAccImsImage_dataImage_withVolumeId_update(rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "description", "description update"),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "min_ram", "1024"),
+					resource.TestCheckResourceAttr(resourceName, "max_ram", "4096"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: false,
+			},
+		},
+	})
+}
+
+func TestAccImsImage_dataImage_fromOBS(t *testing.T) {
+	var (
+		image        cloudimages.Image
+		rName        = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+		rNameUpdate  = rName + "-update"
+		resourceName = "huaweicloud_images_image.image_test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&image,
+		getImageResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckImsImageUrl(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccImsImage_dataImage_fromOBS_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "image_url", acceptance.HW_IMS_IMAGE_URL),
+					resource.TestCheckResourceAttr(resourceName, "min_disk", "60"),
+					resource.TestCheckResourceAttr(resourceName, "os_type", "Windows"),
+					resource.TestCheckResourceAttr(resourceName, "description", "description test"),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+				),
+			},
+			{
+				Config: testAccImsImage_dataImage_fromOBS_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
@@ -636,4 +699,41 @@ resource "huaweicloud_images_image" "image_test" {
   }
 }
 `, testAccImsImage_dataImage_withVolumeId_base(rName), rName)
+}
+
+func testAccImsImage_dataImage_fromOBS_basic(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_images_image" "image_test" {
+  name        = "%[1]s"
+  image_url   = "%[2]s"
+  min_disk    = 60
+  os_type     = "Windows"
+  description = "description test"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, rName, acceptance.HW_IMS_IMAGE_URL)
+}
+
+func testAccImsImage_dataImage_fromOBS_update(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_images_image" "image_test" {
+  name        = "%[1]s"
+  image_url   = "%[2]s"
+  min_disk    = 60
+  os_type     = "Windows"
+  description = "description update"
+  min_ram     = 1024
+  max_ram     = 4096
+
+  tags = {
+    foo  = "bar"
+    key  = "value1"
+    key2 = "value2"
+  }
+}
+`, rName, acceptance.HW_IMS_IMAGE_URL)
 }

@@ -27,6 +27,7 @@ import (
 
 // @API IMS POST /v2/cloudimages/action
 // @API IMS POST /v1/cloudimages/wholeimages/action
+// @API IMS POST /v1/cloudimages/dataimages/action
 // @API IMS GET /v2/cloudimages
 // @API IMS PATCH /v2/cloudimages/{image_id}
 // @API CBR GET /v3/{project_id}/backups/{backup_id}
@@ -95,6 +96,14 @@ func ResourceImsImage() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"instance_id"},
+			},
+			// `os_type` is valid and required only when creating a data image from an OBS bucket.
+			// In other cases, it is only used as an attribute.
+			"os_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 			// following are valid for creating an image from an OBS
 			"os_version": {
@@ -299,22 +308,46 @@ func createByInstanceId(d *schema.ResourceData, cfg *config.Config, client *gola
 
 func createByImageUrl(d *schema.ResourceData, cfg *config.Config, client *golangsdk.ServiceClient,
 	imageUrl string, imageTags []cloudimages.ImageTag) (*cloudimages.JobResponse, error) {
-	createOpts := &cloudimages.CreateByOBSOpts{
-		Name:                d.Get("name").(string),
-		Description:         d.Get("description").(string),
-		ImageUrl:            imageUrl,
-		MinDisk:             d.Get("min_disk").(int),
-		MaxRam:              d.Get("max_ram").(int),
-		MinRam:              d.Get("min_ram").(int),
-		OsVersion:           d.Get("os_version").(string),
-		IsConfig:            d.Get("is_config").(bool),
-		CmkId:               d.Get("cmk_id").(string),
-		Type:                d.Get("type").(string),
-		ImageTags:           imageTags,
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+	region := cfg.GetRegion(d)
+	osType, osTypeOk := d.GetOk("os_type")
+
+	switch {
+	case osTypeOk:
+		imsV1Client, err := cfg.ImageV1Client(region)
+		if err != nil {
+			return nil, fmt.Errorf("error creating IMS v1 client: %s", err)
+		}
+
+		createDataImageOpts := &cloudimages.CreateDataImageByOBSOpts{
+			Name:                d.Get("name").(string),
+			Description:         d.Get("description").(string),
+			OsType:              osType.(string),
+			ImageUrl:            imageUrl,
+			MinDisk:             d.Get("min_disk").(int),
+			CmkId:               d.Get("cmk_id").(string),
+			ImageTags:           imageTags,
+			EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+		}
+		log.Printf("[DEBUG] Create data image by OBS options: %#v", createDataImageOpts)
+		return cloudimages.CreateDataImageByOBS(imsV1Client, createDataImageOpts).ExtractJobResponse()
+	default:
+		createOpts := &cloudimages.CreateByOBSOpts{
+			Name:                d.Get("name").(string),
+			Description:         d.Get("description").(string),
+			ImageUrl:            imageUrl,
+			MinDisk:             d.Get("min_disk").(int),
+			MaxRam:              d.Get("max_ram").(int),
+			MinRam:              d.Get("min_ram").(int),
+			OsVersion:           d.Get("os_version").(string),
+			IsConfig:            d.Get("is_config").(bool),
+			CmkId:               d.Get("cmk_id").(string),
+			Type:                d.Get("type").(string),
+			ImageTags:           imageTags,
+			EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+		}
+		log.Printf("[DEBUG] Create by OBS options: %#v", createOpts)
+		return cloudimages.CreateImageByOBS(client, createOpts).ExtractJobResponse()
 	}
-	log.Printf("[DEBUG] Create by OBS options: %#v", createOpts)
-	return cloudimages.CreateImageByOBS(client, createOpts).ExtractJobResponse()
 }
 
 func createByBackupId(d *schema.ResourceData, cfg *config.Config,
@@ -392,6 +425,7 @@ func resourceImsImageRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	mErr = multierror.Append(
 		d.Set("name", img.Name),
+		d.Set("os_type", img.OsType),
 		d.Set("description", img.Description),
 		d.Set("min_ram", img.MinRam),
 		d.Set("visibility", img.Visibility),
