@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_organizations_account_invite_decliner
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Organizations
+paths:
+    /v1/received-handshakes/{handshake_id}/decline:
+        POST:
+            tag: Organizations

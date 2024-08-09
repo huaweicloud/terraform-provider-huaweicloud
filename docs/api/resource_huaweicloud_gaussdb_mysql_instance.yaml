@@ -22,6 +22,9 @@ paths:
     /v3/{project_id}/configurations:
         GET:
             tag: GaussDBforMySQL
+    /v3/{project_id}/configurations/{configuration_id}/apply:
+        PUT:
+            tag: GaussDBforMySQL
     /v3/{project_id}/dedicated-resources:
         GET:
             tag: GaussDBforNoSQL
@@ -47,6 +50,11 @@ paths:
     /v3/{project_id}/instances/{instance_id}/backups/policy/update:
         PUT:
             tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/configurations:
+        GET:
+            tag: GaussDBforMySQL
+        PUT:
+            tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/name:
         PUT:
             tag: GaussDBforMySQL
@@ -67,6 +75,9 @@ paths:
         POST:
             tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/proxy/enlarge:
+        POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/restart:
         POST:
             tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/sql-filter/switch:
