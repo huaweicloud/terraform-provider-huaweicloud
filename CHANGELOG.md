@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.67.1 (August 9, 2024)
+
+BUG FIXES:
+
+* resource/huaweicloud_compute_instance: fix user_data problem while updating hostname [GH-5373]
+
 ## 1.67.0 (July 30, 2024)
 
 * **New Resource:**
