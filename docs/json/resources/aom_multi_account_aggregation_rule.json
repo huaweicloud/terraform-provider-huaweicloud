@@ -5,10 +5,6 @@
         "huaweicloud_aom_multi_account_aggregation_rule": {
           "block": {
             "attributes": {
-              "enterprise_project_id": {
-                "type": "string",
-                "optional": true
-              },
               "id": {
                 "type": "string",
                 "computed": true

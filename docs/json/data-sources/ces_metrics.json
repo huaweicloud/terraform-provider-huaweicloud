@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_metrics": {
+          "block": {
+            "attributes": {
+              "dim_0": {
+                "type": "string",
+                "description": "The first metric dimension.",
+                "optional": true
+              },
+              "dim_1": {
+                "type": "string",
+                "description": "The second metric dimension.",
+                "optional": true
+              },
+              "dim_2": {
+                "type": "string",
+                "description": "The third metric dimension.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "metric_name": {
+                "type": "string",
+                "description": "The metric name.",
+                "optional": true
+              },
+              "metrics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dimensions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "metric_name": "string",
+                      "namespace": "string",
+                      "unit": "string"
+                    }
+                  ]
+                ],
+                "description": "The metric information list.",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "The metric namespace.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

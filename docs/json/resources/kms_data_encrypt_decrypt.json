@@ -2,58 +2,61 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_css_thesaurus": {
+        "huaweicloud_kms_data_encrypt_decrypt": {
           "block": {
             "attributes": {
-              "bucket_name": {
+              "action": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
               },
-              "cluster_id": {
+              "cipher_data": {
                 "type": "string",
-                "required": true,
+                "computed": true
+              },
+              "cipher_text": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "encryption_algorithm": {
+                "type": "string",
+                "optional": true,
                 "forcenew": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "main_object": {
+              "key_id": {
                 "type": "string",
                 "optional": true,
+                "forcenew": true
+              },
+              "plain_data": {
+                "type": "string",
+                "computed": true
+              },
+              "plain_text": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "plain_text_base64": {
+                "type": "string",
                 "computed": true
               },
               "region": {
-                "type": "string",
-                "computed": true
-              },
-              "status": {
-                "type": "string",
-                "computed": true
-              },
-              "stop_object": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
-              "synonym_object": {
-                "type": "string",
-                "optional": true,
-                "computed": true
-              },
-              "update_time": {
-                "type": "string",
-                "computed": true
+                "type": "string"
               }
             }
           },
           "product": {
-            "short": "CSS",
-            "name": "Cloud Search Service",
-            "catalog": "Analytics",
-            "name_cn": "云搜索服务",
-            "catalog_cn": "大数据"
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
           }
         }
       }

@@ -17,6 +17,10 @@
                 "type": "string",
                 "computed": true
               },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
               "region": {
                 "type": "string"
               },
@@ -37,6 +41,14 @@
                   "map",
                   "string"
                 ],
+                "optional": true
+              },
+              "volume_id": {
+                "type": "string",
+                "optional": true
+              },
+              "volume_type_id": {
+                "type": "string",
                 "optional": true
               },
               "volumes": {

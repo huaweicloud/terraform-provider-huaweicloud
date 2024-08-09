@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_dataservice_api_publishment": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "The ID of the API to be published.",
+                "required": true,
+                "forcenew": true
+              },
+              "apig_group_id": {
+                "type": "string",
+                "description": "The APIG group ID to which the published API belongs.",
+                "optional": true,
+                "forcenew": true
+              },
+              "apig_instance_id": {
+                "type": "string",
+                "description": "The  APIG instance ID to which the API is published simultaneously in APIG service.",
+                "optional": true,
+                "forcenew": true
+              },
+              "apig_type": {
+                "type": "string",
+                "description": "The type of the APIG object.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The exclusive cluster ID to which the published API belongs in Data Service side.",
+                "required": true,
+                "forcenew": true
+              },
+              "publish_id": {
+                "type": "string",
+                "description": "The publish ID.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the API to be published is located.",
+                "computed": true
+              },
+              "roma_app_id": {
+                "type": "string",
+                "description": "The application ID for ROMA APIC.",
+                "optional": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID to which the published API belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

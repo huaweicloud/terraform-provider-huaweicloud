@@ -49,7 +49,19 @@
               "hosts": {
                 "type": [
                   "list",
-                  "string"
+                  [
+                    "object",
+                    {
+                      "domains": [
+                        "list",
+                        "string"
+                      ],
+                      "external_host": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "intranet_host": "string"
+                    }
+                  ]
                 ],
                 "description": "The API host configuration, for exclusive type.",
                 "computed": true

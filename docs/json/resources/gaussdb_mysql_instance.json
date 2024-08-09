@@ -27,14 +27,7 @@
               "configuration_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
-              "configuration_name": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "db_user_name": {
                 "type": "string",
@@ -211,6 +204,21 @@
                 "nesting_mode": "list",
                 "forcenew": true,
                 "max_items": 1
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               }
             }
           },

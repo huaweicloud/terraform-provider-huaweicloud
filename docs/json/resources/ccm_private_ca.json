@@ -5,6 +5,10 @@
         "huaweicloud_ccm_private_ca": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true
+              },
               "auto_renew": {
                 "type": "string",
                 "optional": true,
@@ -115,9 +119,7 @@
                     },
                     "crl_name": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "obs_bucket_name": {
                       "type": "string",

@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_organizations_tag_policy_services": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "services": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_types": [
+                        "list",
+                        "string"
+                      ],
+                      "service_name": "string",
+                      "support_all": "bool"
+                    }
+                  ]
+                ],
+                "description": "Indicates the services that support enforcement with tag policies.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_dataservice_api_action": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "The exclusive API ID, which in published status.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The exclusive cluster ID to which the published API belongs on Data Service side.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the API to be operated is located.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The action type.",
+                "required": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the API belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

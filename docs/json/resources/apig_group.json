@@ -21,6 +21,12 @@
                 "optional": true,
                 "default": true
               },
+              "force_destroy": {
+                "type": "bool",
+                "description": "Whether to delete all sub-resources (for API) from this group.",
+                "optional": true,
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

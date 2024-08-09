@@ -50,6 +50,10 @@
                       "created_at": "string",
                       "description": "string",
                       "id": "string",
+                      "metadata": [
+                        "map",
+                        "string"
+                      ],
                       "name": "string",
                       "service_type": "string",
                       "size": "number",

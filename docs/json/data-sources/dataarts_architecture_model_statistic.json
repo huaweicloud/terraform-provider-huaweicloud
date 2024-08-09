@@ -1,0 +1,323 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_architecture_model_statistic": {
+          "block": {
+            "attributes": {
+              "dm": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "biz_type": "string",
+                      "db": "number",
+                      "fd": "number",
+                      "fd_published": "number",
+                      "level": "string",
+                      "model": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_catalog_ids": "string",
+                            "created_at": "string",
+                            "created_by": "string",
+                            "databases": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "string",
+                            "dw_type": "string",
+                            "frequent": "bool",
+                            "id": "string",
+                            "is_physical": "bool",
+                            "level": "string",
+                            "name": "string",
+                            "table_model_prefix": "string",
+                            "top": "bool",
+                            "type": "string",
+                            "updated_at": "string",
+                            "updated_by": "string"
+                          }
+                        ]
+                      ],
+                      "st": "number",
+                      "st_published": "number",
+                      "tb": "number",
+                      "tb_published": "number"
+                    }
+                  ]
+                ],
+                "description": "The DM data integration layer.",
+                "computed": true
+              },
+              "dwr": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "biz_type": "string",
+                      "db": "number",
+                      "fd": "number",
+                      "fd_published": "number",
+                      "level": "string",
+                      "model": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_catalog_ids": "string",
+                            "created_at": "string",
+                            "created_by": "string",
+                            "databases": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "string",
+                            "dw_type": "string",
+                            "frequent": "bool",
+                            "id": "string",
+                            "is_physical": "bool",
+                            "level": "string",
+                            "name": "string",
+                            "table_model_prefix": "string",
+                            "top": "bool",
+                            "type": "string",
+                            "updated_at": "string",
+                            "updated_by": "string"
+                          }
+                        ]
+                      ],
+                      "st": "number",
+                      "st_published": "number",
+                      "tb": "number",
+                      "tb_published": "number"
+                    }
+                  ]
+                ],
+                "description": "The DWR data reporting layer.",
+                "computed": true
+              },
+              "frequent": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "biz_type": "string",
+                      "db": "number",
+                      "fd": "number",
+                      "fd_published": "number",
+                      "level": "string",
+                      "model": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_catalog_ids": "string",
+                            "created_at": "string",
+                            "created_by": "string",
+                            "databases": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "string",
+                            "dw_type": "string",
+                            "frequent": "bool",
+                            "id": "string",
+                            "is_physical": "bool",
+                            "level": "string",
+                            "name": "string",
+                            "table_model_prefix": "string",
+                            "top": "bool",
+                            "type": "string",
+                            "updated_at": "string",
+                            "updated_by": "string"
+                          }
+                        ]
+                      ],
+                      "st": "number",
+                      "st_published": "number",
+                      "tb": "number",
+                      "tb_published": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the frequently-used objects.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "logics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "biz_type": "string",
+                      "db": "number",
+                      "fd": "number",
+                      "fd_published": "number",
+                      "level": "string",
+                      "model": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_catalog_ids": "string",
+                            "created_at": "string",
+                            "created_by": "string",
+                            "databases": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "string",
+                            "dw_type": "string",
+                            "frequent": "bool",
+                            "id": "string",
+                            "is_physical": "bool",
+                            "level": "string",
+                            "name": "string",
+                            "table_model_prefix": "string",
+                            "top": "bool",
+                            "type": "string",
+                            "updated_at": "string",
+                            "updated_by": "string"
+                          }
+                        ]
+                      ],
+                      "st": "number",
+                      "st_published": "number",
+                      "tb": "number",
+                      "tb_published": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the logical models.",
+                "computed": true
+              },
+              "physicals": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "biz_type": "string",
+                      "db": "number",
+                      "fd": "number",
+                      "fd_published": "number",
+                      "level": "string",
+                      "model": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_catalog_ids": "string",
+                            "created_at": "string",
+                            "created_by": "string",
+                            "databases": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "string",
+                            "dw_type": "string",
+                            "frequent": "bool",
+                            "id": "string",
+                            "is_physical": "bool",
+                            "level": "string",
+                            "name": "string",
+                            "table_model_prefix": "string",
+                            "top": "bool",
+                            "type": "string",
+                            "updated_at": "string",
+                            "updated_by": "string"
+                          }
+                        ]
+                      ],
+                      "st": "number",
+                      "st_published": "number",
+                      "tb": "number",
+                      "tb_published": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the physical models.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query model statistic information.",
+                "computed": true
+              },
+              "tops": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "biz_type": "string",
+                      "db": "number",
+                      "fd": "number",
+                      "fd_published": "number",
+                      "level": "string",
+                      "model": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_catalog_ids": "string",
+                            "created_at": "string",
+                            "created_by": "string",
+                            "databases": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "string",
+                            "dw_type": "string",
+                            "frequent": "bool",
+                            "id": "string",
+                            "is_physical": "bool",
+                            "level": "string",
+                            "name": "string",
+                            "table_model_prefix": "string",
+                            "top": "bool",
+                            "type": "string",
+                            "updated_at": "string",
+                            "updated_by": "string"
+                          }
+                        ]
+                      ],
+                      "st": "number",
+                      "st_published": "number",
+                      "tb": "number",
+                      "tb_published": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the first-layer models.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace in which to query model statistic information.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_kps_failed_tasks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "keypair_name": "string",
+                      "operate_type": "string",
+                      "server_id": "string",
+                      "server_name": "string",
+                      "task_error_code": "string",
+                      "task_error_msg": "string",
+                      "task_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the failed tasks.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "KPS",
+            "name": "Data Encryption Workshop KPS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥对管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

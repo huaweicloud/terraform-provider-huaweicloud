@@ -20,6 +20,11 @@
                 "description": "Specifies the service group ID.",
                 "required": true
               },
+              "group_type": {
+                "type": "string",
+                "description": "Specifies the service group type.",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

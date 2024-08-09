@@ -244,18 +244,15 @@
                   "attributes": {
                     "configurations": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "name": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               },
               "extend_params": {
                 "block": {

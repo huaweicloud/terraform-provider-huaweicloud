@@ -111,6 +111,12 @@
               "visibility": {
                 "type": "string",
                 "computed": true
+              },
+              "volume_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               }
             }
           },

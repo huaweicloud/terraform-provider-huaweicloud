@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_playbook_approval": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "description": "Specifies the content of the playbook approval.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "result": {
+                "type": "string",
+                "description": "Specifies the result of playbook approval.",
+                "optional": true
+              },
+              "version_id": {
+                "type": "string",
+                "description": "Specifies the version ID of the playbook.",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the playbook belongs.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
