@@ -368,6 +368,8 @@ func resourceLogstashClusterRead(_ context.Context, d *schema.ResourceData, meta
 
 	clusterDetail, err := cssV1Client.ShowClusterDetail(&model.ShowClusterDetailRequest{ClusterId: d.Id()})
 	if err != nil {
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = ConvertExpectedHwSdkErrInto404Err(err, 403, "CSS.0015", "")
 		return common.CheckDeletedDiag(d, err, "error retrieving CSS logstash cluster")
 	}
 
@@ -609,7 +611,9 @@ func resourceLogstashClusterDelete(ctx context.Context, d *schema.ResourceData, 
 
 	_, err = cssV1Client.DeleteCluster(&model.DeleteClusterRequest{ClusterId: d.Id()})
 	if err != nil {
-		return diag.Errorf("error deleting CSS logstash cluster (%s): %s", d.Id(), err)
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = ConvertExpectedHwSdkErrInto404Err(err, 403, "CSS.0015", "")
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting CSS logstash cluster (%s)", d.Id()))
 	}
 
 	err = checkClusterDeleteResult(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutDelete))

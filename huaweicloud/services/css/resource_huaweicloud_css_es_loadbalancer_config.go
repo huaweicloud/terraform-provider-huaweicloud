@@ -263,7 +263,9 @@ func resourceEsLoadbalancerConfigRead(_ context.Context, d *schema.ResourceData,
 
 	getEsListenerRespBody, err := getEsListenerDetail(d.Id(), client)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error getting CSS es-listener")
+		// The cluster does not exist, http code is 403, key/value of error code is errCode/CSS.0015.
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015"), "error getting CSS es-listener")
 	}
 
 	mErr := multierror.Append(
@@ -386,7 +388,11 @@ func resourceEsLoadbalancerConfigDelete(ctx context.Context, d *schema.ResourceD
 
 	err = openOrCloseLoadbalancer(client, d, false)
 	if err != nil {
-		return diag.Errorf("error closing CSS loadbalancer: %s", err)
+		// The elb is already disabled, http code is 400, key/value of error code is errCode/CSS.0001.
+		err = common.ConvertExpected400ErrInto404Err(err, "errCode", "CSS.0001")
+		// The cluster does not exist, http code is 403, key/value of error code is errCode/CSS.0015.
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		return common.CheckDeletedDiag(d, err, "error closing CSS loadbalancer")
 	}
 
 	stateConf := &resource.StateChangeConf{
