@@ -1362,7 +1362,7 @@ func TestAccPreCheckWorkloadName(t *testing.T) {
 // lintignore:AT003
 func TestAccPreCheckCceClusterId(t *testing.T) {
 	if HW_CCE_CLUSTER_ID == "" {
-		t.Skip("HW_CCE_CLUSTER_ID must be set for SWR image trigger acceptance tests")
+		t.Skip("HW_CCE_CLUSTER_ID must be set for this acceptance test")
 	}
 }
 
