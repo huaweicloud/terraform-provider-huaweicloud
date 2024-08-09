@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -65,12 +64,6 @@ func ResourceDrsJob() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^([A-Za-z][A-Za-z0-9-_\.]*)$`),
-						"The name consists of 4 to 50 characters, starting with a letter. "+
-							"Only letters, digits, underscores (_) and hyphens (-) are allowed."),
-					validation.StringLenBetween(4, 50),
-				),
 			},
 
 			"type": {
@@ -131,11 +124,6 @@ func ResourceDrsJob() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^!<>&'"\\]*$`),
-						"The 'description' has special character"),
-					validation.StringLenBetween(1, 256),
-				),
 			},
 
 			"enterprise_project_id": {
@@ -447,10 +435,9 @@ func dbInfoSchemaResource() *schema.Resource {
 	nodeResource := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"engine_type": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"mysql", "mongodb", "gaussdbv5"}, false),
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"ip": {
