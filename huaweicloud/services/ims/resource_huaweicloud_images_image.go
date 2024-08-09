@@ -60,7 +60,7 @@ func ResourceImsImage() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
-				ExactlyOneOf: []string{"image_url", "backup_id"},
+				ExactlyOneOf: []string{"image_url", "backup_id", "volume_id"},
 			},
 			"vault_id": {
 				Type:         schema.TypeString,
@@ -81,6 +81,14 @@ func ResourceImsImage() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				RequiredWith: []string{"min_disk"},
+			},
+			// This filed is required when creating a data image from data disk of ECS,
+			// and this data disk must be bound to the ECS instance.
+			"volume_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 			"min_disk": {
 				Type:          schema.TypeInt,
@@ -189,12 +197,15 @@ func resourceImsImageCreate(ctx context.Context, d *schema.ResourceData, meta in
 	imageTags := resourceContainerImageTags(d)
 	instanceId, instanceIdOk := d.GetOk("instance_id")
 	imageUrl, imageUrlOk := d.GetOk("image_url")
+	volumeId, volumeIdOk := d.GetOk("volume_id")
 
 	switch {
 	case instanceIdOk:
 		createResp, err = createByInstanceId(d, cfg, imsClient, instanceId.(string), imageTags)
 	case imageUrlOk:
 		createResp, err = createByImageUrl(d, cfg, imsClient, imageUrl.(string), imageTags)
+	case volumeIdOk:
+		createResp, err = createDataImageByVolumeId(d, imsClient, volumeId.(string), imageTags)
 	default:
 		createResp, err = createByBackupId(d, cfg, imageTags)
 	}
@@ -221,6 +232,29 @@ func resourceImsImageCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	return diag.Errorf("unexpected conversion error in resourceImsImageCreate.")
+}
+
+func createDataImageByVolumeId(d *schema.ResourceData, client *golangsdk.ServiceClient, volumeId string,
+	imageTags []cloudimages.ImageTag) (*cloudimages.JobResponse, error) {
+	var tagStrings []string
+	for _, tag := range imageTags {
+		tagStrings = append(tagStrings, fmt.Sprintf("%s.%s", tag.Key, tag.Value))
+	}
+
+	dataImageOpts := []cloudimages.DataImage{
+		{
+			Name:        d.Get("name").(string),
+			VolumeId:    volumeId,
+			Description: d.Get("description").(string),
+			Tags:        tagStrings,
+		},
+	}
+
+	createOpts := &cloudimages.CreateDataImageByServerOpts{
+		DataImages: dataImageOpts,
+	}
+	log.Printf("[DEBUG] Create data image by server options: %#v", createOpts)
+	return cloudimages.CreateDataImageByServer(client, createOpts).ExtractJobResponse()
 }
 
 func createByInstanceId(d *schema.ResourceData, cfg *config.Config, client *golangsdk.ServiceClient,
@@ -409,6 +443,22 @@ func resourceImsImageRead(_ context.Context, d *schema.ResourceData, meta interf
 			d.Set("instance_id", getInstanceID(img.DataOrigin)),
 			d.Set("data_origin", img.DataOrigin),
 		)
+
+		results := strings.Split(img.DataOrigin, ",")
+		if len(results) == 2 {
+			switch results[0] {
+			case "instance":
+				mErr = multierror.Append(
+					mErr,
+					d.Set("instance_id", results[1]),
+				)
+			case "volume":
+				mErr = multierror.Append(
+					mErr,
+					d.Set("volume_id", results[1]),
+				)
+			}
+		}
 	}
 
 	// Set image tags
@@ -465,30 +515,58 @@ func resourceImsImageUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating IMS v2 client: %s", err)
 	}
 
-	if d.HasChanges("name", "min_ram", "max_ram") {
+	if d.HasChange("name") {
 		updateOpts := make(cloudimages.UpdateOpts, 0)
 		name := cloudimages.UpdateImageProperty{
 			Op:    cloudimages.ReplaceOp,
 			Name:  "name",
 			Value: d.Get("name").(string),
 		}
+		updateOpts = append(updateOpts, name)
+
+		log.Printf("[DEBUG] Update name options: %#v", updateOpts)
+		_, err = cloudimages.Update(imsClient, d.Id(), updateOpts).Extract()
+
+		if err != nil {
+			return diag.Errorf("error updating image name: %s", err)
+		}
+	}
+
+	if d.HasChange("min_ram") {
+		updateOpts := make(cloudimages.UpdateOpts, 0)
 		minRAM := cloudimages.UpdateImageProperty{
 			Op:    cloudimages.ReplaceOp,
 			Name:  "min_ram",
 			Value: d.Get("min_ram").(int),
 		}
+		updateOpts = append(updateOpts, minRAM)
+
+		log.Printf("[DEBUG] Update min_ram options: %#v", updateOpts)
+		_, err = cloudimages.Update(imsClient, d.Id(), updateOpts).Extract()
+
+		if err != nil {
+			return diag.Errorf("error updating image min_ram: %s", err)
+		}
+	}
+
+	if d.HasChange("max_ram") {
+		updateOpts := make(cloudimages.UpdateOpts, 0)
 		maxRAM := cloudimages.UpdateImageProperty{
 			Op:    cloudimages.ReplaceOp,
 			Name:  "max_ram",
 			Value: strconv.Itoa(d.Get("max_ram").(int)),
 		}
-		updateOpts = append(updateOpts, name, minRAM, maxRAM)
+		updateOpts = append(updateOpts, maxRAM)
 
-		log.Printf("[DEBUG] Update Options: %#v", updateOpts)
+		log.Printf("[DEBUG] Update max_ram options: %#v", updateOpts)
 		_, err = cloudimages.Update(imsClient, d.Id(), updateOpts).Extract()
-
 		if err != nil {
-			return diag.Errorf("error updating image: %s", err)
+			// when create a new data image from the data disk bound to the ECS instance, the `max_ram` attribute does
+			// not exist. So we need to deal with the errors caused by directly changing it.
+			err = dealModifyMaxRAMErr(d, imsClient, err)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -501,7 +579,7 @@ func resourceImsImageUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		updateOpts = append(updateOpts, description)
 
-		log.Printf("[DEBUG] Update description Options: %#v", updateOpts)
+		log.Printf("[DEBUG] Update description options: %#v", updateOpts)
 		_, err = cloudimages.Update(imsClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			err = dealModifyDescriptionErr(d, imsClient, err)
@@ -569,6 +647,43 @@ func dealModifyDescriptionErr(d *schema.ResourceData, client *golangsdk.ServiceC
 		return nil
 	}
 	return fmt.Errorf("error updating image description: %s", err)
+}
+
+// if the argument of `max_ram` is not set when creating the image or has been removed, it will cause error if you
+// change it directly, and it is needed to add it first
+func dealModifyMaxRAMErr(d *schema.ResourceData, client *golangsdk.ServiceClient, err error) error {
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return jsonErr
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error.code", apiError)
+		if errorCodeErr != nil {
+			return fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		}
+
+		if errorCode != "IMG.0035" {
+			return err
+		}
+
+		updateOpts := make(cloudimages.UpdateOpts, 0)
+		description := cloudimages.UpdateImageProperty{
+			Op:    cloudimages.AddOp,
+			Name:  "max_ram",
+			Value: d.Get("max_ram").(int),
+		}
+		updateOpts = append(updateOpts, description)
+
+		_, err = cloudimages.Update(client, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("error updating image max_ram: %s", err)
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf("error updating image max_ram field: %s", err)
 }
 
 func resourceImsImageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
