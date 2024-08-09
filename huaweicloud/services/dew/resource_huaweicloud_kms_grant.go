@@ -56,7 +56,7 @@ func ResourceKmsGrant() *schema.Resource {
 				Description: `The ID of the authorized user or account.`,
 			},
 			"operations": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Required: true,
 				ForceNew: true,
@@ -150,7 +150,7 @@ func buildCreateGrantBodyParams(d *schema.ResourceData, _ *config.Config) map[st
 		"key_id":                 utils.ValueIgnoreEmpty(d.Get("key_id")),
 		"grantee_principal_type": utils.ValueIgnoreEmpty(d.Get("type")),
 		"grantee_principal":      utils.ValueIgnoreEmpty(d.Get("grantee_principal")),
-		"operations":             utils.ValueIgnoreEmpty(d.Get("operations")),
+		"operations":             utils.ValueIgnoreEmpty(d.Get("operations").(*schema.Set).List()),
 		"retiring_principal":     utils.ValueIgnoreEmpty(d.Get("retiring_principal")),
 	}
 	return bodyParams
