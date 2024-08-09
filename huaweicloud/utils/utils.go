@@ -556,3 +556,32 @@ func IsUUID(uuid string) bool {
 	match, _ := regexp.MatchString(pattern, uuid)
 	return match
 }
+
+// The method can used to remove empty elements from an array
+func RemoveEmptyStrings(s []interface{}) []interface{} {
+	result := make([]interface{}, 0, len(s))
+	for _, elem := range s {
+		if isNonEmpty(elem) {
+			result = append(result, elem)
+		}
+	}
+	return result
+}
+
+// The method can used to check element is empty or not
+func isNonEmpty(v interface{}) bool {
+	switch v := v.(type) {
+	case string:
+		return v != ""
+	case int, float64, bool:
+		// 对于数值型和布尔类型，非零即为非空
+		return true
+	case nil:
+		// 显式的检查nil
+		return false
+	default:
+		// 对于其他类型，如果不是nil，即为非空
+		// 注意：这里假设任何非nil的引用类型都是非空的
+		return v != nil
+	}
+}

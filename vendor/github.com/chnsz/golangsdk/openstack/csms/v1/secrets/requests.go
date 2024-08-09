@@ -7,11 +7,14 @@ var RequestOpts = golangsdk.RequestOpts{
 }
 
 type CreateSecretOpts struct {
-	Name         string `json:"name" required:"true"`
-	KmsKeyID     string `json:"kms_key_id,omitempty"`
-	Description  string `json:"description,omitempty"`
-	SecretBinary string `json:"secret_binary,omitempty" xor:"SecretString"`
-	SecretString string `json:"secret_string,omitempty" xor:"SecretBinary"`
+	Name                string   `json:"name" required:"true"`
+	KmsKeyID            string   `json:"kms_key_id,omitempty"`
+	Description         string   `json:"description,omitempty"`
+	SecretType          string   `json:"secret_type,omitempty"`
+	EnterpriseProjectID string   `json:"enterprise_project_id,omitempty"`
+	EventSubscriptions  []string `json:"event_subscriptions,omitempty"`
+	SecretBinary        string   `json:"secret_binary,omitempty" xor:"SecretString"`
+	SecretString        string   `json:"secret_string,omitempty" xor:"SecretBinary"`
 }
 
 func Create(c *golangsdk.ServiceClient, opts CreateSecretOpts) (*Secret, error) {
@@ -46,8 +49,9 @@ func Get(c *golangsdk.ServiceClient, secretName string) (*Secret, error) {
 }
 
 type UpdateSecretOpts struct {
-	KmsKeyID    string  `json:"kms_key_id,omitempty"`
-	Description *string `json:"description,omitempty"`
+	KmsKeyID           string   `json:"kms_key_id,omitempty"`
+	Description        *string  `json:"description,omitempty"`
+	EventSubscriptions []string `json:"event_subscriptions"`
 }
 
 func Update(c *golangsdk.ServiceClient, secretName string, opts UpdateSecretOpts) (*Secret, error) {
