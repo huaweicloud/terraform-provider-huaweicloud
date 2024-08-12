@@ -1229,7 +1229,7 @@ func resourceFgsFunctionDelete(_ context.Context, d *schema.ResourceData, meta i
 
 	err = function.Delete(fgsClient, urn).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting function: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting function")
 	}
 	return nil
 }

@@ -166,7 +166,7 @@ func resourceFgsDependencyDelete(_ context.Context, d *schema.ResourceData, meta
 
 	err = dependencies.Delete(fgsClient, d.Id()).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting custom dependency: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting custom dependency")
 	}
 	return nil
 }

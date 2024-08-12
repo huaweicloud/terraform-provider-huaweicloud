@@ -189,7 +189,7 @@ func resourceDependencyVersionDelete(_ context.Context, d *schema.ResourceData, 
 	}
 	err = dependencies.DeleteVersion(client, dependId, version)
 	if err != nil {
-		return diag.Errorf("error deleting custom dependency version: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting custom dependency version")
 	}
 	return nil
 }

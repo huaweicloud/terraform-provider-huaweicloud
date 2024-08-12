@@ -226,7 +226,7 @@ func resourceFunctionEventDelete(_ context.Context, d *schema.ResourceData, meta
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting FunctionGraph function event: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting FunctionGraph function event")
 	}
 	return nil
 }

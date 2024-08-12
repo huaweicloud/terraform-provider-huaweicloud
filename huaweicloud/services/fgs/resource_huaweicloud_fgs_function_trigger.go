@@ -350,7 +350,9 @@ func resourceFunctionTriggerDelete(ctx context.Context, d *schema.ResourceData, 
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting function trigger: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected401ErrInto404Err(err, "error_code", "FSS.0401"), // Function not found.
+			"error deleting function trigger")
 	}
 
 	err = waitForFunctionTriggerDeleted(ctx, client, d)
