@@ -102,7 +102,7 @@ The following arguments are supported:
   Changing this creates a new instance resource.
 
 * `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification.
-  Valid values are **dms.physical.storage.high** and **dms.physical.storage.ultra**.
+  Valid values are **dms.physical.storage.high.v2** and **dms.physical.storage.ultra.v2**.
   Changing this creates a new instance resource.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of a VPC. Changing this creates a new instance resource.

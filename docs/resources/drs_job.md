@@ -214,22 +214,24 @@ The following arguments are supported:
   + **gaussdbv5ha-to-kafka**: Synchronization from GaussDB primary/standby to Kafka use.
   + **postgresql**: Synchronization from PostgreSQL to PostgreSQL use.
 
+  For details, see [engine types](https://support.huaweicloud.com/intl/en-us/api-drs/drs_api_0159.html)
+
 * `direction` - (Required, String, ForceNew) Specifies the direction of data flow.
- Changing this parameter will create a new resource. The options are as follows:
+  Changing this parameter will create a new resource. The options are as follows:
   + **up**: To the cloud. The destination database must be a database in the current cloud.
   + **down**: Out of the cloud. The source database must be a database in the current cloud.
   + **non-dbs**: self-built database.
   
 * `source_db` - (Required, List, ForceNew) Specifies the source database configuration.
- The [db_info](#block--db_info) structure of the `source_db` is documented below.
- Changing this parameter will create a new resource.
+  The [db_info](#block--db_info) structure of the `source_db` is documented below.
+  Changing this parameter will create a new resource.
 
 * `destination_db` - (Required, List, ForceNew) Specifies the destination database configuration.
- The [db_info](#block--db_info) structure of the `destination_db` is documented below.
- Changing this parameter will create a new resource.
+  The [db_info](#block--db_info) structure of the `destination_db` is documented below.
+  Changing this parameter will create a new resource.
 
 * `net_type` - (Optional, String, ForceNew) Specifies the network type.
- Changing this parameter will create a new resource. The default value is **eip**. The options are as follows:
+  Changing this parameter will create a new resource. The default value is **eip**. The options are as follows:
   + **eip**: suitable for migration from an on-premises or other cloud database to a destination cloud database.
    An EIP will be automatically bound to the replication instance and released after the replication task is complete.
   + **vpc**: suitable for migration from one cloud database to another.
@@ -237,7 +239,7 @@ The following arguments are supported:
    or from one cloud database to another in a different region.
 
 * `migration_type` - (Optional, String, ForceNew) Specifies migration type.
- Changing this parameter will create a new resource. The default value is **FULL_INCR_TRANS**. The options are as follows:
+  Changing this parameter will create a new resource. The default value is **FULL_INCR_TRANS**. The options are as follows:
   + **FULL_TRANS**: Full migration. Suitable for scenarios where services can be interrupted. It migrates all database
    objects and data, in a non-system database, to a destination database at a time.
   + **INCR_TRANS**: Incremental migration. Suitable for migration from an on-premises self-built database to a
@@ -247,23 +249,23 @@ The following arguments are supported:
    between the source and destination databases.
 
 * `migrate_definer` - (Optional, Bool, ForceNew) Specifies whether to migrate the definers of all source database
- objects to the `user` of `destination_db`. The default value is **true**.
- Changing this parameter will create a new resource.
+  objects to the `user` of `destination_db`. The default value is **true**.
+  Changing this parameter will create a new resource.
 
 * `limit_speed` - (Optional, List, ForceNew) Specifies the migration speed by setting a time period.
- The default is no speed limit. The maximum length is 3. The [limit_speed](#block--limit_speed) structure is documented below.
- Changing this parameter will create a new resource.
+  The default is no speed limit. The maximum length is 3. The [limit_speed](#block--limit_speed) structure is documented
+  below. Changing this parameter will create a new resource.
 
 * `policy_config` - (Optional, List, ForceNew) Specifies the policy information used to configure migration and
- synchronization policies. The [policy_config](#block--policy_config) structure is documented below.
- Changing this parameter will create a new resource.
+  synchronization policies. The [policy_config](#block--policy_config) structure is documented below.
+  Changing this parameter will create a new resource.
 
 * `multi_write` - (Optional, Bool, ForceNew) Specifies whether to enable multi write. It is mandatory when `type`
- is **cloudDataGuard**. When the disaster recovery type is dual-active disaster recovery, set `multi_write` to **true**,
- otherwise to **false**. The default value is **false**. Changing this parameter will create a new resource.
+  is **cloudDataGuard**. When the disaster recovery type is dual-active disaster recovery, set `multi_write` to **true**,
+  otherwise to **false**. The default value is **false**. Changing this parameter will create a new resource.
 
 * `expired_days` - (Optional, Int, ForceNew) Specifies how many days after the task is abnormal, it will automatically
- end. The value ranges from 14 to 100. the default value is **14**. Changing this parameter will create a new resource.
+  end. The value ranges from 14 to 100. the default value is **14**. Changing this parameter will create a new resource.
 
 * `start_time` - (Optional, String, ForceNew) Specifies the time to start the job. The time format is a time stamp
   accurating to milliseconds, e.g. **1684466549755**, which indicates **2023-05-19 11:22:29.755**.
@@ -280,12 +282,12 @@ The following arguments are supported:
   maximum of 256 characters, and certain special characters (including !<>&'"\\) are not allowed.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the DRS job.
 
 * `force_destroy` - (Optional, Bool) Specifies whether to forcibly destroy the job even if it is running.
- The default value is **false**.
+  The default value is **false**.
 
 * `action` - (Optional, String) Specifies the action of job. The options are as follows:
   + **stop**: Stop the job. Available when job status is **FULL_TRANSFER_STARTED**, **FULL_TRANSFER_COMPLETE** or
@@ -331,63 +333,64 @@ The following arguments are supported:
 The `db_info` block supports:
 
 * `engine_type` - (Required, String, ForceNew) Specifies the engine type of database. Changing this parameter will
- create a new resource. The options are as follows: **mysql**, **mongodb**, **gaussdbv5**.
+  create a new resource. The options are as follows: **mysql**, **mongodb**, **gaussdbv5**, **taurus**, **gaussdbv5ha**,
+  **kafka**, **postgresql**.
 
 * `ip` - (Required, String, ForceNew) Specifies the IP of database. Changing this parameter will create a new resource.
 
 * `port` - (Required, Int, ForceNew) Specifies the port of database. Changing this parameter will create a new resource.
 
 * `user` - (Required, String, ForceNew) Specifies the user name of database.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `password` - (Required, String, ForceNew) Specifies the password of database.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `instance_id` - (Optional, String, ForceNew) Specifies the instance id of database when it is a RDS database.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `vpc_id` - (Optional, String, ForceNew) Specifies vpc ID of database.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `subnet_id` - (Optional, String, ForceNew) Specifies subnet ID of database when it is a RDS database.
- It is mandatory when `direction` is **down**. Changing this parameter will create a new resource.
+  It is mandatory when `direction` is **down**. Changing this parameter will create a new resource.
 
- -> When `net_type` is **vpc**, if `direction` is **up**, `source_db.vpc_id` and `source_db.subnet_id` is mandatory, if
- `direction` is **down**, `destination_db.vpc_id` and `destination_db.subnet_id` is mandatory.
+  -> When `net_type` is **vpc**, if `direction` is **up**, `source_db.vpc_id` and `source_db.subnet_id` is mandatory, if
+  `direction` is **down**, `destination_db.vpc_id` and `destination_db.subnet_id` is mandatory.
 
 * `region` - (Optional, String, ForceNew) Specifies the region which the database belongs when it is a RDS database.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `name` - (Optional, String, ForceNew) Specifies the name of database.
   Changing this parameter will create a new resource.
 
 * `ssl_enabled` - (Optional, Bool, ForceNew) Specifies whether to enable SSL connection.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `ssl_cert_key` - (Optional, String, ForceNew) Specifies the SSL certificate content, encrypted with base64.
- It is mandatory when `ssl_enabled` is **true**. Changing this parameter will create a new resource.
+  It is mandatory when `ssl_enabled` is **true**. Changing this parameter will create a new resource.
 
 * `ssl_cert_name` - (Optional, String, ForceNew) Specifies SSL certificate name.
- It is mandatory when `ssl_enabled` is **true**. Changing this parameter will create a new resource.
+  It is mandatory when `ssl_enabled` is **true**. Changing this parameter will create a new resource.
 
 * `ssl_cert_check_sum` - (Optional, String, ForceNew) Specifies the checksum of SSL certificate content.
- It is mandatory when `ssl_enabled` is **true**. Changing this parameter will create a new resource.
+  It is mandatory when `ssl_enabled` is **true**. Changing this parameter will create a new resource.
 
 * `ssl_cert_password` - (Optional, String, ForceNew) Specifies SSL certificate password. It is mandatory when
- `ssl_enabled` is **true** and the certificate file suffix is **.p12**. Changing this parameter will create a new resource.
+  `ssl_enabled` is **true** and the certificate file suffix is **.p12**. Changing this parameter will create a new resource.
 
 <a name="block--limit_speed"></a>
 The `limit_speed` block supports:
 
 * `speed` - (Required, String, ForceNew) Specifies the transmission speed, the value range is 1 to 9999, unit: **MB/s**.
- Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `start_time` - (Required, String, ForceNew) Specifies the time to start speed limit, this time is UTC time. The start
- time is the whole hour, if there is a minute, it will be ignored, the format is **hh:mm**, and the hour number
-is two digits, for example: 01:00. Changing this parameter will create a new resource.
+  time is the whole hour, if there is a minute, it will be ignored, the format is **hh:mm**, and the hour number
+  is two digits, for example: 01:00. Changing this parameter will create a new resource.
 
 * `end_time` - (Required, String, ForceNew) Specifies the time to end speed limit, this time is UTC time. The input must
- end at 59 minutes, the format is **hh:mm**, for example: 15:59. Changing this parameter will create a new resource.
+  end at 59 minutes, the format is **hh:mm**, for example: 15:59. Changing this parameter will create a new resource.
 
 <a name="block--policy_config"></a>
 The `policy_config` block supports:

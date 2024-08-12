@@ -435,10 +435,9 @@ func dbInfoSchemaResource() *schema.Resource {
 	nodeResource := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"engine_type": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"mysql", "mongodb", "gaussdbv5"}, false),
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"ip": {
