@@ -974,6 +974,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_rules_precise_protection":             waf.DataSourceWafRulesPreciseProtection(),
 			"huaweicloud_waf_rules_web_tamper_protection":          waf.DataSourceWafRulesWebTamperProtection(),
 
+			"huaweicloud_dws_alarm_subscriptions":     dws.DataSourceAlarmSubscriptions(),
 			"huaweicloud_dws_availability_zones":      dws.DataSourceDwsAvailabilityZones(),
 			"huaweicloud_dws_clusters":                dws.DataSourceDwsClusters(),
 			"huaweicloud_dws_disaster_recovery_tasks": dws.DataSourceDisasterRecoveryTasks(),
