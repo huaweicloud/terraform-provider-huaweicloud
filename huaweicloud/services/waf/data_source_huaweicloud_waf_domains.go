@@ -92,6 +92,10 @@ func wafDomainSchema() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"access_code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"charging_mode": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -192,6 +196,7 @@ func flattenListDomainsBody(resp interface{}) []interface{} {
 			"pci_dss":               utils.StringToBool(utils.PathSearch("flag.pci_dss", v, "")),
 			"ipv6_enable":           utils.StringToBool(utils.PathSearch("flag.ipv6", v, "")),
 			"access_status":         utils.PathSearch("access_status", v, nil),
+			"access_code":           utils.PathSearch("access_code", v, nil),
 			"charging_mode":         utils.PathSearch("paid_type", v, nil),
 			"website_name":          utils.PathSearch("web_tag", v, nil),
 			"proxy_layer":           utils.PathSearch("proxy_layer", v, nil),

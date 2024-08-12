@@ -188,6 +188,10 @@ func ResourceWafDomain() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"access_code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"protocol": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -554,6 +558,7 @@ func resourceWafDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("proxy", dm.Proxy),
 		d.Set("protect_status", dm.ProtectStatus),
 		d.Set("access_status", dm.AccessStatus),
+		d.Set("access_code", dm.AccessCode),
 		d.Set("protocol", dm.Protocol),
 		d.Set("server", flattenDomainServerAttrs(dm)),
 		d.Set("custom_page", flattenDomainCustomPage(dm)),
