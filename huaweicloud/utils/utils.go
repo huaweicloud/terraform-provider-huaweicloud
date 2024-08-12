@@ -556,3 +556,31 @@ func IsUUID(uuid string) bool {
 	match, _ := regexp.MatchString(pattern, uuid)
 	return match
 }
+
+// The method can used to remove empty elements from an array
+func RemoveEmptyStrings(s []interface{}) []interface{} {
+	result := make([]interface{}, 0, len(s))
+	for _, elem := range s {
+		if isNonEmpty(elem) {
+			result = append(result, elem)
+		}
+	}
+	return result
+}
+
+// The method can used to check element is empty or not
+func isNonEmpty(v interface{}) bool {
+	switch v := v.(type) {
+	case string:
+		return v != ""
+	case int, float64, bool:
+		// For numerical and Boolean types, non-zero means non empty
+		return true
+	case nil:
+		// Explicitly checking nil
+		return false
+	default:
+		// For other types, if it is not nil, it is non empty
+		return v != nil
+	}
+}

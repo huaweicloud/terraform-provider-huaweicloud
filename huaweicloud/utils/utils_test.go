@@ -116,3 +116,16 @@ func TestAccFunction_IsUUID(t *testing.T) {
 		t.Logf("The processing result of IsUUID method meets expectation: %s", Green(expected[i]))
 	}
 }
+
+func TestAccFunction_RemoveEmptyStrings(t *testing.T) {
+	var (
+		arr      = []interface{}{"test", "1024", " ", "", 4096, 6.4, 0, nil, true, false}
+		expected = []interface{}{"test", "1024", " ", 4096, 6.4, 0, true, false}
+	)
+
+	result := RemoveEmptyStrings(arr)
+	if !reflect.DeepEqual(result, expected) {
+		t.Fatalf("The processing result of RemoveEmptyStrings method is not as expected, want %s, but %s", Green(expected), Yellow(result))
+	}
+	t.Logf("The processing result of RemoveEmptyStrings method meets expectation: %s", Green(expected))
+}
