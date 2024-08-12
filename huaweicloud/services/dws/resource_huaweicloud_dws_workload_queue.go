@@ -200,6 +200,10 @@ func resourceWorkLoadQueueDelete(_ context.Context, d *schema.ResourceData, meta
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
 	deletePath = strings.ReplaceAll(deletePath, "{cluster_id}", d.Get("cluster_id").(string))
 	deletePath = strings.ReplaceAll(deletePath, "{name}", d.Get("name").(string))
+
+	if logicalClusterName, ok := d.GetOk("logical_cluster_name"); ok {
+		deletePath = fmt.Sprintf("%s&logical_cluster_name=%s", deletePath, logicalClusterName)
+	}
 	// Due to API restrictions, the request body must pass in an empty JSON.
 	deleteOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
