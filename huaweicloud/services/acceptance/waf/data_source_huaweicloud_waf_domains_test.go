@@ -35,6 +35,7 @@ func TestAccDatasourceWAFDomains_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "domains.0.pci_3ds"),
 					resource.TestCheckResourceAttrSet(rName, "domains.0.pci_dss"),
 					resource.TestCheckResourceAttrSet(rName, "domains.0.access_status"),
+					resource.TestCheckResourceAttrSet(rName, "domains.0.access_code"),
 					resource.TestCheckResourceAttrSet(rName, "domains.0.enterprise_project_id"),
 					resource.TestCheckResourceAttrSet(policyNameTestName, "domains.#"),
 

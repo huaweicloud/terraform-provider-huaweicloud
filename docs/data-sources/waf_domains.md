@@ -67,6 +67,8 @@ The `domains` block supports:
   + **0** - The domain name is not connected to WAF.
   + **1** - The domain name is connected to WAF.
 
+* `access_code` - The CNAME prefix. The CNAME suffix is `.vip1.huaweicloudwaf.com`.
+
 * `charging_mode` - The charging mode of the domain.
   Valid values are **prePaid** and **postPaid**.
 

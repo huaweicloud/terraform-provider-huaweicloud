@@ -298,6 +298,8 @@ The following attributes are exported:
 * `access_status` - Whether a domain name is connected to WAF. 0: The domain name is not connected to WAF, 1: The domain
   name is connected to WAF.
 
+* `access_code` - The CNAME prefix. The CNAME suffix is `.vip1.huaweicloudwaf.com`.
+
 * `protocol` - The protocol type of the client. The options are HTTP, HTTPS, and HTTP&HTTPS.
 
 ## Import

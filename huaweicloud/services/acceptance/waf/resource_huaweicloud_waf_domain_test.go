@@ -66,6 +66,8 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$tenant_id"),
 					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName"),
 					resource.TestCheckResourceAttr(resourceName, "protect_status", "-1"),
+					resource.TestCheckResourceAttrSet(resourceName, "access_status"),
+					resource.TestCheckResourceAttrSet(resourceName, "access_code"),
 				),
 			},
 			{
