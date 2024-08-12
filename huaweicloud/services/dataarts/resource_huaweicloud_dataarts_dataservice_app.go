@@ -112,7 +112,7 @@ func resourceDataServiceAppCreate(ctx context.Context, d *schema.ResourceData, m
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 			"workspace":    d.Get("workspace_id").(string),
-			"dlm_type":     d.Get("dlm_type").(string),
+			"dlm-type":     d.Get("dlm_type").(string),
 		},
 	}
 
@@ -173,7 +173,7 @@ func resourceDataServiceAppRead(_ context.Context, d *schema.ResourceData, meta 
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 			"workspace":    d.Get("workspace_id").(string),
-			"dlm_type":     d.Get("dlm_type").(string),
+			"dlm-type":     d.Get("dlm_type").(string),
 		},
 	}
 
@@ -233,7 +233,7 @@ func resourceDataServiceAppUpdate(ctx context.Context, d *schema.ResourceData, m
 			MoreHeaders: map[string]string{
 				"Content-Type": "application/json",
 				"workspace":    d.Get("workspace_id").(string),
-				"dlm_type":     d.Get("dlm_type").(string),
+				"dlm-type":     d.Get("dlm_type").(string),
 			},
 		}
 
@@ -280,7 +280,7 @@ func resourceDataServiceAppDelete(_ context.Context, d *schema.ResourceData, met
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 			"workspace":    d.Get("workspace_id").(string),
-			"dlm_type":     d.Get("dlm_type").(string),
+			"dlm-type":     d.Get("dlm_type").(string),
 		},
 	}
 

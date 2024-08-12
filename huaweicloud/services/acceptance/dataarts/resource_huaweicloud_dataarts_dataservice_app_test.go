@@ -39,7 +39,7 @@ func getDataServiceAppResourceFunc(cfg *config.Config, state *terraform.Resource
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 			"workspace":    state.Primary.Attributes["workspace_id"],
-			"dlm_type":     state.Primary.Attributes["dlm_type"],
+			"dlm-type":     state.Primary.Attributes["dlm_type"],
 		},
 	}
 
