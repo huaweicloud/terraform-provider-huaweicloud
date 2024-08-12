@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -65,12 +64,6 @@ func ResourceDrsJob() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^([A-Za-z][A-Za-z0-9-_\.]*)$`),
-						"The name consists of 4 to 50 characters, starting with a letter. "+
-							"Only letters, digits, underscores (_) and hyphens (-) are allowed."),
-					validation.StringLenBetween(4, 50),
-				),
 			},
 
 			"type": {
@@ -131,11 +124,6 @@ func ResourceDrsJob() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^!<>&'"\\]*$`),
-						"The 'description' has special character"),
-					validation.StringLenBetween(1, 256),
-				),
 			},
 
 			"enterprise_project_id": {
@@ -436,9 +424,9 @@ func ResourceDrsJob() *schema.Resource {
 			},
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 	}
 }
@@ -1235,6 +1223,34 @@ func executeJobAction(client *golangsdk.ServiceClient, jsonBody map[string]inter
 	return nil
 }
 
+func waitForOrderDetail(ctx context.Context, bssV2Client *golangsdk.ServiceClient, timeout time.Duration, orderId string) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"pending"},
+		Target:  []string{"complete"},
+		Refresh: func() (interface{}, string, error) {
+			resourceIDs, err := common.GetResourceIDsByOrder(bssV2Client, orderId, 1)
+			if err != nil {
+				if strings.Contains(err.Error(), "response empty") {
+					return resourceIDs, "pending", nil
+				}
+				return nil, "error", err
+			}
+
+			return resourceIDs, "complete", nil
+		},
+		Timeout:      timeout,
+		PollInterval: 20 * timeout,
+		Delay:        20 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error getting resource_id: %s", err)
+	}
+
+	return nil
+}
+
 func resourceJobDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
@@ -1260,6 +1276,11 @@ func resourceJobDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 	if d.Get("charging_mode").(string) == "prePaid" && strings.TrimSpace(orderId) != "" {
 		// unsubscribe the order
 		// resource_id is different from job_id
+		// searching order has delay
+		err := waitForOrderDetail(ctx, bssV2Client, d.Timeout(schema.TimeoutDelete), orderId)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		resourceIDs, err := common.GetResourceIDsByOrder(bssV2Client, orderId, 1)
 		if err != nil {
 			return diag.Errorf("error getting resource IDs: %s", err)
