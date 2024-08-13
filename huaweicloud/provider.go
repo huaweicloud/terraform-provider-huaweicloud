@@ -1092,6 +1092,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_prom_instance":                  aom.ResourcePromInstance(),
 			"huaweicloud_aom_multi_account_aggregation_rule": aom.ResourceMultiAccountAggregationRule(),
 			"huaweicloud_aom_dashboards_folder":              aom.ResourceDashboardsFolder(),
+			"huaweicloud_aom_cloud_service_access":           aom.ResourceCloudServiceAccess(),
 
 			"huaweicloud_rfs_stack": rfs.ResourceStack(),
 
