@@ -43,6 +43,25 @@ resource "huaweicloud_csms_secret" "test3" {
 }
 ```
 
+### The secret associated event
+
+```hcl
+variable "name" {}
+variable "secret_type" {}
+variable "secret_text" {}
+
+resource "huaweicloud_csms_event" "test" {
+  ...
+}
+
+resource "huaweicloud_csms_secret" "test" {
+  name                = var.name
+  secret_type         = var.secret_type
+  secret_text         = var.secret_text
+  event_subscriptions = [huaweicloud_csms_event.test.name]
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -73,6 +92,16 @@ The following arguments are supported:
   to get the KMS key.
 
 * `description` - (Optional, String) The description of a secret.
+
+* `secret_type` - (Optional, String, ForceNew) Specifies the type of the secret.
+  Currently, only supported **COMMON**. The default value is **COMMON**.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the secret belongs.
+  If omitted, the default enterprise project will be used.
+  If the enterprise project function is not enabled, ignore this parameter.
+
+* `event_subscriptions` - (Optional, List) Specifies the event list associated with the secret.
+  Currently, only one event can be associated.
 
 * `tags` - (Optional, Map) The tags of a CSMS secrets, key/value pair format.
 

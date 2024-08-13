@@ -89,6 +89,25 @@ func ResourceCsmsSecret() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"secret_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"event_subscriptions": {
+				// the field can be left blank, no need add Computed attribute
+				Type:     schema.TypeSet,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"tags": common.TagsSchema(),
 			"secret_id": {
 				Type:     schema.TypeString,
@@ -121,11 +140,14 @@ func resourceCsmsSecretCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	name := d.Get("name").(string)
 	createOpts := secrets.CreateSecretOpts{
-		Name:         name,
-		KmsKeyID:     d.Get("kms_key_id").(string),
-		Description:  d.Get("description").(string),
-		SecretString: d.Get("secret_text").(string),
-		SecretBinary: d.Get("secret_binary").(string),
+		Name:                name,
+		KmsKeyID:            d.Get("kms_key_id").(string),
+		Description:         d.Get("description").(string),
+		SecretString:        d.Get("secret_text").(string),
+		SecretBinary:        d.Get("secret_binary").(string),
+		SecretType:          d.Get("secret_type").(string),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+		EventSubscriptions:  utils.ExpandToStringListBySet(d.Get("event_subscriptions").(*schema.Set)),
 	}
 
 	rst, err := secrets.Create(client, createOpts)
@@ -147,6 +169,20 @@ func resourceCsmsSecretCreate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	return resourceCsmsSecretRead(ctx, d, meta)
+}
+
+// The method can be used to remove empty strings from an array.
+// When the sercet no associated event, the query secret API return the attribute(event_subscriptions) as follow:
+// "event_subscriptions": [null]
+// so need the function dealing the situation.
+func removeNullValues(s []interface{}) []interface{} {
+	result := make([]interface{}, 0, len(s))
+	for _, elem := range s {
+		if v, ok := elem.(string); ok && v != "" {
+			result = append(result, v)
+		}
+	}
+	return result
 }
 
 func resourceCsmsSecretRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -174,6 +210,9 @@ func resourceCsmsSecretRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("description", secret.Description),
 		d.Set("status", secret.State),
 		d.Set("create_time", createTime),
+		d.Set("secret_type", secret.SecretType),
+		d.Set("enterprise_project_id", secret.EnterpriseProjectID),
+		d.Set("event_subscriptions", removeNullValues(secret.EventSubscriptions)),
 	)
 
 	// Query secret version
@@ -274,12 +313,14 @@ func resourceCsmsSecretUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	id, name := parseID(d.Id())
 	// Update secret basic-info
-	if d.HasChanges("kms_key_id", "description") {
+	if d.HasChanges("kms_key_id", "description", "event_subscriptions") {
 		desc := d.Get("description").(string)
 		kmsKeyID := d.Get("kms_key_id").(string)
+		events := d.Get("event_subscriptions").(*schema.Set)
 		opts := secrets.UpdateSecretOpts{
-			KmsKeyID:    kmsKeyID,
-			Description: &desc,
+			KmsKeyID:           kmsKeyID,
+			Description:        &desc,
+			EventSubscriptions: utils.ExpandToStringListBySet(events),
 		}
 		log.Printf("[DEBUG] The option to update the basic information of the CSMS secret is: %#v", opts)
 
