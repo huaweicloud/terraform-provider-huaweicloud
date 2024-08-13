@@ -17,6 +17,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var modelErrCodes = []string{
+	"DLG.0818", // Workspace does not exist.
+	"DLG.6026", // Resource does not exist.
+	"DLG.3902", // Resource ID value is incorrect.
+}
+
 // @API DataArtsStudio POST /v2/{project_id}/design/workspaces
 // @API DataArtsStudio GET /v2/{project_id}/design/workspaces
 // @API DataArtsStudio PUT /v2/{project_id}/design/workspaces
@@ -191,7 +197,8 @@ func getModelByName(modelClient *golangsdk.ServiceClient, d *schema.ResourceData
 	for {
 		readModelResp, err := modelClient.Request("GET", readModelPath, &readModelOpt)
 		if err != nil {
-			return nil, err
+			// Only one scenario where the workspace ID does not exist, the error code is "DLG.0818".
+			return nil, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code")
 		}
 		readModelBody, err := utils.FlattenResponse(readModelResp)
 		if err != nil {
@@ -233,10 +240,7 @@ func getModelById(modelClient *golangsdk.ServiceClient, d *schema.ResourceData) 
 	}
 	readModelResp, err := modelClient.Request("GET", readModelPath, &readModelOpt)
 	if err != nil {
-		if hasErrorCode(err, "DLG.6026") || hasErrorCode(err, "DLG.3902") {
-			err = golangsdk.ErrDefault404{}
-		}
-		return nil, err
+		return nil, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", modelErrCodes...)
 	}
 	readModelBody, err := utils.FlattenResponse(readModelResp)
 	if err != nil {
