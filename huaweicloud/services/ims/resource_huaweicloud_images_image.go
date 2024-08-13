@@ -50,11 +50,17 @@ func ResourceImsImage() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			// instance_id is required for creating an image from an ECS
+			// `instance_id` is required for creating a system image or a whole image from an ECS.
 			"instance_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -68,21 +74,14 @@ func ResourceImsImage() *schema.Resource {
 				ForceNew:     true,
 				RequiredWith: []string{"instance_id"},
 			},
-			// backup_id is required for creating an image from backup of ECS
+			// `backup_id` is required for creating a whole image from backup of ECS.
 			"backup_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			// image_url and min_disk are required for creating an image from an OBS
-			"image_url": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"min_disk"},
-			},
-			// This filed is required when creating a data image from data disk of ECS,
+			// `volume_id` is required when creating a data image from data disk of ECS,
 			// and this data disk must be bound to the ECS instance.
 			"volume_id": {
 				Type:     schema.TypeString,
@@ -90,13 +89,20 @@ func ResourceImsImage() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			// `image_url` and `min_disk` are required for creating a system image from an OBS.
+			"image_url": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"min_disk"},
+			},
 			"min_disk": {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"instance_id"},
 			},
-			// following are valid for creating an image from an OBS
+			// Following fields are valid for creating a system image from an OBS.
 			"os_version": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -118,12 +124,7 @@ func ResourceImsImage() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
+			// `description` can be left blank, so the `Computed` attribute is not used.
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -139,7 +140,13 @@ func ResourceImsImage() *schema.Resource {
 				Computed: true,
 			},
 			"tags": common.TagsSchema(),
-			// following are additional attributes
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			// Following fields are additional attributes.
 			"visibility": {
 				Type:     schema.TypeString,
 				Computed: true,
