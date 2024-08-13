@@ -133,7 +133,7 @@ func resourceDashboardsFolderRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	folder, err := getDashboardsFolder(cfg, client, d)
+	folder, err := getDashboardsFolder(client, d)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving dashboards folder")
 	}
@@ -150,13 +150,16 @@ func resourceDashboardsFolderRead(_ context.Context, d *schema.ResourceData, met
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func getDashboardsFolder(cfg *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+func getDashboardsFolder(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
 	listHttpUrl := "v2/{project_id}/aom/dashboards-folder"
 	listPath := client.Endpoint + listHttpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(cfg, d),
+		MoreHeaders: map[string]string{
+			"Content-Type":          "application/json",
+			"Enterprise-Project-Id": "all_granted_eps",
+		},
 	}
 
 	listResp, err := client.Request("GET", listPath, &listOpt)
@@ -224,7 +227,7 @@ func resourceDashboardsFolderDelete(_ context.Context, d *schema.ResourceData, m
 	}
 
 	// DELETE will return 200 even deleting a non exist folder
-	_, err = getDashboardsFolder(cfg, client, d)
+	_, err = getDashboardsFolder(client, d)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting dashboards folder")
 	}

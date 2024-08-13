@@ -419,6 +419,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_organization_accounts":           aom.DataSourceOrganizationAccounts(),
 			"huaweicloud_aom_dashboards_folders":              aom.DataSourceDashboardsFolders(),
 			"huaweicloud_aom_alarm_rules":                     aom.DataSourceAlarmRules(),
+			"huaweicloud_aom_dashboards":                      aom.DataSourceDashboards(),
 
 			"huaweicloud_apig_acl_policies":                       apig.DataSourceAclPolicies(),
 			"huaweicloud_apig_api_associated_acl_policies":        apig.DataSourceApiAssociatedAclPolicies(),
@@ -1113,6 +1114,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_multi_account_aggregation_rule": aom.ResourceMultiAccountAggregationRule(),
 			"huaweicloud_aom_dashboards_folder":              aom.ResourceDashboardsFolder(),
 			"huaweicloud_aom_cloud_service_access":           aom.ResourceCloudServiceAccess(),
+			"huaweicloud_aom_dashboard":                      aom.ResourceDashboard(),
 
 			"huaweicloud_rfs_stack": rfs.ResourceStack(),
 
