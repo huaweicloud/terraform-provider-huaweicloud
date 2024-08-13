@@ -96,7 +96,10 @@ func TestAccKpsKeypair_domain(t *testing.T) {
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckUserId(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -107,6 +110,7 @@ func TestAccKpsKeypair_domain(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "scope", "account"),
 					resource.TestCheckResourceAttr(resourceName, "encryption_type", "kms"),
+					resource.TestCheckResourceAttr(resourceName, "user_id", acceptance.HW_USER_ID),
 					resource.TestCheckResourceAttr(resourceName, "is_managed", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "fingerprint"),
@@ -197,6 +201,7 @@ func TestAccKpsKeypair_privateKey(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "scope", "user"),
+					resource.TestCheckResourceAttrPair(resourceName, "kms_key_id", "huaweicloud_kms_key.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "public_key", publicKeyValue),
 					resource.TestCheckResourceAttr(resourceName, "is_managed", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
@@ -217,6 +222,7 @@ func TestAccKpsKeypair_privateKey(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrPair(resourceName, "kms_key_name", "huaweicloud_kms_key.test", "key_alias"),
 					resource.TestCheckResourceAttr(resourceName, "public_key", publicKeyValue),
 					resource.TestCheckResourceAttr(resourceName, "is_managed", "true"),
 				),
@@ -226,7 +232,7 @@ func TestAccKpsKeypair_privateKey(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"private_key", "encryption_type", "kms_key_name",
+					"private_key", "encryption_type", "kms_key_id", "kms_key_name",
 				},
 			},
 		},
@@ -251,13 +257,25 @@ resource "huaweicloud_kps_keypair" "test" {
 `, rName, key)
 }
 
+func testKeypair_privateKey_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test" {
+  key_alias    = "%s"
+  pending_days = "7"
+}
+`, name)
+}
+
 func testKeypair_privateKey(rName, publicKeyValue string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_kps_keypair" "test" {
-  name            = "%[1]s"
-  encryption_type = "default"
-  public_key      = "%[2]s"
-  
+  name            = "%[2]s"
+  encryption_type = "kms"
+  kms_key_id      = huaweicloud_kms_key.test.id
+  public_key      = "%[3]s"
+
   private_key = <<EOT
 -----BEGIN RSA PRIVATE KEY-----
 MIIEogIBAAKCAQEAg1z/pLg8l3mcX96efFWP1h/Mo8zAJjR118UCnR7LxMt5lOBI
@@ -288,26 +306,25 @@ elBITIidTQ9uv/yhqiJmEuVDNncL1W+GvHXk599FLXZpYOr24X4=
 -----END RSA PRIVATE KEY-----
 EOT
 }
-`, rName, publicKeyValue)
+`, testKeypair_privateKey_base(rName), rName, publicKeyValue)
 }
 
 func testKeypair_updatePrivateKey1(rName string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_kps_keypair" "test" {
-  name = "%[1]s"
+  name = "%[2]s"
 }
-`, rName)
+`, testKeypair_privateKey_base(rName), rName)
 }
 
 func testKeypair_updatePrivateKey2(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "test" {
-  key_alias    = "%s"
-  pending_days = "7"
-}
+%[1]s
 
 resource "huaweicloud_kps_keypair" "test" {
-  name            = "%[1]s"
+  name            = "%[2]s"
   encryption_type = "kms"
   kms_key_name    = huaweicloud_kms_key.test.key_alias
   private_key = <<EOT
@@ -340,21 +357,22 @@ elBITIidTQ9uv/yhqiJmEuVDNncL1W+GvHXk599FLXZpYOr24X4=
 -----END RSA PRIVATE KEY-----
 EOT
 }
-`, rName, rName)
+`, testKeypair_privateKey_base(rName), rName)
 }
 
 func testKeypair_domain(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_kms_key" "test" {
-  key_alias    = "%s"
+  key_alias    = "%[1]s"
   pending_days = "7"
 }
 
 resource "huaweicloud_kps_keypair" "test" {
-  name            = "%s"
+  name            = "%[1]s"
   scope           = "account"
   encryption_type = "kms"
+  user_id         = "%[2]s"
   kms_key_name    = huaweicloud_kms_key.test.key_alias
 }
-`, rName, rName)
+`, rName, acceptance.HW_USER_ID)
 }
