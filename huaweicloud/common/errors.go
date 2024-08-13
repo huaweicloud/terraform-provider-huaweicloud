@@ -55,6 +55,48 @@ func ConvertExpected400ErrInto404Err(err error, errCodeKey string, specErrCodes 
 	return err
 }
 
+// ConvertExpected401ErrInto404Err is a method used to parsing 401 error and try to convert it to 404 error according
+// to the right error code.
+// Arguments:
+// + err: The error response obtained through HTTP/HTTPS request.
+// + errCodeKey: The key name of the error code in the error response body, e.g. 'error_code', 'err_code'.
+// + specErrCodes: One or more error codes that you wish to match against the current error, e.g. 'FSS.0401'.
+// Notes: If you missing specErrCodes input, this function will convert all 401 errors into 404 errors.
+// How to use it:
+// + For the general cases, their error code key is 'error_code', and we should call as follow:
+//   - utils.ConvertExpected401ErrInto404Err(err, "error_code")
+//   - utils.ConvertExpected401ErrInto404Err(err, "error_code", "FSS.0401")
+//   - utils.ConvertExpected401ErrInto404Err(err, "error_code", []string{"FSS.0401", "FSS.0402"}...)
+func ConvertExpected401ErrInto404Err(err error, errCodeKey string, specErrCodes ...string) error {
+	var err401 golangsdk.ErrDefault401
+	if !errors.As(err, &err401) {
+		log.Printf("[WARN] Unable to recognize expected error type, want 'golangsdk.ErrDefault401', but got '%s'",
+			reflect.TypeOf(err).String())
+		return err
+	}
+	var apiError interface{}
+	if jsonErr := json.Unmarshal(err401.Body, &apiError); jsonErr != nil {
+		return err
+	}
+
+	errCode, searchErr := jmespath.Search(errCodeKey, apiError)
+	if searchErr != nil || errCode == nil {
+		log.Printf("[WARN] Unable to find the expected error code key (%s)", errCodeKey)
+		return err
+	}
+
+	if len(specErrCodes) < 1 {
+		log.Printf("[INFO] Identified 401 error parsed it as 404 error (without the error code control)")
+		return golangsdk.ErrDefault404{}
+	}
+	if errCodeStr, ok := errCode.(string); ok && utils.StrSliceContains(specErrCodes, errCodeStr) {
+		log.Printf("[INFO] Identified 401 error with code '%s' and parsed it as 404 error", errCode)
+		return golangsdk.ErrDefault404{}
+	}
+	log.Printf("[WARN] Unable to recognize expected error code (%s), want %v", errCode, specErrCodes)
+	return err
+}
+
 // ConvertExpected403ErrInto404Err is a method used to parsing 403 error and try to convert it to 404 error according
 // to the right error code.
 // Arguments:

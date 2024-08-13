@@ -225,7 +225,7 @@ func resourceAsyncInvokeConfigurationDelete(_ context.Context, d *schema.Resourc
 
 	err = function.DeleteAsyncInvokeConfig(client, d.Id())
 	if err != nil {
-		return diag.Errorf("error deleting the configuration of the asynchronous invocation: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting the configuration of the asynchronous invocation")
 	}
 	return nil
 }
