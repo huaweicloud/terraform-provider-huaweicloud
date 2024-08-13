@@ -15,6 +15,7 @@ import (
 )
 
 // @API DataArtsStudio POST /v2/{project_id}/design/approvals/batch-publish
+// @API DataArtsStudio POST /v2/{project_id}/design/approvals/batch-offline
 func ResourceArchitectureBatchPublishment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceArchitectureBatchPublishmentCreate,
@@ -38,23 +39,8 @@ func ResourceArchitectureBatchPublishment() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Specifies the list of the business information.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"biz_id": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Specifies the ID of the object to be published.`,
-						},
-						"biz_type": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Specifies the type of the object to be published.`,
-						},
-					},
-				},
+				Description: "Specifies the list of objects to be published.",
+				Elem:        bizInfoSchema(),
 			},
 			"approver_user_id": {
 				Type:        schema.TypeString,
@@ -69,106 +55,108 @@ func ResourceArchitectureBatchPublishment() *schema.Resource {
 				Description: "Specifies the user name of the architecture reviewer.",
 			},
 			"fast_approval": {
-				Type:        schema.TypeBool,
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  true,
+				Description: utils.SchemaDesc(
+					"Specifies whether to automatically review.",
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			"schedule_time": {
+				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Whether to automatically review.",
+				Description: "Specifies scheduling time of the DataArts quality job.",
 			},
 		},
 	}
 }
 
 func resourceArchitectureBatchPublishmentCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v2/{project_id}/design/approvals/batch-publish"
-		product = "dataarts"
-	)
-
-	client, err := cfg.NewServiceClient(product, region)
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("dataarts", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DataArts Studio client: %s", err)
 	}
-	createPath := client.Endpoint + httpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 
-	createOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"workspace":    d.Get("workspace_id").(string),
-			"Content-Type": "application/json;charset=UTF-8",
-		},
-		JSONBody: utils.RemoveNil(buildCreateArchitectureBatchPublishmentBodyParams(d)),
-	}
-
-	createResp, err := client.Request("POST", createPath, &createOpt)
-	if err != nil {
-		return diag.Errorf("error publishing DataArts Architecture resource: %s", err)
-	}
-
-	createRespBody, err := utils.FlattenResponse(createResp)
+	groupId, err := batchPublishResource(client, d, true)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	groupId := utils.PathSearch("data.value.group_id", createRespBody, nil)
-	if groupId == nil {
-		return diag.Errorf("error creating DataArts Architecture batch publishment: ID is not found in API response")
-	}
-
-	publishStatus := utils.PathSearch("data.value.operation_status", createRespBody, nil)
-	errMsgs := make([]string, 0)
-	if publishStatus == "FAILED" {
-		for _, v := range utils.PathSearch("data.value.groups", createRespBody, make([]interface{}, 0)).([]interface{}) {
-			if utils.PathSearch("operation_status", v, nil) != "FAILED" {
-				continue
-			}
-			bizId := utils.PathSearch("biz_id", v, "").(string)
-			failedMsg := utils.PathSearch("remark", v, "").(string)
-			errMsgs = append(errMsgs, fmt.Sprintf("%s | %s;", bizId, failedMsg))
-		}
-	}
-
-	if len(errMsgs) > 0 {
-		return diag.Errorf("error publishing some resources: %s", strings.Join(errMsgs, "\n"))
 	}
 
 	d.SetId(groupId.(string))
 	return nil
 }
 
-func buildCreateArchitectureBatchPublishmentBodyParams(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
-		"approver_user_id":   d.Get("approver_user_id"),
-		"approver_user_name": d.Get("approver_user_name"),
-		"biz_infos":          buildBusinessInfos(d.Get("biz_infos").([]interface{})),
-		"fast_approval":      utils.ValueIgnoreEmpty(d.Get("fast_approval")),
-	}
-}
-
-func buildBusinessInfos(bizInfos []interface{}) []interface{} {
-	result := make([]interface{}, len(bizInfos))
-	for i, v := range bizInfos {
-		result[i] = map[string]interface{}{
-			"biz_id":   utils.PathSearch("biz_id", v, ""),
-			"biz_type": utils.PathSearch("biz_type", v, ""),
-		}
-	}
-	return result
-}
-
 func resourceArchitectureBatchPublishmentRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceArchitectureBatchPublishmentDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := `This resource is only a one-time action resource for publshing resource. Deleting this resource will
-	not change the status of the currently published resource, but will only remove the resource information from the tfstate file.`
-	return diag.Diagnostics{
-		diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  errorMsg,
-		},
+func resourceArchitectureBatchPublishmentDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("dataarts", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating DataArts Studio client: %s", err)
 	}
+	if err = batchOfflineResource(client, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return nil
+}
+
+func batchOfflineResource(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "v2/{project_id}/design/approvals/batch-offline"
+	offlinePath := client.Endpoint + httpUrl
+	offlinePath = strings.ReplaceAll(offlinePath, "{project_id}", client.ProjectID)
+
+	offlineOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"workspace":    d.Get("workspace_id").(string),
+			"Content-Type": "application/json;charset=UTF-8",
+		},
+		JSONBody: buildActionArchitectureResourceBodyParams(d, false),
+	}
+
+	resp, err := client.Request("POST", offlinePath, &offlineOpt)
+	if err != nil {
+		return fmt.Errorf("error offlining DataArts Architecture resource: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	errMsg := getActionErrMsgs(respBody)
+	if errMsg != "" {
+		return fmt.Errorf("error offlining some resources: %s", errMsg)
+	}
+	return nil
+}
+
+func getActionErrMsgs(respBody interface{}) string {
+	status := utils.PathSearch("data.value.operation_status", respBody, "").(string)
+	if status != "FAILED" {
+		return ""
+	}
+
+	errMsgs := make([]string, 0)
+	for _, v := range utils.PathSearch("data.value.groups", respBody, make([]interface{}, 0)).([]interface{}) {
+		if utils.PathSearch("operation_status", v, nil) != "FAILED" {
+			continue
+		}
+		bizId := utils.PathSearch("biz_id", v, "").(string)
+		failedMsg := utils.PathSearch("remark", v, "").(string)
+		errMsgs = append(errMsgs, fmt.Sprintf("%s | %s;", bizId, failedMsg))
+	}
+
+	if len(errMsgs) > 0 {
+		return strings.Join(errMsgs, "\n")
+	}
+	return ""
 }

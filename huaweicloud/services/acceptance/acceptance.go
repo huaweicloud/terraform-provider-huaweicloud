@@ -354,7 +354,6 @@ var (
 	HW_DATAARTS_SUBJECT_ID                                 = os.Getenv("HW_DATAARTS_SUBJECT_ID")
 	HW_DATAARTS_ARCHITECTURE_USER_ID                       = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_ID")
 	HW_DATAARTS_ARCHITECTURE_USER_NAME                     = os.Getenv("HW_DATAARTS_ARCHITECTURE_USER_NAME")
-	HW_DATAARTS_ARCHITECTURE_SUBJECT_BIZ_ID                = os.Getenv("HW_DATAARTS_ARCHITECTURE_SUBJECT_BIZ_ID")
 	HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_ID   = os.Getenv("HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_ID")
 	HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_NAME = os.Getenv("HW_DATAARTS_SECURITY_PERMISSSIONSET_MEMBER_OBJECT_NAME")
 	// Management Center
@@ -1876,13 +1875,6 @@ func TestAccPreCheckDataArtsConnectionID(t *testing.T) {
 func TestAccPreCheckDataArtsArchitectureReviewer(t *testing.T) {
 	if HW_DATAARTS_ARCHITECTURE_USER_ID == "" || HW_DATAARTS_ARCHITECTURE_USER_NAME == "" {
 		t.Skip("HW_DATAARTS_ARCHITECTURE_USER_ID and HW_DATAARTS_ARCHITECTURE_USER_NAME must be set for the acceptance test")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckDataArtsArchitectureBatchPublishment(t *testing.T) {
-	if HW_DATAARTS_ARCHITECTURE_SUBJECT_BIZ_ID == "" {
-		t.Skip("HW_DATAARTS_ARCHITECTURE_SUBJECT_BIZ_ID must be set for the acceptance test")
 	}
 }
 
