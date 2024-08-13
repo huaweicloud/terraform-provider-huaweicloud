@@ -36,6 +36,8 @@ const (
 	PublicBindTypeBindExisting = "bind_existing"
 )
 
+const ClusterIdIllegalErrCode = "DWS.0001"
+
 // @API DWS POST /v1.0/{project_id}/clusters
 // @API DWS GET /v1.0/{project_id}/clusters/{cluster_id}
 // @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/expand-instance-storage
@@ -1149,11 +1151,6 @@ func deleteClusterWaitingForCompleted(ctx context.Context, d *schema.ResourceDat
 
 			deleteDwsClusterWaitingResp, err := deleteDwsClusterWaitingClient.Request("GET", deleteDwsClusterWaitingPath, &deleteDwsClusterWaitingOpt)
 			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
-					return "Resource Not Found", "COMPLETED", nil
-				}
-
 				err = parseClusterNotFoundError(err)
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
@@ -1197,29 +1194,6 @@ func deleteClusterWaitingForCompleted(ctx context.Context, d *schema.ResourceDat
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
-}
-
-func parseClusterNotFoundError(respErr error) error {
-	var apiErr interface{}
-	if errCode, ok := respErr.(golangsdk.ErrDefault401); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr != nil {
-			return pErr
-		}
-		errCode, err := jmespath.Search(`errCode`, apiErr)
-		if err != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", err.Error())
-		}
-
-		if errCode == `DWS.0047` {
-			return golangsdk.ErrDefault404{
-				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte("the DWS cluster does not exist"),
-				},
-			}
-		}
-	}
-	return respErr
 }
 
 func addClusterTags(client *golangsdk.ServiceClient, clusterId string, rawTags []tags.ResourceTag) error {
@@ -1474,6 +1448,27 @@ func parseLtsError(err error) error {
 		if errorCode == "DWS.0015" {
 			return golangsdk.ErrDefault404(errCode400)
 		}
+	}
+	return err
+}
+
+func parseClusterNotFoundError(err error) error {
+	// "DWS.0001": The cluster ID does not exist (non-standard UUID format). Status code is 400.
+	parsedErr := common.ConvertExpected400ErrInto404Err(err, "error_code", ClusterIdIllegalErrCode)
+	if _, ok := parsedErr.(golangsdk.ErrDefault404); ok {
+		return parsedErr
+	}
+
+	parsedErr = common.ConvertExpected401ErrInto404Err(err, "error_code", "DWS.0047")
+	if _, ok := parsedErr.(golangsdk.ErrDefault404); ok {
+		return parsedErr
+	}
+
+	// "DWS.0015": The cluster ID does not exist (standard UUID format). Status code is 403.
+	parsedErr = common.ConvertExpected403ErrInto404Err(err, "error_code", "DWS.0015")
+	// "DWS.3027": The cluster was deleted after it was created. Status code is 404.
+	if _, ok := parsedErr.(golangsdk.ErrDefault404); ok {
+		return parsedErr
 	}
 	return err
 }

@@ -181,7 +181,11 @@ func resourceDwsSnapshotPolicyRead(_ context.Context, d *schema.ResourceData, me
 	getDwsSnapshotPolicyResp, err := getDwsSnapshotPolicyClient.Request("GET", getDwsSnapshotPolicyPath, &getDwsSnapshotPolicyOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DwsSnapshotPolicy")
+		// The cluster ID does not exist.
+		// "DWS.0001": The cluster ID is a non-standard UUID, the status code is 400.
+		// "DWS.0047": The cluster ID is a standard UUID, the status code is 404.
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", ClusterIdIllegalErrCode),
+			"error retrieving DWS snapshot policy")
 	}
 
 	getDwsSnapshotPolicyRespBody, err := utils.FlattenResponse(getDwsSnapshotPolicyResp)
