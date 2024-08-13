@@ -7,7 +7,6 @@ package dataarts
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -22,6 +21,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var appNotFoundErrors = []string{
+	"DLM.4001", // Workspace not found
+	"DLM.4063", // Application not found
+}
 
 // @API DataArtsStudio POST /v1/{project_id}/service/apps
 // @API DataArtsStudio GET /v1/{project_id}/service/apps/{app_id}
@@ -112,7 +116,7 @@ func resourceDataServiceAppCreate(ctx context.Context, d *schema.ResourceData, m
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 			"workspace":    d.Get("workspace_id").(string),
-			"dlm_type":     d.Get("dlm_type").(string),
+			"dlm-type":     d.Get("dlm_type").(string),
 		},
 	}
 
@@ -173,14 +177,16 @@ func resourceDataServiceAppRead(_ context.Context, d *schema.ResourceData, meta 
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 			"workspace":    d.Get("workspace_id").(string),
-			"dlm_type":     d.Get("dlm_type").(string),
+			"dlm-type":     d.Get("dlm_type").(string),
 		},
 	}
 
 	getAppResp, err := getAppClient.Request("GET", getAppPath, &getAppOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseAppNotFoundError(err), "error retrieving app")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", appNotFoundErrors...),
+			"error retrieving app")
 	}
 
 	getAppRespBody, err := utils.FlattenResponse(getAppResp)
@@ -233,7 +239,7 @@ func resourceDataServiceAppUpdate(ctx context.Context, d *schema.ResourceData, m
 			MoreHeaders: map[string]string{
 				"Content-Type": "application/json",
 				"workspace":    d.Get("workspace_id").(string),
-				"dlm_type":     d.Get("dlm_type").(string),
+				"dlm-type":     d.Get("dlm_type").(string),
 			},
 		}
 
@@ -280,7 +286,7 @@ func resourceDataServiceAppDelete(_ context.Context, d *schema.ResourceData, met
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 			"workspace":    d.Get("workspace_id").(string),
-			"dlm_type":     d.Get("dlm_type").(string),
+			"dlm-type":     d.Get("dlm_type").(string),
 		},
 	}
 
@@ -303,23 +309,4 @@ func resourceAppImportState(_ context.Context, d *schema.ResourceData, _ interfa
 	d.SetId(parts[2])
 
 	return []*schema.ResourceData{d}, nil
-}
-
-func parseAppNotFoundError(respErr error) error {
-	var apiErr interface{}
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr != nil {
-			return pErr
-		}
-		errCode, err := jmespath.Search(`error_code`, apiErr)
-		if err != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", err.Error())
-		}
-
-		if errCode == `DLM.4063` {
-			return golangsdk.ErrDefault404{}
-		}
-	}
-	return respErr
 }
