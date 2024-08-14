@@ -475,16 +475,6 @@ func resourceMetricTriggerConditionHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func buildHeaders(cfg *config.Config, d *schema.ResourceData) map[string]string {
-	moreHeaders := map[string]string{
-		"Content-Type": "application/json",
-	}
-	if epsID := cfg.GetEnterpriseProjectID(d); epsID != "" {
-		moreHeaders["Enterprise-Project-Id"] = epsID
-	}
-	return moreHeaders
-}
-
 func resourceAlarmRuleV4Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
