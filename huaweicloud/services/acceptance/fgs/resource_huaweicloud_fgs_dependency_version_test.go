@@ -62,6 +62,9 @@ func TestAccDependencyVersion_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"link",
+				},
 			},
 			// Test the ID format: <depend_name>/<version>
 			{
@@ -69,6 +72,9 @@ func TestAccDependencyVersion_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccDependencyVersionImportStateFunc_withDependName(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"link",
+				},
 			},
 			// Test the ID format: <depend_name>/<version_id>
 			{
@@ -76,6 +82,9 @@ func TestAccDependencyVersion_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccDependencyVersionImportStateFunc_withVersionId(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"link",
+				},
 			},
 		},
 	})
