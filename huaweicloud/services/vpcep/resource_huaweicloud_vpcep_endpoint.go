@@ -2,6 +2,8 @@ package vpcep
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -9,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/vpcep/v1/endpoints"
@@ -96,6 +99,22 @@ func ResourceVPCEndpoint() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+			"policy_statement": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsJSON,
+				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
+					equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+					return equal
+				},
+			},
+			// Field `policy_document` was not tested due to insufficient testing conditions.
+			"policy_document": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"tags": common.TagsSchema(),
 			"status": {
 				Type:     schema.TypeString,
@@ -121,12 +140,30 @@ func ResourceVPCEndpoint() *schema.Resource {
 	}
 }
 
+func buildPolicyStatement(d *schema.ResourceData) ([]endpoints.PolicyStatement, error) {
+	if d.Get("policy_statement").(string) == "" {
+		return nil, nil
+	}
+
+	var statements []endpoints.PolicyStatement
+	err := json.Unmarshal([]byte(d.Get("policy_statement").(string)), &statements)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling policy, please check the format of the policy statement: %s", err)
+	}
+	return statements, nil
+}
+
 func resourceVPCEndpointCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	vpcepClient, err := cfg.VPCEPClient(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
+	}
+
+	policyStatementOpts, err := buildPolicyStatement(d)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	enableACL := d.Get("enable_whitelist").(bool)
@@ -139,6 +176,8 @@ func resourceVPCEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 		EnableDNS:       utils.Bool(d.Get("enable_dns").(bool)),
 		EnableWhitelist: utils.Bool(enableACL),
 		Tags:            utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		PolicyStatement: policyStatementOpts,
+		PolicyDocument:  d.Get("policy_document").(string),
 	}
 
 	routeTables := d.Get("routetables").(*schema.Set)
@@ -191,6 +230,11 @@ func resourceVPCEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 
 	log.Printf("[DEBUG] retrieving VPC endpoint: %#v", ep)
 
+	policyStatements, err := json.Marshal(ep.PolicyStatement)
+	if err != nil {
+		return diag.Errorf("error marshaling policy statement: %s", err)
+	}
+
 	serviceType := ep.ServiceType
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -205,6 +249,8 @@ func resourceVPCEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("enable_whitelist", ep.EnableWhitelist),
 		d.Set("packet_id", ep.MarkerID),
 		d.Set("tags", utils.TagsToMap(ep.Tags)),
+		d.Set("policy_statement", string(policyStatements)),
+		d.Set("policy_document", ep.PolicyDocument),
 	)
 
 	// if the VPC endpoint type is interface, the field is used and need to be set
@@ -258,6 +304,22 @@ func resourceVPCEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta
 			return diag.Errorf("error updating tags of VPC endpoint %s: %s", d.Id(), tagErr)
 		}
 	}
+	if d.HasChanges("policy_statement", "policy_document") {
+		policyStatementOpts, err := buildPolicyStatement(d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		updatePolicyOpts := endpoints.UpdatePolicyOpts{
+			PolicyStatement: policyStatementOpts,
+			PolicyDocument:  d.Get("policy_document").(string),
+		}
+		_, err = endpoints.UpdatePolicy(vpcepClient, updatePolicyOpts, d.Id()).Extract()
+		if err != nil {
+			return diag.Errorf("error updating VPC endpoint policy: %s", err)
+		}
+	}
+
 	return resourceVPCEndpointRead(ctx, d, meta)
 }
 

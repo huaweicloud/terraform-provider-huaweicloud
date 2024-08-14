@@ -13,3 +13,7 @@ func rootURL(c *golangsdk.ServiceClient) string {
 func resourceURL(c *golangsdk.ServiceClient, endpointID string) string {
 	return c.ServiceURL(rootPath, endpointID)
 }
+
+func updatePolicyURL(c *golangsdk.ServiceClient, endpointID string) string {
+	return c.ServiceURL(rootPath, endpointID, "policy")
+}
