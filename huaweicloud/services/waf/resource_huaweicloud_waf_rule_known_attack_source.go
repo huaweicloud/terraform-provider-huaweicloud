@@ -152,6 +152,7 @@ func resourceRuleKnownAttackRead(_ context.Context, d *schema.ResourceData, meta
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
+		// If the known attack source rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF known attack source rule")
 	}
 
@@ -232,7 +233,8 @@ func resourceRuleKnownAttackDelete(_ context.Context, d *schema.ResourceData, me
 
 	_, err = client.Request("DELETE", deletePath, &deleteRuleKnownAttackOpt)
 	if err != nil {
-		return diag.Errorf("error deleting WAF known attack source rule: %s", err)
+		// If the known attack source rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF known attack source rule")
 	}
 
 	return nil
