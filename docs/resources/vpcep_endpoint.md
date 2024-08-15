@@ -2,7 +2,8 @@
 subcategory: "VPC Endpoint (VPCEP)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_vpcep_endpoint"
-description: ""
+description: |
+  Provides a resource to manage a VPC endpoint resource.
 ---
 
 # huaweicloud_vpcep_endpoint
@@ -11,18 +12,15 @@ Provides a resource to manage a VPC endpoint resource.
 
 ## Example Usage
 
-### Access to the public service
+### Access to the public interface service
 
 ```hcl
+variable "public_interface_service_id" {}
 variable "vpc_id" {}
 variable "network_id" {}
 
-data "huaweicloud_vpcep_public_services" "cloud_service" {
-  service_name = "dis"
-}
-
-resource "huaweicloud_vpcep_endpoint" "myendpoint" {
-  service_id       = data.huaweicloud_vpcep_public_services.cloud_service.services[0].id
+resource "huaweicloud_vpcep_endpoint" "test" {
+  service_id       = var.public_interface_service_id
   vpc_id           = var.vpc_id
   network_id       = var.network_id
   enable_dns       = true
@@ -31,7 +29,7 @@ resource "huaweicloud_vpcep_endpoint" "myendpoint" {
 }
 ```
 
-### Access to the private service
+### Access to the private interface service
 
 ```hcl
 variable "service_vpc_id" {}
@@ -39,7 +37,7 @@ variable "vm_port" {}
 variable "vpc_id" {}
 variable "network_id" {}
 
-resource "huaweicloud_vpcep_service" "demo" {
+resource "huaweicloud_vpcep_service" "test" {
   name        = "demo-service"
   server_type = "VM"
   vpc_id      = var.service_vpc_id
@@ -51,12 +49,63 @@ resource "huaweicloud_vpcep_service" "demo" {
   }
 }
 
-resource "huaweicloud_vpcep_endpoint" "demo" {
-  service_id  = huaweicloud_vpcep_service.demo.id
+resource "huaweicloud_vpcep_endpoint" "test" {
+  service_id  = huaweicloud_vpcep_service.test.id
   vpc_id      = var.vpc_id
   network_id  = var.network_id
   enable_dns  = true
   description = "test description"
+}
+```
+
+### Access to the gateway service without policy statement
+
+```hcl
+variable "gateway_service_id" {}
+variable "vpc_id" {}
+
+resource "huaweicloud_vpcep_endpoint" "test" {
+  service_id  = var.gateway_service_id
+  vpc_id      = var.vpc_id
+  description = "test description"
+}
+```
+
+### Access to the gateway service with policy statement
+
+```hcl
+variable "gateway_service_id" {}
+variable "vpc_id" {}
+
+resource "huaweicloud_vpcep_endpoint" "test" {
+  service_id  = var.gateway_service_id
+  vpc_id      = var.vpc_id
+  description = "test description"
+
+  policy_statement = <<EOF
+  [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "obs:bucket:ListBucket"
+      ],
+      "Resource": [
+        "obs:*:*:*:*/*",
+        "obs:*:*:*:*"
+      ]
+    },
+    {
+      "Effect": "Deny",
+      "Action": [
+        "obs:object:DeleteObject"
+      ],
+      "Resource": [
+        "obs:*:*:*:*/*",
+        "obs:*:*:*:*"
+      ]
+    }
+  ]
+EOF
 }
 ```
 
@@ -68,39 +117,67 @@ The following arguments are supported:
   region will be used. Changing this creates a new VPC endpoint.
 
 * `service_id` - (Required, String, ForceNew) Specifies the ID of the VPC endpoint service.
-  The VPC endpoint service could be private or public. Changing this creates a new VPC endpoint.
+  The VPC endpoint service could be private interface service, public interface service or gateway service.
+  + For private interface service, the value of `service_id` can be obtained through resource `huaweicloud_vpcep_service`
+    or datasource `huaweicloud_vpcep_services`.
+  + For public interface service, the value of `service_id` can be obtained through datasource
+    `huaweicloud_vpcep_public_services`.
+  + For gateway service, due to API reasons, the current provider's capabilities do not support the creation of gateway
+    VPC endpoint services. Please try to obtain `service_id` through datasource `huaweicloud_vpcep_public_services` or
+    look for VPCEP operation and maintenance help to find the gateway service ID.
+
+  Changing this creates a new VPC endpoint.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC where the VPC endpoint is to be created. Changing
   this creates a new VPC endpoint.
 
 * `network_id` - (Optional, String, ForceNew) Specifies the network ID of the subnet in the VPC specified by `vpc_id`.
+  This field is required when creating a VPC endpoint for connecting an interface VPC endpoint service.
+  The use of this field has the following restrictions:
+  + The subnet CIDR block of the VPC cannot overlap with **198.19.128.0/17**.
+  + The destination address of the custom route in the VPC route table cannot overlap with **198.19.128.0/17**.
+
   Changing this creates a new VPC endpoint.
 
-  -> This field is required when creating a VPC endpoint for connecting an interface VPC endpoint service.
-
 * `ip_address` - (Optional, String, ForceNew) Specifies the IP address for accessing the associated VPC endpoint
-  service. Only IPv4 addresses are supported. Changing this creates a new VPC endpoint.
+  service. Only IPv4 addresses are supported. This field is required when creating a VPC endpoint for connecting an
+  interface VPC endpoint service.
+
+  Changing this creates a new VPC endpoint.
 
 * `enable_dns` - (Optional, Bool, ForceNew) Specifies whether to create a private domain name. The default value is
-  true. Changing this creates a new VPC endpoint.
+  **true**. This field is valid only when creating a VPC endpoint for connecting an interface VPC endpoint service.
 
-  -> This field is valid only when creating a VPC endpoint for connecting an interface VPC endpoint service.
+  Changing this creates a new VPC endpoint.
 
-* `description` - (Optional, String, ForceNew) Specifies the description of the VPC endpoint.
+* `description` - (Optional, String, ForceNew) Specifies the description of the VPC endpoint. The value can contain
+  characters such as letters and digits, but cannot contain less than signs (<) and great than signs (>).
 
   Changing this creates a new VPC endpoint.
 
 * `routetables` - (Optional, List, ForceNew) Specifies the IDs of the route tables associated with the VPC endpoint.
+  This field is valid only when creating a VPC endpoint for connecting a gateway VPC endpoint service.
+  The default route table will be used when this field is not specified.
+
   Changing this creates a new VPC endpoint.
 
-  -> This field is valid only when creating a VPC endpoint for connecting a gateway VPC endpoint service.
-    The default route table will be used when this field is not specified.
-
-* `enable_whitelist` - (Optional, Bool) Specifies whether to enable access control. The default value is
-  false.
+* `enable_whitelist` - (Optional, Bool) Specifies whether to enable access control. The default value is **false**.
 
 * `whitelist` - (Optional, List) Specifies the list of IP address or CIDR block which can be accessed to the
   VPC endpoint. This field is valid when `enable_whitelist` is set to **true**. The max length of whitelist is 20.
+  This field is valid only when creating a VPC endpoint for connecting an interface VPC endpoint service.
+
+* `policy_statement` - (Optional, String) Specifies the policy of the gateway VPC endpoint. The value is a string in
+  JSON array format. This parameter is only available when `enable_policy` of the VPC endpoint services for
+  Object Storage Service (OBS) and Scalable File Service (SFS) is set to **true**.
+
+  -> Please refer to [official document](https://support.huaweicloud.com/intl/en-us/usermanual-iam/iam_01_0017.html) for
+  the data structure rules of the policy. Just pay attention to the fields `Effect`, `Action` and `Resource`.
+
+* `policy_document` - (Optional, String) Specifies the IAM 5.0 policies. This parameter is only available when
+  `enable_policy` of the VPC endpoint services is set to **true**. Defaults to full access.
+  The VPC endpoint services of Object Storage Service (OBS) and Scalable File Service (SFS) do not support configuring
+  this parameter.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the VPC endpoint.
 
@@ -110,7 +187,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The unique ID of the VPC endpoint.
 
-* `status` - The status of the VPC endpoint. The value can be **accepted**, **pendingAcceptance** or **rejected**.
+* `status` - The status of the VPC endpoint. The value can be **pendingAcceptance**, **creating**, **accepted**,
+  **rejected**, **failed**, **deleting**.
 
 * `service_name` - The name of the VPC endpoint service.
 

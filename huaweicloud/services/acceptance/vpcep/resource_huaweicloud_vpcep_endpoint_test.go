@@ -206,11 +206,13 @@ resource "huaweicloud_vpcep_endpoint" "myendpoint" {
 }
 `
 
-func TestAccVPCEndpoint_RouteTables(t *testing.T) {
-	var endpoint endpoints.Endpoint
+func TestAccVPCEndpoint_gatewayEndpoint(t *testing.T) {
+	var (
+		endpoint     endpoints.Endpoint
+		rName        = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_vpcep_endpoint.test"
+	)
 
-	rName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_vpcep_endpoint.test"
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&endpoint,
@@ -220,19 +222,32 @@ func TestAccVPCEndpoint_RouteTables(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// Prepare a gateway VPC endpoint service ID in advance.
 			acceptance.TestAccPreCheckVPCEPServiceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVPCEndpoint_RouteTables(rName),
+				Config: testAccVPCEndpoint_gatewayEndpoint(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "routetables.#", "2"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_type"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy_statement"),
+				),
+			},
+			{
+				Config: testAccVPCEndpoint_gatewayEndpointUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "routetables.#", "2"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_type"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy_statement"),
 				),
 			},
 			{
@@ -299,7 +314,7 @@ data "huaweicloud_vpc_route_table" "custom" {
 `, rName)
 }
 
-func testAccVPCEndpoint_RouteTables(rName string) string {
+func testAccVPCEndpoint_gatewayEndpoint(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -316,6 +331,71 @@ resource "huaweicloud_vpcep_endpoint" "test" {
     data.huaweicloud_vpc_route_table.custom.id,
     data.huaweicloud_vpc_route_table.test.id
   ]
+
+  policy_statement = <<EOF
+  [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "obs:bucket:ListBucket"
+      ],
+      "Resource": [
+        "obs:*:*:*:*/*",
+        "obs:*:*:*:*"
+      ]
+    },
+    {
+      "Effect": "Deny",
+      "Action": [
+        "obs:object:DeleteObject"
+      ],
+      "Resource": [
+        "obs:*:*:*:*/*",
+        "obs:*:*:*:*"
+      ]
+    }
+  ]
+EOF
+
+  tags = {
+    owner = "tf-acc"
+  }
+}
+`, testAccVPCEndpoint_RouteTables_base(rName), acceptance.HW_VPCEP_SERVICE_ID)
+}
+
+func testAccVPCEndpoint_gatewayEndpointUpdate(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_vpcep_endpoint" "test" {
+  depends_on = [
+    huaweicloud_vpc_route_table.test
+  ]
+
+  service_id  = "%[2]s"
+  vpc_id      = huaweicloud_vpc.test.id
+  description = "created by terraform"
+
+  routetables = [
+    data.huaweicloud_vpc_route_table.custom.id,
+    data.huaweicloud_vpc_route_table.test.id
+  ]
+
+  policy_statement = <<EOF
+  [
+    {
+      "Effect": "Deny",
+      "Action": [
+        "obs:bucket:ListBucket"
+      ],
+      "Resource": [
+        "obs:*:*:*:*/*",
+        "obs:*:*:*:*"
+      ]
+    }
+  ]
+EOF
 
   tags = {
     owner = "tf-acc"

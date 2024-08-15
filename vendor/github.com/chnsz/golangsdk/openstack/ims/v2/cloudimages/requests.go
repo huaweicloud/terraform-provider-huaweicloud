@@ -227,6 +227,8 @@ type CreateDataImageByOBSOpts struct {
 	MinDisk int `json:"min_disk" required:"true"`
 	// the master key used for encrypting an image
 	CmkId string `json:"cmk_id,omitempty"`
+	// One or more tag key and value pairs to associate with the image
+	ImageTags []ImageTag `json:"image_tags,omitempty"`
 	// Enterprise project ID
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
