@@ -59,6 +59,14 @@ The following arguments are supported:
 
 * `dst_region_name` - (Optional, String) Specifies the destination region name.
 
+* `src_province_name` - (Optional, String) Specifies the source province name.
+
+* `dst_province_name` - (Optional, String) Specifies the destination province name.
+
+* `src_city_name` - (Optional, String) Specifies the source city name.
+
+* `dst_city_name` - (Optional, String) Specifies the destination city name.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -98,10 +106,26 @@ The `records` block supports:
 
 * `dst_host` - The destination host.
 
-* `dst_region_name` - The destination region name.
-
-* `src_region_id` - The source region id.
-
-* `dst_region_id` - The destination region id.
+* `src_region_id` - The source region ID.
 
 * `src_region_name` - The source region name.
+
+* `dst_region_id` - The destination region ID.
+
+* `dst_region_name` - The destination region name.
+
+* `src_province_id` - The source province ID.
+
+* `src_province_name` - The source province name.
+
+* `src_city_id` - The source city ID.
+
+* `src_city_name` - The source city name.
+
+* `dst_province_id` - The destination province ID.
+
+* `dst_province_name` - The destination province name.
+
+* `dst_city_id` - The destination city ID.
+
+* `dst_city_name` - The destination city name.

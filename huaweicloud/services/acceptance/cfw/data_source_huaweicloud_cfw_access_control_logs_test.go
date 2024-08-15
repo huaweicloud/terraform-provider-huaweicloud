@@ -35,12 +35,13 @@ func TestAccDataSourceCfwAccessControlLogs_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSource, "records.0.src_region_name"),
 					resource.TestCheckResourceAttrSet(dataSource, "records.0.dst_region_name"),
 
-					resource.TestCheckOutput("app_filter_is_useful", "true"),
-					resource.TestCheckOutput("action_filter_is_useful", "true"),
-					resource.TestCheckOutput("src_port_filter_is_useful", "true"),
-					resource.TestCheckOutput("dst_port_filter_is_useful", "true"),
-					resource.TestCheckOutput("src_region_name_filter_is_useful", "true"),
-					resource.TestCheckOutput("dst_region_name_filter_is_useful", "true"),
+					resource.TestCheckOutput("is_app_filter_useful", "true"),
+					resource.TestCheckOutput("is_action_filter_useful", "true"),
+					resource.TestCheckOutput("is_src_port_filter_useful", "true"),
+					resource.TestCheckOutput("is_dst_port_filter_useful", "true"),
+					resource.TestCheckOutput("is_src_region_name_filter_useful", "true"),
+					resource.TestCheckOutput("is_dst_region_name_filter_useful", "true"),
+					resource.TestCheckOutput("is_dst_province_name_filter_useful", "true"),
 				),
 			},
 		},
@@ -56,13 +57,14 @@ data "huaweicloud_cfw_access_control_logs" "test" {
 }
 
 locals {
-  records         = data.huaweicloud_cfw_access_control_logs.test.records
-  app             = local.records[0].app
-  action          = local.records[0].action
-  src_port        = local.records[0].src_port
-  dst_port        = local.records[0].dst_port
-  src_region_name = local.records[0].src_region_name
-  dst_region_name = local.records[0].dst_region_name
+  records           = data.huaweicloud_cfw_access_control_logs.test.records
+  app               = local.records[0].app
+  action            = local.records[0].action
+  src_port          = local.records[0].src_port
+  dst_port          = local.records[0].dst_port
+  src_region_name   = local.records[0].src_region_name
+  dst_region_name   = local.records[0].dst_region_name
+  dst_province_name = local.records[0].dst_province_name
 }
 
 data "huaweicloud_cfw_access_control_logs" "filter_by_app" {
@@ -107,48 +109,62 @@ data "huaweicloud_cfw_access_control_logs" "filter_by_dst_region_name" {
   dst_region_name = local.dst_region_name
 }
 
-locals {
-  records_by_app             = data.huaweicloud_cfw_access_control_logs.filter_by_app.records
-  records_by_action          = data.huaweicloud_cfw_access_control_logs.filter_by_action.records
-  records_by_src_port        = data.huaweicloud_cfw_access_control_logs.filter_by_src_port.records
-  records_by_dst_port        = data.huaweicloud_cfw_access_control_logs.filter_by_dst_port.records
-  records_by_src_region_name = data.huaweicloud_cfw_access_control_logs.filter_by_src_region_name.records
-  records_by_dst_region_name = data.huaweicloud_cfw_access_control_logs.filter_by_dst_region_name.records
+data "huaweicloud_cfw_access_control_logs" "filter_by_dst_province_name" {
+  fw_instance_id    = "%[1]s"
+  start_time        = "%[2]s"
+  end_time          = "%[3]s"
+  dst_province_name = local.dst_province_name
 }
 
-output "app_filter_is_useful" {
+locals {
+  records_by_app               = data.huaweicloud_cfw_access_control_logs.filter_by_app.records
+  records_by_action            = data.huaweicloud_cfw_access_control_logs.filter_by_action.records
+  records_by_src_port          = data.huaweicloud_cfw_access_control_logs.filter_by_src_port.records
+  records_by_dst_port          = data.huaweicloud_cfw_access_control_logs.filter_by_dst_port.records
+  records_by_src_region_name   = data.huaweicloud_cfw_access_control_logs.filter_by_src_region_name.records
+  records_by_dst_region_name   = data.huaweicloud_cfw_access_control_logs.filter_by_dst_region_name.records
+  records_by_dst_province_name = data.huaweicloud_cfw_access_control_logs.filter_by_dst_province_name.records
+}
+
+output "is_app_filter_useful" {
   value = length(local.records_by_app) > 0 && alltrue(
     [for v in local.records_by_app[*].app : v == local.app]
   )
 }
 
-output "action_filter_is_useful" {
+output "is_action_filter_useful" {
   value = length(local.records_by_action) > 0 && alltrue(
     [for v in local.records_by_action[*].action : v == local.action]
   )
 }
 
-output "src_port_filter_is_useful" {
+output "is_src_port_filter_useful" {
   value = length(local.records_by_src_port) > 0 && alltrue(
     [for v in local.records_by_src_port[*].src_port : v == local.src_port]
   )
 }
 
-output "dst_port_filter_is_useful" {
+output "is_dst_port_filter_useful" {
   value = length(local.records_by_dst_port) > 0 && alltrue(
     [for v in local.records_by_dst_port[*].dst_port : v == local.dst_port]
   )
 }
 
-output "src_region_name_filter_is_useful" {
+output "is_src_region_name_filter_useful" {
   value = length(local.records_by_src_region_name) > 0 && alltrue(
     [for v in local.records_by_src_region_name[*].src_region_name : v == local.src_region_name]
   )
 }
 
-output "dst_region_name_filter_is_useful" {
+output "is_dst_region_name_filter_useful" {
   value = length(local.records_by_dst_region_name) > 0 && alltrue(
     [for v in local.records_by_dst_region_name[*].dst_region_name : v == local.dst_region_name]
+  )
+}
+
+output "is_dst_province_name_filter_useful" {
+  value = length(local.records_by_dst_province_name) > 0 && alltrue(
+    [for v in local.records_by_dst_province_name[*].dst_province_name : v == local.dst_province_name]
   )
 }
 `, acceptance.HW_CFW_INSTANCE_ID, acceptance.HW_CFW_START_TIME, acceptance.HW_CFW_END_TIME)
