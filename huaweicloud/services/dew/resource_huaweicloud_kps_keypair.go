@@ -31,6 +31,8 @@ const (
 // @API DEW PUT /v3/{project_id}/keypairs/{keypair_name}
 // @API DEW GET /v3/{project_id}/keypairs/{keypair_name}
 // @API DEW DELETE /v3/{project_id}/keypairs/{keypair_name}
+// @API DEW POST /v3/{project_id}/keypairs/private-key/import
+// @API DEW DELETE /v3/{project_id}/keypairs/{keypair_name}/private-key
 func ResourceKeypair() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceKeypairCreate,
@@ -72,11 +74,20 @@ func ResourceKeypair() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{scopeUser, scopeDomainLabel}, false),
 			},
+			"user_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"encryption_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringInSlice([]string{"default", "kms"}, false),
+			},
+			"kms_key_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"kms_key_name": {
 				Type:     schema.TypeString,
@@ -191,6 +202,7 @@ func resourceKeypairRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("scope", scope),
 		d.Set("public_key", response.Keypair.PublicKey),
 		d.Set("description", response.Keypair.Description),
+		d.Set("user_id", response.Keypair.UserId),
 		d.Set("created_at", utils.FormatTimeStampUTC(*response.Keypair.CreateTime/1000)),
 		d.Set("fingerprint", response.Keypair.Fingerprint),
 		d.Set("is_managed", response.Keypair.IsKeyProtection),
@@ -253,6 +265,11 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 		importPublicKey = utils.String(v.(string))
 	}
 
+	var userId *string
+	if v, ok := d.GetOk("user_id"); ok {
+		userId = utils.String(v.(string))
+	}
+
 	kType := model.GetCreateKeypairActionTypeEnum().SSH
 	createOpts := &model.CreateKeypairRequest{
 		Body: &model.CreateKeypairRequestBody{
@@ -260,6 +277,7 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 				Name:      d.Get("name").(string),
 				Type:      &kType,
 				PublicKey: importPublicKey,
+				UserId:    userId,
 			},
 		},
 	}
@@ -291,18 +309,25 @@ func buildCreateParams(d *schema.ResourceData) (*model.CreateKeypairRequest, err
 			},
 		}
 
-		// the kms key name is required when encryption_type="kms"
-		k, kmsExist := d.GetOk("kms_key_name")
-		if t == "kms" && !kmsExist {
-			return nil, fmt.Errorf("kms_key_name is mandatory when the encryption_type is kms")
+		// the kms key ID or name is required when encryption_type="kms"
+		keyId, keyIdExist := d.GetOk("kms_key_id")
+		keyName, keyNameExist := d.GetOk("kms_key_name")
+		if t == "kms" && !keyNameExist && !keyIdExist {
+			return nil, fmt.Errorf("'kms_key_name' or 'kms_key_id' is mandatory when the 'encryption_type' value is 'kms'")
 		}
 
-		kmsKeyName := k.(string)
+		if keyIdExist {
+			keyProtection.Encryption.KmsKeyId = utils.String(keyId.(string))
+		}
+
+		if keyNameExist {
+			keyProtection.Encryption.KmsKeyName = utils.String(keyName.(string))
+		}
 
 		if v, ok := d.GetOk("private_key"); ok {
 			keyProtection.PrivateKey = utils.String(v.(string))
 		}
-		keyProtection.Encryption.KmsKeyName = &kmsKeyName
+
 		createOpts.Body.Keypair.KeyProtection = &keyProtection
 	}
 
@@ -395,8 +420,20 @@ func buildImportPrivateKeyParams(d *schema.ResourceData) (*model.ImportPrivateKe
 		PrivateKey: d.Get("private_key").(string),
 	}
 
-	kmsKeyName := d.Get("kms_key_name").(string)
-	importPrivateKeyProtection.Encryption.KmsKeyName = &kmsKeyName
+	keyId, keyIdExist := d.GetOk("kms_key_id")
+	keyName, keyNameExist := d.GetOk("kms_key_name")
+	if t == "kms" && !keyNameExist && !keyIdExist {
+		return nil, fmt.Errorf("'kms_key_name' or 'kms_key_id' is mandatory when the 'encryption_type' value is 'kms'")
+	}
+
+	if keyIdExist {
+		importPrivateKeyProtection.Encryption.KmsKeyId = utils.String(keyId.(string))
+	}
+
+	if keyNameExist {
+		importPrivateKeyProtection.Encryption.KmsKeyName = utils.String(keyName.(string))
+	}
+
 	importOps.Body.Keypair.KeyProtection = &importPrivateKeyProtection
 
 	return importOps, nil
