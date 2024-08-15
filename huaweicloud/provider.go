@@ -993,6 +993,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_quotas":                  dws.DataSourceDwsQuotas(),
 			"huaweicloud_dws_snapshot_policies":       dws.DataSourceDwsSnapshotPolicies(),
 			"huaweicloud_dws_snapshots":               dws.DataSourceDwsSnapshots(),
+			"huaweicloud_dws_workload_plans":          dws.DataSourceDwsWorkloadPlans(),
 			"huaweicloud_dws_workload_queues":         dws.DataSourceWorkloadQueues(),
 
 			"huaweicloud_workspace_desktops": workspace.DataSourceDesktops(),
