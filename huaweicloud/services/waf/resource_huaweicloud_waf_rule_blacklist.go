@@ -148,6 +148,7 @@ func resourceWafRuleBlackListRead(_ context.Context, d *schema.ResourceData, met
 	policyID := d.Get("policy_id").(string)
 	n, err := rules.GetWithEpsId(wafClient, policyID, d.Id(), cfg.GetEnterpriseProjectID(d)).Extract()
 	if err != nil {
+		// If the blacklist and whitelist rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF blacklist and whitelist rule")
 	}
 
@@ -227,7 +228,8 @@ func resourceWafRuleBlackListDelete(_ context.Context, d *schema.ResourceData, m
 	policyID := d.Get("policy_id").(string)
 	err = rules.DeleteWithEpsId(wafClient, policyID, d.Id(), cfg.GetEnterpriseProjectID(d)).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting WAF blacklist and whitelist rule: %s", err)
+		// If the blacklist and whitelist rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF blacklist and whitelist rule")
 	}
 	return nil
 }
