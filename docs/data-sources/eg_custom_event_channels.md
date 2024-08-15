@@ -26,8 +26,6 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region where the custom event channels are located.  
   If omitted, the provider-level region will be used.
 
-* `channel_id` - (Optional, String) Specifies the channel ID used to query specified custom event channel.
-
 * `name` - (Optional, String) Specifies the channel name used to query specified custom event channel.
 
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the custom event

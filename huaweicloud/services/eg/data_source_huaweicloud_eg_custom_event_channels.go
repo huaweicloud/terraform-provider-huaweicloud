@@ -31,9 +31,14 @@ func DataSourceCustomEventChannels() *schema.Resource {
 				Description: "The region where the custom event channels are located.",
 			},
 			"channel_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The channel ID used to query specified custom event channel.",
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: utils.SchemaDesc(
+					"The channel ID used to query specified custom event channel.",
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -98,19 +103,19 @@ func DataSourceCustomEventChannels() *schema.Resource {
 	}
 }
 
-func filterCustomEventChannels(channels []custom.Channel, epsId string) ([]interface{}, error) {
+func filterEventChannels(channels []custom.Channel, epsId string) ([]interface{}, error) {
 	filter := map[string]interface{}{
 		"EnterpriseProjectId": epsId,
 	}
 
 	filterResult, err := utils.FilterSliceWithField(channels, filter)
 	if err != nil {
-		return nil, fmt.Errorf("error filting list of custom event channels: %s", err)
+		return nil, fmt.Errorf("error filting list of event channels: %s", err)
 	}
 	return filterResult, nil
 }
 
-func flattenCustomEventChannels(channels []interface{}) []map[string]interface{} {
+func flattenEventChannels(channels []interface{}) []map[string]interface{} {
 	if len(channels) < 1 {
 		return nil
 	}
@@ -150,7 +155,7 @@ func dataSourceCustomEventChannelsRead(_ context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.Errorf("error querying custom event channels: %s", err)
 	}
-	filterResult, err := filterCustomEventChannels(resp, cfg.GetEnterpriseProjectID(d))
+	filterResult, err := filterEventChannels(resp, cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -163,7 +168,7 @@ func dataSourceCustomEventChannelsRead(_ context.Context, d *schema.ResourceData
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("channels", flattenCustomEventChannels(filterResult)),
+		d.Set("channels", flattenEventChannels(filterResult)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving data source fields of EG custom event channels: %s", err)
