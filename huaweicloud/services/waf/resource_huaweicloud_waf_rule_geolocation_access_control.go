@@ -165,6 +165,7 @@ func resourceRuleGeolocationRead(_ context.Context, d *schema.ResourceData, meta
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
+		// If the rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF geolocation access control rule")
 	}
 
@@ -264,7 +265,8 @@ func resourceRuleGeolocationDelete(_ context.Context, d *schema.ResourceData, me
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting WAF geolocation access control rule: %s", err)
+		// If the rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF geolocation access control rule")
 	}
 
 	return nil
