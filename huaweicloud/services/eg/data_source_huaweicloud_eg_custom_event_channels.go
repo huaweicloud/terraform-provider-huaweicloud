@@ -82,7 +82,7 @@ func DataSourceCustomEventChannels() *schema.Resource {
 							Description: `The ID of the enterprise project to which the custom event channel belongs.`,
 						},
 						"cross_account_ids": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: `The list of domain IDs (other tenants) for the cross-account policy.`,
 							Elem:        &schema.Schema{Type: schema.TypeString},
