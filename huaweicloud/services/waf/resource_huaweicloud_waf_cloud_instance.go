@@ -579,7 +579,13 @@ func resourceCloudInstanceDelete(ctx context.Context, d *schema.ResourceData, me
 	instanceId := d.Id()
 	err = common.UnsubscribePrePaidResource(d, cfg, []string{instanceId})
 	if err != nil {
-		return diag.Errorf("error unsubscribing cloud WAF: %s", err)
+		// When the resource does not exist, the API for unsubscribing prePaid resource will return a `400` status code,
+		// and the response body is as follows:
+		// {"error_code": "CBC.30000067",
+		// "error_msg": "Unsubscription not supported. This resource has been deleted or the subscription to this resource has
+		// not been synchronized to ..."}
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "CBC.30000067"),
+			"error unsubscribing WAF cloud instance")
 	}
 
 	stateConf := &resource.StateChangeConf{
