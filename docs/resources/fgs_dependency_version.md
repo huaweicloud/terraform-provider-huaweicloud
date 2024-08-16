@@ -102,3 +102,21 @@ Or using related dependency package `name` and the `version` number, separated b
 ```bash
 $ terraform import huaweicloud_fgs_dependency_version.test <name>/<version>
 ```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `link`.
+It is generally recommended running `terraform plan` after importing a dependency package.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to
+align with the dependency package. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_fgs_dependency_version" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      link,
+    ]
+  }
+}
+```
