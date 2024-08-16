@@ -74,3 +74,21 @@ The DataArts DataService app can be imported using `workspace_id`, `dlm_type` an
 ```bash
 $ terraform import huaweicloud_dataarts_dataservice_app.test <workspace_id>/<dlm_type>/<id>
 ```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `app_type`.
+It is generally recommended running `terraform plan` after importing an application.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to
+align with the application. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_dataarts_dataservice_app" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      app_type,
+    ]
+  }
+}
+```

@@ -199,7 +199,6 @@ func resourceDataServiceAppRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", getAppRespBody, nil)),
 		d.Set("description", utils.PathSearch("description", getAppRespBody, nil)),
-		d.Set("app_type", utils.PathSearch("app_type", getAppRespBody, nil)),
 		d.Set("app_key", utils.PathSearch("app_key", getAppRespBody, nil)),
 		d.Set("app_secret", utils.PathSearch("app_secret", getAppRespBody, nil)),
 	)
