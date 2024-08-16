@@ -235,6 +235,8 @@ type UpdateNodeTemplate struct {
 	Partition string `json:"partition,omitempty"`
 	// The initialized conditions
 	InitializedConditions []string `json:"initializedConditions,omitempty"`
+	// The enterprise project ID
+	ServerEnterpriseProjectID string `json:"serverEnterpriseProjectID,omitempty"`
 }
 
 // UpdateSpec describes Node pools update specification

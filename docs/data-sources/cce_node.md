@@ -68,6 +68,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `data_volumes` - Represents the data disk to be created. Structure is documented below.
 
+* `enterprise_project_id` - The enterprise project ID of the node.
+
 The `root_volume` and `data_volumes` blocks support:
 
 * `size` - Disk size in GB.

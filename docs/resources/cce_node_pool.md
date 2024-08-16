@@ -280,6 +280,9 @@ The following arguments are supported:
 * `taint_policy_on_existing_nodes` - (Optional, String) Specifies the taint policy on existing nodes.
   The value can be **ignore** and **refresh**, defaults to **refresh**.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the node pool.
+  If updated, the new value will apply only to new nodes.
+
 The `root_volume` block supports:
 
 * `size` - (Required, Int, ForceNew) Specifies the disk size in GB. Changing this parameter will create a new resource.
