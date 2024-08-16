@@ -381,6 +381,9 @@ The following arguments are supported:
 * `initialized_conditions` - (Optional, List, ForceNew) Specifies the custom initialization flags.
   Changing this parameter will create a new resource.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of the CCE node.
+  Changing this parameter will create a new resource.
+
 * `labels` - (Optional, Map, ForceNew) Specifies the tags of a Kubernetes node, key/value pair format.
   Changing this parameter will create a new resource.
 

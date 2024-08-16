@@ -131,6 +131,10 @@ func DataSourceNode() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -196,6 +200,7 @@ func dataSourceNodeRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("private_ip", node.Status.PrivateIP),
 		d.Set("status", node.Status.Phase),
 		d.Set("region", config.GetRegion(d)),
+		d.Set("enterprise_project_id", node.Spec.ServerEnterpriseProjectID),
 	)
 
 	var volumes []map[string]interface{}

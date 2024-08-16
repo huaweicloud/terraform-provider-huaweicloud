@@ -155,6 +155,10 @@ func DataSourceCCENodePoolV3() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -209,6 +213,7 @@ func dataSourceCceNodePoolsV3Read(_ context.Context, d *schema.ResourceData, met
 		d.Set("priority", NodePool.Spec.Autoscaling.Priority),
 		d.Set("subnet_id", NodePool.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetId),
 		d.Set("status", NodePool.Status.Phase),
+		d.Set("enterprise_project_id", NodePool.Spec.NodeTemplate.ServerEnterpriseProjectID),
 	)
 
 	// set extend_param

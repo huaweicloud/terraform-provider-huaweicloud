@@ -85,6 +85,8 @@ The `nodes` block supports:
 
 * `data_volumes` - The data related configuration. Structure is documented below.
 
+* `enterprise_project_id` - The enterprise project ID of the node.
+
 The `root_volume` and `data_volumes` blocks support:
 
 * `size` - Disk size in GB.

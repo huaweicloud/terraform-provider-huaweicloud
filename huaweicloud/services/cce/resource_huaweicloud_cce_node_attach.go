@@ -286,6 +286,10 @@ func ResourceNodeAttach() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
