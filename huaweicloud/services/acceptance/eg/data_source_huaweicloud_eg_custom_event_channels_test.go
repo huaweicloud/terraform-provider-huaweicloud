@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
-	"github.com/chnsz/golangsdk/openstack/eg/v1/channel/custom"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
@@ -18,7 +16,7 @@ func TestAccDataCustomEventChannels_basic(t *testing.T) {
 		byName       = "data.huaweicloud_eg_custom_event_channels.filter_by_name"
 		nameNotFound = "data.huaweicloud_eg_custom_event_channels.name_not_found"
 
-		obj            custom.Channel
+		obj            interface{}
 		rc             = acceptance.InitResourceCheck(baseRes, &obj, getCustomEventChannelFunc)
 		dcByName       = acceptance.InitDataSourceCheck(byName)
 		dcNameNotFound = acceptance.InitDataSourceCheck(nameNotFound)
@@ -96,7 +94,7 @@ func TestAccDataCustomEventChannels_filterById(t *testing.T) {
 		byId       = "data.huaweicloud_eg_custom_event_channels.filter_by_id"
 		idNotFound = "data.huaweicloud_eg_custom_event_channels.id_not_found"
 
-		obj          custom.Channel
+		obj          interface{}
 		rc           = acceptance.InitResourceCheck(baseRes, &obj, getCustomEventChannelFunc)
 		dcById       = acceptance.InitDataSourceCheck(byId)
 		dcIdNotFound = acceptance.InitDataSourceCheck(idNotFound)
@@ -162,7 +160,7 @@ func TestAccDataCustomEventChannels_filterByEpsId(t *testing.T) {
 		byChannelId       = "data.huaweicloud_eg_custom_event_channels.filter_by_eps_id"
 		channelIdNotFound = "data.huaweicloud_eg_custom_event_channels.eps_id_not_found"
 
-		obj             custom.Channel
+		obj             interface{}
 		rc              = acceptance.InitResourceCheck(baseRes, &obj, getCustomEventChannelFunc)
 		dcByEpsId       = acceptance.InitDataSourceCheck(byChannelId)
 		dcEpsIdNotFound = acceptance.InitDataSourceCheck(channelIdNotFound)
