@@ -90,15 +90,16 @@ The following arguments are supported:
 
 * `number_of_cn` - (Required, Int, ForceNew) The number of CN.  
   The value ranges from 2 to **number_of_node**, the maximum value is 20.
+  This parameter must be used together with `version`.
   Changing this parameter will create a new resource.
 
 * `version` - (Required, String, ForceNew) The cluster version.
-  [For details](https://support.huaweicloud.com/intl/en-us/versioning-dws/dws_12_0000.html).
+  [For details](https://support.huaweicloud.com/intl/en-us/bulletin-dws/dws_12_0000.html).
   Changing this parameter will create a new resource.
 
-* `volume` - (Required, List, ForceNew) The information about the volume.
-
+* `volume` - (Optional, List, ForceNew) The information about the volume.
   Changing this parameter will create a new resource.
+  For local disks, this parameter can not be specified.
 
   The [Volume](#DwsCluster_Volume) structure is documented below.
 

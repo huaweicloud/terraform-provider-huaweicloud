@@ -165,7 +165,12 @@ func resourceLogicalClusterCreate(ctx context.Context, d *schema.ResourceData, m
 		httpUrl     = "v2/{project_id}/clusters/{cluster_id}/logical-clusters"
 		product     = "dws"
 		clusterName = d.Get("logical_cluster_name").(string)
+		clusterId   = d.Get("cluster_id").(string)
 	)
+
+	config.MutexKV.Lock(clusterId)
+	defer config.MutexKV.Unlock(clusterId)
+
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating DWS client: %s", err)
@@ -173,11 +178,12 @@ func resourceLogicalClusterCreate(ctx context.Context, d *schema.ResourceData, m
 
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{cluster_id}", d.Get("cluster_id").(string))
+	createPath = strings.ReplaceAll(createPath, "{cluster_id}", clusterId)
 	createOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		JSONBody:         buildCreateLogicalClusterBodyParams(d),
+		OkCodes:          []int{200, 417},
 	}
 
 	// Multiple logical clusters cannot be created in parallel and need to wait for retry.
