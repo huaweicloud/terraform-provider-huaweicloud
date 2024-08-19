@@ -1800,17 +1800,22 @@ func resourceApiDelete(_ context.Context, d *schema.ResourceData, meta interface
 // GetApigAPIIdByName is a method to get a specifies API ID from a APIG instance by name.
 func GetApiIdByName(client *golangsdk.ServiceClient, instanceId, name string) (string, error) {
 	opt := apis.ListOpts{
-		Name: name,
+		Name: name, // Fuzzy search (reduce the time cost of the traversal)
 	}
 	pages, err := apis.List(client, instanceId, opt).AllPages()
 	if err != nil {
 		return "", fmt.Errorf("error retrieving APIs: %s", err)
 	}
-	resp, err := apis.ExtractApis(pages)
-	if len(resp) < 1 {
-		return "", fmt.Errorf("unable to find the API (%s) form server: %s", name, err)
+	apiRecords, err := apis.ExtractApis(pages)
+	if err != nil {
+		return "", err
 	}
-	return resp[0].ID, nil
+	for _, apiRecord := range apiRecords {
+		if apiRecord.Name == name {
+			return apiRecord.ID, nil
+		}
+	}
+	return "", fmt.Errorf("unable to find the API (%s) form APIG service", name)
 }
 
 func resourceApiImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData,
