@@ -1221,8 +1221,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_cache_refresh":  cdn.ResourceCacheRefresh(),
 
 			"huaweicloud_ces_alarmrule":      ces.ResourceAlarmRule(),
-			"huaweicloud_ces_resource_group": ces.ResourceResourceGroup(),
 			"huaweicloud_ces_alarm_template": ces.ResourceCesAlarmTemplate(),
+			"huaweicloud_ces_dashboard":      ces.ResourceDashboard(),
+			"huaweicloud_ces_resource_group": ces.ResourceResourceGroup(),
 
 			"huaweicloud_cfw_acl_rule":             cfw.ResourceAclRule(),
 			"huaweicloud_cfw_address_group":        cfw.ResourceAddressGroup(),
