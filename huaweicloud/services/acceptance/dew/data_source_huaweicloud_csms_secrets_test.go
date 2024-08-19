@@ -3,6 +3,7 @@ package dew
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
@@ -49,6 +50,7 @@ func TestAccDatasourceCsmsSecrets_basic(t *testing.T) {
 }
 
 func testAccDatasourceCsmsSecrets_basic(name string) string {
+	expireTime := time.Now().Add(48*time.Hour).Unix() * 1000
 	return fmt.Sprintf(`
 %s
 
@@ -126,5 +128,5 @@ output "eventName_filter_is_useful" {
     [for v in data.huaweicloud_csms_secrets.eventName_filter.secrets[*].event_subscriptions.0 : v == local.event_name]
   )
 }
-`, testAccDewCsmsSecret_basic(name))
+`, testAccDewCsmsSecret_basic(name, expireTime))
 }

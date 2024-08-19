@@ -3,6 +3,7 @@ package dew
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -17,16 +18,24 @@ import (
 func geCsmsSecretFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.KmsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating CSMS(KMS) client: %s", err)
+		return nil, fmt.Errorf("error creating KMS client: %s", err)
 	}
 	name := state.Primary.Attributes["name"]
 	return secrets.Get(client, name)
 }
 
 func TestAccDewCsmsSecret_basic(t *testing.T) {
-	var secret secrets.Secret
-	name := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_csms_secret.test"
+	var (
+		secret           secrets.Secret
+		name             = acceptance.RandomAccResourceName()
+		resourceName     = "huaweicloud_csms_secret.test"
+		secretText       = utils.HashAndHexEncode("this is a password")
+		secretTextUpdate = utils.HashAndHexEncode(`{"password":"123456","username":"admin"}`)
+		expireTime       = time.Now().Add(48*time.Hour).Unix() * 1000
+		expireUpdateTime = time.Now().Add(72*time.Hour).Unix() * 1000
+		binary           = utils.HashAndHexEncode(`1010`)
+		binaryUpdate     = utils.HashAndHexEncode(`0101`)
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -40,225 +49,80 @@ func TestAccDewCsmsSecret_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDewCsmsSecret_basic(name),
+				Config: testAccDewCsmsSecret_basic(name, expireTime),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "secret_text", secretText),
+					resource.TestCheckResourceAttr(resourceName, "expire_time", fmt.Sprintf("%d", expireTime)),
+					resource.TestCheckResourceAttr(resourceName, "description", "csms secret test"),
 					resource.TestCheckResourceAttr(resourceName, "secret_type", "COMMON"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
-					resource.TestCheckResourceAttr(resourceName, "description", "csms secret test"),
-					resource.TestCheckResourceAttr(
-						resourceName,
-						"secret_text",
-						utils.HashAndHexEncode("this is a password"),
-					),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "secret_binary", ""),
+					resource.TestCheckResourceAttrPair(resourceName, "kms_key_id",
+						"huaweicloud_kms_key.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "event_subscriptions.0",
+						"huaweicloud_csms_event.test", "name"),
+					resource.TestCheckResourceAttrSet(resourceName, "secret_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "latest_version"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
 			},
 			{
-				Config: testAccDewCsmsSecret_update(name),
+				Config: testAccDewCsmsSecret_update1(name, expireUpdateTime),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "secret_text", secretTextUpdate),
+					resource.TestCheckResourceAttr(resourceName, "expire_time", fmt.Sprintf("%d", expireUpdateTime)),
+					resource.TestCheckResourceAttr(resourceName, "description", "csms secret test update"),
+					resource.TestCheckResourceAttr(resourceName, "secret_type", "COMMON"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "new_bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.hello", "world"),
+					resource.TestCheckResourceAttr(resourceName, "secret_binary", ""),
+					resource.TestCheckResourceAttrPair(resourceName, "kms_key_id",
+						"huaweicloud_kms_key.test_second", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "event_subscriptions.0",
+						"huaweicloud_csms_event.retest", "name"),
+					resource.TestCheckResourceAttrSet(resourceName, "secret_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "latest_version"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
+				),
+			},
+			{
+				Config: testAccDewCsmsSecret_update2(name, expireUpdateTime),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(
-						resourceName,
-						"secret_text",
-						utils.HashAndHexEncode(`{"password":"123456","username":"admin"}`),
-					),
-					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "new_bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.hello", "world"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccDewCsmsSecret_basic(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_csms_secret" "test" {
-  name                  = "%s"
-  description           = "csms secret test"
-  secret_text           = "this is a password"
-  secret_type           = "COMMON"
-  enterprise_project_id = "0"
-
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
-`, name)
-}
-
-func testAccDewCsmsSecret_update(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_csms_secret" "test" {
-  name                  = "%s"
-  description           = ""
-  secret_type           = "COMMON"
-  enterprise_project_id = "0"
-
-  secret_text = jsonencode({
-    username = "admin"
-    password = "123456"
-  })
-
-  tags = {
-    foo   = "new_bar"
-    hello = "world"
-  }
-}
-`, name)
-}
-
-func TestAccDewCsmsSecret_SecretBinaryAndExpireTime(t *testing.T) {
-	var secret secrets.Secret
-	name := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_csms_secret.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&secret,
-		geCsmsSecretFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDewCsmsSecret_SecretBinary(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(
-						resourceName,
-						"secret_binary",
-						utils.HashAndHexEncode(`1010`),
-					),
-				),
-			},
-			{
-				Config: testAccDewCsmsSecret_updateSecretBinary(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(
-						resourceName,
-						"secret_binary",
-						utils.HashAndHexEncode(`0101`),
-					),
-					resource.TestCheckResourceAttr(resourceName, "expire_time", "2999886177000"),
-				),
-			},
-			{
-				Config: testAccDewCsmsSecret_updateExpireTime(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(
-						resourceName,
-						"secret_binary",
-						utils.HashAndHexEncode(`0101`),
-					),
-					resource.TestCheckResourceAttr(resourceName, "expire_time", "3999886177000"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccDewCsmsSecret_SecretBinary(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_csms_secret" "test" {
-  name          = "%s"
-  secret_binary = "1010"
-}
-`, name)
-}
-
-func testAccDewCsmsSecret_updateSecretBinary(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_csms_secret" "test" {
-  name          = "%s"
-  secret_binary = "0101"
-  expire_time   = 2999886177000
-}
-`, name)
-}
-
-func testAccDewCsmsSecret_updateExpireTime(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_csms_secret" "test" {
-  name          = "%s"
-  secret_binary = "0101"
-  expire_time   = 3999886177000
-}
-`, name)
-}
-
-func TestAccDewCsmsSecret_associatedEvent(t *testing.T) {
-	var secret secrets.Secret
-	name := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_csms_secret.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&secret,
-		geCsmsSecretFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDewCsmsSecret_associatedEvent_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "secret_type", "COMMON"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
-					resource.TestCheckResourceAttrPair(resourceName, "event_subscriptions.0", "huaweicloud_csms_event.test", "name"),
-					resource.TestCheckResourceAttr(
-						resourceName,
-						"secret_text",
-						utils.HashAndHexEncode("terraform"),
-					),
-				),
-			},
-			{
-				Config: testAccDewCsmsSecret_associatedEvent_update_1(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttrPair(resourceName, "event_subscriptions.0", "huaweicloud_csms_event.retest", "name"),
-				),
-			},
-			{
-				Config: testAccDewCsmsSecret_associatedEvent_update_2(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
 					resource.TestCheckResourceAttr(resourceName, "event_subscriptions.#", "0"),
 				),
 			},
 			{
+				Config: testAccDewCsmsSecret_update3(name, expireUpdateTime),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "secret_binary", binary),
+				),
+			},
+			{
+				Config: testAccDewCsmsSecret_update4(name, expireUpdateTime),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "secret_binary", binaryUpdate),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -267,8 +131,18 @@ func TestAccDewCsmsSecret_associatedEvent(t *testing.T) {
 	})
 }
 
-func testAccDewCsmsSecret_associatedEvent_base(name string) string {
+func testAccDewCsmsSecret_base(name string) string {
 	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test" {
+  key_alias    = "%[1]s"
+  pending_days = "7"
+}
+
+resource "huaweicloud_kms_key" "test_second" {
+  key_alias    = "%[1]s_second"
+  pending_days = "7"
+}
+
 resource "huaweicloud_smn_topic" "test" {
   name = "%[1]s"
 }
@@ -293,46 +167,102 @@ resource "huaweicloud_csms_event" "retest" {
 `, name)
 }
 
-func testAccDewCsmsSecret_associatedEvent_basic(name string) string {
+func testAccDewCsmsSecret_basic(name string, expireTime int64) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_csms_secret" "test" {
   name                  = "%[2]s"
-  description           = "test acc"
-  secret_text           = "terraform"
+  secret_text           = "this is a password"
+  description           = "csms secret test"
+  expire_time           = %[3]d
+  kms_key_id            = huaweicloud_kms_key.test.id
   secret_type           = "COMMON"
-  enterprise_project_id = "0"
   event_subscriptions   = [huaweicloud_csms_event.test.name]
+  enterprise_project_id = "0"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
-`, testAccDewCsmsSecret_associatedEvent_base(name), name)
+`, testAccDewCsmsSecret_base(name), name, expireTime)
 }
 
-func testAccDewCsmsSecret_associatedEvent_update_1(name string) string {
+func testAccDewCsmsSecret_update1(name string, expireTime int64) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_csms_secret" "test" {
   name                  = "%[2]s"
-  description           = "test acc"
-  secret_text           = "terraform"
+  description           = "csms secret test update"
+  expire_time           = %[3]d
+  kms_key_id            = huaweicloud_kms_key.test_second.id
   secret_type           = "COMMON"
-  enterprise_project_id = "0"
   event_subscriptions   = [huaweicloud_csms_event.retest.name]
+  enterprise_project_id = "0"
+
+  secret_text = jsonencode({
+    username = "admin"
+    password = "123456"
+  })
+
+  tags = {
+    foo   = "new_bar"
+    hello = "world"
+  }
 }
-`, testAccDewCsmsSecret_associatedEvent_base(name), name)
+`, testAccDewCsmsSecret_base(name), name, expireTime)
 }
 
-func testAccDewCsmsSecret_associatedEvent_update_2(name string) string {
+func testAccDewCsmsSecret_update2(name string, expireTime int64) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_csms_secret" "test" {
   name                  = "%[2]s"
-  description           = "test acc"
-  secret_text           = "terraform"
+  description           = ""
+  expire_time           = %[3]d
+  kms_key_id            = huaweicloud_kms_key.test_second.id
+  secret_type           = "COMMON"
+  enterprise_project_id = "0"
+
+  secret_text = jsonencode({
+    username = "admin"
+    password = "123456"
+  })
+}
+`, testAccDewCsmsSecret_base(name), name, expireTime)
+}
+
+func testAccDewCsmsSecret_update3(name string, expireTime int64) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_csms_secret" "test" {
+  name                  = "%[2]s"
+  secret_binary         = "1010"
+  description           = ""
+  expire_time           = %[3]d
+  kms_key_id            = huaweicloud_kms_key.test_second.id
   secret_type           = "COMMON"
   enterprise_project_id = "0"
 }
-`, testAccDewCsmsSecret_associatedEvent_base(name), name)
+`, testAccDewCsmsSecret_base(name), name, expireTime)
+}
+
+func testAccDewCsmsSecret_update4(name string, expireTime int64) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_csms_secret" "test" {
+  name                  = "%[2]s"
+  secret_binary         = "0101"
+  description           = ""
+  expire_time           = %[3]d
+  kms_key_id            = huaweicloud_kms_key.test_second.id
+  secret_type           = "COMMON"
+  enterprise_project_id = "0"
+}
+`, testAccDewCsmsSecret_base(name), name, expireTime)
 }
