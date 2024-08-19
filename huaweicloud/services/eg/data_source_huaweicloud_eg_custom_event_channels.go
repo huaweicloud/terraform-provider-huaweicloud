@@ -104,7 +104,7 @@ func DataSourceCustomEventChannels() *schema.Resource {
 	}
 }
 
-func buildEventChannelsQueryParams(d *schema.ResourceData) string {
+func buildEventChannelsQueryParams(d *schema.ResourceData, providerTypeInput ...string) string {
 	res := ""
 	if apiName, ok := d.GetOk("name"); ok {
 		res = fmt.Sprintf("%s&name=%v", res, apiName)
@@ -112,19 +112,26 @@ func buildEventChannelsQueryParams(d *schema.ResourceData) string {
 	if channelId, ok := d.GetOk("channel_id"); ok {
 		res = fmt.Sprintf("%s&channel_id=%v", res, channelId)
 	}
+
+	if len(providerTypeInput) > 0 {
+		res = fmt.Sprintf("%s&provider_type=%v", res, providerTypeInput[0])
+	} else if typeVal, ok := d.GetOk("provider_type"); ok {
+		res = fmt.Sprintf("%s&provider_type=%v", res, typeVal)
+	}
 	return res
 }
 
-func queryEventChannels(client *golangsdk.ServiceClient, d *schema.ResourceData, providerType string) ([]interface{}, error) {
+func queryEventChannels(client *golangsdk.ServiceClient, d *schema.ResourceData, providerTypeInput ...string) ([]interface{}, error) {
 	var (
-		httpUrl = "v1/{project_id}/channels?provider_type={provider_type}&limit=100"
-		offset  = 0
-		result  = make([]interface{}, 0)
+		httpUrl      = "v1/{project_id}/channels?limit=100"
+		offset       = 0
+		result       = make([]interface{}, 0)
+		providerType string
 	)
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{provider_type}", providerType)
-	listPath += buildEventChannelsQueryParams(d)
+	listPath += buildEventChannelsQueryParams(d, providerTypeInput...)
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
