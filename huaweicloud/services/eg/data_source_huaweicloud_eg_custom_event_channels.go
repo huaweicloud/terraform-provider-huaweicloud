@@ -161,6 +161,7 @@ func flattenEventChannels(channels []interface{}) []interface{} {
 		result = append(result, map[string]interface{}{
 			"id":                    utils.PathSearch("id", channel, nil),
 			"name":                  utils.PathSearch("name", channel, nil),
+			"description":           utils.PathSearch("description", channel, nil),
 			"provider_type":         utils.PathSearch("provider_type", channel, nil),
 			"enterprise_project_id": utils.PathSearch("eps_id", channel, nil),
 			"cross_account_ids":     utils.PathSearch("policy.Principal.IAM", channel, make([]interface{}, 0)),
