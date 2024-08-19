@@ -106,8 +106,8 @@ func DataSourceCustomEventChannels() *schema.Resource {
 
 func buildEventChannelsQueryParams(d *schema.ResourceData, providerTypeInput ...string) string {
 	res := ""
-	if apiName, ok := d.GetOk("name"); ok {
-		res = fmt.Sprintf("%s&name=%v", res, apiName)
+	if channelName, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&name=%v", res, channelName)
 	}
 	if channelId, ok := d.GetOk("channel_id"); ok {
 		res = fmt.Sprintf("%s&channel_id=%v", res, channelId)
@@ -161,7 +161,7 @@ func queryEventChannels(client *golangsdk.ServiceClient, d *schema.ResourceData,
 	return result, nil
 }
 
-func flattenEventChannels(channels []interface{}) []interface{} {
+func flattenDataEventChannels(channels []interface{}) []interface{} {
 	result := make([]interface{}, 0, len(channels))
 
 	for _, channel := range channels {
@@ -180,9 +180,10 @@ func flattenEventChannels(channels []interface{}) []interface{} {
 	return result
 }
 
-func filterEventChannels(cfg *config.Config, d *schema.ResourceData, channels []interface{}) []interface{} {
+func filterDataEventChannels(cfg *config.Config, d *schema.ResourceData, channels []interface{}) []interface{} {
 	// Copy slice contents without having to worry about underlying reuse issues.
 	result := channels
+	// Pending the issue fixed for the filter parameter 'eps_id' that it is unable to use.
 	if epsId := cfg.GetEnterpriseProjectID(d); epsId != "" {
 		result = utils.PathSearch(fmt.Sprintf("[?eps_id=='%s']", epsId), result, make([]interface{}, 0)).([]interface{})
 	}
@@ -194,12 +195,12 @@ func dataSourceCustomEventChannelsRead(_ context.Context, d *schema.ResourceData
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
 	)
-	client, err := cfg.EgV1Client(region)
+	client, err := cfg.NewServiceClient("eg", region)
 	if err != nil {
-		return diag.Errorf("error creating EG v1 client: %s", err)
+		return diag.Errorf("error creating EG client: %s", err)
 	}
 
-	channaels, err := queryEventChannels(client, d, "CUSTOM")
+	channels, err := queryEventChannels(client, d, "CUSTOM")
 	if err != nil {
 		return diag.Errorf("error querying custom event channels: %s", err)
 	}
@@ -212,7 +213,7 @@ func dataSourceCustomEventChannelsRead(_ context.Context, d *schema.ResourceData
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("channels", flattenEventChannels(filterEventChannels(cfg, d, channaels))),
+		d.Set("channels", flattenDataEventChannels(filterDataEventChannels(cfg, d, channels))),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving data source fields of EG custom event channels: %s", err)
