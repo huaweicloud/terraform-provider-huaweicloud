@@ -110,7 +110,7 @@ func testAccCheckWafReferenceTableV1Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return fmt.Errorf("error creating WAF client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -141,7 +141,7 @@ func testAccCheckWafReferenceTableV1Exists(n string, valueList *valuelists.WafVa
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
+			return fmt.Errorf("error creating WAF client: %s", err)
 		}
 
 		found, err := valuelists.GetWithEpsID(wafClient, rs.Primary.ID, rs.Primary.Attributes["enterprise_project_id"])
