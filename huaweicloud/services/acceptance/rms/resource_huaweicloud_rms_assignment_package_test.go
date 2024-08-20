@@ -91,7 +91,9 @@ func TestAccAssignmentPackage_basic(t *testing.T) {
 
 func testAssignmentPackage_basic(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_rms_assignment_package_templates" "test" {}
+data "huaweicloud_rms_assignment_package_templates" "test" {
+  template_key = "Operational-Best-Practices-for-ECS.tf.json"
+}
 
 resource "huaweicloud_rms_assignment_package" "test" {
   name         = "%s"
