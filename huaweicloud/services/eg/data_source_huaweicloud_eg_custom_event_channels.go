@@ -104,27 +104,34 @@ func DataSourceCustomEventChannels() *schema.Resource {
 	}
 }
 
-func buildEventChannelsQueryParams(d *schema.ResourceData) string {
+func buildEventChannelsQueryParams(d *schema.ResourceData, providerTypeInput ...string) string {
 	res := ""
-	if apiName, ok := d.GetOk("name"); ok {
-		res = fmt.Sprintf("%s&name=%v", res, apiName)
+	if channelName, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&name=%v", res, channelName)
 	}
 	if channelId, ok := d.GetOk("channel_id"); ok {
 		res = fmt.Sprintf("%s&channel_id=%v", res, channelId)
 	}
+
+	if len(providerTypeInput) > 0 {
+		res = fmt.Sprintf("%s&provider_type=%v", res, providerTypeInput[0])
+	} else if typeVal, ok := d.GetOk("provider_type"); ok {
+		res = fmt.Sprintf("%s&provider_type=%v", res, typeVal)
+	}
 	return res
 }
 
-func queryEventChannels(client *golangsdk.ServiceClient, d *schema.ResourceData, providerType string) ([]interface{}, error) {
+func queryEventChannels(client *golangsdk.ServiceClient, d *schema.ResourceData, providerTypeInput ...string) ([]interface{}, error) {
 	var (
-		httpUrl = "v1/{project_id}/channels?provider_type={provider_type}&limit=100"
-		offset  = 0
-		result  = make([]interface{}, 0)
+		httpUrl      = "v1/{project_id}/channels?limit=100"
+		offset       = 0
+		result       = make([]interface{}, 0)
+		providerType string
 	)
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{provider_type}", providerType)
-	listPath += buildEventChannelsQueryParams(d)
+	listPath += buildEventChannelsQueryParams(d, providerTypeInput...)
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -154,13 +161,14 @@ func queryEventChannels(client *golangsdk.ServiceClient, d *schema.ResourceData,
 	return result, nil
 }
 
-func flattenEventChannels(channels []interface{}) []interface{} {
+func flattenDataEventChannels(channels []interface{}) []interface{} {
 	result := make([]interface{}, 0, len(channels))
 
 	for _, channel := range channels {
 		result = append(result, map[string]interface{}{
 			"id":                    utils.PathSearch("id", channel, nil),
 			"name":                  utils.PathSearch("name", channel, nil),
+			"description":           utils.PathSearch("description", channel, nil),
 			"provider_type":         utils.PathSearch("provider_type", channel, nil),
 			"enterprise_project_id": utils.PathSearch("eps_id", channel, nil),
 			"cross_account_ids":     utils.PathSearch("policy.Principal.IAM", channel, make([]interface{}, 0)),
@@ -172,9 +180,10 @@ func flattenEventChannels(channels []interface{}) []interface{} {
 	return result
 }
 
-func filterEventChannels(cfg *config.Config, d *schema.ResourceData, channels []interface{}) []interface{} {
+func filterDataEventChannels(cfg *config.Config, d *schema.ResourceData, channels []interface{}) []interface{} {
 	// Copy slice contents without having to worry about underlying reuse issues.
 	result := channels
+	// Pending the issue fixed for the filter parameter 'eps_id' that it is unable to use.
 	if epsId := cfg.GetEnterpriseProjectID(d); epsId != "" {
 		result = utils.PathSearch(fmt.Sprintf("[?eps_id=='%s']", epsId), result, make([]interface{}, 0)).([]interface{})
 	}
@@ -186,12 +195,12 @@ func dataSourceCustomEventChannelsRead(_ context.Context, d *schema.ResourceData
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
 	)
-	client, err := cfg.EgV1Client(region)
+	client, err := cfg.NewServiceClient("eg", region)
 	if err != nil {
-		return diag.Errorf("error creating EG v1 client: %s", err)
+		return diag.Errorf("error creating EG client: %s", err)
 	}
 
-	channaels, err := queryEventChannels(client, d, "CUSTOM")
+	channels, err := queryEventChannels(client, d, "CUSTOM")
 	if err != nil {
 		return diag.Errorf("error querying custom event channels: %s", err)
 	}
@@ -204,7 +213,7 @@ func dataSourceCustomEventChannelsRead(_ context.Context, d *schema.ResourceData
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("channels", flattenEventChannels(filterEventChannels(cfg, d, channaels))),
+		d.Set("channels", flattenDataEventChannels(filterDataEventChannels(cfg, d, channels))),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving data source fields of EG custom event channels: %s", err)
