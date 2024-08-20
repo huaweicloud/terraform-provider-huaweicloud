@@ -386,7 +386,7 @@ func flattenResponseBodyClusterRings(resp interface{}) []interface{} {
 // waitingForDeleteStateEnable This method is used to wait for operable status before deleting.
 // Deleting operations can only be performed when `delete_enable` is true.
 func waitingForDeleteStateEnable(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
-	timeout time.Duration) error {
+	timeout time.Duration) (interface{}, error) {
 	expression := fmt.Sprintf("logical_clusters[?logical_cluster_id=='%s']|[0]", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
@@ -402,12 +402,20 @@ func waitingForDeleteStateEnable(ctx context.Context, client *golangsdk.ServiceC
 				return nil, "ERROR", golangsdk.ErrDefault404{}
 			}
 
+			// The last logical cluster cannot be deleted for versions after 820.
+			// The only two types of logical cluster names are "elastic_group" and custom names.
+			clusters := utils.PathSearch("logical_clusters[?logical_cluster_name!='elastic_group']", clusterRespBody, make([]interface{}, 0))
+			if len(clusters.([]interface{})) <= 1 {
+				return "last_logical_cluster", "COMPLETED", golangsdk.ErrDefault404{}
+			}
+
 			enable := utils.PathSearch("delete_enable", cluster, false).(bool)
 			if enable {
 				return enable, "COMPLETED", nil
 			}
 
 			// When `first_logical_cluster` is true, field `delete_enable` will always be false.
+			// The `first_logical_cluster` always false for versions after 820.
 			isFirstCluster := utils.PathSearch("first_logical_cluster", cluster, false).(bool)
 			if isFirstCluster {
 				return enable, "FIRST_LOGICAL_CLUSTER", nil
@@ -419,29 +427,48 @@ func waitingForDeleteStateEnable(ctx context.Context, client *golangsdk.ServiceC
 		Delay:        10 * time.Second,
 		PollInterval: 30 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
+	return stateConf.WaitForStateContext(ctx)
 }
 
 func resourceLogicalClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v2/{project_id}/clusters/{cluster_id}/logical-clusters/{logical_cluster_id}"
-		product = "dws"
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		httpUrl   = "v2/{project_id}/clusters/{cluster_id}/logical-clusters/{logical_cluster_id}"
+		product   = "dws"
+		clusterId = d.Get("cluster_id").(string)
 	)
+	// Cannot be deleted when there are other tasks being executed.
+	config.MutexKV.Lock(clusterId)
+	defer config.MutexKV.Unlock(clusterId)
+
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
-	if err := waitingForDeleteStateEnable(ctx, client, d, d.Timeout(schema.TimeoutDelete)); err != nil {
+	rst, err := waitingForDeleteStateEnable(ctx, client, d, d.Timeout(schema.TimeoutDelete))
+	if _, ok := err.(golangsdk.ErrDefault404); ok {
+		if rst == "last_logical_cluster" {
+			errorMsg := `The last logical cluster can't be deleted. Deleting this resource will only remove
+		    the resource information from the tfstate file, but it remains in the cloud.`
+			return diag.Diagnostics{
+				diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  errorMsg,
+				},
+			}
+		}
+		return common.CheckDeletedDiag(d, err, "error deleting DWS logical cluster")
+	}
+
+	if err != nil {
 		return diag.Errorf("error waiting for DWS logical cluster (%s) to become delete enable: %s", d.Id(), err)
 	}
 
 	deletePath := client.Endpoint + httpUrl
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{cluster_id}", d.Get("cluster_id").(string))
+	deletePath = strings.ReplaceAll(deletePath, "{cluster_id}", clusterId)
 	deletePath = strings.ReplaceAll(deletePath, "{logical_cluster_id}", d.Id())
 	deleteOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
