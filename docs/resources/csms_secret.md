@@ -128,6 +128,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `latest_version` - The latest version id.
 
+* `version_stages` - The secret version status list.
+
 * `status` - The CSMS secret status. Values can be: **ENABLED**, **DISABLED**, **PENDING_DELETE** and **FROZEN**.
 
 * `create_time` - Time when the CSMS secrets created, in UTC format.

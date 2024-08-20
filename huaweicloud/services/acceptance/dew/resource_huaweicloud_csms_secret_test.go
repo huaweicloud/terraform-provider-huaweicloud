@@ -68,6 +68,7 @@ func TestAccDewCsmsSecret_basic(t *testing.T) {
 						"huaweicloud_csms_event.test", "name"),
 					resource.TestCheckResourceAttrSet(resourceName, "secret_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "latest_version"),
+					resource.TestCheckResourceAttrSet(resourceName, "version_stages.#"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
