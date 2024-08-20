@@ -120,6 +120,7 @@ resource "huaweicloud_ccm_private_certificate" "test" {
   issuer_id           = huaweicloud_ccm_private_ca.test_root.id
   key_algorithm       = "RSA2048"
   signature_algorithm = "SHA256"
+  key_usage           = ["nonRepudiation", "keyEncipherment"]
   distinguished_name {
     common_name         = "%s"
     country             = "CN"
@@ -148,6 +149,7 @@ resource "huaweicloud_ccm_private_certificate" "test" {
   issuer_id           = huaweicloud_ccm_private_ca.test_root.id
   key_algorithm       = "RSA2048"
   signature_algorithm = "SHA256"
+  key_usage           = ["nonRepudiation", "keyEncipherment"]
   distinguished_name {
     common_name         = "%s"
     country             = "CN"

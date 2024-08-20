@@ -290,7 +290,7 @@ func buildCreateCertificateBodyParams(d *schema.ResourceData, cfg *config.Config
 		"distinguished_name":        buildCertDistinguishedName(d.Get("distinguished_name")),
 		"validity":                  buildValidity(d.Get("validity")),
 		"enterprise_project_id":     utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-		"key_usage":                 d.Get("key_usage"),
+		"key_usages":                d.Get("key_usage"),
 		"extended_key_usage":        buildExtendedKeyUsage(d),
 		"customized_extension":      buildCustomizedExtension(d),
 		"subject_alternative_names": buidSubjectAlternativeName(d),
