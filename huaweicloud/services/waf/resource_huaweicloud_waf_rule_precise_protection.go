@@ -355,6 +355,7 @@ func resourceRulePreciseProtectionRead(_ context.Context, d *schema.ResourceData
 	getRuleResp, err := preciseProtectionClient.Request("GET", getRulePath, &getRuleOpt)
 
 	if err != nil {
+		// If the rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving RulePreciseProtection")
 	}
 
@@ -497,7 +498,8 @@ func resourceRulePreciseProtectionDelete(_ context.Context, d *schema.ResourceDa
 	}
 	_, err = preciseProtectionClient.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting RulePreciseProtection: %s", err)
+		// If the rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting RulePreciseProtection")
 	}
 	return nil
 }

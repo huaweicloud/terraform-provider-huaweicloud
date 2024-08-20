@@ -172,6 +172,8 @@ func resourceRuleRead(_ context.Context, d *schema.ResourceData, meta interface{
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
+		// If the information leakage prevention rule does not exist, the response HTTP status code of
+		// the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF information leakage prevention rule")
 	}
 
@@ -253,7 +255,9 @@ func resourceRuleDelete(_ context.Context, d *schema.ResourceData, meta interfac
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting WAF information leakage prevention rule: %s", err)
+		// If the information leakage prevention rule does not exist, the response HTTP status code of
+		// the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF information leakage prevention rule")
 	}
 	return nil
 }
