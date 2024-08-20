@@ -791,6 +791,7 @@ func resourceWafDedicatedDomainRead(_ context.Context, d *schema.ResourceData, m
 	epsID := cfg.GetEnterpriseProjectID(d)
 	dm, err := domains.GetWithEpsID(dedicatedClient, d.Id(), epsID)
 	if err != nil {
+		// If the dedicated domain does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF dedicated domain")
 	}
 
@@ -866,7 +867,8 @@ func resourceWafDedicatedDomainDelete(_ context.Context, d *schema.ResourceData,
 	epsID := cfg.GetEnterpriseProjectID(d)
 	_, err = domains.DeleteWithEpsID(dedicatedClient, keepPolicy, d.Id(), epsID)
 	if err != nil {
-		return diag.Errorf("error deleting WAF dedicated domain: %s", err)
+		// If the dedicated domain does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF dedicated domain")
 	}
 	return nil
 }

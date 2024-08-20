@@ -250,7 +250,8 @@ func resourceDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, me
 	epsId := common.GetEnterpriseProjectID(d, config)
 	r, err := instances.GetWithEpsId(client, d.Id(), epsId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error obtain WAF dedicated instance information.")
+		// If the dedicated instance does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF dedicated instance")
 	}
 	logp.Printf("[DEBUG] Get a WAF dedicated instance :%#v", r)
 
@@ -361,7 +362,8 @@ func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData
 	epsId := common.GetEnterpriseProjectID(d, config)
 	_, err = instances.DeleteWithEpsId(client, d.Id(), epsId)
 	if err != nil {
-		return fmtp.DiagErrorf("error deleting WAF dedicated : %w", err)
+		// If the dedicated instance does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF dedicated instance")
 	}
 
 	logp.Printf("[DEBUG] Waiting for WAF dedicated instance to be deleted(ID:%s).", d.Id())

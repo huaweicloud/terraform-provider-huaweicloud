@@ -210,6 +210,7 @@ func resourceAddressGroupRead(_ context.Context, d *schema.ResourceData, meta in
 	getWAFAddressGroupResp, err := getWAFAddressGroupClient.Request("GET", getWAFAddressGroupPath,
 		&getWAFAddressGroupOpt)
 	if err != nil {
+		// If the address group does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving address group")
 	}
 
@@ -333,7 +334,8 @@ func resourceAddressGroupDelete(_ context.Context, d *schema.ResourceData, meta 
 	}
 	_, err = deleteWAFAddressGroupClient.Request("DELETE", deleteWAFAddressGroupPath, &deleteWAFAddressGroupOpt)
 	if err != nil {
-		return diag.Errorf("error deleting address group: %s", err)
+		// If the address group does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting address group")
 	}
 
 	return nil
