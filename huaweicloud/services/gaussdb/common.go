@@ -12,6 +12,7 @@ import (
 var (
 	// Some error codes that need to be retried coming from https://support.huaweicloud.com/api-gaussdbformysql/ErrorCode.html
 	retryErrCodes = map[string]struct{}{
+		"DBS.201014": {},
 		"DBS.201015": {},
 		"DBS.200047": {},
 	}

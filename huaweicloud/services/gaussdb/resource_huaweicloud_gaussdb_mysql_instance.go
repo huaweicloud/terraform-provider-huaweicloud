@@ -157,10 +157,9 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Default:  1,
 			},
 			"volume_size": {
-				Type:         schema.TypeInt,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: validation.All(validation.IntBetween(40, 128000), validation.IntDivisibleBy(10)),
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
 			},
 			"time_zone": {
 				Type:     schema.TypeString,
@@ -173,9 +172,6 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  "single",
-				ValidateFunc: validation.StringInSlice([]string{
-					"single", "multi",
-				}, true),
 			},
 			"master_availability_zone": {
 				Type:     schema.TypeString,
@@ -195,9 +191,6 @@ func ResourceGaussDBInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"gaussdb-mysql",
-							}, true),
 						},
 						"version": {
 							Type:     schema.TypeString,
@@ -247,6 +240,42 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
+			// make ForceNew false here but do nothing in update method!
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, false),
+			},
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"period_unit"},
+				ValidateFunc: validation.IntBetween(1, 9),
+			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
+			"auto_pay": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
+			"audit_log_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 			"force_import": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -254,16 +283,6 @@ func ResourceGaussDBInstance() *schema.Resource {
 			// only supported in some regions, so it's not shown in the doc
 			"tags": common.TagsSchema(),
 
-			"proxy_address": {
-				Type:       schema.TypeString,
-				Computed:   true,
-				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
-			},
-			"proxy_port": {
-				Type:       schema.TypeInt,
-				Computed:   true,
-				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
-			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -317,43 +336,6 @@ func ResourceGaussDBInstance() *schema.Resource {
 				},
 			},
 
-			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			// make ForceNew false here but do nothing in update method!
-			"charging_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid", "postPaid",
-				}, false),
-			},
-			"period_unit": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				RequiredWith: []string{"period"},
-				ValidateFunc: validation.StringInSlice([]string{
-					"month", "year",
-				}, false),
-			},
-			"period": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
-			},
-			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
-			"auto_pay": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"true", "false",
-				}, false),
-			},
-			"audit_log_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
-			},
-
 			// Deprecated
 			"proxy_flavor": {
 				Type:       schema.TypeString,
@@ -372,6 +354,16 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Optional:   true,
 				Computed:   true,
 				Deprecated: "Deprecated",
+			},
+			"proxy_address": {
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
+			},
+			"proxy_port": {
+				Type:       schema.TypeInt,
+				Computed:   true,
+				Deprecated: "use huaweicloud_gaussdb_mysql_proxy instead",
 			},
 		},
 	}
@@ -579,9 +571,7 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf(
-			"error waiting for instance (%s) to become ready: %s",
-			id, err)
+		return diag.Errorf("error waiting for instance (%s) to become ready: %s", id, err)
 	}
 
 	// audit-log switch
@@ -601,7 +591,7 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if _, ok := d.GetOk("backup_strategy"); ok {
-		if err = updateInstanceBackupStrategy(client, d); err != nil {
+		if err = updateInstanceBackupStrategy(ctx, client, d, schema.TimeoutCreate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -621,9 +611,9 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := utils.ExpandResourceTags(tagRaw)
-		if tagErr := tags.Create(client, "instances", d.Id(), taglist).ExtractErr(); tagErr != nil {
-			return diag.Errorf("error setting tags of Gaussdb mysql instance %s: %s", d.Id(), tagErr)
+		tagList := utils.ExpandResourceTags(tagRaw)
+		if tagErr := tags.Create(client, "instances", d.Id(), tagList).ExtractErr(); tagErr != nil {
+			return diag.Errorf("error setting tags for GaussDB MySQL instance %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -690,14 +680,11 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	instanceID := d.Id()
 	instance, err := instances.Get(client, instanceID).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "GaussDB instance")
+		return common.CheckDeletedDiag(d, err, "error retrieving GaussDB MySQL instance")
 	}
 	if instance.Id == "" {
-		d.SetId("")
-		return nil
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving GaussDB MySQL instance")
 	}
-
-	log.Printf("[DEBUG] retrieved instance %s: %#v", instanceID, instance)
 
 	mErr = multierror.Append(
 		mErr,
@@ -717,46 +704,39 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	)
 
 	if instance.ConfigurationId != "" {
-		setConfigurationId(d, client, instance.ConfigurationId)
+		mErr = multierror.Append(mErr, setConfigurationId(d, client, instance.ConfigurationId))
 	}
 
 	if instance.DedicatedResourceId != "" {
-		setDedicatedResourceId(d, client, instance.DedicatedResourceId)
+		mErr = multierror.Append(mErr, setDedicatedResourceId(d, client, instance.DedicatedResourceId))
 	}
 
 	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
-		d.Set("port", dbPort)
+		mErr = multierror.Append(mErr, d.Set("port", dbPort))
 	}
 	if len(instance.PrivateIps) > 0 {
-		d.Set("private_write_ip", instance.PrivateIps[0])
+		mErr = multierror.Append(mErr, d.Set("private_write_ip", instance.PrivateIps[0]))
 	}
 
 	// set data store
-	setDatastore(d, instance.DataStore)
+	mErr = multierror.Append(mErr, setDatastore(d, instance.DataStore))
 	// set nodes, read_replicas, volume_size, flavor
-	setNodes(d, instance.Nodes)
+	mErr = multierror.Append(mErr, setNodes(d, instance.Nodes)...)
 	// set backup_strategy
-	setBackupStrategy(d, instance.BackupStrategy)
+	mErr = multierror.Append(mErr, setBackupStrategy(d, instance.BackupStrategy))
 	// set proxy
-	setProxy(d, client, instanceID)
+	mErr = multierror.Append(mErr, setProxy(d, client, instanceID)...)
 	// set audit log status
-	setAuditLog(d, client, instanceID)
+	mErr = multierror.Append(mErr, setAuditLog(d, client, instanceID))
 	// set sql filter status
-	res, err := sqlfilter.Get(client, instanceID).Extract()
-	if err != nil {
-		log.Printf("[DEBUG] query instance %s sql filter status failed: %s", instanceID, err)
-	} else {
-		d.Set("sql_filter_enabled", res.SwitchStatus == "ON")
-	}
+	mErr = multierror.Append(mErr, setSqlFilter(d, client, instanceID))
 
 	// save tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
-		tagmap := utils.TagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagmap); err != nil {
-			return diag.Errorf("error saving tags to state for Gaussdb mysql instance (%s): %s", d.Id(), err)
-		}
+		tagMap := utils.TagsToMap(resourceTags.Tags)
+		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
 	} else {
-		log.Printf("[WARN] error fetching tags of Gaussdb mysql instance (%s): %s", d.Id(), err)
+		log.Printf("[WARN] error fetching tags of GaussDB MySQL instance (%s): %s", d.Id(), err)
 	}
 
 	diagErr := setGaussDBMySQLParameters(ctx, d, client)
@@ -765,40 +745,40 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	return resErr
 }
 
-func setConfigurationId(d *schema.ResourceData, client *golangsdk.ServiceClient, configurationId string) {
+func setConfigurationId(d *schema.ResourceData, client *golangsdk.ServiceClient, configurationId string) error {
 	configsList, err := configurations.List(client).Extract()
 	if err != nil {
-		log.Printf("unable to retrieve configurations: %s", err)
-		return
+		log.Printf("[WARN] unable to retrieve configurations: %s", err)
+		return nil
 	}
 	for _, conf := range configsList {
 		if conf.ID == configurationId {
-			d.Set("configuration_name", conf.Name)
-			break
+			return d.Set("configuration_name", conf.Name)
 		}
 	}
+	return nil
 }
 
-func setDedicatedResourceId(d *schema.ResourceData, client *golangsdk.ServiceClient, dedicatedResourceId string) {
+func setDedicatedResourceId(d *schema.ResourceData, client *golangsdk.ServiceClient, dedicatedResourceId string) error {
 	pages, err := instances.ListDeh(client).AllPages()
 	if err != nil {
-		log.Printf("unable to retrieve dedicated resources: %s", err)
-		return
+		log.Printf("[WARN] unable to retrieve dedicated resources: %s", err)
+		return nil
 	}
 	allResources, err := instances.ExtractDehResources(pages)
 	if err != nil {
-		log.Printf("unable to extract dedicated resources: %s", err)
-		return
+		log.Printf("[WARN] unable to extract dedicated resources: %s", err)
+		return nil
 	}
 	for _, der := range allResources.Resources {
 		if der.Id == dedicatedResourceId {
-			d.Set("dedicated_resource_name", der.ResourceName)
-			break
+			return d.Set("dedicated_resource_name", der.ResourceName)
 		}
 	}
+	return nil
 }
 
-func setNodes(d *schema.ResourceData, nodes []instances.Nodes) {
+func setNodes(d *schema.ResourceData, nodes []instances.Nodes) []error {
 	flavor := ""
 	slaveCount := 0
 	volumeSize := 0
@@ -825,16 +805,18 @@ func setNodes(d *schema.ResourceData, nodes []instances.Nodes) {
 			flavor = raw.Flavor
 		}
 	}
-	d.Set("nodes", nodesList)
-	d.Set("read_replicas", slaveCount)
-	d.Set("volume_size", volumeSize)
+	var errs []error
+	errs = append(errs, d.Set("nodes", nodesList))
+	errs = append(errs, d.Set("read_replicas", slaveCount))
+	errs = append(errs, d.Set("volume_size", volumeSize))
 	if flavor != "" {
 		log.Printf("[DEBUG] node flavor: %s", flavor)
-		d.Set("flavor", flavor)
+		errs = append(errs, d.Set("flavor", flavor))
 	}
+	return errs
 }
 
-func setDatastore(d *schema.ResourceData, datastore instances.DataStore) {
+func setDatastore(d *schema.ResourceData, datastore instances.DataStore) error {
 	dbList := make([]map[string]interface{}, 1)
 	db := map[string]interface{}{
 		"version": datastore.Version,
@@ -846,10 +828,10 @@ func setDatastore(d *schema.ResourceData, datastore instances.DataStore) {
 	}
 	db["engine"] = engine
 	dbList[0] = db
-	d.Set("datastore", dbList)
+	return d.Set("datastore", dbList)
 }
 
-func setBackupStrategy(d *schema.ResourceData, strategy instances.BackupStrategy) {
+func setBackupStrategy(d *schema.ResourceData, strategy instances.BackupStrategy) error {
 	backupStrategyList := make([]map[string]interface{}, 1)
 	backupStrategy := map[string]interface{}{
 		"start_time": strategy.StartTime,
@@ -858,32 +840,47 @@ func setBackupStrategy(d *schema.ResourceData, strategy instances.BackupStrategy
 		backupStrategy["keep_days"] = days
 	}
 	backupStrategyList[0] = backupStrategy
-	d.Set("backup_strategy", backupStrategyList)
+	return d.Set("backup_strategy", backupStrategyList)
 }
 
-func setProxy(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) {
+func setProxy(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) []error {
 	proxy, err := instances.GetProxy(client, instanceId).Extract()
 	if err != nil {
-		log.Printf("[DEBUG] instance %s proxy not enabled: %s", instanceId, err)
-		return
+		log.Printf("[WARN] instance %s proxy not enabled: %s", instanceId, err)
+		return nil
 	}
-	d.Set("proxy_flavor", proxy.Flavor)
-	d.Set("proxy_node_num", proxy.NodeNum)
-	d.Set("proxy_address", proxy.Address)
-	d.Set("proxy_port", proxy.Port)
+	var errs []error
+	errs = append(errs, d.Set("proxy_flavor", proxy.Flavor))
+	errs = append(errs, d.Set("proxy_node_num", proxy.NodeNum))
+	errs = append(errs, d.Set("proxy_address", proxy.Address))
+	errs = append(errs, d.Set("proxy_port", proxy.Port))
+	return errs
 }
 
-func setAuditLog(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) {
+func setAuditLog(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
 	resp, err := auditlog.Get(client, instanceId)
 	if err != nil {
-		log.Printf("[DEBUG] query instance %s audit log status failed: %s", instanceId, err)
-		return
+		log.Printf("[WARN] query instance %s audit log status failed: %s", instanceId, err)
+		return nil
 	}
 	var status bool
 	if resp.SwitchStatus == "ON" {
 		status = true
 	}
-	d.Set("audit_log_enabled", status)
+	return d.Set("audit_log_enabled", status)
+}
+
+func setSqlFilter(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
+	resp, err := sqlfilter.Get(client, instanceId).Extract()
+	if err != nil {
+		log.Printf("[DEBUG] query instance %s sql filter status failed: %s", instanceId, err)
+		return nil
+	}
+	var status bool
+	if resp.SwitchStatus == "ON" {
+		status = true
+	}
+	return d.Set("sql_filter_enabled", status)
 }
 
 func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
@@ -982,7 +979,7 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChange("backup_strategy") {
-		if err = updateInstanceBackupStrategy(client, d); err != nil {
+		if err = updateInstanceBackupStrategy(ctx, client, d, schema.TimeoutUpdate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1099,9 +1096,7 @@ func resourceGaussDBInstanceDelete(ctx context.Context, d *schema.ResourceData, 
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf(
-			"error waiting for instance (%s) to be deleted: %s ",
-			instanceId, err)
+		return diag.Errorf("error waiting for instance (%s) to be deleted: %s ", instanceId, err)
 	}
 	log.Printf("[DEBUG] successfully deleted instance %s", instanceId)
 	return nil
@@ -1418,7 +1413,7 @@ func updateInstanceVolumeSize(ctx context.Context, client, bssClient *golangsdk.
 	return nil
 }
 
-func updateInstanceBackupStrategy(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func updateInstanceBackupStrategy(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
 	var updateOpts backups.UpdateOpts
 	backupRaw := d.Get("backup_strategy").([]interface{})
 	rawMap := backupRaw[0].(map[string]interface{})
@@ -1429,7 +1424,20 @@ func updateInstanceBackupStrategy(client *golangsdk.ServiceClient, d *schema.Res
 	updateOpts.Period = "1,2,3,4,5,6,7"
 	log.Printf("[DEBUG] update backup_strategy: %#v", updateOpts)
 
-	err := backups.Update(client, d.Id(), updateOpts).ExtractErr()
+	retryFunc := func() (interface{}, bool, error) {
+		err := backups.Update(client, d.Id(), updateOpts).ExtractErr()
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
 	if err != nil {
 		return fmt.Errorf("error updating backup_strategy: %s", err)
 	}
@@ -1699,9 +1707,6 @@ func gaussDBMysqlDatabaseStatusRefreshFunc(client *golangsdk.ServiceClient, jobI
 
 		getJobStatusOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 			MoreHeaders: map[string]string{
 				"Content-Type": "application/json",
 			},
