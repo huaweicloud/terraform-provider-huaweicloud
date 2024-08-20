@@ -345,6 +345,7 @@ func resourceRuleCCProtectionRead(_ context.Context, d *schema.ResourceData, met
 	getResp, err := getClient.Request("GET", getPath, &getOpt)
 
 	if err != nil {
+		// If the cc rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving RuleCCProtection")
 	}
 
@@ -487,7 +488,8 @@ func resourceRuleCCProtectionDelete(_ context.Context, d *schema.ResourceData, m
 	}
 	_, err = deleteRuleCCProtectionClient.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting RuleCCProtection: %s", err)
+		// If the cc rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting RuleCCProtection")
 	}
 	return nil
 }

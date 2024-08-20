@@ -272,6 +272,7 @@ func resourceRuleGlobalProtectionWhitelistRead(_ context.Context, d *schema.Reso
 	getResp, err := getClient.Request("GET", getPath, &getOpt)
 
 	if err != nil {
+		// If the rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving RuleGlobalProtectionWhitelist")
 	}
 
@@ -399,7 +400,8 @@ func resourceRuleGlobalProtectionWhitelistDelete(_ context.Context, d *schema.Re
 	}
 	_, err = deleteClient.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting RuleGlobalProtectionWhitelist: %s", err)
+		// If the rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting RuleGlobalProtectionWhitelist")
 	}
 	return nil
 }
