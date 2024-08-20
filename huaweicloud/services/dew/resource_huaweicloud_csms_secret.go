@@ -106,6 +106,11 @@ func ResourceSecret() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"version_stages": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -243,6 +248,7 @@ func resourceSecretRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("secret_binary", flattenSecretBinary(version)),
 		d.Set("expire_time", version.VersionMetadata.ExpireTime),
 		d.Set("latest_version", version.VersionMetadata.ID),
+		d.Set("version_stages", version.VersionMetadata.VersionStages),
 		utils.SetResourceTagsToState(d, client, "csms", id),
 	)
 
