@@ -226,7 +226,8 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 	}
 }
 
-func buildPrepaidPrivateCABodyParams(d *schema.ResourceData, raw map[string]interface{}) map[string]interface{} {
+func buildPrepaidPrivateCABodyParams(d *schema.ResourceData, raw map[string]interface{},
+	cfg *config.Config) map[string]interface{} {
 	periodType := 2
 	if raw["type"].(string) == "YEAR" {
 		periodType = 3
@@ -245,19 +246,20 @@ func buildPrepaidPrivateCABodyParams(d *schema.ResourceData, raw map[string]inte
 	})
 
 	bodyParams := map[string]interface{}{
-		"cloud_service_type": "hws.service.type.ccm",
-		"charging_mode":      0,
-		"period_type":        periodType,
-		"period_num":         raw["value"].(int),
-		"is_auto_renew":      autoRenew,
-		"is_auto_pay":        1,
-		"subscription_num":   1,
-		"product_infos":      productInfos,
+		"cloud_service_type":    "hws.service.type.ccm",
+		"charging_mode":         0,
+		"period_type":           periodType,
+		"period_num":            raw["value"].(int),
+		"is_auto_renew":         autoRenew,
+		"is_auto_pay":           1,
+		"subscription_num":      1,
+		"enterprise_project_id": cfg.GetEnterpriseProjectID(d),
+		"product_infos":         productInfos,
 	}
 	return bodyParams
 }
 
-func createPrepaidPrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+func createPrepaidPrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) (interface{}, error) {
 	var (
 		httpUrl  = "v1/private-certificate-authorities/order"
 		rawArray = d.Get("validity").([]interface{})
@@ -273,7 +275,7 @@ func createPrepaidPrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceD
 	createPath := client.Endpoint + httpUrl
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildPrepaidPrivateCABodyParams(d, raw),
+		JSONBody:         buildPrepaidPrivateCABodyParams(d, raw, cfg),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -407,7 +409,7 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
-		createRespBody, err := createPrepaidPrivateCA(client, d)
+		createRespBody, err := createPrepaidPrivateCA(client, d, cfg)
 		if err != nil {
 			return diag.FromErr(err)
 		}

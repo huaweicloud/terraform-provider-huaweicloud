@@ -396,6 +396,7 @@ func TestAccCCMPrivateCA_prepaid_root(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckChargingMode(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -412,6 +413,7 @@ func TestAccCCMPrivateCA_prepaid_root(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "ROOT"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttrPair(resourceName, "crl_configuration.0.obs_bucket_name",
 						"huaweicloud_obs_bucket.test", "bucket"),
 					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.valid_days", "7"),
@@ -477,12 +479,13 @@ resource "huaweicloud_obs_bucket" "test" {
 }
 
 resource "huaweicloud_ccm_private_ca" "test_root" {
-  type                = "ROOT"
-  key_algorithm       = "RSA2048"
-  signature_algorithm = "SHA512"
-  pending_days        = "7"
-  charging_mode       = "prePaid"
-  auto_renew          = false
+  type                  = "ROOT"
+  key_algorithm         = "RSA2048"
+  signature_algorithm   = "SHA512"
+  pending_days          = "7"
+  charging_mode         = "prePaid"
+  auto_renew            = false
+  enterprise_project_id = "%[2]s"
 
   distinguished_name {
     common_name         = "%[1]s-root"
@@ -508,7 +511,7 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
     key = "value"
   }
 }
-`, name)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func tesPrivateCA_prepaid_rootUpdate1(name string) string {
@@ -520,13 +523,14 @@ resource "huaweicloud_obs_bucket" "test" {
 }
 
 resource "huaweicloud_ccm_private_ca" "test_root" {
-  type                = "ROOT"
-  key_algorithm       = "RSA2048"
-  signature_algorithm = "SHA512"
-  pending_days        = "7"
-  action              = "disable"
-  charging_mode       = "prePaid"
-  auto_renew          = false
+  type                  = "ROOT"
+  key_algorithm         = "RSA2048"
+  signature_algorithm   = "SHA512"
+  pending_days          = "7"
+  action                = "disable"
+  charging_mode         = "prePaid"
+  auto_renew            = false
+  enterprise_project_id = "%[2]s"
 
   distinguished_name {
     common_name         = "%[1]s-root"
@@ -552,7 +556,7 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
     key_update = "value_update"
   }
 }
-`, name)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func tesPrivateCA_prepaid_rootUpdate2(name string) string {
@@ -564,13 +568,14 @@ resource "huaweicloud_obs_bucket" "test" {
 }
 
 resource "huaweicloud_ccm_private_ca" "test_root" {
-  type                = "ROOT"
-  key_algorithm       = "RSA2048"
-  signature_algorithm = "SHA512"
-  pending_days        = "7"
-  action              = "enable"
-  charging_mode       = "prePaid"
-  auto_renew          = false
+  type                  = "ROOT"
+  key_algorithm         = "RSA2048"
+  signature_algorithm   = "SHA512"
+  pending_days          = "7"
+  action                = "enable"
+  charging_mode         = "prePaid"
+  auto_renew            = false
+  enterprise_project_id = "%[2]s"
 
   distinguished_name {
     common_name         = "%[1]s-root"
@@ -591,7 +596,7 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
     valid_days      = "7"
   }
 }
-`, name)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 // TestAccCCMPrivateCA_other using to test some special code
