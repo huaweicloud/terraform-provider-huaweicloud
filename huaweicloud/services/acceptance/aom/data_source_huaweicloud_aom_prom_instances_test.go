@@ -18,6 +18,7 @@ func TestAccDataSourceAomPromInstances_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -71,7 +72,7 @@ output "prom_type_validation" {
 }
 
 output "prom_id_validation" {
-  value = alltrue([for v in local.test_results.instances[*].id : v == huaweicloud_aom_prom_instance.test.id])
+  value = alltrue([for v in local.test_id_filter_results.instances[*].id : v == huaweicloud_aom_prom_instance.test.id])
 }
 
 `, testAOMPromInstance_basic(name))

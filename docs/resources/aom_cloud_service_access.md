@@ -20,12 +20,6 @@ resource "huaweicloud_aom_cloud_service_access" "test" {
   instance_id = var.instance_id
   service     = var.service
   tag_sync    = "auto"
-
-  tags {
-    sync   = true
-    key    = "key"
-    values = ["value1", "value2"]
-  }
 }
 ```
 
@@ -45,17 +39,8 @@ The following arguments are supported:
 * `tag_sync` - (Required, String) Specifies whether tags are automatically synchronized.
   Valid values are **auto** and **manual**.
 
-* `tags` - (Required, List) Specifies the tags list.
-  The [tags](#tags_struct) structure is documented below.
-
-<a name="tags_struct"></a>
-The `tags` block supports:
-
-* `sync` - (Required, Bool) Specifies whether tag is synchronized.
-
-* `key` - (Required, String) Specifies the tag key.
-
-* `values` - (Required, List) Specifies the tag values list.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the instance belongs.
+  Defaults to **0**. Changing this parameter will create a new resource.
 
 ## Attribute Reference
 

@@ -28,7 +28,7 @@ func ResourceCloudServiceAccess() *schema.Resource {
 		DeleteContext: resourceCloudServiceAccessDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceCloudServiceAccessImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -52,26 +52,11 @@ func ResourceCloudServiceAccess() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tags": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"sync": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"key": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"values": {
-							Type:     schema.TypeSet,
-							Required: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 		},
 	}
@@ -94,10 +79,8 @@ func resourceCloudServiceAccessCreate(ctx context.Context, d *schema.ResourceDat
 	createPath = strings.ReplaceAll(createPath, "{prom_instance_id}", instanceID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-		JSONBody: utils.RemoveNil(buildCloudServiceAccessBodyParams(d)),
+		MoreHeaders:      buildHeaders(cfg, d),
+		JSONBody:         utils.RemoveNil(buildCloudServiceAccessBodyParams(d)),
 	}
 
 	_, err = client.Request("POST", createPath, &createOpt)
@@ -114,26 +97,10 @@ func buildCloudServiceAccessBodyParams(d *schema.ResourceData) map[string]interf
 	bodyParams := map[string]interface{}{
 		"provider": d.Get("service"),
 		"tag_sync": d.Get("tag_sync"),
-		"tags":     buildCloudServiceAccessTags(d),
+		"tags":     []interface{}{},
 	}
 
 	return bodyParams
-}
-
-func buildCloudServiceAccessTags(d *schema.ResourceData) []map[string]interface{} {
-	rawParams := d.Get("tags").(*schema.Set).List()
-	rst := make([]map[string]interface{}, 0, len(rawParams))
-	for _, val := range rawParams {
-		raw := val.(map[string]interface{})
-		params := map[string]interface{}{
-			"sync":   raw["sync"],
-			"key":    raw["key"],
-			"values": raw["values"].(*schema.Set).List(),
-		}
-		rst = append(rst, params)
-	}
-
-	return rst
 }
 
 func resourceCloudServiceAccessRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -144,39 +111,46 @@ func resourceCloudServiceAccessRead(_ context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 2 {
-		return diag.Errorf("invalid ID format, must be <instance_id>/<service>")
+	// get eps_id for import
+	epsID := cfg.GetEnterpriseProjectID(d)
+	if epsID == "" {
+		instance, err := getPromInstance(client, d.Get("instance_id").(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		epsID = utils.PathSearch("enterprise_project_id", instance, "").(string)
+		if epsID == "" {
+			return diag.Errorf("error getting enterprise project ID from instance")
+		}
 	}
-	instanceID := parts[0]
-	service := parts[1]
 
-	access, err := getCloudServiceAccesss(client, instanceID, service)
+	access, err := getCloudServiceAccesss(client, d, epsID)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving cloud service access")
 	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("instance_id", instanceID),
-		d.Set("service", service),
+		d.Set("instance_id", utils.PathSearch("resource_id", access, nil)),
+		d.Set("service", utils.PathSearch("prometheus.provider", access, nil)),
 		d.Set("tag_sync", utils.PathSearch("prometheus.tag_sync", access, nil)),
-		d.Set("tags", utils.PathSearch("tags", access, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("ep_id", access, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func getCloudServiceAccesss(client *golangsdk.ServiceClient, instanceID, service string) (interface{}, error) {
+func getCloudServiceAccesss(client *golangsdk.ServiceClient, d *schema.ResourceData, epsID string) (interface{}, error) {
 	getHttpUrl := "v1/{project_id}/prometheus/{prom_instance_id}/cloud-service/{provider}"
 	getPath := client.Endpoint + getHttpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{prom_instance_id}", instanceID)
-	getPath = strings.ReplaceAll(getPath, "{provider}", service)
+	getPath = strings.ReplaceAll(getPath, "{prom_instance_id}", d.Get("instance_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{provider}", d.Get("service").(string))
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
+			"Content-Type":          "application/json",
+			"Enterprise-Project-Id": epsID,
 		},
 	}
 
@@ -207,7 +181,6 @@ func resourceCloudServiceAccessUpdate(ctx context.Context, d *schema.ResourceDat
 
 	updateChanges := []string{
 		"tag_sync",
-		"tags",
 	}
 
 	if d.HasChanges(updateChanges...) {
@@ -218,10 +191,8 @@ func resourceCloudServiceAccessUpdate(ctx context.Context, d *schema.ResourceDat
 		updatePath = strings.ReplaceAll(updatePath, "{provider}", d.Get("service").(string))
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders: map[string]string{
-				"Content-Type": "application/json",
-			},
-			JSONBody: utils.RemoveNil(buildCloudServiceAccessBodyParams(d)),
+			MoreHeaders:      buildHeaders(cfg, d),
+			JSONBody:         utils.RemoveNil(buildCloudServiceAccessBodyParams(d)),
 		}
 
 		_, err = client.Request("PUT", updatePath, &updateOpt)
@@ -246,7 +217,7 @@ func resourceCloudServiceAccessDelete(_ context.Context, d *schema.ResourceData,
 
 	// precheck
 	// DELETE will return 200 even deleting a non exist service
-	_, err = getCloudServiceAccesss(client, instanceID, service)
+	_, err = getCloudServiceAccesss(client, d, cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting cloud service access")
 	}
@@ -258,9 +229,7 @@ func resourceCloudServiceAccessDelete(_ context.Context, d *schema.ResourceData,
 	deletePath = strings.ReplaceAll(deletePath, "{provider}", service)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
+		MoreHeaders:      buildHeaders(cfg, d),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
@@ -269,4 +238,17 @@ func resourceCloudServiceAccessDelete(_ context.Context, d *schema.ResourceData,
 	}
 
 	return nil
+}
+
+func resourceCloudServiceAccessImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
+	[]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid format of import ID, must be <instance_id>/<service>")
+	}
+
+	d.Set("instance_id", parts[0])
+	d.Set("service", parts[1])
+
+	return []*schema.ResourceData{d}, nil
 }

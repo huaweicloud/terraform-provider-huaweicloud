@@ -28,9 +28,7 @@ func getCloudServiceAccessResourceFunc(conf *config.Config, state *terraform.Res
 	getPath = strings.ReplaceAll(getPath, "{provider}", state.Primary.Attributes["service"])
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
+		MoreHeaders:      buildHeaders(state),
 	}
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
@@ -64,6 +62,7 @@ func TestAccCloudServiceAccess_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -75,6 +74,7 @@ func TestAccCloudServiceAccess_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_aom_prom_instance.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "service", "OBS"),
 					resource.TestCheckResourceAttr(resourceName, "tag_sync", "manual"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
@@ -100,20 +100,9 @@ func testCloudServiceAccessBase(name string) string {
 resource "huaweicloud_aom_prom_instance" "test" {
   prom_name             = "%[1]s"
   prom_type             = "CLOUD_SERVICE"
-  enterprise_project_id = "0"
+  enterprise_project_id = "%[2]s"
 }
-
-resource "huaweicloud_obs_bucket" "test" {
-  bucket        = "%[1]s"
-  acl           = "private"
-  force_destroy = true
-
-  tags = {
-    owner = "terraform"
-    key   = "value"
-  }
-}
-`, name)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testCloudServiceAccess_basic(name string) string {
@@ -121,21 +110,10 @@ func testCloudServiceAccess_basic(name string) string {
 %s
 
 resource "huaweicloud_aom_cloud_service_access" "test" {
-  instance_id = huaweicloud_aom_prom_instance.test.id
-  service     = "OBS"
-  tag_sync    = "manual"
-
-  tags {
-    sync   = false
-    key    = "key"
-    values = [huaweicloud_obs_bucket.test.tags["key"]]
-  }
-
-  tags {
-    sync   = true
-    key    = "owner"
-    values = [huaweicloud_obs_bucket.test.tags["owner"]]
-  }
+  instance_id           = huaweicloud_aom_prom_instance.test.id
+  service               = "OBS"
+  tag_sync              = "manual"
+  enterprise_project_id = huaweicloud_aom_prom_instance.test.enterprise_project_id
 }
 `, testCloudServiceAccessBase(name))
 }
@@ -145,21 +123,10 @@ func testCloudServiceAccess_update(name string) string {
 %s
 
 resource "huaweicloud_aom_cloud_service_access" "test" {
-  instance_id = huaweicloud_aom_prom_instance.test.id
-  service     = "OBS"
-  tag_sync    = "auto"
-
-  tags {
-    sync   = true
-    key    = "key"
-    values = [huaweicloud_obs_bucket.test.tags["key"]]
-  }
-
-  tags {
-    sync   = false
-    key    = "owner"
-    values = [huaweicloud_obs_bucket.test.tags["owner"]]
-  }
+  instance_id           = huaweicloud_aom_prom_instance.test.id
+  service               = "OBS"
+  tag_sync              = "auto"
+  enterprise_project_id = huaweicloud_aom_prom_instance.test.enterprise_project_id
 }
 `, testCloudServiceAccessBase(name))
 }

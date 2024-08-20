@@ -37,7 +37,9 @@ func getMultiAccountAggregationRuleResourceFunc(conf *config.Config, state *terr
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      buildHeaders(state),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
