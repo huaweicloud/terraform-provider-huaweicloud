@@ -12,7 +12,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -175,17 +174,14 @@ func resourceDisasterRecoveryTasksRead(_ context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.Errorf("error parsing DWS disaster recoveries: %s", err)
 	}
-	disasterListJson := utils.PathSearch("disaster_recovery", respBody, make([]interface{}, 0))
-	disasterList := disasterListJson.([]interface{})
-	if len(disasterList) == 0 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving DWS disaster recoveries")
-	}
+
 	uuid, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 	d.SetId(uuid)
 
+	disasterList := utils.PathSearch("disaster_recovery", respBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("tasks", filterDisasterRecoveryTasks(flattenDisasterRecoveryTasks(disasterList), d)),

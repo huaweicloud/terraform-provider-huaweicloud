@@ -20,7 +20,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -170,9 +169,8 @@ func resourceDwsFlavorsRead(_ context.Context, d *schema.ResourceData, meta inte
 		KeepResponseBody: true,
 	}
 	listFlavorsResp, err := listFlavorsClient.Request("GET", listFlavorsPath, &listFlavorsOpt)
-
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DwsFlavors")
+		return diag.Errorf("error retrieving DWS flavors: %s", err)
 	}
 
 	listFlavorsRespBody, err := utils.FlattenResponse(listFlavorsResp)
