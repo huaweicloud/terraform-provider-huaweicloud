@@ -418,6 +418,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_aggregation_metrics":             aom.DataSourceAggregationMetrics(),
 			"huaweicloud_aom_organization_accounts":           aom.DataSourceOrganizationAccounts(),
 			"huaweicloud_aom_dashboards_folders":              aom.DataSourceDashboardsFolders(),
+			"huaweicloud_aom_alarm_rules":                     aom.DataSourceAlarmRules(),
 
 			"huaweicloud_apig_acl_policies":                       apig.DataSourceAclPolicies(),
 			"huaweicloud_apig_api_associated_acl_policies":        apig.DataSourceApiAssociatedAclPolicies(),
