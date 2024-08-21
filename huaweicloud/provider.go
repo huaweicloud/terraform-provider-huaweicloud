@@ -906,6 +906,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_workflows":              secmaster.DataSourceSecmasterWorkflows(),
 			"huaweicloud_secmaster_workspaces":             secmaster.DataSourceSecmasterWorkspaces(),
 			"huaweicloud_secmaster_incidents":              secmaster.DataSourceIncidents(),
+			"huaweicloud_secmaster_alerts":                 secmaster.DataSourceAlerts(),
 			"huaweicloud_secmaster_metric_results":         secmaster.DataSourceMetricResults(),
 			"huaweicloud_secmaster_baseline_check_results": secmaster.DataSourceSecmasterBaselineCheckResults(),
 
