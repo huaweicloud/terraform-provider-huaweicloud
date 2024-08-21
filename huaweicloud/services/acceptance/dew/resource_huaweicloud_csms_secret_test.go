@@ -44,7 +44,10 @@ func TestAccDewCsmsSecret_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -121,6 +124,14 @@ func TestAccDewCsmsSecret_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "secret_binary", binaryUpdate),
+				),
+			},
+			{
+				Config: testAccDewCsmsSecret_update5(name, expireUpdateTime),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
@@ -266,4 +277,20 @@ resource "huaweicloud_csms_secret" "test" {
   enterprise_project_id = "0"
 }
 `, testAccDewCsmsSecret_base(name), name, expireTime)
+}
+
+func testAccDewCsmsSecret_update5(name string, expireTime int64) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_csms_secret" "test" {
+  name                  = "%[2]s"
+  secret_binary         = "0101"
+  description           = ""
+  expire_time           = %[3]d
+  kms_key_id            = huaweicloud_kms_key.test_second.id
+  secret_type           = "COMMON"
+  enterprise_project_id = "%[4]s"
+}
+`, testAccDewCsmsSecret_base(name), name, expireTime, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
