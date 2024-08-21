@@ -49,8 +49,7 @@ The following arguments are supported:
 * `rotation_interval` - (Optional, Int) Specifies the key rotation interval. The valid value is range from 30 to 365,
   defaults to 365. This field is supported when the source of the key is **kms**.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the kms key. Changing this creates
-  a new key.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the KMS key belongs.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the kms key.
 
