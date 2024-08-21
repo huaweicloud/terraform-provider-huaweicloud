@@ -124,7 +124,7 @@ func ResourceGaussDBInstance() *schema.Resource {
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 			},
 			"configuration_id": {
 				Type:     schema.TypeString,
@@ -177,6 +177,16 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+			},
+			"private_write_ip": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"port": {
+				Type:     schema.TypeInt,
+				Optional: true,
 				Computed: true,
 			},
 			"datastore": {
@@ -287,15 +297,7 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"port": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
 			"mode": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"private_write_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -604,6 +606,18 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 
 	if parametersRaw := d.Get("parameters").(*schema.Set); parametersRaw.Len() > 0 {
 		if err = initializeParameters(ctx, d, client, parametersRaw.List()); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("private_write_ip"); ok {
+		if err = updatePrivateWriteIp(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("port"); ok {
+		if err = updatePort(ctx, client, d, schema.TimeoutCreate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1028,6 +1042,27 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChange("parameters") && !d.HasChanges("configuration_id") {
 		ctx, err = updateRdsParameters(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("private_write_ip") {
+		err = updatePrivateWriteIp(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("port") {
+		err = updatePort(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("security_group_id") {
+		err = updateSecurityGroup(ctx, client, d, schema.TimeoutUpdate)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1678,6 +1713,87 @@ func modifyParameters(ctx context.Context, client *golangsdk.ServiceClient, d *s
 		return false, err
 	}
 	return job.RestartRequired, nil
+}
+
+func updatePrivateWriteIp(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	updatePrivateWriteIpOpts := instances.UpdatePrivateIpOpts{
+		InternalIp: d.Get("private_write_ip").(string),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.UpdatePrivateIp(client, d.Id(), updatePrivateWriteIpOpts).ExtractJobResponse()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating private write IP for instance %s: %s ", d.Id(), err)
+	}
+
+	job := r.(*instances.JobResponse)
+	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
+}
+
+func updatePort(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	updatePortOpts := instances.UpdatePortOpts{
+		Port: d.Get("port").(int),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.UpdatePort(client, d.Id(), updatePortOpts).ExtractJobResponse()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating port for instance %s: %s ", d.Id(), err)
+	}
+
+	job := r.(*instances.JobResponse)
+	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
+}
+
+func updateSecurityGroup(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	updateSecurityGroupOpts := instances.UpdateSecurityGroupOpts{
+		SecurityGroupId: d.Get("security_group_id").(string),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.UpdateSecurityGroup(client, d.Id(), updateSecurityGroupOpts).ExtractJobResponse()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 2 * time.Second,
+		PollInterval: 2 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating security group for instance %s: %s ", d.Id(), err)
+	}
+
+	job := r.(*instances.JobResponse)
+	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
 }
 
 func checkGaussDBMySQLJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {

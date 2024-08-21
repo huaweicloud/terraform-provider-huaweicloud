@@ -65,14 +65,18 @@ The following arguments are supported:
 * `subnet_id` - (Required, String, ForceNew) Specifies the network ID of a subnet. Changing this parameter will create a
   new resource.
 
-* `security_group_id` - (Optional, String, ForceNew) Specifies the security group ID. Required if the selected subnet
-  doesn't enable network ACL. Changing this parameter will create a new resource.
-
 * `dedicated_resource_id` - (Optional, String, ForceNew) Specifies the dedicated resource ID. Changing this parameter
   will create a new resource.
 
 * `dedicated_resource_name` - (Optional, String, ForceNew) Specifies the dedicated resource name. Changing this parameter
   will create a new resource.
+
+* `security_group_id` - (Optional, String) Specifies the security group ID. Required if the selected subnet doesn't
+  enable network ACL.
+
+* `port` - (Optional, Int) Specifies the database port.
+
+* `private_write_ip` - (Optional, String) Specifies the private IP address of the DB instance.
 
 * `configuration_id` - (Optional, String) Specifies the configuration ID.
 
@@ -161,10 +165,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the DB instance ID.
 * `status` - Indicates the DB instance status.
-* `port` - Indicates the database port.
 * `mode` - Indicates the instance mode.
 * `db_user_name` - Indicates the default username.
-* `private_write_ip` - Indicates the private IP address of the DB instance.
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 
 The `nodes` block contains:
