@@ -39,12 +39,23 @@ The following arguments are supported:
 
 * `name` - (Required, String) Specifies the name of the host group.
 
-* `type` - (Required, String, ForceNew) Specifies the type of the host group.
+* `type` - (Required, String, ForceNew) Specifies the type of the host.
   The value can be **linux** and **windows**.
 
   Changing this parameter will create a new resource.
 
 * `host_ids` - (Optional, List) Specifies the ID list of hosts to join the host group.
+
+* `agent_access_type` - (Optional, String) Specifies the type of the host group.
+  The default value is **IP**.  
+  The valid values are as follows:
+  + **IP**
+  + **LABEL**
+
+* `labels` - (Optional, List) Specifies the custom label list of the host group.
+  This parameter is required when `agent_access_type` is set to **LABEL**.
+
+  -> Currently, a maximum of `10` labels can be created.
 
 * `tags` - (Optional, Map) Specifies the key/value to attach to the host group.
 
