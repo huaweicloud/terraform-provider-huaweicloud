@@ -44,6 +44,10 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 						"huaweicloud_gaussdb_mysql_parameter_template.test.0", "name"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "default_authentication_plugin"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "mysql_native_password"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test.0", "id"),
+					resource.TestCheckResourceAttr(resourceName, "private_write_ip", "192.168.0.156"),
+					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -64,6 +68,10 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 						"huaweicloud_gaussdb_mysql_parameter_template.test.1", "name"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "binlog_gtid_simple_recovery"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "ON"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test.1", "id"),
+					resource.TestCheckResourceAttr(resourceName, "private_write_ip", "192.168.0.157"),
+					resource.TestCheckResourceAttr(resourceName, "port", "9999"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
@@ -211,6 +219,13 @@ func testAccGaussDBInstanceConfig_basic(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
+resource "huaweicloud_networking_secgroup" "test" {
+  count = 2
+
+  name                 = "%[2]s_${count.index}"
+  delete_default_rules = true
+}
+
 data "huaweicloud_gaussdb_mysql_flavors" "test" {
   engine  = "gaussdb-mysql"
   version = "8.0"
@@ -235,13 +250,15 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   flavor                   = data.huaweicloud_gaussdb_mysql_flavors.test.flavors[0].name
   vpc_id                   = huaweicloud_vpc.test.id
   subnet_id                = huaweicloud_vpc_subnet.test.id
-  security_group_id        = huaweicloud_networking_secgroup.test.id
+  security_group_id        = huaweicloud_networking_secgroup.test[0].id
   availability_zone_mode   = "multi"
   master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
   read_replicas            = 2
   enterprise_project_id    = "0"
   sql_filter_enabled       = true
   configuration_id         = huaweicloud_gaussdb_mysql_parameter_template.test[0].id
+  private_write_ip         = "192.168.0.156"
+  port                     = "8888"
 
   parameters {
     name  = "default_authentication_plugin"
@@ -258,7 +275,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
     key = "value"
   }
 }
-`, common.TestBaseNetwork(rName), rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccGaussDBInstanceConfig_basicUpdate(rName string) string {
@@ -266,6 +283,13 @@ func testAccGaussDBInstanceConfig_basicUpdate(rName string) string {
 %[1]s
 
 data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  count = 2
+
+  name                 = "%[2]s_${count.index}"
+  delete_default_rules = true
+}
 
 data "huaweicloud_gaussdb_mysql_flavors" "test" {
   engine  = "gaussdb-mysql"
@@ -291,7 +315,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   flavor                   = data.huaweicloud_gaussdb_mysql_flavors.test.flavors[1].name
   vpc_id                   = huaweicloud_vpc.test.id
   subnet_id                = huaweicloud_vpc_subnet.test.id
-  security_group_id        = huaweicloud_networking_secgroup.test.id
+  security_group_id        = huaweicloud_networking_secgroup.test[1].id
   availability_zone_mode   = "multi"
   master_availability_zone = data.huaweicloud_availability_zones.test.names[0]
   read_replicas            = 4
@@ -299,6 +323,8 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   audit_log_enabled        = true
   sql_filter_enabled       = false
   configuration_id         = huaweicloud_gaussdb_mysql_parameter_template.test[1].id
+  private_write_ip         = "192.168.0.157"
+  port                     = "9999"
 
   parameters {
     name  = "binlog_gtid_simple_recovery"
@@ -315,7 +341,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
     key        = "value_update"
   }
 }
-`, common.TestBaseNetwork(rName), rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccGaussDBInstanceConfig_prePaid(rName, password string, isAutoRenew bool) string {

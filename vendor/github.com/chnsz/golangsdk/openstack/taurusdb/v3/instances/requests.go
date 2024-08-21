@@ -107,7 +107,7 @@ func CreateReplica(client *golangsdk.ServiceClient, instanceId string, opts Crea
 		return
 	}
 
-	_, r.Err = client.Post(enlargeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "nodes/enlarge"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{201, 202},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
@@ -241,7 +241,7 @@ func UpdateName(client *golangsdk.ServiceClient, instanceId string, opts UpdateN
 		return
 	}
 
-	_, r.Err = client.Put(nameURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Put(updateURL(client, instanceId, "name"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
@@ -272,7 +272,7 @@ func UpdatePass(client *golangsdk.ServiceClient, instanceId string, opts UpdateP
 		return
 	}
 
-	_, r.Err = client.Post(passwordURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "password"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
@@ -304,7 +304,7 @@ func ExtendVolume(client *golangsdk.ServiceClient, instanceId string, opts Exten
 		return
 	}
 
-	_, r.Err = client.Post(volumeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "volume/extend"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{201},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
@@ -340,7 +340,7 @@ func Resize(client *golangsdk.ServiceClient, instanceId string, opts ResizeBuild
 		return
 	}
 
-	_, r.Err = client.Post(actionURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "action"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
@@ -372,7 +372,7 @@ func EnableProxy(client *golangsdk.ServiceClient, instanceId string, opts ProxyB
 		return
 	}
 
-	_, r.Err = client.Post(proxyURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "proxy"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{201},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
@@ -403,7 +403,7 @@ func EnlargeProxy(client *golangsdk.ServiceClient, instanceId string, opts Enlar
 		return
 	}
 
-	_, r.Err = client.Post(proxyEnlargeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "proxy/enlarge"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{201},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
@@ -465,7 +465,97 @@ func Restart(client *golangsdk.ServiceClient, instanceId string, opts RestartBui
 		return
 	}
 
-	_, r.Err = client.Post(restartURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "restart"), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
+type UpdatePrivateIpOpts struct {
+	InternalIp string `json:"internal_ip" required:"true"`
+}
+
+type UpdatePrivateIpBuilder interface {
+	ToPrivateIpUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdatePrivateIpOpts) ToPrivateIpUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdatePrivateIp(client *golangsdk.ServiceClient, instanceId string, opts UpdatePrivateIpBuilder) (r JobResult) {
+	b, err := opts.ToPrivateIpUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateURL(client, instanceId, "internal-ip"), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
+type UpdatePortOpts struct {
+	Port int `json:"port" required:"true"`
+}
+
+type UpdatePortBuilder interface {
+	ToPortUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdatePortOpts) ToPortUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdatePort(client *golangsdk.ServiceClient, instanceId string, opts UpdatePortBuilder) (r JobResult) {
+	b, err := opts.ToPortUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateURL(client, instanceId, "port"), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
+type UpdateSecurityGroupOpts struct {
+	SecurityGroupId string `json:"security_group_id" required:"true"`
+}
+
+type UpdateSecurityGroupBuilder interface {
+	ToSecurityGroupUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdateSecurityGroupOpts) ToSecurityGroupUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdateSecurityGroup(client *golangsdk.ServiceClient, instanceId string, opts UpdateSecurityGroupBuilder) (r JobResult) {
+	b, err := opts.ToSecurityGroupUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateURL(client, instanceId, "security-group"), b, &r.Body, &golangsdk.RequestOpts{
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 
