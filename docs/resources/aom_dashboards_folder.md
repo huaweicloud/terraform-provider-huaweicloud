@@ -30,9 +30,10 @@ The following arguments are supported:
 
 * `folder_title` - (Required, String) Specifies the dashboards folder title.
 
-* `delete_all` - (Optional, Bool) Specifies whether to delete the dashboards when deleting folder.
+* `delete_all` - (Optional, Bool) Specifies whether to delete the dashboards when deleting folder. Defaults to **false**.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the folder belongs.
+  Defaults to **0**. Changing this parameter will create a new resource.
 
 ## Attribute Reference
 

@@ -62,6 +62,7 @@ func TestAccDashboardsFolder_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -71,7 +72,7 @@ func TestAccDashboardsFolder_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "folder_title", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "delete_all", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "is_template"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_by"),
@@ -82,7 +83,7 @@ func TestAccDashboardsFolder_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "folder_title", newName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "delete_all", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "is_template"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_by"),
@@ -101,8 +102,8 @@ func TestAccDashboardsFolder_basic(t *testing.T) {
 func testDashboardsFolder_basic(name string, deleteAll bool) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_dashboards_folder" "test" {
-  folder_title          = "%s"
-  enterprise_project_id = "0"
-  delete_all            = %t
-}`, name, deleteAll)
+  folder_title          = "%[1]s"
+  enterprise_project_id = "%[2]s"
+  delete_all            = %[3]t
+}`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, deleteAll)
 }
