@@ -387,8 +387,11 @@ var (
 	HW_IOTDA_ACCESS_ADDRESS      = os.Getenv("HW_IOTDA_ACCESS_ADDRESS")
 	HW_IOTDA_BATCHTASK_FILE_PATH = os.Getenv("HW_IOTDA_BATCHTASK_FILE_PATH")
 
-	HW_DWS_MUTIL_AZS            = os.Getenv("HW_DWS_MUTIL_AZS")
-	HW_DWS_CLUSTER_ID           = os.Getenv("HW_DWS_CLUSTER_ID")
+	HW_DWS_MUTIL_AZS               = os.Getenv("HW_DWS_MUTIL_AZS")
+	HW_DWS_CLUSTER_ID              = os.Getenv("HW_DWS_CLUSTER_ID")
+	HW_DWS_LOGICAL_MODE_CLUSTER_ID = os.Getenv("HW_DWS_LOGICAL_MODE_CLUSTER_ID")
+	HW_DWS_LOGICAL_CLUSTER_NAME    = os.Getenv("HW_DWS_LOGICAL_CLUSTER_NAME")
+
 	HW_DWS_SNAPSHOT_POLICY_NAME = os.Getenv("HW_DWS_SNAPSHOT_POLICY_NAME")
 
 	HW_DCS_ACCOUNT_WHITELIST = os.Getenv("HW_DCS_ACCOUNT_WHITELIST")
@@ -2018,6 +2021,20 @@ func TestAccPreCheckMutilAZ(t *testing.T) {
 func TestAccPreCheckDwsClusterId(t *testing.T) {
 	if HW_DWS_CLUSTER_ID == "" {
 		t.Skip("HW_DWS_CLUSTER_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDwsLogicalModeClusterId(t *testing.T) {
+	if HW_DWS_LOGICAL_MODE_CLUSTER_ID == "" {
+		t.Skip("HW_DWS_LOGICAL_MODE_CLUSTER_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDwsLogicalClusterName(t *testing.T) {
+	if HW_DWS_LOGICAL_CLUSTER_NAME == "" {
+		t.Skip("HW_DWS_LOGICAL_CLUSTER_NAME must be set for the acceptance test")
 	}
 }
 

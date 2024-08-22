@@ -120,7 +120,7 @@ locals {
 output "is_userful_logical_cluster_name" {
   value = alltrue(local.fliter_result) && length(local.fliter_result) > 0
 }
-`, testAccResourceWorkloadQueue_basic_logicalClusterName(name),
+`, testAccResourceWorkloadQueue_logicalClusterName(name),
 		acceptance.HW_DWS_LOGICAL_MODE_CLUSTER_ID,
 		acceptance.HW_DWS_LOGICAL_CLUSTER_NAME)
 }
