@@ -82,6 +82,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Environments can be imported using their `id`, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_servicestage_environment.test 17383329-b686-47e4-8f70-0d8dcddb65e9
 ```

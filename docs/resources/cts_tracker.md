@@ -84,7 +84,7 @@ This resource provides the following timeouts configuration options:
 
 CTS tracker can be imported using `name`, only **system** is available. e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cts_tracker.tracker system
 ```
 

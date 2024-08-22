@@ -69,6 +69,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Lifecycle hooks can be imported using the AS group ID and hook ID separated by a slash, e.g.
 
-```
-$ terraform import huaweicloud_as_lifecycle_hook.test &ltAS group ID&gt/&ltLifecycle hook ID&gt
+```bash
+$ terraform import huaweicloud_as_lifecycle_hook.test <AS group ID>/<Lifecycle hook ID>
 ```

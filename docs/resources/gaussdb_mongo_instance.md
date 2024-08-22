@@ -182,6 +182,6 @@ This resource provides the following timeouts configuration options:
 
 GaussDB mongo instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_gaussdb_mongo_instance.instance_1 2d3cb29c73754417bbbf46b1f856b371in10
 ```

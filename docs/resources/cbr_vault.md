@@ -314,7 +314,7 @@ This resource provides the following timeouts configuration options:
 
 Vaults can be imported by their `id`. For example,
 
-```
+```bash
 $ terraform import huaweicloud_cbr_vault.test 01c33779-7c83-4182-8b6b-24a671fcedf8
 ```
 
@@ -324,7 +324,7 @@ It is generally recommended running `terraform plan` after importing a vault.
 You can then decide if changes should be applied to the vault, or the resource definition should be updated to align
 with the vault. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cbr_vault" "test" {
   ...
 

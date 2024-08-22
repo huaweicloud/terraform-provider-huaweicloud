@@ -294,6 +294,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Device linkage rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iotda_device_linkage_rule.test 62b6cc5aa367f403fea86127
 ```

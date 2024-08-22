@@ -82,6 +82,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Users can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_workspace_user.test a96e632a399d452eb29e5091e0af806a
 ```

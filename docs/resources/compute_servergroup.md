@@ -54,6 +54,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Server Groups can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_compute_servergroup.test-sg 1bc30ee9-9d5b-4c30-bdd5-7f1e663f5edf
 ```

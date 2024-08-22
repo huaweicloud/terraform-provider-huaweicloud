@@ -232,7 +232,7 @@ In addition to all arguments above, the following attributes are exported:
 
 Data forwarding rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iotda_dataforwarding_rule.test 10022532f4f94f26b01daa1e424853e1
 ```
 
@@ -242,7 +242,7 @@ generally recommended running `terraform plan` after importing the resource. You
 applied to the resource, or the resource definition should be updated to align with the group. Also you can ignore
 changes as below.
 
-```
+```hcl
 resource "huaweicloud_iotda_device_group" "test" {
     ...
 

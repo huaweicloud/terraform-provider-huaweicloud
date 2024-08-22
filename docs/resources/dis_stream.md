@@ -106,6 +106,6 @@ The `partitions` block contains:
 
 Dis stream can be imported by `stream_name`. For example,
 
-```
+```bash
 terraform import huaweicloud_dis_stream.example _abc123
 ```

@@ -50,6 +50,6 @@ In addition to all arguments above, the following attributes are exported:
 Vip associate can be imported using the `vip_id` and port IDs separated by slashes (no limit on the number of
 port IDs), e.g.
 
-```
+```bash
 $ terraform import huaweicloud_networking_vip_associate.vip_associated vip_id/port1_id/port2_id
 ```

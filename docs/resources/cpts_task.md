@@ -68,7 +68,7 @@ This resource provides the following timeouts configuration options:
 
 Tasks can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cpts_task.test 1090
 ```
 
@@ -78,7 +78,7 @@ It is generally recommended running `terraform plan` after importing an instance
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cpts_task" "test" {
     ...
 

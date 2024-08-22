@@ -69,7 +69,7 @@ In addition to all arguments above, the following attributes are exported:
 
 Groups can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iotda_device_group.test 10022532f4f94f26b01daa1e424853e1
 ```
 
@@ -79,7 +79,7 @@ recommended running `terraform plan` after importing the resource. You can then 
 the resource, or the resource definition should be updated to align with the group. Also you can ignore changes as
 below.
 
-```
+```hcl
 resource "huaweicloud_iotda_device_group" "test" {
     ...
 

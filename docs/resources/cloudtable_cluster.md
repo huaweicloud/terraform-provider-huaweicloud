@@ -106,7 +106,7 @@ This resource provides the following timeouts configuration options:
 
 Clusters can be imported by their `id`. e.g.:
 
-```
+```bash
 terraform import huaweicloud_cloudtable_cluster.test 4c2d38b6-6fb0-480c-8813-5f536b5ba6a4
 ```
 
@@ -117,7 +117,7 @@ It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition should be updated to
 align with the cluster. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cloudtable_cluster" "test" {
     ...
 

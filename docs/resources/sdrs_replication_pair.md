@@ -93,7 +93,7 @@ It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
 with the resource. Also, you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_sdrs_replication_pair" "test" {
   ...
   

@@ -200,7 +200,7 @@ This resource provides the following timeouts configuration options:
 
 Desktops can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_workspace_desktop.test 339d2539-e945-4090-a08d-c16badc0c6bb
 ```
 
@@ -211,7 +211,7 @@ It is generally recommended running `terraform plan` after importing a desktop.
 You can then decide if changes should be applied to the desktop, or the resource definition should be updated to
 align with the desktop. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_workspace_desktop" "test" {
   ...
 

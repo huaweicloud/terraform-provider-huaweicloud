@@ -193,6 +193,6 @@ In addition to all arguments above, the following attributes are exported:
 
 MPC transcoding templates can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_mpc_transcoding_template.test 542899
 ```

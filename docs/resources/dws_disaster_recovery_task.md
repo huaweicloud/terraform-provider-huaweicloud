@@ -119,7 +119,7 @@ It is generally recommended running `terraform plan` after importing a DR task.
 You can then decide if changes should be applied to the DR task, or the resource definition
 should be updated to align with the DR task. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dws_disaster_recovery" "test" {
     ...
 

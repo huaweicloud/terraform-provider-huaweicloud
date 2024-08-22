@@ -50,6 +50,6 @@ This resource provides the following timeouts configuration options:
 
 Organizations can be imported using the `name`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_swr_organization.test org-name
 ```

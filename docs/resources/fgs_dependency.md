@@ -94,6 +94,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Dependencies can be imported using the `id`, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_fgs_dependency.test 795e722f-0c23-41b6-a189-dcd56f889cf6
 ```

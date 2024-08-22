@@ -129,7 +129,7 @@ This resource provides the following timeouts configuration options:
 
 CCE PVC can be imported using the cluster ID, namespace and ID separated by slashes, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cce_pvc.test 5c20fdad-7288-11eb-b817-0255ac10158b/default/fa540f3b-12d9-40e5-8268-04bcfed95a46
 ```
 
@@ -139,7 +139,7 @@ It is generally recommended running `terraform plan` after importing a PVC.
 You can then decide if changes should be applied to the PVC, or the resource
 definition should be updated to align with the PVC. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cce_pvc" "test" {
     ...
 

@@ -100,6 +100,6 @@ This resource provides the following timeouts configuration options:
 
 The resolver rule can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dns_resolver_rule.test ff8080828a94313a018bf50d67110c86
 ```

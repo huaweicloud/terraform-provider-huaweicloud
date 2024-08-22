@@ -193,7 +193,7 @@ API response. The missing attributes include: `vault_id`. It is generally recomm
 importing the image. You can then decide if changes should be applied to the image, or the resource
 definition should be updated to align with the image. Also, you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_images_image" "test" {
   ...
 

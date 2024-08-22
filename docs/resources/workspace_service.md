@@ -235,7 +235,7 @@ This resource provides the following timeouts configuration options:
 
 Service can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_workspace_service.test fd3f81cb-d95f-43ce-b342-81b6b5dcadda
 ```
 

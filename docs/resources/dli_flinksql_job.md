@@ -160,7 +160,7 @@ This resource provides the following timeouts configuration options:
 
 Clusters can be imported by their `id`. For example,
 
-```
+```bash
 terraform import huaweicloud_dli_flinksql_job.test 12345
 ```
 

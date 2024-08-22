@@ -186,6 +186,6 @@ This resource provides the following timeouts configuration options:
 
 Policy assignments can be imported using their `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_rms_policy_assignment.test 63f48e3762ce955981ab7e25
 ```

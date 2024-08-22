@@ -169,6 +169,6 @@ This resource provides the following timeouts configuration options:
 
 Security Group Rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_networking_secgroup_rule.secgroup_rule_1 aeb68ee3-6e9d-4256-955c-9584a6212745
 ```

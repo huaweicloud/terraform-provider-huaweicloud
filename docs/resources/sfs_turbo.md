@@ -202,7 +202,7 @@ This resource provides the following timeouts configuration options:
 
 SFS Turbo can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_sfs_turbo 1e3d5306-24c9-4316-9185-70e9787d71ab
 ```
 

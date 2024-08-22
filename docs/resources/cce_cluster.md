@@ -448,7 +448,7 @@ recommended running `terraform plan` after importing an CCE cluster. You can the
 the cluster, or the resource definition should be updated to align with the cluster. Also you can ignore changes as
 below.
 
-```
+```hcl
 resource "huaweicloud_cce_cluster" "cluster_1" {
     ...
 

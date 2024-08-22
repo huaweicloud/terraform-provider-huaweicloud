@@ -57,6 +57,6 @@ This resource provides the following timeouts configuration options:
 
 Cloud Native Anti-DDos Basic resources can be imported using `eip_id`. e.g.
 
-```
+```bash
 $ terraform import huaweicloud_antiddos_basic.antiddos_1 c5256d47-8f9e-4ae7-9943-6e77e3d8bd2d
 ```

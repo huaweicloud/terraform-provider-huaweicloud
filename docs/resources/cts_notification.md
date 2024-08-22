@@ -144,6 +144,6 @@ This resource provides the following timeouts configuration options:
 
 CTS notifications can be imported using `name`, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_cts_notification.tracker your_notification
 ```

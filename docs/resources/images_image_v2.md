@@ -94,6 +94,6 @@ This resource provides the following timeouts configuration options:
 
 Images can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_images_image_v2.rancheros 89c60255-9bd6-460c-822a-e2b959ede9d2
 ```

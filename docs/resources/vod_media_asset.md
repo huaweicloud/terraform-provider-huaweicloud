@@ -163,7 +163,7 @@ In addition to all arguments above, the following attributes are exported:
 
 The media asset can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vod_media_asset.test 8754976729b8a2ba745d01036edded2b
 ```
 
@@ -175,7 +175,7 @@ It is generally recommended running `terraform plan` after importing a media ass
 You can then decide if changes should be applied to the media asset, or the resource
 definition should be updated to align with the media asset. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_vod_media_asset" "test" {
     ...
   lifecycle {

@@ -287,7 +287,7 @@ It is generally recommended running `terraform plan` after importing the resourc
 be applied to the resource, or the resource definition should be updated to align with the group. Also, you can ignore
 changes as below.
 
-```
+```hcl
 resource "huaweicloud_as_group" "test" {
     ...
 

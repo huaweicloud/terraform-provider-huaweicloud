@@ -145,6 +145,6 @@ This resource provides the following timeouts configuration options:
 
 AOM service discovery rules can be imported using the `name`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_aom_service_discovery_rule.alarm_rule rule_name
 ```

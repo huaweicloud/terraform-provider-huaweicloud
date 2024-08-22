@@ -83,6 +83,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The rocketmq consumer group can be imported using the rocketMQ instance ID and group name separated by a slash, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dms_rocketmq_consumer_group.test 8d3c7938-dc47-4937-a30f-c80de381c5e3/group_1
 ```

@@ -78,7 +78,7 @@ In addition to all arguments above, the following attributes are exported:
 
 Agencies can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_identity_agency.agency 0b97661f9900f23f4fc2c00971ea4dc0
 ```
 

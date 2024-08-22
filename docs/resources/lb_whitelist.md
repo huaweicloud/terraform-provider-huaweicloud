@@ -59,6 +59,6 @@ This resource provides the following timeouts configuration options:
 
 ELB whitelist can be imported using the whitelist ID, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_lb_whitelist.whitelist_1 5c20fdad-7288-11eb-b817-0255ac10158b
 ```

@@ -61,6 +61,6 @@ This resource provides the following timeouts configuration options:
 
 Groups can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vpnaas_endpoint_group_v2.group_1 832cb7f3-59fe-40cf-8f64-8350ffc03272
 ```

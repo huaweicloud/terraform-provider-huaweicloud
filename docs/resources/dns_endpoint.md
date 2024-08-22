@@ -95,6 +95,6 @@ This resource provides the following timeouts configuration options:
 
 Endpoint can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dns_endpoint.test ff8080828a94313a018bdc88d3f3447d
 ```

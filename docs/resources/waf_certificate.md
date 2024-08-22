@@ -88,7 +88,7 @@ $ terraform import huaweicloud_waf_certificate.test <id>/<enterprise_project_id>
 Note that the imported state is not identical to your resource definition, due to security reason. The missing
 attributes include `certificate`, and `private_key`. You can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_waf_certificate" "certificate_2" {
     ...
   lifecycle {

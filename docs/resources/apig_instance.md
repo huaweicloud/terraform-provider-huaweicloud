@@ -173,6 +173,6 @@ This resource provides the following timeouts configuration options:
 
 Dedicated instances can be imported by their `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_apig_instance.test de379eed30aa4d31a84f426ea3c7ef4e
 ```

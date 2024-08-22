@@ -310,6 +310,6 @@ This resource provides the following timeouts configuration options:
 
 CES alarm rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_ces_alarmrule.alarm_rule al1619578509719Ga0X1RGWv
 ```

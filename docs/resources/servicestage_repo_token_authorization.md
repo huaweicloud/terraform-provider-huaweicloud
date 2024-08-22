@@ -59,6 +59,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Authorizations can be imported using their `id` or `name`, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_servicestage_repo_token_authorization.test terraform-test
 ```

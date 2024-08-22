@@ -403,7 +403,7 @@ In addition to all arguments above, the following attributes are exported:
 
 AS configurations can be imported by their `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_as_configuration.test 18518c8a-9d15-416b-8add-2ee874751d18
 ```
 
@@ -411,7 +411,7 @@ Note that the imported state may not be identical to your resource definition, d
 `instance_config.0.admin_pass`, and `instance_config.0.metadata` are missing from the API response.
 You can ignore changes after importing an AS configuration as below.
 
-```
+```hcl
 resource "huaweicloud_as_configuration" "test" {
   ...
 

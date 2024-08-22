@@ -60,6 +60,6 @@ a default resource space (undeletable) to your account.
 
 Spaces can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iotda_space.test 10022532f4f94f26b01daa1e424853e1
 ```

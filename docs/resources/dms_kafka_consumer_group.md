@@ -56,6 +56,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The kafka consumer group can be imported using the kafka `instance_id` and `name` separated by a slash, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dms_kafka_consumer_group.test <instance_id>/<name>
 ```

@@ -106,6 +106,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Backup Policy can be imported using  `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_csbs_backup_policy.backup_policy 7056d636-ac60-4663-8a6c-82d3c32c1c64
 ```

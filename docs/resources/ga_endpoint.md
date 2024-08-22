@@ -82,6 +82,6 @@ This resource provides the following timeouts configuration options:
 
 The endpoint can be imported using `endpoint_group_id`, `id`, separated by slashes, e.g.
 
-```
-$ terraform import huaweicloud_ga_endpoint.test &ltendpoint_group_id&gt/&ltid&gt
+```bash
+$ terraform import huaweicloud_ga_endpoint.test <endpoint_group_id>/<id>
 ```

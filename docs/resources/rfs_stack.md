@@ -61,7 +61,7 @@ The content of the template file (in JSON format) is as follows:
       {
         "huaweicloud": {
           "source": "huawei.com/provider/huaweicloud",
-          "version": "&gt= 1.41.0"
+          "version": ">= 1.41.0"
         }
       }
     ]
@@ -198,7 +198,7 @@ resource "huaweicloud_rfs_stack" "test" {
 
 Stacks can be imported using their `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_rfs_stack.test edd2f099-e1ac-4bd0-be32-8b2185620a90
 ```
 

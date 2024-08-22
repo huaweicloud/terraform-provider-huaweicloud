@@ -72,7 +72,7 @@ It is generally recommended running `terraform plan` after importing a reviewer.
 You can then decide if changes should be applied to the reviewer, or the resource definition should be updated to
 align with the reviewer. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dataarts_architecture_reviewer" "test"{
     ...
 

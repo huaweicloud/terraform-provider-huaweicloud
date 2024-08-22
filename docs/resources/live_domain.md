@@ -77,6 +77,6 @@ This resource provides the following timeouts configuration options:
 
 Domains can be imported using the `name`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_live_domain.test domainName
 ```

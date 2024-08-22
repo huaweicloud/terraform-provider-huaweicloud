@@ -45,6 +45,6 @@ In addition to all arguments above, the following attributes are exported:
 
 APIG environments can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_api_gateway_environment.test_env 774438a28a574ac8a496325d1bf51807
 ```

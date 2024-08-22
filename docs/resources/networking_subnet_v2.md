@@ -92,6 +92,6 @@ This resource provides the following timeouts configuration options:
 
 Subnets can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_networking_subnet_v2.subnet_1 da4faf16-5546-41e4-8330-4d0002b74048
 ```

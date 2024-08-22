@@ -96,6 +96,6 @@ This resource provides the following timeouts configuration options:
 
 ELB pool can be imported using the pool ID, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_lb_pool.pool_1 5c20fdad-7288-11eb-b817-0255ac10158b
 ```

@@ -172,6 +172,6 @@ The `cross_vpc_accesses` block supports:
 
 The rocketmq instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dms_rocketmq_instance.test 8d3c7938-dc47-4937-a30f-c80de381c5e3
 ```

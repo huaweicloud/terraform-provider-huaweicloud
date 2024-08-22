@@ -130,6 +130,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The rocketmq topic can be imported using the rocketMQ instance ID and topic name separated by a slash, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dms_rocketmq_topic.test c8057fe5-23a8-46ef-ad83-c0055b4e0c5c/topic_1
 ```

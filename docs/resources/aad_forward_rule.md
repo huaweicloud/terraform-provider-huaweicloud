@@ -61,6 +61,6 @@ In addition to all arguments above, the following attributes are exported:
 Rule can be imported using the `id` (combination of `instance_id`, `ip`, `forward_protocol` and `forward_port`),
 separated by slashes (/), e.g.
 
-```
-terraform import huaweicloud_dds_database_user.test &ltinstance_id&gt/&ltip&gt/&ltforward_protocol&gt/&ltforward_port&gt
+```bash
+terraform import huaweicloud_dds_database_user.test <instance_id>/<ip>/<forward_protocol>/<forward_port>
 ```

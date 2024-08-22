@@ -74,6 +74,6 @@ This resource provides the following timeouts configuration options:
 
 Route tables can be imported using their `id` and the related `instance_id`, separated by slashes (/), e.g.
 
-```
-$ terraform import huaweicloud_er_route_table.test &ltinstance_id&gt/&ltid&gt
+```bash
+$ terraform import huaweicloud_er_route_table.test <instance_id>/<id>
 ```

@@ -87,7 +87,7 @@ In addition to all arguments above, the following attributes are exported:
 
 KMS Keys can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_kms_key.key_1 7056d636-ac60-4663-8a6c-82d3c32c1c64
 ```
 
@@ -97,7 +97,7 @@ It is generally recommended running `terraform plan` after importing a KMS Key.
 You can then decide if changes should be applied to the KMS Key, or the resource
 definition should be updated to align with the KMS Key. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_kms_key" "key_1" {
     ...
 

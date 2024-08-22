@@ -11,7 +11,7 @@ Use this data source to get available flavors of CPH phone.
 
 ## Example Usage
 
-```
+```hcl
 data "huaweicloud_cph_phone_flavors" "test" {
   type = 1
 }

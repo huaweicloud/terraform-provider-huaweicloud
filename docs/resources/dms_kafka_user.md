@@ -57,6 +57,6 @@ In addition to all arguments above, the following attributes are exported:
 
 DMS kafka users can be imported using the kafka instance ID and user name separated by a slash, e.g.
 
-```
+```bash
 terraform import huaweicloud_dms_kafka_user.user c8057fe5-23a8-46ef-ad83-c0055b4e0c5c/user_1
 ```

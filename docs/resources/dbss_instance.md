@@ -150,7 +150,7 @@ This resource provides the following timeouts configuration options:
 
 The instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dbss_instance.test f440a6c3fab9be5aa8b2a139fc6fdfbf
 ```
 
@@ -160,7 +160,7 @@ API response. The missing attributes include: `charging_mode`, `enterprise_proje
 changes should be applied to the instance, or the resource definition should be updated to align with the instance. Also
 you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dbss_instance" "test" {
   ...
 

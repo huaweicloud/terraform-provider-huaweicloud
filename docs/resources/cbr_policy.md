@@ -159,7 +159,7 @@ It is generally recommended running `terraform plan` after importing a policy.
 You can then decide if changes should be applied to the policy, or the resource definition should be updated to align
 with the policy. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cbr_policy" "test" {
   ...
 

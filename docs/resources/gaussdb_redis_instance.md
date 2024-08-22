@@ -184,6 +184,6 @@ This resource provides the following timeouts configuration options:
 
 GaussDB Redis instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_gaussdb_redis_instance.instance_1 d54b21f037ed447aad4bfd20927711c6in12
 ```

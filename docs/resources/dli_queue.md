@@ -177,7 +177,7 @@ It is generally recommended running `terraform plan` after importing a DLI queue
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to
 align with the resource. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dli_queue" "test" {
   ...
 

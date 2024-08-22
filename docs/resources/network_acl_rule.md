@@ -67,6 +67,6 @@ In addition to all arguments above, the following attributes are exported:
 
 network ACL rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_network_acl_rule.rule_1 89a84b28-4cc2-4859-9885-c67e802a46a3
 ```
