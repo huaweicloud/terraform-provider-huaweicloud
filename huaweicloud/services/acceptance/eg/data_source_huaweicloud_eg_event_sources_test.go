@@ -20,6 +20,9 @@ func TestAccDataEventSources_basic(t *testing.T) {
 		byProviderType   = "data.huaweicloud_eg_event_sources.filter_by_provider_type"
 		dcByProviderType = acceptance.InitDataSourceCheck(byProviderType)
 
+		byChannelId   = "data.huaweicloud_eg_event_sources.filter_by_channel_id"
+		dcByChannelId = acceptance.InitDataSourceCheck(byChannelId)
+
 		byName   = "data.huaweicloud_eg_event_sources.filter_by_name"
 		dcByName = acceptance.InitDataSourceCheck(byName)
 
@@ -46,8 +49,10 @@ func TestAccDataEventSources_basic(t *testing.T) {
 					resource.TestCheckOutput("is_query_result_contains_at_least_two_types", "true"),
 					dcByProviderType.CheckResourceExists(),
 					resource.TestCheckOutput("is_provider_type_filter_useful", "true"),
-					resource.TestCheckResourceAttr(byProviderType, "sources.0.label", name),
+					resource.TestCheckResourceAttrSet(byProviderType, "sources.0.label"),
 					resource.TestMatchResourceAttr(byProviderType, "sources.0.event_types.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					dcByChannelId.CheckResourceExists(),
+					resource.TestCheckOutput("is_channel_id_filter_useful", "true"),
 					dcByName.CheckResourceExists(),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
 					resource.TestCheckResourceAttrPair(byName, "sources.0.id", "huaweicloud_eg_custom_event_source.test", "id"),
@@ -55,7 +60,6 @@ func TestAccDataEventSources_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(byName, "sources.0.channel_name", "huaweicloud_eg_custom_event_channel.test", "name"),
 					resource.TestCheckResourceAttr(byName, "sources.0.name", name),
 					resource.TestCheckResourceAttr(byName, "sources.0.description", "Updated by terraform script"),
-					resource.TestCheckResourceAttr(byName, "sources.0.enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(byName, "sources.0.provider_type", "CUSTOM"),
 					resource.TestCheckResourceAttr(byName, "sources.0.type", "ROCKETMQ"),
 					resource.TestCheckResourceAttrSet(byName, "sources.0.status"),
@@ -132,10 +136,10 @@ func testAccDataEventSources_basic_step1(name string) string {
 %[1]s
 
 resource "huaweicloud_eg_custom_event_source" "test" {
-  channel_id = huaweicloud_eg_custom_event_channel.test.id
+  channel_id  = huaweicloud_eg_custom_event_channel.test.id
   name        = "%[2]s"
   type        = "ROCKETMQ"
-  description = "Created by terrafrom script"
+  description = "Created by terraform script"
   detail      = jsonencode({
     instance_id     = try(data.huaweicloud_dms_rocketmq_instances.test.instances[0].id, "")
     group           = huaweicloud_dms_rocketmq_consumer_group.test.id
@@ -154,10 +158,10 @@ func testAccDataEventSources_basic_step2(name string) string {
 %[1]s
 
 resource "huaweicloud_eg_custom_event_source" "test" {
-  channel_id = huaweicloud_eg_custom_event_channel.test.id
+  channel_id  = huaweicloud_eg_custom_event_channel.test.id
   name        = "%[2]s"
   type        = "ROCKETMQ"
-  description = "Updated by terrafrom script"
+  description = "Updated by terraform script"
   detail      = jsonencode({
     instance_id     = try(data.huaweicloud_dms_rocketmq_instances.test.instances[0].id, "")
     group           = huaweicloud_dms_rocketmq_consumer_group.test.id
@@ -182,17 +186,38 @@ output "is_query_result_contains_at_least_two_types" {
 data "huaweicloud_eg_event_sources" "filter_by_provider_type" {
   depends_on = [huaweicloud_eg_custom_event_source.test]
 
-  provider_type = "CUSTOM"
+  provider_type = "OFFICIAL"
 }
 
 locals {
   provider_type_filter_result = [
-    for v in data.huaweicloud_eg_event_sources.filter_by_provider_type.sources[*].provider_type : v == "CUSTOM"
+    for v in data.huaweicloud_eg_event_sources.filter_by_provider_type.sources[*].provider_type : v == "OFFICIAL"
   ]
 }
 
 output "is_provider_type_filter_useful" {
   value = length(local.provider_type_filter_result) > 0 && alltrue(local.provider_type_filter_result)
+}
+
+# Filter by channel ID
+locals {
+  channel_id = huaweicloud_eg_custom_event_channel.test.id
+}
+
+data "huaweicloud_eg_event_sources" "filter_by_channel_id" {
+  depends_on = [huaweicloud_eg_custom_event_source.test]
+
+  channel_id = local.channel_id
+}
+
+locals {
+  channel_id_filter_result = [
+    for v in data.huaweicloud_eg_event_sources.filter_by_channel_id.sources[*].channel_id : v == local.channel_id
+  ]
+}
+
+output "is_channel_id_filter_useful" {
+  value = length(local.channel_id_filter_result) > 0 && alltrue(local.channel_id_filter_result)
 }
 
 # Filter by name

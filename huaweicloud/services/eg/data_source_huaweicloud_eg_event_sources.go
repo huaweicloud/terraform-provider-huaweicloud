@@ -26,7 +26,7 @@ func DataSourceEventSources() *schema.Resource {
 			"provider_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `The type of the event channels to be queried.`,
+				Description: `The type of the event sources to be queried.`,
 			},
 			"channel_id": {
 				Type:        schema.TypeString,
@@ -66,7 +66,7 @@ func DataSourceEventSources() *schema.Resource {
 						"label": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The display name of the event source.`,
+							Description: `The display name of the official event source.`,
 						},
 						"provider_type": {
 							Type:        schema.TypeString,
@@ -124,6 +124,7 @@ func DataSourceEventSources() *schema.Resource {
 						},
 					},
 				},
+				Description: `All event sources that match the filter parameters.`,
 			},
 		},
 	}
@@ -157,8 +158,8 @@ func flattenDataEventSources(eventSources []interface{}) []interface{} {
 			"type":          utils.PathSearch("type", eventSource, nil),
 			"description":   utils.PathSearch("description", eventSource, nil),
 			"status":        utils.PathSearch("status", eventSource, nil),
-			"created_at":    utils.PathSearch("created_at", eventSource, nil),
-			"updated_at":    utils.PathSearch("updated_at", eventSource, nil),
+			"created_at":    utils.PathSearch("created_time", eventSource, nil),
+			"updated_at":    utils.PathSearch("updated_time", eventSource, nil),
 			"detail":        parseCustomEventSourceDetail(utils.PathSearch("detail", eventSource, nil)),
 		})
 	}
