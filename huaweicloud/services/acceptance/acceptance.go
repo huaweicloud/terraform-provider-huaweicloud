@@ -1447,6 +1447,13 @@ func TestAccPreCheckSecMasterMetricID(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckSecMasterIndicatorTypeID(t *testing.T) {
+	if HW_SECMASTER_INDICATOR_TYPE_ID == "" {
+		t.Skip("HW_SECMASTER_INDICATOR_TYPE_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckSecMaster(t *testing.T) {
 	if HW_SECMASTER_WORKSPACE_ID == "" || HW_SECMASTER_INDICATOR_TYPE_ID == "" ||
 		HW_SECMASTER_INDICATOR_TYPE_ID_UPDATE == "" {
