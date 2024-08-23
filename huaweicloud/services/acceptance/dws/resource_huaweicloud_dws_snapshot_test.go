@@ -95,5 +95,5 @@ resource "huaweicloud_dws_snapshot" "test" {
   name       = "%s"
   cluster_id = huaweicloud_dws_cluster.test.id
 }
-`, testAccDwsCluster_basic(name, 3, cluster.PublicBindTypeNotUse, "cluster123@!", "bar"), name)
+`, testAccDwsCluster_basic_step1(name, 3, cluster.PublicBindTypeNotUse, "cluster123@!"), name)
 }

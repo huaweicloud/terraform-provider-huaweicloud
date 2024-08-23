@@ -123,7 +123,7 @@ resource "huaweicloud_dws_ext_data_source" "test" {
   user_pwd       = "%s"
   description    = "This is a demo"
 }
-`, testAccDwsCluster_basic(name, 3, cluster.PublicBindTypeNotUse, pwd, "bar"),
+`, testAccDwsCluster_basic_step1(name, 3, cluster.PublicBindTypeNotUse, pwd),
 		testDwsExtDataSourceMrs(name, pwd), name, pwd)
 }
 
