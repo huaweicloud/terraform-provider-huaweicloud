@@ -152,7 +152,7 @@ func getAggregatorDiscoveredResources(client *golangsdk.ServiceClient, d *schema
 		requestPath := getAggregatorDiscoveredResourcesPath + buildAggregatorDiscoveredResourcesQueryParams(marker)
 		resp, err := client.Request("POST", requestPath, &getAggregatorDiscoveredResourcesOpt)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving RMS tracked resources: %s", err)
+			return nil, fmt.Errorf("error retrieving aggregator discovered resources: %s", err)
 		}
 
 		getTrackedAggregatorDiscoveredResourcesRespBody, err := utils.FlattenResponse(resp)
