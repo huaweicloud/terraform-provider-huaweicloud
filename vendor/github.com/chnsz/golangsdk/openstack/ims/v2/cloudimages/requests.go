@@ -211,6 +211,8 @@ type CreateWholeImageOpts struct {
 type CreateDataImageByServerOpts struct {
 	// the data disks to be converted
 	DataImages []DataImage `json:"data_images" required:"true"`
+	// Enterprise project ID
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 // CreateOpts represents options used to create an image.
