@@ -253,6 +253,8 @@ var (
 	// The repository of SWR image tag
 	HW_SWR_REPOSITORY = os.Getenv("HW_SWR_REPOSITORY")
 
+	// The ID of the CBR vault
+	HW_IMS_VAULT_ID = os.Getenv("HW_IMS_VAULT_ID")
 	// The ID of the CBR backup
 	HW_IMS_BACKUP_ID = os.Getenv("HW_IMS_BACKUP_ID")
 	// The shared backup ID wants to accept.
@@ -1408,6 +1410,13 @@ func TestAccPreCheckSwrOrigination(t *testing.T) {
 func TestAccPreCheckSwrRepository(t *testing.T) {
 	if HW_SWR_REPOSITORY == "" {
 		t.Skip("HW_SWR_REPOSITORY must be set for SWR image tags tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckImsVaultId(t *testing.T) {
+	if HW_IMS_VAULT_ID == "" {
+		t.Skip("HW_IMS_VAULT_ID must be set for IMS whole image tests")
 	}
 }
 
