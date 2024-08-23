@@ -268,7 +268,7 @@ var (
 	HW_SECMASTER_UNAUDITED_VERSION_ID     = os.Getenv("HW_SECMASTER_UNAUDITED_VERSION_ID")
 	HW_SECMASTER_METRIC_ID                = os.Getenv("HW_SECMASTER_METRIC_ID")
 
-	// The SecMaster workspace ID
+	// The SecMaster pipeline ID
 	HW_SECMASTER_PIPELINE_ID = os.Getenv("HW_SECMASTER_PIPELINE_ID")
 
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
@@ -1452,6 +1452,13 @@ func TestAccPreCheckSecMasterWorkspaceID(t *testing.T) {
 func TestAccPreCheckSecMasterMetricID(t *testing.T) {
 	if HW_SECMASTER_METRIC_ID == "" {
 		t.Skip("HW_SECMASTER_METRIC_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterPipelineID(t *testing.T) {
+	if HW_SECMASTER_PIPELINE_ID == "" {
+		t.Skip("HW_SECMASTER_PIPELINE_ID must be set for SecMaster acceptance tests")
 	}
 }
 
