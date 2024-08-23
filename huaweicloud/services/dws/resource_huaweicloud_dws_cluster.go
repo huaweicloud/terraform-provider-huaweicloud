@@ -188,7 +188,6 @@ func ResourceDwsCluster() *schema.Resource {
 				Type:        schema.TypeMap,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
-				Computed:    true,
 				Description: `The key/value pairs to associate with the cluster.`,
 			},
 			"keep_last_manual_snapshot": {
