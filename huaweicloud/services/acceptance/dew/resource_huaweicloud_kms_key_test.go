@@ -188,8 +188,8 @@ func TestAccKmsKey_WithTags(t *testing.T) {
 }
 
 func TestAccKmsKey_WithEpsId(t *testing.T) {
-	var keyAlias = acceptance.RandomAccResourceName()
-	var resourceName = "huaweicloud_kms_key.key_1"
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_kms_key.test"
 
 	var key keys.Key
 	rc := acceptance.InitResourceCheck(
@@ -199,17 +199,27 @@ func TestAccKmsKey_WithEpsId(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckKms(t); acceptance.TestAccPreCheckEpsID(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheckKms(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKmsKey_epsId(keyAlias),
+				Config: testAccKmsKey_epsId_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
+			{
+				Config: testAccKmsKey_epsId_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -303,14 +313,24 @@ resource "huaweicloud_kms_key" "key_1" {
 `, keyAlias)
 }
 
-func testAccKmsKey_epsId(keyAlias string) string {
+func testAccKmsKey_epsId_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_alias    = "%s"
-  pending_days = "7"
-  enterprise_project_id = "%s"
+resource "huaweicloud_kms_key" "test" {
+  key_alias             = "%[1]s"
+  pending_days          = "7"
+  enterprise_project_id = "0"
 }
-`, keyAlias, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, name)
+}
+
+func testAccKmsKey_epsId_update(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test" {
+  key_alias             = "%[1]s"
+  pending_days          = "7"
+  enterprise_project_id = "%[2]s"
+}
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccKmsKeyUpdate(keyAliasUpdate string) string {
