@@ -13,6 +13,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/csms/v1/secrets"
+	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -88,7 +89,6 @@ func ResourceSecret() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"event_subscriptions": {
 				// the field can be left blank, no need add Computed attribute
@@ -388,6 +388,19 @@ func resourceSecretUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 			return diag.Errorf("error updating tags of CSMS secret (%s): %s", id, err)
 		}
 	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+			ResourceId:   id,
+			ResourceType: "csms",
+			RegionId:     region,
+			ProjectId:    client.ProjectID,
+		}
+		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceSecretRead(ctx, d, meta)
 }
 
