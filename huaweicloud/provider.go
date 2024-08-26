@@ -1275,8 +1275,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_cse_microservice_engine":   cse.ResourceMicroserviceEngine(),
 			"huaweicloud_cse_microservice_instance": cse.ResourceMicroserviceInstance(),
 
-			"huaweicloud_csms_event":  dew.ResourceCsmsEvent(),
-			"huaweicloud_csms_secret": dew.ResourceSecret(),
+			"huaweicloud_csms_event":                dew.ResourceCsmsEvent(),
+			"huaweicloud_csms_secret":               dew.ResourceSecret(),
+			"huaweicloud_csms_secret_version_state": dew.ResourceSecretVersionState(),
 
 			"huaweicloud_css_cluster":                     css.ResourceCssCluster(),
 			"huaweicloud_css_cluster_restart":             css.ResourceCssClusterRestart(),
