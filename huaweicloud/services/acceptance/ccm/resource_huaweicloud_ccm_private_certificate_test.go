@@ -43,10 +43,12 @@ func getCertificateResourceFunc(conf *config.Config, state *terraform.ResourceSt
 	return getCertificateRespBody, nil
 }
 
-func TestAccCcmPrivateCertificate_basic(t *testing.T) {
-	var obj interface{}
-	rName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_ccm_private_certificate.test"
+func TestAccPrivateCertificate_basic(t *testing.T) {
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceNameWithDash()
+		resourceName = "huaweicloud_ccm_private_certificate.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -62,7 +64,7 @@ func TestAccCcmPrivateCertificate_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: tesCmdbCertificate_basic(rName),
+				Config: testPrivateCertificate_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "distinguished_name.0.common_name", rName),
@@ -82,7 +84,7 @@ func TestAccCcmPrivateCertificate_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: tesCmdbCertificate_tagsUpdate(rName),
+				Config: testPrivateCertificate_tagsUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -112,7 +114,7 @@ func TestAccCcmPrivateCertificate_basic(t *testing.T) {
 }
 
 // lintignore:AT004
-func tesCmdbCertificate_basic(commonName string) string {
+func testPrivateCertificate_basic(commonName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -121,6 +123,7 @@ resource "huaweicloud_ccm_private_certificate" "test" {
   key_algorithm       = "RSA2048"
   signature_algorithm = "SHA256"
   key_usage           = ["nonRepudiation", "keyEncipherment"]
+
   distinguished_name {
     common_name         = "%s"
     country             = "CN"
@@ -129,10 +132,17 @@ resource "huaweicloud_ccm_private_certificate" "test" {
     organization        = "huawei"
     organizational_unit = "cloud"
   }
+
   validity {
     type  = "DAY"
     value = "1"
   }
+
+  subject_alternative_names {
+    type  = "IP"
+    value = "156.127.116.38"
+  }
+
   tags = {
     fooo = "bar"
     keye = "value"
@@ -141,7 +151,7 @@ resource "huaweicloud_ccm_private_certificate" "test" {
 }
 
 // lintignore:AT004
-func tesCmdbCertificate_tagsUpdate(commonName string) string {
+func testPrivateCertificate_tagsUpdate(commonName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -150,6 +160,7 @@ resource "huaweicloud_ccm_private_certificate" "test" {
   key_algorithm       = "RSA2048"
   signature_algorithm = "SHA256"
   key_usage           = ["nonRepudiation", "keyEncipherment"]
+
   distinguished_name {
     common_name         = "%s"
     country             = "CN"
@@ -158,10 +169,17 @@ resource "huaweicloud_ccm_private_certificate" "test" {
     organization        = "huawei"
     organizational_unit = "cloud"
   }
+
   validity {
     type  = "DAY"
     value = "1"
   }
+
+  subject_alternative_names {
+    type  = "IP"
+    value = "156.127.116.38"
+  }
+
   tags = {
     foo = "bar"
     key = "value"
