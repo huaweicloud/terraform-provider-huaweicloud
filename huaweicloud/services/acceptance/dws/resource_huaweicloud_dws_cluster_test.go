@@ -187,6 +187,8 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 		},
 	})
 }
+
+// Test the scenarios with multiple AZs and volumes is local disk.
 func TestAccResourceCluster_basicV2_mutilAZs(t *testing.T) {
 	var obj interface{}
 
@@ -208,23 +210,24 @@ func TestAccResourceCluster_basicV2_mutilAZs(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDwsCluster_basicV2_mutilAZs(name, 3, dws.PublicBindTypeAuto, "cluster123@!", "bar", 100),
+				Config: testAccDwsCluster_basicV2_mutilAZs(name, 3, dws.PublicBindTypeAuto, "cluster123@!", "bar"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "number_of_node", "3"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "volume.0.capacity", "100"),
 					resource.TestCheckResourceAttr(resourceName, "availability_zone", acceptance.HW_DWS_MUTIL_AZS),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints"},
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				// After the resource is created successfully, the "updated" attribute value is not refreshed immediately,
+				// resulting in inconsistencies between the actual value and the expected value when importing the resource.
+				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints", "updated"},
 			},
 		},
 	})
@@ -274,7 +277,7 @@ resource "huaweicloud_dws_cluster" "test" {
 `, baseNetwork, rName, numberOfNode, password, ltsEnable, dws.PublicBindTypeAuto, volumeCap, tag)
 }
 
-func testAccDwsCluster_basicV2_mutilAZs(rName string, numberOfNode int, publicIpBindType, password, tag string, volumeCap int) string {
+func testAccDwsCluster_basicV2_mutilAZs(rName string, numberOfNode int, publicIpBindType, password, tag string) string {
 	baseNetwork := common.TestBaseNetwork(rName)
 
 	return fmt.Sprintf(`
@@ -288,7 +291,8 @@ data "huaweicloud_dws_flavors" "test" {
 
 resource "huaweicloud_dws_cluster" "test" {
   name              = "%s"
-  node_type         = "dwsk3.4U16G.4DPU"
+  // The specification of the local disk.
+  node_type         = "dws2.olap.4xlarge.i3"
   number_of_node    = %d
   vpc_id            = huaweicloud_vpc.test.id
   network_id        = huaweicloud_vpc_subnet.test.id
@@ -303,17 +307,12 @@ resource "huaweicloud_dws_cluster" "test" {
     public_bind_type = "%s"
   }
 
-  volume {
-    type     = "SSD"
-    capacity = %d
-  }
-
   tags = {
     key = "val"
     foo = "%s"
   }
 }
-`, baseNetwork, rName, numberOfNode, acceptance.HW_DWS_MUTIL_AZS, password, publicIpBindType, volumeCap, tag)
+`, baseNetwork, rName, numberOfNode, acceptance.HW_DWS_MUTIL_AZS, password, publicIpBindType, tag)
 }
 
 func TestAccResourceCluster_BindingElb(t *testing.T) {

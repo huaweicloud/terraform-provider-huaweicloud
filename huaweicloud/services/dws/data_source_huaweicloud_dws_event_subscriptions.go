@@ -11,10 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -172,7 +170,7 @@ func resourceEventSubscriptionsRead(_ context.Context, d *schema.ResourceData, m
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DWS event subscriptions")
+		return diag.Errorf("retrieving DWS event subscriptions: %s", err)
 	}
 
 	getDwsEventSubsRespJson, err := json.Marshal(getDwsEventSubsResp)
@@ -184,16 +182,14 @@ func resourceEventSubscriptionsRead(_ context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	disasterListJson := utils.PathSearch("event_subscriptions", getDwsEventSubsRespBody, make([]interface{}, 0))
-	disasterList := disasterListJson.([]interface{})
-	if len(disasterList) == 0 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving DWS event subscriptions")
-	}
+
 	uuid, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 	d.SetId(uuid)
+
+	disasterList := utils.PathSearch("event_subscriptions", getDwsEventSubsRespBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("event_subscriptions", filterEventSubs(flattenEventSubs(disasterList), d)),
