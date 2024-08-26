@@ -224,7 +224,7 @@ func resourceEcsSystemImageRead(_ context.Context, d *schema.ResourceData, meta 
 	mErr = multierror.Append(
 		d.Set("region", region),
 		d.Set("name", image.Name),
-		d.Set("instance_id", getImageInstanceId(image.DataOrigin)),
+		d.Set("instance_id", getSpecificValueFormDataOrigin(image.DataOrigin, "instance")),
 		d.Set("description", image.Description),
 		d.Set("max_ram", getMaxRAM(image.MaxRam)),
 		d.Set("min_ram", image.MinRam),
@@ -263,13 +263,13 @@ func GetImageList(client *golangsdk.ServiceClient, imageId string) ([]cloudimage
 	return allImages, nil
 }
 
-func getImageInstanceId(dataOrigin string) string {
+func getSpecificValueFormDataOrigin(dataOrigin, serverType string) string {
 	if dataOrigin == "" {
 		return ""
 	}
 
 	results := strings.Split(dataOrigin, ",")
-	if len(results) == 2 && results[0] == "instance" {
+	if len(results) == 2 && results[0] == serverType {
 		return results[1]
 	}
 
