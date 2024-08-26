@@ -28,7 +28,7 @@ import (
 // @API DWS GET /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources
 // @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources
 // @API DWS DELETE /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{ext_data_source_id}
-// @API AWS PUT /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{ext_data_source_id}
+// @API DWS PUT /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{ext_data_source_id}
 func ResourceDwsExtDataSource() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsExtDataSourceCreate,
@@ -205,7 +205,11 @@ func resourceDwsExtDataSourceRead(_ context.Context, d *schema.ResourceData, met
 	// getDwsExtDataSource: Query the DWS external data source.
 	extDataSource, err := GetExtDataSource(cfg, region, d, d.Get("type").(string))
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DWS external data source")
+		// The cluster ID does not exist.
+		// "DWS.0001": The cluster ID is a non-standard UUID, the status code is 400.
+		// "DWS.0047": The cluster ID is a standard UUID, the status code is 404.
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", ClusterIdIllegalErrCode),
+			"error retrieving DWS external data source")
 	}
 
 	if extDataSource == nil {

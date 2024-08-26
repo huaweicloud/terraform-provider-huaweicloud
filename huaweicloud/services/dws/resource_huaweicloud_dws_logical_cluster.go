@@ -337,9 +337,11 @@ func resourceLogicalClusterRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	clusterRespBody, err := readLogicalClusters(client, d)
-	// The list API response status code is `404` when the cluster does not exist.
+	// The list API response status code is `404` when the cluster does not exist (standard UUID format).
+	// "DWS.0001": The cluster ID is a non-standard UUID, the status code is 400.
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DWS logical cluster")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", ClusterIdIllegalErrCode),
+			"error retrieving DWS logical cluster")
 	}
 
 	expression := fmt.Sprintf("logical_clusters[?logical_cluster_id=='%s']|[0]", d.Id())
