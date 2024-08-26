@@ -480,7 +480,8 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 	nicVal, err := getDesktopNetwork(client, desktopId)
 	if err != nil {
-		mErr = multierror.Append(mErr, err)
+		// This feature is not available in some region, so use log.Printf to record the error.
+		log.Printf("[ERROR] %s", err)
 	} else {
 		mErr = multierror.Append(mErr, d.Set("nic", nicVal))
 	}

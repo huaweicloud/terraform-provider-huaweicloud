@@ -501,7 +501,8 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("create_time", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", respBody, float64(0)).(float64))/1000, false)),
 	)
 	if resp, err := getCustomIngressPorts(client, instanceId); err != nil {
-		mErr = multierror.Append(mErr, err)
+		// This feature is not available in some region, so use log.Printf to record the error.
+		log.Printf("[ERROR] unable to find the custom ingerss ports: %s", err)
 	} else {
 		mErr = multierror.Append(mErr, d.Set("custom_ingress_ports", flattenCustomIngressPorts(resp)))
 	}
