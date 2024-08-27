@@ -929,10 +929,6 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
-			// Deprecated, use `huaweicloud_ccm_certificates` instead
-			"huaweicloud_scm_certificates": ccm.DataSourceCertificates(),
-
-			"huaweicloud_sfs_file_system":       sfs.DataSourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbos":            sfs.DataSourceTurbos(),
 			"huaweicloud_sfs_turbo_data_tasks":  sfs.DataSourceSfsTurboDataTasks(),
 			"huaweicloud_sfs_turbo_du_tasks":    sfs.DataSourceSfsTurboDuTasks(),
@@ -1030,8 +1026,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_key_v1":      dew.DataSourceKmsKey(),
 			"huaweicloud_kms_data_key_v1": dew.DataSourceKmsDataKeyV1(),
 
-			"huaweicloud_rds_flavors_v3":     rds.DataSourceRdsFlavor(),
-			"huaweicloud_sfs_file_system_v2": sfs.DataSourceSFSFileSystemV2(),
+			"huaweicloud_rds_flavors_v3": rds.DataSourceRdsFlavor(),
 
 			"huaweicloud_vpc_v1":                     vpc.DataSourceVpcV1(),
 			"huaweicloud_vpc_ids_v1":                 vpc.DataSourceVpcIdsV1(),
@@ -1080,6 +1075,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_flow_logs":              vpc.DataSourceVpcFlowLogs(),
 			"huaweicloud_vpc_sub_network_interfaces": vpc.DataSourceVpcSubNetworkInterfaces(),
 
+			// Deprecated Just discard the resource name, use `huaweicloud_ccm_certificates` instead
+			"huaweicloud_scm_certificates": ccm.DataSourceCertificates(),
+
 			// Deprecated
 			"huaweicloud_antiddos":                      deprecated.DataSourceAntiDdosV1(),
 			"huaweicloud_antiddos_v1":                   deprecated.DataSourceAntiDdosV1(),
@@ -1097,6 +1095,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_product_v1":                deprecated.DataSourceDcsProductV1(),
 			"huaweicloud_dms_az":                        deprecated.DataSourceDmsAZ(),
 			"huaweicloud_dms_az_v1":                     deprecated.DataSourceDmsAZ(),
+			"huaweicloud_sfs_file_system":               deprecated.DataSourceSFSFileSystemV2(),
+			"huaweicloud_sfs_file_system_v2":            deprecated.DataSourceSFSFileSystemV2(),
 			"huaweicloud_vbs_backup_policy":             deprecated.DataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup":                    deprecated.DataSourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy_v2":          deprecated.DataSourceVBSBackupPolicyV2(),
@@ -1763,8 +1763,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_servicestage_repo_token_authorization":    servicestage.ResourceRepoTokenAuth(),
 			"huaweicloud_servicestage_repo_password_authorization": servicestage.ResourceRepoPwdAuth(),
 
-			"huaweicloud_sfs_access_rule":      sfs.ResourceSFSAccessRuleV2(),
-			"huaweicloud_sfs_file_system":      sfs.ResourceSFSFileSystemV2(),
 			"huaweicloud_sfs_turbo":            sfs.ResourceSFSTurbo(),
 			"huaweicloud_sfs_turbo_dir":        sfs.ResourceSfsTurboDir(),
 			"huaweicloud_sfs_turbo_dir_quota":  sfs.ResourceSfsTurboDirQuota(),
@@ -1955,9 +1953,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_gateway_v2":   nat.ResourcePublicGateway(),
 			"huaweicloud_nat_snat_rule_v2": nat.ResourcePublicSnatRule(),
 
-			"huaweicloud_sfs_access_rule_v2": sfs.ResourceSFSAccessRuleV2(),
-			"huaweicloud_sfs_file_system_v2": sfs.ResourceSFSFileSystemV2(),
-
 			"huaweicloud_iam_agency":    iam.ResourceIAMAgencyV3(),
 			"huaweicloud_iam_agency_v3": iam.ResourceIAMAgencyV3(),
 
@@ -2052,6 +2047,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_cs_peering_connect_v1": deprecated.ResourceCsPeeringConnectV1(),
 
 			"huaweicloud_lts_structuring_configuration": lts.ResourceStructConfig(),
+
+			"huaweicloud_sfs_access_rule":    deprecated.ResourceSFSAccessRuleV2(),
+			"huaweicloud_sfs_file_system":    deprecated.ResourceSFSFileSystemV2(),
+			"huaweicloud_sfs_access_rule_v2": deprecated.ResourceSFSAccessRuleV2(),
+			"huaweicloud_sfs_file_system_v2": deprecated.ResourceSFSFileSystemV2(),
 
 			"huaweicloud_vbs_backup":           deprecated.ResourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy":    deprecated.ResourceVBSBackupPolicyV2(),

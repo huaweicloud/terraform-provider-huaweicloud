@@ -1,11 +1,13 @@
 ---
-subcategory: "Scalable File Service (SFS)"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_access_rule"
 description: ""
 ---
 
 # huaweicloud_sfs_access_rule
+
+!> **WARNING:** It has been deprecated.
 
 Provides an access rule resource of Scalable File Resource (SFS).
 
