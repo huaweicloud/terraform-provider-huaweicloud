@@ -26,7 +26,7 @@ var CatalogResourceNotFoundCodes = []string{
 // @API DataArtsStudio GET /v1/{project_id}/service/servicecatalogs/{catalog_id}
 // @API DataArtsStudio PUT /v1/{project_id}/service/servicecatalogs/{catalog_id}
 // @API DataArtsStudio POST /v1/{project_id}/service/servicecatalogs/{catalog_id}/move
-// @API DataArtsStudio DELETE /v1/{project_id}/service/servicecatalogs/{catalog_id}
+// @API DataArtsStudio POST /v1/{project_id}/service/servicecatalogs/batch-delete
 func ResourceDatatServiceCatalog() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDatatServiceCatalogCreate,
