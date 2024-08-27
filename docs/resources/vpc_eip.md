@@ -154,6 +154,6 @@ This resource provides the following timeouts configuration options:
 
 EIPs can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vpc_eip.test 2c7f39f3-702b-48d1-940c-b50384177ee1
 ```

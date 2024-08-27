@@ -63,7 +63,7 @@ This resource provides the following timeouts configuration options:
 
 DLI SQL databases can be imported by their `name`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dli_database.test terraform_test
 ```
 

@@ -49,6 +49,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The obs asset can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dsc_asset_obs.test 0ce123456a00f2591fabc00385ff1234
 ```

@@ -118,7 +118,7 @@ In addition to all arguments above, the following attributes are exported:
 
 The repository can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_codearts_repository.test 0ce123456a00f2591fabc00385ff1234
 ```
 
@@ -128,7 +128,7 @@ API response. The missing attributes include: `name`, `description`, `gitignore_
 You can then decide if changes should be applied to the repository, or the resource definition should be updated to
 align with the repository. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_codearts_repository" "test" {
   ...
 

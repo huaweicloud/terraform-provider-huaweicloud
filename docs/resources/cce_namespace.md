@@ -68,6 +68,6 @@ This resource provides the following timeouts configuration options:
 
 CCE namespace can be imported using the cluster ID and namespace name separated by a slash, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_cce_namespace.test bb6923e4-b16e-11eb-b0cd-0255ac101da1/test-namespace
 ```

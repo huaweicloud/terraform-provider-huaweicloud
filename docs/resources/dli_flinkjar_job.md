@@ -150,6 +150,6 @@ This resource provides the following timeouts configuration options:
 
 The job can be imported by `id`. For example,
 
-```
+```bash
 terraform import huaweicloud_dli_flinkjar_job.test 12345
 ```

@@ -120,6 +120,6 @@ This resource provides the following timeouts configuration options:
 
 AOM alarm rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_aom_alarm_rule.alarm_rule 966746116613832710
 ```

@@ -93,6 +93,6 @@ This resource provides the following timeouts configuration options:
 
 VPC attachments can be imported using their `id` and the related `instance_id`, e.g.
 
-```
-$ terraform import huaweicloud_er_vpc_attachment.test &ltinstance_id&gt/&ltid&gt
+```bash
+$ terraform import huaweicloud_er_vpc_attachment.test <instance_id>/<id>
 ```

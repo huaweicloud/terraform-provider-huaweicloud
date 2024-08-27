@@ -99,6 +99,6 @@ This resource provides the following timeouts configuration options:
 
 VPC routes can be imported using the route table ID and their `destination` separated by a slash, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vpc_route.test <route_table_id>/<destination>
 ```

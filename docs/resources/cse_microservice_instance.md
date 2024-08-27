@@ -171,13 +171,13 @@ In addition to all arguments above, the following attributes are exported:
 Microservices can be imported using related `connect_address`, `microservice_id` and their `id`, separated by a
 slash (/), e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cse_microservice_instance.test https://124.70.26.32:30100/f14960ba495e03f59f85aacaaafbdef3fbff3f0d/336e7428dd9411eca913fa163e7364b7
 ```
 
 If you enabled the **RBAC** authorization, you also need to provide the account name and password, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cse_microservice_instance.test 'https://124.70.26.32:30100/f14960ba495e03f59f85aacaaafbdef3fbff3f0d/336e7428dd9411eca913fa163e7364b7/root/Test!123'
 ```
 

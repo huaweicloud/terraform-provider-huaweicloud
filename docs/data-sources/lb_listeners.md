@@ -11,7 +11,7 @@ Use this data source to query the list of ELB listeners.
 
 ## Example Usage
 
-```
+```hcl
 variable "protocol" {}
 
 data "huaweicloud_lb_listeners" "test" {

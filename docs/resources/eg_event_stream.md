@@ -277,7 +277,7 @@ It is generally recommended running `terraform plan` after importing a stream.
 You can then decide if changes should be applied to the stream, or the resource definition should be updated to
 align with the stream. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_eg_event_stream" "test" {
   ...
 

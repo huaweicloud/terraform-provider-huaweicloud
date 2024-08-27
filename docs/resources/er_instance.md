@@ -98,6 +98,6 @@ This resource provides the following timeouts configuration options:
 
 The router instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_er_instance.test 0ce123456a00f2591fabc00385ff1234
 ```

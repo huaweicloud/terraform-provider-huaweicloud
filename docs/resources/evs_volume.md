@@ -46,7 +46,7 @@ resource "huaweicloud_evs_volume" "volume" {
 
 ## Example Usage with server_id
 
-```
+```hcl
 variable "security_group_id" {}
 variable "availability_zone" {}
 
@@ -214,7 +214,7 @@ The `attachment` block supports:
 
 Volumes can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_evs_volume.volume_1 14a80bc7-c12c-4fe0-a38a-cb77eeac9bd6
 ```
 
@@ -224,7 +224,7 @@ API response, security or some other reason. The missing attributes include: **c
 You can then decide if changes should be applied to the disk, or the resource definition should be updated to align
 with the disk. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_evs_volume" "volume_1" {
     ...
 

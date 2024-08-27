@@ -126,6 +126,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Recording templates can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_live_recording.test 55534eaa-533a-419d-9b40-ec427ea7195a
 ```

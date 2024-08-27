@@ -44,6 +44,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Projects can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cpts_project.test 1090
 ```

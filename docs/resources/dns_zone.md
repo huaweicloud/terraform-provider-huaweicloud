@@ -99,6 +99,6 @@ This resource provides the following timeouts configuration options:
 
 This resource can be imported by specifying the zone ID:
 
-```
+```bash
 $ terraform import huaweicloud_dns_zone.zone_1 <zone_id>
 ```

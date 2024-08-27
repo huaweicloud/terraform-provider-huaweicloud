@@ -62,6 +62,6 @@ This resource provides the following timeouts configuration options:
 
 VPCs can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iec_vpc.myvpc 7117d38e-4c8f-4624-a505-bd96b97d024c
 ```

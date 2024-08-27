@@ -175,6 +175,6 @@ The `remote` block supports:
 
 Identity provider can be imported using the `name`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_identity_provider.provider_1 example_com_provider_saml
 ```

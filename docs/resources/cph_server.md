@@ -207,7 +207,7 @@ API response, security or some other reason. The missing attributes include: `im
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to
 align with the resource. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cph_server" "test" {
     ...
 

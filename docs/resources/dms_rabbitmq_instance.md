@@ -220,7 +220,7 @@ API response, security or some other reason. The missing attributes include:
 importing a DMS RabbitMQ instance. You can then decide if changes should be applied to the instance, or the resource
 definition should be updated to align with the instance. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dms_rabbitmq_instance" "instance_1" {
     ...
 

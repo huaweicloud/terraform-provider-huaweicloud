@@ -84,6 +84,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Service agencies can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_identity_trust_agency.test <id>
 ```

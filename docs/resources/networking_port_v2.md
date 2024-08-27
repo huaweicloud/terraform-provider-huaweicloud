@@ -105,6 +105,6 @@ This resource provides the following timeouts configuration options:
 
 Ports can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_networking_port.port_1 eae26a3e-1c33-4cc1-9c31-0cd729c438a1
 ```

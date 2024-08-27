@@ -276,6 +276,6 @@ This resource provides the following timeouts configuration options:
 
 OpenGaussDB instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_gaussdb_opengauss_instance.test 1f2c4f48adea4ae684c8edd8818fa349in14
 ```

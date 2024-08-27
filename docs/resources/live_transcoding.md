@@ -88,6 +88,6 @@ separated by a slash.
 
 Transcodings can be imported using the `domain_name` and `app_name`, separated by a slash. e.g.
 
-```
+```bash
 $ terraform import huaweicloud_live_transcoding.test play.example.demo.com/live
 ```

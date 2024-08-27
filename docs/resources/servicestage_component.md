@@ -172,6 +172,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Components can be imported using their `application_id` and `id`, separated by a slash (/), e.g.
 
-```
+```bash
 $ terraform import huaweicloud_servicestage_component.test dd7a1ce2-c48c-4f41-85bb-d0d09969eec9/9ab8ef79-d318-4de5-acf9-e1e1e25a0395
 ```

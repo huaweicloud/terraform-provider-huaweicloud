@@ -251,6 +251,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Products can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iotda_product.test 10022532f4f94f26b01daa1e424853e1
 ```

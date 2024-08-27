@@ -199,14 +199,14 @@ Users can be imported using their `id` and authorization parameters, separated b
 
 Import a user and authenticated by account.
 
-```
-$ terraform import huaweicloud_meeting_user.test &ltid&gt/&ltaccount_name&gt/&ltaccount_password&gt
+```bash
+$ terraform import huaweicloud_meeting_user.test <id>/<account_name>/<account_password>
 ```
 
 Import a user and authenticated by `APP ID`/`APP Key`.
 
-```
-$ terraform import huaweicloud_meeting_user.test &ltid&gt/&ltapp_id&gt/&ltapp_key&gt/&ltcorp_id&gt/&ltuser_id&gt
+```bash
+$ terraform import huaweicloud_meeting_user.test <id>/<app_id>/<app_key>/<corp_id>/<user_id>
 ```
 
 The slashes cannot be missing even corporation ID and user ID are empty.
@@ -214,7 +214,7 @@ The slashes cannot be missing even corporation ID and user ID are empty.
 Note that some parameters do not support import due to missing API responses or privacy, such as `password`,
 `is_send_notify` and `is_admin`. You can ignore this change as below.
 
-```
+```hcl
 resource "huaweicloud_meeting_user" "test" {
   ...
 

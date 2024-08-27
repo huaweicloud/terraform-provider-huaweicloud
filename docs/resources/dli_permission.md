@@ -103,6 +103,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The permission can be imported by `id`, it is composed of `object` and `user_name`, separated by a slash. e.g.:
 
-```
+```bash
 terraform import huaweicloud_dli_permission.test databases.database_name/user_name
 ```

@@ -73,7 +73,7 @@ In addition to all arguments above, the following attributes are exported:
 
 Identity policies can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_identity_policy.test <id>
 ```
 

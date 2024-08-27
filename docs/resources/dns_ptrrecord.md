@@ -79,6 +79,6 @@ This resource provides the following timeouts configuration options:
 
 PTR records can be imported using region and floatingip/eip ID, separated by a colon(:), e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dns_ptrrecord.ptr_1 cn-north-1:d90ce693-5ccf-4136-a0ed-152ce412b6b9
 ```

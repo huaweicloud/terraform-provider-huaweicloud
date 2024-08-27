@@ -17,7 +17,7 @@ Google Cloud Storage, etcd, and more.
 Remote state is implemented by a [backend](https://www.terraform.io/docs/language/settings/backends/index.html).
 Backends are configured with a nested `backend` block within the top-level `terraform` block:
 
-```
+```hcl
 terraform {
   backend "s3" {
     ...

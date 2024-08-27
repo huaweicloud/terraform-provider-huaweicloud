@@ -84,6 +84,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The dsc instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dsc_instance.test 0ce123456a00f2591fabc00385ff1234
 ```

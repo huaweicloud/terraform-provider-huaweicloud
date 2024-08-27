@@ -94,6 +94,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The network instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cc_network_instance.test 0ce123456a00f2591fabc00385ff1234
 ```

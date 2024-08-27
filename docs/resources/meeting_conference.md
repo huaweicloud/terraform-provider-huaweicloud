@@ -452,14 +452,14 @@ parameters, separated by slashes, e.g.
 
 Import a conference and authenticated by account.
 
-```
-$ terraform import huaweicloud_meeting_conference.test &ltid&gt/&ltaccount_name&gt/&ltaccount_password&gt
+```bash
+$ terraform import huaweicloud_meeting_conference.test <id>/<account_name>/<account_password>
 ```
 
 Import a conference and authenticated by `APP ID`/`APP Key`.
 
-```
-$ terraform import huaweicloud_meeting_conference.test &ltid&gt/&ltapp_id&gt/&ltapp_key&gt/&ltcorp_id&gt/&ltuser_id&gt
+```bash
+$ terraform import huaweicloud_meeting_conference.test <id>/<app_id>/<app_key>/<corp_id>/<user_id>
 ```
 
 The slashes cannot be missing even corporation ID and user ID are empty.
@@ -467,7 +467,7 @@ The slashes cannot be missing even corporation ID and user ID are empty.
 Note that importing is not supported for expired conferences and the start time of the meeting is not imported along
 with it. You can ignore this change as below.
 
-```
+```hcl
 resource "huaweicloud_meeting_conference" "test" {
     ...
 

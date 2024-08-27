@@ -174,6 +174,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The bandwidth scaling policies can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_as_bandwidth_policy.test 0ce123456a00f2591fabc00385ff1234
 ```

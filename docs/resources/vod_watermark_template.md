@@ -92,7 +92,7 @@ This resource provides the following timeouts configuration options:
 
 The template can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vod_watermark_template.test 81ac58796e25842ee2e90a904aa8a719
 ```
 
@@ -102,7 +102,7 @@ It is generally recommended running `terraform plan` after importing a watermark
 You can then decide if changes should be applied to the watermark template, or the resource
 definition should be updated to align with the watermark template. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_vod_watermark_template" "test" {
     ...
   lifecycle {

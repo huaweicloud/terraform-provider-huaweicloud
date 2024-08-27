@@ -77,6 +77,6 @@ This resource provides the following timeouts configuration options:
 
 DNS resolver rule associate can be imported using the `resolver_rule_id` and `vpc_id` separated by a slash e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dns_resolver_rule_associate.test ff8080828b0e8c29018bfb599512069d/46fa7c9d-d047-47d9-b5b7-c8d0c0fccc08
 ```

@@ -184,6 +184,6 @@ This resource provides the following timeouts configuration options:
 
 GaussDB influx instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_gaussdb_influx_instance.instance_1 e6f6b1fde738489793ce09320d732037in13
 ```

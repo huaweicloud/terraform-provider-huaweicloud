@@ -139,7 +139,7 @@ This resource provides the following timeouts configuration options:
 
 Keypairs can be imported using the `name`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_kps_keypair.my-keypair test-keypair
 ```
 
@@ -149,7 +149,7 @@ API response, security or some other reason. The missing attributes include: `en
 You can then decide if changes should be applied to the key pair, or the resource definition
 should be updated to align with the key pair. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_kps_keypair" "test" {
     ...
 

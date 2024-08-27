@@ -70,7 +70,7 @@ In addition to all arguments above, the following attributes are exported:
 
 Networks can be imported using their `namespace` and `id`, separated by a slash, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_cci_network.test <namespace>/<id>
 ```
 

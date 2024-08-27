@@ -42,7 +42,7 @@ In addition to all arguments above, the following attributes are exported:
 
 The category can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vod_media_category.test 132945
 ```
 
@@ -52,7 +52,7 @@ It is generally recommended running `terraform plan` after importing a media cat
 You can then decide if changes should be applied to the media category, or the resource
 definition should be updated to align with the media category. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_vod_media_category" "test" {
     ...
   lifecycle {

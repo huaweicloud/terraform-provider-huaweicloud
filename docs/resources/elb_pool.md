@@ -245,7 +245,7 @@ generally recommended running **terraform plan** after importing a pool. You can
 applied to the pool, or the resource definition should be updated to align with the pool. Also you can ignore changes
 as below.
 
-```
+```hcl
 resource "huaweicloud_elb_pool" "test" {
     ...
 

@@ -78,6 +78,6 @@ This resource provides the following timeouts configuration options:
 
 IEC vpc subnet can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iec_vpc_subnet.subnet_demo 51be9f2b-5a3b-406a-9271-36f0c929fbcc
 ```

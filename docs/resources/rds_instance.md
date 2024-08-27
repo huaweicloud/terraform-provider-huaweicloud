@@ -459,7 +459,7 @@ This resource provides the following timeouts configuration options:
 
 RDS instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_rds_instance.instance_1 52e4b497d2c94df88a2eb4c661314903in01
 ```
 

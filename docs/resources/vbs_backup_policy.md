@@ -108,6 +108,6 @@ This resource provides the following timeouts configuration options:
 
 Backup Policy can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vbs_backup_policy.vbs 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
 ```

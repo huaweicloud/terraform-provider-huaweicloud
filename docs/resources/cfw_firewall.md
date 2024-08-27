@@ -262,7 +262,7 @@ recommended running `terraform plan` after importing an CFW firewall. You can th
 the firewall, or the resource definition should be updated to align with the firewall. Also you can ignore changes as
 below.
 
-```
+```hcl
 resource "huaweicloud_cfw_firewall" "test" {
     ...
 

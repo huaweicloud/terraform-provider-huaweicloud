@@ -88,6 +88,6 @@ This resource provides the following timeouts configuration options:
 
 Parameter groups can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_rds_parametergroup.pg_1 7117d38e-4c8f-4624-a505-bd96b97d024c
 ```

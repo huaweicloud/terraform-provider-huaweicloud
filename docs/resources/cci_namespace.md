@@ -76,7 +76,7 @@ In addition to all arguments above, the following attributes are exported:
 
 CCI Namespaces can be imported using their `name`, e.g.,
 
-```
+```bash
 $ terraform import huaweicloud_cci_namespace.test terraform-test
 ```
 

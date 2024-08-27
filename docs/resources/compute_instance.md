@@ -569,7 +569,7 @@ It is generally recommended running `terraform plan` after importing an instance
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_compute_instance" "myinstance" {
     ...
 

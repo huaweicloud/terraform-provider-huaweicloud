@@ -98,6 +98,6 @@ This resource provides the following timeouts configuration options:
 
 SFS access rule can be imported by specifying the SFS ID and access rule ID separated by a slash, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_sfs_access_rule <sfs_id>/<rule_id>
 ```

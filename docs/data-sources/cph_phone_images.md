@@ -11,7 +11,7 @@ Use this data source to get available images of CPH phone.
 
 ## Example Usage
 
-```
+```hcl
 data "huaweicloud_cph_phone_images" "images" {
   is_public = 1
 }

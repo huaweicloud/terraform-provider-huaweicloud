@@ -151,7 +151,7 @@ It is generally recommended running `terraform plan` after importing a migration
 You can then decide if changes should be applied to the task, or the resource definition should be
 updated to align with the task. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_sms_task" "demo" {
     ...
 

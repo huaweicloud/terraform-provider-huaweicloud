@@ -81,14 +81,14 @@ This resource provides the following timeouts configuration options:
 
 VPCs can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vpc.vpc_v1 7117d38e-4c8f-4624-a505-bd96b97d024c
 ```
 
 Note that the imported state may not be identical to your resource definition when `secondary_cidr` was set.
 You you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_vpc" "vpc_v1" {
     ...
 

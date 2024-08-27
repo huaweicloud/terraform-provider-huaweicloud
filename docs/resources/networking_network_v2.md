@@ -106,6 +106,6 @@ This resource provides the following timeouts configuration options:
 
 Networks can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_networking_network_v2.network_1 d90ce693-5ccf-4136-a0ed-152ce412b6b9
 ```

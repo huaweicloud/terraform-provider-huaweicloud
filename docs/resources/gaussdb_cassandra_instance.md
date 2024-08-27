@@ -183,6 +183,6 @@ This resource provides the following timeouts configuration options:
 
 GaussDB Cassandra instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_gaussdb_cassandra_instance.instance_1 749112383d5342e9acb6c7825801b452in06
 ```

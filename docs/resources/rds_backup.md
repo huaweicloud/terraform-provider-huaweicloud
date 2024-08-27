@@ -87,6 +87,6 @@ This resource provides the following timeouts configuration options:
 
 The rds manual backup can be imported using the instance ID and the backup ID separated by a slash, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_rds_backup.test 1ce123456a00f2591fabc00385ff1235/0ce123456a00f2591fabc00385ff1234
 ```
