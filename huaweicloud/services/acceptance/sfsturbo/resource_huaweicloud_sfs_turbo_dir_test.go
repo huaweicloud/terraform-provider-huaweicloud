@@ -1,4 +1,4 @@
-package sfs
+package sfsturbo
 
 import (
 	"fmt"
@@ -16,10 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func sfsTurboDirQuotaReadfunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func sfsTurboDirReadfunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
 		region  = acceptance.HW_REGION_NAME
-		httpUrl = "v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir-quota"
+		httpUrl = "v1/{project_id}/sfs-turbo/shares/{share_id}/fs/dir"
 	)
 	sfsClient, err := cfg.SfsV1Client(region)
 	if err != nil {
@@ -36,22 +36,22 @@ func sfsTurboDirQuotaReadfunc(cfg *config.Config, state *terraform.ResourceState
 
 	getResp, err := sfsClient.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving SFS Turbo directory quota %s", err)
+		return nil, fmt.Errorf("error retrieving SFS Turbo directory %s", err)
 	}
 
 	return utils.FlattenResponse(getResp)
 }
 
-func TestAccSfsTurboDirQuota_basic(t *testing.T) {
+func TestAccSfsTurboDir_basic(t *testing.T) {
 	var obj interface{}
 	name := acceptance.RandomAccResourceName()
 	path := "/tmp" + acctest.RandString(10)
-	resourceName := "huaweicloud_sfs_turbo_dir_quota.test"
+	resourceName := "huaweicloud_sfs_turbo_dir.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		sfsTurboDirQuotaReadfunc,
+		sfsTurboDirReadfunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -60,49 +60,26 @@ func TestAccSfsTurboDirQuota_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testSfsTurboDirQuotaBasic(name, path),
+				Config: testSfsTurboDirBasic(name, path),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "path", path),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "100"),
-					resource.TestCheckResourceAttr(resourceName, "inode", "100"),
-				),
-			},
-			{
-				Config: testSfsTurboDirQuotaUpdateBasic(name, path),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "path", path),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "50"),
-					resource.TestCheckResourceAttr(resourceName, "inode", "30"),
 				),
 			},
 		},
 	})
 }
 
-func testSfsTurboDirQuotaBasic(rName string, path string) string {
+func testSfsTurboDirBasic(rName string, path string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_sfs_turbo_dir_quota" "test" {
+resource "huaweicloud_sfs_turbo_dir" "test" {
   path     = "%[2]s"
-  share_id = huaweicloud_sfs_turbo_dir.test.share_id
-  capacity = 100
-  inode    = 100
+  share_id = huaweicloud_sfs_turbo.test.id
+  mode     = 777
+  gid      = 100
+  uid      = 100
 }
-`, testSfsTurboDirBasic(rName, path), path)
-}
-
-func testSfsTurboDirQuotaUpdateBasic(rName string, path string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_sfs_turbo_dir_quota" "test" {
-  path     = "%[2]s"
-  share_id = huaweicloud_sfs_turbo_dir.test.share_id
-  capacity = 50
-  inode    = 30
-}
-`, testSfsTurboDirBasic(rName, path), path)
+`, testAccSFSTurbo_basic(rName), path)
 }
