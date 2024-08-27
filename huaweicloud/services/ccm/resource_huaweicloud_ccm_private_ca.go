@@ -2,6 +2,7 @@ package ccm
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -625,7 +626,9 @@ func deletePrepaidPrivateCA(ctx context.Context, client *golangsdk.ServiceClient
 		Refresh: func() (interface{}, string, error) {
 			getRespBody, err := readPrivateCA(client, d)
 			if err != nil {
-				if hasErrorCode(err, "PCA.10010002") {
+				convertErr := common.ConvertExpected400ErrInto404Err(err, "error_code", "PCA.10010002")
+				var err404 golangsdk.ErrDefault404
+				if errors.As(convertErr, &err404) {
 					return "deleted", "COMPLETED", nil
 				}
 				return getRespBody, "ERROR", err

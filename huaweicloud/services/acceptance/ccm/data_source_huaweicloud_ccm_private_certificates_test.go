@@ -12,7 +12,7 @@ import (
 func TestAccDataSourcePrivateCertificates_basic(t *testing.T) {
 	var (
 		dataSource = "data.huaweicloud_ccm_private_certificates.test"
-		rName      = acceptance.RandomAccResourceName()
+		rName      = acceptance.RandomAccResourceNameWithDash()
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 
 		byName   = "data.huaweicloud_ccm_private_certificates.filter_by_name"
@@ -118,5 +118,5 @@ data "huaweicloud_ccm_private_certificates" "filter_by_sort" {
 output "sort_filter_is_useful" {
   value = length(data.huaweicloud_ccm_private_certificates.filter_by_sort.certificates) > 0
 }
-`, tesCmdbCertificate_basic(name))
+`, testPrivateCertificate_basic(name))
 }

@@ -101,7 +101,7 @@ data "huaweicloud_ccm_private_certificate_export" "tomcat" {
   type           = "TOMCAT"
   password       = "encryption_password"
 }
-`, tesCmdbCertificate_basic(commonName))
+`, testPrivateCertificate_basic(commonName))
 }
 
 func TestAccPrivateCertificateExport_sm2cert(t *testing.T) {

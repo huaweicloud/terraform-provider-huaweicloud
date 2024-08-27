@@ -1223,7 +1223,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ccm_certificate_push":           ccm.ResourceCertificatePush(),
 			"huaweicloud_ccm_private_ca":                 ccm.ResourcePrivateCertificateAuthority(),
 			"huaweicloud_ccm_private_ca_revoke":          ccm.ResourcePrivateCaRevoke(),
-			"huaweicloud_ccm_private_certificate":        ccm.ResourceCcmPrivateCertificate(),
+			"huaweicloud_ccm_private_certificate":        ccm.ResourcePrivateCertificate(),
 			"huaweicloud_ccm_private_certificate_revoke": ccm.ResourcePrivateCertificateRevoke(),
 			"huaweicloud_ccm_certificate_import":         ccm.ResourceCertificateImport(),
 
