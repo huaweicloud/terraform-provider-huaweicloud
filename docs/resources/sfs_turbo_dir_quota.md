@@ -1,5 +1,5 @@
 ---
-subcategory: "Scalable File Service (SFS)"
+subcategory: "SFS Turbo"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_turbo_dir_quota"
 description: ""

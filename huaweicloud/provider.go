@@ -97,7 +97,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sdrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/secmaster"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/servicestage"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sfs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sfsturbo"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/smn"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
@@ -929,11 +929,11 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
-			"huaweicloud_sfs_turbos":            sfs.DataSourceTurbos(),
-			"huaweicloud_sfs_turbo_data_tasks":  sfs.DataSourceSfsTurboDataTasks(),
-			"huaweicloud_sfs_turbo_du_tasks":    sfs.DataSourceSfsTurboDuTasks(),
-			"huaweicloud_sfs_turbo_obs_targets": sfs.DataSourceSfsTurboObsTargets(),
-			"huaweicloud_sfs_turbo_perm_rules":  sfs.DataSourceSfsTurboPermRules(),
+			"huaweicloud_sfs_turbos":            sfsturbo.DataSourceTurbos(),
+			"huaweicloud_sfs_turbo_data_tasks":  sfsturbo.DataSourceSfsTurboDataTasks(),
+			"huaweicloud_sfs_turbo_du_tasks":    sfsturbo.DataSourceSfsTurboDuTasks(),
+			"huaweicloud_sfs_turbo_obs_targets": sfsturbo.DataSourceSfsTurboObsTargets(),
+			"huaweicloud_sfs_turbo_perm_rules":  sfsturbo.DataSourceSfsTurboPermRules(),
 
 			"huaweicloud_swr_organizations":             swr.DataSourceOrganizations(),
 			"huaweicloud_swr_repositories":              swr.DataSourceRepositories(),
@@ -1763,13 +1763,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_servicestage_repo_token_authorization":    servicestage.ResourceRepoTokenAuth(),
 			"huaweicloud_servicestage_repo_password_authorization": servicestage.ResourceRepoPwdAuth(),
 
-			"huaweicloud_sfs_turbo":            sfs.ResourceSFSTurbo(),
-			"huaweicloud_sfs_turbo_dir":        sfs.ResourceSfsTurboDir(),
-			"huaweicloud_sfs_turbo_dir_quota":  sfs.ResourceSfsTurboDirQuota(),
-			"huaweicloud_sfs_turbo_data_task":  sfs.ResourceDataTask(),
-			"huaweicloud_sfs_turbo_du_task":    sfs.ResourceDuTask(),
-			"huaweicloud_sfs_turbo_obs_target": sfs.ResourceOBSTarget(),
-			"huaweicloud_sfs_turbo_perm_rule":  sfs.ResourceSFSTurboPermRule(),
+			"huaweicloud_sfs_turbo":            sfsturbo.ResourceSFSTurbo(),
+			"huaweicloud_sfs_turbo_dir":        sfsturbo.ResourceSfsTurboDir(),
+			"huaweicloud_sfs_turbo_dir_quota":  sfsturbo.ResourceSfsTurboDirQuota(),
+			"huaweicloud_sfs_turbo_data_task":  sfsturbo.ResourceDataTask(),
+			"huaweicloud_sfs_turbo_du_task":    sfsturbo.ResourceDuTask(),
+			"huaweicloud_sfs_turbo_obs_target": sfsturbo.ResourceOBSTarget(),
+			"huaweicloud_sfs_turbo_perm_rule":  sfsturbo.ResourceSFSTurboPermRule(),
 
 			"huaweicloud_smn_topic":                      smn.ResourceTopic(),
 			"huaweicloud_smn_subscription":               smn.ResourceSubscription(),
