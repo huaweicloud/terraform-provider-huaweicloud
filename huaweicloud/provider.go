@@ -907,6 +907,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rms_resource_aggregator_discovered_resources": rms.DataSourceAggregatorDiscoveredResources(),
 			"huaweicloud_rms_resource_aggregator_advanced_query":       rms.DataSourceAggregatorAdvancedQuery(),
 			"huaweicloud_rms_resource_aggregator_policy_states":        rms.DataSourceAggregatorPolicyStates(),
+			"huaweicloud_rms_resource_aggregator_policy_assignments":   rms.DataSourceAggregatorPolicyAssignments(),
 
 			"huaweicloud_sdrs_domain": sdrs.DataSourceSDRSDomain(),
 
