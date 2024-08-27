@@ -1,4 +1,4 @@
-package sfs
+package deprecated
 
 import (
 	"context"
