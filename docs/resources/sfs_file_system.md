@@ -1,11 +1,13 @@
 ---
-subcategory: "Scalable File Service (SFS)"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_file_system"
 description: ""
 ---
 
 # huaweicloud_sfs_file_system
+
+!> **WARNING:** It has been deprecated.
 
 Provides a Shared File System (SFS) resource within HuaweiCloud.
 
