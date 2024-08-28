@@ -53,6 +53,8 @@ const ClusterIdIllegalErrCode = "DWS.0001"
 // @API DWS DELETE /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}
 // @API DWS POST /v1/{project_id}/clusters/{cluster_id}/lts-logs/enable
 // @API DWS POST /v1/{project_id}/clusters/{cluster_id}/lts-logs/disable
+// @API DWS POST /v2/{project_id}/clusters/{cluster_id}/eips/{eip_id}
+// @API DWS DELETE /v2/{project_id}/clusters/{cluster_id}/eips/{eip_id}
 func ResourceDwsCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsClusterCreate,
@@ -174,7 +176,6 @@ func ResourceDwsCluster() *schema.Resource {
 				Elem:     clusterPublicIpSchema(),
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"volume": {
 				Type:     schema.TypeList,
@@ -188,7 +189,6 @@ func ResourceDwsCluster() *schema.Resource {
 				Type:        schema.TypeMap,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
-				Computed:    true,
 				Description: `The key/value pairs to associate with the cluster.`,
 			},
 			"keep_last_manual_snapshot": {
@@ -286,8 +286,14 @@ func clusterPublicIpSchema() *schema.Resource {
 			"eip_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				Description: `The EIP ID.`,
+				DiffSuppressFunc: func(_, _, newVal string, d *schema.ResourceData) bool {
+					// If "public_bind_type" is set to "auto_assign", the EIP will be automatically bound, the EIP Will be triggered to change.
+					if v, ok := d.GetOk("public_ip.0.public_bind_type"); ok {
+						return v.(string) == PublicBindTypeAuto && newVal == ""
+					}
+					return false
+				},
 			},
 		},
 	}
@@ -1049,6 +1055,12 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
+	if d.HasChange("public_ip.0.eip_id") {
+		if err := updateEip(clusterClient, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceDwsClusterRead(ctx, d, meta)
 }
 
@@ -1362,6 +1374,42 @@ func unbindElb(ctx context.Context, d *schema.ResourceData, client *golangsdk.Se
 		return fmt.Errorf("error waiting for unbinding ELB from DWS cluster: %s", err)
 	}
 
+	return nil
+}
+
+func updateEip(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		oldEipRaw, newEipRaw = d.GetChange("public_ip.0.eip_id")
+		oldEipId             = oldEipRaw.(string)
+		newEipId             = newEipRaw.(string)
+		clusterId            = d.Id()
+	)
+
+	path := client.Endpoint + "v2/{project_id}/clusters/{cluster_id}/eips/{eip_id}"
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	path = strings.ReplaceAll(path, "{cluster_id}", clusterId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	if oldEipId != "" {
+		unBindEipPath := strings.ReplaceAll(path, "{eip_id}", oldEipId)
+		_, err := client.Request("DELETE", unBindEipPath, &opt)
+		if err != nil {
+			return fmt.Errorf("error unbinding EIP (%s) from DWS instance (%s): %s", oldEipId, clusterId, err)
+		}
+	}
+
+	if newEipId != "" {
+		bindEipPath := strings.ReplaceAll(path, "{eip_id}", newEipId)
+		_, err := client.Request("POST", bindEipPath, &opt)
+		if err != nil {
+			return fmt.Errorf("error binding EIP (%s) to DWS instance (%s): %s", newEipId, clusterId, err)
+		}
+	}
 	return nil
 }
 
