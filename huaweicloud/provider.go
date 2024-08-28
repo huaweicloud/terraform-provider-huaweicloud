@@ -1232,6 +1232,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ccm_private_certificate":        ccm.ResourcePrivateCertificate(),
 			"huaweicloud_ccm_private_certificate_revoke": ccm.ResourcePrivateCertificateRevoke(),
 			"huaweicloud_ccm_certificate_import":         ccm.ResourceCertificateImport(),
+			"huaweicloud_ccm_private_ca_restore":         ccm.ResourcePrivateCaRestore(),
 
 			"huaweicloud_cdm_cluster":        cdm.ResourceCdmCluster(),
 			"huaweicloud_cdm_cluster_action": cdm.ResourceClusterAction(),
