@@ -38,14 +38,18 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the listener resource. If omitted, the
   provider-level region will be used. Changing this creates a new listener.
 
-* `protocol` - (Required, String, ForceNew) The protocol can either be **TCP**, **UDP**, **HTTP**, **HTTPS**, **QUIC**
-  or **TLS**. Changing this creates a new listener.
+* `protocol` - (Required, String, ForceNew) The protocol can either be **TCP**, **UDP**, **HTTP**, **HTTPS**, **QUIC**,
+  **IP** or **TLS**. **IP** is only available for listeners that will be added to gateway load balancers. Changing this
+  creates a new listener.
 
 * `loadbalancer_id` - (Required, String, ForceNew) The load balancer on which to provision this listener. Changing this
   creates a new listener.
 
-* `protocol_port` - (Optional, Int, ForceNew) Specifies the port used by the listener. The **QUIC** listener port cannot
-  be **4789** or the same as the **UDP** listener port. If this parameter is set to **0**, `port_ranges` is required.
+* `protocol_port` - (Optional, Int, ForceNew) Specifies the port used by the listener.
+  + The **QUIC** listener port cannot be **4789** or the same as the **UDP** listener port.
+  + If `protocol` is set to **IP**, the value can only be **0** or empty.
+  + If it is set to **0** and `protocol` is not set to **IP**, `port_ranges` is required.
+
   Changing this creates a new listener.
 
 * `port_ranges` - (Optional, List, ForceNew) Specifies the port monitoring range (closed range), specify up to 10 port

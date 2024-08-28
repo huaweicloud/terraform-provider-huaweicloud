@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getELBListenerResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -266,6 +267,58 @@ func TestAccElbV3Listener_with_protocol_tls(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "proxy_protocol_enable", "true"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccElbV3Listener_with_ip_protocol(t *testing.T) {
+	var listener listeners.Listener
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_listener.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&listener,
+		getELBListenerResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckElbGatewayType(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3ListenerConfig_with_ip_protocol(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "IP"),
+					resource.TestCheckResourceAttr(resourceName, "protocol_port", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+				),
+			},
+			{
+				Config: testAccElbV3ListenerConfig_with_ip_protocol_update(rName, rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "IP"),
+					resource.TestCheckResourceAttr(resourceName, "protocol_port", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
 			},
 			{
@@ -695,4 +748,64 @@ resource "huaweicloud_elb_listener" "test" {
   server_certificate    = huaweicloud_elb_certificate.server.id
   proxy_protocol_enable = true
 }`, lb, certificate, rName)
+}
+
+func testAccElbV3ListenerConfig_with_ip_protocol_base(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name              = "%[2]s"
+  vpc_id            = huaweicloud_vpc.test.id
+  ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  loadbalancer_type = "gateway"
+  description       = "test gateway description"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccElbV3ListenerConfig_with_ip_protocol(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_listener" "test" {
+  name                        = "%[2]s"
+  description                 = "test description"
+  protocol                    = "IP"
+  protocol_port               = 0
+  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
+  advanced_forwarding_enabled = true
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, testAccElbV3ListenerConfig_with_ip_protocol_base(rName), rName)
+}
+
+func testAccElbV3ListenerConfig_with_ip_protocol_update(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_listener" "test" {
+  name                        = "%[2]s"
+  description                 = "test description update"
+  protocol                    = "IP"
+  protocol_port               = 0
+  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
+  advanced_forwarding_enabled = true
+
+  tags = {
+    key1  = "value1"
+    owner = "terraform_update"
+  }
+}
+`, testAccElbV3ListenerConfig_with_ip_protocol_base(rName), rNameUpdate)
 }

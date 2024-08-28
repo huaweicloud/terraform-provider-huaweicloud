@@ -344,6 +344,57 @@ func TestAccElbV3Pool_basic_with_connection_drain(t *testing.T) {
 	})
 }
 
+func TestAccElbV3Pool_basic_with_ip_protocol(t *testing.T) {
+	var pool pools.Pool
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_pool.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&pool,
+		getELBPoolResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckElbGatewayType(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3PoolConfig_basic_with_ip_protocol(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "IP"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "2_TUPLE_HASH"),
+					resource.TestCheckResourceAttrPair(resourceName, "loadbalancer_id",
+						"huaweicloud_elb_loadbalancer.test", "id"),
+				),
+			},
+			{
+				Config: testAccElbV3PoolConfig_basic_with_ip_protocol_update(rName, rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "IP"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "5_TUPLE_HASH"),
+					resource.TestCheckResourceAttrPair(resourceName, "loadbalancer_id",
+						"huaweicloud_elb_loadbalancer.test", "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccElbV3PoolConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -550,4 +601,50 @@ resource "huaweicloud_elb_pool" "test" {
   connection_drain_timeout = 60
 }
 `, common.TestVpc(rName), rName)
+}
+
+func testAccElbV3PoolConfig_basic_with_ip_protocol_base(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name              = "%[2]s"
+  vpc_id            = huaweicloud_vpc.test.id
+  ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  loadbalancer_type = "gateway"
+  description       = "test gateway description"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccElbV3PoolConfig_basic_with_ip_protocol(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_pool" "test" {
+  name            = "%[2]s"
+  protocol        = "IP"
+  lb_method       = "2_TUPLE_HASH"
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+}
+`, testAccElbV3PoolConfig_basic_with_ip_protocol_base(rName), rName)
+}
+
+func testAccElbV3PoolConfig_basic_with_ip_protocol_update(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_elb_pool" "test" {
+  name            = "%[2]s"
+  protocol        = "IP"
+  lb_method       = "5_TUPLE_HASH"
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+}
+`, testAccElbV3PoolConfig_basic_with_ip_protocol_base(rName), rNameUpdate)
 }

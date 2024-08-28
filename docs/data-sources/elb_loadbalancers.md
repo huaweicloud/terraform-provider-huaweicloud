@@ -63,6 +63,8 @@ The `loadbalancers` block supports:
 
 * `name` - The load balancer name.
 
+* `loadbalancer_type` - The type of the load balancer.
+
 * `description` - The description of load balancer.
 
 * `availability_zone` - The list of AZs where the load balancer is created.
@@ -83,7 +85,9 @@ The `loadbalancers` block supports:
 
 * `l4_flavor_id` - The ID of a flavor at Layer 4.
 
-* `l7_flavor_id` - The ID of a flavor at Layer 7
+* `l7_flavor_id` - The ID of a flavor at Layer 7.
+
+* `gw_flavor_id` - The flavor ID of the gateway load balancer.
 
 * `min_l7_flavor_id` - The minimum seven-layer specification ID (specification type L7_elastic) for elastic expansion
   and contraction

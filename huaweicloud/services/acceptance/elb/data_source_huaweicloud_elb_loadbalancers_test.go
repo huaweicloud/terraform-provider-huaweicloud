@@ -46,6 +46,32 @@ func TestAccDatasourceLoadBalancers_basic(t *testing.T) {
 	})
 }
 
+func TestAccDatasourceLoadBalancers_gateway(t *testing.T) {
+	rName := "data.huaweicloud_elb_loadbalancers.test"
+	dc := acceptance.InitDataSourceCheck(rName)
+	name := acceptance.RandomAccResourceName()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckElbGatewayType(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatasourceLoadBalancers_gateway(name),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(rName, "loadbalancers.#"),
+					resource.TestCheckResourceAttr(rName, "loadbalancers.0.name", name),
+					resource.TestCheckResourceAttr(rName, "loadbalancers.0.loadbalancer_type", "gateway"),
+					resource.TestCheckResourceAttrSet(rName, "loadbalancers.0.gw_flavor_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDatasourceLoadBalancers_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -208,4 +234,40 @@ output "enterprise_project_id_is_useful" {
 }
 
 `, testAccDatasourceLoadBalancers_base(name), name)
+}
+
+func testAccDatasourceLoadBalancers_gateway(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name        = "%[1]s"
+  vpc_id      = huaweicloud_vpc.test.id
+  cidr        = "192.168.0.0/24"
+  gateway_ip  = "192.168.0.1"
+  ipv6_enable = true
+}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name              = "%[1]s"
+  vpc_id            = huaweicloud_vpc.test.id
+  ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  ipv6_network_id   = huaweicloud_vpc_subnet.test.id
+  loadbalancer_type = "gateway"
+  description       = "test gateway description"
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+}
+
+data "huaweicloud_elb_loadbalancers" "test" {
+  depends_on = [huaweicloud_elb_loadbalancer.test]
+  name       = "%[1]s"
+}
+`, name)
 }

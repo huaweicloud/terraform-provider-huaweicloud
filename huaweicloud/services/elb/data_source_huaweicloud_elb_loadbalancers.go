@@ -93,6 +93,10 @@ func loadbalancersSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"loadbalancer_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -137,6 +141,10 @@ func loadbalancersSchema() *schema.Resource {
 				Computed: true,
 			},
 			"l7_flavor_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"gw_flavor_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -281,6 +289,7 @@ func flattenListLoadBalancersBody(resp interface{}) []interface{} {
 		rst = append(rst, map[string]interface{}{
 			"id":                    utils.PathSearch("id", v, nil),
 			"name":                  utils.PathSearch("name", v, nil),
+			"loadbalancer_type":     utils.PathSearch("loadbalancer_type", v, nil),
 			"description":           utils.PathSearch("description", v, nil),
 			"availability_zone":     utils.PathSearch("availability_zone_list", v, nil),
 			"cross_vpc_backend":     utils.PathSearch("ip_target_enable", v, nil),
@@ -292,6 +301,7 @@ func flattenListLoadBalancersBody(resp interface{}) []interface{} {
 			"ipv6_address":          utils.PathSearch("ipv6_vip_address", v, nil),
 			"l4_flavor_id":          utils.PathSearch("l4_flavor_id", v, nil),
 			"l7_flavor_id":          utils.PathSearch("l7_flavor_id", v, nil),
+			"gw_flavor_id":          utils.PathSearch("gw_flavor_id", v, nil),
 			"min_l7_flavor_id":      utils.PathSearch("min_l7_flavor_id", v, nil),
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
 			"autoscaling_enabled":   utils.PathSearch("enable", v, nil),

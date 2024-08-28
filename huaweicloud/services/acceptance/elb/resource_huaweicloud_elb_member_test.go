@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func TestAccElbV3Member_basic(t *testing.T) {
@@ -101,6 +102,42 @@ func TestAccElbV3Member_without_protocol_port(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("huaweicloud_elb_member.test", "address", "121.121.0.111"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccElbV3Member_with_ip_protocol(t *testing.T) {
+	var member1, member2 pools.Member
+	rName := acceptance.RandomAccResourceNameWithDash()
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckElbGatewayType(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckElbV3MemberDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3MemberConfig_with_ip_protocol(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckElbV3MemberExists("huaweicloud_elb_member.member_1", &member1),
+					testAccCheckElbV3MemberExists("huaweicloud_elb_member.member_2", &member2),
+				),
+			},
+			{
+				Config: testAccElbV3MemberConfig_with_ip_protocol_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("huaweicloud_elb_member.member_1", "weight", "10"),
+					resource.TestCheckResourceAttr("huaweicloud_elb_member.member_2", "weight", "15"),
+				),
+			},
+			{
+				ResourceName:      "huaweicloud_elb_member.member_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccELBMemberImportStateIdFunc(),
 			},
 		},
 	})
@@ -438,4 +475,123 @@ resource "huaweicloud_elb_member" "test" {
   pool_id = huaweicloud_elb_pool.test.id
 }
 `, rName)
+}
+
+func testAccElbV3MemberConfig_basic_with_ip_protocol_base(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_images_image" "test" {
+  name        = "Ubuntu 22.04 server 64bit"
+  most_recent = true
+}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[2]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  count = 2
+
+  name       = "test_${count.index}"
+  vpc_id     = huaweicloud_vpc.test.id
+  cidr       = "192.168.${count.index}.0/24"
+  gateway_ip = "192.168.${count.index}.1"
+}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name              = "%[2]s"
+  vpc_id            = huaweicloud_vpc.test.id
+  ipv4_subnet_id    = huaweicloud_vpc_subnet.test[0].ipv4_subnet_id
+  loadbalancer_type = "gateway"
+  description       = "test gateway description"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+}
+
+resource "huaweicloud_elb_listener" "test" {
+  name                        = "%[2]s"
+  description                 = "test description"
+  protocol                    = "IP"
+  protocol_port               = 0
+  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
+  advanced_forwarding_enabled = true
+}
+
+resource "huaweicloud_elb_pool" "test" {
+  name            = "%[2]s"
+  protocol        = "IP"
+  lb_method       = "2_TUPLE_HASH"
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+  listener_id     = huaweicloud_elb_listener.test.id
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  count = 2
+
+  name               = "%[2]s_${count.index}"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test[1].id
+  }
+}
+`, common.TestSecGroup(rName), rName)
+}
+
+func testAccElbV3MemberConfig_with_ip_protocol(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_member" "member_1" {
+  address       = huaweicloud_compute_instance.test[0].access_ip_v4
+  protocol_port = 0
+  pool_id       = huaweicloud_elb_pool.test.id
+  subnet_id     = huaweicloud_vpc_subnet.test[1].ipv4_subnet_id
+}
+
+resource "huaweicloud_elb_member" "member_2" {
+  address       = huaweicloud_compute_instance.test[1].access_ip_v4
+  protocol_port = 0
+  pool_id       = huaweicloud_elb_pool.test.id
+  subnet_id     = huaweicloud_vpc_subnet.test[1].ipv4_subnet_id
+}
+`, testAccElbV3MemberConfig_basic_with_ip_protocol_base(rName))
+}
+
+func testAccElbV3MemberConfig_with_ip_protocol_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_member" "member_1" {
+  address       = huaweicloud_compute_instance.test[0].access_ip_v4
+  protocol_port = 0
+  weight        = 10
+  pool_id       = huaweicloud_elb_pool.test.id
+  subnet_id     = huaweicloud_vpc_subnet.test[1].ipv4_subnet_id
+}
+
+resource "huaweicloud_elb_member" "member_2" {
+  address       = huaweicloud_compute_instance.test[1].access_ip_v4
+  protocol_port = 0
+  weight        = 15
+  pool_id       = huaweicloud_elb_pool.test.id
+  subnet_id     = huaweicloud_vpc_subnet.test[1].ipv4_subnet_id
+}
+`, testAccElbV3MemberConfig_basic_with_ip_protocol_base(rName))
 }

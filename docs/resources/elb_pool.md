@@ -95,6 +95,7 @@ The following arguments are supported:
   Value options: **TCP**, **UDP**, **HTTP**, **HTTPS**, **QUIC**, **GRPC** or **TLS**.
   + If the listener's protocol is **UDP**, the value must be **UDP** or **QUIC**.
   + If the listener's protocol is **TCP**, the value must be **TCP**.
+  + If the listener's protocol is **IP**, the value must be **IP**.
   + If the listener's protocol is **HTTP**, the value must be **HTTP**.
   + If the listener's protocol is **HTTPS**, the value must be **HTTP** or **HTTPS**.
   + If the listener's protocol is **TERMINATED_HTTPS**, the value must be **HTTP**.
@@ -111,6 +112,9 @@ The following arguments are supported:
   + **LEAST_CONNECTIONS**: weighted least connections.
   + **SOURCE_IP**: source IP hash.
   + **QUIC_CID**: connection ID.
+  + **2_TUPLE_HASH**: 2-tuple hash that is only available for IP backend server groups.
+  + **3_TUPLE_HASH**: 3-tuple hash that is only available for IP backend server groups.
+  + **5_TUPLE_HASH**: 5-tuple hash that is only available for IP backend server groups Note.
 
   -> **NOTE:** 1. If the value is **SOURCE_IP**, the weight parameter will not take effect for backend servers.
   <br/> 2. **QUIC_CID** is supported only when the protocol of the backend server group is **QUIC**.

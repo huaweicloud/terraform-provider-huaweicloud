@@ -15,80 +15,115 @@ Manages a Dedicated load balancer resource within HuaweiCloud.
 ### Basic Loadbalancer
 
 ```hcl
+variable "vpc_id" {}
+variable "ipv4_subnet_id" {}
+variable "l4_flavor_id" {}
+variable "l7_flavor_id" {}
+variable "eps_id" {}
+
 resource "huaweicloud_elb_loadbalancer" "basic" {
   name              = "basic"
   description       = "basic example"
   cross_vpc_backend = true
 
-  vpc_id         = "{{ vpc_id }}"
-  ipv4_subnet_id = "{{ ipv4_subnet_id }}"
+  vpc_id         = var.vpc_id
+  ipv4_subnet_id = var.ipv4_subnet_id
 
-  l4_flavor_id = "{{ l4_flavor_id }}"
-  l7_flavor_id = "{{ l7_flavor_id }}"
+  l4_flavor_id = var.l4_flavor_id
+  l7_flavor_id = var.l7_flavor_id
 
   availability_zone = [
     "cn-north-4a",
     "cn-north-4b",
   ]
 
-  enterprise_project_id = "{{ eps_id }}"
+  enterprise_project_id = var.eps_id
 }
 ```
 
 ### Loadbalancer With Existing EIP
 
 ```hcl
+variable "vpc_id" {}
+variable "ipv4_subnet_id" {}
+variable "ipv6_network_id" {}
+variable "ipv6_bandwidth_id" {}
+variable "l4_flavor_id" {}
+variable "l7_flavor_id" {}
+variable "eps_id" {}
+variable "eip_id" {}
+
 resource "huaweicloud_elb_loadbalancer" "basic" {
   name              = "basic"
   description       = "basic example"
   cross_vpc_backend = true
 
-  vpc_id            = "{{ vpc_id }}"
-  ipv6_network_id   = "{{ ipv6_network_id }}"
-  ipv6_bandwidth_id = "{{ ipv6_bandwidth_id }}"
-  ipv4_subnet_id    = "{{ ipv4_subnet_id }}"
+  vpc_id            = var.vpc_id
+  ipv6_network_id   = var.ipv6_network_id
+  ipv6_bandwidth_id = var.ipv6_bandwidth_id
+  ipv4_subnet_id    = var.ipv4_subnet_id
 
-  l4_flavor_id = "{{ l4_flavor_id }}"
-  l7_flavor_id = "{{ l7_flavor_id }}"
+  l4_flavor_id = var.l4_flavor_id
+  l7_flavor_id = var.l7_flavor_id
 
   availability_zone = [
     "cn-north-4a",
     "cn-north-4b",
   ]
 
-  enterprise_project_id = "{{ eps_id }}"
+  enterprise_project_id = var.eps_id
 
-  ipv4_eip_id = "{{ eip_id }}"
+  ipv4_eip_id = var.eip_id
 }
 ```
 
 ### Loadbalancer With EIP
 
 ```hcl
+variable "vpc_id" {}
+variable "ipv4_subnet_id" {}
+variable "ipv6_network_id" {}
+variable "ipv6_bandwidth_id" {}
+variable "l4_flavor_id" {}
+variable "l7_flavor_id" {}
+
 resource "huaweicloud_elb_loadbalancer" "basic" {
   name              = "basic"
   description       = "basic example"
   cross_vpc_backend = true
 
-  vpc_id            = "{{ vpc_id }}"
-  ipv6_network_id   = "{{ ipv6_network_id }}"
-  ipv6_bandwidth_id = "{{ ipv6_bandwidth_id }}"
-  ipv4_subnet_id    = "{{ ipv4_subnet_id }}"
+  vpc_id            = var.vpc_id
+  ipv6_network_id   = var.ipv6_network_id
+  ipv6_bandwidth_id = var.ipv6_bandwidth_id
+  ipv4_subnet_id    = var.ipv4_subnet_id
 
-  l4_flavor_id = "{{ l4_flavor_id }}"
-  l7_flavor_id = "{{ l7_flavor_id }}"
+  l4_flavor_id = var.l4_flavor_id
+  l7_flavor_id = var.l7_flavor_id
 
   availability_zone = [
     "cn-north-4a",
     "cn-north-4b",
   ]
+}
+```
 
-  enterprise_project_id = "{{ eps_id }}"
+### Loadbalancer With gateway
 
-  iptype                = "5_bgp"
-  bandwidth_charge_mode = "traffic"
-  sharetype             = "PER"
-  bandwidth_size        = 10
+```hcl
+variable "vpc_id" {}
+variable "ipv4_subnet_id" {}
+variable "ipv6_network_id" {}
+
+resource "huaweicloud_elb_loadbalancer" "basic" {
+  name              = "basic"
+  description       = "basic example"
+  loadbalancer_type = "gateway"
+
+  vpc_id            = var.vpc_id
+  ipv4_subnet_id    = var.ipv4_subnet_id
+  ipv6_network_id   = var.ipv6_network_id
+
+  availability_zone = ["cn-north-4a"]
 }
 ```
 
@@ -105,6 +140,14 @@ The following arguments are supported:
 
   -> **NOTE:** Removing an AZ may disconnect existing connections. Exercise caution when performing this
   operation.
+
+* `loadbalancer_type` - (Optional, String, ForceNew) Specifies the type of the load balancer. Value options:
+  + **gateway**: indicates a gateway load balancer.
+  + Keep empty(default) indicates other types of load balancers.
+
+  -> **NOTE:** 1. `vip_address` and `ipv6_vip_address` are not supported by gateway load balancers.
+  <br/> 2. `vip_subnet_cidr_id` and `ipv6_subnet_cidr_id` cannot be left blank at the same time.
+  <br/> 3. You cannot bind an EIP to gateway load balancers.
 
 * `description` - (Optional, String) Human-readable description for the load balancer.
 
@@ -216,6 +259,8 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The ID of the load balancer.
+
+* `gw_flavor_id` - The flavor ID of the gateway load balancer.
 
 * `ipv4_port_id` - The ID of the port bound to the private IPv4 address of the load balancer.
 
