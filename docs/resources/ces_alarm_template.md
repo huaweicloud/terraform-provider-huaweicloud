@@ -11,6 +11,8 @@ Manages a CES alarm template resource within HuaweiCloud.
 
 ## Example Usage
 
+### Create a metric alarm template
+
 ```hcl
 variable "name" {}
 
@@ -33,6 +35,30 @@ resource "huaweicloud_ces_alarm_template" "test"{
 }
 ```
 
+### Create an event alarm template
+
+```hcl
+variable "name" {}
+
+resource "huaweicloud_ces_alarm_template" "test"{
+  name = var.name
+  type = 2
+
+  policies {
+    namespace           = "SYS.VPC"
+    metric_name         = "modifyVpc"
+    period              = 0
+    filter              = "average"
+    comparison_operator = ">="
+    value               = "1"
+    unit                = "count"
+    count               = 1
+    alarm_level         = 2
+    suppress_duration   = 0
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -47,6 +73,11 @@ The following arguments are supported:
 * `policies` - (Required, List) Specifies the policy list of the CES alarm template.
 The [Policy](#CesAlarmTemplate_Policy) structure is documented below.
 
+* `type` - (Optional, Int, NonUpdatable) Specifies the type of the CES alarm template.
+  Default to **0**. The valid values are as follows:
+  + **0**: metric alarm template.
+  + **2**: event alarm template.
+
 * `delete_associate_alarm` - (Optional, Bool) Specifies whether delete the alarm rule which the alarm
   template associated with. Default to **false**.
 
@@ -58,15 +89,10 @@ The `Policy` block supports:
 
 * `namespace` - (Required, String) Specifies the namespace of the service.
 
-* `dimension_name` - (Required, String) Specifies the Resource dimension.
-  The name starts with a letter and separated by commas(,) for multiple dimensions,
-  can contain only letters, digits, hyphens (-) and hyphens (-),
-  and contain a maximum of 32 characters for each dimension.
-
 * `metric_name` - (Required, String) Specifies the alarm metric name.
 
 * `period` - (Required, Int) Specifies the judgment period of alarm condition.
-  Value options: **1**, **300**, **1200**, **3600**, **14400**, **86400**.
+  Value options: **0**, **1**, **300**, **1200**, **3600**, **14400**, **86400**.
 
 * `filter` - (Required, String) Specifies the data rollup methods.
   Value options: **average**, **variance**, **min**, **max**, **sum**.
@@ -76,29 +102,33 @@ The `Policy` block supports:
 
 * `value` - (Required, Int) Specifies the alarm threshold.
 
+* `count` - (Required, Int) Specifies the number of consecutive triggering of alarms. The value ranges from **1** to **5**.
+
+* `suppress_duration` - (Required, Int) Specifies the alarm suppression cycle. Unit: second.
+  Only one alarm is sent when the alarm suppression period is **0**.
+  Value options: **0**, **300**, **600**, **900**, **1800**, **3600**, **10800**, **21600**,
+  **43200**, **86400**.
+
+* `alarm_level` - (Optional, Int) Specifies the alarm level. It means no level if not set.
+  The valid values are as follows:
+  + **1**: critical.
+  + **2**: major.
+  + **3**: minor.
+  + **4**: informational.
+
 * `unit` - (Optional, String) Specifies the unit string of the alarm threshold.
   The unit can contain a maximum of 32 characters.
 
-* `count` - (Required, Int) Specifies the number of consecutive triggering of alarms.  The value ranges from 1 to 5.
-
-* `alarm_level` - (Optional, Int) Specifies the alarm level. It means no level if not set. Value options:
-  + **1**: critical
-  + **2**: major
-  + **3**: minor
-  + **4**: informational
-
-* `suppress_duration` - (Required, Int) Specifies the alarm suppression cycle. Unit: second.
-  Only one alarm is sent when the alarm suppression period is 0.
-  Value options: **0**, **300**, **600**, **900**, **1800**, **3600**, **10800**, **21600**,
-  **43200**, **86400**.
+* `dimension_name` - (Optional, String) Specifies the resource dimension.
+  The name starts with a letter and separated by commas(,) for multiple dimensions,
+  can contain only letters, digits, hyphens (-) and hyphens (-),
+  and contain a maximum of 32 characters for each dimension.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
-
-* `type` - Indicates the type of the CES alarm template.
 
 * `association_alarm_total` - Indicates the total num of the alarm that associated with the alarm template.
 
