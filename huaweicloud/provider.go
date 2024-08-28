@@ -1665,6 +1665,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dataarts_dataservice_api_publishment": dataarts.ResourceDataServiceApiPublishment(),
 			"huaweicloud_dataarts_dataservice_app":             dataarts.ResourceDataServiceApp(),
 			"huaweicloud_dataarts_dataservice_catalog":         dataarts.ResourceDatatServiceCatalog(),
+			"huaweicloud_dataarts_dataservice_message_approve": dataarts.ResourceDataServiceMessageApprove(),
 
 			"huaweicloud_mpc_transcoding_template":       mpc.ResourceTranscodingTemplate(),
 			"huaweicloud_mpc_transcoding_template_group": mpc.ResourceTranscodingTemplateGroup(),
