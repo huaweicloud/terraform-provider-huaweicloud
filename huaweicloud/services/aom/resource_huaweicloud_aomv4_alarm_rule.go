@@ -411,6 +411,7 @@ func resourceSchemeV4MetricTriggerConditions() *schema.Schema {
 				"promql_for": {
 					Type:     schema.TypeString,
 					Optional: true,
+					Computed: true,
 				},
 				"aom_monitor_level": {
 					Type:     schema.TypeString,
@@ -470,6 +471,24 @@ func resourceMetricTriggerConditionHash(v interface{}) int {
 	}
 	if m["metric_statistic_method"] != nil {
 		buf.WriteString(fmt.Sprintf("%s-", m["metric_statistic_method"].(string)))
+	}
+	if m["metric_labels"] != nil {
+		buf.WriteString(fmt.Sprintf("%v-", m["metric_labels"]))
+	}
+	if m["query_param"] != nil {
+		buf.WriteString(fmt.Sprintf("%s-", m["query_param"].(string)))
+	}
+	if m["metric_namespace"] != nil {
+		buf.WriteString(fmt.Sprintf("%s-", m["metric_namespace"].(string)))
+	}
+	if m["metric_unit"] != nil {
+		buf.WriteString(fmt.Sprintf("%s-", m["metric_unit"].(string)))
+	}
+	if m["promql_expr"] != nil {
+		buf.WriteString(fmt.Sprintf("%v-", m["promql_expr"]))
+	}
+	if m["aom_monitor_level"] != nil {
+		buf.WriteString(fmt.Sprintf("%s-", m["aom_monitor_level"].(string)))
 	}
 
 	return hashcode.String(buf.String())
