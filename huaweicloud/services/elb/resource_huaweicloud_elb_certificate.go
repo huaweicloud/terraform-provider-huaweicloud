@@ -148,7 +148,6 @@ func resourceCertificateV3Read(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("type", certificate.Type),
 		d.Set("domain", certificate.Domain),
 		d.Set("certificate", certificate.Certificate),
-		d.Set("private_key", certificate.PrivateKey),
 		d.Set("create_time", certificate.CreateTime),
 		d.Set("update_time", certificate.UpdateTime),
 		d.Set("expire_time", certificate.ExpireTime),

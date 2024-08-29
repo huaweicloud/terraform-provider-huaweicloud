@@ -388,6 +388,8 @@ var (
 	HW_DCS_BEGIN_TIME  = os.Getenv("HW_DCS_BEGIN_TIME")
 	HW_DCS_END_TIME    = os.Getenv("HW_DCS_END_TIME")
 
+	HW_ELB_GATEWAY_TYPE = os.Getenv("HW_ELB_GATEWAY_TYPE")
+
 	HW_LTS_AGENCY_STREAM_NAME = os.Getenv("HW_LTS_AGENCY_STREAM_NAME")
 	HW_LTS_AGENCY_STREAM_ID   = os.Getenv("HW_LTS_AGENCY_STREAM_ID")
 	HW_LTS_AGENCY_GROUP_NAME  = os.Getenv("HW_LTS_AGENCY_GROUP_NAME")
@@ -2000,6 +2002,13 @@ func TestAccPreCheckDCSInstanceID(t *testing.T) {
 func TestAccPreCheckDcsTimeRange(t *testing.T) {
 	if HW_DCS_BEGIN_TIME == "" || HW_DCS_END_TIME == "" {
 		t.Skip("HW_DCS_BEGIN_TIME and HW_DCS_END_TIME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckElbGatewayType(t *testing.T) {
+	if HW_ELB_GATEWAY_TYPE == "" {
+		t.Skip("HW_ELB_GATEWAY_TYPE must be set for the acceptance test")
 	}
 }
 

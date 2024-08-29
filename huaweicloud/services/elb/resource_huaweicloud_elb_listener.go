@@ -60,11 +60,10 @@ func ResourceListenerV3() *schema.Resource {
 			},
 
 			"protocol_port": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				Computed:     true,
-				AtLeastOneOf: []string{"protocol_port", "port_ranges"},
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 
 			"port_ranges": {

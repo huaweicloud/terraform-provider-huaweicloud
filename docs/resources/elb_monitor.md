@@ -69,7 +69,8 @@ The following arguments are supported:
   is set to **HTTP** or **HTTPS**.
 
 * `port` - (Optional, Int) Specifies the port used for the health check. If this parameter is left blank, a port of
-  the backend server will be used by default.  Value ranges from **1** to **65535**.
+  the backend server will be used by default. It is mandatory when the `protocol` of the backend server group is **IP**.
+  Value ranges from **1** to **65535**.
 
 * `url_path` - (Optional, String) Specifies the HTTP request path for the health check. The value must start with a
   slash (/), can contain letters, digits, hyphens (-), slash (/), periods (.), percent signs (%), hashes(#), and(&)
