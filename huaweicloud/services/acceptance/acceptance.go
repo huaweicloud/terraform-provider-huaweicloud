@@ -217,6 +217,9 @@ var (
 	HW_DC_VIRTUAL_INTERFACE_ID = os.Getenv("HW_DC_VIRTUAL_INTERFACE_ID")
 	HW_DC_ENABLE_FLAG          = os.Getenv("HW_DC_ENABLE_FLAG")
 
+	HW_CES_START_TIME = os.Getenv("HW_CES_START_TIME")
+	HW_CES_END_TIME   = os.Getenv("HW_CES_END_TIME")
+
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID               = os.Getenv("HW_CFW_INSTANCE_ID")
 	HW_CFW_EAST_WEST_FIREWALL        = os.Getenv("HW_CFW_EAST_WEST_FIREWALL")
@@ -1310,6 +1313,13 @@ func TestAccPreCheckTargetTenantDcVGW(t *testing.T) {
 func TestAccPreCheckDCVirtualInterfaceID(t *testing.T) {
 	if HW_DC_VIRTUAL_INTERFACE_ID == "" {
 		t.Skip("HW_DC_VIRTUAL_INTERFACE_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCesTimeRange(t *testing.T) {
+	if HW_CES_START_TIME == "" || HW_CES_END_TIME == "" {
+		t.Skip("HW_CES_START_TIME and HW_CES_END_TIME must be set for CES acceptance tests")
 	}
 }
 
