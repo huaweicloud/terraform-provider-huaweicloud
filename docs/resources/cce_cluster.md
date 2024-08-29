@@ -330,6 +330,13 @@ The following arguments are supported:
 * `delete_all` - (Optional, String) Specified whether to delete all associated storage resources when deleting the CCE
   cluster. valid values are **true**, **try** and **false**. Default is **false**.
 
+* `lts_reclaim_policy` - (Optional, String) Specified whether to delete LTS resources when deleting the CCE cluster.
+  Valid values are:
+  + **Delete_Log_Group**: Delete the log group, ignore it if it fails, and continue with the subsequent process.
+  + **Delete_Master_Log_Stream**: Delete the the log stream, ignore it if it fails, and continue the subsequent process.
+  The default option.
+  + **Retain**: Skip the deletion process.
+
 * `hibernate` - (Optional, Bool) Specifies whether to hibernate the CCE cluster. Defaults to **false**. After a cluster is
   hibernated, resources such as workloads cannot be created or managed in the cluster, and the cluster cannot be
   deleted.

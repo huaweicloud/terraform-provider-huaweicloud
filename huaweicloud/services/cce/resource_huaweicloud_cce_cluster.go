@@ -372,6 +372,10 @@ func ResourceCluster() *schema.Resource {
 					"true", "try", "false",
 				}, true),
 			},
+			"lts_reclaim_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -689,19 +693,25 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 				Mode:                d.Get("authentication_mode").(string),
 				AuthenticatingProxy: authenticating_proxy,
 			},
-			BillingMode:          billingMode,
-			ExtendParam:          buildResourceClusterExtendParams(d, config),
-			KubernetesSvcIPRange: d.Get("service_network_cidr").(string),
-			ClusterTags:          resourceClusterTags(d),
-			CustomSan:            utils.ExpandToStringList(d.Get("custom_san").([]interface{})),
-			IPv6Enable:           d.Get("ipv6_enable").(bool),
-			KubeProxyMode:        d.Get("kube_proxy_mode").(string),
-			SupportIstio:         d.Get("support_istio").(bool),
+			BillingMode:   billingMode,
+			ExtendParam:   buildResourceClusterExtendParams(d, config),
+			ClusterTags:   resourceClusterTags(d),
+			CustomSan:     utils.ExpandToStringList(d.Get("custom_san").([]interface{})),
+			IPv6Enable:    d.Get("ipv6_enable").(bool),
+			KubeProxyMode: d.Get("kube_proxy_mode").(string),
+			SupportIstio:  d.Get("support_istio").(bool),
 		},
 	}
 
 	if _, ok := d.GetOk("enable_distribute_management"); ok {
 		createOpts.Spec.EnableDistMgt = d.Get("enable_distribute_management").(bool)
+	}
+
+	if v, ok := d.GetOk("service_network_cidr"); ok {
+		serviceNetwork := clusters.ServiceNetwork{
+			IPv4Cidr: v.(string),
+		}
+		createOpts.Spec.ServiceNetwork = &serviceNetwork
 	}
 
 	masters, err := resourceClusterMasters(d)
@@ -827,7 +837,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("authentication_mode", n.Spec.Authentication.Mode),
 		d.Set("security_group_id", n.Spec.HostNetwork.SecurityGroup),
 		d.Set("enterprise_project_id", n.Spec.ExtendParam["enterpriseProjectId"]),
-		d.Set("service_network_cidr", n.Spec.KubernetesSvcIPRange),
+		d.Set("service_network_cidr", n.Spec.ServiceNetwork.IPv4Cidr),
 		d.Set("billing_mode", n.Spec.BillingMode),
 		d.Set("tags", utils.TagsToMap(n.Spec.ClusterTags)),
 		d.Set("ipv6_enable", n.Spec.IPv6Enable),
@@ -1167,6 +1177,8 @@ func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta int
 			deleteOpts.DeleteSfs = d.Get("delete_sfs").(string)
 			deleteOpts.DeleteSfs30 = d.Get("delete_sfs").(string)
 		}
+
+		deleteOpts.LtsReclaimPolicy = d.Get("lts_reclaim_policy").(string)
 		err = clusters.DeleteWithOpts(cceClient, d.Id(), deleteOpts).ExtractErr()
 		if err != nil {
 			return diag.Errorf("error deleting CCE cluster: %s", err)
