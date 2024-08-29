@@ -116,12 +116,9 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mode": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								string(HaModeDistributed), string(HAModeCentralized),
-							}, true),
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
 							DiffSuppressFunc: utils.SuppressCaseDiffs,
 						},
 						"replication_mode": {
