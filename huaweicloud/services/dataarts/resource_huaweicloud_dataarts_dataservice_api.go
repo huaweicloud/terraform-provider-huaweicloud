@@ -562,28 +562,26 @@ func apiHostsSchema() *schema.Resource {
 
 func buildModifyDataServiceApiBodyParams(client *golangsdk.ServiceClient, d *schema.ResourceData, workspaceId string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
+		// Required
 		"catalog_id":        d.Get("catalog_id"),
 		"name":              d.Get("name"),
-		"description":       d.Get("description"),
 		"api_type":          d.Get("type"),
 		"auth_type":         d.Get("auth_type"),
-		"manager":           d.Get("manager"),
-		"path":              d.Get("path"),
 		"protocol":          d.Get("protocol"),
+		"path":              d.Get("path"),
 		"request_type":      d.Get("request_type"),
-		"visibility":        d.Get("visibility"),
-		"request_paras":     buildApiRequestParamsBodyParams(d.Get("request_params").(*schema.Set)),
+		"manager":           d.Get("manager"),
 		"datasource_config": buildApiDataSourceConfigBodyParams(client, workspaceId, d.Get("datasource_config").([]interface{})),
-		"backend_config":    utils.RemoveNil(buildApiBackendConfigBodyParams(d.Get("backend_config").([]interface{}))),
+		// Optional
+		"description":    d.Get("description"),
+		"visibility":     d.Get("visibility"),
+		"request_paras":  buildApiRequestParamsBodyParams(d.Get("request_params").(*schema.Set)),
+		"backend_config": utils.RemoveNil(buildApiBackendConfigBodyParams(d.Get("backend_config").([]interface{}))),
 	}
 	return bodyParams
 }
 
 func buildApiRequestParamsBodyParams(params *schema.Set) []interface{} {
-	if params.Len() < 1 {
-		return nil
-	}
-
 	result := make([]interface{}, 0, params.Len())
 	for _, val := range params.List() {
 		result = append(result, map[string]interface{}{
@@ -832,7 +830,7 @@ func resourceDataServiceApiCreate(ctx context.Context, d *schema.ResourceData, m
 			"workspace":    workspaceId,
 			"Dlm-Type":     dlmType,
 		},
-		JSONBody: utils.RemoveNil(buildModifyDataServiceApiBodyParams(client, d, workspaceId)),
+		JSONBody: buildModifyDataServiceApiBodyParams(client, d, workspaceId),
 	}
 
 	requestResp, err := client.Request("POST", createPath, &opt)
