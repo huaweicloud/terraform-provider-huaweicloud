@@ -20,7 +20,7 @@ import (
 // @API AOM GET /v4/{project_id}/alarm-rules
 func DataSourceAlarmRules() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceAlarmPolicesRead,
+		ReadContext: dataSourceAlarmRulesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -415,7 +415,7 @@ func dataSourceSchemeAlarmNotifications() *schema.Schema {
 	}
 }
 
-func dataSourceAlarmPolicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceAlarmRulesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("aom", region)
