@@ -980,6 +980,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpcep_services":            vpcep.DataSourceVPCEPServices(),
 			"huaweicloud_vpcep_service_connections": vpcep.DataSourceVPCEPServiceConnections(),
 			"huaweicloud_vpcep_service_permissions": vpcep.DataSourceVPCEPServicePermissions(),
+			"huaweicloud_vpcep_service_summary":     vpcep.DataSourceVpcepServiceSummary(),
 
 			"huaweicloud_vpn_gateway_availability_zones": vpn.DataSourceVpnGatewayAZs(),
 			"huaweicloud_vpn_gateways":                   vpn.DataSourceGateways(),
