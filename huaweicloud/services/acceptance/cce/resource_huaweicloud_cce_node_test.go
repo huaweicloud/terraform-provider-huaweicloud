@@ -535,6 +535,10 @@ resource "huaweicloud_vpc_eip" "test" {
     share_type  = "PER"
     charge_mode = "traffic"
   }
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 resource "huaweicloud_cce_node" "test" {

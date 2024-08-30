@@ -156,8 +156,8 @@ func buildResourceNodeExtendParams(extendParamsRaw []interface{}) map[string]int
 			"nicMultiqueue":         utils.ValueIgnoreEmpty(extendParams["node_multi_queue"]),
 			"nicThreshold":          utils.ValueIgnoreEmpty(extendParams["nic_threshold"]),
 			"agency_name":           utils.ValueIgnoreEmpty(extendParams["agency_name"]),
-			"kube-reserved-mem":     utils.ValueIgnoreEmpty(extendParams["kube_reserved_mem"]),
-			"system-reserved-mem":   utils.ValueIgnoreEmpty(extendParams["system_reserved_mem"]),
+			"kubeReservedMem":       utils.ValueIgnoreEmpty(extendParams["kube_reserved_mem"]),
+			"systemReservedMem":     utils.ValueIgnoreEmpty(extendParams["system_reserved_mem"]),
 			"marketType":            utils.ValueIgnoreEmpty(extendParams["market_type"]),
 			"spotPrice":             utils.ValueIgnoreEmpty(extendParams["spot_price"]),
 		}

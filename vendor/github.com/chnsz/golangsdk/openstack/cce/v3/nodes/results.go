@@ -84,6 +84,8 @@ type Spec struct {
 	Partition string `json:"partition,omitempty"`
 	// The initialized conditions
 	InitializedConditions []string `json:"initializedConditions,omitempty"`
+	// The hostname config of k8s node
+	HostnameConfig *HostnameConfig `json:"hostnameConfig,omitempty"`
 	// The enterprise project ID
 	ServerEnterpriseProjectID string `json:"serverEnterpriseProjectID,omitempty"`
 }
@@ -286,6 +288,10 @@ type LVMConfigSpec struct {
 type RuntimeConfigSpec struct {
 	// LVM write mode, values can be linear and striped
 	LvType string `json:"lvType" required:"true"`
+}
+
+type HostnameConfig struct {
+	Type string `json:"type" required:"true"`
 }
 
 // Describes the Job Structure

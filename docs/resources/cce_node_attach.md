@@ -193,6 +193,14 @@ In addition to all arguments above, the following attributes are exported:
   + `kms_key_id` - The ID of a KMS key. This is used to encrypt the volume.
   + `dss_pool_id` - The DSS pool ID. This field is used only for dedicated storage.
 
+* `hostname_config` - The hostname config of the kubernetes node.
+  The [object](#hostname_config) structure is documented below.
+
+<a name="hostname_config"></a>
+The `hostname_config` block supports:
+
+* `type` - The hostname type of the kubernetes node.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:

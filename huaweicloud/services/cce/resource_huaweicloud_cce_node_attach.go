@@ -286,6 +286,18 @@ func ResourceNodeAttach() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"hostname_config": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Computed: true,

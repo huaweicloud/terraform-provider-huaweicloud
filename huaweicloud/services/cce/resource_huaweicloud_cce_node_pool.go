@@ -211,6 +211,22 @@ func ResourceNodePool() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"hostname_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -312,6 +328,7 @@ func buildNodePoolCreateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 				Taints:                    buildResourceNodeTaint(d),
 				UserTags:                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 				InitializedConditions:     utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
+				HostnameConfig:            buildResourceNodeHostnameConfig(d),
 				ServerEnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 			},
 			Autoscaling: nodepools.AutoscalingSpec{
@@ -444,6 +461,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("label_policy_on_existing_nodes", s.Spec.LabelPolicyOnExistingNodes),
 		d.Set("tag_policy_on_existing_nodes", s.Spec.UserTagPolicyOnExistingNodes),
 		d.Set("taint_policy_on_existing_nodes", s.Spec.TaintPolicyOnExistingNodes),
+		d.Set("hostname_config", flattenResourceNodeHostnameConfig(s.Spec.NodeTemplate.HostnameConfig)),
 		d.Set("enterprise_project_id", s.Spec.NodeTemplate.ServerEnterpriseProjectID),
 	)
 

@@ -165,6 +165,18 @@ func DataSourceNodes() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"hostname_config": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
 						"enterprise_project_id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -215,6 +227,7 @@ func dataSourceNodesRead(_ context.Context, d *schema.ResourceData, meta interfa
 			"public_ip":             v.Status.PublicIP,
 			"private_ip":            v.Status.PrivateIP,
 			"status":                v.Status.Phase,
+			"hostname_config":       flattenResourceNodeHostnameConfig(v.Spec.HostnameConfig),
 			"enterprise_project_id": v.Spec.ServerEnterpriseProjectID,
 		}
 
