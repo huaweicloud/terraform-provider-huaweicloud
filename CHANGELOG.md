@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## 1.68.0 (August 30, 2024)
+
+* **New Resource:**
+  + `huaweicloud_ccm_private_ca_restore` [GH-5466]
+  + `huaweicloud_ces_dashboard_widget` [GH-5447]
+  + `huaweicloud_ims_cbr_whole_image` [GH-5440]
+  + `huaweicloud_gaussdb_mysql_instance_restart` [GH-5435]
+  + `huaweicloud_ims_ecs_whole_image` [GH-5430]
+  + `huaweicloud_ccm_private_certificate_revoke` [GH-5429]
+  + `huaweicloud_ccm_private_ca_revoke` [GH-5425]
+  + `huaweicloud_ims_ecs_system_image` [GH-5411]
+
+* **New Data Source:**
+  + `huaweicloud_ces_alarm_templates` [GH-5461]
+  + `huaweicloud_rms_advanced_query` [GH-5458]
+  + `huaweicloud_ces_dashboard_widgets` [GH-5456]
+  + `huaweicloud_rms_resource_aggregator_advanced_query` [GH-5453]
+  + `huaweicloud_secmaster_alert_rule_templates` [GH-5452]
+  + `huaweicloud_csms_secret_version_state` [GH-5450]
+  + `huaweicloud_rms_resource_aggregator_policy_assignments` [GH-5448]
+  + `huaweicloud_secmaster_alert_rules` [GH-5444]
+  + `huaweicloud_rms_resource_aggregator_policy_states` [GH-5441]
+  + `huaweicloud_rms_resource_aggregator_discovered_resources` [GH-5439]
+  + `huaweicloud_secmaster_indicators` [GH-5437]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_elb_loadbalancer: add gateway type support [GH-5463]
+* resource/huaweicloud_csms_secret: add epsId update support [GH-5434]
+* resource/huaweicloud_kms_key: add epsId update support [GH-5432]
+
 ## 1.67.1 (August 9, 2024)
 
 BUG FIXES:
