@@ -1554,6 +1554,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ims_ecs_whole_image":         ims.ResourceEcsWholeImage(),
 			"huaweicloud_ims_cbr_whole_image":         ims.ResourceCbrWholeImage(),
 			"huaweicloud_ims_evs_data_image":          ims.ResourceEvsDataImage(),
+			"huaweicloud_ims_obs_system_image":        ims.ResourceObsSystemImage(),
 			"huaweicloud_images_image":                ims.ResourceImsImage(),
 			"huaweicloud_images_image_copy":           ims.ResourceImsImageCopy(),
 			"huaweicloud_images_image_share":          ims.ResourceImsImageShare(),

@@ -261,6 +261,8 @@ var (
 	HW_IMS_VAULT_ID = os.Getenv("HW_IMS_VAULT_ID")
 	// The ID of the CBR backup
 	HW_IMS_BACKUP_ID = os.Getenv("HW_IMS_BACKUP_ID")
+	// The image file url in the OBS bucket
+	HW_IMS_IMAGE_URL = os.Getenv("HW_IMS_IMAGE_URL")
 	// The shared backup ID wants to accept.
 	HW_SHARED_BACKUP_ID = os.Getenv("HW_SHARED_BACKUP_ID")
 
@@ -1444,6 +1446,13 @@ func TestAccPreCheckImsVaultId(t *testing.T) {
 func TestAccPreCheckImsBackupId(t *testing.T) {
 	if HW_IMS_BACKUP_ID == "" {
 		t.Skip("HW_IMS_BACKUP_ID must be set for IMS whole image with CBR backup id")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckImsImageUrl(t *testing.T) {
+	if HW_IMS_IMAGE_URL == "" {
+		t.Skip("HW_IMS_IMAGE_URL must be set for IMS acceptance tests")
 	}
 }
 
