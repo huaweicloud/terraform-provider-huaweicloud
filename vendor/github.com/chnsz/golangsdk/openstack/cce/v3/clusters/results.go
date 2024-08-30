@@ -73,6 +73,8 @@ type Spec struct {
 	Masters []MasterSpec `json:"masters,omitempty"`
 	//Range of kubernetes clusterIp
 	KubernetesSvcIPRange string `json:"kubernetesSvcIpRange,omitempty"`
+	// Service network, use this to replace KubernetesSvcIPRange
+	ServiceNetwork *ServiceNetwork `json:"serviceNetwork,omitempty"`
 	//Custom san list for certificates
 	CustomSan []string `json:"customSan,omitempty"`
 	// Tags of cluster, key value pair format
@@ -87,6 +89,10 @@ type Spec struct {
 	SupportIstio bool `json:"supportIstio,omitempty"`
 	// The category, the value can be CCE and CCE
 	Category string `json:"category,omitempty"`
+}
+
+type ServiceNetwork struct {
+	IPv4Cidr string `json:"IPv4CIDR,omitempty"`
 }
 
 type PackageConfiguration struct {

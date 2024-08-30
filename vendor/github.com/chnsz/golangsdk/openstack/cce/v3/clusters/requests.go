@@ -243,14 +243,15 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r Up
 }
 
 type DeleteOpts struct {
-	ErrorStatus string `q:"errorStatus"`
-	DeleteEfs   string `q:"delete_efs"`
-	DeleteENI   string `q:"delete_eni"`
-	DeleteEvs   string `q:"delete_evs"`
-	DeleteNet   string `q:"delete_net"`
-	DeleteObs   string `q:"delete_obs"`
-	DeleteSfs   string `q:"delete_sfs"`
-	DeleteSfs30 string `q:"delete_sfs30"`
+	ErrorStatus      string `q:"errorStatus"`
+	DeleteEfs        string `q:"delete_efs"`
+	DeleteENI        string `q:"delete_eni"`
+	DeleteEvs        string `q:"delete_evs"`
+	DeleteNet        string `q:"delete_net"`
+	DeleteObs        string `q:"delete_obs"`
+	DeleteSfs        string `q:"delete_sfs"`
+	DeleteSfs30      string `q:"delete_sfs30"`
+	LtsReclaimPolicy string `q:"lts_reclaim_policy"`
 }
 
 type DeleteOptsBuilder interface {
