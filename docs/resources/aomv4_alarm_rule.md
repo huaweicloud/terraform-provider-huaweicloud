@@ -12,7 +12,40 @@ Manages an AOM cloud alarm rule resource within HuaweiCloud.
 
 ## Example Usage
 
-### Create an event alarm rule with system event
+### Create an event alarm rule with all system event
+
+```hcl
+variable "alarm_rule_name" {}
+variable "action_rule_id" {}
+
+resource "huaweicloud_aomv4_alarm_rule" "test" {
+  name        = var.alarm_rule_name
+  type        = "event"
+  description = "test"
+  enable      = true
+
+  alarm_notifications {
+    notification_type         = "direct"
+    notification_enable       = true
+    bind_notification_rule_id = var.action_rule_id
+  }
+
+  event_alarm_spec {
+    event_source = "CCE"
+    alarm_source = "systemEvent"
+
+    trigger_conditions {
+      trigger_type = "immediately"
+
+      thresholds = {
+        "Critical" = 2
+      }
+    }
+  }
+}
+```
+
+### Create an event alarm rule with specific system event
 
 ```hcl
 variable "alarm_rule_name" {}
