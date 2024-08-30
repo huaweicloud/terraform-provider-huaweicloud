@@ -22,6 +22,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/obs"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const (
@@ -29,10 +30,18 @@ const (
 	InternationalSite string = "International"
 )
 
-// MutexKV is a global lock on all resources, it can lock the specified shared string (such as resource ID, resource
-// Name, port, etc.) to prevent other resources from using it, for concurrency control.
-// Usage: MutexKV.Lock({resource ID}) and MutexKV.Unlock({resource ID})
-var MutexKV = mutexkv.NewMutexKV()
+var (
+	// MutexKV is a global lock on all resources, it can lock the specified shared string (such as resource ID, resource
+	// Name, port, etc.) to prevent other resources from using it, for concurrency control.
+	// Usage: MutexKV.Lock({resource ID}) and MutexKV.Unlock({resource ID})
+	MutexKV = mutexkv.NewMutexKV()
+	// If an account sends a CBC request and it crosses websites, the CBC service will return a 403 error to indicate
+	// attention.
+	crossWebsiteErrs = []string{
+		"CBC.0150",
+		"CBC.0156",
+	}
+)
 
 type Config struct {
 	AccessKey           string
@@ -162,6 +171,7 @@ func (c *Config) LoadAndValidate() error {
 //	  "error_msg": "Access denied. The customer does not belong to the website you are now at."
 //	}
 //
+// In addition to the error code 'CBC.0150', some regions also return error code 'CBC.0156'.
 // we can call the probe API and parse the response body to decide whether the account belongs to International website or not.
 // we select https://support.huaweicloud.com/intl/zh-cn/api-oce/zh-cn_topic_0000001256679455.html as the probe API.
 func (c *Config) SetWebsiteType() error {
@@ -186,7 +196,7 @@ func (c *Config) SetWebsiteType() error {
 				log.Printf("[WARN] failed to unmarshal the response body: %s", decodeErr)
 			}
 
-			if resp.ErrorCode == "CBC.0150" {
+			if utils.IsStrContainsSliceElement(resp.ErrorCode, crossWebsiteErrs, false, true) {
 				log.Printf("[DEBUG] the current account belongs to %s website", InternationalSite)
 				c.websiteType = InternationalSite
 				return nil
