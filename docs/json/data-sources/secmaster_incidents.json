@@ -1,0 +1,146 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_incidents": {
+          "block": {
+            "attributes": {
+              "from_date": {
+                "type": "string",
+                "description": "Specifies the search start time.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "incidents": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "arrive_time": "string",
+                      "close_comment": "string",
+                      "close_reason": "string",
+                      "count": "number",
+                      "created_at": "string",
+                      "creator": "string",
+                      "data_source": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "product_feature": "string",
+                            "product_name": "string",
+                            "source_type": "number"
+                          }
+                        ]
+                      ],
+                      "debugging_data": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "first_occurrence_time": "string",
+                      "id": "string",
+                      "ipdrr_phase": "string",
+                      "labels": "string",
+                      "last_occurrence_time": "string",
+                      "level": "string",
+                      "name": "string",
+                      "owner": "string",
+                      "planned_closure_time": "string",
+                      "project_id": "string",
+                      "region_id": "string",
+                      "stage": "string",
+                      "status": "string",
+                      "type": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "category": "string",
+                            "incident_type": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string",
+                      "verification_status": "string",
+                      "version": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The incident list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "to_date": {
+                "type": "string",
+                "description": "Specifies the search end time.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the incident belongs.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "condition": {
+                "block": {
+                  "attributes": {
+                    "logics": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the expression logic.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "data": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the expression content.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the expression name.",
+                            "optional": true
+                          }
+                        },
+                        "description": "Specifies the condition expression list."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "Specifies the search condition expression."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

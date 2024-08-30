@@ -55,6 +55,7 @@
                         ]
                       ],
                       "ecs_group_id": "string",
+                      "enterprise_project_id": "string",
                       "flavor_id": "string",
                       "id": "string",
                       "key_pair": "string",

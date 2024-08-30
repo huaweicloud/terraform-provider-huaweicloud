@@ -38,6 +38,10 @@
                 "type": "string",
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
               "flavor_id": {
                 "type": "string",
                 "computed": true

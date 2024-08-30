@@ -195,8 +195,7 @@
                   "string"
                 ],
                 "description": "The key/value pairs to associate with the cluster.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "task_status": {
                 "type": "string",
@@ -239,8 +238,7 @@
                     "eip_id": {
                       "type": "string",
                       "description": "The EIP ID.",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "public_bind_type": {
                       "type": "string",
@@ -251,7 +249,6 @@
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "volume": {
@@ -269,8 +266,7 @@
                       "optional": true,
                       "computed": true
                     }
-                  },
-                  "description": "schema: Required"
+                  }
                 },
                 "nesting_mode": "list",
                 "forcenew": true,

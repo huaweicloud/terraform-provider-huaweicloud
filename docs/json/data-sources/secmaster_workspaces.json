@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_workspaces": {
+          "block": {
+            "attributes": {
+              "create_time_end": {
+                "type": "string",
+                "description": "Specifies the creation end time, for example, 2024-04-2T16:08:09Z+0800.",
+                "optional": true
+              },
+              "create_time_start": {
+                "type": "string",
+                "description": "Specifies the creation start time, for example, 2024-04-26T16:08:09Z+0800.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the workspace description.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ids": {
+                "type": "string",
+                "description": "Specifies the workspace IDs, which is separated by commas (,).",
+                "optional": true
+              },
+              "is_view": {
+                "type": "string",
+                "description": "Specifies whether to query the view. The value can be **true** or **false**.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the workspace name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "view_bind_id": {
+                "type": "string",
+                "description": "Specifies the space ID bound to the view.",
+                "optional": true
+              },
+              "view_bind_name": {
+                "type": "string",
+                "description": "Specifies the space name bound to the view.",
+                "optional": true
+              },
+              "workspaces": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "enterprise_project_name": "string",
+                      "id": "string",
+                      "is_view": "bool",
+                      "name": "string",
+                      "updated_at": "string",
+                      "view_bind_id": "string",
+                      "view_bind_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of workspaces.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -82,6 +82,10 @@
                 "type": "bool",
                 "computed": true
               },
+              "gw_flavor_id": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -147,6 +151,12 @@
                 "type": "string",
                 "optional": true,
                 "computed": true
+              },
+              "loadbalancer_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "name": {
                 "type": "string",

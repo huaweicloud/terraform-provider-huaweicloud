@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_quality_tasks": {
+          "block": {
+            "attributes": {
+              "category_id": {
+                "type": "string",
+                "description": "The category ID to which the quality tasks belong.",
+                "optional": true
+              },
+              "creator": {
+                "type": "string",
+                "description": "The name of the quality task creator.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the quality task.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the quality tasks are located.",
+                "computed": true
+              },
+              "schedule_status": {
+                "type": "string",
+                "description": "The schedule status of the quality task.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time of the query interval for the most recent run time.",
+                "optional": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "category_id": "string",
+                      "created_at": "string",
+                      "creator": "string",
+                      "id": "number",
+                      "last_run_time": "string",
+                      "name": "string",
+                      "schedule_interval": "string",
+                      "schedule_period": "string",
+                      "schedule_status": "string"
+                    }
+                  ]
+                ],
+                "description": "All quality tasks that match the filter parameters.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID to which the quality tasks belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

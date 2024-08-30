@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_alarm_templates": {
+          "block": {
+            "attributes": {
+              "alarm_templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "name": "string",
+                      "template_id": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The alarm template list.",
+                "computed": true
+              },
+              "dimension_name": {
+                "type": "string",
+                "description": "Specifies the resource dimension.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of an alarm template.",
+                "optional": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the namespace of a service.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the alarm template type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

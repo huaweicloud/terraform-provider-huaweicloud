@@ -1,0 +1,372 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aomv4_alarm_rule": {
+          "block": {
+            "attributes": {
+              "alarm_rule_id": {
+                "type": "string",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "prom_instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "alarm_notifications": {
+                "block": {
+                  "attributes": {
+                    "bind_notification_rule_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "notification_enable": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "notification_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "notify_frequency": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "notify_resolved": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "notify_triggered": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "route_group_enable": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "route_group_rule": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "event_alarm_spec": {
+                "block": {
+                  "attributes": {
+                    "alarm_source": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "event_source": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "monitor_objects": {
+                      "type": [
+                        "list",
+                        [
+                          "map",
+                          "string"
+                        ]
+                      ],
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "trigger_conditions": {
+                      "block": {
+                        "attributes": {
+                          "aggregation_window": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "event_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "frequency": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "thresholds": {
+                            "type": [
+                              "map",
+                              "number"
+                            ],
+                            "optional": true
+                          },
+                          "trigger_type": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "metric_alarm_spec": {
+                "block": {
+                  "attributes": {
+                    "monitor_objects": {
+                      "type": [
+                        "list",
+                        [
+                          "map",
+                          "string"
+                        ]
+                      ],
+                      "optional": true
+                    },
+                    "monitor_type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "alarm_tags": {
+                      "block": {
+                        "attributes": {
+                          "auto_tags": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "custom_annotations": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "custom_tags": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "no_data_conditions": {
+                      "block": {
+                        "attributes": {
+                          "no_data_alert_state": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "no_data_timeframe": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "notify_no_data": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "recovery_conditions": {
+                      "block": {
+                        "attributes": {
+                          "recovery_timeframe": {
+                            "type": "number",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    },
+                    "trigger_conditions": {
+                      "block": {
+                        "attributes": {
+                          "aggregate_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "aggregation_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "aggregation_window": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "aom_monitor_level": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "expression": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "metric_labels": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "metric_name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "metric_namespace": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "metric_query_mode": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "metric_statistic_method": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "metric_unit": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "mix_promql": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "promql": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "promql_expr": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "promql_for": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "query_match": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "query_param": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "thresholds": {
+                            "type": [
+                              "map",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "trigger_interval": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "trigger_times": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "trigger_type": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

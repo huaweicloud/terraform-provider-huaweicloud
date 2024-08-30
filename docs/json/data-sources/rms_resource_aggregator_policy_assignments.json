@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_resource_aggregator_policy_assignments": {
+          "block": {
+            "attributes": {
+              "aggregator_id": {
+                "type": "string",
+                "description": "Specifies the resource aggregator ID.",
+                "required": true
+              },
+              "assignments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account_id": "string",
+                      "account_name": "string",
+                      "compliance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "compliance_state": "string",
+                            "resource_details": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "compliant_count": "number",
+                                  "non_compliant_count": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "policy_assignment_id": "string",
+                      "policy_assignment_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "filter": {
+                "block": {
+                  "attributes": {
+                    "account_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "compliance_state": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "policy_assignment_name": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

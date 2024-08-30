@@ -1,0 +1,175 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ces_dashboard_widget": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "When the dashboard widget was created.",
+                "computed": true
+              },
+              "dashboard_id": {
+                "type": "string",
+                "description": "Specifies the dashboard ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "metric_display_mode": {
+                "type": "string",
+                "description": "Specifies how many metrics will be displayed on one widget.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "title": {
+                "type": "string",
+                "description": "Specifies the dashboard widget title.",
+                "required": true
+              },
+              "unit": {
+                "type": "string",
+                "description": "Specifies the metric unit.",
+                "optional": true,
+                "computed": true
+              },
+              "view": {
+                "type": "string",
+                "description": "Specifies the graph type.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "location": {
+                "block": {
+                  "attributes": {
+                    "height": {
+                      "type": "number",
+                      "description": "Specifies the dashboard widget height.",
+                      "required": true
+                    },
+                    "left": {
+                      "type": "number",
+                      "description": "Specifies the grids between the widget and the left side of the dashboard.",
+                      "required": true
+                    },
+                    "top": {
+                      "type": "number",
+                      "description": "Specifies the grids between the widget and the top of the dashboard.",
+                      "required": true
+                    },
+                    "width": {
+                      "type": "number",
+                      "description": "Specifies the dashboard widget width.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the dashboard widget coordinates."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "metrics": {
+                "block": {
+                  "attributes": {
+                    "alias": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the alias list of metrics.",
+                      "optional": true
+                    },
+                    "metric_name": {
+                      "type": "string",
+                      "description": "Specifies the metric name.",
+                      "required": true
+                    },
+                    "namespace": {
+                      "type": "string",
+                      "description": "Specifies the cloud service dimension.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "dimensions": {
+                      "block": {
+                        "attributes": {
+                          "filter_type": {
+                            "type": "string",
+                            "description": "Specifies the resource type.",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the dimension name.",
+                            "required": true
+                          },
+                          "values": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the dimension value list.",
+                            "optional": true
+                          }
+                        },
+                        "description": "Specifies the dimension list."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "Specifies the metric list."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "properties": {
+                "block": {
+                  "attributes": {
+                    "filter": {
+                      "type": "string",
+                      "description": "Specifies how metric data is aggregated.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "order": {
+                      "type": "string",
+                      "description": "Specifies how top n resources by a metric are sorted on a dashboard widget.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "top_n": {
+                      "type": "number",
+                      "description": "Specifies the top n resources sorted by a metric.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies additional information"
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

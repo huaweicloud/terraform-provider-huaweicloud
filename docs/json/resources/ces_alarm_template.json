@@ -12,7 +12,7 @@
               },
               "delete_associate_alarm": {
                 "type": "bool",
-                "description": "Specifies whether delete the alarm rule which the alarm template associated with",
+                "description": "Specifies whether delete the alarm rule which the alarm template associated with.",
                 "optional": true
               },
               "description": {
@@ -35,9 +35,9 @@
                 "computed": true
               },
               "type": {
-                "type": "string",
-                "description": "Indicates the type of the CES alarm template.",
-                "computed": true
+                "type": "number",
+                "description": "Specifies the type of the CES alarm template.",
+                "optional": true
               }
             },
             "block_types": {
@@ -62,8 +62,8 @@
                     },
                     "dimension_name": {
                       "type": "string",
-                      "description": "Specifies the Resource dimension.",
-                      "required": true
+                      "description": "Specifies the resource dimension.",
+                      "optional": true
                     },
                     "filter": {
                       "type": "string",

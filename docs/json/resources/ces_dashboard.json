@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ces_dashboard": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the dashboard.",
+                "computed": true
+              },
+              "creator_name": {
+                "type": "string",
+                "description": "The creator name of the dashboard.",
+                "computed": true
+              },
+              "dashboard_id": {
+                "type": "string",
+                "description": "Specifies the copied dashboard ID.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID of the dashboard.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_favorite": {
+                "type": "bool",
+                "description": "Specifies whether the dashboard is favorite.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the dashboard name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "row_widget_num": {
+                "type": "number",
+                "description": "Specifies the monitoring view display mode.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

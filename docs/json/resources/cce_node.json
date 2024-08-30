@@ -50,6 +50,12 @@
                 "optional": true,
                 "forcenew": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "fixed_ip": {
                 "type": "string",
                 "optional": true,

@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dws_snapshot_policies": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the DWS cluster ID to which the snapshot policies belong.",
+                "required": true
+              },
+              "device_name": {
+                "type": "string",
+                "description": "The device on which the snapshots are stored.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keep_day": {
+                "type": "number",
+                "description": "The number of days to retain the generated automated snapshot.",
+                "computed": true
+              },
+              "policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_level": "string",
+                      "id": "string",
+                      "name": "string",
+                      "next_fire_time": "string",
+                      "strategy": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All automated snapshot policies that match the filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The shared IP addresses of the NFS corresponding to the snapshots.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,6 +5,10 @@
         "huaweicloud_waf_domain": {
           "block": {
             "attributes": {
+              "access_code": {
+                "type": "string",
+                "computed": true
+              },
               "access_status": {
                 "type": "number",
                 "computed": true

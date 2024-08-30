@@ -15,8 +15,7 @@
               },
               "certificate_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "enc_certificate": {
                 "type": "string",
@@ -68,8 +67,7 @@
               },
               "type": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               }
             }
           },

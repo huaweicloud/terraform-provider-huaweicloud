@@ -107,10 +107,12 @@
               },
               "port": {
                 "type": "number",
+                "optional": true,
                 "computed": true
               },
               "private_write_ip": {
                 "type": "string",
+                "optional": true,
                 "computed": true
               },
               "read_replicas": {
@@ -125,7 +127,7 @@
               "security_group_id": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "computed": true
               },
               "sql_filter_enabled": {
                 "type": "bool",

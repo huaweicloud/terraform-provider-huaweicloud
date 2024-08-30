@@ -17,12 +17,6 @@
                 "required": true,
                 "forcenew": true
               },
-              "fast_approval": {
-                "type": "bool",
-                "description": "Whether to automatically review.",
-                "optional": true,
-                "forcenew": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -30,6 +24,12 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "schedule_time": {
+                "type": "string",
+                "description": "Specifies scheduling time of the DataArts quality job.",
+                "optional": true,
+                "forcenew": true
               },
               "workspace_id": {
                 "type": "string",
@@ -55,7 +55,7 @@
                       "forcenew": true
                     }
                   },
-                  "description": "Specifies the list of the business information."
+                  "description": "Specifies the list of objects to be published."
                 },
                 "nesting_mode": "list",
                 "forcenew": true,

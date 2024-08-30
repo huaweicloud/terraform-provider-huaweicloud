@@ -40,6 +40,11 @@
                 "optional": true,
                 "forcenew": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "flavor_id": {
                 "type": "string",
                 "required": true,

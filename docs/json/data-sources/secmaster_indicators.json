@@ -1,0 +1,162 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_indicators": {
+          "block": {
+            "attributes": {
+              "data_class_id": {
+                "type": "string",
+                "description": "Specifies the data class ID.",
+                "optional": true
+              },
+              "from_date": {
+                "type": "string",
+                "description": "Specifies the search start time.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the indicator IDs.",
+                "optional": true
+              },
+              "indicators": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "confidence": "number",
+                      "created_at": "string",
+                      "data_class_id": "string",
+                      "data_source": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "domain_id": "string",
+                            "project_id": "string",
+                            "region_id": "string",
+                            "source_type": "number"
+                          }
+                        ]
+                      ],
+                      "environment": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "domain_id": "string",
+                            "project_id": "string",
+                            "region_id": "string",
+                            "vendor_type": "string"
+                          }
+                        ]
+                      ],
+                      "first_occurrence_time": "string",
+                      "granularity": "number",
+                      "id": "string",
+                      "is_deleted": "bool",
+                      "last_occurrence_time": "string",
+                      "name": "string",
+                      "project_id": "string",
+                      "revoked": "bool",
+                      "status": "string",
+                      "threat_degree": "string",
+                      "type": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "indicator_type": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string",
+                      "value": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of indicators.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "to_date": {
+                "type": "string",
+                "description": "Specifies the search end time.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the indicator belongs.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "condition": {
+                "block": {
+                  "attributes": {
+                    "logics": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the expression logic.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "data": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the expression content.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the expression name.",
+                            "optional": true
+                          }
+                        },
+                        "description": "Specifies the condition expression list."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "Specifies the search condition expression."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

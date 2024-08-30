@@ -333,8 +333,7 @@
                           "example_value": {
                             "type": "string",
                             "description": "The example value of the response parameter.",
-                            "optional": true,
-                            "computed": true
+                            "optional": true
                           },
                           "field": {
                             "type": "string",

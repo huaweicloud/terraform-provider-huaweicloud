@@ -5,11 +5,6 @@
         "huaweicloud_eg_custom_event_channels": {
           "block": {
             "attributes": {
-              "channel_id": {
-                "type": "string",
-                "description": "The channel ID used to query specified custom event channel.",
-                "optional": true
-              },
               "channels": {
                 "type": [
                   "list",
@@ -18,7 +13,7 @@
                     {
                       "created_at": "string",
                       "cross_account_ids": [
-                        "set",
+                        "list",
                         "string"
                       ],
                       "description": "string",

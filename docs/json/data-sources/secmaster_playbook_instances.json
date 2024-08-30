@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_playbook_instances": {
+          "block": {
+            "attributes": {
+              "data_class_name": {
+                "type": "string",
+                "description": "Specifies the data class name.",
+                "optional": true
+              },
+              "data_object_name": {
+                "type": "string",
+                "description": "Specifies the data object name.",
+                "optional": true
+              },
+              "from_date": {
+                "type": "string",
+                "description": "Specifies the search start time.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "data_class": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "data_object": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content": "string",
+                            "created_at": "string",
+                            "data_class_id": "string",
+                            "id": "string",
+                            "name": "string",
+                            "project_id": "string",
+                            "updated_at": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "name": "string",
+                      "playbook": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "version": "string",
+                            "version_id": "string"
+                          }
+                        ]
+                      ],
+                      "project_id": "string",
+                      "status": "string",
+                      "trigger_type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The playbook instance list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the playbook instance status.",
+                "optional": true
+              },
+              "to_date": {
+                "type": "string",
+                "description": "Specifies the search end time.",
+                "optional": true
+              },
+              "trigger_type": {
+                "type": "string",
+                "description": "Specifies the triggering type.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

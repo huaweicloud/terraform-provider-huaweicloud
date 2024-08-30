@@ -1,0 +1,106 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_dashboard_widgets": {
+          "block": {
+            "attributes": {
+              "dashboard_id": {
+                "type": "string",
+                "description": "Specifies the dashboard ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "widgets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "location": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "height": "number",
+                            "left": "number",
+                            "top": "number",
+                            "width": "number"
+                          }
+                        ]
+                      ],
+                      "metric_display_mode": "string",
+                      "metrics": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alias": [
+                              "list",
+                              "string"
+                            ],
+                            "dimensions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "filter_type": "string",
+                                  "name": "string",
+                                  "values": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "metric_name": "string",
+                            "namespace": "string"
+                          }
+                        ]
+                      ],
+                      "properties": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "filter": "string",
+                            "order": "string",
+                            "top_n": "number"
+                          }
+                        ]
+                      ],
+                      "threshold": "number",
+                      "threshold_enabled": "bool",
+                      "title": "string",
+                      "unit": "string",
+                      "view": "string",
+                      "widget_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The dashboard widget list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}
