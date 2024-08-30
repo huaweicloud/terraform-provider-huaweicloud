@@ -80,7 +80,11 @@ var (
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
 	HW_INTERNAL_USED          = os.Getenv("HW_INTERNAL_USED")
 
-	HW_WAF_ENABLE_FLAG = os.Getenv("HW_WAF_ENABLE_FLAG")
+	HW_WAF_ENABLE_FLAG    = os.Getenv("HW_WAF_ENABLE_FLAG")
+	HW_WAF_CERTIFICATE_ID = os.Getenv("HW_WAF_CERTIFICATE_ID")
+	HW_WAF_TYPE           = os.Getenv("HW_WAF_TYPE")
+
+	HW_ELB_CERT_ID = os.Getenv("HW_ELB_CERT_ID")
 
 	HW_DEW_ENABLE_FLAG = os.Getenv("HW_DEW_ENABLE_FLAG")
 
@@ -744,6 +748,27 @@ func RandomPassword(customChars ...string) string {
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
 		t.Skip("Skip the WAF acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWafCertID(t *testing.T) {
+	if HW_WAF_CERTIFICATE_ID == "" {
+		t.Skip("HW_WAF_CERTIFICATE_ID must be set for this acceptance test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWafType(t *testing.T) {
+	if HW_WAF_TYPE == "" {
+		t.Skip("HW_WAF_TYPE must be set for this acceptance test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckElbCertID(t *testing.T) {
+	if HW_ELB_CERT_ID == "" {
+		t.Skip("HW_ELB_CERT_ID must be set for this acceptance test.")
 	}
 }
 
