@@ -1490,6 +1490,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_eip_associate":      gaussdb.ResourceGaussMysqlEipAssociate(),
 
 			"huaweicloud_gaussdb_opengauss_instance": gaussdb.ResourceOpenGaussInstance(),
+			"huaweicloud_gaussdb_opengauss_database": gaussdb.ResourceOpenGaussDatabase(),
 
 			"huaweicloud_gaussdb_redis_instance":      gaussdb.ResourceGaussRedisInstanceV3(),
 			"huaweicloud_gaussdb_redis_eip_associate": gaussdb.ResourceGaussRedisEipAssociate(),
