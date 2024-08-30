@@ -45,12 +45,12 @@ The following arguments are supported:
 * `loadbalancer_id` - (Required, String, ForceNew) Specifies the ID of the loadbalancer.
   Changing this creates a new resource.
 
-* `protocol_port` - (Required, Int, ForceNew) Specifies the protocol port.
+* `protocol_port` - (Required, Int, ForceNew) Specifies the front-end listening port of the listener.
   Changing this creates a new resource.
 
-* `server_cert_id` - (Optional, String) Specifies the server certificate ID.
+* `server_cert_id` - (Optional, String) Specifies the server certificate ID used by the ELB listener.
 
-* `ca_cert_id` - (Optional, String) Specifies the CA certificate ID.
+* `ca_cert_id` - (Optional, String) Specifies the CA certificate ID used by the ELB listener.
 
 ## Attribute Reference
 
