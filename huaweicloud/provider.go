@@ -523,6 +523,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ces_alarm_templates":                  ces.DataSourceCesAlarmTemplates(),
 			"huaweicloud_ces_dashboards":                       ces.DataSourceCesDashboards(),
 			"huaweicloud_ces_dashboard_widgets":                ces.DataSourceCesDashboardWidgets(),
+			"huaweicloud_ces_events":                           ces.DataSourceCesEvents(),
 			"huaweicloud_ces_metrics":                          ces.DataSourceCesMetrics(),
 			"huaweicloud_ces_resource_groups":                  ces.DataSourceCesGroups(),
 			"huaweicloud_ces_resource_group_service_resources": ces.DataSourceCesGroupServiceResources(),
