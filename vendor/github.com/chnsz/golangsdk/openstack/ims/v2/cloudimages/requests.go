@@ -157,6 +157,8 @@ type CreateByOBSOpts struct {
 	Name string `json:"name" required:"true"`
 	// Description of image
 	Description string `json:"description,omitempty"`
+	// The OS type of the image
+	OsType string `json:"os_type,omitempty"`
 	// the OS version
 	OsVersion string `json:"os_version,omitempty"`
 	// the URL of the external image file in the OBS bucket
@@ -177,6 +179,10 @@ type CreateByOBSOpts struct {
 	MaxRam int `json:"max_ram,omitempty"`
 	// the minimum memory of the image in the unit of MB
 	MinRam int `json:"min_ram,omitempty"`
+	// Whether to use the image file quick import method to create an image
+	IsQuickImport bool `json:"is_quick_import,omitempty"`
+	// The schema type of the image
+	Architecture string `json:"architecture,omitempty"`
 	// Enterprise project ID
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
