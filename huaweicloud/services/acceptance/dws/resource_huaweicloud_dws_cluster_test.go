@@ -2,53 +2,26 @@ package dws
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dws"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getClusterResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getDwsCluster: Query the DWS cluster.
-	var (
-		getDwsClusterHttpUrl = "v1.0/{project_id}/clusters/{cluster_id}"
-		getDwsClusterProduct = "dws"
-	)
-	getDwsClusterClient, err := cfg.NewServiceClient(getDwsClusterProduct, region)
+	getDwsClusterClient, err := cfg.NewServiceClient("dws", region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DWS Client: %s", err)
 	}
 
-	getDwsClusterPath := getDwsClusterClient.Endpoint + getDwsClusterHttpUrl
-	getDwsClusterPath = strings.ReplaceAll(getDwsClusterPath, "{project_id}", getDwsClusterClient.ProjectID)
-	getDwsClusterPath = strings.ReplaceAll(getDwsClusterPath, "{cluster_id}", state.Primary.ID)
-
-	getDwsClusterOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=UTF-8",
-		},
-	}
-
-	getDwsClusterResp, err := getDwsClusterClient.Request("GET", getDwsClusterPath, &getDwsClusterOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving DwsCluster: %s", err)
-	}
-
-	getDwsClusterRespBody, err := utils.FlattenResponse(getDwsClusterResp)
+	getDwsClusterRespBody, err := dws.GetClusterInfoByClusterId(getDwsClusterClient, state.Primary.ID)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving DwsCluster: %s", err)
 	}
