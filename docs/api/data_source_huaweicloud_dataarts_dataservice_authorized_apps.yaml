@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dataarts_dataservice_authorized_apps
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v1/{project_id}/service/authorize/apis/{api_id}:
+        GET:
+            tag: DataArtsStudio

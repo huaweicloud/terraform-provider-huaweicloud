@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ccm_private_ca_revoke
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCM
+paths:
+    /v1/private-certificate-authorities/{ca_id}/revoke:
+        POST:
+            tag: CCM

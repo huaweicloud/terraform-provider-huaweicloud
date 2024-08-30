@@ -18,3 +18,9 @@ paths:
             tag: DEW
         PUT:
             tag: DEW
+    /v3/{project_id}/keypairs/{keypair_name}/private-key:
+        DELETE:
+            tag: DEW
+    /v3/{project_id}/keypairs/private-key/import:
+        POST:
+            tag: DEW

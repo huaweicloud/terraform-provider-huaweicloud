@@ -1,0 +1,31 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ims_evs_data_image
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IMS
+paths:
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: IMS
+    /v2/{project_id}/images/{image_id}/tags:
+        GET:
+            tag: IMS
+    /v2/{project_id}/images/{image_id}/tags/action:
+        POST:
+            tag: IMS
+    /v2/cloudimages:
+        GET:
+            tag: IMS
+    /v2/cloudimages/{image_id}:
+        PATCH:
+            tag: IMS
+    /v2/cloudimages/action:
+        POST:
+            tag: IMS
+    /v2/images/{image_id}:
+        DELETE:
+            tag: IMS

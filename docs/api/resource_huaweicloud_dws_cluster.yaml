@@ -43,6 +43,11 @@ paths:
     /v2/{project_id}/clusters:
         POST:
             tag: DWS
+    /v2/{project_id}/clusters/{cluster_id}/eips/{eip_id}:
+        DELETE:
+            tag: DWS
+        POST:
+            tag: DWS
     /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}:
         DELETE:
             tag: DWS

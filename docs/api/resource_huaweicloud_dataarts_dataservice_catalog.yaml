@@ -12,12 +12,13 @@ paths:
         POST:
             tag: DataArtsStudio
     /v1/{project_id}/service/servicecatalogs/{catalog_id}:
-        DELETE:
-            tag: DataArtsStudio
         GET:
             tag: DataArtsStudio
         PUT:
             tag: DataArtsStudio
     /v1/{project_id}/service/servicecatalogs/{catalog_id}/move:
+        POST:
+            tag: DataArtsStudio
+    /v1/{project_id}/service/servicecatalogs/batch-delete:
         POST:
             tag: DataArtsStudio
