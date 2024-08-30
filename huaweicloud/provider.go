@@ -1129,6 +1129,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_dashboards_folder":              aom.ResourceDashboardsFolder(),
 			"huaweicloud_aom_cloud_service_access":           aom.ResourceCloudServiceAccess(),
 			"huaweicloud_aom_dashboard":                      aom.ResourceDashboard(),
+			"huaweicloud_aom_alarm_rules_template":           aom.ResourceAlarmRulesTemplate(),
 
 			"huaweicloud_rfs_stack": rfs.ResourceStack(),
 
