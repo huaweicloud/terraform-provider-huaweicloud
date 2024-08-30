@@ -130,7 +130,6 @@ func ResourceDataServiceApi() *schema.Resource {
 			"request_params": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Computed:    true,
 				Elem:        apiRequestParamsElemSchema(),
 				Description: `The parameters of the API request.`,
 			},
@@ -330,7 +329,6 @@ func apiDataSourceConfigResponseParamsElemSchema() *schema.Resource {
 			"example_value": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				Description: `The example value of the response parameter.`,
 			},
 		},
@@ -562,28 +560,26 @@ func apiHostsSchema() *schema.Resource {
 
 func buildModifyDataServiceApiBodyParams(client *golangsdk.ServiceClient, d *schema.ResourceData, workspaceId string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
+		// Required
 		"catalog_id":        d.Get("catalog_id"),
 		"name":              d.Get("name"),
-		"description":       d.Get("description"),
 		"api_type":          d.Get("type"),
 		"auth_type":         d.Get("auth_type"),
-		"manager":           d.Get("manager"),
-		"path":              d.Get("path"),
 		"protocol":          d.Get("protocol"),
+		"path":              d.Get("path"),
 		"request_type":      d.Get("request_type"),
-		"visibility":        d.Get("visibility"),
-		"request_paras":     buildApiRequestParamsBodyParams(d.Get("request_params").(*schema.Set)),
+		"manager":           d.Get("manager"),
 		"datasource_config": buildApiDataSourceConfigBodyParams(client, workspaceId, d.Get("datasource_config").([]interface{})),
-		"backend_config":    utils.RemoveNil(buildApiBackendConfigBodyParams(d.Get("backend_config").([]interface{}))),
+		// Optional
+		"description":    d.Get("description"),
+		"visibility":     d.Get("visibility"),
+		"request_paras":  buildApiRequestParamsBodyParams(d.Get("request_params").(*schema.Set)),
+		"backend_config": utils.RemoveNil(buildApiBackendConfigBodyParams(d.Get("backend_config").([]interface{}))),
 	}
 	return bodyParams
 }
 
 func buildApiRequestParamsBodyParams(params *schema.Set) []interface{} {
-	if params.Len() < 1 {
-		return nil
-	}
-
 	result := make([]interface{}, 0, params.Len())
 	for _, val := range params.List() {
 		result = append(result, map[string]interface{}{
@@ -763,11 +759,11 @@ func buildApiBackendConfigBodyParams(params []interface{}) map[string]interface{
 
 	// The default integer triggers the structure change.
 	return map[string]interface{}{
-		"type":     utils.StringIgnoreEmpty(utils.PathSearch("type", params[0], "").(string)),
-		"protocol": utils.StringIgnoreEmpty(utils.PathSearch("protocol", params[0], "").(string)),
-		"host":     utils.StringIgnoreEmpty(utils.PathSearch("host", params[0], "").(string)),
-		"path":     utils.StringIgnoreEmpty(utils.PathSearch("path", params[0], "").(string)),
-		"timeout":  utils.IntIgnoreEmpty(utils.PathSearch("timeout", params[0], 0).(int)),
+		"type":     utils.ValueIgnoreEmpty(utils.PathSearch("type", params[0], "").(string)),
+		"protocol": utils.ValueIgnoreEmpty(utils.PathSearch("protocol", params[0], "").(string)),
+		"host":     utils.ValueIgnoreEmpty(utils.PathSearch("host", params[0], "").(string)),
+		"path":     utils.ValueIgnoreEmpty(utils.PathSearch("path", params[0], "").(string)),
+		"timeout":  utils.ValueIgnoreEmpty(utils.PathSearch("timeout", params[0], 0).(int)),
 		"backend_paras": buildApiBackendConfigBackendParamsBodyParams(utils.PathSearch("backend_params",
 			params[0], schema.NewSet(schema.HashString, nil)).(*schema.Set)),
 		"constant_paras": buildApiBackendConfigConstantParamsBodyParams(utils.PathSearch("backend_params",
@@ -832,7 +828,7 @@ func resourceDataServiceApiCreate(ctx context.Context, d *schema.ResourceData, m
 			"workspace":    workspaceId,
 			"Dlm-Type":     dlmType,
 		},
-		JSONBody: utils.RemoveNil(buildModifyDataServiceApiBodyParams(client, d, workspaceId)),
+		JSONBody: buildModifyDataServiceApiBodyParams(client, d, workspaceId),
 	}
 
 	requestResp, err := client.Request("POST", createPath, &opt)
@@ -1168,7 +1164,7 @@ func resourceDataServiceApiUpdate(ctx context.Context, d *schema.ResourceData, m
 			"workspace":    workspaceId,
 			"Dlm-Type":     dlmType,
 		},
-		JSONBody: utils.RemoveNil(buildModifyDataServiceApiBodyParams(client, d, workspaceId)),
+		JSONBody: buildModifyDataServiceApiBodyParams(client, d, workspaceId),
 	}
 
 	_, err = client.Request("PUT", createPath, &opt)
