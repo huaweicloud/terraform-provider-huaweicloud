@@ -707,7 +707,7 @@ func clusterWaitingForAvailable(ctx context.Context, d *schema.ResourceData, cli
 	return err
 }
 
-// GetClusterInfoByClusterId is a method is used to query DWS cluster details.
+// GetClusterInfoByClusterId is a method that used to query DWS cluster detail.
 func GetClusterInfoByClusterId(client *golangsdk.ServiceClient, clusterId string) (interface{}, error) {
 	getDwsClusterHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}"
 	getDwsClusterPath := client.Endpoint + getDwsClusterHttpUrl
