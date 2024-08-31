@@ -117,7 +117,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Change this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the resource stack.  
-  The valid length is limited from can contain `1` to `64`, only letters, digits and hyphens (-) are allowed.
+  The valid length is limited from `1` to `64`, only letters, digits and hyphens (-) are allowed.
   The name must start with a lowercase letter and end with a lowercase letter or digit.
   Change this parameter will create a new resource.
 

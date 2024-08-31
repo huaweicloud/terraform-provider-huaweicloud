@@ -37,7 +37,7 @@ The following arguments are supported:
   Changing this will create a new resource.
 
 * `name` - (Required, String) Specifies the application name.  
-  The valid length is limited from can contain `3` to `64`, only Chinese and English letters, digits and hyphens (-)
+  The valid length is limited from `3` to `64`, only Chinese and English letters, digits and hyphens (-)
   are allowed.  
   The name must start with a Chinese or English letter.
 
