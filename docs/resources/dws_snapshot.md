@@ -2,12 +2,13 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_snapshot"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) snapshot resource within HuaweiCloud.
 ---
 
 # huaweicloud_dws_snapshot
 
-Manages a GaussDB(DWS) snapshot resource within HuaweiCloud.  
+Manages a GaussDB(DWS) snapshot resource within HuaweiCloud.
 
 ## Example Usage
 

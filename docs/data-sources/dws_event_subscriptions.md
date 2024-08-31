@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_event_subscriptions"
-description: ""
+description: |-
+  Use this data source to get the list of event subscriptions.
 ---
 
 # huaweicloud_dws_event_subscriptions

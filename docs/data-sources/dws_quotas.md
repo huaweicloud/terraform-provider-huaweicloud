@@ -3,12 +3,12 @@ subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_quotas"
 description: |-
-  Using this data source to query the list of available resource quotas within HuaweiCloud.
+  Use this data source to query the list of available resource quotas within HuaweiCloud.
 ---
 
 # huaweicloud_dws_quotas
 
-Using this data source to query the list of available resource quotas within HuaweiCloud.
+Use this data source to query the list of available resource quotas within HuaweiCloud.
 
 ## Example Usage
 

@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_disaster_recovery_task"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) disaster recovery task resource within HuaweiCloud.
 ---
 
 # huaweicloud_dws_disaster_recovery_task

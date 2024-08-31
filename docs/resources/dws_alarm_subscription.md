@@ -2,12 +2,13 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_alarm_subscription"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) alarm subscription resource within HuaweiCloud.
 ---
 
 # huaweicloud_dws_alarm_subscription
 
-Manages a GaussDB(DWS) alarm subscription resource within HuaweiCloud.  
+Manages a GaussDB(DWS) alarm subscription resource within HuaweiCloud.
 
 ## Example Usage
 

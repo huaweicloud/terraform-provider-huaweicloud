@@ -3,12 +3,12 @@ subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_alarm_subscriptions"
 description: |-
-  Using this data source to query the list of alarm subscriptions within HuaweiCloud.
+  Use this data source to query the list of alarm subscriptions within HuaweiCloud.
 ---
 
 # huaweicloud_dws_alarm_subscriptions
 
-Using this data source to query the list of alarm subscriptions within HuaweiCloud.
+Use this data source to query the list of alarm subscriptions within HuaweiCloud.
 
 ## Example Usage
 
