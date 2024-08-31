@@ -120,7 +120,7 @@ The following arguments are supported:
   The valid values are **Public** and **Private**.
 
 * `name` - (Required, String) Specifies the API name.  
-  The valid length is limited from can contain `3` to `255`, only Chinese and English letters, digits and
+  The valid length is limited from `3` to `255`, only Chinese and English letters, digits and
   following special characters are allowed: `-_./（()）:：、`.
   The name must start with a digit, Chinese or English letter.
 
@@ -208,7 +208,7 @@ The following arguments are supported:
 The `request_params` block supports:
 
 * `name` - (Required, String) Specifies the request parameter name.  
-  The valid length is limited from can contain `1` to `32`, only letters, digits, hyphens (-), underscores (_) and
+  The valid length is limited from `1` to `32`, only letters, digits, hyphens (-), underscores (_) and
   periods (.) are allowed.  
   If Location is specified as **HEADER** and `security_authentication` is specified as **APP**, the parameter name
   cannot be `Authorization` (case-insensitive) and cannot contain underscores.
@@ -362,7 +362,7 @@ The `web` block supports:
 The `mock_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name.  
-  The valid length is limited from can contain `3` to `64`, only letters, digits and underscores (_) are allowed.
+  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.
 
 * `conditions` - (Required, List) Specifies an array of one or more policy conditions.  
   Up to five conditions can be set.
@@ -386,7 +386,7 @@ The `mock_policy` block supports:
 The `func_graph_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name.  
-  The valid length is limited from can contain `3` to `64`, only letters, digits and underscores (_) are allowed.
+  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.
 
 * `function_urn` - (Required, String) Specifies the URN of the FunctionGraph function.
 
@@ -431,7 +431,7 @@ The `func_graph_policy` block supports:
 The `web_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name.  
-  The valid length is limited from can contain `3` to `64`, only letters, digits and underscores (_) are allowed.
+  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.
 
 * `path` - (Required, String) Specifies the backend request address, which can contain a maximum of `512` characters and
   must comply with URI specifications.  

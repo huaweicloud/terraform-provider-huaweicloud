@@ -112,7 +112,7 @@ The `obs_location` block supports:
 * `object_key` - (Required, String, ForceNew) Specifies the name of the OBS object where the upgrade package is located,
   including the folder path. The maximum size of OBS objects is **1GB**, and only supports files in **.bin**, **.dav**,
   **.tar**, **.gz**, **.zip**, **.gzip**, **.apk**, **.ta.gz**, **.tar.xz**, **.pack**, **.exe**, **.bat** and **.img**
-  formats. The valid length is limited from can contain `1` to `1024`.
+  formats. The valid length is limited from `1` to `1024`.
   Changing this parameter will create a new resource.
 
 ## Attribute Reference
