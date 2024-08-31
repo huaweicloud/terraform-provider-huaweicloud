@@ -58,6 +58,9 @@ The `sources` block supports:
 * `description` - The description of the custom event source.
 
 * `status` - The status of the custom event source.
+  + **CREATE_FAILED**
+  + **RUNNING**
+  + **ERROR**
 
 * `created_at` - The creation time of the custom event source.
 
