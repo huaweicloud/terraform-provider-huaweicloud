@@ -15,7 +15,7 @@ Use this data source to get the list of DWS logical clusters within HuaweiCloud.
 ```hcl
 variable "dws_cluster_id" {}
 
-data "huaweicloud_dws_logical_cluster" "test" {
+data "huaweicloud_dws_logical_clusters" "test" {
   cluster_id = var.dws_cluster_id
 }
 ```
