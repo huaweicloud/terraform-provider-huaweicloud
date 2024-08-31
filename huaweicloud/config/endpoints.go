@@ -266,6 +266,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "AOS",
 	},
+	"rfs": {
+		Name:    "rfs",
+		Version: "v1",
+		Product: "RFS",
+	},
 
 	// ******* catalog for storage ******
 	"evsv1": {
