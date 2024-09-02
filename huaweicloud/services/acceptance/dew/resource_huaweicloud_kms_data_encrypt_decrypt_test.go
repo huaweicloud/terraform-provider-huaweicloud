@@ -37,11 +37,11 @@ func testAccDataEncryptDecrypt_encrypt(name string) string {
 %s
 
 resource "huaweicloud_kms_data_encrypt_decrypt" "test" {
-  key_id     = huaweicloud_kms_key.key_1.id
+  key_id     = huaweicloud_kms_key.test.id
   action     = "encrypt"
   plain_text = "abc"
 }
-`, testAccKmsKey_Basic(name))
+`, testAccKmsKey_basic(name))
 }
 
 func testAccDataEncryptDecrypt_decrypt(name string) string {

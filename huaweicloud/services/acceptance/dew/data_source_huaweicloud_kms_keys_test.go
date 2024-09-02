@@ -63,7 +63,7 @@ func testAccDataSourceKmsKeys_basic(name string) string {
 
 data "huaweicloud_kms_keys" "test" {
   depends_on = [
-    huaweicloud_kms_key.key_1
+    huaweicloud_kms_key.test
   ]
 }
 
@@ -121,5 +121,5 @@ locals {
 output "enterprise_project_id_filter_is_useful" {
   value = alltrue(local.enterprise_project_id_filter_result) && length(local.enterprise_project_id_filter_result) > 0
 }
-`, testAccKmsKey_Basic(name))
+`, testAccKmsKey_basic(name))
 }
