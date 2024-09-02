@@ -15,9 +15,15 @@ Manages CCM private CA resource within HuaweiCloud.
 ### create a root private CA
 
 ```hcl
+variable "obs_bucket_name" {}
+
 resource "huaweicloud_ccm_private_ca" "test_root" {
-  region = "cn-north-4"
-  type   = "ROOT"
+  region              = "cn-north-4"
+  type                = "ROOT"
+  key_algorithm       = "RSA2048"
+  signature_algorithm = "SHA512"
+  pending_days        = "7"
+
   distinguished_name {
     common_name         = "test-root"
     country             = "CN"
@@ -26,12 +32,16 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
     organization        = "huawei"
     organizational_unit = "cloud"
   }
-  key_algorithm       = "RSA2048"
-  signature_algorithm = "SHA512"
-  pending_days        = "7"
+
   validity {
     type  = "DAY"
     value = 5
+  }
+
+  crl_configuration {
+    obs_bucket_name = var.obs_bucket_name
+    valid_days      = "7"
+    enabled         = true
   }
 }
 ```
@@ -42,8 +52,13 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
 variable "root_issuer_id" {}
 
 resource "huaweicloud_ccm_private_ca" "test_subordinate" {
-  region = "cn-north-4"
-  type   = "SUBORDINATE"
+  region              = "cn-north-4"
+  type                = "SUBORDINATE"
+  key_algorithm       = "RSA2048"
+  issuer_id           = var.root_issuer_id
+  signature_algorithm = "SHA512"
+  pending_days        = "7"
+
   distinguished_name {
     common_name         = "test-subordinate"
     country             = "CN"
@@ -52,10 +67,7 @@ resource "huaweicloud_ccm_private_ca" "test_subordinate" {
     organization        = "huawei"
     organizational_unit = "cloud"
   }
-  key_algorithm       = "RSA2048"
-  issuer_id           = var.root_issuer_id
-  signature_algorithm = "SHA512"
-  pending_days        = "7"
+  
   validity {
     type  = "DAY"
     value = 4
@@ -106,8 +118,7 @@ The following arguments are supported:
   This parameter is [digitalSignature,keyCertSign,cRLSign] by default and only support to customize when you create a
   subordinate CA. Changing this parameter will create a new resource.
 
-* `crl_configuration` - (Optional, List, ForceNew) Specifies the CRL configuration of private CA.
-  Changing this parameter will create a new resource.
+* `crl_configuration` - (Optional, List) Specifies the CRL configuration of private CA. The maximum length is `1`.
   The [crl_configuration](#block-crl_configuration) structure is documented below.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.
@@ -177,11 +188,17 @@ The `validity` block supports:
 <a name="block-crl_configuration"></a>
 The `crl_configuration` block supports:
 
-* `obs_bucket_name` - (Required, String, ForceNew) Specifies the OBS bucket name.
-  Changing this parameter will create a new resource.
+* `enabled` - (Optional, Bool) Specifies whether to enable the CRL publishing function. Defaults to **false**.
 
-* `valid_days` - (Required, Int, ForceNew) Specifies the CRL update interval, in days.It's limited between `7` to `30`.
-  Changing this parameter will create a new resource.
+* `obs_bucket_name` - (Optional, String) Specifies the OBS bucket name. This field is required only when the CRL publishing
+  function is enabled.
+
+* `valid_days` - (Optional, Int) Specifies the CRL update interval, in days. It's limited from `7` to `30`.
+  This field is required only when the CRL publishing function is enabled.
+
+-> Due to API limitations, the fields `obs_bucket_name` and `valid_days` must be changed together with `enable`.
+For example, if you want to update `obs_bucket_name` or `valid_days` when the CRL function is enabled, you need to
+disable the CRL function first, then enable it and configure new `obs_bucket_name` or `valid_days` values.
 
 ## Attribute Reference
 

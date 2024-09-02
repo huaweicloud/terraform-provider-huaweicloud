@@ -31,6 +31,8 @@ import (
 // @API CCM POST /v1/private-certificate-authorities/{ca_id}/enable
 // @API CCM POST /v1/private-certificate-authorities/{ca_id}/disable
 // @API CCM DELETE /v1/private-certificate-authorities/{ca_id}/tags/delete
+// @API CCM POST /v1/private-certificate-authorities/{ca_id}/crl/enable
+// @API CCM POST /v1/private-certificate-authorities/{ca_id}/crl/disable
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourcePrivateCertificateAuthority() *schema.Resource {
 	return &schema.Resource{
@@ -155,18 +157,22 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
 						"obs_bucket_name": {
 							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Optional: true,
+							Computed: true,
 						},
 						"valid_days": {
 							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
+							Optional: true,
+							Computed: true,
 						},
 						"crl_dis_point": {
 							Type:     schema.TypeString,
@@ -176,7 +182,6 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							ForceNew:    true,
 							Description: "schema: Computed",
 						},
 					},
@@ -333,20 +338,25 @@ func buildPrivateCARequestBodyKeyUsages(caType interface{}, rawParams interface{
 }
 
 func buildPrivateCARequestBodyCrlConfiguration(rawParams interface{}) map[string]interface{} {
-	if rawArray, ok := rawParams.([]interface{}); ok {
-		if len(rawArray) == 0 {
-			return nil
-		}
-		raw := rawArray[0].(map[string]interface{})
-		params := map[string]interface{}{
-			"enabled":         true,
-			"crl_name":        raw["crl_name"],
-			"obs_bucket_name": raw["obs_bucket_name"],
-			"valid_days":      raw["valid_days"],
-		}
-		return params
+	rawArray, ok := rawParams.([]interface{})
+	if !ok {
+		return nil
 	}
-	return nil
+
+	if len(rawArray) == 0 {
+		return nil
+	}
+	rawMap := rawArray[0].(map[string]interface{})
+	if !rawMap["enabled"].(bool) {
+		return nil
+	}
+
+	return map[string]interface{}{
+		"enabled":         rawMap["enabled"],
+		"crl_name":        rawMap["crl_name"],
+		"obs_bucket_name": rawMap["obs_bucket_name"],
+		"valid_days":      rawMap["valid_days"],
+	}
 }
 
 func buildCreateOrActivatePrivateCABodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
@@ -603,6 +613,7 @@ func flattenCrlConfiguration(resp interface{}) []interface{} {
 	rawMap := curJson.(map[string]interface{})
 	rst := make([]interface{}, 0, 1)
 	rst = append(rst, map[string]interface{}{
+		"enabled":         rawMap["enabled"],
 		"crl_name":        rawMap["crl_name"],
 		"obs_bucket_name": rawMap["obs_bucket_name"],
 		"valid_days":      rawMap["valid_days"],
@@ -745,6 +756,12 @@ func resourcePrivateCAUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
+	if d.HasChange("crl_configuration.0.enabled") {
+		if err := updateCRLConfiguration(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("action") {
 		var actionErr error
 		switch d.Get("action").(string) {
@@ -759,6 +776,66 @@ func resourcePrivateCAUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 	return resourcePrivateCARead(ctx, d, meta)
+}
+
+func buildEnableConfigurationBodyParams(rawParams interface{}) map[string]interface{} {
+	rawArray, ok := rawParams.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"crl_name":        utils.ValueIgnoreEmpty(rawMap["crl_name"]),
+		"obs_bucket_name": rawMap["obs_bucket_name"],
+		"valid_days":      rawMap["valid_days"],
+	}
+}
+
+func enableCRLConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	enableHttpUrl := "v1/private-certificate-authorities/{ca_id}/crl/enable"
+	enablePath := client.Endpoint + enableHttpUrl
+	enablePath = strings.ReplaceAll(enablePath, "{ca_id}", d.Id())
+	enableOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+		JSONBody:         utils.RemoveNil(buildEnableConfigurationBodyParams(d.Get("crl_configuration"))),
+	}
+
+	_, err := client.Request("POST", enablePath, &enableOpt)
+	if err != nil {
+		return fmt.Errorf("error enabling CRL configuration of CCM private CA (%s): %s", d.Id(), err)
+	}
+	return nil
+}
+
+func disableCRLConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	disableHttpUrl := "v1/private-certificate-authorities/{ca_id}/crl/disable"
+	disablePath := client.Endpoint + disableHttpUrl
+	disablePath = strings.ReplaceAll(disablePath, "{ca_id}", d.Id())
+	disableOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+	}
+
+	_, err := client.Request("POST", disablePath, &disableOpt)
+	if err != nil {
+		return fmt.Errorf("error disabling CRL configuration of CCM private CA (%s): %s", d.Id(), err)
+	}
+	return nil
+}
+
+func updateCRLConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	enabled := d.Get("crl_configuration.0.enabled").(bool)
+	if enabled {
+		return enableCRLConfiguration(client, d)
+	}
+
+	return disableCRLConfiguration(client, d)
 }
 
 func createTags(id string, createTagsClient *golangsdk.ServiceClient, tags map[string]interface{},

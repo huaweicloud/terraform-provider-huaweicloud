@@ -79,6 +79,7 @@ func TestAccCCMPrivateCA_postpaid_root(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "ROOT"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.enabled", "true"),
 					resource.TestCheckResourceAttrPair(resourceName, "crl_configuration.0.obs_bucket_name",
 						"huaweicloud_obs_bucket.test", "bucket"),
 					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.valid_days", "7"),
@@ -104,13 +105,34 @@ func TestAccCCMPrivateCA_postpaid_root(t *testing.T) {
 				),
 			},
 			{
-				Config: tesPrivateCA_postpaid_rootUpdate(rName),
+				Config: tesPrivateCA_postpaid_rootUpdate1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "action", "disable"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.obs_bucket_name", ""),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.valid_days", "0"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.crl_dis_point", ""),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.crl_name", ""),
 					resource.TestCheckResourceAttr(resourceName, "status", "DISABLED"),
+				),
+			},
+			{
+				Config: tesPrivateCA_postpaid_rootUpdate2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "action", "disable"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.enabled", "true"),
+					resource.TestCheckResourceAttrPair(resourceName, "crl_configuration.0.obs_bucket_name",
+						"huaweicloud_obs_bucket.test", "bucket"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.valid_days", "10"),
+					resource.TestCheckResourceAttr(resourceName, "status", "DISABLED"),
+					resource.TestCheckResourceAttrSet(resourceName, "crl_configuration.0.crl_dis_point"),
+					resource.TestCheckResourceAttrSet(resourceName, "crl_configuration.0.crl_name"),
 				),
 			},
 			{
@@ -158,6 +180,7 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
   crl_configuration {
     obs_bucket_name = huaweicloud_obs_bucket.test.bucket
     valid_days      = "7"
+    enabled         = true
   }
 
   tags = {
@@ -168,7 +191,50 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
 `, name)
 }
 
-func tesPrivateCA_postpaid_rootUpdate(name string) string {
+func tesPrivateCA_postpaid_rootUpdate1(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "test" {
+  bucket        = "%[1]s-crl-bucket"
+  acl           = "private"
+  force_destroy = true
+}
+
+resource "huaweicloud_ccm_private_ca" "test_root" {
+  type                = "ROOT"
+  key_algorithm       = "RSA2048"
+  signature_algorithm = "SHA512"
+  pending_days        = "7"
+  action              = "disable"
+  charging_mode       = "postPaid"
+  auto_renew          = false
+
+  distinguished_name {
+    common_name         = "%[1]s-root"
+    country             = "CN"
+    state               = "GD"
+    locality            = "SZ"
+    organization        = "huawei"
+    organizational_unit = "cloud"
+  }
+
+  validity {
+    type  = "DAY"
+    value = 5
+  }
+
+  crl_configuration {
+    enabled = false
+  }
+
+  tags = {
+    foo_update = "bar_update"
+    key_update = "value_update"
+  }
+}
+`, name)
+}
+
+func tesPrivateCA_postpaid_rootUpdate2(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "test" {
   bucket        = "%[1]s-crl-bucket"
@@ -201,7 +267,8 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
 
   crl_configuration {
     obs_bucket_name = huaweicloud_obs_bucket.test.bucket
-    valid_days      = "7"
+    valid_days      = "10"
+    enabled         = true
   }
 
   tags = {
@@ -249,6 +316,7 @@ func TestAccCCMPrivateCA_postpaid_subordinate(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "issuer_id", "huaweicloud_ccm_private_ca.test_root", "id"),
 					resource.TestCheckResourceAttr(resourceName, "key_usages.0", "cRLSign"),
 					resource.TestCheckResourceAttr(resourceName, "path_length", "5"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.enabled", "true"),
 					resource.TestCheckResourceAttrPair(resourceName, "crl_configuration.0.obs_bucket_name",
 						"huaweicloud_obs_bucket.test", "bucket"),
 					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.valid_days", "7"),
@@ -277,6 +345,11 @@ func TestAccCCMPrivateCA_postpaid_subordinate(t *testing.T) {
 				Config: tesPrivateCA_postpaid_subordinateUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.obs_bucket_name", ""),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.valid_days", "0"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.crl_dis_point", ""),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.crl_name", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
 				),
@@ -326,6 +399,7 @@ resource "huaweicloud_ccm_private_ca" "test_subordinate" {
   crl_configuration {
     obs_bucket_name = huaweicloud_obs_bucket.test.bucket
     valid_days      = "7"
+    enabled         = true
   }
 
   tags = {
@@ -367,8 +441,7 @@ resource "huaweicloud_ccm_private_ca" "test_subordinate" {
   }
 
   crl_configuration {
-    obs_bucket_name = huaweicloud_obs_bucket.test.bucket
-    valid_days      = "7"
+    enabled = false
   }
 
   tags = {
@@ -414,6 +487,7 @@ func TestAccCCMPrivateCA_prepaid_root(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.enabled", "true"),
 					resource.TestCheckResourceAttrPair(resourceName, "crl_configuration.0.obs_bucket_name",
 						"huaweicloud_obs_bucket.test", "bucket"),
 					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.valid_days", "7"),
@@ -444,6 +518,11 @@ func TestAccCCMPrivateCA_prepaid_root(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "action", "disable"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.obs_bucket_name", ""),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.valid_days", "0"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.crl_dis_point", ""),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.crl_name", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
 					resource.TestCheckResourceAttr(resourceName, "status", "DISABLED"),
@@ -456,6 +535,12 @@ func TestAccCCMPrivateCA_prepaid_root(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "action", "enable"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVED"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.enabled", "true"),
+					resource.TestCheckResourceAttrPair(resourceName, "crl_configuration.0.obs_bucket_name",
+						"huaweicloud_obs_bucket.test", "bucket"),
+					resource.TestCheckResourceAttr(resourceName, "crl_configuration.0.valid_days", "30"),
+					resource.TestCheckResourceAttrSet(resourceName, "crl_configuration.0.crl_dis_point"),
+					resource.TestCheckResourceAttrSet(resourceName, "crl_configuration.0.crl_name"),
 				),
 			},
 			{
@@ -504,6 +589,7 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
   crl_configuration {
     obs_bucket_name = huaweicloud_obs_bucket.test.bucket
     valid_days      = "7"
+    enabled         = true
   }
 
   tags = {
@@ -547,8 +633,7 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
   }
 
   crl_configuration {
-    obs_bucket_name = huaweicloud_obs_bucket.test.bucket
-    valid_days      = "7"
+    enabled = false
   }
 
   tags = {
@@ -593,7 +678,8 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
 
   crl_configuration {
     obs_bucket_name = huaweicloud_obs_bucket.test.bucket
-    valid_days      = "7"
+    valid_days      = "30"
+    enabled         = true
   }
 }
 `, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
@@ -722,6 +808,7 @@ resource "huaweicloud_ccm_private_ca" "test_root" {
   crl_configuration {
     obs_bucket_name = huaweicloud_obs_bucket.test.bucket
     valid_days      = "7"
+    enabled         = true
   }
 
   tags = {
