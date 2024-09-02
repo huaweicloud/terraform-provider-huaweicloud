@@ -591,9 +591,9 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 }
 
 func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	client, err := conf.DmsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DmsV2Client(region)
 	if err != nil {
 		return diag.Errorf("error initializing DMS Kafka(v2) client: %s", err)
 	}
@@ -618,7 +618,7 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 		StorageSpecCode:       d.Get("storage_spec_code").(string),
 		StorageSpace:          d.Get("storage_space").(int),
 		BrokerNum:             d.Get("broker_num").(int),
-		EnterpriseProjectID:   common.GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectID:   cfg.GetEnterpriseProjectID(d),
 		SslEnable:             d.Get("ssl_enable").(bool),
 		KafkaSecurityProtocol: d.Get("security_protocol").(string),
 		SaslEnabledMechanisms: utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List()),
@@ -652,7 +652,7 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 	} else {
 		// convert the codes of the availability zone into ids
 		azCodes := d.Get("availability_zones").(*schema.Set)
-		availableZones, err = getAvailableZoneIDByCode(conf, region, azCodes.List())
+		availableZones, err = getAvailableZoneIDByCode(cfg, region, azCodes.List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -676,7 +676,7 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 
 	var delayTime time.Duration = 300
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
-		err = waitForOrderComplete(ctx, d, conf, client, instanceID)
+		err = waitForOrderComplete(ctx, d, cfg, client, instanceID)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -759,7 +759,7 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 		ConnectorEnalbe:       d.Get("dumping").(bool),
 		EnableAutoTopic:       d.Get("enable_auto_topic").(bool),
 		StorageSpecCode:       d.Get("storage_spec_code").(string),
-		EnterpriseProjectID:   common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectID:   cfg.GetEnterpriseProjectID(d),
 		SslEnable:             d.Get("ssl_enable").(bool),
 		KafkaSecurityProtocol: d.Get("security_protocol").(string),
 		SaslEnabledMechanisms: utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List()),

@@ -99,9 +99,9 @@ func ResourceVpcAddressGroup() *schema.Resource {
 }
 
 func resourceVpcAddressGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcVpcV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.HcVpcV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
@@ -113,7 +113,7 @@ func resourceVpcAddressGroupCreate(ctx context.Context, d *schema.ResourceData, 
 		IpSet:               &ipSet,
 		IpVersion:           int32(d.Get("ip_version").(int)),
 		Description:         utils.StringIgnoreEmpty(d.Get("description").(string)),
-		EnterpriseProjectId: utils.StringIgnoreEmpty(common.GetEnterpriseProjectID(d, c)),
+		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		MaxCapacity:         utils.Int32IgnoreEmpty(int32(d.Get("max_capacity").(int))),
 	}
 

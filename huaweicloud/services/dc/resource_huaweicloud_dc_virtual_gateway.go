@@ -92,7 +92,7 @@ func buildVirtualGatewayCreateOpts(d *schema.ResourceData, cfg *config.Config) g
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		BgpAsn:              d.Get("asn").(int),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 }
 

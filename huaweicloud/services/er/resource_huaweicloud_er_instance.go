@@ -203,7 +203,7 @@ func buildCreateInstanceInstanceChildBody(d *schema.ResourceData, cfg *config.Co
 		"availability_zone_ids":          utils.ValueIgnoreEmpty(d.Get("availability_zones")),
 		"asn":                            utils.ValueIgnoreEmpty(d.Get("asn")),
 		"description":                    utils.ValueIgnoreEmpty(d.Get("description")),
-		"enterprise_project_id":          utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id":          utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"enable_default_propagation":     utils.ValueIgnoreEmpty(d.Get("enable_default_propagation")),
 		"enable_default_association":     utils.ValueIgnoreEmpty(d.Get("enable_default_association")),
 		"auto_accept_shared_attachments": utils.ValueIgnoreEmpty(d.Get("auto_accept_shared_attachments")),

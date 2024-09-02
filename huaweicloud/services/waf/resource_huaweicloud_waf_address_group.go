@@ -168,8 +168,8 @@ func buildWAFAddressGroupBodyParams(d *schema.ResourceData) map[string]interface
 	return bodyParams
 }
 
-func buildWAFAddressGroupQueryParams(d *schema.ResourceData, conf *config.Config) string {
-	epsId := common.GetEnterpriseProjectID(d, conf)
+func buildWAFAddressGroupQueryParams(d *schema.ResourceData, cfg *config.Config) string {
+	epsId := cfg.GetEnterpriseProjectID(d)
 	if epsId == "" {
 		return ""
 	}

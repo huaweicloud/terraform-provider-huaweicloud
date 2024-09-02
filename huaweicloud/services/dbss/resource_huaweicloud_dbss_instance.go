@@ -373,7 +373,7 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, productId string, cfg
 		"security_groups":       buildCreateInstanceSecurityGroupsRequestBody(d),
 		"product_infos":         buildCreateInstanceProductInfosRequestBody(d, productId),
 		"subscription_num":      1,
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 		"period_num":            utils.ValueIgnoreEmpty(d.Get("period")),
 	}

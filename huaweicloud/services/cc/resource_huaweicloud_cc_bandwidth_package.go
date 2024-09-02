@@ -197,7 +197,7 @@ func buildCreateBandwidthPackageBodyParams(d *schema.ResourceData, cfg *config.C
 		"bandwidth_package": map[string]interface{}{
 			"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 			"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-			"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 			"local_area_id":         utils.ValueIgnoreEmpty(d.Get("local_area_id")),
 			"remote_area_id":        utils.ValueIgnoreEmpty(d.Get("remote_area_id")),
 			"charge_mode":           utils.ValueIgnoreEmpty(d.Get("charge_mode")),

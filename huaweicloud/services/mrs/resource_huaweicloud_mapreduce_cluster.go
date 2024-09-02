@@ -738,7 +738,7 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 		EipId:                eipId,
 		EipAddress:           publicIp,
 		Components:           strings.Join(utils.ExpandToStringListBySet(d.Get("component_list").(*schema.Set)), ","),
-		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectId:  cfg.GetEnterpriseProjectID(d),
 		LogCollection:        buildLogCollection(d),
 		NodeGroups:           buildMrsClusterNodeGroups(d),
 		SafeMode:             buildMrsSafeMode(d),

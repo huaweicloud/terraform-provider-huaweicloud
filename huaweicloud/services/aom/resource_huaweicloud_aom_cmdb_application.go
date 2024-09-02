@@ -81,7 +81,7 @@ func buildCreateApplicationBodyParams(d *schema.ResourceData, cfg *config.Config
 		"name":         d.Get("name"),
 		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
 		"display_name": utils.ValueIgnoreEmpty(d.Get("display_name")),
-		"eps_id":       utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"eps_id":       utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	return bodyParams
 }
@@ -174,7 +174,7 @@ func buildUpdateApplicationBodyParams(d *schema.ResourceData, cfg *config.Config
 		"name":         d.Get("name"),
 		"description":  d.Get("description"),
 		"display_name": utils.ValueIgnoreEmpty(d.Get("display_name")),
-		"eps_id":       utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"eps_id":       utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	return bodyParams
 }

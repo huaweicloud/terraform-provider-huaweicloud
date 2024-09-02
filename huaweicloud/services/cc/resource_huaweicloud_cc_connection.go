@@ -165,11 +165,11 @@ func buildCreateCloudConnectionBodyParams(d *schema.ResourceData, conf *config.C
 	return bodyParams
 }
 
-func buildCreateCloudConnectionCloudConnectionChildBody(d *schema.ResourceData, conf *config.Config) map[string]interface{} {
+func buildCreateCloudConnectionCloudConnectionChildBody(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	params := map[string]interface{}{
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, conf)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	return params
 }

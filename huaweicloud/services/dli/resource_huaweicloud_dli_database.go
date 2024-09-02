@@ -105,7 +105,7 @@ func resourceDliSQLDatabaseCreate(ctx context.Context, d *schema.ResourceData, m
 	opts := databases.CreateOpts{
 		Name:                dbName,
 		Description:         d.Get("description").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 

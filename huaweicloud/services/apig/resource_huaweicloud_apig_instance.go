@@ -300,7 +300,7 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) m
 		"available_zone_ids":              utils.ValueIgnoreEmpty(buildInstanceAvailabilityZones(d)),
 		"description":                     utils.ValueIgnoreEmpty(d.Get("description")),
 		"bandwidth_size":                  d.Get("bandwidth_size"), // Bandwidth 0 means turn off the egress access.
-		"enterprise_project_id":           common.GetEnterpriseProjectID(d, cfg),
+		"enterprise_project_id":           cfg.GetEnterpriseProjectID(d),
 		"eip_id":                          utils.ValueIgnoreEmpty(d.Get("eip_id")),
 		"ipv6_enable":                     utils.ValueIgnoreEmpty(d.Get("ipv6_enable")),
 		"loadbalancer_provider":           utils.ValueIgnoreEmpty(d.Get("loadbalancer_provider")),

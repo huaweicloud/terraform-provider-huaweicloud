@@ -201,7 +201,7 @@ func buildCreateResourceGroupBodyParams(d *schema.ResourceData, cfg *config.Conf
 	bodyParams := map[string]interface{}{
 		"group_name":            utils.ValueIgnoreEmpty(d.Get("name")),
 		"type":                  utils.ValueIgnoreEmpty(d.Get("type")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"tags":                  utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 		"association_ep_ids":    utils.ValueIgnoreEmpty(d.Get("associated_eps_ids")),
 	}

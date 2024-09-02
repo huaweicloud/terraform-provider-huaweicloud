@@ -333,7 +333,7 @@ func buildCreateInstanceInstanceChildBody(d *schema.ResourceData, cfg *config.Co
 		"flavor_id":             utils.ValueIgnoreEmpty(d.Get("flavor_id")),
 		"node_num":              utils.ValueIgnoreEmpty(d.Get("node_num")),
 		"engine_id":             utils.ValueIgnoreEmpty(d.Get("engine_id")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"available_zones":       d.Get("availability_zones").(*schema.Set).List(), // The ordering of the AZ list returned by the API is unknown.
 		"vpc_id":                utils.ValueIgnoreEmpty(d.Get("vpc_id")),
 		"security_group_id":     utils.ValueIgnoreEmpty(d.Get("security_group_id")),

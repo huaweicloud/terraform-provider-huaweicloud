@@ -505,7 +505,7 @@ func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, cfg *config.C
 		"enable_publicip":       utils.ValueIgnoreEmpty(d.Get("enable_publicip")),
 		"publicip_id":           utils.ValueIgnoreEmpty(d.Get("publicip_id")),
 		"broker_num":            utils.ValueIgnoreEmpty(d.Get("broker_num")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
 		bodyParams["bss_param"] = buildCreateRocketmqInstanceBodyBssParams(d)

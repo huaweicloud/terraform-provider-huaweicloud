@@ -540,7 +540,7 @@ func buildCreateGatewayVpnGatewayChildBody(d *schema.ResourceData, cfg *config.C
 		"availability_zone_ids": utils.ValueIgnoreEmpty(d.Get("availability_zones")),
 		"bgp_asn":               utils.ValueIgnoreEmpty(d.Get("asn")),
 		"connect_subnet":        utils.ValueIgnoreEmpty(d.Get("connect_subnet")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"flavor":                utils.ValueIgnoreEmpty(d.Get("flavor")),
 		"local_subnets":         utils.ValueIgnoreEmpty(d.Get("local_subnets")),
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),

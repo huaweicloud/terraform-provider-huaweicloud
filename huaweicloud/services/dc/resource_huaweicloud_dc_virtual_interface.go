@@ -329,7 +329,7 @@ func buildVirtualInterfaceCreateOpts(d *schema.ResourceData, cfg *config.Config)
 		EnableNqa:           d.Get("enable_nqa").(bool),
 		LagId:               d.Get("lag_id").(string),
 		ResourceTenantId:    d.Get("resource_tenant_id").(string),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 }
 

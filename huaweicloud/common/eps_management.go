@@ -29,17 +29,6 @@ type MigrateResourceOpts struct {
 	Associated bool `json:"associated,omitempty"`
 }
 
-// GetEnterpriseProjectID returns the enterprise_project_id that was specified in the resource.
-// If it was not set, the provider-level value is checked. The provider-level value can
-// either be set by the `enterprise_project_id` argument or by HW_ENTERPRISE_PROJECT_ID.
-func GetEnterpriseProjectID(d *schema.ResourceData, cfg *config.Config) string {
-	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		return v.(string)
-	}
-
-	return cfg.EnterpriseProjectID
-}
-
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
 func migrateResourceToAnotherEps(client *golangsdk.ServiceClient, targetEpsId string, requestBody map[string]interface{}) error {
 	httpUrl := "v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate"

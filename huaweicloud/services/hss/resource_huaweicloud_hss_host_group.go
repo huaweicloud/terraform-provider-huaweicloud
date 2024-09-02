@@ -174,7 +174,7 @@ func resourceHostGroupCreate(ctx context.Context, d *schema.ResourceData, meta i
 	var (
 		groupName = d.Get("name").(string)
 		hostIds   = utils.ExpandToStringListBySet(d.Get("host_ids").(*schema.Set))
-		epsId     = common.GetEnterpriseProjectID(d, cfg)
+		epsId     = cfg.GetEnterpriseProjectID(d)
 
 		request = hssv5model.AddHostsGroupRequest{
 			Region:              region,
@@ -275,7 +275,7 @@ func resourceHostGroupRead(_ context.Context, d *schema.ResourceData, meta inter
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
 		groupId = d.Id()
-		epsId   = common.GetEnterpriseProjectID(d, cfg)
+		epsId   = cfg.GetEnterpriseProjectID(d)
 	)
 
 	client, err := cfg.HcHssV5Client(region)
@@ -321,7 +321,7 @@ func resourceHostGroupUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		groupId   = d.Id()
 		groupName = d.Get("name").(string)
 		hostIds   = utils.ExpandToStringListBySet(d.Get("host_ids").(*schema.Set))
-		epsId     = common.GetEnterpriseProjectID(d, cfg)
+		epsId     = cfg.GetEnterpriseProjectID(d)
 
 		request = hssv5model.ChangeHostsGroupRequest{
 			Region:              region,
@@ -363,7 +363,7 @@ func resourceHostGroupDelete(_ context.Context, d *schema.ResourceData, meta int
 
 		request = hssv5model.DeleteHostsGroupRequest{
 			Region:              cfg.GetRegion(d),
-			EnterpriseProjectId: utils.StringIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 			GroupId:             groupId,
 		}
 	)

@@ -158,7 +158,7 @@ func buildCreateWorkspaceBodyParams(d *schema.ResourceData, cfg *config.Config) 
 	bodyParams := map[string]interface{}{
 		"name":                  d.Get("name"),
 		"description":           d.Get("description"),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"auth_type":             utils.ValueIgnoreEmpty(d.Get("auth_type")),
 		"grants":                buildCreateWorkspaceRequestBodyGrants(d.Get("grants")),
 	}

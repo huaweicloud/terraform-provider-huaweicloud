@@ -138,7 +138,7 @@ func buildCreateCentralNetworkBodyParams(d *schema.ResourceData, cfg *config.Con
 		"central_network": map[string]interface{}{
 			"name":                  d.Get("name"),
 			"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-			"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 			"tags":                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		},
 	}
