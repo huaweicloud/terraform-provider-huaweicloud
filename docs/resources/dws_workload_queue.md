@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_workload_queue"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) workload queue resource within HuaweiCloud.
 ---
 
 # huaweicloud_dws_workload_queue

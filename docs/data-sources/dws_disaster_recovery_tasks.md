@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_disaster_recovery_tasks"
-description: ""
+description: |-
+  Use this data source to get the list of DR tasks.
 ---
 
 # huaweicloud_dws_disaster_recovery_tasks

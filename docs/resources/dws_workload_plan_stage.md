@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_workload_plan_stage"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) workload plan stage resource within HuaweiCloud.
 ---
 
 # huaweicloud_dws_workload_plan_stage

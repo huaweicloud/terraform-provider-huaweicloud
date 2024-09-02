@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_snapshot_policy"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) automated snapshot policy resource within HuaweiCloud.  
 ---
 
 # huaweicloud_dws_snapshot_policy

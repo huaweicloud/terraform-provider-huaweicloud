@@ -2,12 +2,13 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_ext_data_source"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) external data source resource within HuaweiCloud.
 ---
 
 # huaweicloud_dws_ext_data_source
 
-Manages a GaussDB(DWS) external data source resource within HuaweiCloud.  
+Manages a GaussDB(DWS) external data source resource within HuaweiCloud.
 
 ## Example Usage
 

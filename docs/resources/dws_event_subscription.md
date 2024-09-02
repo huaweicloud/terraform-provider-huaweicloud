@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_event_subscription"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) event subscription resource within HuaweiCloud.  
 ---
 
 # huaweicloud_dws_event_subscription

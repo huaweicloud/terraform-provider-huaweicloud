@@ -3,12 +3,12 @@ subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_cluster_logs"
 description: |-
-  Using this data source to get the list of LTS logs under specified DWS cluster within HuaweiCloud.
+  Use this data source to get the list of LTS logs under specified DWS cluster within HuaweiCloud.
 ---
 
 # huaweicloud_dws_cluster_logs
 
-Using this data source to get the list of LTS logs under specified DWS cluster within HuaweiCloud.
+Use this data source to get the list of LTS logs under specified DWS cluster within HuaweiCloud.
 
 ## Example Usage
 

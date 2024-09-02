@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_logical_cluster"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) logical cluster resource within HuaweiCloud.
 ---
 
 # huaweicloud_dws_logical_cluster

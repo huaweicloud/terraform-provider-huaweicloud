@@ -3,7 +3,7 @@ subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_workload_plans"
 description: |-
-  Using this data source to query the list of workload plans within HuaweiCloud.
+  Use this data source to query the list of workload plans within HuaweiCloud.
 ---
 
 # huaweicloud_dws_workload_plans
