@@ -16,7 +16,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/opengauss/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/opengauss/v3/instances"
 
@@ -841,7 +840,7 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "gaussdb",
 			RegionId:     region,

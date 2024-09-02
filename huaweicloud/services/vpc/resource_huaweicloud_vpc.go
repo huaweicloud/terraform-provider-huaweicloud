@@ -12,7 +12,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/vpcs"
 
 	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
@@ -346,7 +345,7 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   vpcID,
 			ResourceType: "vpcs",
 			RegionId:     region,

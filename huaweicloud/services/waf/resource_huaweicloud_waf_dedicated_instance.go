@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	instances "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -309,7 +308,7 @@ func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "waf-instance",
 			RegionId:     region,

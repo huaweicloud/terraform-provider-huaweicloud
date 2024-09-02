@@ -22,7 +22,6 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -426,7 +425,7 @@ func resourceDdmInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "ddm",
 			RegionId:     region,

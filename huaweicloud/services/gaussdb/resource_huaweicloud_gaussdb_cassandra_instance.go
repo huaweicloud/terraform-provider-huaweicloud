@@ -15,7 +15,6 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/configurations"
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
@@ -1084,7 +1083,7 @@ func resourceGeminiDBInstanceV3Update(ctx context.Context, d *schema.ResourceDat
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "nosql",
 			RegionId:     region,

@@ -15,7 +15,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/cloudeyeservice/v1/alarmrule"
 	alarmrulev2 "github.com/chnsz/golangsdk/openstack/cloudeyeservice/v2/alarmrule"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -910,7 +909,7 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   arId,
 			ResourceType: "CES-alarm",
 			RegionId:     region,

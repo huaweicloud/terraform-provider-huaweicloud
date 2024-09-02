@@ -3,16 +3,31 @@ package common
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+type MigrateResourceOpts struct {
+	// The type of the resource to be migrated.
+	ResourceType string `json:"resource_type" required:"true"`
+	// The ID of the resource to be migrated.
+	ResourceId string `json:"resource_id" required:"true"`
+	// Project ID. This is a required option when resource_type is a region-level service.
+	// It can be left blank or filled with an empty string when resource_type is a global-level service.
+	ProjectId string `json:"project_id,omitempty"`
+	// Region ID. Required if resource type is 'bucket'.
+	RegionId string `json:"region_id,omitempty"`
+	// Whether migration is associate resource.
+	Associated bool `json:"associated,omitempty"`
+}
 
 // GetEnterpriseProjectID returns the enterprise_project_id that was specified in the resource.
 // If it was not set, the provider-level value is checked. The provider-level value can
@@ -25,25 +40,46 @@ func GetEnterpriseProjectID(d *schema.ResourceData, cfg *config.Config) string {
 	return cfg.EnterpriseProjectID
 }
 
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
+func migrateResourceToAnotherEps(client *golangsdk.ServiceClient, targetEpsId string, requestBody map[string]interface{}) error {
+	httpUrl := "v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate"
+	actionPath := client.Endpoint + httpUrl
+	actionPath = strings.ReplaceAll(actionPath, "{enterprise_project_id}", targetEpsId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: requestBody,
+		OkCodes:  []int{204},
+	}
+
+	_, err := client.Request("POST", actionPath, &opt)
+	return err
+}
+
 // MigrateEnterpriseProjectWithoutWait is a method that used to a migrate resource from an enterprise project to
 // another.
 // NOTE: Please read the following contents carefully before using this method.
 //   - This method only sends an asynchronous request and does not guarantee the result.
-func MigrateEnterpriseProjectWithoutWait(cfg *config.Config, d *schema.ResourceData,
-	opts enterpriseprojects.MigrateResourceOpts) error {
+func MigrateEnterpriseProjectWithoutWait(cfg *config.Config, d *schema.ResourceData, opts MigrateResourceOpts) error {
 	targetEpsId := cfg.GetEnterpriseProjectID(d)
 	if targetEpsId == "" {
 		targetEpsId = "0"
 	}
 
-	client, err := cfg.EnterpriseProjectClient(cfg.GetRegion(d))
+	requestBody, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return fmt.Errorf("error building request body: %s", err)
+	}
+	client, err := cfg.NewServiceClient("eps", cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating EPS client: %s", err)
 	}
-	_, err = enterpriseprojects.Migrate(client, opts, targetEpsId).Extract()
+	err = migrateResourceToAnotherEps(client, targetEpsId, requestBody)
 	if err != nil {
-		return fmt.Errorf("failed to migrate resource (%s) to the enterprise project (%s): %s",
-			opts.ResourceId, targetEpsId, err)
+		return fmt.Errorf("failed to migrate resource (%v) to the enterprise project (%s): %s", opts.ResourceId, targetEpsId, err)
 	}
 	return nil
 }
@@ -54,21 +90,23 @@ func MigrateEnterpriseProjectWithoutWait(cfg *config.Config, d *schema.ResourceD
 //   - This method only calls the interfaces of the EPS service. For individual EPS IDs that are not updated due to
 //     out-of-synchronization of data on the server side, this method does not perform additional verification and
 //     requires developers to manually ensure the reliability of the code through testing.
-func MigrateEnterpriseProject(ctx context.Context, cfg *config.Config, d *schema.ResourceData,
-	opts enterpriseprojects.MigrateResourceOpts) error {
+func MigrateEnterpriseProject(ctx context.Context, cfg *config.Config, d *schema.ResourceData, opts MigrateResourceOpts) error {
 	targetEpsId := cfg.GetEnterpriseProjectID(d)
 	if targetEpsId == "" {
 		targetEpsId = "0"
 	}
 
-	client, err := cfg.EnterpriseProjectClient(cfg.GetRegion(d))
+	requestBody, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return fmt.Errorf("error building request body: %s", err)
+	}
+	client, err := cfg.NewServiceClient("eps", cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating EPS client: %s", err)
 	}
-	_, err = enterpriseprojects.Migrate(client, opts, targetEpsId).Extract()
+	err = migrateResourceToAnotherEps(client, targetEpsId, requestBody)
 	if err != nil {
-		return fmt.Errorf("failed to migrate resource (%s) to the enterprise project (%s): %s",
-			opts.ResourceId, targetEpsId, err)
+		return fmt.Errorf("failed to migrate resource (%v) to the enterprise project (%s): %s", opts.ResourceId, targetEpsId, err)
 	}
 
 	// Wait for the Enterprise Project ID changed.
@@ -96,21 +134,65 @@ func MigrateEnterpriseProject(ctx context.Context, cfg *config.Config, d *schema
 	return nil
 }
 
-func getAssociatedResourceById(client *golangsdk.ServiceClient, projectId, epsId, resourceType,
-	resourceId string) (*enterpriseprojects.Resource, error) {
-	opts := enterpriseprojects.ListResourcesOpts{
-		EnterpriseProjectId: epsId,
-		Projects:            []string{projectId},
-		ResourceTypes:       []string{resourceType},
+func buildListResourcesUnderEpsOpts(projectId, resourceType string, offset int) map[string]interface{} {
+	result := map[string]interface{}{
+		"limit":  1000,
+		"offset": offset,
 	}
-	resourceList, err := enterpriseprojects.ListAssociatedResources(client, opts)
+	if projectId != "" {
+		result["projects"] = []string{projectId}
+	}
+	if resourceType != "" {
+		result["resource_types"] = []string{resourceType}
+	}
+	return result
+}
+
+func queryResourcesUnderEps(client *golangsdk.ServiceClient, epsId, projectId, resourceType string) ([]interface{}, error) {
+	var (
+		httpUrl = "v1.0/enterprise-projects/{enterprise_project_id}/resources/filter"
+		offset  = 0
+		result  = make([]interface{}, 0)
+	)
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{enterprise_project_id}", epsId)
+
+	for {
+		opt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: buildListResourcesUnderEpsOpts(projectId, resourceType, offset),
+		}
+		requestResp, err := client.Request("POST", listPath, &opt)
+		if err != nil {
+			return nil, err
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		resources := utils.PathSearch("resources", respBody, make([]interface{}, 0)).([]interface{})
+		if len(resources) < 1 {
+			break
+		}
+		result = append(result, resources...)
+		offset += len(resources)
+	}
+
+	return result, nil
+}
+
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources/filter
+func getAssociatedResourceById(client *golangsdk.ServiceClient, projectId, epsId, resourceType,
+	resourceId string) (interface{}, error) {
+	resources, err := queryResourcesUnderEps(client, epsId, projectId, resourceType)
 	if err != nil {
 		return nil, err
 	}
-	for _, success := range resourceList.Resources {
-		if success.ResourceId == resourceId {
-			return &success, nil
-		}
+	if resInfo := utils.PathSearch(fmt.Sprintf("[?resource_id=='%s']|[0]", resourceId), resources, nil); resInfo != nil {
+		return resInfo, nil
 	}
 	return nil, golangsdk.ErrDefault404{
 		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{

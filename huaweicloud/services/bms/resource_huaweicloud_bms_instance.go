@@ -14,7 +14,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bms/v1/baremetalservers"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -543,7 +542,7 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "bms_server",
 			RegionId:     region,

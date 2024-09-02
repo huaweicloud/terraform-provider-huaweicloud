@@ -14,7 +14,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/kms/v1/keys"
 	"github.com/chnsz/golangsdk/openstack/kms/v1/rotation"
 
@@ -383,7 +382,7 @@ func ResourceKmsKeyUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   d.Id(),
 			ResourceType: "kms",
 			RegionId:     region,

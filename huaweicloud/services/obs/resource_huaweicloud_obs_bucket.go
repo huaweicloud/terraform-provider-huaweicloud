@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/obs"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -1087,7 +1086,7 @@ func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.R
 	var (
 		projectId   = conf.GetProjectID(region)
 		bucket      = d.Get("bucket").(string)
-		migrateOpts = enterpriseprojects.MigrateResourceOpts{
+		migrateOpts = common.MigrateResourceOpts{
 			ResourceId:   bucket,
 			ResourceType: "bucket",
 			RegionId:     region,

@@ -17,7 +17,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/bcs/v2/blockchains"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
 	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -523,7 +522,7 @@ func resourceBCSInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	instanceId := d.Id()
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "bcs",
 			RegionId:     region,

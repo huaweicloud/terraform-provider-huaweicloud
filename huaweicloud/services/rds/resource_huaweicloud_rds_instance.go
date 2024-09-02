@@ -16,7 +16,6 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/securities"
@@ -1048,7 +1047,7 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   instanceID,
 			ResourceType: "rds",
 			RegionId:     region,

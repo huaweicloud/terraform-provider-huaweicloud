@@ -15,7 +15,6 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -755,7 +754,7 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 				"resource ID is not found in list API response", ID)
 		}
 
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   resourceId,
 			ResourceType: "cbh",
 			RegionId:     region,

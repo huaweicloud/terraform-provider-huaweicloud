@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
@@ -1187,7 +1186,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := common.MigrateResourceOpts{
 			ResourceId:   clusterId,
 			ResourceType: "css-cluster",
 			RegionId:     region,
