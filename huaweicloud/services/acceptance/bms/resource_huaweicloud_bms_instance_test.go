@@ -234,12 +234,18 @@ func testAccBmsInstance_base(rName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_bms_flavors" "test" {
+  cpu_arch          = "x86_64"
   availability_zone = try(element(data.huaweicloud_availability_zones.test.names, 0), "")
 }
 
-data "huaweicloud_images_image" "test" {
-  name        = "CentOS 7.6 x86 sdi2 for BareMetal"
-  most_recent = true
+data "huaweicloud_images_images" "test" {
+  name_regex = "x86"
+  os         = "CentOS"
+  image_type = "Ironic"
+}
+
+locals {
+  x86_images = [for v in data.huaweicloud_images_images.test.images: v.id if v.container_format == "bare"]
 }
 
 resource "huaweicloud_kps_keypair" "test" {
@@ -265,7 +271,7 @@ resource "huaweicloud_bms_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
   key_pair          = huaweicloud_kps_keypair.test.name
-  image_id          = data.huaweicloud_images_image.test.id
+  image_id          = try(local.x86_images[0], "")
 
   user_data = <<EOF
 #!/bin/bash 
@@ -313,7 +319,7 @@ resource "huaweicloud_bms_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
   admin_pass        = "Test@123"
-  image_id          = data.huaweicloud_images_image.test.id
+  image_id          = try(local.x86_images[0], "")
 
   name                  = "%[2]s"
   user_id               = "%[3]s"
@@ -353,7 +359,7 @@ resource "huaweicloud_bms_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
   user_data         = "IyEvYmluL2Jhc2ggCmVjaG8gJ3Jvb3Q6VGVzdEAxMjMnIHwgY2hwYXNzd2Q="
-  image_id          = data.huaweicloud_images_image.test.id
+  image_id          = try(local.x86_images[0], "")
 
   name                  = "%[2]s"
   user_id               = "%[3]s"
@@ -401,7 +407,7 @@ resource "huaweicloud_bms_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
   key_pair          = huaweicloud_kps_keypair.test.name
-  image_id          = data.huaweicloud_images_image.test.id
+  image_id          = try(local.x86_images[0], "")
 
   name                  = "%[2]s_update"
   user_id               = "%[3]s"
@@ -448,7 +454,7 @@ resource "huaweicloud_bms_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   flavor_id         = data.huaweicloud_bms_flavors.test.flavors[0].id
   key_pair          = huaweicloud_kps_keypair.test.name
-  image_id          = data.huaweicloud_images_image.test.id
+  image_id          = try(local.x86_images[0], "")
 
   name                  = "%[2]s_update"
   user_id               = "%[3]s"
@@ -484,7 +490,7 @@ resource "huaweicloud_bms_instance" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   flavor_id         = "physical.s4.3xlarge"
   key_pair          = huaweicloud_kps_keypair.test.name
-  image_id          = data.huaweicloud_images_image.test.id
+  image_id          = try(local.x86_images[0], "")
 
   name                  = "%[2]s"
   user_id               = "%[3]s"

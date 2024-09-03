@@ -34,16 +34,27 @@ func TestAccBCSInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "4"),
 					resource.TestCheckResourceAttr(resourceName, "consensus", "etcdraft"),
-					resource.TestCheckResourceAttr(resourceName, "fabric_version", "2.0"),
+					resource.TestCheckResourceAttr(resourceName, "fabric_version", "2.2"),
 					resource.TestCheckResourceAttr(resourceName, "blockchain_type", "private"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "volume_type", "nfs"),
-					resource.TestCheckResourceAttr(resourceName, "org_disk_size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "volume_type", "efs"),
+					resource.TestCheckResourceAttr(resourceName, "org_disk_size", "1228"),
 					resource.TestCheckResourceAttr(resourceName, "security_mechanism", "ECDSA"),
 					resource.TestCheckResourceAttr(resourceName, "database_type", "goleveldb"),
 					resource.TestCheckResourceAttr(resourceName, "orderer_node_num", "3"),
-					resource.TestCheckResourceAttr(resourceName, "channels.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "peer_orgs.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "peer_orgs.0.org_name", "organization01"),
+					resource.TestCheckResourceAttr(resourceName, "peer_orgs.0.count", "1"),
+					resource.TestCheckResourceAttr(resourceName, "channels.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "channels.0.name", "channeldemo001"),
+					resource.TestCheckResourceAttr(resourceName, "channels.0.org_names.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "channels.0.org_names.0", "organization01"),
+					resource.TestCheckResourceAttr(resourceName, "sfs_turbo.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "sfs_turbo.0.flavor", "sfs.turbo.40MBps"),
+					resource.TestCheckResourceAttr(resourceName, "sfs_turbo.0.type", "efs-ha"),
+					resource.TestCheckResourceAttr(resourceName, "sfs_turbo.0.share_type", "STANDARD"),
+					resource.TestCheckResourceAttrPair(resourceName, "sfs_turbo.0.availability_zone",
+						"data.huaweicloud_availability_zones.test", "names.0"),
 				),
 			},
 			{
@@ -59,6 +70,7 @@ func TestAccBCSInstance_basic(t *testing.T) {
 					"org_disk_size",
 					"password",
 					"volume_type",
+					"sfs_turbo",
 				},
 			},
 		},
@@ -274,10 +286,10 @@ resource "huaweicloud_bcs_instance" "test" {
   consensus             = "etcdraft"
   edition               = 4
   enterprise_project_id = "%s"
-  fabric_version        = "2.0"
+  fabric_version        = "2.2"
   password              = "%s"
-  volume_type           = "nfs"
-  org_disk_size         = 100
+  volume_type           = "efs"
+  org_disk_size         = 1228
   security_mechanism    = "ECDSA"
   orderer_node_num      = 3
   delete_storage        = true
@@ -287,10 +299,16 @@ resource "huaweicloud_bcs_instance" "test" {
     count    = 1
   }
   channels {
-    name = "channeldemo001"
-	org_names = [
+    name      = "channeldemo001"
+    org_names = [
       "organization01",
     ]
+  }
+  sfs_turbo {
+    flavor            = "sfs.turbo.40MBps"
+    type              = "efs-ha"
+    share_type        = "STANDARD"
+    availability_zone = data.huaweicloud_availability_zones.test.names[0]
   }
 }
 `, testBCSInstance_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, password)
@@ -307,14 +325,14 @@ resource "huaweicloud_bcs_instance" "test" {
   cce_cluster_id        = huaweicloud_cce_cluster.test.id
   consensus             = "etcdraft"
   edition               = 4
-  fabric_version        = "2.0"
+  enterprise_project_id = "%s"
+  fabric_version        = "2.2"
   password              = "%s"
-  volume_type           = "nfs"
-  org_disk_size         = 100
+  volume_type           = "efs"
+  org_disk_size         = 1228
   security_mechanism    = "ECDSA"
   orderer_node_num      = 3
   delete_storage        = true
-  enterprise_project_id = "%s"
 
   peer_orgs {
     org_name = "organization01"
@@ -326,8 +344,14 @@ resource "huaweicloud_bcs_instance" "test" {
       "organization01",
     ]
   }
+  sfs_turbo {
+    flavor            = "sfs.turbo.40MBps"
+    type              = "efs-ha"
+    share_type        = "STANDARD"
+    availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  }
 }
-`, testBCSInstance_base(rName), rName, password, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
+`, testBCSInstance_base(rName), rName, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST, password)
 }
 
 func testBCSInstance_kafka(rName, password string) string {
