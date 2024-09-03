@@ -269,13 +269,13 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 }
 
 func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	v1Client, err := conf.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
-	v3Client, err := conf.HcVpcV3Client(region)
+	v3Client, err := cfg.HcVpcV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v3 client: %s", err)
 	}
@@ -299,7 +299,7 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 
 	// update tags
 	if d.HasChange("tags") {
-		v2Client, err := conf.NetworkingV2Client(region)
+		v2Client, err := cfg.NetworkingV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating VPC v2 client: %s", err)
 		}
@@ -345,13 +345,13 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := common.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   vpcID,
 			ResourceType: "vpcs",
 			RegionId:     region,
 			ProjectId:    v1Client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

@@ -952,13 +952,13 @@ func setRdsInstanceParameters(ctx context.Context, d *schema.ResourceData, clien
 }
 
 func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.RdsV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.RdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating RDS Client: %s", err)
 	}
-	clientV31, err := config.RdsV31Client(config.GetRegion(d))
+	clientV31, err := cfg.RdsV31Client(region)
 	if err != nil {
 		return diag.Errorf("error creating RDS V3.1 client: %s", err)
 	}
@@ -981,11 +981,11 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	if err := updateRdsInstanceFlavor(ctx, d, config, client, instanceID, true); err != nil {
+	if err := updateRdsInstanceFlavor(ctx, d, cfg, client, instanceID, true); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err := updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
+	if err := updateRdsInstanceVolumeSize(ctx, d, cfg, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1037,7 +1037,7 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.HasChange("auto_renew") {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
@@ -1047,13 +1047,13 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := common.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceID,
 			ResourceType: "rds",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, config, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

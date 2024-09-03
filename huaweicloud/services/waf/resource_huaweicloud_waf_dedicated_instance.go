@@ -308,13 +308,13 @@ func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := common.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "waf-instance",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 		// check waf with enterprise_project_id

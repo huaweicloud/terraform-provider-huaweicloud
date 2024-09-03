@@ -230,15 +230,15 @@ func resourceCloudConnectionRead(_ context.Context, d *schema.ResourceData, meta
 }
 
 func resourceCloudConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	// updateCloudConnection: update the Cloud Connection
 	var (
 		updateCloudConnectionHttpUrl = "v3/{domain_id}/ccaas/cloud-connections/{id}"
 		updateCloudConnectionProduct = "cc"
 	)
-	updateCloudConnectionClient, err := conf.NewServiceClient(updateCloudConnectionProduct, region)
+	updateCloudConnectionClient, err := cfg.NewServiceClient(updateCloudConnectionProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CloudConnection Client: %s", err)
 	}
@@ -251,7 +251,7 @@ func resourceCloudConnectionUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChanges(updateCloudConnectionhasChanges...) {
 		updateCloudConnectionPath := updateCloudConnectionClient.Endpoint + updateCloudConnectionHttpUrl
-		updateCloudConnectionPath = strings.ReplaceAll(updateCloudConnectionPath, "{domain_id}", conf.DomainID)
+		updateCloudConnectionPath = strings.ReplaceAll(updateCloudConnectionPath, "{domain_id}", cfg.DomainID)
 		updateCloudConnectionPath = strings.ReplaceAll(updateCloudConnectionPath, "{id}", connectionId)
 
 		updateCloudConnectionOpt := golangsdk.RequestOpts{
@@ -268,20 +268,20 @@ func resourceCloudConnectionUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChange("tags") {
-		err := updateResourceTags(updateCloudConnectionClient, d, conf.DomainID)
+		err := updateResourceTags(updateCloudConnectionClient, d, cfg.DomainID)
 		if err != nil {
 			return diag.Errorf("error updating CloudConnection tags: %s", err)
 		}
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := common.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   connectionId,
 			ResourceType: "cc",
 			RegionId:     region,
 			ProjectId:    updateCloudConnectionClient.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

@@ -1,4 +1,4 @@
-package common
+package config
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -53,7 +52,7 @@ func migrateResourceToAnotherEps(client *golangsdk.ServiceClient, targetEpsId st
 // By default, the resource will be migrated to the default enterprise project.
 // NOTE: Please read the following contents carefully before using this method.
 //   - This method only sends an asynchronous request and does not guarantee the result.
-func MigrateEnterpriseProjectWithoutWait(cfg *config.Config, d *schema.ResourceData, opts MigrateResourceOpts) error {
+func (cfg *Config) MigrateEnterpriseProjectWithoutWait(d *schema.ResourceData, opts MigrateResourceOpts) error {
 	targetEpsId := cfg.GetEnterpriseProjectID(d, "0")
 
 	requestBody, err := golangsdk.BuildRequestBody(opts, "")
@@ -78,7 +77,7 @@ func MigrateEnterpriseProjectWithoutWait(cfg *config.Config, d *schema.ResourceD
 //   - This method only calls the interfaces of the EPS service. For individual EPS IDs that are not updated due to
 //     out-of-synchronization of data on the server side, this method does not perform additional verification and
 //     requires developers to manually ensure the reliability of the code through testing.
-func MigrateEnterpriseProject(ctx context.Context, cfg *config.Config, d *schema.ResourceData, opts MigrateResourceOpts) error {
+func (cfg *Config) MigrateEnterpriseProject(ctx context.Context, d *schema.ResourceData, opts MigrateResourceOpts) error {
 	targetEpsId := cfg.GetEnterpriseProjectID(d, "0")
 
 	requestBody, err := golangsdk.BuildRequestBody(opts, "")

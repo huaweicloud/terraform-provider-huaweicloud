@@ -754,13 +754,13 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 				"resource ID is not found in list API response", ID)
 		}
 
-		migrateOpts := common.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   resourceId,
 			ResourceType: "cbh",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

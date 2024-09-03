@@ -1081,19 +1081,19 @@ func deleteObsBucketUserDomainNames(obsClient *obs.ObsClient, bucket string, dom
 	return nil
 }
 
-func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.ResourceData, conf *config.Config,
+func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.ResourceData, cfg *config.Config,
 	obsClient *obs.ObsClient, region string) error {
 	var (
-		projectId   = conf.GetProjectID(region)
+		projectId   = cfg.GetProjectID(region)
 		bucket      = d.Get("bucket").(string)
-		migrateOpts = common.MigrateResourceOpts{
+		migrateOpts = config.MigrateResourceOpts{
 			ResourceId:   bucket,
 			ResourceType: "bucket",
 			RegionId:     region,
 			ProjectId:    projectId,
 		}
 	)
-	err := common.MigrateEnterpriseProjectWithoutWait(conf, d, migrateOpts)
+	err := cfg.MigrateEnterpriseProjectWithoutWait(d, migrateOpts)
 	if err != nil {
 		return err
 	}

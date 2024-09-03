@@ -388,13 +388,13 @@ func resourceResourceGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := common.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   resourceGroupId,
 			ResourceType: "CES-resourceGroup",
 			RegionId:     region,
 			ProjectId:    updateResourceGroupClient.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

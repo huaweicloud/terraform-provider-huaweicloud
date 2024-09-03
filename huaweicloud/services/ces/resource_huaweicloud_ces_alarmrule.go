@@ -764,13 +764,13 @@ func buildUpdatePoliciesOptsWithMetricName(d *schema.ResourceData, level int, me
 }
 
 func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	clientV1, err := conf.CesV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	clientV1, err := cfg.CesV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating Cloud Eye Service v1 client: %s", err)
 	}
-	clientV2, err := conf.CesV2Client(region)
+	clientV2, err := cfg.CesV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating Cloud Eye Service v2 client: %s", err)
 	}
@@ -909,13 +909,13 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := common.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   arId,
 			ResourceType: "CES-alarm",
 			RegionId:     region,
 			ProjectId:    clientV1.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
