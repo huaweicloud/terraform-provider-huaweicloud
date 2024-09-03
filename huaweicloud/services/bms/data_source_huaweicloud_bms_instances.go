@@ -236,7 +236,7 @@ func dataSourceBmsInstancesRead(_ context.Context, d *schema.ResourceData, meta 
 		FlavorId:            d.Get("flavor_id").(string),
 		Name:                d.Get("name").(string),
 		Status:              d.Get("status").(string),
-		EnterpriseProjectId: cfg.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 		Tags:                d.Get("tags").(string),
 	}
 

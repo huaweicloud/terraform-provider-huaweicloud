@@ -203,10 +203,10 @@ func computedSchemaSchedulerHints() *schema.Schema {
 	return &computedSchema
 }
 
-func buildListOptsWithoutStatus(d *schema.ResourceData, conf *config.Config) *cloudservers.ListOpts {
+func buildListOptsWithoutStatus(d *schema.ResourceData, cfg *config.Config) *cloudservers.ListOpts {
 	result := cloudservers.ListOpts{
 		Limit:               100,
-		EnterpriseProjectID: conf.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor_id").(string),
 		IPEqual:             d.Get("fixed_ip_v4").(string),

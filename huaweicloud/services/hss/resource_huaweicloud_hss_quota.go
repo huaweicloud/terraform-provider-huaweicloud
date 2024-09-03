@@ -254,7 +254,7 @@ func resourceQuotaRead(_ context.Context, d *schema.ResourceData, meta interface
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
 		id      = d.Id()
-		epsId   = cfg.DataGetEnterpriseProjectID(d)
+		epsId   = cfg.GetEnterpriseProjectID(d, "all_granted_eps")
 		product = "hss"
 	)
 
@@ -386,7 +386,7 @@ func resourceQuotaDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
 		id      = d.Id()
-		epsId   = cfg.DataGetEnterpriseProjectID(d)
+		epsId   = cfg.GetEnterpriseProjectID(d, "all_granted_eps")
 		product = "hss"
 	)
 

@@ -179,7 +179,7 @@ func buildQueryOpts(d *schema.ResourceData, cfg *config.Config) cloudvolumes.Lis
 		Name:                d.Get("name").(string),
 		VolumeTypeID:        d.Get("volume_type_id").(string),
 		AvailabilityZone:    d.Get("availability_zone").(string),
-		EnterpriseProjectID: cfg.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 		ServerID:            d.Get("server_id").(string),
 		Status:              d.Get("status").(string),
 	}

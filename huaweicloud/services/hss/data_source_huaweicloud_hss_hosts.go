@@ -181,7 +181,7 @@ func dataSourceHostsRead(_ context.Context, d *schema.ResourceData, meta interfa
 	var (
 		cfg      = meta.(*config.Config)
 		region   = cfg.GetRegion(d)
-		epsId    = cfg.DataGetEnterpriseProjectID(d)
+		epsId    = cfg.GetEnterpriseProjectID(d, "all_granted_eps")
 		limit    = int32(20)
 		offset   int32
 		allHosts []hssv5model.Host
