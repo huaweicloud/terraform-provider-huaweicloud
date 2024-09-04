@@ -898,13 +898,13 @@ func resourceAlarmRulesTemplateDelete(_ context.Context, d *schema.ResourceData,
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseQueryError400(err), "error deleting alarm rules template")
+		return common.CheckDeletedDiag(d, parseQueryError400(err, "AOM.02018001"), "error deleting alarm rules template")
 	}
 
 	return nil
 }
 
-func parseQueryError400(err error) error {
+func parseQueryError400(err error, notFoundErrorCode string) error {
 	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
 		var apiError interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
@@ -916,7 +916,7 @@ func parseQueryError400(err error) error {
 			return fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
 		}
 
-		if errorCode.(string) == "AOM.02018001" || errorCode.(string) == "AOM.02018002" {
+		if errorCode.(string) == notFoundErrorCode {
 			return golangsdk.ErrDefault404{}
 		}
 	}
