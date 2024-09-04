@@ -72,6 +72,10 @@ The `instances` block supports:
 
 * `port` - Indicates the database port.
 
+* `private_dns_name_prefix` - Indicates the prefix of the private domain name.
+
+* `private_dns_name` - Indicates the private domain name.
+
 * `mode` - Indicates the instance mode.
 
 * `db_user_name` - Indicates the default username.

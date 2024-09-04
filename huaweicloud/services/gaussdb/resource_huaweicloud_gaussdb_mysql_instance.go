@@ -189,6 +189,11 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"private_dns_name_prefix": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"datastore": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -302,6 +307,10 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Computed: true,
 			},
 			"db_user_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"private_dns_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -622,6 +631,15 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if _, ok := d.GetOk("private_dns_name_prefix"); ok {
+		if err = applyPrivateDNSName(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+		if err = updatePrivateDNSName(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -730,6 +748,10 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	}
 	if len(instance.PrivateIps) > 0 {
 		mErr = multierror.Append(mErr, d.Set("private_write_ip", instance.PrivateIps[0]))
+	}
+	if len(instance.PrivateDnsNames) > 0 {
+		mErr = multierror.Append(mErr, d.Set("private_dns_name_prefix", strings.Split(instance.PrivateDnsNames[0], ".")[0]))
+		mErr = multierror.Append(mErr, d.Set("private_dns_name", instance.PrivateDnsNames[0]))
 	}
 
 	// set data store
@@ -887,7 +909,7 @@ func setAuditLog(d *schema.ResourceData, client *golangsdk.ServiceClient, instan
 func setSqlFilter(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
 	resp, err := sqlfilter.Get(client, instanceId).Extract()
 	if err != nil {
-		log.Printf("[DEBUG] query instance %s sql filter status failed: %s", instanceId, err)
+		log.Printf("[WARN] query instance %s sql filter status failed: %s", instanceId, err)
 		return nil
 	}
 	var status bool
@@ -1063,6 +1085,23 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChange("security_group_id") {
 		err = updateSecurityGroup(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("private_dns_name_prefix") {
+		instance, err := instances.Get(client, d.Id()).Extract()
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if len(instance.PrivateDnsNames) == 0 || len(instance.PrivateDnsNames[0]) == 0 {
+			err = applyPrivateDNSName(ctx, client, d, schema.TimeoutUpdate)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		err = updatePrivateDNSName(ctx, client, d, schema.TimeoutUpdate)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1790,6 +1829,60 @@ func updateSecurityGroup(ctx context.Context, client *golangsdk.ServiceClient, d
 	})
 	if err != nil {
 		return fmt.Errorf("error updating security group for instance %s: %s ", d.Id(), err)
+	}
+
+	job := r.(*instances.JobResponse)
+	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
+}
+
+func applyPrivateDNSName(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	opts := instances.ApplyPrivateDnsNameOpts{
+		DnsType: "private",
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.ApplyPrivateDnsName(client, d.Id(), opts).ExtractJobResponse()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 5 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error applying private DNS name for instance %s: %s ", d.Id(), err)
+	}
+
+	job := r.(*instances.JobResponse)
+	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
+}
+
+func updatePrivateDNSName(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	opts := instances.UpdatePrivateDnsNameOpts{
+		DnsName: d.Get("private_dns_name_prefix").(string),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.UpdatePrivateDnsName(client, d.Id(), opts).ExtractJobResponse()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 5 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating private DNS name for instance %s: %s ", d.Id(), err)
 	}
 
 	job := r.(*instances.JobResponse)
