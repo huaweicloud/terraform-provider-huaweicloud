@@ -82,6 +82,10 @@ The `instances` block supports:
 
 * `private_write_ip` - Indicates the private IP address of the DB instance.
 
+* `maintain_begin` - Indicates the start time for a maintenance window.
+
+* `maintain_end` - Indicates the end time for a maintenance window.
+
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 
 The `datastore` block supports:

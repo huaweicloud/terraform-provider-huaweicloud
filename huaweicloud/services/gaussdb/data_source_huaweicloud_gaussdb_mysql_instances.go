@@ -117,6 +117,14 @@ func DataSourceGaussDBMysqlInstances() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"maintain_begin": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"maintain_end": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"datastore": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -288,6 +296,12 @@ func dataSourceGaussDBMysqlInstancesRead(_ context.Context, d *schema.ResourceDa
 		if len(instance.PrivateDnsNames) > 0 {
 			instanceToSet["private_dns_name_prefix"] = strings.Split(instance.PrivateDnsNames[0], ".")[0]
 			instanceToSet["private_dns_name"] = instance.PrivateDnsNames[0]
+		}
+
+		maintainWindow := strings.Split(instance.MaintenanceWindow, "-")
+		if len(maintainWindow) == 2 {
+			instanceToSet["maintain_begin"] = maintainWindow[0]
+			instanceToSet["maintain_end"] = maintainWindow[1]
 		}
 
 		flavor := ""

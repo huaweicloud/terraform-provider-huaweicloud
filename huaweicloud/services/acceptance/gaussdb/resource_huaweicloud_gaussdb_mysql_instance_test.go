@@ -51,6 +51,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "private_dns_name_prefix", "testprivatednsname"),
 					resource.TestCheckResourceAttr(resourceName, "private_dns_name",
 						"testprivatednsname.internal.cn-north-4.gaussdbformysql.myhuaweicloud.com"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "08:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "11:00"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -78,6 +80,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "private_dns_name_prefix", "testprivatednsnameupdate"),
 					resource.TestCheckResourceAttr(resourceName, "private_dns_name",
 						"testprivatednsnameupdate.internal.cn-north-4.gaussdbformysql.myhuaweicloud.com"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
@@ -272,6 +276,8 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   private_write_ip         = "192.168.0.156"
   port                     = "8888"
   private_dns_name_prefix  = "testprivatednsname"
+  maintain_begin           = "08:00"
+  maintain_end             = "11:00"
 
   parameters {
     name  = "default_authentication_plugin"
@@ -312,6 +318,8 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   private_write_ip         = "192.168.0.157"
   port                     = "9999"
   private_dns_name_prefix  = "testprivatednsnameupdate"
+  maintain_begin           = "14:00"
+  maintain_end             = "18:00"
 
   parameters {
     name  = "binlog_gtid_simple_recovery"
