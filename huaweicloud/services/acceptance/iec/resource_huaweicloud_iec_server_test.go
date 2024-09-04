@@ -22,7 +22,7 @@ func TestAccServerResource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckServerDestory,
+		CheckDestroy:      testAccCheckServerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServer_basic(rName),
@@ -85,7 +85,7 @@ func testAccCheckServerExists(n string, cloudserver *cloudservers.CloudServer) r
 	}
 }
 
-func testAccCheckServerDestory(s *terraform.State) error {
+func testAccCheckServerDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	iecClient, err := cfg.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
