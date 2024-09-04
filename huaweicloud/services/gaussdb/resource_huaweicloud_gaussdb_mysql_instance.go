@@ -41,6 +41,7 @@ type ctxType string
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/restart
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/ops-window
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/monitor-policy
 // @API GaussDBforMySQL GET /v3/{project_id}/jobs
 // @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/tags/action
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/name
@@ -57,6 +58,7 @@ type ctxType string
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy
 // @API GaussDBforMySQL GET /v3/{project_id}/instance/{instance_id}/audit-log/switch-status
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/sql-filter/switch
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/monitor-policy
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/tags
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/configurations
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}
@@ -204,6 +206,16 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				RequiredWith: []string{"maintain_begin"},
+			},
+			"seconds_level_monitoring_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"seconds_level_monitoring_period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"seconds_level_monitoring_enabled"},
 			},
 			"datastore": {
 				Type:     schema.TypeList,
@@ -657,6 +669,12 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if _, ok := d.GetOk("seconds_level_monitoring_enabled"); ok {
+		if err = updatesSecondsLevelMonitoring(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -789,6 +807,8 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	mErr = multierror.Append(mErr, setAuditLog(d, client, instanceID))
 	// set sql filter status
 	mErr = multierror.Append(mErr, setSqlFilter(d, client, instanceID))
+	// set seconds level monitoring
+	mErr = multierror.Append(mErr, setSecondsLevelMonitoring(d, client, instanceID)...)
 
 	// save tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
@@ -940,6 +960,18 @@ func setSqlFilter(d *schema.ResourceData, client *golangsdk.ServiceClient, insta
 		status = true
 	}
 	return d.Set("sql_filter_enabled", status)
+}
+
+func setSecondsLevelMonitoring(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) []error {
+	resp, err := instances.GetSecondLevelMonitoring(client, instanceId).Extract()
+	if err != nil {
+		log.Printf("[WARN] query instance %s seconds level monitoring failed: %s", instanceId, err)
+		return nil
+	}
+	var errs []error
+	errs = append(errs, d.Set("seconds_level_monitoring_enabled", resp.MonitorSwitch))
+	errs = append(errs, d.Set("seconds_level_monitoring_period", resp.Period))
+	return errs
 }
 
 func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
@@ -1132,6 +1164,13 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChanges("maintain_begin", "maintain_end") {
 		err = updateMaintainWindow(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("seconds_level_monitoring_enabled", "seconds_level_monitoring_period") {
+		err = updatesSecondsLevelMonitoring(ctx, client, d, schema.TimeoutUpdate)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1931,6 +1970,35 @@ func updateMaintainWindow(client *golangsdk.ServiceClient, d *schema.ResourceDat
 	}
 
 	return nil
+}
+
+func updatesSecondsLevelMonitoring(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout string) error {
+	opts := instances.UpdateSecondLevelMonitoringOpts{
+		MonitorSwitch: d.Get("seconds_level_monitoring_enabled").(bool),
+		Period:        d.Get("seconds_level_monitoring_period").(int),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.UpdateSecondLevelMonitoring(client, d.Id(), opts).ExtractJobResponse()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 5 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating seconds level monitoring for instance %s: %s ", d.Id(), err)
+	}
+
+	job := r.(*instances.JobResponse)
+	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
 }
 
 func checkGaussDBMySQLJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
