@@ -125,6 +125,10 @@ func DataSourceGaussDBMysqlInstances() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"datastore": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -196,6 +200,14 @@ func DataSourceGaussDBMysqlInstances() *schema.Resource {
 									},
 								},
 							},
+						},
+						"created_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"updated_at": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},
@@ -289,6 +301,9 @@ func dataSourceGaussDBMysqlInstancesRead(_ context.Context, d *schema.ResourceDa
 		instanceToSet["configuration_id"] = instance.ConfigurationId
 		instanceToSet["availability_zone_mode"] = instance.AZMode
 		instanceToSet["master_availability_zone"] = instance.MasterAZ
+		instanceToSet["description"] = instance.Alias
+		instanceToSet["created_at"] = instance.Created
+		instanceToSet["updated_at"] = instance.Updated
 
 		if len(instance.PrivateIps) > 0 {
 			instanceToSet["private_write_ip"] = instance.PrivateIps[0]

@@ -76,6 +76,14 @@ The following arguments are supported:
 
 * `port` - (Optional, Int) Specifies the database port.
 
+* `ssl_option` - (Optional, String) Specifies whether to enable SSL. Value options:
+  + **true**: SSL is enabled.
+  + **false**: SSL is disabled.
+
+  Defaults to **true**.
+
+* `description` - (Optional, String) Specifies the description of the instance.
+
 * `private_write_ip` - (Optional, String) Specifies the private IP address of the DB instance.
 
 * `configuration_id` - (Optional, String) Specifies the configuration ID.
@@ -192,6 +200,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `private_dns_name` - Indicates the private domain name.
 
+* `created_at` - Indicates the creation time in the **yyyy-mm-ddThh:mm:ssZ** format.
+
+* `updated_at` - Indicates the Update time in the **yyyy-mm-ddThh:mm:ssZ** format.
+
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 
 The `nodes` block contains:
@@ -225,8 +237,8 @@ $ terraform import huaweicloud_gaussdb_mysql_instance.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
-API response. The missing attribute is: `table_name_case_sensitivity`, `enterprise_project_id`, `password` and
-`parameters`. It is generally recommended running `terraform plan` after importing a GaussDB MySQL instance. You can
+API response. The missing attribute is: `table_name_case_sensitivity`, `enterprise_project_id`, `password`, `ssl_option`
+and `parameters`. It is generally recommended running `terraform plan` after importing a GaussDB MySQL instance. You can
 then decide if changes should be applied to the GaussDB MySQL instance, or the resource definition should be updated to
 align with the GaussDB MySQL instance. Also you can ignore changes as below.
 
@@ -236,7 +248,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      new_node_weight, proxy_mode, readonly_nodes_weight, parameters,
+      new_node_weight, proxy_mode, readonly_nodes_weight, parameters, ssl_option,
     ]
   }
 }

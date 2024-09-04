@@ -32,6 +32,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGaussDBInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_gaussdb_mysql_flavors.test", "flavors.0.name"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "09:00-10:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
 					resource.TestCheckResourceAttr(resourceName, "read_replicas", "2"),
@@ -42,8 +44,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 						"huaweicloud_gaussdb_mysql_parameter_template.test.0", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "configuration_name",
 						"huaweicloud_gaussdb_mysql_parameter_template.test.0", "name"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "default_authentication_plugin"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "mysql_native_password"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "auto_increment_increment"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "50"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"huaweicloud_networking_secgroup.test.0", "id"),
 					resource.TestCheckResourceAttr(resourceName, "private_write_ip", "192.168.0.156"),
@@ -55,6 +57,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "11:00"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_period", "1"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -64,6 +67,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGaussDBInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_gaussdb_mysql_flavors.test", "flavors.1.name"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "12:00-13:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "10"),
 					resource.TestCheckResourceAttr(resourceName, "read_replicas", "4"),
@@ -73,8 +78,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 						"huaweicloud_gaussdb_mysql_parameter_template.test.1", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "configuration_name",
 						"huaweicloud_gaussdb_mysql_parameter_template.test.1", "name"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "binlog_gtid_simple_recovery"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "ON"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "character_set_server"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "utf8"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"huaweicloud_networking_secgroup.test.1", "id"),
 					resource.TestCheckResourceAttr(resourceName, "private_write_ip", "192.168.0.157"),
@@ -85,6 +90,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
@@ -97,6 +103,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					"table_name_case_sensitivity",
 					"enterprise_project_id",
 					"password",
+					"ssl_option",
 					"parameters",
 				},
 			},
@@ -252,8 +259,8 @@ resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
   datastore_version = "8.0"
 
   parameter_values = {
-    default_authentication_plugin = "sha256_password"
-    binlog_gtid_simple_recovery   = "OFF"
+    auto_increment_increment = "100"
+    character_set_server     = "gbk"
   }
 }
 `, common.TestVpc(rName), rName)
@@ -281,13 +288,15 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   private_dns_name_prefix  = "testprivatednsname"
   maintain_begin           = "08:00"
   maintain_end             = "11:00"
+  ssl_option               = "false"
+  description              = "test_description"
 
   seconds_level_monitoring_enabled = true
   seconds_level_monitoring_period  = 1
 
   parameters {
-    name  = "default_authentication_plugin"
-    value = "mysql_native_password"
+    name  = "auto_increment_increment"
+    value = "50"
   }
 
   backup_strategy {
@@ -326,12 +335,14 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   private_dns_name_prefix  = "testprivatednsnameupdate"
   maintain_begin           = "14:00"
   maintain_end             = "18:00"
+  ssl_option               = "true"
+  description              = ""
 
   seconds_level_monitoring_enabled = false
 
   parameters {
-    name  = "binlog_gtid_simple_recovery"
-    value = "ON"
+    name  = "character_set_server"
+    value = "utf8"
   }
 
   backup_strategy {
