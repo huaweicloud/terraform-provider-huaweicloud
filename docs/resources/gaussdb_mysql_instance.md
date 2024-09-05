@@ -80,6 +80,9 @@ The following arguments are supported:
 
 * `configuration_id` - (Optional, String) Specifies the configuration ID.
 
+* `private_dns_name_prefix` - (Optional, String) Specifies the prefix of the private domain name. The value contains
+  **8** to **63** characters. Only uppercase letters, lowercase letters, and digits are allowed.
+
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id. Required if EPS enabled.
 
 * `table_name_case_sensitivity` - (Optional, Bool) Whether the kernel table name is case sensitive. The value can
@@ -164,18 +167,29 @@ The `parameters` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the DB instance ID.
+
 * `status` - Indicates the DB instance status.
+
 * `mode` - Indicates the instance mode.
+
 * `db_user_name` - Indicates the default username.
+
+* `private_dns_name` - Indicates the private domain name.
+
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 
 The `nodes` block contains:
 
 * `id` - Indicates the node ID.
+
 * `name` - Indicates the node name.
+
 * `type` - Indicates the node type: master or slave.
+
 * `status` - Indicates the node status.
+
 * `private_read_ip` - Indicates the private IP address of a node.
+
 * `availability_zone` - Indicates the availability zone where the node resides.
 
 ## Timeouts

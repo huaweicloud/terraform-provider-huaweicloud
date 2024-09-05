@@ -561,3 +561,191 @@ func UpdateSecurityGroup(client *golangsdk.ServiceClient, instanceId string, opt
 
 	return
 }
+
+type UpdateSslOptionOpts struct {
+	SslOption bool `json:"ssl_option"`
+}
+
+type UpdateSslOptionBuilder interface {
+	ToSslOptionUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdateSslOptionOpts) ToSslOptionUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdateSslOption(client *golangsdk.ServiceClient, instanceId string, opts UpdateSslOptionBuilder) (r JobResult) {
+	b, err := opts.ToSslOptionUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateURL(client, instanceId, "ssl-option"), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return
+}
+
+type UpdateAliasOpts struct {
+	Alias string `json:"alias"`
+}
+
+type UpdateAliasBuilder interface {
+	ToAliasUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdateAliasOpts) ToAliasUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdateAlias(client *golangsdk.ServiceClient, instanceId string, opts UpdateAliasBuilder) (r UpdateAliasResult) {
+	b, err := opts.ToAliasUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateURL(client, instanceId, "alias"), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return
+}
+
+type UpdateMaintenanceWindowOpts struct {
+	StartTime string `json:"start_time" required:"true"`
+	EndTime   string `json:"end_time" required:"true"`
+}
+
+type UpdateMaintenanceWindowBuilder interface {
+	ToMaintenanceWindowUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdateMaintenanceWindowOpts) ToMaintenanceWindowUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdateMaintenanceWindow(client *golangsdk.ServiceClient, instanceId string,
+	opts UpdateMaintenanceWindowBuilder) (r UpdateMaintenanceWindowResult) {
+	b, err := opts.ToMaintenanceWindowUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateURL(client, instanceId, "ops-window"), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return
+}
+
+type UpdateSecondLevelMonitoringOpts struct {
+	MonitorSwitch bool `json:"monitor_switch"`
+	Period        int  `json:"period,omitempty"`
+}
+
+type UpdateSecondLevelMonitoringBuilder interface {
+	ToSecondLevelMonitoringUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdateSecondLevelMonitoringOpts) ToSecondLevelMonitoringUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdateSecondLevelMonitoring(client *golangsdk.ServiceClient, instanceId string,
+	opts UpdateSecondLevelMonitoringBuilder) (r JobResult) {
+	b, err := opts.ToSecondLevelMonitoringUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateURL(client, instanceId, "monitor-policy"), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return
+}
+
+func GetSecondLevelMonitoring(client *golangsdk.ServiceClient, instanceId string) (r GetSecondLevelMonitoringResult) {
+	url := secondLevelMonitoringURL(client, instanceId)
+
+	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
+type ApplyPrivateDnsNameOpts struct {
+	DnsType string `json:"dns_type" required:"true"`
+}
+
+type ApplyPrivateDnsNameBuilder interface {
+	ToPrivateDnsNameApplyMap() (map[string]interface{}, error)
+}
+
+func (opts ApplyPrivateDnsNameOpts) ToPrivateDnsNameApplyMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func ApplyPrivateDnsName(client *golangsdk.ServiceClient, instanceId string, opts ApplyPrivateDnsNameBuilder) (r JobResult) {
+	b, err := opts.ToPrivateDnsNameApplyMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(updateURL(client, instanceId, "dns"), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return
+}
+
+type UpdatePrivateDnsNameOpts struct {
+	DnsName string `json:"dns_name" required:"true"`
+}
+
+type UpdatePrivateDnsNameBuilder interface {
+	ToPrivateDnsNameUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdatePrivateDnsNameOpts) ToPrivateDnsNameUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdatePrivateDnsName(client *golangsdk.ServiceClient, instanceId string, opts UpdatePrivateDnsNameBuilder) (r JobResult) {
+	b, err := opts.ToPrivateDnsNameUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateURL(client, instanceId, "dns"), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return
+}

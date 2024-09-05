@@ -30,6 +30,10 @@ func proxyURL(c *golangsdk.ServiceClient, instanceID string) string {
 	return c.ServiceURL("instances", instanceID, "proxy")
 }
 
+func secondLevelMonitoringURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "monitor-policy")
+}
+
 func jobURL(sc *golangsdk.ServiceClient) string {
 	return sc.ServiceURL("jobs")
 }
