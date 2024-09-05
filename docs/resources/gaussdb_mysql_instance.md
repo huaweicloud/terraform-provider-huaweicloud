@@ -83,6 +83,13 @@ The following arguments are supported:
 * `private_dns_name_prefix` - (Optional, String) Specifies the prefix of the private domain name. The value contains
   **8** to **63** characters. Only uppercase letters, lowercase letters, and digits are allowed.
 
+* `maintain_begin` - (Optional, String) Specifies the start time for a maintenance window, for example, **22:00**.
+
+* `maintain_end` - (Optional, String) Specifies the end time for a maintenance window, for example, **01:00**.
+
+-> **Note** The start time and end time of a maintenance window must be on the hour, and the interval between them at
+  most four hours.
+
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id. Required if EPS enabled.
 
 * `table_name_case_sensitivity` - (Optional, Bool) Whether the kernel table name is case sensitive. The value can

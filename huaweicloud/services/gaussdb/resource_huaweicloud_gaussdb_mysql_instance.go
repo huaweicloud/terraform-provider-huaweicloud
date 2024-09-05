@@ -40,6 +40,7 @@ type ctxType string
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/backups/policy/update
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/restart
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/ops-window
 // @API GaussDBforMySQL GET /v3/{project_id}/jobs
 // @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/tags/action
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/name
@@ -192,6 +193,17 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+			"maintain_begin": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"maintain_end": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"maintain_begin"},
 			},
 			"datastore": {
 				Type:     schema.TypeList,
@@ -639,6 +651,12 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if _, ok := d.GetOk("maintain_begin"); ok {
+		if err = updateMaintainWindow(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -733,6 +751,12 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 		d.Set("availability_zone_mode", instance.AZMode),
 		d.Set("master_availability_zone", instance.MasterAZ),
 	)
+
+	maintainWindow := strings.Split(instance.MaintenanceWindow, "-")
+	if len(maintainWindow) == 2 {
+		mErr = multierror.Append(mErr, d.Set("maintain_begin", maintainWindow[0]))
+		mErr = multierror.Append(mErr, d.Set("maintain_end", maintainWindow[1]))
+	}
 
 	if instance.ConfigurationId != "" {
 		mErr = multierror.Append(mErr, setConfigurationId(d, client, instance.ConfigurationId))
@@ -1101,6 +1125,13 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 			}
 		}
 		err = updatePrivateDNSName(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("maintain_begin", "maintain_end") {
+		err = updateMaintainWindow(client, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1886,6 +1917,20 @@ func updatePrivateDNSName(ctx context.Context, client *golangsdk.ServiceClient, 
 
 	job := r.(*instances.JobResponse)
 	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
+}
+
+func updateMaintainWindow(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateMaintenanceWindowOpts := instances.UpdateMaintenanceWindowOpts{
+		StartTime: d.Get("maintain_begin").(string),
+		EndTime:   d.Get("maintain_end").(string),
+	}
+
+	_, err := instances.UpdateMaintenanceWindow(client, d.Id(), updateMaintenanceWindowOpts).ExtractUpdateMaintenanceWindowResponse()
+	if err != nil {
+		return fmt.Errorf("error updating maintenance window for instance %s: %s ", d.Id(), err)
+	}
+
+	return nil
 }
 
 func checkGaussDBMySQLJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
