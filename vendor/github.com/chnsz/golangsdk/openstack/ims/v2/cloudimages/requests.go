@@ -241,6 +241,30 @@ type CreateDataImageByOBSOpts struct {
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
+// CreateSystemImageByVolumeOpts is the structure used to create a system image from EVS volume.
+type CreateSystemImageByVolumeOpts struct {
+	// The name of the system image.
+	Name string `json:"name" required:"true"`
+	// The data disk ID.
+	VolumeId string `json:"volume_id" required:"true"`
+	// The operating system version.
+	OsVersion string `json:"os_version,omitempty"`
+	// The image type, the value can be **ECS**, **FusionCompute**, **BMS**, or **Ironic**.
+	Type string `json:"type,omitempty"`
+	// The description of the image.
+	Description string `json:"description,omitempty"`
+	// The minimum memory of the image, in MB unit.
+	MinRam int `json:"min_ram,omitempty"`
+	// The maximum memory of the image, in MB unit.
+	MaxRam int `json:"max_ram,omitempty"`
+	// The image label list, **key.value** format.
+	Tags []string `json:"tags,omitempty"`
+	// One or more tag key and value pairs to associate with the image.
+	ImageTags []ImageTag `json:"image_tags,omitempty"`
+	// Enterprise project ID
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
+}
+
 type DataImage struct {
 	// the data disk image name
 	Name string `json:"name" required:"true"`
@@ -276,6 +300,11 @@ func (opts CreateDataImageByOBSOpts) ToImageCreateMap() (map[string]interface{},
 }
 
 func (opts CreateWholeImageOpts) ToImageCreateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// ToImageCreateMap assembles a request body based on the contents of the CreateSystemImageByVolumeOpts.
+func (opts CreateSystemImageByVolumeOpts) ToImageCreateMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "")
 }
 
