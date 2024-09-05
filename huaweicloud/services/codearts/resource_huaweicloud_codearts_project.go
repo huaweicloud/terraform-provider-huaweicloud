@@ -150,7 +150,7 @@ func buildCreateProjectBodyParams(d *schema.ResourceData, cfg *config.Config) ma
 	bodyParams := map[string]interface{}{
 		"project_name":  utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":   utils.ValueIgnoreEmpty(d.Get("description")),
-		"enterprise_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"project_type":  utils.ValueIgnoreEmpty(d.Get("type")),
 		"source":        utils.ValueIgnoreEmpty(d.Get("source")),
 		"template_id":   utils.ValueIgnoreEmpty(d.Get("template_id")),

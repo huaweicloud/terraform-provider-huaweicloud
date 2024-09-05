@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/obs"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -1082,19 +1081,19 @@ func deleteObsBucketUserDomainNames(obsClient *obs.ObsClient, bucket string, dom
 	return nil
 }
 
-func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.ResourceData, conf *config.Config,
+func resourceObsBucketEnterpriseProjectIdUpdate(ctx context.Context, d *schema.ResourceData, cfg *config.Config,
 	obsClient *obs.ObsClient, region string) error {
 	var (
-		projectId   = conf.GetProjectID(region)
+		projectId   = cfg.GetProjectID(region)
 		bucket      = d.Get("bucket").(string)
-		migrateOpts = enterpriseprojects.MigrateResourceOpts{
+		migrateOpts = config.MigrateResourceOpts{
 			ResourceId:   bucket,
 			ResourceType: "bucket",
 			RegionId:     region,
 			ProjectId:    projectId,
 		}
 	)
-	err := common.MigrateEnterpriseProjectWithoutWait(conf, d, migrateOpts)
+	err := cfg.MigrateEnterpriseProjectWithoutWait(d, migrateOpts)
 	if err != nil {
 		return err
 	}

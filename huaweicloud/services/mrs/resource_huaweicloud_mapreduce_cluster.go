@@ -17,7 +17,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/mrs/v1/cluster"
 	clusterv2 "github.com/chnsz/golangsdk/openstack/mrs/v2/clusters"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
@@ -739,7 +738,7 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 		EipId:                eipId,
 		EipAddress:           publicIp,
 		Components:           strings.Join(utils.ExpandToStringListBySet(d.Get("component_list").(*schema.Set)), ","),
-		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectId:  cfg.GetEnterpriseProjectID(d),
 		LogCollection:        buildLogCollection(d),
 		NodeGroups:           buildMrsClusterNodeGroups(d),
 		SafeMode:             buildMrsSafeMode(d),
@@ -1354,13 +1353,13 @@ func resourceMRSClusterV2Update(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   clusterId,
 			ResourceType: "clusters",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

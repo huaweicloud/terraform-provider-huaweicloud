@@ -112,8 +112,8 @@ func ResourceCertificateV2() *schema.Resource {
 }
 
 func resourceCertificateV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	elbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -123,7 +123,7 @@ func resourceCertificateV2Create(ctx context.Context, d *schema.ResourceData, me
 		Description:         d.Get("description").(string),
 		Type:                d.Get("type").(string),
 		Domain:              d.Get("domain").(string),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)

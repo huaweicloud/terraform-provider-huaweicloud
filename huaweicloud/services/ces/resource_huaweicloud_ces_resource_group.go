@@ -15,7 +15,6 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -202,7 +201,7 @@ func buildCreateResourceGroupBodyParams(d *schema.ResourceData, cfg *config.Conf
 	bodyParams := map[string]interface{}{
 		"group_name":            utils.ValueIgnoreEmpty(d.Get("name")),
 		"type":                  utils.ValueIgnoreEmpty(d.Get("type")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"tags":                  utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 		"association_ep_ids":    utils.ValueIgnoreEmpty(d.Get("associated_eps_ids")),
 	}
@@ -389,13 +388,13 @@ func resourceResourceGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   resourceGroupId,
 			ResourceType: "CES-resourceGroup",
 			RegionId:     region,
 			ProjectId:    updateResourceGroupClient.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

@@ -12,7 +12,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/vpcs"
 
 	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3"
@@ -118,9 +117,9 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 }
 
 func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	v1Client, err := conf.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v1 client: %s", err)
 	}
@@ -131,7 +130,7 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 		Description: d.Get("description").(string),
 	}
 
-	epsID := common.GetEnterpriseProjectID(d, conf)
+	epsID := cfg.GetEnterpriseProjectID(d)
 	if epsID != "" {
 		createOpts.EnterpriseProjectID = epsID
 	}
@@ -163,7 +162,7 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		v2Client, err := conf.NetworkingV2Client(region)
+		v2Client, err := cfg.NetworkingV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating VPC v2 client: %s", err)
 		}
@@ -182,7 +181,7 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if len(extendCidrs) > 0 {
-		v3Client, err := conf.HcVpcV3Client(region)
+		v3Client, err := cfg.HcVpcV3Client(region)
 		if err != nil {
 			return diag.Errorf("error creating VPC v3 client: %s", err)
 		}
@@ -270,13 +269,13 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 }
 
 func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	v1Client, err := conf.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
-	v3Client, err := conf.HcVpcV3Client(region)
+	v3Client, err := cfg.HcVpcV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v3 client: %s", err)
 	}
@@ -300,7 +299,7 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 
 	// update tags
 	if d.HasChange("tags") {
-		v2Client, err := conf.NetworkingV2Client(region)
+		v2Client, err := cfg.NetworkingV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating VPC v2 client: %s", err)
 		}
@@ -346,13 +345,13 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   vpcID,
 			ResourceType: "vpcs",
 			RegionId:     region,
 			ProjectId:    v1Client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

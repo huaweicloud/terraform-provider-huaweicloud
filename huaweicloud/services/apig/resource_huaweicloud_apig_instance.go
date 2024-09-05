@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -301,7 +300,7 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, cfg *config.Config) m
 		"available_zone_ids":              utils.ValueIgnoreEmpty(buildInstanceAvailabilityZones(d)),
 		"description":                     utils.ValueIgnoreEmpty(d.Get("description")),
 		"bandwidth_size":                  d.Get("bandwidth_size"), // Bandwidth 0 means turn off the egress access.
-		"enterprise_project_id":           common.GetEnterpriseProjectID(d, cfg),
+		"enterprise_project_id":           cfg.GetEnterpriseProjectID(d),
 		"eip_id":                          utils.ValueIgnoreEmpty(d.Get("eip_id")),
 		"ipv6_enable":                     utils.ValueIgnoreEmpty(d.Get("ipv6_enable")),
 		"loadbalancer_provider":           utils.ValueIgnoreEmpty(d.Get("loadbalancer_provider")),
@@ -887,13 +886,13 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "apig",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

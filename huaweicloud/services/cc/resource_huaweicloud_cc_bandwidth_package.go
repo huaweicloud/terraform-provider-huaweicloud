@@ -17,7 +17,6 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -198,7 +197,7 @@ func buildCreateBandwidthPackageBodyParams(d *schema.ResourceData, cfg *config.C
 		"bandwidth_package": map[string]interface{}{
 			"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 			"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-			"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 			"local_area_id":         utils.ValueIgnoreEmpty(d.Get("local_area_id")),
 			"remote_area_id":        utils.ValueIgnoreEmpty(d.Get("remote_area_id")),
 			"charge_mode":           utils.ValueIgnoreEmpty(d.Get("charge_mode")),
@@ -339,13 +338,13 @@ func resourceBandwidthPackageUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   bandWidthId,
 			ResourceType: "bwp",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

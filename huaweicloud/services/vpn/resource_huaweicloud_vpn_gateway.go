@@ -21,7 +21,6 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -541,7 +540,7 @@ func buildCreateGatewayVpnGatewayChildBody(d *schema.ResourceData, cfg *config.C
 		"availability_zone_ids": utils.ValueIgnoreEmpty(d.Get("availability_zones")),
 		"bgp_asn":               utils.ValueIgnoreEmpty(d.Get("asn")),
 		"connect_subnet":        utils.ValueIgnoreEmpty(d.Get("connect_subnet")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"flavor":                utils.ValueIgnoreEmpty(d.Get("flavor")),
 		"local_subnets":         utils.ValueIgnoreEmpty(d.Get("local_subnets")),
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
@@ -890,13 +889,13 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   gatewayId,
 			ResourceType: "vpn-gateway",
 			RegionId:     region,
 			ProjectId:    updateGatewayClient.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

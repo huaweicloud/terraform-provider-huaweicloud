@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model"
@@ -428,15 +427,15 @@ func setLogstashNodeConfigsAndAz(d *schema.ResourceData, detail *model.ShowClust
 }
 
 func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 	clusterId := d.Id()
-	cssV1Client, err := conf.HcCssV1Client(region)
+	cssV1Client, err := cfg.HcCssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
-	client, err := conf.CssV1Client(region)
+	client, err := cfg.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
@@ -471,7 +470,7 @@ func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChange("tags") {
-		client, err := conf.CssV1Client(region)
+		client, err := cfg.CssV1Client(region)
 		if err != nil {
 			return diag.Errorf("error creating CSS V1 client: %s", err)
 		}
@@ -482,7 +481,7 @@ func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChanges("charging_mode", "auto_renew") {
-		bssClient, err := conf.BssV2Client(region)
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
@@ -494,13 +493,13 @@ func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   clusterId,
 			ResourceType: "css-cluster",
 			RegionId:     region,
-			ProjectId:    conf.GetProjectID(region),
+			ProjectId:    cfg.GetProjectID(region),
 		}
-		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -509,11 +508,11 @@ func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, 
 		oldRaws, newRaws := d.GetChange("routes")
 		addRaws := newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
 		delRaws := oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
-		err := updateClusterRoute(conf, d, delRaws.List(), "del_ip")
+		err := updateClusterRoute(cfg, d, delRaws.List(), "del_ip")
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		err = updateClusterRoute(conf, d, addRaws.List(), "add_ip")
+		err = updateClusterRoute(cfg, d, addRaws.List(), "add_ip")
 		if err != nil {
 			return diag.FromErr(err)
 		}

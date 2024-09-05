@@ -356,7 +356,7 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		LoadBalancerType:         d.Get("loadbalancer_type").(string),
 		Name:                     d.Get("name").(string),
 		Description:              d.Get("description").(string),
-		EnterpriseProjectID:      common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectID:      cfg.GetEnterpriseProjectID(d),
 		DeletionProtectionEnable: &deleteProtectionEnable,
 		WafFailureAction:         d.Get("waf_failure_action").(string),
 	}

@@ -124,7 +124,7 @@ func buildResourcesList(resources *schema.Set) []environments.Resource {
 	return result
 }
 
-func buildEnvironmentCreateOpts(d *schema.ResourceData, conf *config.Config) environments.CreateOpts {
+func buildEnvironmentCreateOpts(d *schema.ResourceData, cfg *config.Config) environments.CreateOpts {
 	desc := d.Get("description").(string)
 	return environments.CreateOpts{
 		Name:                d.Get("name").(string),
@@ -132,7 +132,7 @@ func buildEnvironmentCreateOpts(d *schema.ResourceData, conf *config.Config) env
 		VpcId:               d.Get("vpc_id").(string),
 		BaseResources:       buildResourcesList(d.Get("basic_resources").(*schema.Set)),
 		OptionalResources:   buildResourcesList(d.Get("optional_resources").(*schema.Set)),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
 }
 

@@ -150,7 +150,7 @@ func buildCreateSecurityPolicyChildBodyParams(d *schema.ResourceData, cfg *confi
 	return map[string]interface{}{
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"protocols":             utils.ValueIgnoreEmpty(d.Get("protocols")),
 		"ciphers":               utils.ValueIgnoreEmpty(d.Get("ciphers")),
 	}

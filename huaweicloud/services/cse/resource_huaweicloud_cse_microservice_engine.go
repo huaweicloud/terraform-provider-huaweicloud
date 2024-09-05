@@ -340,14 +340,14 @@ func resourceMicroserviceEngineRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func resourceMicroserviceEngineDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	client, err := conf.CseV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CseV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSE v2 client: %s", err)
 	}
 
-	epsId := common.GetEnterpriseProjectID(d, conf)
+	epsId := cfg.GetEnterpriseProjectID(d)
 	resp, err := engines.Delete(client, d.Id(), epsId)
 	if err != nil {
 		return diag.Errorf("error getting Microservice engine: %s", err)

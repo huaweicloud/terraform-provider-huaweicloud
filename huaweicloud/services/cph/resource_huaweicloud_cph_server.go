@@ -366,7 +366,7 @@ func buildCreateCphServerBodyParams(d *schema.ResourceData, cfg *config.Config) 
 		"charging_mode":         0,
 		"is_auto_pay":           1,
 		"period_num":            utils.ValueIgnoreEmpty(d.Get("period")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 
 	periodUnit := d.Get("period_unit").(string)

@@ -342,7 +342,7 @@ func createRabbitMQInstanceWithFlavor(ctx context.Context, d *schema.ResourceDat
 		MaintainEnd:         d.Get("maintain_end").(string),
 		SslEnable:           d.Get("ssl_enable").(bool),
 		StorageSpecCode:     d.Get("storage_spec_code").(string),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -516,7 +516,7 @@ func createRabbitMQInstanceWithProductID(ctx context.Context, d *schema.Resource
 		MaintainEnd:         d.Get("maintain_end").(string),
 		SslEnable:           d.Get("ssl_enable").(bool),
 		StorageSpecCode:     d.Get("storage_spec_code").(string),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 	}
 
 	if pubIpID, ok := d.GetOk("public_ip_id"); ok {

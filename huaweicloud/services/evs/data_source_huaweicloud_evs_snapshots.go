@@ -180,7 +180,7 @@ func datasourceSnapshotsRead(_ context.Context, d *schema.ResourceData, meta int
 
 func buildEVSSnapshotsQueryParams(d *schema.ResourceData, cfg *config.Config) string {
 	res := ""
-	epsId := cfg.DataGetEnterpriseProjectID(d)
+	epsId := cfg.GetEnterpriseProjectID(d, "all_granted_eps")
 	if epsId != "" {
 		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, epsId)
 	}

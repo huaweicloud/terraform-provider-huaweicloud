@@ -82,9 +82,9 @@ func ResourceDNSPtrRecord() *schema.Resource {
 }
 
 func resourceDNSPtrRecordCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	dnsClient, err := conf.DnsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	dnsClient, err := cfg.DnsV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -94,7 +94,7 @@ func resourceDNSPtrRecordCreate(ctx context.Context, d *schema.ResourceData, met
 		Description:         d.Get("description").(string),
 		TTL:                 d.Get("ttl").(int),
 		Tags:                getPtrRecordsTagList(d),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 	}
 
 	log.Printf("[DEBUG] Create options: %#v", createOpts)

@@ -121,7 +121,7 @@ func datasourceRansomwareProtectionPoliciesRead(_ context.Context, d *schema.Res
 	var (
 		cfg         = meta.(*config.Config)
 		region      = cfg.GetRegion(d)
-		epsId       = cfg.DataGetEnterpriseProjectID(d)
+		epsId       = cfg.GetEnterpriseProjectID(d, "all_granted_eps")
 		limit       = int32(20)
 		offset      int32
 		allPolicies []hssv5model.ProtectionPolicyInfo

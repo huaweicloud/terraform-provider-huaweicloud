@@ -14,7 +14,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
@@ -222,7 +221,7 @@ func dataSourceImagesImagesRead(_ context.Context, d *schema.ResourceData, meta 
 		Status:         "active",
 	}
 
-	if epsId := common.GetEnterpriseProjectID(d, cfg); epsId != "" {
+	if epsId := cfg.GetEnterpriseProjectID(d); epsId != "" {
 		listOpts.EnterpriseProjectID = epsId
 	} else {
 		listOpts.EnterpriseProjectID = "all_granted_eps"

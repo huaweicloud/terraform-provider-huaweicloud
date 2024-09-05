@@ -256,12 +256,12 @@ func buildCreateAcceleratorBodyParams(d *schema.ResourceData, conf *config.Confi
 	return bodyParams
 }
 
-func buildCreateAcceleratorAcceleratorChildBody(d *schema.ResourceData, conf *config.Config) map[string]interface{} {
+func buildCreateAcceleratorAcceleratorChildBody(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	params := map[string]interface{}{
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"ip_sets":               buildCreateAcceleratorIpSetsChildBody(d),
 		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, conf)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 	}
 	return params

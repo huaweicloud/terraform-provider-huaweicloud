@@ -284,7 +284,7 @@ func createByInstanceId(d *schema.ResourceData, cfg *config.Config, client *gola
 			MinRam:              d.Get("min_ram").(int),
 			InstanceId:          instanceId,
 			ImageTags:           imageTags,
-			EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+			EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 			VaultId:             vaultId.(string),
 		}
 		log.Printf("[DEBUG] Create whole image options: %#v", createOpts)
@@ -297,7 +297,7 @@ func createByInstanceId(d *schema.ResourceData, cfg *config.Config, client *gola
 			MinRam:              d.Get("min_ram").(int),
 			InstanceId:          instanceId,
 			ImageTags:           imageTags,
-			EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+			EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		}
 		log.Printf("[DEBUG] Create by server options: %#v", createOpts)
 		return cloudimages.CreateImageByServer(client, createOpts).ExtractJobResponse()
@@ -318,7 +318,7 @@ func createByImageUrl(d *schema.ResourceData, cfg *config.Config, client *golang
 		CmkId:               d.Get("cmk_id").(string),
 		Type:                d.Get("type").(string),
 		ImageTags:           imageTags,
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 	}
 	log.Printf("[DEBUG] Create by OBS options: %#v", createOpts)
 	return cloudimages.CreateImageByOBS(client, createOpts).ExtractJobResponse()
@@ -337,7 +337,7 @@ func createByBackupId(d *schema.ResourceData, cfg *config.Config,
 		MinRam:              d.Get("min_ram").(int),
 		BackupId:            d.Get("backup_id").(string),
 		ImageTags:           imageTags,
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		WholeImageType:      "CBR",
 	}
 	log.Printf("[DEBUG] Create whole image options: %#v", createOpts)

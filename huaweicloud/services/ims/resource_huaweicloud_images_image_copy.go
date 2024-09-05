@@ -170,7 +170,7 @@ func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, met
 			Name:                d.Get("name").(string),
 			Description:         d.Get("description").(string),
 			CmkId:               d.Get("kms_key_id").(string),
-			EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+			EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		}
 
 		log.Printf("[DEBUG] Within region copy Options: %#v", withinRegionCopyOpts)

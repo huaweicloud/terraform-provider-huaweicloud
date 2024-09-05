@@ -244,7 +244,7 @@ func resourceLoadBalancerV2Create(ctx context.Context, d *schema.ResourceData, m
 		AdminStateUp:        &adminStateUp,
 		Flavor:              d.Get("flavor").(string),
 		Provider:            lbProvider,
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		ProtectionStatus:    d.Get("protection_status").(string),
 		ProtectionReason:    d.Get("protection_reason").(string),
 	}

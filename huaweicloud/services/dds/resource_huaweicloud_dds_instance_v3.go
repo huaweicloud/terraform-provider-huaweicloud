@@ -19,7 +19,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
 	"github.com/chnsz/golangsdk/openstack/dds/v3/jobs"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -1071,10 +1070,10 @@ func waitForInstanceReady(ctx context.Context, client *golangsdk.ServiceClient, 
 }
 
 func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
+	cfg := meta.(*config.Config)
 	instanceId := d.Id()
-	region := conf.GetRegion(d)
-	client, err := conf.DdsV3Client(region)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating DDS client: %s ", err)
 	}
@@ -1166,7 +1165,7 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		}
 		resp := r.(*instances.UpdateResp)
 		if resp.OrderId != "" {
-			bssClient, err := conf.BssV2Client(region)
+			bssClient, err := cfg.BssV2Client(region)
 			if err != nil {
 				return diag.Errorf("error creating BSS v2 client: %s", err)
 			}
@@ -1295,19 +1294,19 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 
 			// The update operation of the number must at the last, lest the new node already has new size or spec-code.
 			if d.HasChange(volumeSizeIndex) {
-				err := flavorSizeUpdate(ctx, conf, client, d, i)
+				err := flavorSizeUpdate(ctx, cfg, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
 			}
 			if d.HasChange(specCodeIndex) {
-				err := flavorSpecCodeUpdate(ctx, conf, client, d, i)
+				err := flavorSpecCodeUpdate(ctx, cfg, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
 			}
 			if d.HasChange(numIndex) {
-				err := flavorNumUpdate(ctx, conf, client, d, i)
+				err := flavorNumUpdate(ctx, cfg, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
@@ -1345,13 +1344,13 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "dds",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

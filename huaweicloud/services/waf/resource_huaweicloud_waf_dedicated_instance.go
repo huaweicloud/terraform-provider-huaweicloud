@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	instances "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -204,14 +203,14 @@ func waitForInstanceCreated(c *golangsdk.ServiceClient, id string, epsId string)
 }
 
 func resourceDedicatedInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client : %s", err)
 	}
 
-	createOpts := buildCreateOpts(d, conf.GetRegion(d))
-	epsId := common.GetEnterpriseProjectID(d, conf)
+	createOpts := buildCreateOpts(d, cfg.GetRegion(d))
+	epsId := cfg.GetEnterpriseProjectID(d)
 
 	r, err := instances.CreateWithEpsId(client, *createOpts, epsId)
 	if err != nil {
@@ -241,13 +240,13 @@ func resourceDedicatedInstanceCreate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.WafDedicatedV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
 	}
 
-	epsId := common.GetEnterpriseProjectID(d, config)
+	epsId := cfg.GetEnterpriseProjectID(d)
 	r, err := instances.GetWithEpsId(client, d.Id(), epsId)
 	if err != nil {
 		// If the dedicated instance does not exist, the response HTTP status code of the details API is 404.
@@ -294,13 +293,13 @@ func updateInstanceName(c *golangsdk.ServiceClient, id, name, epsId string) erro
 }
 
 func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	client, err := conf.WafDedicatedV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.WafDedicatedV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
-	epsId := common.GetEnterpriseProjectID(d, conf)
+	epsId := cfg.GetEnterpriseProjectID(d)
 	instanceId := d.Id()
 	if d.HasChanges("name") {
 		err = updateInstanceName(client, instanceId, d.Get("name").(string), epsId)
@@ -309,13 +308,13 @@ func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "waf-instance",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 		// check waf with enterprise_project_id
@@ -353,13 +352,13 @@ func waitForInstanceDeleted(c *golangsdk.ServiceClient, id string, epsId string)
 }
 
 func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.WafDedicatedV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
 	}
 
-	epsId := common.GetEnterpriseProjectID(d, config)
+	epsId := cfg.GetEnterpriseProjectID(d)
 	_, err = instances.DeleteWithEpsId(client, d.Id(), epsId)
 	if err != nil {
 		// If the dedicated instance does not exist, the response HTTP status code of the deletion API is 404.

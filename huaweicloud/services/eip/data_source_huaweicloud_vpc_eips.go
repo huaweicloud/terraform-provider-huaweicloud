@@ -161,7 +161,7 @@ func dataSourceVpcEipsRead(_ context.Context, d *schema.ResourceData, meta inter
 		PrivateIp:           utils.ExpandToStringList(d.Get("private_ips").([]interface{})),
 		PortId:              utils.ExpandToStringList(d.Get("port_ids").([]interface{})),
 		IPVersion:           d.Get("ip_version").(int),
-		EnterpriseProjectId: cfg.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 	}
 
 	pages, err := eips.List(client, listOpts).AllPages()

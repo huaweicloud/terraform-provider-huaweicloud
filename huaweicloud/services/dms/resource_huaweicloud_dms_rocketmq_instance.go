@@ -17,7 +17,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -506,7 +505,7 @@ func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, cfg *config.C
 		"enable_publicip":       utils.ValueIgnoreEmpty(d.Get("enable_publicip")),
 		"publicip_id":           utils.ValueIgnoreEmpty(d.Get("publicip_id")),
 		"broker_num":            utils.ValueIgnoreEmpty(d.Get("broker_num")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
 		bodyParams["bss_param"] = buildCreateRocketmqInstanceBodyBssParams(d)
@@ -694,13 +693,13 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "rocketmq",
 			RegionId:     region,
 			ProjectId:    cfg.GetProjectID(region),
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

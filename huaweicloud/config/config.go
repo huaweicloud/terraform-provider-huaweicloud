@@ -562,26 +562,19 @@ func (c *Config) GetRegion(d *schema.ResourceData) string {
 // GetEnterpriseProjectID returns the enterprise_project_id that was specified in the resource.
 // If it was not set, the provider-level value is checked. The provider-level value can
 // either be set by the `enterprise_project_id` argument or by HW_ENTERPRISE_PROJECT_ID.
-func (c *Config) GetEnterpriseProjectID(d *schema.ResourceData) string {
+// If the provider-level value
+func (c *Config) GetEnterpriseProjectID(d *schema.ResourceData, defaultEps ...string) string {
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
 		return v.(string)
 	}
 
-	return c.EnterpriseProjectID
-}
-
-// DataGetEnterpriseProjectID returns the enterprise_project_id that was specified in the data source.
-// If it was not set, the provider-level value is checked. The provider-level value can
-// either be set by the `enterprise_project_id` argument or by HW_ENTERPRISE_PROJECT_ID.
-// If the provider-level value is also not set, `all_granted_eps` will be returned.
-func (c *Config) DataGetEnterpriseProjectID(d *schema.ResourceData) string {
-	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		return v.(string)
-	}
 	if c.EnterpriseProjectID != "" {
 		return c.EnterpriseProjectID
 	}
-	return "all_granted_eps"
+	if len(defaultEps) > 0 {
+		return defaultEps[0]
+	}
+	return ""
 }
 
 // CheckValueInterchange checks if the new value of key1 is equal to the old value of key2,

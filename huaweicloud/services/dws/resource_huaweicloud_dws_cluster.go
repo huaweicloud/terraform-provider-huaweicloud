@@ -23,7 +23,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -597,7 +596,7 @@ func buildCreateDwsClusterBodyParams(d *schema.ResourceData, cfg *config.Config)
 			"security_group_id":     utils.ValueIgnoreEmpty(d.Get("security_group_id")),
 			"datastore_version":     utils.ValueIgnoreEmpty(d.Get("version")),
 			"dss_pool_id":           utils.ValueIgnoreEmpty(d.Get("dss_pool_id")),
-			"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 			"master_key_id":         utils.ValueIgnoreEmpty(d.Get("kms_key_id")),
 			"public_ip":             buildCreateDwsClusterReqBodyPublicIp(d.Get("public_ip")),
 			"volume":                buildCreateDwsClusterReqBodyVolume(d.Get("volume")),
@@ -621,7 +620,7 @@ func buildCreateDwsClusterBodyParamsV1(d *schema.ResourceData, cfg *config.Confi
 			"vpc_id":                utils.ValueIgnoreEmpty(d.Get("vpc_id")),
 			"subnet_id":             utils.ValueIgnoreEmpty(d.Get("network_id")),
 			"security_group_id":     utils.ValueIgnoreEmpty(d.Get("security_group_id")),
-			"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 			"public_ip":             buildCreateDwsClusterReqBodyPublicIp(d.Get("public_ip")),
 			"tags":                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		},
@@ -1033,13 +1032,13 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   clusterId,
 			ResourceType: "dws_clusters",
 			RegionId:     region,
 			ProjectId:    clusterClient.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

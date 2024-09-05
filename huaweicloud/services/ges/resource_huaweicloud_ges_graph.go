@@ -364,7 +364,7 @@ func buildCreateGraphBodyParams(d *schema.ResourceData, cfg *config.Config) map[
 			"enable_multi_az":        utils.ValueIgnoreEmpty(d.Get("enable_multi_az")),
 			"encryption":             buildCreateGraphReqBodyEncryption(d.Get("encryption")),
 			"lts_operation_trace":    buildCreateGraphReqBodyLtsOperationTrace(d.Get("lts_operation_trace")),
-			"sys_tags":               utils.BuildSysTags(common.GetEnterpriseProjectID(d, cfg)),
+			"sys_tags":               utils.BuildSysTags(cfg.GetEnterpriseProjectID(d)),
 			"tags":                   utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 			"enable_rbac":            utils.ValueIgnoreEmpty(d.Get("enable_rbac")),
 			"enable_full_text_index": utils.ValueIgnoreEmpty(d.Get("enable_full_text_index")),

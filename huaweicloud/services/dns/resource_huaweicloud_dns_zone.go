@@ -141,11 +141,11 @@ func resourceDNSRouter(d *schema.ResourceData, region string) *zones.RouterOpts 
 }
 
 func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 	var dnsClient *golangsdk.ServiceClient
 
-	dnsClient, err := conf.DnsV2Client(region)
+	dnsClient, err := cfg.DnsV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
@@ -159,7 +159,7 @@ func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta int
 			return diag.Errorf("the argument (router) is required when creating DNS private zone")
 		}
 		// update the endpoint with region when creating private zone
-		dnsClient, err = conf.DnsWithRegionClient(conf.GetRegion(d))
+		dnsClient, err = cfg.DnsWithRegionClient(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating DNS region client: %s", err)
 		}
@@ -171,7 +171,7 @@ func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta int
 		Email:               d.Get("email").(string),
 		Description:         d.Get("description").(string),
 		ZoneType:            zoneType,
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, conf),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		Router:              resourceDNSRouter(d, region),
 	}
 

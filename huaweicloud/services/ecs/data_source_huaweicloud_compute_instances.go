@@ -143,10 +143,10 @@ func DataSourceComputeInstances() *schema.Resource {
 	}
 }
 
-func buildListOpts(d *schema.ResourceData, conf *config.Config) *cloudservers.ListOpts {
+func buildListOpts(d *schema.ResourceData, cfg *config.Config) *cloudservers.ListOpts {
 	result := cloudservers.ListOpts{
 		Limit:               100,
-		EnterpriseProjectID: conf.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor_id").(string),
 		Status:              d.Get("status").(string),

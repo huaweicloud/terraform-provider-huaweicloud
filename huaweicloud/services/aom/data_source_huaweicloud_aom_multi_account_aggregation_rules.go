@@ -99,7 +99,7 @@ func DataSourceMultiAccountAggregationRules() *schema.Resource {
 func buildHeadersForDataSource(cfg *config.Config, d *schema.ResourceData) map[string]string {
 	moreHeaders := map[string]string{
 		"Content-Type":          "application/json",
-		"Enterprise-Project-Id": cfg.DataGetEnterpriseProjectID(d),
+		"Enterprise-Project-Id": cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 	}
 	return moreHeaders
 }

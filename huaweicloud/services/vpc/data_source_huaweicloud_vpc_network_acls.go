@@ -256,7 +256,7 @@ func dataSourceNetworkAclsRead(_ context.Context, d *schema.ResourceData, meta i
 }
 
 func buildNetworkAclsQueryParams(d *schema.ResourceData, cfg *config.Config) string {
-	res := fmt.Sprintf("?enterprise_project_id=%v", cfg.DataGetEnterpriseProjectID(d))
+	res := fmt.Sprintf("?enterprise_project_id=%v", cfg.GetEnterpriseProjectID(d, "all_granted_eps"))
 
 	if v, ok := d.GetOk("name"); ok {
 		res = fmt.Sprintf("%s&name=%v", res, v)

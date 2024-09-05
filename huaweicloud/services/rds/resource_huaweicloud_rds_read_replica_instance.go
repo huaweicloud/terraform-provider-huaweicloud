@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -491,13 +490,13 @@ func resourceRdsReadReplicaInstanceRead(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.RdsV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.RdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating rds v3 client: %s ", err)
 	}
-	clientV31, err := config.RdsV31Client(config.GetRegion(d))
+	clientV31, err := cfg.RdsV31Client(region)
 	if err != nil {
 		return diag.Errorf("error creating RDS V3.1 client: %s", err)
 	}
@@ -512,7 +511,7 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
+	if err = updateRdsInstanceVolumeSize(ctx, d, cfg, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -536,11 +535,11 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceFlavor(ctx, d, config, client, instanceID, false); err != nil {
+	if err = updateRdsInstanceFlavor(ctx, d, cfg, client, instanceID, false); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceAutoRenew(d, config); err != nil {
+	if err = updateRdsInstanceAutoRenew(d, cfg); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -560,13 +559,13 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceID,
 			ResourceType: "rds",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, config, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

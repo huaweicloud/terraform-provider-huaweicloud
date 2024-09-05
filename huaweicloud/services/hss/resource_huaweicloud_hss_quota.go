@@ -19,7 +19,6 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -255,7 +254,7 @@ func resourceQuotaRead(_ context.Context, d *schema.ResourceData, meta interface
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
 		id      = d.Id()
-		epsId   = cfg.DataGetEnterpriseProjectID(d)
+		epsId   = cfg.GetEnterpriseProjectID(d, "all_granted_eps")
 		product = "hss"
 	)
 
@@ -336,13 +335,13 @@ func resourceQuotaUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   id,
 			ResourceType: "hss",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -387,7 +386,7 @@ func resourceQuotaDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
 		id      = d.Id()
-		epsId   = cfg.DataGetEnterpriseProjectID(d)
+		epsId   = cfg.GetEnterpriseProjectID(d, "all_granted_eps")
 		product = "hss"
 	)
 
