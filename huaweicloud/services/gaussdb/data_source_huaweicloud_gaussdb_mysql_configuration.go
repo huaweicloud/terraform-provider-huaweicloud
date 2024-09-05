@@ -14,9 +14,9 @@ import (
 )
 
 // @API GaussDBforMySQL GET /v3/{project_id}/configurations
-func DataSourceGaussdbMysqlConfigurations() *schema.Resource {
+func DataSourceGaussdbMysqlConfiguration() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceGaussdbMysqlConfigurationsRead,
+		ReadContext: dataSourceGaussdbMysqlConfigurationRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -45,7 +45,7 @@ func DataSourceGaussdbMysqlConfigurations() *schema.Resource {
 	}
 }
 
-func dataSourceGaussdbMysqlConfigurationsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceGaussdbMysqlConfigurationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 
 	client, err := cfg.GaussdbV3Client(cfg.GetRegion(d))
