@@ -974,6 +974,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_playbook_monitors":         secmaster.DataSourceSecmasterPlaybookMonitors(),
 
 			// Querying by Ver.2 APIs
+			"huaweicloud_servicestage_applications":       servicestage.DataSourceApplications(),
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
 			// Querying by Ver.3 APIs
 			"huaweicloud_servicestagev3_runtime_stacks": servicestage.DataSourceV3RuntimeStacks(),
