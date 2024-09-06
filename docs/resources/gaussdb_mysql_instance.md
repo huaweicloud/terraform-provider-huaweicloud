@@ -90,6 +90,15 @@ The following arguments are supported:
 -> **Note** The start time and end time of a maintenance window must be on the hour, and the interval between them at
   most four hours.
 
+* `seconds_level_monitoring_enabled` - (Optional, Bool) Specifies whether to enable seconds level monitoring.
+
+* `seconds_level_monitoring_period` - (Optional, Int) Specifies the seconds level collection period.
+  + This parameter is valid only when `seconds_level_monitoring_enabled` is set to **true**.
+  + This parameter can not be specified when `seconds_level_monitoring_enabled` is set to **false**.
+  + Value options:
+      - **1**: The collection period is 1s.
+      - **5** (default value): The collection period is 5s.
+
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id. Required if EPS enabled.
 
 * `table_name_case_sensitivity` - (Optional, Bool) Whether the kernel table name is case sensitive. The value can

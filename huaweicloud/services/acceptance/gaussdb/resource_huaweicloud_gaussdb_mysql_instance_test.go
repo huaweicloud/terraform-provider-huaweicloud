@@ -53,6 +53,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 						"testprivatednsname.internal.cn-north-4.gaussdbformysql.myhuaweicloud.com"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "08:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "11:00"),
+					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_period", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -82,6 +84,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 						"testprivatednsnameupdate.internal.cn-north-4.gaussdbformysql.myhuaweicloud.com"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00"),
+					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
@@ -279,6 +282,9 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   maintain_begin           = "08:00"
   maintain_end             = "11:00"
 
+  seconds_level_monitoring_enabled = true
+  seconds_level_monitoring_period  = 1
+
   parameters {
     name  = "default_authentication_plugin"
     value = "mysql_native_password"
@@ -320,6 +326,8 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   private_dns_name_prefix  = "testprivatednsnameupdate"
   maintain_begin           = "14:00"
   maintain_end             = "18:00"
+
+  seconds_level_monitoring_enabled = false
 
   parameters {
     name  = "binlog_gtid_simple_recovery"
