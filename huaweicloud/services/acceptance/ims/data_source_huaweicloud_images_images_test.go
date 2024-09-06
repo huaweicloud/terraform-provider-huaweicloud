@@ -160,7 +160,7 @@ resource "huaweicloud_compute_instance" "test" {
   }
 }
 
-resource "huaweicloud_images_image" "test" {
+resource "huaweicloud_ims_ecs_system_image" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform AccTest"
@@ -178,7 +178,7 @@ func testAccImsImagesDataSource_queryName(rName string) string {
 %s
 
 data "huaweicloud_images_images" "test" {
-  name = huaweicloud_images_image.test.name
+  name = huaweicloud_ims_ecs_system_image.test.name
 }
 `, testAccImsImagesDataSource_base(rName))
 }
