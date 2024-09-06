@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -143,7 +144,7 @@ func TestAccRuleAntiCrawler_exceptProtectionMode(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "policy_id",
-						"huaweicloud_waf_policy.policy_1", "id"),
+						"huaweicloud_waf_policy.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "protection_mode", "anticrawler_except_url"),
 					resource.TestCheckResourceAttr(rName, "priority", "500"),
@@ -151,7 +152,7 @@ func TestAccRuleAntiCrawler_exceptProtectionMode(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "conditions.0.field", "url"),
 					resource.TestCheckResourceAttr(rName, "conditions.0.logic", "not_contain_all"),
 					resource.TestCheckResourceAttrPair(rName, "conditions.0.reference_table_id",
-						"huaweicloud_waf_reference_table.ref_table", "id"),
+						"huaweicloud_waf_reference_table.test", "id"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 				),
 			},
@@ -292,12 +293,34 @@ resource "huaweicloud_waf_rule_anti_crawler" "test" {
 `, testAccWafPolicyV1_basic(name), name, name)
 }
 
-func testRuleAntiCrawler_excepProtectionMode(name string) string {
+func testRuleAntiCrawler_base(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_waf_reference_table" "ref_table" {
-  name        = "%s"
+resource "huaweicloud_waf_dedicated_instance" "test" {
+  name               = "%[2]s"
+  available_zone     = data.huaweicloud_availability_zones.test.names[1]
+  specification_code = "waf.instance.professional"
+  ecs_flavor         = data.huaweicloud_compute_flavors.test.ids[0]
+  vpc_id             = huaweicloud_vpc.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  
+  security_group = [
+    huaweicloud_networking_secgroup.test.id
+  ]
+}
+
+resource "huaweicloud_waf_policy" "test" {
+  name  = "%[2]s"
+  level = 1
+
+  depends_on = [
+    huaweicloud_waf_dedicated_instance.test
+  ]
+}
+
+resource "huaweicloud_waf_reference_table" "test" {
+  name        = "%[2]s"
   type        = "url"
   description = "test url"
 
@@ -306,13 +329,19 @@ resource "huaweicloud_waf_reference_table" "ref_table" {
   ]
 
   depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
+    huaweicloud_waf_dedicated_instance.test
   ]
 }
+`, common.TestBaseComputeResources(name), name)
+}
+
+func testRuleAntiCrawler_excepProtectionMode(name string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_waf_rule_anti_crawler" "test" {
-  policy_id       = huaweicloud_waf_policy.policy_1.id
-  name            = "%s"
+  policy_id       = huaweicloud_waf_policy.test.id
+  name            = "%[2]s"
   protection_mode = "anticrawler_except_url"
   priority        = 500
   description     = "test description"
@@ -320,19 +349,19 @@ resource "huaweicloud_waf_rule_anti_crawler" "test" {
   conditions {
     field              = "url"
     logic              = "not_contain_all"
-    reference_table_id = huaweicloud_waf_reference_table.ref_table.id
+    reference_table_id = huaweicloud_waf_reference_table.test.id
   }
 }
-`, testAccWafPolicyV1_basic(name), name, name)
+`, testRuleAntiCrawler_base(name), name)
 }
 
 func testRuleAntiCrawler_excepProtectionMode_update(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_waf_rule_anti_crawler" "test" {
-  policy_id       = huaweicloud_waf_policy.policy_1.id
-  name            = "%s_update"
+  policy_id       = huaweicloud_waf_policy.test.id
+  name            = "%[2]s_update"
   protection_mode = "anticrawler_except_url"
   priority        = 1000
   description     = "test description update"
@@ -343,7 +372,7 @@ resource "huaweicloud_waf_rule_anti_crawler" "test" {
     content = "TR"
   }
 }
-`, testAccWafPolicyV1_basic(name), name)
+`, testRuleAntiCrawler_base(name), name)
 }
 
 func testRuleAntiCrawler_withEpsID(name string) string {
