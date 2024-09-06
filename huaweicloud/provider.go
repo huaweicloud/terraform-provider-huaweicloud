@@ -1566,7 +1566,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_ims_obs_data_image":          ims.ResourceObsDataImage(),
 			"huaweicloud_ims_obs_system_image":        ims.ResourceObsSystemImage(),
 			"huaweicloud_ims_obs_iso_image":           ims.ResourceObsIsoImage(),
-			"huaweicloud_images_image":                ims.ResourceImsImage(),
 			"huaweicloud_images_image_copy":           ims.ResourceImsImageCopy(),
 			"huaweicloud_images_image_share":          ims.ResourceImsImageShare(),
 			"huaweicloud_images_image_share_accepter": ims.ResourceImsImageShareAccepter(),
@@ -2095,6 +2094,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpnaas_site_connection": deprecated.ResourceVpnSiteConnectionV2(),
 
 			"huaweicloud_iotda_batchtask_file": deprecated.ResourceBatchTaskFile(),
+
+			"huaweicloud_images_image": deprecated.ResourceImsImage(),
 		},
 	}
 

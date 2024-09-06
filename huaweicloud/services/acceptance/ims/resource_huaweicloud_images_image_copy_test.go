@@ -7,6 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
@@ -25,11 +27,16 @@ func getImsImageCopyResourceFunc(cfg *config.Config, state *terraform.ResourceSt
 		return nil, fmt.Errorf("error creating IMS client: %s", err)
 	}
 
-	img, err := ims.GetCloudImage(imsClient, state.Primary.ID)
+	imageList, err := ims.GetImageList(imsClient, state.Primary.ID)
 	if err != nil {
-		return nil, fmt.Errorf("image %s not found: %s", state.Primary.ID, err)
+		return nil, fmt.Errorf("error retrieving IMS images: %s", err)
 	}
-	return img, nil
+
+	if len(imageList) < 1 {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return imageList[0], nil
 }
 
 func TestAccImsImageCopy_basic(t *testing.T) {
@@ -141,7 +148,7 @@ func testImsImageCopy_basic(baseImageName, copyImageName string) string {
 %s
 
 resource "huaweicloud_images_image_copy" "test" {
-  source_image_id = huaweicloud_images_image.test.id
+  source_image_id = huaweicloud_ims_ecs_system_image.test.id
   name            = "%s"
   min_ram         = 1024
   max_ram         = 4096
@@ -151,7 +158,7 @@ resource "huaweicloud_images_image_copy" "test" {
     key2 = "value2"
   }
 }
-`, testAccImsImage_basic(baseImageName), copyImageName)
+`, testAccEcsSystemImage_basic(baseImageName), copyImageName)
 }
 
 func testImsImageCopy_update(baseImageName, copyImageName string, minRAM, maxRAM int) string {
@@ -159,7 +166,7 @@ func testImsImageCopy_update(baseImageName, copyImageName string, minRAM, maxRAM
 %s
 
 resource "huaweicloud_images_image_copy" "test" {
-  source_image_id = huaweicloud_images_image.test.id
+  source_image_id = huaweicloud_ims_ecs_system_image.test.id
   name            = "%[2]s"
   description     = "it's a test"
   min_ram         = %[3]d
@@ -171,7 +178,7 @@ resource "huaweicloud_images_image_copy" "test" {
     key4 = "value4"
   }
 }
-`, testAccImsImage_basic(baseImageName), copyImageName, minRAM, maxRAM)
+`, testAccEcsSystemImage_basic(baseImageName), copyImageName, minRAM, maxRAM)
 }
 
 func testImsImageCopy_basic_cross_region(baseImageName, copyImageName string) string {
@@ -179,7 +186,7 @@ func testImsImageCopy_basic_cross_region(baseImageName, copyImageName string) st
 %s
 
 resource "huaweicloud_images_image_copy" "test" {
- source_image_id = huaweicloud_images_image.test.id
+ source_image_id = huaweicloud_ims_ecs_system_image.test.id
  name            = "%s"
  description     = "it's a test"
  target_region   = "%s"
@@ -189,7 +196,7 @@ resource "huaweicloud_images_image_copy" "test" {
     key1 = "value1"
     key2 = "value2"
  }
-}`, testAccImsImage_basic(baseImageName), copyImageName, acceptance.HW_DEST_REGION)
+}`, testAccEcsSystemImage_basic(baseImageName), copyImageName, acceptance.HW_DEST_REGION)
 }
 
 func testImsImageCopy_update_cross_region(baseImageName, copyImageName string) string {
@@ -197,7 +204,7 @@ func testImsImageCopy_update_cross_region(baseImageName, copyImageName string) s
 %s
 
 resource "huaweicloud_images_image_copy" "test" {
- source_image_id = huaweicloud_images_image.test.id
+ source_image_id = huaweicloud_ims_ecs_system_image.test.id
  name            = "%s"
  description     = "it's a test"
  target_region   = "%s"
@@ -209,5 +216,5 @@ resource "huaweicloud_images_image_copy" "test" {
     key4 = "value4"
  }
 }
-`, testAccImsImage_basic(baseImageName), copyImageName, acceptance.HW_DEST_REGION)
+`, testAccEcsSystemImage_basic(baseImageName), copyImageName, acceptance.HW_DEST_REGION)
 }

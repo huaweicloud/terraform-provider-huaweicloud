@@ -1,4 +1,4 @@
-package ims
+package deprecated
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 )
 
 func getImageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -22,7 +22,7 @@ func getImageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (i
 		return nil, fmt.Errorf("error creating IMS v2 client: %s", err)
 	}
 
-	img, err := ims.GetCloudImage(imsClient, state.Primary.ID)
+	img, err := deprecated.GetCloudImage(imsClient, state.Primary.ID)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving image: %s", err)
 	}
