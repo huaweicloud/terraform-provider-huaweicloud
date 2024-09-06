@@ -93,9 +93,8 @@ func ResourceAlarmRule() *schema.Resource {
 			},
 
 			"alarm_description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 256),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"metric": {
