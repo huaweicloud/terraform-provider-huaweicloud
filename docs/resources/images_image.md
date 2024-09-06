@@ -1,5 +1,5 @@
 ---
-subcategory: "Image Management Service (IMS)"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_images_image"
 description: |-
@@ -7,6 +7,9 @@ description: |-
 ---
 
 # huaweicloud_images_image
+
+!> **WARNING:** It has been deprecated, please select the corresponding resource replacement based on the image type and
+creation method, please use resources named in `huaweicloud_ims_xxx_xxx_image` format instead.
 
 Manages an IMS image resource within HuaweiCloud.
 

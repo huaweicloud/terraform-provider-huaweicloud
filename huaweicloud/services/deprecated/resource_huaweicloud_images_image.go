@@ -1,4 +1,4 @@
-package ims
+package deprecated
 
 import (
 	"context"
@@ -43,6 +43,8 @@ func ResourceImsImage() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceImsImageImport,
 		},
+
+		DeprecationMessage: "images image has been deprecated.",
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),

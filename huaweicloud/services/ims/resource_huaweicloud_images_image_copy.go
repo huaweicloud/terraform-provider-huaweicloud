@@ -9,7 +9,6 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -294,7 +293,7 @@ func resourceImsImageCopyUpdate(ctx context.Context, d *schema.ResourceData, met
 		log.Printf("[DEBUG] Update description Options: %#v", updateOpts)
 		_, err = cloudimages.Update(imsClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			err = dealModifyDescriptionErr(d, imsClient, err)
+			err = dealUpdateDescriptionErr(d, imsClient, err)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -321,19 +320,24 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	img, err := GetCloudImage(imsClient, d.Id())
+	imageList, err := GetImageList(imsClient, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving image copy")
+		return diag.Errorf("error retrieving IMS images: %s", err)
 	}
-	log.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
 
+	// If the list API return empty, then process `CheckDeleted` logic.
+	if len(imageList) < 1 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "IMS image copy")
+	}
+
+	img := imageList[0]
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", img.Name),
 		d.Set("description", img.Description),
 		d.Set("min_ram", img.MinRam),
 		d.Set("kms_key_id", img.SystemCmkid),
-		d.Set("instance_id", getInstanceID(img.DataOrigin)),
+		d.Set("instance_id", getSpecificValueFormDataOrigin(img.DataOrigin, "instance")),
 		d.Set("os_version", img.OsVersion),
 		d.Set("visibility", img.Visibility),
 		d.Set("data_origin", img.DataOrigin),
@@ -371,21 +375,11 @@ func resourceImsImageCopyDelete(ctx context.Context, d *schema.ResourceData, met
 		return common.CheckDeletedDiag(d, err, "error deleting image copy")
 	}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"ACTIVE"},
-		Target:     []string{"DELETED"},
-		Refresh:    waitForImageDelete(imsClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
-
-	_, err = stateConf.WaitForStateContext(ctx)
+	err = waitForDeleteImageCompleted(ctx, imsClient, d)
 	if err != nil {
 		return diag.Errorf("error waiting for delete image (%s) complete: %s", d.Id(), err)
 	}
 
-	d.SetId("")
 	return nil
 }
 

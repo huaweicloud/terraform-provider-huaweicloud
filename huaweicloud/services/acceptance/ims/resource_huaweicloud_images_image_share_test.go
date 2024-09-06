@@ -90,7 +90,7 @@ func TestAccImsImageShare_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "source_image_id",
-						"huaweicloud_images_image.test", "id"),
+						"huaweicloud_ims_ecs_system_image.test", "id"),
 				),
 			},
 			{
@@ -98,7 +98,7 @@ func TestAccImsImageShare_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "source_image_id",
-						"huaweicloud_images_image.test", "id"),
+						"huaweicloud_ims_ecs_system_image.test", "id"),
 				),
 			},
 		},
@@ -110,10 +110,10 @@ func testImsImageShare_basic(imageName string) string {
 %[1]s
 
 resource "huaweicloud_images_image_share" "test" {
- source_image_id    = huaweicloud_images_image.test.id
+ source_image_id    = huaweicloud_ims_ecs_system_image.test.id
  target_project_ids = ["%[2]s"]
 }
-`, testAccImsImage_basic(imageName), acceptance.HW_DEST_PROJECT_ID)
+`, testAccEcsSystemImage_basic(imageName), acceptance.HW_DEST_PROJECT_ID)
 }
 
 func testImsImageShare_update(imageName string) string {
@@ -121,8 +121,8 @@ func testImsImageShare_update(imageName string) string {
 %s
 
 resource "huaweicloud_images_image_share" "test" {
- source_image_id    = huaweicloud_images_image.test.id
+ source_image_id    = huaweicloud_ims_ecs_system_image.test.id
  target_project_ids = ["%[2]s"]
 }
-`, testAccImsImage_basic(imageName), acceptance.HW_DEST_PROJECT_ID_TEST)
+`, testAccEcsSystemImage_basic(imageName), acceptance.HW_DEST_PROJECT_ID_TEST)
 }
