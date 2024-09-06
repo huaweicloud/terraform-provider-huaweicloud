@@ -456,6 +456,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_planned_tasks":       as.DataSourceAsPlannedTasks(),
 			"huaweicloud_as_policies":            as.DataSourceASPolicies(),
 			"huaweicloud_as_policy_execute_logs": as.DataSourcePolicyExecuteLogs(),
+			"huaweicloud_as_quotas":              as.DataSourceAsQuotas(),
 
 			"huaweicloud_account":            DataSourceAccount(),
 			"huaweicloud_availability_zones": DataSourceAvailabilityZones(),
