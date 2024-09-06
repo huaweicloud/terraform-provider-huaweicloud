@@ -174,11 +174,6 @@ The following arguments are supported:
   -> Please refer to [official document](https://support.huaweicloud.com/intl/en-us/usermanual-iam/iam_01_0017.html) for
   the data structure rules of the policy. Just pay attention to the fields `Effect`, `Action` and `Resource`.
 
-* `policy_document` - (Optional, String) Specifies the IAM 5.0 policies. This parameter is only available when
-  `enable_policy` of the VPC endpoint services is set to **true**. Defaults to full access.
-  The VPC endpoint services of Object Storage Service (OBS) and Scalable File Service (SFS) do not support configuring
-  this parameter.
-
 * `tags` - (Optional, Map) The key/value pairs to associate with the VPC endpoint.
 
 ## Attribute Reference

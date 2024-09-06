@@ -109,11 +109,16 @@ func ResourceVPCEndpoint() *schema.Resource {
 					return equal
 				},
 			},
-			// Field `policy_document` was not tested due to insufficient testing conditions.
+			// Deprecated
+			// The field type provided in the API document is different from the actual returned type.
+			// As a result, an error is reported when the resource is imported.
 			"policy_document": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				Description: utils.SchemaDesc(
+					`Specifies the endpoint policy information`, utils.SchemaDescInput{Deprecated: true},
+				),
 			},
 			"tags": common.TagsSchema(),
 			"status": {
@@ -177,7 +182,6 @@ func resourceVPCEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 		EnableWhitelist: utils.Bool(enableACL),
 		Tags:            utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		PolicyStatement: policyStatementOpts,
-		PolicyDocument:  d.Get("policy_document").(string),
 	}
 
 	routeTables := d.Get("routetables").(*schema.Set)
@@ -250,7 +254,6 @@ func resourceVPCEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("packet_id", ep.MarkerID),
 		d.Set("tags", utils.TagsToMap(ep.Tags)),
 		d.Set("policy_statement", string(policyStatements)),
-		d.Set("policy_document", ep.PolicyDocument),
 	)
 
 	// if the VPC endpoint type is interface, the field is used and need to be set
@@ -304,7 +307,7 @@ func resourceVPCEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta
 			return diag.Errorf("error updating tags of VPC endpoint %s: %s", d.Id(), tagErr)
 		}
 	}
-	if d.HasChanges("policy_statement", "policy_document") {
+	if d.HasChanges("policy_statement") {
 		policyStatementOpts, err := buildPolicyStatement(d)
 		if err != nil {
 			return diag.FromErr(err)
@@ -312,7 +315,6 @@ func resourceVPCEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 		updatePolicyOpts := endpoints.UpdatePolicyOpts{
 			PolicyStatement: policyStatementOpts,
-			PolicyDocument:  d.Get("policy_document").(string),
 		}
 		_, err = endpoints.UpdatePolicy(vpcepClient, updatePolicyOpts, d.Id()).Extract()
 		if err != nil {
