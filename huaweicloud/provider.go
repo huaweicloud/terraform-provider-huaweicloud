@@ -413,6 +413,7 @@ func Provider() *schema.Provider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"huaweicloud_aom_alarm_action_rules":              aom.DataSourceAomAlarmActionRules(),
+			"huaweicloud_aom_alarm_group_rules":               aom.DataSourceAlarmGroupRules(),
 			"huaweicloud_aom_prom_instances":                  aom.DataSourceAomPromInstances(),
 			"huaweicloud_aom_multi_account_aggregation_rules": aom.DataSourceMultiAccountAggregationRules(),
 			"huaweicloud_aom_aggregation_metrics":             aom.DataSourceAggregationMetrics(),
@@ -1145,6 +1146,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_cloud_service_access":           aom.ResourceCloudServiceAccess(),
 			"huaweicloud_aom_dashboard":                      aom.ResourceDashboard(),
 			"huaweicloud_aom_alarm_rules_template":           aom.ResourceAlarmRulesTemplate(),
+			"huaweicloud_aom_alarm_group_rule":               aom.ResourceAlarmGroupRule(),
 
 			"huaweicloud_rfs_private_hook": rfs.ResourcePrivateHook(),
 			"huaweicloud_rfs_stack":        rfs.ResourceStack(),
