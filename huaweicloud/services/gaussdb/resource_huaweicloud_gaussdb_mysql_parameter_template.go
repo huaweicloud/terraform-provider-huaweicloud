@@ -23,6 +23,8 @@ import (
 )
 
 // @API GaussDBforMySQL POST /v3/{project_id}/configurations
+// @API GaussDBforMySQL POST /v3/{project_id}/configurations/{configuration_id}/copy
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/configurations/{configuration_id}/copy
 // @API GaussDBforMySQL PUT /v3/{project_id}/configurations/{configuration_id}
 // @API GaussDBforMySQL GET /v3/{project_id}/configurations/{configuration_id}
 // @API GaussDBforMySQL DELETE /v3/{project_id}/configurations/{configuration_id}
@@ -72,24 +74,26 @@ func ResourceGaussDBMysqlTemplate() *schema.Resource {
 				Description:  `Specifies the DB version.`,
 			},
 			"source_configuration_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Specifies the parameter template name.`,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"datastore_engine", "instance_id"},
+				Description:   `Specifies the source parameter template ID.`,
 			},
 			"instance_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"instance_configuration_id"},
-				Description:  `Specifies the parameter template name.`,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				RequiredWith:  []string{"instance_configuration_id"},
+				ConflictsWith: []string{"datastore_engine", "source_configuration_id"},
+				Description:   `Specifies the ID of the GaussDB MySQL instance.`,
 			},
 			"instance_configuration_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				RequiredWith: []string{"instance_id"},
-				Description:  `Specifies the parameter template name.`,
+				Description:  `Specifies the parameter template ID of the GaussDB MySQL instance.`,
 			},
 			"parameter_values": {
 				Type:        schema.TypeMap,

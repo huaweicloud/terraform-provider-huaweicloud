@@ -65,7 +65,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-  -> **NOTE:** It is mandatory when `datastore_engine` is seperated.
+  -> **NOTE:** It is mandatory when `datastore_engine` is specified.
 
 * `source_configuration_id` - (Optional, String, ForceNew) Specifies the source parameter template ID.
 
@@ -80,14 +80,14 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-  -> **NOTE:** It is mandatory when `instance_id` is seperated.
+  -> **NOTE:** It is mandatory when `instance_id` is specified.
 
--> **NOTE:** 1. At most one of `datastore_engine`, `source_configuration_id` and `instance_id` can be seperated.
-  <br>2. If `source_configuration_id` is seperated, then the resource will replicate the parameter template seperated
+-> **NOTE:** 1. At most one of `datastore_engine`, `source_configuration_id` and `instance_id` can be specified.
+  <br>2. If `source_configuration_id` is specified, then the resource will replicate the parameter template specified
   by `source_configuration_id`.
-  <br>3. If `instance_id` is seperated, then the resource will replicate the parameter template of the GaussDB MySQL
-  instance seperated by `instance_id`.
-  <br>4. If `source_configuration_id` and `instance_id` are both not seperated, then a new parameter template will be
+  <br>3. If `instance_id` is specified, then the resource will replicate the parameter template of the GaussDB MySQL
+  instance specified by `instance_id`.
+  <br>4. If `source_configuration_id` and `instance_id` are both not specified, then a new parameter template will be
   created directly.
 
 * `parameter_values` - (Optional, Map) Specifies the mapping between parameter names and parameter values.
