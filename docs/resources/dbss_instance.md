@@ -17,6 +17,7 @@ variable "availability_zone" {}
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "security_group_id" {}
+variable "product_spec_desc" {}
 
 resource "huaweicloud_dbss_instance" "test" {
   name               = var.name
@@ -25,6 +26,7 @@ resource "huaweicloud_dbss_instance" "test" {
   vpc_id             = var.vpc_id
   subnet_id          = var.subnet_id
   security_group_id  = var.security_group_id
+  product_spec_desc  = var.product_spec_desc
   charging_mode      = "prePaid"
   period_unit        = "month"
   period             = 1
@@ -60,6 +62,11 @@ The following arguments are supported:
   + **dbss.bypassaudit.low**: for basic version.
   + **dbss.bypassaudit.medium**: for professional version.
   + **dbss.bypassaudit.high**: for advanced version.
+
+  Changing this parameter will create a new resource.
+
+* `product_spec_desc` - (Required, String, ForceNew) Specifies the product specification description in
+  JSON string format: `{"specDesc":{"zh-cn":{"key1":"value1"},"en-us":{"key1":"value1"}}}`
 
   Changing this parameter will create a new resource.
 
@@ -155,10 +162,10 @@ $ terraform import huaweicloud_dbss_instance.test f440a6c3fab9be5aa8b2a139fc6fdf
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include: `charging_mode`, `enterprise_project_id`, `flavor`, `period`, and
-`period_unit`. It is generally recommended running `terraform plan` after importing an instance. You can then decide if
-changes should be applied to the instance, or the resource definition should be updated to align with the instance. Also
-you can ignore changes as below.
+API response. The missing attributes include: `charging_mode`, `enterprise_project_id`, `flavor`, `period`,
+`period_unit`, and `product_spec_desc`. It is generally recommended running `terraform plan` after importing an instance.
+You can then decide if changes should be applied to the instance, or the resource definition should be updated to align
+with the instance. Also, you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_dbss_instance" "test" {
@@ -166,7 +173,7 @@ resource "huaweicloud_dbss_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      charging_mode, enterprise_project_id, flavor, period, period_unit,
+      charging_mode, enterprise_project_id, flavor, period, period_unit, product_spec_desc,
     ]
   }
 }

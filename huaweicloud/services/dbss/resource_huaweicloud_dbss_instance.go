@@ -78,6 +78,13 @@ func ResourceInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `The resource specifications.`,
 			},
+			// The splicing specification of this field lacks documentation. Please refer to the test case before using it.
+			"product_spec_desc": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `schema: Required; The product specification description in json string format.`,
+			},
 			"vpc_id": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -421,7 +428,7 @@ func buildCreateInstanceProductInfosRequestBody(d *schema.ResourceData, productI
 		{
 			"cloud_service_type": "hws.service.type.dbss",
 			"product_id":         productId,
-			"product_spec_desc":  utils.ValueIgnoreEmpty(d.Get("resource_spec_code")),
+			"product_spec_desc":  utils.ValueIgnoreEmpty(d.Get("product_spec_desc")),
 			"resource_spec_code": utils.ValueIgnoreEmpty(d.Get("resource_spec_code")),
 			"resource_type":      "hws.resource.type.dbss",
 		},
