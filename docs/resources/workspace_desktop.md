@@ -205,8 +205,8 @@ $ terraform import huaweicloud_workspace_desktop.test 339d2539-e945-4090-a08d-c1
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include: `user_email`, `delete_user`, `image_type`, `vpc_id`, `power_action`
-and `power_action_type`.
+API response. The missing attributes include: `user_email`, `delete_user`, `image_type`, `vpc_id`, `power_action`,
+`power_action_type` and `email_notification`.
 It is generally recommended running `terraform plan` after importing a desktop.
 You can then decide if changes should be applied to the desktop, or the resource definition should be updated to
 align with the desktop. Also you can ignore changes as below.
@@ -217,7 +217,7 @@ resource "huaweicloud_workspace_desktop" "test" {
 
   lifecycle {
     ignore_changes = [
-      user_email, delete_user, image_type, vpc_id, power_action, power_action_type,
+      user_email, delete_user, image_type, vpc_id, power_action, power_action_type, email_notification,
     ]
   }
 }
