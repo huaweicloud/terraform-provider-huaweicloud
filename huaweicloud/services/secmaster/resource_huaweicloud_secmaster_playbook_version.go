@@ -262,28 +262,14 @@ func resourcePlaybookVersionUpdate(ctx context.Context, d *schema.ResourceData, 
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	// updatePlaybookVersion: Update the configuration of SecMaster playbook version
-	var (
-		updatePlaybookVersionHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{id}"
-		updatePlaybookVersionProduct = "secmaster"
-	)
-	updatePlaybookVersionClient, err := cfg.NewServiceClient(updatePlaybookVersionProduct, region)
+	client, err := cfg.NewServiceClient("secmaster", region)
 	if err != nil {
 		return diag.Errorf("error creating SecMaster client: %s", err)
 	}
 
-	updatePlaybookVersionPath := updatePlaybookVersionClient.Endpoint + updatePlaybookVersionHttpUrl
-	updatePlaybookVersionPath = strings.ReplaceAll(updatePlaybookVersionPath, "{project_id}", updatePlaybookVersionClient.ProjectID)
-	updatePlaybookVersionPath = strings.ReplaceAll(updatePlaybookVersionPath, "{workspace_id}", d.Get("workspace_id").(string))
-	updatePlaybookVersionPath = strings.ReplaceAll(updatePlaybookVersionPath, "{id}", d.Id())
-
-	updatePlaybookVersionOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-	}
-
-	updatePlaybookVersionOpt.JSONBody = utils.RemoveNil(buildUpdatePlaybookVersionBodyParams(d))
-	_, err = updatePlaybookVersionClient.Request("PUT", updatePlaybookVersionPath, &updatePlaybookVersionOpt)
+	// updatePlaybookVersion: Update the configuration of SecMaster playbook version
+	bodyParams := utils.RemoveNil(buildUpdatePlaybookVersionBodyParams(d))
+	err = updatePlaybookVersion(client, d.Get("workspace_id").(string), d.Id(), bodyParams)
 	if err != nil {
 		return diag.Errorf("error updating SecMaster playbook version: %s", err)
 	}
@@ -311,19 +297,31 @@ func buildUpdatePlaybookVersionBodyParams(d *schema.ResourceData) map[string]int
 func resourcePlaybookVersionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	// deletePlaybookVersion: Delete an existing SecMaster playbook version
-	var (
-		deletePlaybookVersionHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{id}"
-		deletePlaybookVersionProduct = "secmaster"
-	)
-	deletePlaybookVersionClient, err := cfg.NewServiceClient(deletePlaybookVersionProduct, region)
+	client, err := cfg.NewServiceClient("secmaster", region)
 	if err != nil {
 		return diag.Errorf("error creating SecMaster client: %s", err)
 	}
 
-	deletePlaybookVersionPath := deletePlaybookVersionClient.Endpoint + deletePlaybookVersionHttpUrl
-	deletePlaybookVersionPath = strings.ReplaceAll(deletePlaybookVersionPath, "{project_id}", deletePlaybookVersionClient.ProjectID)
+	// Check whether the version is enabled.
+	// Before deleting this version, you need to ensure that it is not enabled.
+	playbookVersion, err := GetPlaybookVersion(client, d.Get("workspace_id").(string), d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if utils.PathSearch("enabled", playbookVersion, false).(bool) {
+		bodyParams := backfillUpdateBodyParams(playbookVersion)
+		bodyParams["enabled"] = false
+		err = updatePlaybookVersion(client, d.Get("workspace_id").(string), d.Id(), bodyParams)
+		if err != nil {
+			return diag.Errorf("error disabling SecMaster playbook version: %s", err)
+		}
+	}
+
+	// deletePlaybookVersion: Delete an existing SecMaster playbook version
+	deletePlaybookVersionHttpUrl := "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{id}"
+	deletePlaybookVersionPath := client.Endpoint + deletePlaybookVersionHttpUrl
+	deletePlaybookVersionPath = strings.ReplaceAll(deletePlaybookVersionPath, "{project_id}", client.ProjectID)
 	deletePlaybookVersionPath = strings.ReplaceAll(deletePlaybookVersionPath, "{workspace_id}", d.Get("workspace_id").(string))
 	deletePlaybookVersionPath = strings.ReplaceAll(deletePlaybookVersionPath, "{id}", d.Id())
 
@@ -332,7 +330,7 @@ func resourcePlaybookVersionDelete(_ context.Context, d *schema.ResourceData, me
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	_, err = deletePlaybookVersionClient.Request("DELETE", deletePlaybookVersionPath, &deletePlaybookVersionOpt)
+	_, err = client.Request("DELETE", deletePlaybookVersionPath, &deletePlaybookVersionOpt)
 	if err != nil {
 		// SecMaster.20048004：the version ID not found
 		// SecMaster.20010001: the workspace ID not found
@@ -342,6 +340,25 @@ func resourcePlaybookVersionDelete(_ context.Context, d *schema.ResourceData, me
 	}
 
 	return nil
+}
+
+func backfillUpdateBodyParams(playbookVersion interface{}) map[string]interface{} {
+	bodyParam := map[string]interface{}{
+		"description":       utils.PathSearch("description", playbookVersion, "").(string),
+		"dataclass_id":      utils.PathSearch("dataclass_id", playbookVersion, nil).(string),
+		"rule_enable":       utils.PathSearch("rule_enable", playbookVersion, false).(bool),
+		"rule_id":           utils.PathSearch("rule_id", playbookVersion, "").(string),
+		"trigger_type":      utils.PathSearch("trigger_type", playbookVersion, "").(string),
+		"dataobject_create": utils.PathSearch("dataobject_create", playbookVersion, false).(bool),
+		"dataobject_delete": utils.PathSearch("dataobject_delete", playbookVersion, false).(bool),
+		"dataobject_update": utils.PathSearch("dataobject_update", playbookVersion, false).(bool),
+		"action_strategy":   utils.PathSearch("action_strategy", playbookVersion, "").(string),
+		"playbook_id":       utils.PathSearch("playbook_id", playbookVersion, "").(string),
+		"enabled":           utils.PathSearch("enabled", playbookVersion, false).(bool),
+		"status":            utils.PathSearch("status", playbookVersion, "").(string),
+	}
+
+	return bodyParam
 }
 
 func GetPlaybookVersion(client *golangsdk.ServiceClient, workspaceId, id string) (interface{}, error) {
@@ -372,6 +389,23 @@ func GetPlaybookVersion(client *golangsdk.ServiceClient, workspaceId, id string)
 	}
 
 	return playbookVersion, nil
+}
+
+func updatePlaybookVersion(client *golangsdk.ServiceClient, workspaceId, id string, bodyParam interface{}) error {
+	updatePlaybookVersionHttpUrl := "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{id}"
+	updatePlaybookVersionPath := client.Endpoint + updatePlaybookVersionHttpUrl
+	updatePlaybookVersionPath = strings.ReplaceAll(updatePlaybookVersionPath, "{project_id}", client.ProjectID)
+	updatePlaybookVersionPath = strings.ReplaceAll(updatePlaybookVersionPath, "{workspace_id}", workspaceId)
+	updatePlaybookVersionPath = strings.ReplaceAll(updatePlaybookVersionPath, "{id}", id)
+
+	updatePlaybookVersionOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         bodyParam,
+	}
+
+	_, err := client.Request("PUT", updatePlaybookVersionPath, &updatePlaybookVersionOpt)
+	return err
 }
 
 func resourcePlaybookVersionImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
