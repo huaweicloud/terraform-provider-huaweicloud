@@ -86,6 +86,12 @@ The `instances` block supports:
 
 * `maintain_end` - Indicates the end time for a maintenance window.
 
+* `description` - Indicates the description of the instance.
+
+* `created_at` - Indicates the creation time in the **yyyy-mm-ddThh:mm:ssZ** format.
+
+* `updated_at` - Indicates the Update time in the **yyyy-mm-ddThh:mm:ssZ** format.
+
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 
 The `datastore` block supports:

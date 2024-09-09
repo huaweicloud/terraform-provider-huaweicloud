@@ -42,6 +42,12 @@ type ctxType string
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/restart
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/ops-window
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/monitor-policy
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/internal-ip
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/port
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/dns
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/dns
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/ssl-option
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/alias
 // @API GaussDBforMySQL GET /v3/{project_id}/jobs
 // @API GaussDBforNoSQL POST /v3/{project_id}/instances/{instance_id}/tags/action
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/name
@@ -217,6 +223,15 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Optional:     true,
 				RequiredWith: []string{"seconds_level_monitoring_enabled"},
 			},
+			"ssl_option": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"datastore": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -368,6 +383,14 @@ func ResourceGaussDBInstance() *schema.Resource {
 						},
 					},
 				},
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 
 			// Deprecated
@@ -675,6 +698,18 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if v, ok := d.GetOk("ssl_option"); ok && v == "false" {
+		if err = updateSslOption(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("description"); ok {
+		if err = updateDescription(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -768,6 +803,9 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 		d.Set("time_zone", instance.TimeZone),
 		d.Set("availability_zone_mode", instance.AZMode),
 		d.Set("master_availability_zone", instance.MasterAZ),
+		d.Set("description", instance.Alias),
+		d.Set("created_at", instance.Created),
+		d.Set("updated_at", instance.Updated),
 	)
 
 	maintainWindow := strings.Split(instance.MaintenanceWindow, "-")
@@ -1171,6 +1209,20 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChanges("seconds_level_monitoring_enabled", "seconds_level_monitoring_period") {
 		err = updatesSecondsLevelMonitoring(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("ssl_option") {
+		err = updateSslOption(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("description") {
+		err = updateDescription(client, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1999,6 +2051,47 @@ func updatesSecondsLevelMonitoring(ctx context.Context, client *golangsdk.Servic
 
 	job := r.(*instances.JobResponse)
 	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
+}
+
+func updateSslOption(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	sslOption, _ := strconv.ParseBool(d.Get("ssl_option").(string))
+	updateSslOptionOpts := instances.UpdateSslOptionOpts{
+		SslOption: sslOption,
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := instances.UpdateSslOption(client, d.Id(), updateSslOptionOpts).ExtractJobResponse()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating ssl option for instance %s: %s ", d.Id(), err)
+	}
+
+	job := r.(*instances.JobResponse)
+	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
+}
+
+func updateDescription(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateAliasOpts := instances.UpdateAliasOpts{
+		Alias: d.Get("description").(string),
+	}
+
+	_, err := instances.UpdateAlias(client, d.Id(), updateAliasOpts).ExtractUpdateAliasResponse()
+	if err != nil {
+		return fmt.Errorf("error updating description for instance %s: %s ", d.Id(), err)
+	}
+
+	return nil
 }
 
 func checkGaussDBMySQLJobFinish(ctx context.Context, client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
