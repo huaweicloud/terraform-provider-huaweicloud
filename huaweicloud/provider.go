@@ -990,6 +990,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_vpcep_endpoints":           vpcep.DataSourceVPCEPEndpoints(),
 			"huaweicloud_vpcep_public_services":     vpcep.DataSourceVPCEPPublicServices(),
+			"huaweicloud_vpcep_quotas":              vpcep.DataSourceVpcepQuotas(),
 			"huaweicloud_vpcep_services":            vpcep.DataSourceVPCEPServices(),
 			"huaweicloud_vpcep_service_connections": vpcep.DataSourceVPCEPServiceConnections(),
 			"huaweicloud_vpcep_service_permissions": vpcep.DataSourceVPCEPServicePermissions(),
