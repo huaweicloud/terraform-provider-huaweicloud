@@ -43,7 +43,7 @@ The following arguments are supported:
   Only **all** is supported for SQL server.
 
 * `keep_days` - (Required, Int) Specifies the number of days to retain the generated backup files.
-  Value ranges from `1` to `1825`.
+  Value ranges from `1` to `1,825`.
 
 * `destination_region` - (Required, String, ForceNew) Specifies the target region ID for the cross-region backup policy.
 

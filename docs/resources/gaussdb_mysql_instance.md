@@ -49,14 +49,14 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the GaussDB mysql instance resource. If omitted,
   the provider-level region will be used. Changing this creates a new instance resource.
 
-* `name` - (Required, String) Specifies the instance name, which can be the same as an existing instance name. The value
-  must be 4 to 64 characters in length and start with a letter. It is case-sensitive and can contain only letters,
-  digits, hyphens (-), and underscores (_).
+* `name` - (Required, String) Specifies the instance name, which can be the same as an existing instance name.
+  The value must be `4` to `64` characters in length and start with a letter.
+  It is case-sensitive and can contain only letters, digits, hyphens (-), and underscores (_).
 
 * `flavor` - (Required, String) Specifies the instance specifications. Please use
   `gaussdb_mysql_flavors` data source to fetch the available flavors.
 
-* `password` - (Required, String) Specifies the database password. The value must be 8 to 32 characters in length,
+* `password` - (Required, String) Specifies the database password. The value must be `8` to `32` characters in length,
   including uppercase and lowercase letters, digits, and special characters, such as ~!@#%^*-_=+? You are advised to
   enter a strong password to improve security, preventing security risks such as brute force cracking.
 
@@ -89,7 +89,7 @@ The following arguments are supported:
 * `configuration_id` - (Optional, String) Specifies the configuration ID.
 
 * `private_dns_name_prefix` - (Optional, String) Specifies the prefix of the private domain name. The value contains
-  **8** to **63** characters. Only uppercase letters, lowercase letters, and digits are allowed.
+  `8` to `63` characters. Only uppercase letters, lowercase letters, and digits are allowed.
 
 * `maintain_begin` - (Optional, String) Specifies the start time for a maintenance window, for example, **22:00**.
 
@@ -104,8 +104,8 @@ The following arguments are supported:
   + This parameter is valid only when `seconds_level_monitoring_enabled` is set to **true**.
   + This parameter can not be specified when `seconds_level_monitoring_enabled` is set to **false**.
   + Value options:
-      - **1**: The collection period is 1s.
-      - **5** (default value): The collection period is 5s.
+    - **1**: The collection period is 1s.
+    - **5** (default value): The collection period is 5s.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id. Required if EPS enabled.
 
@@ -113,7 +113,7 @@ The following arguments are supported:
   be `true` (case sensitive) and `false` (case insensitive). Defaults to `false`. This parameter only works during
   creation.
 
-* `read_replicas` - (Optional, Int) Specifies the count of read replicas. Defaults to 1.
+* `read_replicas` - (Optional, Int) Specifies the count of read replicas. Defaults to `1`.
 
 * `time_zone` - (Optional, String, ForceNew) Specifies the time zone. Defaults to "UTC+08:00". Changing this parameter
   will create a new resource.
@@ -125,20 +125,21 @@ The following arguments are supported:
   resides. The parameter is required in multi availability zone mode. Changing this parameter will create a new
   resource.
 
-* `charging_mode` - (Optional, String) Specifies the charging mode of the instance. Valid values are *prePaid*
-  and *postPaid*, defaults to *postPaid*. Changing this will do nothing.
+* `charging_mode` - (Optional, String) Specifies the charging mode of the instance. Valid values are **prePaid**
+  and **postPaid**, defaults to **postPaid**. Changing this will do nothing.
 
 * `period_unit` - (Optional, String) Specifies the charging period unit of the instance.
-  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
   Changing this will do nothing.
 
-* `period` - (Optional, Int) Specifies the charging period of the instance.
-  If `period_unit` is set to *month* , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value
-  ranges from 1 to 3. This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this will
-  do nothing.
+* `period` - (Optional, Int) Specifies the charging period of the instance.  
+  If `period_unit` is set to **month** , the value ranges from `1` to `9`.  
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.  
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this will do nothing.
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
-  Valid values are "true" and "false".
+  Valid values are **true** and **false**.
 
 * `datastore` - (Optional, List, ForceNew) Specifies the database information. Structure is documented below. Changing
   this parameter will create a new resource.
@@ -154,7 +155,7 @@ The following arguments are supported:
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the GaussDB Mysql instance.
 
 * `volume_size` - (Optional, Int) Specifies the volume size of the instance. The new storage space must be greater than
-  the current storage and must be a multiple of 10 GB. Only valid when in prePaid mode.
+  the current storage and must be a multiple of `10` GB. Only valid when in prePaid mode.
 
 The `datastore` block supports:
 
@@ -169,11 +170,12 @@ The `backup_strategy` block supports:
 * `start_time` - (Required, String) Specifies the backup time window. Automated backups will be triggered during the
   backup time window. It must be a valid value in the "hh:mm-HH:MM" format. The current time is in the UTC format. The
   HH value must be 1 greater than the hh value. The values of mm and MM must be the same and must be set to 00. Example
-  value: 08:00-09:00, 03:00-04:00.
+  value: **08:00-09:00**, **03:00-04:00**.
 
-* `keep_days` - (Optional, Int) Specifies the number of days to retain the generated backup files. The value ranges from
-  0 to 35. If this parameter is set to 0, the automated backup policy is not set. If this parameter is not transferred,
-  the automated backup policy is enabled by default. Backup files are stored for seven days by default.
+* `keep_days` - (Optional, Int) Specifies the number of days to retain the generated backup files.  
+  The value ranges from `0` to `35`. If this parameter is set to `0`, the automated backup policy is not set.
+  If this parameter is not transferred, the automated backup policy is enabled by default.
+  Backup files are stored for seven days by default.
 
 * `audit_log_enabled` - (Optional, Bool) Specifies whether audit log is enabled. The default value is `false`.
 

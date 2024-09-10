@@ -71,7 +71,7 @@ The following arguments are supported:
   The value can be: **Open**, **Closed** and **Revoked**.
 
 * `confidence` - (Required, Int) Specifies the confidence of the indicator.
-  The value ranges from **80** to **100**.
+  The value ranges from `80` to `100`.
 
 * `first_occurrence_time` - (Required, String) Specifies the first occurrence time of the indicator.
   For example: 2023-04-18T13:00:00.000+08:00

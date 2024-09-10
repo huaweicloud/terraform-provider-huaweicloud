@@ -38,11 +38,11 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the route table.  
-  The name can contain 1 to 64 characters, only english and chinese letters, digits, underscore (_), hyphens (-) and
-  dots (.) allowed.
+  The name can contain `1` to `64` characters, only English letters, Chinese characters, digits, underscore (_),
+  hyphens (-) and dots (.) allowed.
 
 * `description` - (Optional, String) Specifies the description of the route table.  
-  The description contain a maximum of 255 characters, and the angle brackets (< and >) are not allowed.
+  The description contain a maximum of `255` characters, and the angle brackets (< and >) are not allowed.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the route table.  
 

@@ -156,18 +156,18 @@ The following arguments are supported:
 
 * `name` - (Required, String) The rule name.
 
-* `object_id` - (Required, String, ForceNew) The protected object ID
+* `object_id` - (Required, String, ForceNew) The protected object ID.
 
   Changing this parameter will create a new resource.
 
 * `type` - (Required, Int) The rule type.
-  The value can be **0** (Internet rule), **1** (VPC rule), or **2** (NAT rule).
+  The value can be `0` (Internet rule), `1` (VPC rule), or `2` (NAT rule).
 
 * `action_type` - (Required, Int) The action type.
-  The value can be **0** (allow) **1** (deny).
+  The value can be `0` (allow) `1` (deny).
 
 * `address_type` - (Required, Int) The address type.
-  The value can be **0** (IPv4), **1** (IPv6), or **2** (domain).
+  The value can be `0` (IPv4), `1` (IPv6), or `2` (domain).
 
 * `sequence` - (Required, List) The sequence configuration.
 The [Order Rule](#ProtectionRule_OrderRuleAcl) structure is documented below.

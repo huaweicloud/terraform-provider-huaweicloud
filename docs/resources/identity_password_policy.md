@@ -49,7 +49,7 @@ The following arguments are supported:
   The value ranges from `0` to `180` and defaults to `0` which indicates that this requirement does not apply.
 
 * `minimum_password_age` - (Optional, Int) Specifies the minimum period (minutes) after which users are allowed to make
-  a password change. The value ranges from `0` to `1440` and defaults to `0`.
+  a password change. The value ranges from `0` to `1,440` and defaults to `0`.
 
 * `password_not_username_or_invert` - (Optional, Bool) Specifies whether the password can be the username or the username
   spelled backwards. Defaults to `true`, which indicates that the username or the inversion of username is not allowed to

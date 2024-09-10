@@ -84,22 +84,23 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the SFS Turbo resource. If omitted, the
   provider-level region will be used. Changing this creates a new SFS Turbo resource.
 
-* `name` - (Required, String) Specifies the name of an SFS Turbo file system. The value contains 4 to 64
+* `name` - (Required, String) Specifies the name of an SFS Turbo file system. The value contains `4` to `64`
   characters and must start with a letter.
 
 * `size` - (Required, Int) Specifies the capacity of a sharing file system, in GB.
-  + If `share_type` is set to **STANDARD** or **PERFORMANCE**, the value ranges from 500 to 32768, and ranges from
-  10240 to 327680 for an enhanced file system.
+  + If `share_type` is set to **STANDARD** or **PERFORMANCE**, the value ranges from `500` to `32,768`, and ranges from
+  `10,240` to `327,680` for an enhanced file system.
 
-  + If `share_type` is set to **HPC**, the value ranges from 3686 to 1048576 when `hpc_bandwidth` is set to **20M**,
-  and ranges from 1228 to 1048576 when `hpc_bandwidth` is set to **40M**, **125M**, **250M**, **500M** or **1000M**.
-  The capacity must be a multiple of 1.2TiB, which needs to be rounded down after converting to GiB.
+  + If `share_type` is set to **HPC**, the value ranges from `3,686` to `1,048,576` when `hpc_bandwidth` is set to
+  **20M**, and ranges from `1,228` to `1,048,576` when `hpc_bandwidth` is set to **40M**, **125M**, **250M**, **500M**
+  or **1000M**. The capacity must be a multiple of 1.2TiB, which needs to be rounded down after converting to GiB.
   Such as 3.6TiB->3686GiB, 4.8TiB->4915GiB, 8.4TiB->8601GiB.
 
-  + If `share_type` is set to **HPC_CACHE**, the value ranges from 4096 to 1048576, and the step size is 1024.
-  The minimum capacity(GB) should be equal to 2048 multiplying the HPC cache bandwidth size(GB/s).
-  Such as the minimum capacity is 4096 when `hpc_cache_bandwidth` is set to **2G**, the minimum capacity is 8192 when
-  `hpc_cache_bandwidth` is set to **4G**, the minimum capacity is 16384 when `hpc_cache_bandwidth` is set to **8G**.
+  + If `share_type` is set to **HPC_CACHE**, the value ranges from `4,096` to `1,048,576`, and the step size is `1,024`.
+  The minimum capacity(GB) should be equal to `2,048` multiplying the HPC cache bandwidth size(GB/s).
+  Such as the minimum capacity is `4,096` when `hpc_cache_bandwidth` is set to **2G**, the minimum capacity is `8,192`
+  when `hpc_cache_bandwidth` is set to **4G**, the minimum capacity is `16,384` when `hpc_cache_bandwidth` is set to
+  **8G**.
 
   -> The file system capacity can only be expanded, not reduced.
 

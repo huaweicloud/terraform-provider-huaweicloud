@@ -84,7 +84,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) The name of a datasource authentication.
+* `name` - (Required, String) The name of a datasource authentication.  
+  Only letters, digits and underscores (_) are allowed.
+  And the name cannot be all digits or start with a underscore.
 
 * `type` - (Required, String, ForceNew) Data source type.  
   The options are as follows:

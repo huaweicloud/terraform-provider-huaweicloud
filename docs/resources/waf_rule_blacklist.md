@@ -81,7 +81,7 @@ The following arguments are supported:
   + **0**: Disabled.
   + **1**: Enabled.
 
-  The default value is **1**.
+  The default value is `1`.
 
 ## Attribute Reference
 

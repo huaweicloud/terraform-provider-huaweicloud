@@ -26,7 +26,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) The name of a Global variable.
-  This parameter can contain a maximum of 128 characters, which may consist of digits, letters, and underscores (\_),
+  This parameter can contain a maximum of `128` characters, which may consist of digits, letters, and underscores (\_),
   but cannot start with an underscore (\_) or contain only digits.
 
   Changing this parameter will create a new resource.

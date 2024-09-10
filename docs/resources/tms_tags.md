@@ -29,13 +29,13 @@ The following arguments are supported:
 
 The `tags` block supports:
 
-* `key` - (Required, String, ForceNew) Specifies the tag key. The value can contain up to 36 characters.
-  Only letters, digits, hyphens (-), underscores (_), and Unicode characters from \u4e00 to \u9fff are allowed.
+* `key` - (Required, String, ForceNew) Specifies the tag key. The value can contain up to `36` characters.
+  Only English letters, Chinese characters, digits, hyphens (-) and underscores (_) are allowed.
   Changing this will create a new resource.
 
-* `value` - (Required, String, ForceNew) Specifies the tag value. The value can contain up to 43 characters.
-  Only letters, digits, periods (.), hyphens (-), and underscores (_), and Unicode characters from \u4e00 to \u9fff
-  are allowed. Changing this will create a new resource.
+* `value` - (Required, String, ForceNew) Specifies the tag value. The value can contain up to `43` characters.
+  Only English letters, Chinese characters, digits, periods (.), hyphens (-) and underscores (_) are allowed.
+  Changing this will create a new resource.
 
 ## Attribute Reference
 

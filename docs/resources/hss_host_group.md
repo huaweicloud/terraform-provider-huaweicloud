@@ -33,10 +33,9 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the host group.  
-  The valid length is limited from `1` to `64`, only Chinese and English letters, digits, hyphens (-), underscores (_)
-  dots (.), pluses (+) and asterisks (*) are allowed.  
-  The Chinese characters must be in **UTF-8** or **Unicode**
-  format.
+  The valid length is limited from `1` to `64`, only Chinese characters, English letters, digits, hyphens (-),
+  underscores (_), dots (.), pluses (+) and asterisks (*) are allowed.  
+  The Chinese characters must be in **UTF-8** or **Unicode** format.
 
 * `host_ids` - (Required, List) Specifies the list of host IDs.
 

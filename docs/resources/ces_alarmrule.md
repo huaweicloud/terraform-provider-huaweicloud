@@ -162,8 +162,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the alarm rule resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `alarm_name` - (Required, String) Specifies the name of an alarm rule. The value can be a string of 1 to 128
-  characters that can consist of letters, digits, underscores (_), hyphens (-) and chinese characters.
+* `alarm_name` - (Required, String) Specifies the name of an alarm rule. The value can be a string of `1` to `128`
+  characters that can consist of English letters, Chinese characters, digits, underscores (_), hyphens (-).
 
 * `metric` - (Required, List, ForceNew) Specifies the alarm metrics. The structure is described below. Changing this
   creates a new resource.
@@ -253,7 +253,7 @@ The `condition` block supports:
   + **43200**: Cloud Eye triggers the alarm every 12 hour;
   + **86400**: Cloud Eye triggers the alarm every day.
 
-  The default value is **0**.
+  The default value is `0`.
 
 * `metric_name` - (Required, String) Specifies the metric name of the condition. The value can be a string of
   1 to 64 characters that must start with a letter and contain only letters, digits, and underscores (_).

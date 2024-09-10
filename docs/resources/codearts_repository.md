@@ -47,7 +47,7 @@ The following arguments are supported:
   + **0**: Private.
   + **20**: Public read-only.
 
-  Defaults to **0**. Changing this parameter will create a new resource.
+  Defaults to `0`. Changing this parameter will create a new resource.
 
 * `description` - (Optional, String, ForceNew) The repository description.
   Changing this parameter will create a new resource.
@@ -72,21 +72,21 @@ The following arguments are supported:
   + **11**: Mozilla Public License v2.0
   + **12**: The Unlicense
 
-  Defaults to **1**. Changing this parameter will create a new resource.
+  Defaults to `1`. Changing this parameter will create a new resource.
 
 * `enable_readme` - (Optional, Int, ForceNew) Whether to generate the `README.md` file.  
   The valid values are as follows:
   + **0**: Disable.
   + **1**: Enable.
 
-  Defaults to **1**. Changing this parameter will create a new resource.
+  Defaults to `1`. Changing this parameter will create a new resource.
 
 * `import_members` - (Optional, Int, ForceNew) Whether to import the project members.  
   The valid values are as follows:
   + **0**: Do not import members.
   + **1**: Import members.
 
-  Defaults to **1**. Changing this parameter will create a new resource.
+  Defaults to `1`. Changing this parameter will create a new resource.
 
 ## Attribute Reference
 

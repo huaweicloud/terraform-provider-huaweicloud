@@ -43,11 +43,11 @@ The following arguments are supported:
 * `bucket_name` - (Optional, String) Specifies the OBS bucket to which traces will be transferred.
 
 * `file_prefix` - (Optional, String) Specifies the file name prefix to mark trace files that need to be stored
-  in an OBS bucket. The value contains 0 to 64 characters. Only letters, numbers, hyphens (-), underscores (_),
+  in an OBS bucket. The value contains `0` to `64` characters. Only letters, numbers, hyphens (-), underscores (_),
   and periods (.) are allowed.
 
 * `obs_retention_period` - (Optional, Int) Specifies the retention period that traces are stored in `bucket_name`,
-  the value can be **0**(permanent), **30**, **60**, **90**, **180** or **1095**.
+  the value can be `0`(permanent), `30`, `60`, `90`, `180` or `1,095`.
 
 * `compress_type` - (Optional, String) Specifies the compression type of trace files. The value can be **gzip**
   or **json**. The default value is **gzip**.

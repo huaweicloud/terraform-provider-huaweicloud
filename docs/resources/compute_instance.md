@@ -347,7 +347,8 @@ The following arguments are supported:
   This parameter takes effect only when `charging_mode` is set to *spot*. If the price is not specified,
   the pay-per-use price is used by default. Changing this creates a new instance.
 
-* `spot_duration` - (Optional, Int, ForceNew) Specifies the service duration of the spot ECS in hours.
+* `spot_duration` - (Optional, Int, ForceNew) Specifies the service duration of the spot ECS in hours.  
+  The valid value is range from `1` to `6`.  
   This parameter takes effect only when `charging_mode` is set to *spot*.
   Changing this creates a new instance.
 

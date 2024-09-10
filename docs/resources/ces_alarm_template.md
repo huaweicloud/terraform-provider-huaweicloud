@@ -67,14 +67,14 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the CES alarm template.
-  An alarm template name starts with a letter or Chinese, consists of 1 to 128 characters,
+  An alarm template name starts with a letter or Chinese, consists of `1` to `128` characters,
   and can contain only letters, Chinese characters, digits, hyphens (-) and hyphens (-).
 
 * `policies` - (Required, List) Specifies the policy list of the CES alarm template.
 The [Policy](#CesAlarmTemplate_Policy) structure is documented below.
 
 * `type` - (Optional, Int, NonUpdatable) Specifies the type of the CES alarm template.
-  Default to **0**. The valid values are as follows:
+  Default to `0`. The valid values are as follows:
   + **0**: metric alarm template.
   + **2**: event alarm template.
 
@@ -82,7 +82,7 @@ The [Policy](#CesAlarmTemplate_Policy) structure is documented below.
   template associated with. Default to **false**.
 
 * `description` - (Optional, String) Specifies the description of the CES alarm template.
-  The description can contain a maximum of 256 characters.
+  The description can contain a maximum of `256` characters.
 
 <a name="CesAlarmTemplate_Policy"></a>
 The `Policy` block supports:
@@ -102,7 +102,7 @@ The `Policy` block supports:
 
 * `value` - (Required, Int) Specifies the alarm threshold.
 
-* `count` - (Required, Int) Specifies the number of consecutive triggering of alarms. The value ranges from **1** to **5**.
+* `count` - (Required, Int) Specifies the number of consecutive triggering of alarms. The value ranges from `1` to `5`.
 
 * `suppress_duration` - (Required, Int) Specifies the alarm suppression cycle. Unit: second.
   Only one alarm is sent when the alarm suppression period is **0**.
@@ -117,12 +117,12 @@ The `Policy` block supports:
   + **4**: informational.
 
 * `unit` - (Optional, String) Specifies the unit string of the alarm threshold.
-  The unit can contain a maximum of 32 characters.
+  The unit can contain a maximum of `32` characters.
 
 * `dimension_name` - (Optional, String) Specifies the resource dimension.
   The name starts with a letter and separated by commas(,) for multiple dimensions,
   can contain only letters, digits, hyphens (-) and hyphens (-),
-  and contain a maximum of 32 characters for each dimension.
+  and contain a maximum of `32` characters for each dimension.
 
 ## Attribute Reference
 

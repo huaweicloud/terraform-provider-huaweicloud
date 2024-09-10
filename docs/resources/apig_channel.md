@@ -163,9 +163,9 @@ The following arguments are supported:
   Changing this will create a new resource.
 
 * `name` - (Required, String) Specifies the channel name.  
-  The valid length is limited from `3` to `64`, only chinese and english letters, digits, hyphens (-), underscores (_)
-  and dots (.) are allowed.  
-  The name must start with a Chinese or English letter.
+  The valid length is limited from `3` to `64`, only chinese characters, english letters, digits, hyphens (-),
+  underscores (_) and dots (.) are allowed.  
+  The name must start with a Chinese character or English letter.
 
 * `port` - (Required, Int) Specifies the default port for health check in channel.  
   The valid value ranges from `1` to `65,535`.
@@ -187,13 +187,13 @@ The following arguments are supported:
   + **2**: Server type.
   + **3**: Microservice type.
 
-  Defaults to **2** (server type).
+  Defaults to `2` (server type).
 
 * `member_group` - (Optional, List) Specifies the backend (server) groups of the channel.  
   The [object](#channel_member_group) structure is documented below.
 
 * `member` - (Optional, List) Specifies the backend servers of the channel.  
-  This parameter is required and only available if the `type` is **2**.  
+  This parameter is required and only available if the `type` is `2`.  
   The [object](#channel_members) structure is documented below.
 
 * `health_check` - (Optional, List) Specifies the health configuration of cloud servers associated with the load balance
@@ -299,7 +299,7 @@ The `health_check` block supports:
   + **1**: Normal.
   + **2**: Abnormal.
 
-  Defaults to **1** (normal).
+  Defaults to `1` (normal).
 
 <a name="channel_microservice"></a>
 The `microservice` block supports:

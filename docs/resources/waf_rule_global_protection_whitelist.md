@@ -120,7 +120,7 @@ The following arguments are supported:
   + **0**: Disabled.
   + **1**: Enabled.
 
-  The default value is **1**.
+  The default value is `1`.
 
 <a name="RuleGlobalProtectionWhitelist_conditions"></a>
 The `conditions` block supports:

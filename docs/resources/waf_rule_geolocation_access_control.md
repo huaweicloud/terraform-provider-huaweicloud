@@ -58,9 +58,9 @@ The following arguments are supported:
 
 * `action` - (Required, Int) Specifies the protective action of WAF geolocation access control rule.
   Valid values are as follows:
-  + 0: WAF blocks requests that hit the rule.
-  + 1: WAF allows requests that hit the rule.
-  + 2: WAF only record requests that hit the rule.
+  + **0**: WAF blocks requests that hit the rule.
+  + **1**: WAF allows requests that hit the rule.
+  + **2**: WAF only record requests that hit the rule.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF geolocation access
   control rule.
@@ -72,7 +72,7 @@ The following arguments are supported:
   + **0**: Disabled.
   + **1**: Enabled.
 
-  The default value is **1**.
+  The default value is `1`.
 
 * `description` - (Optional, String) Specifies the description of WAF geolocation access control rule.
 

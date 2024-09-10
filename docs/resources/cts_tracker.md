@@ -31,7 +31,7 @@ The following arguments are supported:
 * `bucket_name` - (Optional, String) Specifies the OBS bucket to which traces will be transferred.
 
 * `file_prefix` - (Optional, String) Specifies the file name prefix to mark trace files that need to be stored
-  in an OBS bucket. The value contains 0 to 64 characters. Only letters, numbers, hyphens (-), underscores (_),
+  in an OBS bucket. The value contains `0` to `64` characters. Only letters, numbers, hyphens (-), underscores (_),
   and periods (.) are allowed.
 
 * `lts_enabled` - (Optional, Bool) Specifies whether trace analysis is enabled.

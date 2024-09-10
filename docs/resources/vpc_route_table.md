@@ -71,10 +71,10 @@ The following arguments are supported:
   Changing this creates a new resource.
 
 * `name` - (Required, String) Specifies the route table name. The value is a string of no more than
-  64 characters that can contain letters, digits, underscores (_), hyphens (-), and periods (.).
+  `64` characters that can contain letters, digits, underscores (_), hyphens (-), and periods (.).
 
 * `description` - (Optional, String) Specifies the supplementary information about the route table.
-  The value is a string of no more than 255 characters and cannot contain angle brackets (< or >).
+  The value is a string of no more than `255` characters and cannot contain angle brackets (< or >).
 
 * `subnets` - (Optional, List) Specifies an array of one or more subnets associating with the route table.
 

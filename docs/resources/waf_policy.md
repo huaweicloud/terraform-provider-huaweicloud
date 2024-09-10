@@ -68,7 +68,7 @@ The following arguments are supported:
   + **block**: WAF blocks discovered attacks.
   + **log**: WAF only logs discovered attacks.
 
-* `level` - (Optional, Int) Specifies the protection level. Defaults to **2**. Valid values are:
+* `level` - (Optional, Int) Specifies the protection level. Defaults to `2`. Valid values are:
   + **1**: Low. At this protection level, WAF blocks only requests with obvious attack features. If a large number of
     false alarms have been reported, this value is recommended.
   + **2**: Medium. This protection level meets web protection requirements in most scenarios.

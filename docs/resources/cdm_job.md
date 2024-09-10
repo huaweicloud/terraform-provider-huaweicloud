@@ -88,8 +88,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the job resource. If omitted, the
   provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies job name, which can contains of 1 to 240 characters, starting with a
- letter. Only letters, digits, hyphens (-), and underscores (_) are allowed.
+* `name` - (Required, String) Specifies job name, which can contains of `1` to `240` characters, starting with a letter.
+  Only letters, digits, hyphens (-), and underscores (_) are allowed.
 
 * `cluster_id` - (Required, String, ForceNew) Specifies the ID of CDM cluster which this job run in.
  Changing this parameter will create a new resource.

@@ -26,7 +26,7 @@ The following arguments are supported:
   provider-level region will be used. Changing this creates a new rds instance resource.
 
 * `retention_period_in_days` - (Optional, Int) Specifies the period of retaining deleted DB instances. Value ranges
-  from **1** day to **7** days. Defaults to **7**.
+  from `1` day to `7` days. Defaults to `7`.
 
 ## Attribute Reference
 

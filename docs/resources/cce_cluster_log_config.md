@@ -53,7 +53,7 @@ The following arguments are supported:
 
 * `cluster_id` - (Required, String, NonUpdatable) Specifies the cluster ID.
 
-* `ttl_in_days` - (Optional, Int) Specifies the log keeping days, default to **7**.
+* `ttl_in_days` - (Optional, Int) Specifies the log keeping days, default to `7`.
 
 * `log_configs` - (Optional, List) Specifies the list of log configs.
   The [log_configs](#log_configs) structure is documented below.

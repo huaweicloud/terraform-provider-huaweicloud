@@ -32,7 +32,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `name` - (Required, String) Specifies the template name, which contains a maximum of 128 characters.
+* `name` - (Required, String) Specifies the template name, which contains a maximum of `128` characters.
 
 * `image_file` - (Required, String, ForceNew) Specifies the image file name, e.g. './test.png'.
   Changing this creates a new resource.

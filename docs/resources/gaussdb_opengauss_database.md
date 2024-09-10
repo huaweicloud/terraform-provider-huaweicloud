@@ -32,7 +32,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the database name. The name can contain **1** to **63** characters.
+* `name` - (Required, String, ForceNew) Specifies the database name. The name can contain `1` to `63` characters.
   Only letters, digits, hyphens (-), and underscores (_) are allowed. It cannot start with **pg** or a digit, and must
   be different from template database names. Template databases include **postgres**, **template0**, **template1** and
   **templatem**.

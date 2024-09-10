@@ -28,7 +28,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the resource. If omitted, the
   provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the dataset version. The name consists of 1 to 32
+* `name` - (Required, String, ForceNew) Specifies the name of the dataset version. The name consists of `1` to `32`
   characters. Only letters, Chinese characters, digits underscores (_) and hyphens (-) are allowed.
   Changing this parameter will create a new resource.
 
@@ -36,7 +36,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of dataset version. It contains a maximum of
-  256 characters and cannot contain special characters `!<>=&"'`. Changing this parameter will create a new resource.
+  `256` characters and cannot contain special characters `!<>=&"'`. Changing this parameter will create a new resource.
 
 * `split_ratio` - (Optional, String, ForceNew) Specifies the ratio of splitting which randomly divides a labeled sample
   into a training set and a validation set. Changing this parameter will create a new resource.

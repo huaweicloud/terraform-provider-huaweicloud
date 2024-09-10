@@ -31,8 +31,8 @@ resource "huaweicloud_ga_endpoint_group" "test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String) Specifies the endpoint group name. The name can contain 1 to 64 characters.
-  Only letters, digits, and hyphens (-) are allowed.
+* `name` - (Required, String) Specifies the endpoint group name.  
+  The name can contain `1` to `64` characters, only letters, digits, and hyphens (-) are allowed.
 
 * `region_id` - (Required, String, ForceNew) Specifies the region where the endpoint group belongs.
 
@@ -43,11 +43,11 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `description` - (Optional, String) Specifies the information about the endpoint group.
-  The value can contain 0 to 255 characters. The following characters are not allowed: <>
+* `description` - (Optional, String) Specifies the information about the endpoint group.  
+  The description contain a maximum of `255` characters, and the angle brackets (< and >) are not allowed.
 
 * `traffic_dial_percentage` - (Optional, Int) Specifies the percentage of traffic distributed to the endpoint group.
-  The value ranges from **0** to **100**. Defaults to **100**.
+  The value ranges from `0` to `100`. Defaults to `100`.
 
 <a name="EndpointGroup_Id"></a>
 The `Id` block supports:

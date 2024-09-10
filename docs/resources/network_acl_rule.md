@@ -53,7 +53,7 @@ The following arguments are supported:
   65535. For a port number range, enter two port numbers connected by a colon(:). For example, 1:100.
 
 * `destination_port` - (Optional, String) Specifies the destination port number or port number range. The value ranges
-  from 1 to 65535. For a port number range, enter two port numbers connected by a colon(:). For example, 1:100.
+  from `1` to `65,535`. For a port number range, enter two port numbers connected by a colon(:). For example, 1:100.
 
 * `enabled` - (Optional, Bool) Enabled status for the network ACL rule. Defaults to true.
 

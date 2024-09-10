@@ -65,8 +65,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to manage the CTS notification resource.
   If omitted, the provider-level region will be used. Changing this creates a new resource.
 
-* `name` - (Required, String) Specifies the notification name. The value contains a maximum of 64 characters,
-  and only letters, digits, underscores(_), and Chinese characters are allowed.
+* `name` - (Required, String) Specifies the notification name. The value contains a maximum of `64` characters,
+  and only English letters, digits, underscores(_), and Chinese characters are allowed.
 
 * `operation_type` - (Required, String) Specifies the operation type, possible options include **complete** and
   **customized**.

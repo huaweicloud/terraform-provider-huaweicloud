@@ -86,7 +86,7 @@ The following arguments are supported:
     exceed the database quota specified by **rds_databases_quota**.
   + New database names cannot contain the following fields (case-insensitive): **rdsadmin**, **master**, **msdb**,
     **tempdb**, **model** and **resource**.
-  + New database names must consist of **1** to **64** characters, including only letters, digits, underscores (_), and
+  + New database names must consist of `1` to `64` characters, including only letters, digits, underscores (_), and
     hyphens (-). If you want to restore data to multiple new databases, separate them with commas (,).
   + New database names must be different from any database names on the original DB instance.
   + New database names must be different from any database names on the existing or original DB instances where data is

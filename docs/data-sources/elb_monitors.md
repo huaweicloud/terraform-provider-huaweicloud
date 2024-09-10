@@ -37,14 +37,14 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the health check name.
 
-* `interval` - (Optional, Int)  Specifies the interval between health checks, in seconds. The value ranges from **1** to
-  **50**.
+* `interval` - (Optional, Int)  Specifies the interval between health checks, in seconds.  
+  The value ranges from `1` to `50`.
 
 * `max_retries` - (Optional, Int) Specifies the number of consecutive health checks when the health check result of a
   backend server changes from **OFFLINE** to **ONLINE**.
 
 * `max_retries_down` - (Optional, Int) Specifies the number of consecutive health checks when the health check result of
-  a backend server changes from **ONLINE** to **OFFLINE**. The value ranges from **1** to **10**.
+  a backend server changes from **ONLINE** to **OFFLINE**. The value ranges from `1` to `10`.
 
 * `timeout` - (Optional, Int) Specifies the maximum time required for waiting for a response from the health check, in
   seconds.

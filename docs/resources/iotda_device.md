@@ -62,10 +62,10 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the IoTDA device resource.
 If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the device name, which contains 4 to 256 characters. Only letters,
+* `name` - (Required, String) Specifies the device name, which contains `4` to `256` characters. Only letters,
 Chinese characters, digits, hyphens (-), underscore (_) and the following special characters are allowed: `?'#().,&%@!`.
 
-* `node_id` - (Required, String, ForceNew) Specifies the node ID, which contains 4 to 256 characters.
+* `node_id` - (Required, String, ForceNew) Specifies the node ID, which contains `4` to `256` characters.
 The node ID can be IMEI, MAC address, or serial number. Changing this parameter will create a new resource.
 
 * `space_id` - (Required, String, ForceNew) Specifies the resource space ID which the device belongs to.
@@ -74,17 +74,18 @@ Changing this parameter will create a new resource.
 * `product_id` - (Required, String, ForceNew) Specifies the product ID which the device belongs to.
 Changing this parameter will create a new resource.
 
-* `device_id` - (Optional, String, ForceNew) Specifies the device ID, which contains 4 to 256 characters.
+* `device_id` - (Optional, String, ForceNew) Specifies the device ID, which contains `4` to `256` characters.
 Only letters, digits, hyphens (-) and underscore (_) are allowed. If omitted, the platform will automatically allocate
 a device ID. Changing this parameter will create a new resource.
 
-* `secret` - (Optional, String) Specifies a primary secret for identity authentication, which contains 8 to 32 characters.
-Only letters, digits, hyphens (-) and underscore (_) are allowed.
+* `secret` - (Optional, String) Specifies a primary secret for identity authentication, which contains `8` to `32`
+  characters. Only letters, digits, hyphens (-) and underscore (_) are allowed.
 
 * `secondary_secret` - (Optional, String) Specifies a secondary secret for identity authentication.
   When the primary secret verification fails, the secondary secret verification will be enabled, and the secondary
   secret has the same effect as the primary secret; The secondary secret is not effective for devices connected to the
-  COAP protocol. Which contains 8 to 32 characters. Only letters, digits, hyphens (-) and underscore (_) are allowed.
+  COAP protocol. Which contains `8` to `32` characters.
+  Only letters, digits, hyphens (-) and underscore (_) are allowed.
 
 * `fingerprint` - (Optional, String) Specifies a primary fingerprint of X.509 certificate for identity authentication,
 which is a 40-digit or 64-digit hexadecimal string. For more detail, please see
@@ -111,13 +112,13 @@ which is a 40-digit or 64-digit hexadecimal string. For more detail, please see
 The child device is not directly connected to the platform. If omitted, it means to create a device directly connected
 to the platform, the `device_id` of the device is the same as the `gateway_id`.
 
-* `description` - (Optional, String) Specifies the description of device. The description contains a maximum of 2048
+* `description` - (Optional, String) Specifies the description of device. The description contains a maximum of `2,048`
 characters. Only letters, Chinese characters, digits, hyphens (-), underscore (_) and the following special characters
 are allowed: `?'#().,&%@!`.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the device.
 
-* `frozen` - (Optional, Bool) Specifies whether to freeze the device. Defaults to `false`.
+* `frozen` - (Optional, Bool) Specifies whether to freeze the device. Defaults to **false**.
 
 ## Attribute Reference
 

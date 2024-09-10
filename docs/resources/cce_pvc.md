@@ -81,9 +81,10 @@ The following arguments are supported:
 * `namespace` - (Required, String, ForceNew) Specifies the namespace to logically divide your containers into different
   group. Changing this will create a new PVC resource.
 
-* `name` - (Required, String, ForceNew) Specifies the unique name of the PVC resource. This parameter can contain a
-  maximum of 63 characters, which may consist of lowercase letters, digits and hyphens (-), and must start and end with
-  lowercase letters and digits. Changing this will create a new PVC resource.
+* `name` - (Required, String, ForceNew) Specifies the unique name of the PVC resource.  
+  This parameter can contain a maximum of `63` characters, which may consist of lowercase letters, digits and
+  hyphens (-), and must start and end with lowercase letters and digits.  
+  Changing this will create a new PVC resource.
 
 * `annotations` - (Optional, Map, ForceNew) Specifies the unstructured key value map for external parameters.
   Changing this will create a new PVC resource.

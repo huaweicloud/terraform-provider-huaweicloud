@@ -34,16 +34,16 @@ resource "huaweicloud_ga_accelerator" "test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String) Specifies the global accelerator name. The name can contain 1 to 64 characters.
-  Only letters, digits, and hyphens (-) are allowed.
+* `name` - (Required, String) Specifies the global accelerator name.  
+  The name can contain `1` to `64` characters, only letters, digits, and hyphens (-) are allowed.
 
 * `ip_sets` - (Required, List, ForceNew) Specifies the IP addresses assigned to the global accelerator.
   The [AccelerateIp](#Accelerator_AccelerateIp) structure is documented below.
 
   Changing this parameter will create a new resource.
 
-* `description` - (Optional, String) Specifies the description about the global accelerator. The value can contain
-  0 to 255 characters. The following characters are not allowed: <>
+* `description` - (Optional, String) Specifies the description about the global accelerator.  
+  The description contain a maximum of `255` characters, and the angle brackets (< and >) are not allowed.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of the tenant.
   The value is **0** or a string that contains a maximum of 36 characters in UUID format with hyphens (-).

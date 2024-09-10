@@ -104,7 +104,7 @@ The `indicators` block supports:
 
 * `status` - The status.
 
-* `confidence` - The confidence. The value range is **80** to **100**.
+* `confidence` - The confidence. The value range is `80` to `100`.
 
 * `first_occurrence_time` - The first occurred time of the indicator.
 

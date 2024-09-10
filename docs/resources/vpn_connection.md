@@ -139,8 +139,8 @@ The `ikepolicy` block supports:
 
 * `ike_version` - (Optional, String) The IKE negotiation version. The value can be **v1** and **v2**. Defaults to **v2**.
 
-* `lifetime_seconds` - (Optional, Int) The life cycle of SA in seconds. The value ranges from **60** to **604800**.
-  Defaults to **86400**. When the life cycle expires, IKE SA will be automatically updated.
+* `lifetime_seconds` - (Optional, Int) The life cycle of SA in seconds. The value ranges from `60` to `604,800`.
+  Defaults to `86,400`. When the life cycle expires, IKE SA will be automatically updated.
 
 * `local_id_type` - (Optional, String) The local ID type. The value can be **ip** or **fqdn**. Defaults to **ip**.
 
@@ -168,10 +168,10 @@ The `ikepolicy` block supports:
 The `dpd` block supports:
 
 * `timeout` - (Optional, Int) Specifies the interval for retransmitting DPD packets.
-  The value ranges from **2** to **60**, in seconds. Defaults to **15**.
+  The value ranges from `2` to `60`, in seconds. Defaults to `15`.
 
 * `interval` - (Optional, Int) Specifies the DPD idle timeout period.
-  The value ranges from **10** to **3600**, in seconds. Defaults to **30**.
+  The value ranges from `10` to `3,600`, in seconds. Defaults to `30`.
 
 * `msg` - (Optional, String) Specifies the format of DPD packets. The value can be:
   + **seq-hash-notify**: indicates that the payload of DPD packets is in the sequence of hash-notify;
@@ -194,7 +194,7 @@ The `ipsecpolicy` block supports:
   **group16**, **group19**, **group20**, **group21**. Defaults to **group14**.
 
 * `lifetime_seconds` - (Optional, Int) The lifecycle time of Ipsec tunnel in seconds.
-  The value ranges from **60** to **604800**. Defaults to **3600**.
+  The value ranges from `60` to `604,800`. Defaults to `3600`.
 
 * `transform_protocol` - (Optional, String) The transform protocol. Only **esp** supported for now.
   Defaults to **esp**.

@@ -34,7 +34,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the manual backup name.
-  The value must be **4** to **64** characters in length and start with a letter (from A to Z or from a to z).
+  The value must be `4` to `64` characters in length and start with a letter (from A to Z or from a to z).
   It is case-sensitive and can contain only letters, digits (from 0 to 9), hyphens (-), and underscores (_).
 
   Changing this parameter will create a new resource.

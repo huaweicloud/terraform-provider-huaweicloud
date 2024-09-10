@@ -124,7 +124,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `connection_drain_timeout` - (Optional, Int, ForceNew) Specifies the timeout of the delayed logout in seconds. Value
-  ranges from **10** to **4000**.
+  ranges from `10` to `4,000`.
 
   Changing this parameter will create a new resource.
 
@@ -146,9 +146,9 @@ The `members` block supports:
 
 * `protocol_port` - (Optional, Int, ForceNew) Specifies the port used by the member to receive requests. It is mandatory
   if `any_port_enable` is **false**, and it does not take effect if `any_port_enable` is set to **true**. The value range
-  is from **1** to **65535**. Changing this parameter will create a new resource.
+  is from `1` to `65,535`. Changing this parameter will create a new resource.
 
-* `name` - (Optional, String, ForceNew) Specifies the name of the member. It can contain a maximum of **255** characters.
+* `name` - (Optional, String, ForceNew) Specifies the name of the member. It can contain a maximum of `255` characters.
   Changing this parameter will create a new resource.
 
 * `subnet_id` - (Optional, String, ForceNew) Specifies the ID of the IPv4 or IPv6 subnet where the member resides.
@@ -163,15 +163,15 @@ The `members` block supports:
 The `healthmonitor` block supports:
 
 * `delay` - (Required, Int, ForceNew) Specifies the interval between health checks, in seconds. The value range is from
-  **1** to **50**. Changing this parameter will create a new resource.
+  `1` to `50`. Changing this parameter will create a new resource.
 
 * `max_retries` - (Required, Int, ForceNew) Specifies the number of consecutive health checks when the health check
-  result of a backend server changes from **OFFLINE** to **ONLINE**. The value range is from **1** to **10**. Changing
+  result of a backend server changes from **OFFLINE** to **ONLINE**. The value range is from `1` to `10`. Changing
   this parameter will create a new resource.
 
 * `timeout` - (Required, Int, ForceNew) Specifies the maximum time required for waiting for a response from the health
   check, in seconds. It is recommended that you set the value less than that of parameter `delay`. The value range is
-  from **1** to **50**. Changing this parameter will create a new resource.
+  from `1` to `50`. Changing this parameter will create a new resource.
 
 * `type` - (Required, String, ForceNew) Specifies the health check protocol. Value options: **TCP**, **UDP_CONNECT**,
   **HTTP**, and **HTTPS**.
@@ -187,15 +187,15 @@ The `healthmonitor` block supports:
   check. The value can contain only digits, letters, hyphens (-), and periods (.) and must start with a digit or letter.
   The value is left blank by default, indicating that the virtual IP address of the load balancer is used as the
   destination address of HTTP requests. This parameter is available only when `type` is set to **HTTP**. The length
-  range of value is from **1** to **100**. Changing this parameter will create a new resource.
+  range of value is from `1` to `100`. Changing this parameter will create a new resource.
 
 * `expected_codes` - (Optional, String, ForceNew) Specifies the expected HTTP status code. This parameter will take
   effect only when `type` is set to **HTTP** or **HTTPS**. The default value is 200. Multiple status codes can be
-  queried in the format of expected_codes=xxx&expected_codes=xxx. The length range of value is from **1** to **64**.
+  queried in the format of expected_codes=xxx&expected_codes=xxx. The length range of value is from `1` to `64`.
   Value options:
   + A specific value, for example, **200**
   + A list of values that are separated with commas (,), for example, **200**, **202**
-  + A value range, for example, **200**-**204**
+  + A value range, for example, **200-204**
 
   Changing this parameter will create a new resource.
 
@@ -205,20 +205,20 @@ The `healthmonitor` block supports:
   Changing this parameter will create a new resource.
 
 * `max_retries_down` - (Optional, Int, ForceNew) Specifies the number of consecutive health checks when the health check
-  result of a backend server changes from ONLINE to OFFLINE. The value range is from **1** to **10**. Defaults to **3**.
+  result of a backend server changes from ONLINE to OFFLINE. The value range is from `1` to `10`. Defaults to `3`.
   Changing this parameter will create a new resource.
 
 * `monitor_port` - (Optional, Int, ForceNew) Specifies the port used for the health check. If this parameter is left
-  blank, a port of the backend server will be used by default. The value range is from **1** to **65535**. Changing this
+  blank, a port of the backend server will be used by default. The value range is from `1` to `65,535`. Changing this
   parameter will create a new resource.
 
-* `name` - (Optional, String, ForceNew) Specifies the health check name. The length range of value is from **1** to **255**.
+* `name` - (Optional, String, ForceNew) Specifies the health check name. The length range of value is from `1` to `255`.
   Changing this parameter will create a new resource.
 
 * `url_path` - (Optional, String, ForceNew) Specifies the HTTP request path for the health check. The value must start
   with a slash (/), and the default value is /. The value can contain letters, digits, hyphens (-), slashes (/),
   periods (.), percentage signs (%), question marks (?), pound signs (#), ampersand signs (&), and the extended character
-  set **_;~!()*[]@$^:',+**. The length range of value is from **1** to **80**. Changing this parameter will create a new
+  set **_;~!()*[]@$^:',+**. The length range of value is from `1` to `80`. Changing this parameter will create a new
   resource.
 
   -> **NOTE:** This parameter is available only when `type` is set to **HTTP** or **HTTPS**.

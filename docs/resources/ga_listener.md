@@ -37,8 +37,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the listener name. The name can contain 1 to 64 characters.
-  Only letters, digits, and hyphens (-) are allowed.
+* `name` - (Required, String) Specifies the listener name.  
+  The name can contain `1` to `64` characters, only letters, digits, and hyphens (-) are allowed.
 
 * `port_ranges` - (Required, List) Specifies the port range used by the listener.
   The [PortRange](#Listener_PortRange) structure is documented below.
@@ -54,8 +54,8 @@ The following arguments are supported:
 
   Defaults to **NONE**.
 
-* `description` - (Optional, String) Specifies the information about the listener.
-  The value can contain 0 to 255 characters. The following characters are not allowed: <>
+* `description` - (Optional, String) Specifies the information about the listener.  
+  The description contain a maximum of `255` characters, and the angle brackets (< and >) are not allowed.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the listener.
 
@@ -63,8 +63,10 @@ The following arguments are supported:
 The `PortRange` block supports:
 
 * `from_port` - (Required, Int) Specifies the start port number.
+  The valid value is range from `1` to `65,535`.
 
 * `to_port` - (Required, Int) Specifies the end port number.
+  The valid value is range from `1` to `65,535`.
 
 ## Attribute Reference
 

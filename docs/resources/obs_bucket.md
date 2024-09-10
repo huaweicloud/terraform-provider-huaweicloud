@@ -201,7 +201,7 @@ The following arguments are supported:
 <!-- markdownlint-disable MD033 -->
 
 * `quota` - (Optional, Int) Specifies bucket storage quota. Must be a positive integer in the unit of byte. The maximum
-  storage quota is 2<sup>63</sup> – 1 bytes. The default bucket storage quota is 0, indicating that the bucket storage
+  storage quota is 2<sup>63</sup> – 1 bytes. The default bucket storage quota is `0`, indicating that the bucket storage
   quota is not limited.
 
 <!-- markdownlint-enable MD033 -->

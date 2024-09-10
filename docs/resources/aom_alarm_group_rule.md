@@ -70,13 +70,13 @@ The following arguments are supported:
 * `group_by` - (Required, List) Specifies the combine notifications.
 
 * `group_wait` - (Required, Int) Specifies the initial wait time.
-  Value ranges from **0** to **600**. Unit is second.
+  Value ranges from `0` to `600`. Unit is second.
 
 * `group_interval` - (Required, Int) Specifies the batch processing interval.
-  Value ranges from **5** to **1800**. Unit is second.
+  Value ranges from `5` to `1,800`. Unit is second.
 
 * `group_repeat_waiting` - (Required, Int) Specifies the repeat interval.
-  Value ranges from **0** to **1296000**. Unit is second.
+  Value ranges from `0` to `1,296,000`. Unit is second.
 
 * `description` - (Optional, String) Specifies the description of the rule.
 

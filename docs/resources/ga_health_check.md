@@ -37,15 +37,19 @@ The following arguments are supported:
 
 * `enabled` - (Required, Bool) Specifies whether to enable health check.
 
-* `interval` - (Required, Int) Specifies the health check interval, in seconds.
+* `interval` - (Required, Int) Specifies the health check interval, in seconds.  
+  The valid value is range from `1` to `60`.
 
-* `max_retries` - (Required, Int) Specifies the maximum number of retries.
+* `max_retries` - (Required, Int) Specifies the maximum number of retries.  
+  The valid value is range from `1` to `10`.  
   Specifies the number of consecutive health checks when the health check result of an endpoint changes
   from **HEALTHY** to **UNHEALTHY**, or from **UNHEALTHY** to **HEALTHY**.
 
-* `port` - (Required, Int) Specifies the port used for the health check.
+* `port` - (Required, Int) Specifies the port used for the health check.  
+  The valid value is range from `1` to `65,535`.
 
-* `timeout` - (Required, Int) Specifies the timeout duration of the health check, in seconds.
+* `timeout` - (Required, Int) Specifies the timeout duration of the health check, in seconds.  
+  The valid value is range from `1` to `60`.
   It is recommended that you set a value less than that of parameter **interval**.
 
 * `protocol` - (Optional, String) Specifies the health check protocol.

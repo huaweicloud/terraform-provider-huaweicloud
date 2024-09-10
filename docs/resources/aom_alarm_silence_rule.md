@@ -68,12 +68,12 @@ The `silence_time` block supports:
 * `starts_at` - (Required, Int) Specifies the start time of the silence rule.
   When the `type` is **FIXED**, the value is a time stamp, e.g. **1684466549755**,
   which indicates **2023-05-19 11:22:29.755**. When the `type` is **DAILY**, **WEEKLY**
-  or **MONTHLY**, the value range is **0** to **86399**, which indicates **00:00:00** to **23:59:59**.
+  or **MONTHLY**, the value range is `0` to `86,399`, which indicates **00:00:00** to **23:59:59**.
 
 * `ends_at` - (Optional, Int) Specifies the end time of the silence rule.
   When the `type` is **FIXED**, the value is a time stamp, e.g. **1684466549755**,
   which indicates **2023-05-19 11:22:29.755**. When the `type` is **DAILY**, **WEEKLY**
-  or **MONTHLY**, the value range is **0** to **86399**, which indicates **00:00:00** to **23:59:59**.
+  or **MONTHLY**, the value range is `0` to `86,399`, which indicates **00:00:00** to **23:59:59**.
 
 * `scope` - (Optional, List) Specifies the silence time of the rule.
   It's required when the type is **WEEKLY** or **MONTHLY**.

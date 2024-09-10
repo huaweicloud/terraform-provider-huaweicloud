@@ -46,7 +46,7 @@ The following arguments are supported:
 * `address` - (Required, String, ForceNew) The IP address of the member to receive traffic from the load balancer.
   Changing this creates a new member.
 
-* `protocol_port` - (Optional, Int, ForceNew) The port on which to listen for client traffic. It must be set to **0**
+* `protocol_port` - (Optional, Int, ForceNew) The port on which to listen for client traffic. It must be set to `0`
   for gateway load balancers with IP backend server groups associated. It can be left blank because it does not take
   effect if `any_port_enable` is set to **true** for a backend server group. Changing this creates a new member.
 

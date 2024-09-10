@@ -89,7 +89,7 @@ The following arguments are supported:
 
 * `volume` - (Required, List) Specifies the volume information. Structure is documented below.
 
-* `description` - (Optional, String) Specifies the description of notebook. It contains a maximum of 512 characters and
+* `description` - (Optional, String) Specifies the description of notebook. It contains a maximum of `512` characters and
  cannot contain special characters `&<>"'/`.
 
 * `key_pair` - (Optional, String, ForceNew) Specifies the key pair name for remote SSH access.
@@ -112,7 +112,7 @@ The `volume` block supports:
   
  Changing this parameter will create a new resource.
 
-* `size` - (Optional, Int) Specifies the volume size. Its value range is from 5 GB to 4096 GB.
+* `size` - (Optional, Int) Specifies the volume size. Its value range is from `5` GB to `4,096` GB.
 
 * `ownership` - (Optional, String, ForceNew) Specifies the volume ownership. The options are as follows:
   - *MANAGED*: shared storage disk of the ModelArts service.

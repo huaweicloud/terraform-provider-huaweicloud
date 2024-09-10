@@ -78,7 +78,7 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the health check name. The value contains a maximum of 255 characters.
 
-* `port` - (Optional, Int) Specifies the health check port. The port number ranges from 1 to 65535. If not specified,
+* `port` - (Optional, Int) Specifies the health check port. The port number ranges from `1` to `65,535`. If not specified,
   the port of the backend server will be used as the health check port.
 
 * `url_path` - (Optional, String) Specifies the HTTP request path for the health check. Required for HTTP type.

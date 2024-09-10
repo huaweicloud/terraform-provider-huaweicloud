@@ -39,7 +39,7 @@ The following arguments are supported:
 * `route_mode` - (Optional, String) Specifies the route mode of the customer gateway. The value can be **static** and **bgp**.
 
 * `asn` - (Optional, Int) Specifies the BGP ASN number of the customer gateway, only works when the route_mode is
-  **bgp**. The value ranges from **1** to **4294967295**.
+  **bgp**. The value ranges from `1` to `4,294,967,295`.
 
 * `customer_gateway_id` - (Optional, String) Specifies the customer gateway ID used as the query filter.
 

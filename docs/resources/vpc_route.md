@@ -75,7 +75,7 @@ The following arguments are supported:
   + If the route type is **er**, the value is a ER instance ID.
 
 * `description` - (Optional, String) Specifies the supplementary information about the route.
-  The value is a string of no more than 255 characters and cannot contain angle brackets (< or >).
+  The value is a string of no more than `255` characters and cannot contain angle brackets (< or >).
 
 * `route_table_id` - (Optional, String, ForceNew) Specifies the route table ID for which a route is to be added.
   If the value is not set, the route will be added to the *default* route table.
