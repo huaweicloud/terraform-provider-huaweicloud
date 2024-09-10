@@ -779,6 +779,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_images_image":    ims.DataSourceImagesImageV2(),
 			"huaweicloud_images_images":   ims.DataSourceImagesImages(),
 			"huaweicloud_ims_os_versions": ims.DataSourceOsVersions(),
+			"huaweicloud_ims_quotas":      ims.DataSourceImsQuotas(),
 
 			"huaweicloud_kms_data_key":      dew.DataSourceKmsDataKeyV1(),
 			"huaweicloud_kms_grants":        dew.DataSourceKmsGrants(),
