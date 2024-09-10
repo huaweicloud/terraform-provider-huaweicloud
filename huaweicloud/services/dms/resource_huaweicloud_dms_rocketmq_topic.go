@@ -65,12 +65,11 @@ func ResourceDmsRocketMQTopic() *schema.Resource {
 				Description: "Specifies the list of associated brokers of the topic.",
 			},
 			"queue_num": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				Description:  `Specifies the number of queues.`,
-				ValidateFunc: validation.IntBetween(1, 50),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Specifies the number of queues.`,
 			},
 			"queues": {
 				Type:        schema.TypeList,

@@ -92,9 +92,8 @@ func ResourceRecording() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"recording_length": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(15, 720), // same with console
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 
 						"file_naming": {
@@ -110,10 +109,9 @@ func ResourceRecording() *schema.Resource {
 						},
 
 						"max_stream_pause_length": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(-1, 300),
-							Computed:     true,
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},
@@ -148,9 +146,8 @@ func formatSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"recording_length": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(15, 180), // same with console
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 
 			"file_naming": {
@@ -160,10 +157,9 @@ func formatSchema() *schema.Resource {
 			},
 
 			"max_stream_pause_length": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntBetween(0, 300),
-				Computed:     true,
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}

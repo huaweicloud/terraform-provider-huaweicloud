@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/responses"
 
@@ -76,11 +75,10 @@ func ResourceApigResponseV2() *schema.Resource {
 							Description: "The body template of the API custom response rule.",
 						},
 						"status_code": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.IntBetween(200, 599),
-							Description:  "The HTTP status code of the API custom response rule.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The HTTP status code of the API custom response rule.",
 						},
 					},
 				},

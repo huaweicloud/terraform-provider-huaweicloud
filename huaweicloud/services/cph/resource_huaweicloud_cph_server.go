@@ -126,11 +126,10 @@ func ResourceCphServer() *schema.Resource {
 				}, false),
 			},
 			"period": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `The charging period.`,
-				ValidateFunc: validation.IntBetween(1, 9),
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The charging period.`,
 			},
 			"auto_renew": {
 				Type:        schema.TypeString,
@@ -216,7 +215,6 @@ func cphServerBandWidthSchema() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				Description:  `The bandwidth (Mbit/s).`,
-				ValidateFunc: validation.IntBetween(1, 2000),
 				RequiredWith: []string{"bandwidth.0.charge_mode"},
 			},
 			"charge_mode": {
@@ -243,10 +241,9 @@ func cphServerApplicationPortSchema() *schema.Resource {
 				Description: `The application port name, which can contain a maximum of 16 bytes.`,
 			},
 			"listen_port": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `The port number, which ranges from 10000 to 50000.`,
-				ValidateFunc: validation.IntBetween(10000, 50000),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `The port number, which ranges from 10000 to 50000.`,
 			},
 			"internet_accessible": {
 				Type:        schema.TypeString,

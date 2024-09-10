@@ -70,10 +70,9 @@ func ResourceTask() *schema.Resource {
 			},
 
 			"benchmark_concurrency": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      100,
-				ValidateFunc: validation.IntBetween(0, 2000000),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  100,
 			},
 
 			"cluster_id": {

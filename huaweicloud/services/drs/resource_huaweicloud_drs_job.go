@@ -313,7 +313,6 @@ func ResourceDrsJob() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
 				Description:  "schema: Internal",
 			},
 			"auto_renew": {

@@ -76,10 +76,9 @@ func ResourceNotebook() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"MANAGED", "DEDICATED"}, false),
 						},
 						"size": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.IntBetween(5, 4096),
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
 						},
 						"uri": {
 							Type:     schema.TypeString,

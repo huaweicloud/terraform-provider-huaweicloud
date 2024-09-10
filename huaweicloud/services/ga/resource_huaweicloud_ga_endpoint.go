@@ -75,11 +75,10 @@ func ResourceEndpoint() *schema.Resource {
 				}, false),
 			},
 			"weight": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				Description:  `Specifies the weight of the endpoint based on which the listener distributes traffic.`,
-				ValidateFunc: validation.IntBetween(0, 100),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the weight of the endpoint based on which the listener distributes traffic.`,
 			},
 			"health_state": {
 				Type:        schema.TypeString,

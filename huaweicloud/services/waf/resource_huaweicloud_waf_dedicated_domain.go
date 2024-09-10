@@ -233,10 +233,9 @@ func dedicatedDomainServerSchema() *schema.Resource {
 				ForceNew: true,
 			},
 			"port": {
-				Type:         schema.TypeInt,
-				ValidateFunc: validation.IntBetween(0, 65535),
-				Required:     true,
-				ForceNew:     true,
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
 			},
 			"type": {
 				Type:         schema.TypeString,

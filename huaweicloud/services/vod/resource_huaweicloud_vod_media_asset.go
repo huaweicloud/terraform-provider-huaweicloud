@@ -155,10 +155,9 @@ func ResourceMediaAsset() *schema.Resource {
 							}, false),
 						},
 						"time": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ForceNew:     true,
-							ValidateFunc: validation.IntBetween(1, 12),
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
 						},
 						"dots": {
 							Type:     schema.TypeList,

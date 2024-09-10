@@ -80,16 +80,14 @@ func ResourceTranscoding() *schema.Resource {
 						},
 
 						"bitrate": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(40, 30000),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 
 						"frame_rate": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 30),
-							Computed:     true,
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},

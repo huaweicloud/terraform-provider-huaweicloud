@@ -265,9 +265,8 @@ func ResourceConference() *schema.Resource {
 				Required: true,
 			},
 			"duration": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(15, 1440),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"start_time": {
 				Type:     schema.TypeString,
@@ -441,9 +440,8 @@ func ResourceConference() *schema.Resource {
 							}, false),
 						},
 						"pre_remind": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(0, 30),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 						"start_date": {
 							Type:     schema.TypeString,
@@ -527,10 +525,9 @@ func ResourceConference() *schema.Resource {
 							Sensitive: true,
 						},
 						"prolong_time": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.IntBetween(0, 60),
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
 						},
 						"waiting_room_enabled": {
 							Type:     schema.TypeBool,

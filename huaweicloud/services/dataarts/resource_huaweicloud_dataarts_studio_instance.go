@@ -85,10 +85,9 @@ func ResourceStudioInstance() *schema.Resource {
 				}, false),
 			},
 			"period": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 9),
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
 			},
 			"auto_renew": common.SchemaAutoRenew(nil),
 			"tags":       common.TagsForceNewSchema(),

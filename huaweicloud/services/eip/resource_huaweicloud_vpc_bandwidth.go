@@ -94,7 +94,6 @@ func ResourceVpcBandWidthV2() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
 			},
 			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 			"bandwidth_type": {

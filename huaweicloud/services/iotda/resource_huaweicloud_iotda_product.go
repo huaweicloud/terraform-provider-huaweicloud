@@ -196,10 +196,9 @@ func propertySchema(category string) *schema.Resource {
 			},
 
 			"max_length": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 2147483647),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 
 			"step": {

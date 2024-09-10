@@ -126,16 +126,14 @@ func ListenerPortRangeSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"from_port": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the start port number.`,
-				ValidateFunc: validation.IntBetween(1, 65535),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the start port number.`,
 			},
 			"to_port": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the end port number.`,
-				ValidateFunc: validation.IntBetween(1, 65535),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the end port number.`,
 			},
 		},
 	}

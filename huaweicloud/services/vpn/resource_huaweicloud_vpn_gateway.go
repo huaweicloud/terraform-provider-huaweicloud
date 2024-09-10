@@ -378,7 +378,6 @@ func GatewayEipSchema() *schema.Resource {
 				ForceNew: true,
 				Description: `Bandwidth size in Mbit/s. When the flavor is **V300**, the value cannot be greater than **300**.
 `,
-				ValidateFunc: validation.IntBetween(1, 1024),
 			},
 			"charge_mode": {
 				Type:        schema.TypeString,

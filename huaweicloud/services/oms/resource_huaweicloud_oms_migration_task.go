@@ -221,9 +221,8 @@ func ResourceMigrationTask() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"max_bandwidth": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(1, 200),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 						"start": {
 							Type:     schema.TypeString,

@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -60,11 +59,10 @@ func ResourceDisStream() *schema.Resource {
 			},
 
 			"retention_period": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      24,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(24, 72),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  24,
+				ForceNew: true,
 			},
 
 			"stream_type": {

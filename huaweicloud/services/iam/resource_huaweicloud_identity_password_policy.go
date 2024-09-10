@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/security"
 
@@ -30,40 +29,34 @@ func ResourceIdentityPasswordPolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"password_char_combination": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      2,
-				ValidateFunc: validation.IntBetween(2, 4),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  2,
 			},
 			"minimum_password_length": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      8,
-				ValidateFunc: validation.IntBetween(6, 32),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  8,
 			},
 			"maximum_consecutive_identical_chars": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 32),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"number_of_recent_passwords_disallowed": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      1,
-				ValidateFunc: validation.IntBetween(0, 10),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  1,
 			},
 			"password_validity_period": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 180),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"minimum_password_age": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 1440),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"password_not_username_or_invert": {
 				Type:     schema.TypeBool,

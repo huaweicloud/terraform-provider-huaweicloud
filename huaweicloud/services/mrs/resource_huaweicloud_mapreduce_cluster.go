@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -188,41 +187,41 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     nodeGroupSchemaResource("master_node_default_group", false, 1, 9),
+				Elem:     nodeGroupSchemaResource("master_node_default_group", false),
 			},
 			"analysis_core_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     nodeGroupSchemaResource("core_node_analysis_group", true, 1, 500),
+				Elem:     nodeGroupSchemaResource("core_node_analysis_group", true),
 			},
 			"streaming_core_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     nodeGroupSchemaResource("core_node_streaming_group", true, 1, 500),
+				Elem:     nodeGroupSchemaResource("core_node_streaming_group", true),
 			},
 			"analysis_task_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     nodeGroupSchemaResource("task_node_analysis_group", true, 1, 500),
+				Elem:     nodeGroupSchemaResource("task_node_analysis_group", true),
 			},
 			"streaming_task_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     nodeGroupSchemaResource("task_node_streaming_group", true, 1, 500),
+				Elem:     nodeGroupSchemaResource("task_node_streaming_group", true),
 			},
 			"custom_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
-				Elem:     nodeGroupSchemaResource("", false, 1, 500),
+				Elem:     nodeGroupSchemaResource("", false),
 			},
 			"component_configs": {
 				Type:     schema.TypeList,
@@ -292,7 +291,7 @@ func ResourceMRSClusterV2() *schema.Resource {
 /*
 when custom node,the groupName should been empty
 */
-func nodeGroupSchemaResource(groupName string, nodeScalable bool, minNodeNum, maxNodeNum int) *schema.Resource {
+func nodeGroupSchemaResource(groupName string, nodeScalable bool) *schema.Resource {
 	nodeResource := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"flavor": {
@@ -360,16 +359,14 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool, minNodeNum, ma
 
 	if nodeScalable {
 		nodeResource.Schema["node_number"] = &schema.Schema{
-			Type:         schema.TypeInt,
-			Required:     true,
-			ValidateFunc: validation.IntBetween(minNodeNum, maxNodeNum),
+			Type:     schema.TypeInt,
+			Required: true,
 		}
 	} else {
 		nodeResource.Schema["node_number"] = &schema.Schema{
-			Type:         schema.TypeInt,
-			Required:     true,
-			ForceNew:     true,
-			ValidateFunc: validation.IntBetween(minNodeNum, maxNodeNum),
+			Type:     schema.TypeInt,
+			Required: true,
+			ForceNew: true,
 		}
 	}
 

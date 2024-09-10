@@ -208,10 +208,9 @@ func ResourceService() *schema.Resource {
 				Computed: true,
 			},
 			"internet_access_port": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(1025, 65535),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"dedicated_subnets": {
 				Type:     schema.TypeList,

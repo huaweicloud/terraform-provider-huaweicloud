@@ -144,7 +144,6 @@ func ResourceNetworkingSecGroupRule() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ForceNew:      true,
-				ValidateFunc:  validation.IntBetween(1, 100),
 				ConflictsWith: []string{"port_range_min", "port_range_max"},
 			},
 			"description": {

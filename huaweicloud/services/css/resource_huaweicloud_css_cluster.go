@@ -143,26 +143,26 @@ func ResourceCssCluster() *schema.Resource {
 				ExactlyOneOf:  []string{"node_config", "ess_node_config"},
 				ConflictsWith: []string{"expect_node_num"},
 				Computed:      true,
-				Elem:          essOrColdNodeSchema(1, 200),
+				Elem:          essOrColdNodeSchema(),
 				Description:   "schema: Required",
 			},
 			"master_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem:     masterOrClientNodeSchema(3, 10),
+				Elem:     masterOrClientNodeSchema(),
 			},
 			"client_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem:     masterOrClientNodeSchema(1, 32),
+				Elem:     masterOrClientNodeSchema(),
 			},
 			"cold_node_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem:     essOrColdNodeSchema(1, 32),
+				Elem:     essOrColdNodeSchema(),
 			},
 			"availability_zone": {
 				Type:         schema.TypeString,
@@ -326,7 +326,6 @@ func ResourceCssCluster() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
 			},
 			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 			"expect_node_num": {
@@ -497,7 +496,7 @@ func ResourceCssCluster() *schema.Resource {
 	}
 }
 
-func essOrColdNodeSchema(min, max int) *schema.Resource {
+func essOrColdNodeSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"flavor": {
@@ -506,9 +505,8 @@ func essOrColdNodeSchema(min, max int) *schema.Resource {
 			},
 
 			"instance_number": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(min, max),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 
 			"volume": {
@@ -520,9 +518,8 @@ func essOrColdNodeSchema(min, max int) *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"size": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntDivisibleBy(10),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 						"volume_type": {
 							Type:     schema.TypeString,
@@ -541,7 +538,7 @@ func essOrColdNodeSchema(min, max int) *schema.Resource {
 	}
 }
 
-func masterOrClientNodeSchema(min, max int) *schema.Resource {
+func masterOrClientNodeSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"flavor": {
@@ -550,9 +547,8 @@ func masterOrClientNodeSchema(min, max int) *schema.Resource {
 			},
 
 			"instance_number": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(min, max),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 
 			"volume": {
@@ -562,9 +558,8 @@ func masterOrClientNodeSchema(min, max int) *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"size": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntDivisibleBy(10),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 						"volume_type": {
 							Type:     schema.TypeString,

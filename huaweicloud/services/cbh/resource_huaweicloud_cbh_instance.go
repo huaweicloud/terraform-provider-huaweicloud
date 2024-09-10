@@ -128,11 +128,10 @@ func ResourceCBHInstance() *schema.Resource {
 				Description: `Specifies the charging period unit of the instance.`,
 			},
 			"period": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 9),
-				Description:  `Specifies the charging period of the CBH instance.`,
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the charging period of the CBH instance.`,
 			},
 			"auto_renew": {
 				Type:        schema.TypeString,

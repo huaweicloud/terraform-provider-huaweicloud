@@ -441,10 +441,9 @@ func ResourceComputeInstance() *schema.Resource {
 				ConflictsWith: []string{"spot_duration", "spot_duration_count"},
 			},
 			"spot_duration": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 6),
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
 			},
 			"spot_duration_count": {
 				Type:         schema.TypeInt,

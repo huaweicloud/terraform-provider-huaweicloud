@@ -440,11 +440,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The request protocol of the FunctionGraph function.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"invocation_type": {
 							Type:     schema.TypeString,
@@ -522,11 +521,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The web protocol type of the API request.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"retry_count": {
 							Type:        schema.TypeInt,
@@ -670,11 +668,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The effective mode of the backend policy.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"backend_params": {
 							Type:        schema.TypeSet,
@@ -782,11 +779,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The effective mode of the backend policy.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"retry_count": {
 							Type:        schema.TypeInt,

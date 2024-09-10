@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -71,11 +70,10 @@ func ResourceEndpointGroup() *schema.Resource {
 				Description: `Specifies the information about the endpoint group.`,
 			},
 			"traffic_dial_percentage": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				Description:  `Specifies the percentage of traffic distributed to the endpoint group.`,
-				ValidateFunc: validation.IntBetween(0, 100),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the percentage of traffic distributed to the endpoint group.`,
 			},
 			"status": {
 				Type:        schema.TypeString,

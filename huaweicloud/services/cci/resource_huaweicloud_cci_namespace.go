@@ -78,11 +78,10 @@ func ResourceCciNamespace() *schema.Resource {
 				ForceNew: true,
 			},
 			"warmup_pool_size": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 500),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 			"recycling_interval": {
 				Type:         schema.TypeInt,

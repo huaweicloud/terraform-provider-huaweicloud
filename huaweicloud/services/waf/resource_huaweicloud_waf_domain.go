@@ -222,9 +222,8 @@ func domainServerSchema() *schema.Resource {
 				Required: true,
 			},
 			"port": {
-				Type:         schema.TypeInt,
-				ValidateFunc: validation.IntBetween(0, 65535),
-				Required:     true,
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"type": {
 				Type:        schema.TypeString,

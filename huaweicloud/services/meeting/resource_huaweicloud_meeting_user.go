@@ -169,10 +169,9 @@ func ResourceUser() *schema.Resource {
 				Computed: true,
 			},
 			"sort_level": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(1, 10000),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"is_admin": {
 				Type:     schema.TypeBool,

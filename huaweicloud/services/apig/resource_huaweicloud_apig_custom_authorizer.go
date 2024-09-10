@@ -108,10 +108,9 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 				Description: "Whether to send the body.",
 			},
 			"cache_age": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntBetween(0, 3600),
-				Description:  "The maximum cache age.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "The maximum cache age.",
 			},
 			"user_data": {
 				Type:        schema.TypeString,

@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/dns/v2/ptrrecords"
@@ -62,9 +61,8 @@ func ResourceDNSPtrRecord() *schema.Resource {
 				Optional: true,
 			},
 			"ttl": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntBetween(1, 2147483647),
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,

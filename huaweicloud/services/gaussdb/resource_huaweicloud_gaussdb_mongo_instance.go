@@ -77,9 +77,8 @@ func ResourceGaussDBMongoInstanceV3() *schema.Resource {
 				ValidateFunc: validation.IntInSlice([]int{3}),
 			},
 			"volume_size": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntAtLeast(100),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"password": {
 				Type:      schema.TypeString,
@@ -263,7 +262,6 @@ func ResourceGaussDBMongoInstanceV3() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
 			},
 			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 

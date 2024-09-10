@@ -107,11 +107,10 @@ func ResourceCloudTableCluster() *schema.Resource {
 				ForceNew: true,
 			},
 			"rs_num": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      2,
-				ValidateFunc: validation.IntAtLeast(2),
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Default:  2,
 			},
 			"iam_auth_enabled": {
 				Type:     schema.TypeBool,

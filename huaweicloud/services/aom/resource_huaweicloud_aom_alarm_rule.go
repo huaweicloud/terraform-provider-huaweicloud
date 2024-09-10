@@ -111,19 +111,17 @@ func ResourceAlarmRule() *schema.Resource {
 				Required: true,
 			},
 			"evaluation_periods": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(1, 5),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"alarm_level": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      2,
-				ValidateFunc: validation.IntBetween(1, 4),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  2,
 			},
 			"alarm_actions": {
 				Type:     schema.TypeList,

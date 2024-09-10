@@ -129,9 +129,8 @@ func ResourceDliQueue() *schema.Resource {
 			},
 
 			"cu_count": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validCuCount,
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 
 			"enterprise_project_id": {
@@ -663,15 +662,6 @@ func buildScaleActionParam(oldValue, newValue int) string {
 		return actionScaleIn
 	}
 	return actionScaleOut
-}
-
-func validCuCount(val interface{}, key string) (warns []string, errs []error) {
-	diviNum := 16
-	warns, errs = validation.IntAtLeast(diviNum)(val, key)
-	if len(errs) > 0 {
-		return warns, errs
-	}
-	return validation.IntDivisibleBy(diviNum)(val, key)
 }
 
 func updateVpcCidrOfQueue(client *golangsdk.ServiceClient, queueName, cidr string) error {

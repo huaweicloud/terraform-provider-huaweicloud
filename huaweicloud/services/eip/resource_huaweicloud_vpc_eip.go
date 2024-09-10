@@ -217,7 +217,6 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				RequiredWith:  []string{"period_unit"},
-				ValidateFunc:  validation.IntBetween(1, 9),
 				ConflictsWith: []string{"publicip.0.ip_address"},
 			},
 			"auto_renew": common.SchemaAutoRenewUpdatable([]string{"publicip.0.ip_address"}),

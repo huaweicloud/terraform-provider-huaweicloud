@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -51,10 +50,9 @@ func ResourceDmsRocketMQConsumerGroup() *schema.Resource {
 				Description: `Specifies the name of the consumer group.`,
 			},
 			"retry_max_times": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the maximum number of retry times.`,
-				ValidateFunc: validation.IntBetween(1, 16),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the maximum number of retry times.`,
 			},
 			"enabled": {
 				Type:        schema.TypeBool,
