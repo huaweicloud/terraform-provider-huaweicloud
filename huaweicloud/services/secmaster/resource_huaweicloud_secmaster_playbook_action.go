@@ -26,6 +26,8 @@ import (
 // @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions
 // @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions/{id}
 // @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions/{id}
+// @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}
+// @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{id}
 func ResourcePlaybookAction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePlaybookActionCreate,
@@ -284,31 +286,44 @@ func resourcePlaybookActionDelete(_ context.Context, d *schema.ResourceData, met
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	// deletePlaybookAction: Delete an existing SecMaster playbook action
-	var (
-		deletePlaybookActionHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions/{id}"
-		deletePlaybookActionProduct = "secmaster"
-	)
-	deletePlaybookActionClient, err := cfg.NewServiceClient(deletePlaybookActionProduct, region)
+	workspaceID := d.Get("workspace_id").(string)
+	versionID := d.Get("version_id").(string)
+
+	client, err := cfg.NewServiceClient("secmaster", region)
 	if err != nil {
 		return diag.Errorf("error creating SecMaster client: %s", err)
 	}
 
-	deletePlaybookActionPath := deletePlaybookActionClient.Endpoint + deletePlaybookActionHttpUrl
-	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{project_id}", deletePlaybookActionClient.ProjectID)
-	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{workspace_id}", d.Get("workspace_id").(string))
-	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{version_id}", d.Get("version_id").(string))
+	// Check whether the version is enabled.
+	// Before deleting this version, you need to ensure that the version is not enabled.
+	playbookVersion, err := GetPlaybookVersion(client, workspaceID, versionID)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if utils.PathSearch("enabled", playbookVersion, false).(bool) {
+		bodyParams := backfillUpdateBodyParams(playbookVersion)
+		bodyParams["enabled"] = false
+		err = updatePlaybookVersion(client, workspaceID, versionID, bodyParams)
+		if err != nil {
+			return diag.Errorf("error disabling SecMaster playbook version: %s", err)
+		}
+	}
+
+	// deletePlaybookAction: Delete an existing SecMaster playbook action
+	deletePlaybookActionHttpUrl := "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions/{id}"
+	deletePlaybookActionPath := client.Endpoint + deletePlaybookActionHttpUrl
+	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{project_id}", client.ProjectID)
+	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{workspace_id}", workspaceID)
+	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{version_id}", versionID)
 	deletePlaybookActionPath = strings.ReplaceAll(deletePlaybookActionPath, "{id}", d.Id())
 
 	deletePlaybookActionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	_, err = deletePlaybookActionClient.Request("DELETE", deletePlaybookActionPath, &deletePlaybookActionOpt)
+	_, err = client.Request("DELETE", deletePlaybookActionPath, &deletePlaybookActionOpt)
 	if err != nil {
 		return diag.Errorf("error deleting PlaybookAction: %s", err)
 	}
