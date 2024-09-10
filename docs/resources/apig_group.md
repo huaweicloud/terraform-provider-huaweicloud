@@ -64,7 +64,7 @@ The following arguments are supported:
      Each API group can be associated with up to `5` domain names.
 
 * `domain_access_enabled` - (Optional, Bool) Specifies whether to use the debugging domain name to access the APIs
-  within the group. The default value is `true`.
+  within the group. The default value is `false`.
 
 * `force_destroy` - (Optional, Bool) Specifies whether to delete all sub-resources (for API) when deleting this group.  
   Defaults to **false**.
