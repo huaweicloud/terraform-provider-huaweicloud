@@ -81,7 +81,7 @@ data "huaweicloud_waf_rules_anti_crawler" "test" {
     huaweicloud_waf_rule_anti_crawler.test
   ]
 
-  policy_id = huaweicloud_waf_policy.policy_1.id
+  policy_id = huaweicloud_waf_policy.test.id
 }
 
 locals {
@@ -89,7 +89,7 @@ locals {
 }
 
 data "huaweicloud_waf_rules_anti_crawler" "filter_by_rule_id" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
+  policy_id = huaweicloud_waf_policy.test.id
   rule_id   = local.rule_id
 }
 
@@ -108,7 +108,7 @@ locals {
 }
 
 data "huaweicloud_waf_rules_anti_crawler" "filter_by_name" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
+  policy_id = huaweicloud_waf_policy.test.id
   name      = local.name
 }
 
@@ -123,7 +123,7 @@ output "name_filter_is_useful" {
 }
 
 data "huaweicloud_waf_rules_anti_crawler" "not_found" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
+  policy_id = huaweicloud_waf_policy.test.id
   name      = "not_found"
 }
 
@@ -136,7 +136,7 @@ locals {
 }
 
 data "huaweicloud_waf_rules_anti_crawler" "filter_by_protection_mode" {
-  policy_id       = huaweicloud_waf_policy.policy_1.id
+  policy_id       = huaweicloud_waf_policy.test.id
   protection_mode = local.protection_mode
 }
 
@@ -156,7 +156,7 @@ locals {
 }
 
 data "huaweicloud_waf_rules_anti_crawler" "filter_by_status" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
+  policy_id = huaweicloud_waf_policy.test.id
   status    = local.status
 }
 
