@@ -170,6 +170,8 @@ type AddNodeSpec struct {
 	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
 	// The initialized conditions
 	InitializedConditions []string `json:"initializedConditions,omitempty"`
+	// The hostname config of k8s node
+	HostnameConfig *HostnameConfig `json:"hostnameConfig,omitempty"`
 }
 
 type ServerConfig struct {

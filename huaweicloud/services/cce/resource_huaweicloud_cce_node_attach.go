@@ -167,6 +167,22 @@ func ResourceNodeAttach() *schema.Resource {
 			},
 			//(node/ecs_tags)
 			"tags": common.TagsSchema(),
+			"hostname_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 
 			"flavor_id": {
 				Type:     schema.TypeString,
@@ -286,18 +302,6 @@ func ResourceNodeAttach() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"hostname_config": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -400,6 +404,7 @@ func buildNodeAttachCreateOpts(d *schema.ResourceData) (*nodes.AddOpts, error) {
 					K8sOptions:            resourceNodeAttachK8sOptions(d),
 					Lifecycle:             resourceNodeAttachLifecycle(d),
 					InitializedConditions: utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
+					HostnameConfig:        buildResourceNodeHostnameConfig(d),
 				},
 			},
 		},
