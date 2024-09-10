@@ -776,8 +776,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_iec_vpc":            iec.DataSourceVpc(),
 			"huaweicloud_iec_vpc_subnets":    iec.DataSourceVpcSubnets(),
 
-			"huaweicloud_images_image":  ims.DataSourceImagesImageV2(),
-			"huaweicloud_images_images": ims.DataSourceImagesImages(),
+			"huaweicloud_images_image":    ims.DataSourceImagesImageV2(),
+			"huaweicloud_images_images":   ims.DataSourceImagesImages(),
+			"huaweicloud_ims_os_versions": ims.DataSourceOsVersions(),
 
 			"huaweicloud_kms_data_key":      dew.DataSourceKmsDataKeyV1(),
 			"huaweicloud_kms_grants":        dew.DataSourceKmsGrants(),
