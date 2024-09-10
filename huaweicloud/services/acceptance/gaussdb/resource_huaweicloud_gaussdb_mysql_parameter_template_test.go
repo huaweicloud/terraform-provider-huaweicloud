@@ -103,7 +103,7 @@ func TestAccGaussDBMysqlTemplate_basic(t *testing.T) {
 	})
 }
 
-func TestAccGaussDBMysqlTemplate_with_name(t *testing.T) {
+func TestAccGaussDBMysqlTemplate_with_configuration(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
@@ -122,20 +122,104 @@ func TestAccGaussDBMysqlTemplate_with_name(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testParameterTemplate_with_name(name),
+				Config: testParameterTemplate_with_configuration(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description",
+						"test gaussdb mysql parameter template"),
+					resource.TestCheckResourceAttr(rName, "datastore_engine", "gaussdb-mysql"),
+					resource.TestCheckResourceAttr(rName, "datastore_version", "8.0"),
+					resource.TestCheckResourceAttr(rName, "parameter_values.auto_increment_offset", "5"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
 			},
 			{
-				Config: testParameterTemplate_with_name(updateName),
+				Config: testParameterTemplate_with_configuration_update(name, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "description",
+						"test gaussdb mysql parameter template update"),
+					resource.TestCheckResourceAttr(rName, "datastore_engine", "gaussdb-mysql"),
+					resource.TestCheckResourceAttr(rName, "datastore_version", "8.0"),
+					resource.TestCheckResourceAttr(rName, "parameter_values.auto_increment_increment", "6"),
+					resource.TestCheckResourceAttr(rName, "parameter_values.auto_increment_offset", "8"),
 				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"parameter_values",
+					"source_configuration_id",
+				},
+			},
+		},
+	})
+}
+
+func TestAccGaussDBMysqlTemplate_with_instance(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	updateName := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_gaussdb_mysql_parameter_template.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getGaussDBMysqlTemplateResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckGaussDBMysqlInstanceId(t)
+			acceptance.TestAccPreCheckGaussDBMysqlInstanceConfigurationId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testParameterTemplate_with_instance(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description",
+						"test gaussdb mysql parameter template"),
+					resource.TestCheckResourceAttr(rName, "datastore_engine", "gaussdb-mysql"),
+					resource.TestCheckResourceAttr(rName, "datastore_version", "8.0"),
+					resource.TestCheckResourceAttr(rName, "parameter_values.auto_increment_increment", "4"),
+					resource.TestCheckResourceAttr(rName, "parameter_values.auto_increment_offset", "5"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+				),
+			},
+			{
+				Config: testParameterTemplate_with_instance_update(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "description",
+						"test gaussdb mysql parameter template update"),
+					resource.TestCheckResourceAttr(rName, "datastore_engine", "gaussdb-mysql"),
+					resource.TestCheckResourceAttr(rName, "datastore_version", "8.0"),
+					resource.TestCheckResourceAttr(rName, "parameter_values.auto_increment_increment", "6"),
+					resource.TestCheckResourceAttr(rName, "parameter_values.auto_increment_offset", "8"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"parameter_values",
+					"instance_id",
+					"instance_configuration_id",
+				},
 			},
 		},
 	})
@@ -173,10 +257,83 @@ resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
 `, name)
 }
 
-func testParameterTemplate_with_name(name string) string {
+func testParameterTemplate_with_configuration(name string) string {
 	return fmt.Sprintf(`
+resource "huaweicloud_gaussdb_mysql_parameter_template" "source_template" {
+  name              = "%[1]s_source"
+  datastore_engine  = "gaussdb-mysql"
+  datastore_version = "8.0"
+
+  parameter_values = {
+    auto_increment_increment = "4"
+  }
+}
+
 resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
-  name = "%s"
+  name                    = "%[1]s"
+  description             = "test gaussdb mysql parameter template"
+  source_configuration_id = huaweicloud_gaussdb_mysql_parameter_template.source_template.id
+
+  parameter_values = {
+    auto_increment_offset = "5"
+  }
 }
 `, name)
+}
+
+func testParameterTemplate_with_configuration_update(name, updateName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_gaussdb_mysql_parameter_template" "source_template" {
+  name              = "%[1]s_source"
+  datastore_engine  = "gaussdb-mysql"
+  datastore_version = "8.0"
+
+  parameter_values = {
+    auto_increment_increment = "4"
+  }
+}
+
+resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
+  name                    = "%[2]s"
+  description             = "test gaussdb mysql parameter template update"
+  source_configuration_id = huaweicloud_gaussdb_mysql_parameter_template.source_template.id
+
+  parameter_values = {
+    auto_increment_increment = "6"
+    auto_increment_offset    = "8"
+  }
+}
+`, name, updateName)
+}
+
+func testParameterTemplate_with_instance(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
+  name                      = "%[1]s"
+  description               = "test gaussdb mysql parameter template"
+  instance_id               = "%[2]s"
+  instance_configuration_id = "%[3]s"
+
+  parameter_values = {
+    auto_increment_increment = "4"
+    auto_increment_offset    = "5"
+  }
+}
+`, name, acceptance.HW_GAUSSDB_MYSQL_INSTANCE_ID, acceptance.HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID)
+}
+
+func testParameterTemplate_with_instance_update(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
+  name                      = "%[1]s"
+  description               = "test gaussdb mysql parameter template update"
+  instance_id               = "%[2]s"
+  instance_configuration_id = "%[3]s"
+
+  parameter_values = {
+    auto_increment_increment = "6"
+    auto_increment_offset    = "8"
+  }
+}
+`, name, acceptance.HW_GAUSSDB_MYSQL_INSTANCE_ID, acceptance.HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID)
 }

@@ -7,13 +7,13 @@ package gaussdb
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -23,6 +23,8 @@ import (
 )
 
 // @API GaussDBforMySQL POST /v3/{project_id}/configurations
+// @API GaussDBforMySQL POST /v3/{project_id}/configurations/{configuration_id}/copy
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/configurations/{configuration_id}/copy
 // @API GaussDBforMySQL PUT /v3/{project_id}/configurations/{configuration_id}
 // @API GaussDBforMySQL GET /v3/{project_id}/configurations/{configuration_id}
 // @API GaussDBforMySQL DELETE /v3/{project_id}/configurations/{configuration_id}
@@ -55,21 +57,43 @@ func ResourceGaussDBMysqlTemplate() *schema.Resource {
 				Description: `Specifies the parameter template description.`,
 			},
 			"datastore_engine": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the DB engine.`,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				RequiredWith:  []string{"datastore_version"},
+				ConflictsWith: []string{"source_configuration_id", "instance_id"},
+				Description:   `Specifies the DB engine.`,
 			},
 			"datastore_version": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the DB version.`,
-				RequiredWith: []string{
-					"datastore_engine",
-				},
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"datastore_engine"},
+				Description:  `Specifies the DB version.`,
+			},
+			"source_configuration_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"datastore_engine", "instance_id"},
+				Description:   `Specifies the source parameter template ID.`,
+			},
+			"instance_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				RequiredWith:  []string{"instance_configuration_id"},
+				ConflictsWith: []string{"datastore_engine", "source_configuration_id"},
+				Description:   `Specifies the ID of the GaussDB MySQL instance.`,
+			},
+			"instance_configuration_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"instance_id"},
+				Description:  `Specifies the parameter template ID of the GaussDB MySQL instance.`,
 			},
 			"parameter_values": {
 				Type:        schema.TypeMap,
@@ -98,48 +122,141 @@ func resourceParameterTemplateCreate(ctx context.Context, d *schema.ResourceData
 
 	// createGaussDBMysqlParameterTemplate: create a GaussDB MySQL parameter Template
 	var (
-		createParameterTemplateHttpUrl = "v3/{project_id}/configurations"
-		createParameterTemplateProduct = "gaussdb"
+		product = "gaussdb"
 	)
-	createParameterTemplateClient, err := cfg.NewServiceClient(createParameterTemplateProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating GaussDB Client: %s", err)
+		return diag.Errorf("error creating GaussDB client: %s", err)
 	}
 
-	createParameterTemplatePath := createParameterTemplateClient.Endpoint + createParameterTemplateHttpUrl
-	createParameterTemplatePath = strings.ReplaceAll(createParameterTemplatePath, "{project_id}",
-		createParameterTemplateClient.ProjectID)
+	var id string
+	isCopy := false
+	if _, ok := d.GetOk("source_configuration_id"); ok {
+		id, err = copyParameterTemplate(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		isCopy = true
+	} else if _, ok = d.GetOk("instance_id"); ok {
+		id, err = copyInstanceParameterTemplate(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		isCopy = true
+	} else {
+		id, err = createParameterTemplate(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 
-	createParameterTemplateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	createParameterTemplateOpt.JSONBody = utils.RemoveNil(buildCreateParameterTemplateBodyParams(d))
-	createParameterTemplateResp, err := createParameterTemplateClient.Request("POST",
-		createParameterTemplatePath, &createParameterTemplateOpt)
-	if err != nil {
-		return diag.Errorf("error creating GaussDB MySQL Parameter Template: %s", err)
-	}
+	d.SetId(id)
 
-	createParameterTemplateRespBody, err := utils.FlattenResponse(createParameterTemplateResp)
-	if err != nil {
-		return diag.FromErr(err)
+	if _, ok := d.GetOk("parameter_values"); ok && isCopy {
+		err = updateParameterTemplate(d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
-
-	id, err := jmespath.Search("configurations.id", createParameterTemplateRespBody)
-	if err != nil {
-		return diag.Errorf("error creating GaussDB MySQL Parameter Template: ID is not found in API response")
-	}
-	d.SetId(id.(string))
 
 	return resourceParameterTemplateRead(ctx, d, meta)
 }
 
+func createParameterTemplate(d *schema.ResourceData, client *golangsdk.ServiceClient) (string, error) {
+	httpUrl := "v3/{project_id}/configurations"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	createOpt.JSONBody = utils.RemoveNil(buildCreateParameterTemplateBodyParams(d))
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return "", fmt.Errorf("error creating GaussDB MySQL parameter template: %s", err)
+	}
+
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return "", err
+	}
+
+	id := utils.PathSearch("configurations.id", createRespBody, "").(string)
+	if id == "" {
+		return "", fmt.Errorf("error creating GaussDB MySQL parameter template: ID is not found in API response")
+	}
+	return id, nil
+}
+
+func copyParameterTemplate(d *schema.ResourceData, client *golangsdk.ServiceClient) (string, error) {
+	httpUrl := "v3/{project_id}/configurations/{configuration_id}/copy"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{configuration_id}", d.Get("source_configuration_id").(string))
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	createOpt.JSONBody = utils.RemoveNil(buildCopyParameterTemplateBodyParams(d))
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return "", fmt.Errorf("error creating GaussDB MySQL parameter template: %s", err)
+	}
+
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return "", err
+	}
+
+	id := utils.PathSearch("configuration_id", createRespBody, "").(string)
+	if id == "" {
+		return "", fmt.Errorf("error creating GaussDB MySQL parameter template: ID is not found in API response")
+	}
+	return id, nil
+}
+
+func copyInstanceParameterTemplate(d *schema.ResourceData, client *golangsdk.ServiceClient) (string, error) {
+	httpUrl := "v3/{project_id}/instances/{instance_id}/configurations/{configuration_id}/copy"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", d.Get("instance_id").(string))
+	createPath = strings.ReplaceAll(createPath, "{configuration_id}", d.Get("instance_configuration_id").(string))
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	createOpt.JSONBody = utils.RemoveNil(buildCopyParameterTemplateBodyParams(d))
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return "", fmt.Errorf("error creating GaussDB MySQL parameter template: %s", err)
+	}
+
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return "", err
+	}
+
+	id := utils.PathSearch("configuration_id", createRespBody, "").(string)
+	if id == "" {
+		return "", fmt.Errorf("error creating GaussDB MySQL parameter template: ID is not found in API response")
+	}
+	return id, nil
+}
+
 func buildCreateParameterTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":             utils.ValueIgnoreEmpty(d.Get("name")),
+		"name":             d.Get("name"),
 		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
 		"datastore":        buildCreateParameterTemplateDatastoreChildBody(d),
 		"parameter_values": utils.ValueIgnoreEmpty(d.Get("parameter_values")),
+	}
+	return bodyParams
+}
+
+func buildCopyParameterTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":        d.Get("name"),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
 }
@@ -236,36 +353,44 @@ func resourceParameterTemplateUpdate(ctx context.Context, d *schema.ResourceData
 	if d.HasChanges(updateGaussDBMysqlTemplateHasChanges...) {
 		// updateParameterTemplate: update the GaussDB MySQL parameter Template
 		var (
-			updateParameterTemplateHttpUrl = "v3/{project_id}/configurations/{configuration_id}"
-			updateParameterTemplateProduct = "gaussdb"
+			product = "gaussdb"
 		)
-		updateParameterTemplateClient, err := cfg.NewServiceClient(updateParameterTemplateProduct, region)
+		client, err := cfg.NewServiceClient(product, region)
 		if err != nil {
-			return diag.Errorf("error creating GaussDB Client: %s", err)
+			return diag.Errorf("error creating GaussDB client: %s", err)
 		}
 
-		updateParameterTemplatePath := updateParameterTemplateClient.Endpoint + updateParameterTemplateHttpUrl
-		updateParameterTemplatePath = strings.ReplaceAll(updateParameterTemplatePath,
-			"{project_id}", updateParameterTemplateClient.ProjectID)
-		updateParameterTemplatePath = strings.ReplaceAll(updateParameterTemplatePath,
-			"{configuration_id}", d.Id())
-
-		updateParameterTemplateOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-		updateParameterTemplateOpt.JSONBody = utils.RemoveNil(buildUpdateParameterTemplateBodyParams(d))
-		_, err = updateParameterTemplateClient.Request("PUT", updateParameterTemplatePath,
-			&updateParameterTemplateOpt)
+		err = updateParameterTemplate(d, client)
 		if err != nil {
-			return diag.Errorf("error updating GaussDB MySQL ParameterTemplate: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 	return resourceParameterTemplateRead(ctx, d, meta)
 }
 
+func updateParameterTemplate(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/configurations/{configuration_id}"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{configuration_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateParameterTemplateBodyParams(d))
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB MySQL parameter template: %s", err)
+	}
+	return nil
+}
+
 func buildUpdateParameterTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":             utils.ValueIgnoreEmpty(d.Get("name")),
+		"name":             d.Get("name"),
 		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
 		"parameter_values": utils.ValueIgnoreEmpty(d.Get("parameter_values")),
 	}

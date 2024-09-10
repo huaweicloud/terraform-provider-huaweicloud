@@ -156,6 +156,9 @@ var (
 	HW_BUILD_IMAGE_URL         = os.Getenv("HW_BUILD_IMAGE_URL")         // SWR Image URL for component deployment
 	HW_BUILD_IMAGE_URL_UPDATED = os.Getenv("HW_BUILD_IMAGE_URL_UPDATED") // SWR Image URL for component deployment update
 
+	HW_GAUSSDB_MYSQL_INSTANCE_ID               = os.Getenv("HW_GAUSSDB_MYSQL_INSTANCE_ID")
+	HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID = os.Getenv("HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID")
+
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
 
@@ -1126,6 +1129,20 @@ func TestAccPreCheckComponentDeployment(t *testing.T) {
 func TestAccPreCheckImageUrlUpdated(t *testing.T) {
 	if HW_BUILD_IMAGE_URL_UPDATED == "" {
 		t.Skip("SWR image update URL configuration is not completed for acceptance test of component deployment.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGaussDBMysqlInstanceId(t *testing.T) {
+	if HW_GAUSSDB_MYSQL_INSTANCE_ID == "" {
+		t.Skip("HW_GAUSSDB_MYSQL_INSTANCE_ID must be set for GaussDB MySQL acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGaussDBMysqlInstanceConfigurationId(t *testing.T) {
+	if HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID == "" {
+		t.Skip("HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID must be set for GaussDB MySQL acceptance tests.")
 	}
 }
 
