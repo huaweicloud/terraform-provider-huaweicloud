@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
+	cpts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -59,9 +59,8 @@ func ResourceTask() *schema.Resource {
 			},
 
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 42),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 
 			"project_id": {
@@ -274,7 +273,7 @@ func resourceTaskDelete(_ context.Context, d *schema.ResourceData, meta interfac
 	return nil
 }
 
-func waitingforTaskFinished(ctx context.Context, client *v1.CptsClient, id int64, timeout time.Duration) error {
+func waitingforTaskFinished(ctx context.Context, client *cpts.CptsClient, id int64, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{fmt.Sprint(runStatusRunning), fmt.Sprint(runStatusToRunning)},
 		Target:  []string{fmt.Sprint(runStatusFinished)},

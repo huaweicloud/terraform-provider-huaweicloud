@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/modelarts/v2/dataset"
@@ -46,11 +44,6 @@ func ResourceDatasetVersion() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 32),
-					validation.StringMatch(regexp.MustCompile(`^[\-_A-Za-z0-9\x{4E00}-\x{9FFC}]+$`),
-						`Only letters, Chinese characters, digits underscores (_) and hyphens (-) are allowed.`),
-				),
 				ForceNew: true,
 			},
 
@@ -63,11 +56,6 @@ func ResourceDatasetVersion() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 256),
-					validation.StringMatch(regexp.MustCompile(`^[^!&<>=\"\']+$`),
-						`The description cannot contain special characters !<>=&"'.`),
-				),
 				ForceNew: true,
 			},
 

@@ -3,7 +3,6 @@ package apig
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -55,13 +54,8 @@ func ResourceApigResponseV2() *schema.Resource {
 				Description: "The ID of the API group to which the API custom response belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\w-]*$`),
-						"Only letters, digits, hyphens(-), and underscores (_) are allowed."),
-					validation.StringLenBetween(1, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The name of the API custom response.",
 			},
 			"rule": {

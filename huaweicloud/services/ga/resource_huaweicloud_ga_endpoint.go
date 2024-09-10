@@ -8,7 +8,6 @@ package ga
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -57,11 +56,6 @@ func ResourceEndpoint() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the endpoint ID, for example, EIP ID.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 36),
-				),
 			},
 			// According to the service team's feedback, this parameter will be update to required in the future.
 			"ip_address": {
@@ -69,11 +63,6 @@ func ResourceEndpoint() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the IP address of the endpoint.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 15),
-				),
 			},
 			"resource_type": {
 				Type:        schema.TypeString,

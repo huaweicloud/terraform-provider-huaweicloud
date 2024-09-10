@@ -155,9 +155,6 @@ func timerSchemaResource() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^([A-Za-z][A-Za-z0-9-_]{0,63})$"),
-					"The name can contains of 1 to 64 characters and start with a letter."+
-						"Only letters, digits, hyphens (-) and underscores (_) are allowed."),
 			},
 			"schedule_type": {
 				Type:     schema.TypeString,

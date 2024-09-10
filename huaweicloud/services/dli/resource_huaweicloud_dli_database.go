@@ -4,14 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/dli/v1/databases"
@@ -52,12 +50,6 @@ func ResourceDliSqlDatabaseV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9][\w_]{0,127}$`),
-						"The name consists of 1 to 128 characters, starting with a letter or digit. "+
-							"Only letters, digits and underscores (_) are allowed."),
-					validation.StringMatch(regexp.MustCompile(`[A-Za-z_]`), "The name cannot be all digits."),
-				),
 			},
 			"description": {
 				Type:     schema.TypeString,

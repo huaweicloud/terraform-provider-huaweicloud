@@ -48,9 +48,8 @@ func ResourceWatermarkTemplate() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 128),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"image_file": {
 				Type:     schema.TypeString,

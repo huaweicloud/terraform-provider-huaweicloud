@@ -3,7 +3,6 @@ package cci
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -65,12 +64,6 @@ func ResourceCciNamespace() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`),
-						"The name can only consist of lowercase letters, numbers, and hyphens (-), "+
-							"and it must start and end with a letter or digit."),
-					validation.StringLenBetween(1, 63),
-				),
 			},
 			"auto_expend_enabled": {
 				Type:     schema.TypeBool,

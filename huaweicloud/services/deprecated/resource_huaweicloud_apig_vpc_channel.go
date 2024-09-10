@@ -3,7 +3,6 @@ package deprecated
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -93,14 +92,8 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 				Description: "The ID of the dedicated instance to which the VPC channel belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z]([\u4e00-\u9fa5\\w-.]*)?$"),
-						"Only chinese letters, english letters, digits hyphens (-), underscores (_) and dots (.) are "+
-							"allowed, and must start with a chinese or english letter."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The name of the VPC channel.",
 			},
 			"port": {

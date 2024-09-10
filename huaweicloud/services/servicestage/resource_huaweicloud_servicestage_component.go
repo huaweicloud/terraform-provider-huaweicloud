@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -49,12 +48,6 @@ func ResourceComponent() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z]([\w-]*[A-Za-z0-9])?$`),
-						"The name can only contain letters, digits, underscores (_) and hyphens (-), and the name must"+
-							" start with a letter and end with a letter or digit."),
-					validation.StringLenBetween(2, 64),
-				),
 			},
 			"type": {
 				Type:     schema.TypeString,

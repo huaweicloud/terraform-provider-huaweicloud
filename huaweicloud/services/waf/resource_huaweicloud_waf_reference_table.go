@@ -56,8 +56,7 @@ func ResourceWafReferenceTableV1() *schema.Resource {
 				Optional: true,
 				MaxItems: 30,
 				Elem: &schema.Schema{
-					Type:         schema.TypeString,
-					ValidateFunc: validation.StringLenBetween(1, 2048),
+					Type: schema.TypeString,
 				},
 				Description: "schema: Required",
 			},
@@ -67,9 +66,8 @@ func ResourceWafReferenceTableV1() *schema.Resource {
 				ForceNew: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 128),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"creation_time": {
 				Type:     schema.TypeString,

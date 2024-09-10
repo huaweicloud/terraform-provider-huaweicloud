@@ -257,9 +257,8 @@ func ResourceConference() *schema.Resource {
 
 			// Arguments
 			"topic": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 128),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"meeting_room_id": {
 				Type:     schema.TypeString,
@@ -371,10 +370,9 @@ func ResourceConference() *schema.Resource {
 							Computed: true,
 						},
 						"name": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.StringLenBetween(0, 96),
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 						"role": {
 							Type:     schema.TypeInt,

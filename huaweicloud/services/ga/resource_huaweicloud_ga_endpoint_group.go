@@ -8,7 +8,6 @@ package ga
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -50,22 +49,12 @@ func ResourceEndpointGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the endpoint group name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9-]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"region_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the region where the endpoint group belongs.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9-]*$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 36),
-				),
 			},
 			"listeners": {
 				Type:        schema.TypeList,
@@ -80,11 +69,6 @@ func ResourceEndpointGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the information about the endpoint group.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[^<>]*`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 255),
-				),
 			},
 			"traffic_dial_percentage": {
 				Type:         schema.TypeInt,
@@ -119,11 +103,6 @@ func EndpointGroupIdSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the ID of the associated listener.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 36),
-				),
 			},
 		},
 	}

@@ -79,9 +79,8 @@ func ResourceDNSZone() *schema.Resource {
 				ValidateFunc: validation.IntBetween(1, 2147483647),
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"router": {
 				Type:     schema.TypeSet,

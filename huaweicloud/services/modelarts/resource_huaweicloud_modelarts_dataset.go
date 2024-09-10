@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -46,12 +45,6 @@ func ResourceDataset() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 100),
-					validation.StringMatch(regexp.MustCompile("^[\\-_A-Za-z0-9\u4e00-\u9fa5]+$"),
-						"The name consists of 1 to 100 characters, starting with a letter. "+
-							"Only letters, digits, chinese characters, underscores (_) and hyphens (-) are allowed."),
-				),
 			},
 
 			"type": {
@@ -70,12 +63,6 @@ func ResourceDataset() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 256),
-					validation.StringMatch(regexp.MustCompile(`^[^&<>=!"'/]+$`),
-						"The description contains a maximum of 256 characters, "+
-							"and cannot contain special characters !<>=&\"'."),
-				),
 			},
 
 			"data_source": {

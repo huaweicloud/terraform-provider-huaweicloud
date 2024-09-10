@@ -7,13 +7,11 @@ package cc
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -49,22 +47,12 @@ func ResourceCloudConnection() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The cloud connection name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\x{4E00}-\x{9FFC}A-Za-z-_0-9.]*$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: `The description about the cloud connection.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^<>]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 255),
-				),
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,

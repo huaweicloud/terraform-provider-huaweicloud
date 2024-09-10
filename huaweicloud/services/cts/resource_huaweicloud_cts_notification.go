@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -52,11 +51,6 @@ func ResourceCTSNotification() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa50-9a-zA-Z_]+$"),
-						"only letters, digits, underscores(_), and Chinese characters are allowed"),
-				),
 			},
 			"operation_type": {
 				Type:         schema.TypeString,

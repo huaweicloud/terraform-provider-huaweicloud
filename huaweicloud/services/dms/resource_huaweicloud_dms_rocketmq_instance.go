@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -119,11 +118,10 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Description: `Specifies the storage I/O specification`,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				Description:  `Specifies the description of the DMS RocketMQ instance.`,
-				ValidateFunc: validation.StringLenBetween(0, 1024),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the description of the DMS RocketMQ instance.`,
 			},
 			"ssl_enable": {
 				Type:        schema.TypeBool,

@@ -75,10 +75,6 @@ func ResourceMRSJobV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^[A-Za-z0-9_-]{1,64}$"),
-					"The name consists of 1 to 64 characters, which only letters, digits, hyphens (-) and "+
-						"underscores (_) are allowed."),
 			},
 			"type": {
 				Type:     schema.TypeString,

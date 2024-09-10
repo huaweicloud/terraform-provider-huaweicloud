@@ -3,7 +3,6 @@ package servicestage
 import (
 	"context"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -42,17 +41,10 @@ func ResourceEnvironment() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z]([\w-]*[A-Za-z0-9])?$`),
-						"The name must start with a letter and end with a letter or digit, and can only contain "+
-							"letters, digits, underscores (_) and hyphens (-)."),
-					validation.StringLenBetween(2, 64),
-				),
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 128),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strconv"
 	"time"
 
@@ -72,11 +71,6 @@ func ResourceCloudTableCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9-]+$`),
-						"The name can only consist of letters, numbers and hyphens (-)"),
-					validation.StringLenBetween(4, 64),
-				),
 			},
 			"storage_type": {
 				Type:     schema.TypeString,

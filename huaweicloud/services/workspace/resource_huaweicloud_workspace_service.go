@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -207,11 +206,6 @@ func ResourceService() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 32),
-					validation.StringMatch(regexp.MustCompile(`^[\w-]*$`),
-						"The name can only contain letters, digits, underscore (_) and hyphens (-)."),
-				),
 			},
 			"internet_access_port": {
 				Type:         schema.TypeInt,

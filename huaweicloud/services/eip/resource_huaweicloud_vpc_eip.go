@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 	"strings"
 	"time"
 
@@ -183,13 +182,8 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Description: `The bandwidth configuration.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5\\w-.]*$"),
-						"The name can only contain letters, digits, underscores (_), hyphens (-), and periods (.)."),
-					validation.StringLenBetween(1, 64),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: `The name of the EIP.`,
 			},
 			"enterprise_project_id": {

@@ -2,7 +2,6 @@ package dms
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -50,12 +49,6 @@ func ResourceDmsRocketMQConsumerGroup() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the name of the consumer group.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z|%-_0-9]*$`),
-						"An instance name starts with a letter and can contain only letters, digits,"+
-							"vertical lines(|), percent sign(%), underscores (_), and hyphens (-)"),
-					validation.StringLenBetween(3, 64),
-				),
 			},
 			"retry_max_times": {
 				Type:         schema.TypeInt,

@@ -5,13 +5,11 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/cloudeyeservice/v1/alarmrule"
 	alarmrulev2 "github.com/chnsz/golangsdk/openstack/cloudeyeservice/v2/alarmrule"
@@ -84,12 +82,6 @@ func ResourceAlarmRule() *schema.Resource {
 			"alarm_name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 128),
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5-_A-Za-z0-9]+$"),
-						"The name can only consist of letters, digits, underscores (_),"+
-							" hyphens (-) and chinese characters."),
-				),
 			},
 
 			"alarm_description": {

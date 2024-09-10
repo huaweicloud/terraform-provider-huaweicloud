@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -76,11 +75,6 @@ func ResourceCTSDataTracker() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"bucket_name"},
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 64),
-					validation.StringMatch(regexp.MustCompile(`^[\.\-_A-Za-z0-9]+$`),
-						"only letters, numbers, hyphens (-), underscores (_), and periods (.) are allowed"),
-				),
 			},
 			"obs_retention_period": {
 				Type:         schema.TypeInt,

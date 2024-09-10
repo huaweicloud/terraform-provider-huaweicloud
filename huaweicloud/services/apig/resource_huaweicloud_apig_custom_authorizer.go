@@ -56,13 +56,8 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 				Description: "The ID of the dedicated instance to which the custom authorizer belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z][\w]*$`),
-						"Only letters, digits and underscores (_) are allowed, and must start with a letter."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The name of the custom authorizer.",
 			},
 			"function_urn": {
@@ -119,10 +114,9 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 				Description:  "The maximum cache age.",
 			},
 			"user_data": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 2048),
-				Description:  "The user data for custom authorizer function.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The user data for custom authorizer function.",
 			},
 			// The parameter identity only required if type is 'FRONTEND'.
 			"identity": {
@@ -144,10 +138,9 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 							Description: "The parameter location.",
 						},
 						"validation": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringLenBetween(1, 2048),
-							Description:  "The parameter verification expression.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The parameter verification expression.",
 						},
 					},
 				},

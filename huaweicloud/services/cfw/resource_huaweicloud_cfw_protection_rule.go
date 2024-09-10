@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -65,8 +64,6 @@ func ResourceProtectionRule() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `The protected object ID`,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`),
-					"the input is invalid"),
 			},
 			"type": {
 				Type:         schema.TypeInt,
@@ -221,8 +218,6 @@ func ProtectionRuleRuleServiceDtoSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The service group ID.`,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`),
-					"the input is invalid"),
 			},
 			"service_set_name": {
 				Type:        schema.TypeString,

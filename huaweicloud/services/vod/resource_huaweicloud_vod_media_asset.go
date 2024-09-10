@@ -44,9 +44,8 @@ func ResourceMediaAsset() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 128),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"media_type": {
 				Type:     schema.TypeString,
@@ -96,9 +95,8 @@ func ResourceMediaAsset() *schema.Resource {
 				ForceNew: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 1024),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"category_id": {
 				Type:     schema.TypeInt,

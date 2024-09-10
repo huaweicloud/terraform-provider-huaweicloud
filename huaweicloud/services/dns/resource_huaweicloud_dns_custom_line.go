@@ -8,7 +8,6 @@ package dns
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -16,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -54,14 +52,8 @@ func ResourceDNSCustomLine() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 80),
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z]([\u4e00-\u9fa5\\w-.]*)?$"),
-						"Only chinese and english letters, digits, hyphens (-), underscores (_), and periods"+
-							" (.) are allowed"),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: `Specifies the custom line name.`,
 			},
 			"ip_segments": {
@@ -73,11 +65,10 @@ func ResourceDNSCustomLine() *schema.Resource {
 				Description: `Specifies the IP address range.`,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
-				Description:  `Specifies the custom line description. A maximum of 255 characters are allowed.`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the custom line description. A maximum of 255 characters are allowed.`,
 			},
 			"status": {
 				Type:        schema.TypeString,

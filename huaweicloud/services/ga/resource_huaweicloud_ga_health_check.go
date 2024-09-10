@@ -8,7 +8,6 @@ package ga
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -62,11 +61,6 @@ func ResourceHealthCheck() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the endpoint group ID.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 36),
-				),
 			},
 			"interval": {
 				Type:         schema.TypeInt,

@@ -3,7 +3,6 @@ package dli
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -103,8 +102,6 @@ func ResourceDliSparkJobV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile(`[\w-.]/*`), "Only digits, letters,"+
-								" dots (.), underscores (_), and hyphens (-) are allowed for group name."),
 						},
 						"packages": {
 							Type:     schema.TypeList,

@@ -3,7 +3,6 @@ package nat
 import (
 	"context"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -55,23 +54,13 @@ func ResourcePrivateGateway() *schema.Resource {
 				Description: "The network ID of the subnet to which the private NAT gateway belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\x{4E00}-\x{9FFC}\w-]*$`),
-						"Only letters, chinese characters, digits, underscores (_) and hyphens (-) are allowed."),
-					validation.StringLenBetween(1, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The name of the private NAT gateway.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 255),
-					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-						"The angle brackets (< and >) are not allowed."),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The description of the private NAT gateway.",
 			},
 			"spec": {

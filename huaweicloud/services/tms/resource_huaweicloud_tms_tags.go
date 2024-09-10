@@ -3,12 +3,10 @@ package tms
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1/model"
 
@@ -42,21 +40,11 @@ func ResourceTmsTag() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fffA-Za-z0-9-_]+$"),
-									"The key can only consist of letters, digits, underscores (_) and hyphens (-)."),
-								validation.StringLenBetween(1, 36),
-							),
 						},
 						"value": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fffA-Za-z0-9-_.]+$"),
-									"The key can only consist of letters, digits, periods (.)underscores (_) and hyphens (-)."),
-								validation.StringLenBetween(1, 43),
-							),
 						},
 					},
 				},

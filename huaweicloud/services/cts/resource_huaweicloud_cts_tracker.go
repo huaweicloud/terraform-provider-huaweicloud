@@ -6,14 +6,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -60,11 +58,6 @@ func ResourceCTSTracker() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"bucket_name"},
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 64),
-					validation.StringMatch(regexp.MustCompile(`^[\.\-_A-Za-z0-9]+$`),
-						"only letters, numbers, hyphens (-), underscores (_), and periods (.) are allowed"),
-				),
 			},
 			"validate_file": {
 				Type:         schema.TypeBool,

@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -51,10 +50,6 @@ func ResourceDataForwardingRule() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 256),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 
 			"trigger": {
@@ -86,21 +81,16 @@ func ResourceDataForwardingRule() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 256),
-				),
 			},
 
 			"select": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 500),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"where": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 500),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"space_id": {
@@ -199,15 +189,6 @@ func ResourceDataForwardingRule() *schema.Resource {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
-										ValidateFunc: validation.All(
-											validation.StringLenBetween(0, 256),
-											validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9/{}]*$`),
-												"Only letters, digits, hyphens (-), underscores (_), slash (/)"+
-													" and braces ({}) are allowed"),
-											validation.StringDoesNotMatch(regexp.MustCompile(`^/|/$|//`),
-												"Can not start or end with slashes (/), and cannot contain more than"+
-													" two adjacent slashes (/)"),
-										),
 									},
 								},
 							},

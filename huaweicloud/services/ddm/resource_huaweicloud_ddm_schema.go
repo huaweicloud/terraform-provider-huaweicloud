@@ -62,11 +62,10 @@ func ResourceDdmSchema() *schema.Resource {
 				Description: `Specifies the ID of a DDM instance.`,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `Specifies the name of the DDM schema.`,
-				ValidateFunc: validation.StringLenBetween(2, 48),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the name of the DDM schema.`,
 			},
 			"shard_mode": {
 				Type:        schema.TypeString,

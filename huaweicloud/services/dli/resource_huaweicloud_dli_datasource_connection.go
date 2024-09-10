@@ -8,13 +8,11 @@ package dli
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -54,8 +52,6 @@ func ResourceDatasourceConnection() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `The name of a datasource connection.`,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-					"the input is invalid"),
 			},
 			"vpc_id": {
 				Type:        schema.TypeString,
@@ -135,10 +131,9 @@ func datasourceConnectionRouteSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  `The route Name`,
-				ValidateFunc: validation.StringLenBetween(1, 64),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The route Name`,
 			},
 			"cidr": {
 				Type:        schema.TypeString,

@@ -8,7 +8,6 @@ package dew
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -69,11 +68,6 @@ func ResourceKmsGrant() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: `Grant name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[a-zA-Z0-9:/_-]*$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 255),
-				),
 			},
 			"type": {
 				Type:        schema.TypeString,

@@ -7,7 +7,6 @@ package vpn
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -49,11 +48,6 @@ func ResourceCustomerGateway() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The customer gateway name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\-_A-Za-z0-9]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"id_value": {
 				Type:     schema.TypeString,

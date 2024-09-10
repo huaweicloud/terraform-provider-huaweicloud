@@ -62,9 +62,8 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"records": {
 				Type:     schema.TypeList,

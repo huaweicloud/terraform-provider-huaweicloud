@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -26,8 +25,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
-
-var regexp4Name = regexp.MustCompile(`^[a-z0-9_]{1,128}$`)
 
 const (
 	CU16                  = 16
@@ -114,8 +111,6 @@ func ResourceDliQueue() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringMatch(regexp4Name,
-					"only contain digits, lower letters, and underscores (_)"),
 			},
 
 			"queue_type": {
