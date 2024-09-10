@@ -137,7 +137,7 @@ func ResourceApigGroupV2() *schema.Resource {
 			"domain_access_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     true,
+				Computed:    true,
 				Description: "Specifies whether to use the debugging domain name to access the APIs within the group.",
 			},
 			"force_destroy": {
