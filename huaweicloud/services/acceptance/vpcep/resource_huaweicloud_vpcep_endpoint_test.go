@@ -232,7 +232,8 @@ func TestAccVPCEndpoint_gatewayEndpoint(t *testing.T) {
 				Config: testAccVPCEndpoint_gatewayEndpoint(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "routetables.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "routetables.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "routetables.0", "data.huaweicloud_vpc_route_table.custom", "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_type"),
@@ -243,7 +244,8 @@ func TestAccVPCEndpoint_gatewayEndpoint(t *testing.T) {
 				Config: testAccVPCEndpoint_gatewayEndpointUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "routetables.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "routetables.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "routetables.0", "data.huaweicloud_vpc_route_table.test", "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_type"),
@@ -329,7 +331,6 @@ resource "huaweicloud_vpcep_endpoint" "test" {
 
   routetables = [
     data.huaweicloud_vpc_route_table.custom.id,
-    data.huaweicloud_vpc_route_table.test.id
   ]
 
   policy_statement = <<EOF
@@ -378,7 +379,6 @@ resource "huaweicloud_vpcep_endpoint" "test" {
   description = "created by terraform"
 
   routetables = [
-    data.huaweicloud_vpc_route_table.custom.id,
     data.huaweicloud_vpc_route_table.test.id
   ]
 

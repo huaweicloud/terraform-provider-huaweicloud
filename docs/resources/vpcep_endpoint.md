@@ -155,11 +155,9 @@ The following arguments are supported:
 
   Changing this creates a new VPC endpoint.
 
-* `routetables` - (Optional, List, ForceNew) Specifies the IDs of the route tables associated with the VPC endpoint.
+* `routetables` - (Optional, List) Specifies the IDs of the route tables associated with the VPC endpoint.
   This field is valid only when creating a VPC endpoint for connecting a gateway VPC endpoint service.
   The default route table will be used when this field is not specified.
-
-  Changing this creates a new VPC endpoint.
 
 * `enable_whitelist` - (Optional, Bool) Specifies whether to enable access control. The default value is **false**.
 
