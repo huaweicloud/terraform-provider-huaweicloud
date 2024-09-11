@@ -278,7 +278,6 @@ var (
 	// The SecMaster indicator ID
 	HW_SECMASTER_INDICATOR_TYPE_ID        = os.Getenv("HW_SECMASTER_INDICATOR_TYPE_ID")
 	HW_SECMASTER_INDICATOR_TYPE_ID_UPDATE = os.Getenv("HW_SECMASTER_INDICATOR_TYPE_ID_UPDATE")
-	HW_SECMASTER_UNAUDITED_VERSION_ID     = os.Getenv("HW_SECMASTER_UNAUDITED_VERSION_ID")
 	HW_SECMASTER_METRIC_ID                = os.Getenv("HW_SECMASTER_METRIC_ID")
 
 	// The SecMaster pipeline ID
@@ -1551,13 +1550,6 @@ func TestAccPreCheckSecMaster(t *testing.T) {
 		HW_SECMASTER_INDICATOR_TYPE_ID_UPDATE == "" {
 		t.Skip("HW_SECMASTER_WORKSPACE_ID, HW_SECMASTER_INDICATOR_TYPE_ID and HW_SECMASTER_INDICATOR_TYPE_ID_UPDATE" +
 			" must be set for SecMaster acceptance tests")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckSecMasterPlaybookApproval(t *testing.T) {
-	if HW_SECMASTER_WORKSPACE_ID == "" || HW_SECMASTER_UNAUDITED_VERSION_ID == "" {
-		t.Skip("HW_SECMASTER_WORKSPACE_ID and HW_SECMASTER_UNAUDITED_VERSION_ID must be set for SecMaster acceptance tests")
 	}
 }
 
