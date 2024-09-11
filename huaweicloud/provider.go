@@ -1040,6 +1040,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_logical_clusters":                dws.DataSourceDwsLogicalClusters(),
 			"huaweicloud_dws_om_account_configuration":        dws.DataSourceOmAccountConfiguration(),
 			"huaweicloud_dws_quotas":                          dws.DataSourceDwsQuotas(),
+			"huaweicloud_dws_schema_space_managements":        dws.DataSourceDwsSchemaSpaceManagements(),
 			"huaweicloud_dws_snapshot_policies":               dws.DataSourceDwsSnapshotPolicies(),
 			"huaweicloud_dws_snapshots":                       dws.DataSourceDwsSnapshots(),
 			"huaweicloud_dws_workload_plans":                  dws.DataSourceDwsWorkloadPlans(),

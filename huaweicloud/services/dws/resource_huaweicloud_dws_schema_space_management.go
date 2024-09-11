@@ -64,7 +64,7 @@ func resourceSchemaSpaceManagementCreate(ctx context.Context, d *schema.Resource
 	)
 	client, err := cfg.NewServiceClient("dws", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
 	path := client.Endpoint + httpUrl
