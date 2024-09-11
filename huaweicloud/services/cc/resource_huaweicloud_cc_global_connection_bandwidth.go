@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -164,12 +163,12 @@ func resourceGlobalConnectionBandwidthCreate(ctx context.Context, d *schema.Reso
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, err := jmespath.Search("globalconnection_bandwidth.id", createGCBRespBody)
-	if err != nil {
-		return diag.Errorf("error creating global connection bandwidth: %s is not found in API response", "id")
+	id := utils.PathSearch("globalconnection_bandwidth.id", createGCBRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating global connection bandwidth: ID is not found in API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	if v, ok := d.GetOk("binding_service"); ok && v.(string) != "ALL" {
 		err = updateGCB(client, d, cfg.DomainID)
@@ -223,8 +222,8 @@ func resourceGlobalConnectionBandwidthRead(_ context.Context, d *schema.Resource
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	getGCBRespBody, err = jmespath.Search("globalconnection_bandwidth", getGCBRespBody)
-	if err != nil {
+	getGCBRespBody = utils.PathSearch("globalconnection_bandwidth", getGCBRespBody, nil)
+	if getGCBRespBody == nil {
 		return diag.Errorf("error getting global connection bandwidth: %s is not found in API response",
 			"globalconnection_bandwidth")
 	}

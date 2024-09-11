@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -142,11 +141,11 @@ func resourceCloudConnectionCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("cloud_connection.id", createCloudConnectionRespBody)
-	if err != nil {
+	id := utils.PathSearch("cloud_connection.id", createCloudConnectionRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating CloudConnection: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	if rawTags := d.Get("tags").(map[string]interface{}); len(rawTags) > 0 {
 		err = createResourceTags(createCloudConnectionClient, d.Id(), conf.DomainID, rawTags)

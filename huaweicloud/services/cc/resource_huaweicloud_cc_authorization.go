@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -118,11 +117,11 @@ func resourceAuthorizationCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("authorisation.id", createAuthorizationRespBody)
-	if err != nil {
+	id := utils.PathSearch("authorisation.id", createAuthorizationRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating authorization: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceAuthorizationRead(ctx, d, meta)
 }
