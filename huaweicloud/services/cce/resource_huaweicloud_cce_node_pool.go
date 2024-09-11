@@ -232,6 +232,7 @@ func ResourceNodePool() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"extension_scale_groups": resourceExtensionScaleGroupsSchema(),
 			"current_node_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -278,6 +279,89 @@ func ResourceNodePool() *schema.Resource {
 	}
 }
 
+func resourceExtensionScaleGroupsSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"metadata": {
+					Type:     schema.TypeList,
+					Optional: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"name": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
+				"spec": {
+					Type:     schema.TypeList,
+					Optional: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"flavor": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"az": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"capacity_reservation_specification": {
+								Type:     schema.TypeList,
+								Optional: true,
+								MaxItems: 1,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"id": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+										"preference": {
+											Type:     schema.TypeString,
+											Optional: true,
+										},
+									},
+								},
+							},
+							"autoscaling": {
+								Type:     schema.TypeList,
+								Optional: true,
+								MaxItems: 1,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"enable": {
+											Type:     schema.TypeBool,
+											Optional: true,
+										},
+										"extension_priority": {
+											Type:     schema.TypeInt,
+											Optional: true,
+										},
+										"min_node_count": {
+											Type:     schema.TypeInt,
+											Optional: true,
+										},
+										"max_node_count": {
+											Type:     schema.TypeInt,
+											Optional: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func buildPodSecurityGroups(ids []interface{}) []nodepools.PodSecurityGroupSpec {
 	if len(ids) == 0 {
 		return nil
@@ -289,6 +373,82 @@ func buildPodSecurityGroups(ids []interface{}) []nodepools.PodSecurityGroupSpec 
 	}
 
 	return groups
+}
+
+func buildExtensionScaleGroups(d *schema.ResourceData) []nodepools.ExtensionScaleGroups {
+	if v, ok := d.GetOk("extension_scale_groups"); ok {
+		groups := v.([]interface{})
+		res := make([]nodepools.ExtensionScaleGroups, len(groups))
+		for i, v := range groups {
+			if group, ok := v.(map[string]interface{}); ok {
+				res[i] = nodepools.ExtensionScaleGroups{
+					Metadata: buildExtensionScaleGroupsMetadata(utils.PathSearch("metadata", group, nil)),
+					Spec:     buildExtensionScaleGroupsSpec(utils.PathSearch("spec", group, nil)),
+				}
+			}
+		}
+
+		return res
+	}
+
+	return nil
+}
+
+func buildExtensionScaleGroupsMetadata(metadata interface{}) *nodepools.ExtensionScaleGroupsMetadata {
+	if len(metadata.([]interface{})) == 0 {
+		return nil
+	}
+
+	res := nodepools.ExtensionScaleGroupsMetadata{
+		Uid:  utils.PathSearch("[0].uid", metadata, "").(string),
+		Name: utils.PathSearch("[0].name", metadata, "").(string),
+	}
+
+	return &res
+}
+
+func buildExtensionScaleGroupsSpec(spec interface{}) *nodepools.ExtensionScaleGroupsSpec {
+	if len(spec.([]interface{})) == 0 {
+		return nil
+	}
+
+	res := nodepools.ExtensionScaleGroupsSpec{
+		Flavor:      utils.PathSearch("[0].flavor", spec, "").(string),
+		Az:          utils.PathSearch("[0].az", spec, "").(string),
+		Autoscaling: buildAutoscaling(utils.PathSearch("[0].autoscaling", spec, nil)),
+		CapacityReservationSpecification: buildCapacityReservationSpecification(
+			utils.PathSearch("[0].capacity_reservation_specification", spec, nil)),
+	}
+
+	return &res
+}
+
+func buildCapacityReservationSpecification(capacityReservationSpecification interface{}) *nodepools.CapacityReservationSpecification {
+	if len(capacityReservationSpecification.([]interface{})) == 0 {
+		return nil
+	}
+
+	res := nodepools.CapacityReservationSpecification{
+		ID:         utils.PathSearch("[0].id", capacityReservationSpecification, "").(string),
+		Preference: utils.PathSearch("[0].preference", capacityReservationSpecification, "").(string),
+	}
+
+	return &res
+}
+
+func buildAutoscaling(autoscaling interface{}) *nodepools.Autoscaling {
+	if len(autoscaling.([]interface{})) == 0 {
+		return nil
+	}
+
+	res := nodepools.Autoscaling{
+		Enable:            utils.PathSearch("[0].enable", autoscaling, false).(bool),
+		ExtensionPriority: utils.PathSearch("[0].extension_priority", autoscaling, 0).(int),
+		MinNodeCount:      utils.PathSearch("[0].min_node_count", autoscaling, 0).(int),
+		MaxNodeCount:      utils.PathSearch("[0].max_node_count", autoscaling, 0).(int),
+	}
+
+	return &res
 }
 
 func buildNodePoolCreateOpts(d *schema.ResourceData, cfg *config.Config) (*nodepools.CreateOpts, error) {
@@ -347,6 +507,7 @@ func buildNodePoolCreateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 			LabelPolicyOnExistingNodes:   d.Get("label_policy_on_existing_nodes").(string),
 			UserTagPolicyOnExistingNodes: d.Get("tag_policy_on_existing_nodes").(string),
 			TaintPolicyOnExistingNodes:   d.Get("taint_policy_on_existing_nodes").(string),
+			ExtensionScaleGroups:         buildExtensionScaleGroups(d),
 		},
 	}
 
@@ -435,6 +596,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	// The following parameters are not returned:
 	// password, subnet_id, extend_params, taints, initial_node_count, pod_security_groups
+	// extension_scale_groups not save, because the order of groups will change and computed not working in TypeSet
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", s.Metadata.Name),
@@ -511,6 +673,7 @@ func buildNodePoolUpdateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 			LabelPolicyOnExistingNodes:   d.Get("label_policy_on_existing_nodes").(string),
 			UserTagPolicyOnExistingNodes: d.Get("tag_policy_on_existing_nodes").(string),
 			TaintPolicyOnExistingNodes:   d.Get("taint_policy_on_existing_nodes").(string),
+			ExtensionScaleGroups:         buildExtensionScaleGroups(d),
 		},
 	}
 	return &updateOpts, nil

@@ -171,6 +171,88 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
 
   ~> You need to remove all nodes in the node pool on the console, before deleting a prepaid node pool.
 
+## Node pool with extension scale groups
+
+```hcl
+variable "cluster_id" {}
+variable "key_pair" {}
+variable "availability_zone_1" {}
+variable "availability_zone_2" {}
+
+resource "huaweicloud_cce_node_pool" "node_pool" {
+  cluster_id               = var.cluster_id
+  name                     = "testpool"
+  os                       = "EulerOS 2.5"
+  initial_node_count       = 2
+  flavor_id                = "s3.large.4"
+  availability_zone        = var.availability_zone_1
+  key_pair                 = var.keypair
+  scall_enable             = true
+  min_node_count           = 1
+  max_node_count           = 10
+  scale_down_cooldown_time = 100
+  priority                 = 1
+  type                     = "vm"
+
+  root_volume {
+    size       = 40
+    volumetype = "SAS"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SAS"
+  }
+
+  extension_scale_groups {
+    metadata {
+      name = "group1"
+    }
+
+    spec {
+      flavor = "s3.large.4"
+      az     = var.availability_zone_1
+
+      autoscaling {
+        extension_priority = 1
+        enable             = true
+      }
+    }
+  }
+
+  extension_scale_groups {
+    metadata {
+      name = "group2"
+    }
+
+    spec {
+      flavor = "s3.xlarge.4"
+      az     = var.availability_zone_1
+
+      autoscaling {
+        extension_priority = 1
+        enable             = true
+      }
+    }
+  }
+
+  extension_scale_groups {
+    metadata {
+      name = "group3"
+    }
+
+    spec {
+      flavor = "s3.xlarge.4"
+      az     = var.availability_zone_2
+
+      autoscaling {
+        extension_priority = 1
+        enable             = true
+      }
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -287,6 +369,9 @@ The following arguments are supported:
   which is supported by clusters of v1.23.6-r0 to v1.25 or clusters of v1.25.2-r0 or later versions.
   The [object](#hostname_config) structure is documented below.
   Changing this parameter will create a new resource.
+
+* `extension_scale_groups` - (Optional, List) Specifies the configurations of extended scaling groups in the node pool.
+  The [object](#extension_scale_groups) structure is documented below.
 
 The `root_volume` block supports:
 
@@ -437,6 +522,63 @@ The `hostname_config` block supports:
     each node name. The suffix is in the format of A hyphen (-) Five random characters. The value of the random
     characters is a lowercase letter or a digit ranging from 0 to 9.
 
+<a name="extension_scale_groups"></a>
+The `extension_scale_groups` block supports:
+
+* `metadata` - (Optional, List) Specifies the basic information about the extended scaling group.
+  The [object](#metadata) structure is documented below.
+
+* `spec` - (Optional, List) Specifies the configurations of the extended scaling group,
+  which carry different configurations from those of the default scaling group.
+  The [object](#spec) structure is documented below.
+
+<a name="metadata"></a>
+The `metadata` block supports:
+
+* `name` - (Optional, String) Specifies the name of an extended scaling group.
+  The value cannot be default and can contain a maximum of 55 characters.
+  Only digits, lowercase letters, and hyphens (-) are allowed.
+
+<a name="spec"></a>
+The `spec` block supports:
+
+* `flavor` - (Optional, String) Specifies the node flavor.
+
+* `az` - (Optional, String) Specifies the availability zone of a node.
+  If this parameter is not specified or left blank, the default scaling group configurations take effect.
+
+* `capacity_reservation_specification` - (Optional, List) Specifies the capacity reservation
+  configurations of the extended scaling group.
+  The [object](#capacity_reservation_specification) structure is documented below.
+
+* `autoscaling` - (Optional, List) Specifies the auto scaling configurations of the extended scaling group.
+  The [object](#autoscaling) structure is documented below.
+
+<a name="capacity_reservation_specification"></a>
+The `capacity_reservation_specification` block supports:
+
+* `id` - (Optional, String) Specifies the private pool ID.
+  The parameter value can be ignored when preference is set to none.
+
+* `preference` - (Optional, String) Specifies the capacity of a private storage pool. If the value is none,
+  the capacity reservation is not specified. If the value is targeted, the capacity reservation is specified.
+  In this case, the `id` cannot be left blank.
+
+<a name="autoscaling"></a>
+The `autoscaling` block supports:
+
+* `enable` - (Optional, Bool) Specifies whether to enable auto scaling for the scaling group, defaults to **false**.
+
+* `extension_priority` - (Optional, Int) Specifies the priority of the scaling group, defaults to **0**.
+  A higher value indicates a greater priority.
+
+* `min_node_count` - (Optional, Int) Specifies the minimum number of nodes in the scaling group during auto scaling.
+  The value must be greater than **0**.
+
+* `max_node_count` - (Optional, Int) Specifies the maximum number of nodes that can be retained in the scaling group
+  during auto scaling. The value must be greater than or equal to that of `min_node_count`, and can neither be greater
+  than the maximum number of nodes allowed by the cluster nor the maximum number of nodes in the node pool.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -466,7 +608,7 @@ $ terraform import huaweicloud_cce_node_pool.my_node_pool <cluster_id>/<id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `subnet_id`, `extend_params`, `taints`, `initial_node_count` and `pod_security_groups`.
+`password`, `subnet_id`, `extend_params`, `taints`, `initial_node_count`, `pod_security_groups` and `extension_scale_groups`.
 It is generally recommended running `terraform plan` after importing a node pool.
 You can then decide if changes should be applied to the node pool, or the resource
 definition should be updated to align with the node pool. Also you can ignore changes as below.
