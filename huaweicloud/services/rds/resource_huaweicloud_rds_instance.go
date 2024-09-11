@@ -280,7 +280,6 @@ func ResourceRdsInstance() *schema.Resource {
 			"power_action": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"ON", "OFF", "REBOOT",
 				}, false),
