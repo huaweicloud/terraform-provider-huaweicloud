@@ -10,28 +10,42 @@ import (
 )
 
 func TestAccPlaybookApproval_basic(t *testing.T) {
+	name := acceptance.RandomAccResourceName()
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckSecMasterPlaybookApproval(t)
+			acceptance.TestAccPreCheckSecMasterWorkspaceID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testPlaybookApproval_basic(),
+				Config: testPlaybookApproval_basic(name),
 			},
 		},
 	})
 }
 
-func testPlaybookApproval_basic() string {
+func testPlaybookApproval_basic(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_secmaster_playbook_version_action" "submit_version" {
+  workspace_id = "%[2]s"
+  version_id   = huaweicloud_secmaster_playbook_version.test.id
+  status       = "APPROVING"
+
+  depends_on = [huaweicloud_secmaster_playbook_action.test]
+}
+
 resource "huaweicloud_secmaster_playbook_approval" "test" {
-  workspace_id = "%[1]s"
-  version_id   = "%[2]s"
+  workspace_id = "%[2]s"
+  version_id   = huaweicloud_secmaster_playbook_version.test.id
   result       = "PASS"
   content      = "ok"
+
+  depends_on = [huaweicloud_secmaster_playbook_version_action.submit_version]
 }
-`, acceptance.HW_SECMASTER_WORKSPACE_ID, acceptance.HW_SECMASTER_UNAUDITED_VERSION_ID)
+`, testPlaybookVersion_basic(name), acceptance.HW_SECMASTER_WORKSPACE_ID)
 }
