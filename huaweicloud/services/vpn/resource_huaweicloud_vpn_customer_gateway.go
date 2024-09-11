@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -188,11 +187,11 @@ func resourceCustomerGatewayCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("customer_gateway.id", createCustomerGatewayRespBody)
-	if err != nil {
+	id := utils.PathSearch("customer_gateway.id", createCustomerGatewayRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating VPN customer gateway: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceCustomerGatewayRead(ctx, d, meta)
 }

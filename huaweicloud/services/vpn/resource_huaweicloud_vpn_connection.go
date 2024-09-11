@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -391,11 +390,11 @@ func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("vpn_connection.id", createConnectionRespBody)
-	if err != nil {
+	id := utils.PathSearch("vpn_connection.id", createConnectionRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating VPN connection: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	err = createConnectionWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -558,9 +557,9 @@ func createConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`vpn_connection.status`, createConnectionWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `vpn_connection.status`)
+			statusRaw := utils.PathSearch(`vpn_connection.status`, createConnectionWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `vpn_connection.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
@@ -649,8 +648,8 @@ func resourceConnectionRead(_ context.Context, d *schema.ResourceData, meta inte
 
 func flattenGetConnectionResponseBodyCreateRequestIkePolicy(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("vpn_connection.ikepolicy", resp)
-	if err != nil {
+	curJson := utils.PathSearch("vpn_connection.ikepolicy", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error parsing vpn_connection.ikepolicy from response= %#v", resp)
 		return rst
 	}
@@ -677,8 +676,8 @@ func flattenGetConnectionResponseBodyCreateRequestIkePolicy(resp interface{}) []
 
 func flattenGetConnectionResponseBodyDPD(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("vpn_connection.ikepolicy.dpd", resp)
-	if err != nil {
+	curJson := utils.PathSearch("vpn_connection.ikepolicy.dpd", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error parsing vpn_connection.ikepolicy.dpd from response= %#v", resp)
 		return rst
 	}
@@ -695,8 +694,8 @@ func flattenGetConnectionResponseBodyDPD(resp interface{}) []interface{} {
 
 func flattenGetConnectionResponseBodyCreateRequestIpsecPolicy(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("vpn_connection.ipsecpolicy", resp)
-	if err != nil {
+	curJson := utils.PathSearch("vpn_connection.ipsecpolicy", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error parsing vpn_connection.ipsecpolicy from response= %#v", resp)
 		return rst
 	}
@@ -895,9 +894,9 @@ func updateConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`vpn_connection.status`, updateConnectionWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `vpn_connection.status`)
+			statusRaw := utils.PathSearch(`vpn_connection.status`, updateConnectionWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `vpn_connection.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
@@ -995,9 +994,9 @@ func deleteConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`vpn_connection.status`, deleteConnectionWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `vpn_connection.status`)
+			statusRaw := utils.PathSearch(`vpn_connection.status`, deleteConnectionWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `vpn_connection.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
