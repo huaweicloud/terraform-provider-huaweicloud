@@ -25,7 +25,7 @@ func ResourceDmsRabbitmqVhost() *schema.Resource {
 		ReadContext:   resourceDmsRabbitmqVhostRead,
 		DeleteContext: resourceDmsRabbitmqVhostDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceVhostImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -93,12 +93,8 @@ func resourceDmsRabbitmqVhostRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 2 {
-		return diag.Errorf("invalid ID format, must be <instance_id>/<name>")
-	}
-	instanceID := parts[0]
-	name := parts[1]
+	instanceID := d.Get("instance_id").(string)
+	name := d.Get("name").(string)
 
 	vhost, err := GetRabbitmqVhost(client, instanceID, name)
 	if err != nil {
@@ -107,8 +103,6 @@ func resourceDmsRabbitmqVhostRead(_ context.Context, d *schema.ResourceData, met
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("instance_id", instanceID),
-		d.Set("name", name),
 		d.Set("tracing", utils.PathSearch("tracing", vhost, false)),
 	)
 
@@ -184,4 +178,23 @@ func resourceDmsRabbitmqVhostDelete(_ context.Context, d *schema.ResourceData, m
 	}
 
 	return nil
+}
+
+func resourceVhostImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), ",")
+	if len(parts) != 2 {
+		parts = strings.Split(d.Id(), "/")
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid ID format, must be <instance_id>/<name> or <instance_id>,<name>")
+		}
+	} else {
+		// reform ID to be separated by a slash
+		id := fmt.Sprintf("%s/%s", parts[0], parts[1])
+		d.SetId(id)
+	}
+
+	d.Set("instance_id", parts[0])
+	d.Set("name", parts[1])
+
+	return []*schema.ResourceData{d}, nil
 }

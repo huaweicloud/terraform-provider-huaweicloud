@@ -44,8 +44,13 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The RabbitMQ vhost can be imported using the `instance_id` and `name` separated by a slash, e.g.
+The RabbitMQ vhost can be imported using the `instance_id` and `name` separated by a slash or a comma, but if `name`
+contains slashes, the import ID can only be separated by a comma, e.g.
 
 ```bash
 $ terraform import huaweicloud_dms_rabbitmq_vhost.test <instance_id>/<name>
+```
+
+```bash
+$ terraform import huaweicloud_dms_rabbitmq_vhost.test <instance_id>,<name>
 ```

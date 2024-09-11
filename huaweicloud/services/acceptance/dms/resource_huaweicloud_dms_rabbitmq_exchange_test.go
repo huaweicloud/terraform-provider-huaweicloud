@@ -2,7 +2,6 @@ package dms
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -19,15 +18,8 @@ func getRabbitmqExchangeResourceFunc(cfg *config.Config, state *terraform.Resour
 		return nil, fmt.Errorf("error creating DMS client: %s", err)
 	}
 
-	parts := strings.Split(state.Primary.ID, "/")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid ID format, must be <instance_id>/<vhost>/<name>")
-	}
-	instanceID := parts[0]
-	vhost := parts[1]
-	name := parts[2]
-
-	return dms.GetRabbitmqExchange(client, instanceID, vhost, name)
+	return dms.GetRabbitmqExchange(client, state.Primary.Attributes["instance_id"], state.Primary.Attributes["vhost"],
+		state.Primary.Attributes["name"])
 }
 
 func TestAccRabbitmqExchange_basic(t *testing.T) {
@@ -82,4 +74,70 @@ resource "huaweicloud_dms_rabbitmq_exchange" "test" {
   internal    = false
 }
 `, testRabbitmqVhost_basic(rName), rName)
+}
+
+func TestAccRabbitmqExchange_slash(t *testing.T) {
+	var obj interface{}
+	resourceName := "huaweicloud_dms_rabbitmq_exchange.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getRabbitmqExchangeResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testRabbitmqExchange_slash(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", "/test/Exchange"),
+					resource.TestCheckResourceAttr(resourceName, "vhost", "__F_SLASH__test__F_SLASH__Vhost"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccResourceExchangeOrQueueImportStateIDFunc(resourceName),
+			},
+		},
+	})
+}
+
+func testRabbitmqExchange_slash() string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dms_rabbitmq_exchange" "test" {
+  depends_on = [huaweicloud_dms_rabbitmq_vhost.test]
+
+  instance_id = huaweicloud_dms_rabbitmq_instance.test.id
+  vhost       = "__F_SLASH__test__F_SLASH__Vhost"
+  name        = "/test/Exchange"
+  type        = "direct"
+  auto_delete = false
+}
+`, testRabbitmqVhost_slash())
+}
+
+func testAccResourceExchangeOrQueueImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", resourceName, rs)
+		}
+
+		instanceID := rs.Primary.Attributes["instance_id"]
+		vhost := rs.Primary.Attributes["vhost"]
+		name := rs.Primary.Attributes["name"]
+		if instanceID == "" || vhost == "" || name == "" {
+			return "", fmt.Errorf("invalid format specified for import ID, want '<instance_id>,<vhost>,<name>', but got '%s,%s,%s'",
+				instanceID, vhost, name)
+		}
+		return fmt.Sprintf("%s,%s,%s", instanceID, vhost, name), nil
+	}
 }

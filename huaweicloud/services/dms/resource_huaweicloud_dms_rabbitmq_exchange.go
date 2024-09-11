@@ -26,7 +26,7 @@ func ResourceDmsRabbitmqExchange() *schema.Resource {
 		DeleteContext: resourceDmsRabbitmqExchangeDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceExchangeOrQueueImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -128,13 +128,9 @@ func resourceDmsRabbitmqExchangeRead(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 3 {
-		return diag.Errorf("invalid ID format, must be <instance_id>/<vhost>/<name>")
-	}
-	instanceID := parts[0]
-	vhost := parts[1]
-	name := parts[2]
+	instanceID := d.Get("instance_id").(string)
+	vhost := d.Get("vhost").(string)
+	name := d.Get("name").(string)
 
 	exchange, err := GetRabbitmqExchange(client, instanceID, vhost, name)
 	if err != nil {
@@ -143,9 +139,6 @@ func resourceDmsRabbitmqExchangeRead(_ context.Context, d *schema.ResourceData, 
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("instance_id", instanceID),
-		d.Set("vhost", vhost),
-		d.Set("name", name),
 		d.Set("type", utils.PathSearch("type", exchange, nil)),
 		d.Set("auto_delete", utils.PathSearch("auto_delete", exchange, nil)),
 		d.Set("durable", utils.PathSearch("durable", exchange, nil)),

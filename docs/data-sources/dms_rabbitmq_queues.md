@@ -33,6 +33,8 @@ The following arguments are supported:
 
 * `vhost` - (Required, String) Specifies the vhost name.
 
+  -> If `vhost` has slashes, please change them into **\_\_F_SLASH\_\_**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

@@ -46,6 +46,8 @@ The following arguments are supported:
 * `vhost` - (Required, String, ForceNew) Specifies the vhost name.
   Changing this creates a new resource.
 
+  -> If `vhost` has slashes, please change them into **\_\_F_SLASH\_\_**.
+
 * `name` - (Required, String, ForceNew) Specifies the queue name.
   Changing this creates a new resource.
 
@@ -129,8 +131,13 @@ The `queue_bindings` block supports:
 
 ## Import
 
-The queue can be imported using `instance_id`, `vhost` and `name` separated by slashes, e.g.
+The RabbitMQ queue can be imported using the `instance_id`, `vhost` and `name` separated by slashes or commas, but if
+`name` contains slashes, the import ID can only be separated by commas e.g.
 
 ```bash
 $ terraform import huaweicloud_dms_rabbitmq_queue.test <instance_id>/<vhost>/<name>
+```
+
+```bash
+$ terraform import huaweicloud_dms_rabbitmq_queue.test <instance_id>,<vhost>,<name>
 ```

@@ -2,7 +2,6 @@ package dms
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -19,14 +18,7 @@ func getRabbitmqVhostResourceFunc(cfg *config.Config, state *terraform.ResourceS
 		return nil, fmt.Errorf("error creating DMS client: %s", err)
 	}
 
-	parts := strings.Split(state.Primary.ID, "/")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid ID format, must be <instance_id>/<name>")
-	}
-	instanceID := parts[0]
-	name := parts[1]
-
-	return dms.GetRabbitmqVhost(client, instanceID, name)
+	return dms.GetRabbitmqVhost(client, state.Primary.Attributes["instance_id"], state.Primary.Attributes["name"])
 }
 
 func TestAccRabbitmqVhost_basic(t *testing.T) {
@@ -70,4 +62,64 @@ resource "huaweicloud_dms_rabbitmq_vhost" "test" {
   name        = "%s"
 }
 `, testAccDmsRabbitmqInstance_basic(rName), rName)
+}
+
+func TestAccRabbitmqVhost_slash(t *testing.T) {
+	var obj interface{}
+	resourceName := "huaweicloud_dms_rabbitmq_vhost.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getRabbitmqVhostResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testRabbitmqVhost_slash(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", "/test/Vhost"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccResourceVhostImportStateIDFunc(resourceName),
+			},
+		},
+	})
+}
+
+func testRabbitmqVhost_slash() string {
+	rNameWithDash := acceptance.RandomAccResourceNameWithDash()
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dms_rabbitmq_vhost" "test" {
+  instance_id = huaweicloud_dms_rabbitmq_instance.test.id
+  name        = "/test/Vhost"
+}
+`, testAccDmsRabbitmqInstance_basic(rNameWithDash))
+}
+
+func testAccResourceVhostImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", resourceName, rs)
+		}
+
+		instanceID := rs.Primary.Attributes["instance_id"]
+		name := rs.Primary.Attributes["name"]
+		if instanceID == "" || name == "" {
+			return "", fmt.Errorf("invalid format specified for import ID, want '<instance_id>,<name>', but got '%s,%s'",
+				instanceID, name)
+		}
+		return fmt.Sprintf("%s,%s", instanceID, name), nil
+	}
 }

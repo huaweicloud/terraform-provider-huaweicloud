@@ -2,17 +2,14 @@ package dms
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
 )
 
 func getRabbitmqQueueResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -21,22 +18,8 @@ func getRabbitmqQueueResourceFunc(cfg *config.Config, state *terraform.ResourceS
 		return nil, fmt.Errorf("error creating DMS client: %s", err)
 	}
 
-	getHttpUrl := "v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/queues/{queue}"
-	getPath := client.Endpoint + getHttpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{instance_id}", state.Primary.Attributes["instance_id"])
-	getPath = strings.ReplaceAll(getPath, "{vhost}", state.Primary.Attributes["vhost"])
-	getPath = strings.ReplaceAll(getPath, "{queue}", state.Primary.Attributes["name"])
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getResp, err := client.Request("GET", getPath, &getOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving queue: %s", err)
-	}
-
-	return utils.FlattenResponse(getResp)
+	return dms.GetRabbitmqQueue(client, state.Primary.Attributes["instance_id"], state.Primary.Attributes["vhost"],
+		state.Primary.Attributes["name"])
 }
 
 func TestAccRabbitmqQueue_basic(t *testing.T) {
@@ -96,4 +79,53 @@ resource "huaweicloud_dms_rabbitmq_queue" "test" {
   lazy_mode               = "lazy"
 }
 `, testRabbitmqVhost_basic(rName), rName)
+}
+
+func TestAccRabbitmqQueue_slash(t *testing.T) {
+	var obj interface{}
+	resourceName := "huaweicloud_dms_rabbitmq_queue.test"
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getRabbitmqQueueResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testRabbitmqQueue_slash(),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", "/test/Queue"),
+					resource.TestCheckResourceAttr(resourceName, "vhost", "__F_SLASH__test__F_SLASH__Vhost"),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_dms_rabbitmq_instance.test", "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccResourceExchangeOrQueueImportStateIDFunc(resourceName),
+			},
+		},
+	})
+}
+
+func testRabbitmqQueue_slash() string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dms_rabbitmq_queue" "test" {
+  depends_on = [huaweicloud_dms_rabbitmq_vhost.test]
+
+  instance_id = huaweicloud_dms_rabbitmq_instance.test.id
+  vhost       = "__F_SLASH__test__F_SLASH__Vhost"
+  name        = "/test/Queue"
+  auto_delete = false
+  durable     = true
+}
+`, testRabbitmqVhost_slash())
 }
