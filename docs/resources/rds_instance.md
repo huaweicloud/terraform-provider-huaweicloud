@@ -460,14 +460,16 @@ This resource provides the following timeouts configuration options:
 RDS instance can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_rds_instance.instance_1 52e4b497d2c94df88a2eb4c661314903in01
+$ terraform import huaweicloud_rds_instance.instance_1 <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `db`, `collation`, `availability_zone`,
-`lower_case_table_names`,`slow_log_show_original_status`. It is generally recommended running `terraform plan` after
-importing a RDS instance. You can then decide if changes should be applied to the instance, or the resource definition
-should be updated to align with the instance. Also, you can ignore changes as below.
+API response, security or some other reason. The missing attributes include: `db`, `restore`,`param_group_id`,
+`power_action`, `availability_zone`, `read_write_permissions`, `rotate_day`, `secret_id`, `secret_name`, `secret_version`,
+`dss_pool_id`, `lower_case_table_names`, `slow_log_show_original_status`, `charging_mode`, `period_unit`, `period`,
+`auto_renew`, `auto_pay`. It is generally recommended running `terraform plan` after importing a RDS instance. You can
+then decide if changes should be applied to the instance, or the resource definition should be updated to align with the
+instance. Also, you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_rds_instance" "instance_1" {
@@ -475,7 +477,9 @@ resource "huaweicloud_rds_instance" "instance_1" {
 
   lifecycle {
     ignore_changes = [
-      "db", "collation", "availability_zone", "lower_case_table_names", "slow_log_show_original_status"
+      "db", "restore", "param_group_id", "power_action", "availability_zone", "read_write_permissions", "rotate_day",
+      "secret_id", "secret_name", "secret_version", "dss_pool_id", "lower_case_table_names", "slow_log_show_original_status",
+      "charging_mode", "period_unit", "period", "auto_renew", "auto_pay",
     ]
   }
 }
