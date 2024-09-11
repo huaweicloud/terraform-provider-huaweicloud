@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -181,11 +180,11 @@ func resourceCesAlarmTemplateCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("template_id", createAlarmTemplateRespBody)
-	if err != nil {
+	id := utils.PathSearch("template_id", createAlarmTemplateRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating CES alarm template: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceCesAlarmTemplateRead(ctx, d, meta)
 }

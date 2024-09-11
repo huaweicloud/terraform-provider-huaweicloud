@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -142,7 +141,7 @@ func resourceResourceGroupCreate(ctx context.Context, d *schema.ResourceData, me
 	)
 	createResourceGroupClient, err := cfg.NewServiceClient(createResourceGroupProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CES Client: %s", err)
+		return diag.Errorf("error creating CES client: %s", err)
 	}
 
 	createResourceGroupPath := createResourceGroupClient.Endpoint + createResourceGroupHttpUrl
@@ -157,7 +156,7 @@ func resourceResourceGroupCreate(ctx context.Context, d *schema.ResourceData, me
 	createResourceGroupOpt.JSONBody = utils.RemoveNil(buildCreateResourceGroupBodyParams(d, cfg))
 	createResourceGroupResp, err := createResourceGroupClient.Request("POST", createResourceGroupPath, &createResourceGroupOpt)
 	if err != nil {
-		return diag.Errorf("error creating resource group: %s", err)
+		return diag.Errorf("error creating CES resource group: %s", err)
 	}
 
 	createResourceGroupRespBody, err := utils.FlattenResponse(createResourceGroupResp)
@@ -165,11 +164,11 @@ func resourceResourceGroupCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("group_id", createResourceGroupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating ResourceGroup: ID is not found in API response")
+	id := utils.PathSearch("group_id", createResourceGroupRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating CES resource group: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	// add resources to CES resource group if resources is specified.
 	if _, ok := d.GetOk("resources"); ok {
@@ -266,7 +265,7 @@ func resourceResourceGroupRead(_ context.Context, d *schema.ResourceData, meta i
 	)
 	getResourceGroupClient, err := cfg.NewServiceClient(getResourceGroupProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CES Client: %s", err)
+		return diag.Errorf("error creating CES client: %s", err)
 	}
 
 	getResourceGroupPath := getResourceGroupClient.Endpoint + getResourceGroupHttpUrl
@@ -318,7 +317,7 @@ func resourceResourceGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 	)
 	updateResourceGroupClient, err := cfg.NewServiceClient(updateResourceGroupProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CES Client: %s", err)
+		return diag.Errorf("error creating CES client: %s", err)
 	}
 
 	updateResourceGroupChanges := []string{
@@ -342,7 +341,7 @@ func resourceResourceGroupUpdate(ctx context.Context, d *schema.ResourceData, me
 		updateResourceGroupOpt.JSONBody = utils.RemoveNil(buildUpdateResourceGroupBodyParams(d))
 		_, err = updateResourceGroupClient.Request("PUT", updateResourceGroupPath, &updateResourceGroupOpt)
 		if err != nil {
-			return diag.Errorf("error updating resource group: %s", err)
+			return diag.Errorf("error updating CES resource group: %s", err)
 		}
 	}
 
@@ -421,7 +420,7 @@ func resourceResourceGroupDelete(_ context.Context, d *schema.ResourceData, meta
 	)
 	deleteResourceGroupClient, err := cfg.NewServiceClient(deleteResourceGroupProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CES Client: %s", err)
+		return diag.Errorf("error creating CES client: %s", err)
 	}
 
 	deleteResourceGroupPath := deleteResourceGroupClient.Endpoint + deleteResourceGroupHttpUrl
@@ -436,7 +435,7 @@ func resourceResourceGroupDelete(_ context.Context, d *schema.ResourceData, meta
 	deleteResourceGroupOpt.JSONBody = utils.RemoveNil(buildDeleteResourceGroupBodyParams(d))
 	_, err = deleteResourceGroupClient.Request("POST", deleteResourceGroupPath, &deleteResourceGroupOpt)
 	if err != nil {
-		return diag.Errorf("error deleting resource group: %s", err)
+		return diag.Errorf("error deleting CES resource group: %s", err)
 	}
 
 	return nil
