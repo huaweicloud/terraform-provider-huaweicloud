@@ -19,7 +19,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -404,11 +403,11 @@ func resourceProtectionRuleCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.rules[0].id", createProtectionRuleRespBody)
-	if err != nil {
-		return diag.Errorf("error creating protection rule: ID is not found in API response: %s", err)
+	id := utils.PathSearch("data.rules[0].id", createProtectionRuleRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating protection rule: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceProtectionRuleRead(ctx, d, meta)
 }
@@ -659,7 +658,11 @@ func getRuleHitCount(client *golangsdk.ServiceClient, id string) (interface{}, e
 		return nil, err
 	}
 
-	return jmespath.Search("data.records[0].rule_hit_count", getProtectionRuleHitCountRespBody)
+	count := utils.PathSearch("data.records[0].rule_hit_count", getProtectionRuleHitCountRespBody, nil)
+	if count == nil {
+		return nil, fmt.Errorf("error parsing rule_hit_count from response= %#v", getProtectionRuleHitCountRespBody)
+	}
+	return count, nil
 }
 
 func buildRuleHitCountBodyParams(id string) map[string]interface{} {
@@ -670,8 +673,8 @@ func buildRuleHitCountBodyParams(id string) map[string]interface{} {
 
 func flattenGetProtectionRuleResponseBodyRuleServiceDto(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("service", resp)
-	if err != nil {
+	curJson := utils.PathSearch("service", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error parsing service from response= %#v", resp)
 		return rst
 	}
@@ -693,8 +696,8 @@ func flattenGetProtectionRuleResponseBodyRuleServiceDto(resp interface{}) []inte
 
 func flattenGetProtectionRuleResponseBodyRuleSourceAddressDto(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("source", resp)
-	if err != nil {
+	curJson := utils.PathSearch("source", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error parsing source from response= %#v", resp)
 		return rst
 	}
@@ -719,8 +722,8 @@ func flattenGetProtectionRuleResponseBodyRuleSourceAddressDto(resp interface{}) 
 
 func flattenGetProtectionRuleResponseBodyRuleDestinationAddressDto(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("destination", resp)
-	if err != nil {
+	curJson := utils.PathSearch("destination", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error parsing destination from response= %#v", resp)
 		return rst
 	}

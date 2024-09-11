@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -230,9 +229,9 @@ func parseDNSServersError(err error) error {
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return err
 		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
+		errorCode := utils.PathSearch("error_code", apiError, nil)
+		if errorCode == nil {
+			return fmt.Errorf("error parsing error_code from response")
 		}
 		if errorCode == "CFW.00200005" {
 			return golangsdk.ErrDefault404(errCode)

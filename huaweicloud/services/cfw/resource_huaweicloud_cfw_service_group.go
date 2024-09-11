@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -99,11 +98,11 @@ func resourceServiceGroupCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.id", createServiceGroupRespBody)
-	if err != nil {
+	id := utils.PathSearch("data.id", createServiceGroupRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating ServiceGroup: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceServiceGroupRead(ctx, d, meta)
 }
