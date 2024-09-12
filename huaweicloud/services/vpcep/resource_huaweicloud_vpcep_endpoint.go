@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -21,10 +22,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API VPCEP DELETE /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}
+// @API VPCEP POST /v1/{project_id}/vpc-endpoints
 // @API VPCEP GET /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}
 // @API VPCEP PUT /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}
-// @API VPCEP POST /v1/{project_id}/vpc-endpoints
+// @API VPCEP DELETE /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}
+// @API VPCEP PUT /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}/policy
+// @API VPCEP PUT /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}/routetables
 // @API VPCEP POST /v1/{project_id}/{resource_type}/{resource_id}/tags/action
 func ResourceVPCEndpoint() *schema.Resource {
 	return &schema.Resource{
@@ -85,7 +88,6 @@ func ResourceVPCEndpoint() *schema.Resource {
 			"routetables": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
@@ -322,7 +324,38 @@ func resourceVPCEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	// binding or unbinding routetables
+	if d.HasChanges("routetables") {
+		routeTables := utils.ExpandToStringListBySet(d.Get("routetables").(*schema.Set))
+		err = updateRouteTables(d, vpcepClient, routeTables)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceVPCEndpointRead(ctx, d, meta)
+}
+
+func updateRouteTables(d *schema.ResourceData, client *golangsdk.ServiceClient, routeTables []string) error {
+	routeTablesHttpUrl := "v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}/routetables"
+	routeTablesPath := client.Endpoint + routeTablesHttpUrl
+	routeTablesPath = strings.ReplaceAll(routeTablesPath, "{project_id}", client.ProjectID)
+	routeTablesPath = strings.ReplaceAll(routeTablesPath, "{vpc_endpoint_id}", d.Id())
+
+	routeTablesOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	routeTablesOpt.JSONBody = utils.RemoveNil(map[string]interface{}{
+		"routetables": routeTables,
+	})
+
+	_, err := client.Request("PUT", routeTablesPath, &routeTablesOpt)
+	if err != nil {
+		return fmt.Errorf("error updating routetables: %s", err)
+	}
+
+	return nil
 }
 
 func resourceVPCEndpointDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
