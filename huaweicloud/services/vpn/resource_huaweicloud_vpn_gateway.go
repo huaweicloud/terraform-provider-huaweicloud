@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -461,11 +460,11 @@ func resourceGatewayCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("vpn_gateway.id", createGatewayRespBody)
-	if err != nil {
+	id := utils.PathSearch("vpn_gateway.id", createGatewayRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating VPN gateway: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	err = createGatewayWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -668,9 +667,9 @@ func createGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`vpn_gateway.status`, createGatewayWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `vpn_gateway.status`)
+			statusRaw := utils.PathSearch(`vpn_gateway.status`, createGatewayWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `vpn_gateway.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
@@ -800,9 +799,9 @@ func resourceGatewayRead(_ context.Context, d *schema.ResourceData, meta interfa
 
 func flattenGatewayCertificateResponse(d *schema.ResourceData, resp interface{}) []interface{} {
 	rst := d.Get("certificate").([]interface{})
-	curJson, err := jmespath.Search("certificate", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing certificate from response: %s", err)
+	curJson := utils.PathSearch("certificate", resp, nil)
+	if curJson == nil {
+		log.Printf("[ERROR] error parsing certificate from response")
 		return rst
 	}
 
@@ -827,9 +826,9 @@ func flattenGatewayCertificateResponse(d *schema.ResourceData, resp interface{})
 
 func flattenGetGatewayResponseBodyVPNGatewayBody(resp interface{}, paramName string) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search(fmt.Sprintf("vpn_gateway.%s", paramName), resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing vpn_gateway.%s from response: %s", paramName, err)
+	curJson := utils.PathSearch(fmt.Sprintf("vpn_gateway.%s", paramName), resp, nil)
+	if curJson == nil {
+		log.Printf("[ERROR] error parsing vpn_gateway.%s from response", paramName)
 		return rst
 	}
 
@@ -1006,9 +1005,9 @@ func updateGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`vpn_gateway.status`, updateGatewayWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `vpn_gateway.status`)
+			statusRaw := utils.PathSearch(`vpn_gateway.status`, updateGatewayWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `vpn_gateway.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
@@ -1108,9 +1107,9 @@ func deleteGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`vpn_gateway.status`, deleteGatewayWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `vpn_gateway.status`)
+			statusRaw := utils.PathSearch(`vpn_gateway.status`, deleteGatewayWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `vpn_gateway.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
