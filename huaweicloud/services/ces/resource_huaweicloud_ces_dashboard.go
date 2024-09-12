@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -112,11 +111,11 @@ func resourceDashboardCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("dashboard_id", respBody)
-	if err != nil {
+	id := utils.PathSearch("dashboard_id", respBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating CES dashboard: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	rowWidgetNumNeedUpdate := false
 	dashboard, err := getDashboard(client, d)
