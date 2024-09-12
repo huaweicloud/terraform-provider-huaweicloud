@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -159,11 +158,11 @@ func resourceNetworkInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("network_instance.id", createNetworkInstanceRespBody)
-	if err != nil {
+	id := utils.PathSearch("network_instance.id", createNetworkInstanceRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating NetworkInstance: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceNetworkInstanceRead(ctx, d, meta)
 }

@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -157,9 +156,9 @@ func centralNetworkPolicyApplyWaitingForStateCompleted(ctx context.Context, d *s
 				return nil, "ERROR", err
 			}
 			jsonPath := fmt.Sprintf("central_network_policies[?id =='%s']|[0].is_applied", policyId)
-			statusRaw, err := jmespath.Search(jsonPath, applyPolicyRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `central_network_policies.is_applied`)
+			statusRaw := utils.PathSearch(jsonPath, applyPolicyRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `central_network_policies.is_applied`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)

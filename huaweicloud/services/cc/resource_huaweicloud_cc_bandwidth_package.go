@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -179,11 +178,11 @@ func resourceBandwidthPackageCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("bandwidth_package.id", createBandwidthPackageRespBody)
-	if err != nil {
+	id := utils.PathSearch("bandwidth_package.id", createBandwidthPackageRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating bandwidth package: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceBandwidthPackageRead(ctx, d, meta)
 }

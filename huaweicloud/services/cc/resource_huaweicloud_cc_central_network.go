@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -120,11 +119,11 @@ func resourceCentralNetworkCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("central_network.id", createCentralNetworkRespBody)
-	if err != nil {
+	id := utils.PathSearch("central_network.id", createCentralNetworkRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating central network: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	err = centralNetworkWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -184,9 +183,9 @@ func centralNetworkWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`central_network.state`, createCentralNetworkWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `central_network.state`)
+			statusRaw := utils.PathSearch(`central_network.state`, createCentralNetworkWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `central_network.state`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
@@ -399,9 +398,9 @@ func deleteCentralNetworkWaitingForStateCompleted(ctx context.Context, d *schema
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`central_network.state`, deleteCentralNetworkWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `central_network.state`)
+			statusRaw := utils.PathSearch(`central_network.state`, deleteCentralNetworkWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `central_network.state`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)

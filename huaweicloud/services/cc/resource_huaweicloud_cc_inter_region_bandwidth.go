@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -138,11 +137,11 @@ func resourceInterRegionBandwidthCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("inter_region_bandwidth.id", createInterRegionBandwidthRespBody)
-	if err != nil {
+	id := utils.PathSearch("inter_region_bandwidth.id", createInterRegionBandwidthRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating inter-region bandwidth: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceInterRegionBandwidthRead(ctx, d, meta)
 }
