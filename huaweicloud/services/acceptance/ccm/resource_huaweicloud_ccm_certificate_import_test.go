@@ -2,7 +2,6 @@ package ccm
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -21,7 +20,6 @@ var (
 	encCertificatePath  = acceptance.HW_CCM_ENC_CERTIFICATE_PATH
 	encKeyPath          = acceptance.HW_CCM_ENC_PRIVATE_KEY_PATH
 	enterpriseProjectID = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
-	serviceName         = acceptance.HW_CCM_CERTIFICATE_SERVICE
 	projectName         = acceptance.HW_CCM_CERTIFICATE_PROJECT
 	projectUpdateName   = acceptance.HW_CCM_CERTIFICATE_PROJECT_UPDATED
 )
@@ -34,6 +32,8 @@ func getCertificateImportResourceFunc(c *config.Config, state *terraform.Resourc
 	return certificates.Get(client, state.Primary.ID).Extract()
 }
 
+// Using to test importing certificates encrypted with SM series cryptographic algorithms.
+// Certificates encrypted with SM series cryptographic algorithms cannot be deployed to other cloud services.
 func TestAccCertificateImport_basic(t *testing.T) {
 	var (
 		certInfo     certificates.CertificateEscrowInfo
@@ -88,6 +88,20 @@ func TestAccCertificateImport_basic(t *testing.T) {
 	})
 }
 
+func testAccCertificateImport_basic(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_ccm_certificate_import" "test" {
+  name                  = "%[1]s"
+  certificate           = file("%[2]s")
+  certificate_chain     = file("%[3]s")
+  private_key           = file("%[4]s")
+  enc_certificate       = file("%[5]s")
+  enc_private_key       = file("%[6]s")
+  enterprise_project_id = "%[7]s"
+}`, name, certificatePath, chainPath, keyPath, encCertificatePath, encKeyPath, enterpriseProjectID)
+}
+
+// Using to test importing international standard certificates and pushing to services.
 func TestAccCertificateImport_push(t *testing.T) {
 	var (
 		certInfo     certificates.CertificateEscrowInfo
@@ -114,7 +128,6 @@ func TestAccCertificateImport_push(t *testing.T) {
 				Config: testAccCertificateImport_push(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					testCertificateImportPushExists(resourceName, serviceName, projectName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
 				),
@@ -123,7 +136,6 @@ func TestAccCertificateImport_push(t *testing.T) {
 				Config: testAccCertificateImport_push_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					testCertificateImportPushExists(resourceName, serviceName, projectUpdateName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
 				),
@@ -136,84 +148,6 @@ func TestAccCertificateImport_push(t *testing.T) {
 			},
 		},
 	})
-}
-
-func TestAccCertificateImport_batchPush(t *testing.T) {
-	var (
-		certInfo     certificates.CertificateEscrowInfo
-		resourceName = "huaweicloud_ccm_certificate_import.test"
-		rName        = acceptance.RandomAccResourceNameWithDash()
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&certInfo,
-		getCertificateImportResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCCMBaseCertificateImport(t)
-			acceptance.TestAccPreCheckCCMCertificatePush(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCertificateImport_batchPush(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					testCertificateImportPushExists(resourceName, serviceName, projectName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
-				),
-			},
-			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"certificate", "certificate_chain", "private_key", "target"},
-			},
-		},
-	})
-}
-
-func testCertificateImportPushExists(
-	certResourceName string, service string, project string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		// Get the resource info by certificateResorceName
-		certRs, ok := s.RootModule().Resources[certResourceName]
-		if !ok {
-			return fmt.Errorf("not found: %s", certResourceName)
-		}
-
-		if certRs.Primary.ID == "" {
-			return fmt.Errorf("no ID is set for the certificate resource: %s", certResourceName)
-		}
-
-		stateService := certRs.Primary.Attributes["target.0.service"]
-		stateProject := certRs.Primary.Attributes["target.0.project.0"]
-		if strings.Compare(service, stateService) != 0 ||
-			strings.Compare(project, stateProject) != 0 {
-			return fmt.Errorf("push certificate failed! service: %s, project: %s",
-				service, project)
-		}
-		return nil
-	}
-}
-
-func testAccCertificateImport_basic(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_ccm_certificate_import" "test" {
-  name                  = "%[1]s"
-  certificate           = file("%[2]s")
-  certificate_chain     = file("%[3]s")
-  private_key           = file("%[4]s")
-  enc_certificate       = file("%[5]s")
-  enc_private_key       = file("%[6]s")
-  enterprise_project_id = "%[7]s"
-}`, name, certificatePath, chainPath, keyPath, encCertificatePath, encKeyPath, enterpriseProjectID)
 }
 
 func testAccCertificateImport_push(name string) string {
@@ -226,9 +160,13 @@ resource "huaweicloud_ccm_certificate_import" "test" {
 
   target {
     project = ["%[5]s"]
-    service = "%[6]s"
+    service = "ELB"
   }
-}`, name, certificatePath, chainPath, keyPath, projectName, serviceName)
+
+  target {
+    service = "CDN"
+  }
+}`, name, certificatePath, chainPath, keyPath, projectName)
 }
 
 func testAccCertificateImport_push_update(name string) string {
@@ -240,23 +178,12 @@ resource "huaweicloud_ccm_certificate_import" "test" {
   private_key       = file("%[4]s")
 
   target {
-    project = ["%[5]s"]
-    service = "%[6]s"
+    project = ["%[5]s", "%[6]s"]
+    service = "ELB"
   }
-}`, name, certificatePath, chainPath, keyPath, projectUpdateName, serviceName)
-}
-
-func testAccCertificateImport_batchPush(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_ccm_certificate_import" "test" {
-  name              = "%[1]s"
-  certificate       = file("%[2]s")
-  certificate_chain = file("%[3]s")
-  private_key       = file("%[4]s")
 
   target {
-    project = ["%[5]s", "%[6]s"]
-    service = "%[7]s"
+    service = "CDN"
   }
-}`, name, certificatePath, chainPath, keyPath, projectName, projectUpdateName, serviceName)
+}`, name, certificatePath, chainPath, keyPath, projectName, projectUpdateName)
 }
