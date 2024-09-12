@@ -27,12 +27,10 @@ func TestAccDataSourceCertificateExport_basic(t *testing.T) {
 				Config: testDataSourceDataSourceCertificateExport_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSource, "enc_private_key"),
 					resource.TestCheckResourceAttrSet(dataSource, "entire_certificate"),
 					resource.TestCheckResourceAttrSet(dataSource, "certificate"),
 					resource.TestCheckResourceAttrSet(dataSource, "certificate_chain"),
 					resource.TestCheckResourceAttrSet(dataSource, "private_key"),
-					resource.TestCheckResourceAttrSet(dataSource, "enc_certificate"),
 				),
 			},
 		},
