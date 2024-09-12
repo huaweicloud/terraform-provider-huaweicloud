@@ -392,7 +392,7 @@ func resourceCloudConnectionDelete(_ context.Context, d *schema.ResourceData, me
 	}
 	_, err = deleteCloudConnectionClient.Request("DELETE", deleteCloudConnectionPath, &deleteCloudConnectionOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CloudConnection: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting CloudConnection")
 	}
 
 	return nil

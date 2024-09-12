@@ -541,7 +541,7 @@ func resourceBandwidthPackageDelete(_ context.Context, d *schema.ResourceData, m
 
 	_, err = deleteBandwidthPackageClient.Request("DELETE", deleteBandwidthPackagePath, &deleteBandwidthPackageOpt)
 	if err != nil {
-		return diag.Errorf("error deleting bandwidth package: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting bandwidth package")
 	}
 
 	return nil

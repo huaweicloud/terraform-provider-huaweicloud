@@ -330,7 +330,9 @@ func resourceNetworkInstanceDelete(_ context.Context, d *schema.ResourceData, me
 	}
 	_, err = deleteNetworkInstanceClient.Request("DELETE", deleteNetworkInstancePath, &deleteNetworkInstanceOpt)
 	if err != nil {
-		return diag.Errorf("error deleting NetworkInstance: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CC.1002"),
+			"error deleting NetworkInstance")
 	}
 
 	return nil
