@@ -39,6 +39,8 @@ The following arguments are supported:
   Changing this creates a new resource.
 
 * `vhost` - (Required, String, ForceNew) Specifies the vhost name. Changing this creates a new resource.
+  
+  -> If `vhost` has slashes, please change them into **\_\_F_SLASH\_\_**.
 
 * `name` - (Required, String, ForceNew) Specifies the exchange name. Changing this creates a new resource.
 
@@ -61,8 +63,13 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The RabbitMQ exchange can be imported using the `instance_id`, `vhost` and `name` separated by slashes, e.g.
+The RabbitMQ exchange can be imported using the `instance_id`, `vhost` and `name` separated by slashes or commas, but if
+`name` contains slashes, the import ID can only be separated by commas e.g.
 
 ```bash
 $ terraform import huaweicloud_dms_rabbitmq_exchange.test <instance_id>/<vhost>/<name>
+```
+
+```bash
+$ terraform import huaweicloud_dms_rabbitmq_exchange.test <instance_id>,<vhost>,<name>
 ```

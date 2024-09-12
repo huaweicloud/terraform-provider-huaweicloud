@@ -26,7 +26,7 @@ func ResourceDmsRabbitmqQueue() *schema.Resource {
 		DeleteContext: resourceDmsRabbitmqQueueDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceQueueImportState,
+			StateContext: resourceExchangeOrQueueImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -241,23 +241,13 @@ func resourceDmsRabbitmqQueueRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	getHttpUrl := "v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/queues/{queue}"
-	getPath := client.Endpoint + getHttpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Get("instance_id").(string))
-	getPath = strings.ReplaceAll(getPath, "{vhost}", d.Get("vhost").(string))
-	getPath = strings.ReplaceAll(getPath, "{queue}", d.Get("name").(string))
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
+	instanceID := d.Get("instance_id").(string)
+	vhost := d.Get("vhost").(string)
+	name := d.Get("name").(string)
 
-	getResp, err := client.Request("GET", getPath, &getOpt)
+	getRespBody, err := GetRabbitmqQueue(client, instanceID, vhost, name)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving queue")
-	}
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		return diag.Errorf("error flattening queue: %s", err)
+		return diag.FromErr(err)
 	}
 
 	auguments := utils.PathSearch("arguments", getRespBody, nil)
@@ -279,6 +269,32 @@ func resourceDmsRabbitmqQueueRead(_ context.Context, d *schema.ResourceData, met
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func GetRabbitmqQueue(client *golangsdk.ServiceClient, instanceID, vhost, name string) (interface{}, error) {
+	getHttpUrl := "v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/queues/{queue}"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceID)
+	getPath = strings.ReplaceAll(getPath, "{vhost}", vhost)
+
+	if strings.Contains(name, "/") {
+		replacedName := strings.ReplaceAll(name, "/", "__F_SLASH__")
+		getPath = strings.ReplaceAll(getPath, "{queue}", replacedName)
+	} else {
+		getPath = strings.ReplaceAll(getPath, "{queue}", name)
+	}
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
 }
 
 func flattenConsumerDetails(paramsList []interface{}) interface{} {
@@ -370,10 +386,17 @@ func resourceDmsRabbitmqQueueDelete(_ context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourceQueueImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
+func resourceExchangeOrQueueImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), ",")
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid ID format, must be <instance_id>/<vhost>/<name>")
+		parts = strings.Split(d.Id(), "/")
+		if len(parts) != 3 {
+			return nil, fmt.Errorf("invalid ID format, must be <instance_id>/<vhsot>/<name> or <instance_id>,<vhost>,<name>")
+		}
+	} else {
+		// reform ID to be separated by slashes
+		id := fmt.Sprintf("%s/%s/%s", parts[0], parts[1], parts[2])
+		d.SetId(id)
 	}
 
 	d.Set("instance_id", parts[0])
