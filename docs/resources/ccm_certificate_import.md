@@ -12,9 +12,11 @@ description: |-
 Using this resource to import an existing SSL certificate to CCM service within HuaweiCloud, and support pushing the
 SSL certificate to other HuaweiCloud services.
 
+-> Certificates encrypted with SM series cryptographic algorithms cannot be deployed to other cloud services.
+
 ## Example Usage
 
-### Load the certificate contents from the local files
+### Load the certificate contents from the local files with SM series cryptographic algorithm type
 
 ```hcl
 variable "enterprise_project_id" {}
@@ -30,7 +32,21 @@ resource "huaweicloud_ccm_certificate_import" "test" {
 }
 ```
 
-### Write the contents of the certificate into the Terraform script
+### Load the certificate contents from the local files with international standard type
+
+```hcl
+variable "enterprise_project_id" {}
+
+resource "huaweicloud_ccm_certificate_import" "test" {
+  name                  = "certificate_name"
+  certificate           = file("your_directory/xxx_ca.crt")
+  certificate_chain     = file("your_directory/xxx_ca_chain.crt")
+  private_key           = file("your_directory/xxx_server.key")
+  enterprise_project_id = var.enterprise_project_id
+}
+```
+
+### Write the contents of the certificate into the terraform script with international standard type
 
 ```hcl
 variable "certificate" {}
@@ -45,7 +61,7 @@ resource "huaweicloud_ccm_certificate_import" "test" {
 }
 ```
 
-### Push the SSL certificate to another HuaweiCloud service
+### Push the SSL certificate to another HuaweiCloud service with international standard type
 
 ```hcl
 resource "huaweicloud_ccm_certificate_import" "test" {
@@ -96,16 +112,21 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `enc_certificate` - (Optional, String, ForceNew) Specifies the encrypted content of the state secret certificate.
+* `enc_certificate` - (Optional, String, ForceNew) Specifies the encrypted content of the certificate encrypted with
+  SM series cryptographic algorithms.
   Using the escape character `\n` or `\r\n` to replace carriage return and line feed characters.
 
   Changing this parameter will create a new resource.
 
-* `enc_private_key` - (Optional, String, ForceNew) Specifies the encrypted private key of the state secret certificate.
+* `enc_private_key` - (Optional, String, ForceNew) Specifies the encrypted private key of the certificate encrypted with
+  SM series cryptographic algorithms.
   Password-protected private keys cannot be uploaded, and using the escape character `\n` or `\r\n` to replace carriage
   return and line feed characters.
 
   Changing this parameter will create a new resource.
+
+-> Fields `enc_certificate` and `enc_private_key` are required when importing a certificate encrypted with SM series
+   cryptographic algorithms.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID. This parameter is only
   valid for enterprise users. Resources under all authorized enterprise projects of the tenant will be queried by default
@@ -115,6 +136,8 @@ The following arguments are supported:
 
 * `target` - (Optional, List) Specifies the service information that needs to push the SSL certificate.
 The [target](#block_target) structure is documented below.
+
+  -> Certificates encrypted with SM series cryptographic algorithms cannot be deployed to other cloud services.
 
 <a name="block_target"></a>
 The `target` block supports:
