@@ -3,7 +3,6 @@ package css
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -336,10 +334,7 @@ func getScanTaskByName(d *schema.ResourceData, region string, conf *config.Confi
 		}
 		scanTasks := utils.PathSearch("aiops_list", getScanTaskRespBody, make([]interface{}, 0)).([]interface{})
 		findAiopsList := fmt.Sprintf("aiops_list | [?name=='%s'] | [0]", d.Get("name"))
-		scanTask, err := jmespath.Search(findAiopsList, getScanTaskRespBody)
-		if err != nil {
-			return nil, err
-		}
+		scanTask := utils.PathSearch(findAiopsList, getScanTaskRespBody, nil)
 		if scanTask != nil {
 			return scanTask, nil
 		}
@@ -354,9 +349,8 @@ func getScanTaskByName(d *schema.ResourceData, region string, conf *config.Confi
 
 func flattenScanTaskSummaryResponse(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("summary", resp)
-	if err != nil {
-		log.Printf("[WARN] error parsing summary object from response: %v", err)
+	curJson := utils.PathSearch("summary", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 

@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -139,12 +138,12 @@ func resourceSwrImageRetentionPolicyCreate(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createSwrImageRetentionPolicyRespBody)
-	if err != nil {
+	id := utils.PathSearch("id", createSwrImageRetentionPolicyRespBody, float64(-1)).(float64)
+	if id == -1 {
 		return diag.Errorf("error creating SWR image retention policy: ID is not found in API response")
 	}
 
-	d.SetId(organization + "/" + repository + "/" + strconv.Itoa(int(id.(float64))))
+	d.SetId(organization + "/" + repository + "/" + strconv.Itoa(int(id)))
 
 	return resourceSwrImageRetentionPolicyRead(ctx, d, meta)
 }

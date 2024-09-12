@@ -8,13 +8,11 @@ package secmaster
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -258,11 +256,11 @@ func resourceAlertRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("rule_id", createAlertRuleRespBody)
-	if err != nil {
-		return diag.Errorf("error creating AlertRule: ID is not found in API response")
+	id := utils.PathSearch("rule_id", createAlertRuleRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating SecMaster alert rule: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceAlertRuleRead(ctx, d, meta)
 }
@@ -399,9 +397,8 @@ func resourceAlertRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 
 func flattenGetAlertRuleResponseBodySchedule(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("schedule", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing schedule from response= %#v", resp)
+	curJson := utils.PathSearch("schedule", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 

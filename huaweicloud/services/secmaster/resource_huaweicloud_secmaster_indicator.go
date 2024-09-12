@@ -226,11 +226,11 @@ func resourceIndicatorCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.id", createIndicatorRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Indicator: ID is not found in API response")
+	id := utils.PathSearch("data.id", createIndicatorRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating SecMaster indicator: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceIndicatorRead(ctx, d, meta)
 }
@@ -404,9 +404,8 @@ func hasErrorCode(err error, expectCode string) bool {
 
 func flattenGetIndicatorResponseBodyIndicatorType(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("indicator_type", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing data.type from response= %#v", resp)
+	curJson := utils.PathSearch("indicator_type", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 
@@ -422,9 +421,8 @@ func flattenGetIndicatorResponseBodyIndicatorType(resp interface{}) []interface{
 
 func flattenGetIndicatorResponseBodyDataSource(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("data_source", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing data.data_source from response= %#v", resp)
+	curJson := utils.PathSearch("data_source", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 

@@ -8,13 +8,11 @@ package secmaster
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -238,11 +236,11 @@ func resourceAlertCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.id", createAlertRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Alert: ID is not found in API response")
+	id := utils.PathSearch("data.id", createAlertRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating SecMaster alert: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceAlertRead(ctx, d, meta)
 }
@@ -410,9 +408,8 @@ func resourceAlertRead(_ context.Context, d *schema.ResourceData, meta interface
 
 func flattenGetAlertResponseBodyAlertType(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("alert_type", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing alert_type from response= %#v", resp)
+	curJson := utils.PathSearch("alert_type", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 
@@ -427,9 +424,8 @@ func flattenGetAlertResponseBodyAlertType(resp interface{}) []interface{} {
 
 func flattenGetAlertResponseBodyDataSource(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("data_source", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing data_source from response= %#v", resp)
+	curJson := utils.PathSearch("data_source", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 
