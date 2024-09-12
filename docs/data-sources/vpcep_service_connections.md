@@ -2,36 +2,35 @@
 subcategory: "VPC Endpoint (VPCEP)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_vpcep_service_connections"
-description: ""
+description: |-
+  Use this data source to get a list of the VPC endpoint service connections.
 ---
 
 # huaweicloud_vpcep_service_connections
 
-Use this data source to get VPC endpoint service connections.
+Use this data source to get a list of the VPC endpoint service connections.
 
 ## Example Usage
 
 ```hcl
 variable service_id {}
-variable endpoint_id {}
-variable status {}
 
-data "huaweicloud_vpcep_service_connections" "connections" {
+data "huaweicloud_vpcep_service_connections" "test" {
   service_id  = var.service_id
-  endpoint_id = var.endpoint_id
-  status      = var.status
 }
 ```
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the VPC endpoint service. If omitted, the
-  provider-level region will be used.
+* `region` - (Optional, String) Specifies the region in which to querry the VPC endpoint service connections.
+  If omitted, the provider-level region will be used.
 
 * `service_id` - (Required, String) Specifies the ID of VPC endpoint service.
 
 * `endpoint_id` - (Optional, String) Specifies the ID of VPC endpoint which has connected to
   VPC endpoint service.
+
+* `marker_id` - (Optional, String) Specifies the packet ID of the VPC endpoint.
 
 * `status` - (Optional, String) Specifies the connection status of the VPC endpoint.
   The value can be **pendingAcceptance**, **accepted**, **rejected** and **failed**.
@@ -47,6 +46,8 @@ In addition to all arguments above, the following attributes are exported:
 The `connections` block supports:
 
 * `endpoint_id` - The ID of VPC endpoint.
+
+* `marker_id` - The packet ID of the VPC endpoint.
 
 * `status` - The connection status of the VPC endpoint.
 
