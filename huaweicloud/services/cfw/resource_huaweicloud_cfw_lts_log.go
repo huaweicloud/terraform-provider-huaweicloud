@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -115,11 +114,11 @@ func resourceLtsLogCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data", respBody)
-	if err != nil {
+	id := utils.PathSearch("data", respBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating CFW lts log configuration: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceLtsLogRead(ctx, d, meta)
 }
@@ -131,9 +130,9 @@ func parseError(err error) error {
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return err
 		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
+		errorCode := utils.PathSearch("error_code", apiError, nil)
+		if errorCode == nil {
+			return fmt.Errorf("error parsing error_code from response")
 		}
 		if errorCode == "CFW.00200005" {
 			return golangsdk.ErrDefault404(errCode)
@@ -189,9 +188,9 @@ func resourceLtsLogRead(_ context.Context, d *schema.ResourceData, meta interfac
 		return diag.FromErr(err)
 	}
 
-	configuration, err := jmespath.Search("data", respBody)
-	if err != nil {
-		diag.Errorf("error parsing data from response= %#v", respBody)
+	configuration := utils.PathSearch("data", respBody, nil)
+	if configuration == nil {
+		return diag.Errorf("error parsing data from response= %#v", respBody)
 	}
 
 	ltsEnable := utils.PathSearch("lts_enable", configuration, float64(0)).(float64)

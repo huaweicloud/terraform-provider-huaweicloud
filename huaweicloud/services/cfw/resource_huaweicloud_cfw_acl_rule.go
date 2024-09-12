@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -363,11 +362,11 @@ func resourceACLRuleCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.rules[0].id", createACLRuleRespBody)
-	if err != nil {
-		return diag.Errorf("error creating ACL rule: ID is not found in API response: %s", err)
+	id := utils.PathSearch("data.rules[0].id", createACLRuleRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating ACL rule: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceACLRuleRead(ctx, d, meta)
 }

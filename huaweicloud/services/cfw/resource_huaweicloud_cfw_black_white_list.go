@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -127,11 +126,11 @@ func resourceBlackWhiteListCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.id", createBlackWhiteListRespBody)
-	if err != nil {
+	id := utils.PathSearch("data.id", createBlackWhiteListRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating black white list: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceBlackWhiteListRead(ctx, d, meta)
 }
@@ -193,8 +192,8 @@ func resourceBlackWhiteListRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	lists, err := jmespath.Search("data.records", getBlackWhiteListRespBody)
-	if err != nil {
+	lists := utils.PathSearch("data.records", getBlackWhiteListRespBody, nil)
+	if lists == nil {
 		return diag.Errorf("error parsing data.records from response= %#v", getBlackWhiteListRespBody)
 	}
 

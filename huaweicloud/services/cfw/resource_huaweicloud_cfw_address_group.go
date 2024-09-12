@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -107,11 +106,11 @@ func resourceAddressGroupCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.id", createAddressGroupRespBody)
-	if err != nil {
+	id := utils.PathSearch("data.id", createAddressGroupRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating AddressGroup: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceAddressGroupRead(ctx, d, meta)
 }
