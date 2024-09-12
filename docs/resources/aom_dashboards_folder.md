@@ -13,7 +13,7 @@ Manages an AOM dashboards folder resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-variable "folder_title " {}
+variable "folder_title" {}
 
 resource "huaweicloud_aom_dashboards_folder" "test" {
   folder_title = var.folder_title 
