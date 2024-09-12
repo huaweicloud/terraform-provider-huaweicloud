@@ -255,11 +255,11 @@ func resourceIncidentCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.id", createIncidentRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Incident: ID is not found in API response")
+	id := utils.PathSearch("data.id", createIncidentRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating SecMaster incident: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceIncidentRead(ctx, d, meta)
 }
@@ -464,9 +464,8 @@ func resourceIncidentRead(_ context.Context, d *schema.ResourceData, meta interf
 
 func flattenGetIncidentResponseBodyType(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("incident_type", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing incident_type from response= %#v", resp)
+	curJson := utils.PathSearch("incident_type", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 

@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -121,11 +120,11 @@ func resourceMessageDetectionCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("task_id", createMessageDetectionRespBody)
-	if err != nil {
+	id := utils.PathSearch("task_id", createMessageDetectionRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating SMN message detection task: task ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	// Check whether detection task has completed
 	err = checkDetectionTaskCompleted(ctx, client, topicUrn, d.Id(), d.Timeout(schema.TimeoutCreate))

@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -213,11 +212,11 @@ func resourcePlaybookRuleCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.id", createPlaybookRuleRespBody)
-	if err != nil {
-		return diag.Errorf("error creating PlaybookRule: ID is not found in API response")
+	id := utils.PathSearch("data.id", createPlaybookRuleRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating SecMaster playbook rule: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourcePlaybookRuleRead(ctx, d, meta)
 }
