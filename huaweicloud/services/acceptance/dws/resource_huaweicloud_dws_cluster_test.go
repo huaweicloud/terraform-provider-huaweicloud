@@ -89,6 +89,10 @@ func TestAccResourceCluster_basicV1(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
 				),
 			},
+			// Assert whether the restart is successful.
+			{
+				Config: testAccDwsCluster_basic_step4(name, updatePassword),
+			},
 			{
 				ResourceName:            resourceName,
 				ImportState:             true,
@@ -217,6 +221,16 @@ resource "huaweicloud_dws_cluster" "test" {
 		acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
 }
 
+func testAccDwsCluster_basic_step4(name, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dws_cluster_restart" "test" {
+  cluster_id = huaweicloud_dws_cluster.test.id
+}
+`, testAccDwsCluster_basic_step3(name, password))
+}
+
 func TestAccResourceCluster_basicV2(t *testing.T) {
 	var obj interface{}
 
@@ -284,6 +298,10 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "elb.0.name", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
 				),
+			},
+			// Assert whether the restart is successful.
+			{
+				Config: testAccDwsCluster_basicV2_step4(name, updatePassword),
 			},
 			{
 				ResourceName:      resourceName,
@@ -439,6 +457,16 @@ resource "huaweicloud_dws_cluster" "testv2" {
   }
 }
 `, testAccDwsCluster_basicV2_base(rName), rName, password, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
+}
+
+func testAccDwsCluster_basicV2_step4(name, password string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dws_cluster_restart" "test" {
+  cluster_id = huaweicloud_dws_cluster.testv2.id
+}
+`, testAccDwsCluster_basicV2_step3(name, password))
 }
 
 // Test the scenarios with multiple AZs and volumes is local disk.
