@@ -1853,6 +1853,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_bandwidth_associate": eip.ResourceBandWidthAssociate(),
 			"huaweicloud_vpc_eip":                 eip.ResourceVpcEIPV1(),
 			"huaweicloud_vpc_eip_associate":       eip.ResourceEIPAssociate(),
+			"huaweicloud_vpc_eipv3_associate":     eip.ResourceEipv3Associate(),
 			"huaweicloud_vpc_internet_gateway":    eip.ResourceVPCInternetGateway(),
 
 			"huaweicloud_global_internet_bandwidth": eip.ResourceGlobalInternetBandwidth(),
