@@ -92,7 +92,6 @@ func ResourceVPCEndpointService() *schema.Resource {
 					},
 				},
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -130,6 +129,11 @@ func ResourceVPCEndpointService() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+			},
+			"tcp_proxy": {
+				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"tags": common.TagsSchema(),
@@ -266,6 +270,7 @@ func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceDat
 		ServiceName: d.Get("name").(string),
 		ServiceType: d.Get("service_type").(string),
 		Description: d.Get("description").(string),
+		TCPProxy:    d.Get("tcp_proxy").(string),
 		Approval:    utils.Bool(d.Get("approval").(bool)),
 		Ports:       buildPortMappingOpts(d),
 		Tags:        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
@@ -329,6 +334,7 @@ func resourceVPCEndpointServiceRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("server_type", n.ServerType),
 		d.Set("service_type", n.ServiceType),
 		d.Set("description", n.Description),
+		d.Set("tcp_proxy", n.TCPProxy),
 		d.Set("port_mapping", flattenVPCEndpointServicePorts(n)),
 		d.Set("tags", utils.TagsToMap(n.Tags)),
 		d.Set("enable_policy", n.EnablePolicy),
@@ -361,7 +367,7 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
-	if d.HasChanges("name", "approval", "port_id", "port_mapping", "description") {
+	if d.HasChanges("name", "approval", "port_id", "port_mapping", "description", "tcp_proxy") {
 		updateOpts := services.UpdateOpts{
 			ServiceName: d.Get("name").(string),
 			Description: utils.String(d.Get("description").(string)),
@@ -375,6 +381,9 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 		}
 		if d.HasChange("port_mapping") {
 			updateOpts.Ports = buildPortMappingOpts(d)
+		}
+		if d.HasChange("tcp_proxy") {
+			updateOpts.TCPProxy = d.Get("tcp_proxy").(string)
 		}
 
 		_, err = services.Update(vpcepClient, d.Id(), updateOpts).Extract()

@@ -41,6 +41,7 @@ func TestAccVPCEPService_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "enable_policy", "false"),
 					resource.TestCheckResourceAttr(resourceName, "server_type", "VM"),
 					resource.TestCheckResourceAttr(resourceName, "service_type", "interface"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_proxy", "proxy_open"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc"),
 					resource.TestCheckResourceAttr(resourceName, "port_mapping.0.protocol", "TCP"),
 					resource.TestCheckResourceAttr(resourceName, "port_mapping.0.service_port", "8080"),
@@ -55,6 +56,7 @@ func TestAccVPCEPService_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", "tf-"+rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "approval", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_proxy", "close"),
 					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc-update"),
 					resource.TestCheckResourceAttr(resourceName, "port_mapping.0.protocol", "TCP"),
@@ -157,6 +159,7 @@ resource "huaweicloud_vpcep_service" "test" {
   vpc_id                   = data.huaweicloud_vpc.myvpc.id
   port_id                  = huaweicloud_compute_instance.ecs.network[0].port
   approval                 = false
+  tcp_proxy                = "proxy_open"
   description              = "test description"
   permissions              = ["iam:domain::6e9dfd5d1124e8d8498dce894923a0dd", "iam:domain::6e9dfd5d1124e8d8498dce894923a0de"]
   organization_permissions = ["organizations:orgPath::1234", "organizations:orgPath::5678"]
@@ -182,6 +185,7 @@ resource "huaweicloud_vpcep_service" "test" {
   vpc_id                   = data.huaweicloud_vpc.myvpc.id
   port_id                  = huaweicloud_compute_instance.ecs.network[0].port
   approval                 = true
+  tcp_proxy                = "close"
   description              = "test description update"
   permissions              = ["*"]
   organization_permissions = ["organizations:orgPath::*"]
