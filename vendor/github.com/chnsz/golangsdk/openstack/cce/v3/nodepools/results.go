@@ -67,6 +67,8 @@ type Spec struct {
 	UserTagPolicyOnExistingNodes string `json:"userTagsPolicyOnExistingNodes"`
 	// taint policy on existing nodes
 	TaintPolicyOnExistingNodes string `json:"taintPolicyOnExistingNodes"`
+	// The list of extension scale groups
+	ExtensionScaleGroups []ExtensionScaleGroups `json:"extensionScaleGroups"`
 }
 
 type AutoscalingSpec struct {
