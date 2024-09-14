@@ -68,6 +68,7 @@ type ctxType string
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/tags
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/configurations
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
