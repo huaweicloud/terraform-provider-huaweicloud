@@ -575,6 +575,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "Config",
 	},
+	"rgc": {
+		Name:             "rgc",
+		Version:          "v1",
+		WithOutProjectID: true,
+		Product:          "RGC",
+	},
 	"organizations": {
 		Name:             "organizations",
 		Version:          "v1",
