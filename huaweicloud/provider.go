@@ -1448,6 +1448,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_disaster_recovery_task":        dws.ResourceDwsDisasterRecoveryTask(),
 			"huaweicloud_dws_event_subscription":            dws.ResourceDwsEventSubs(),
 			"huaweicloud_dws_ext_data_source":               dws.ResourceDwsExtDataSource(),
+			"huaweicloud_dws_logical_cluster_restart":       dws.ResourceLogicalClusterRestart(),
 			"huaweicloud_dws_logical_cluster":               dws.ResourceLogicalCluster(),
 			"huaweicloud_dws_om_account_action":             dws.ResourceOmAccountAction(),
 			"huaweicloud_dws_public_domain_associate":       dws.ResourcePublicDomainAssociate(),
