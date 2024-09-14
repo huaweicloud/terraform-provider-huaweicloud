@@ -115,18 +115,18 @@ resource "huaweicloud_lts_notification_template" "test" {
   templates {
     sub_type = "sms"
     content  = <<EOF
-Account:$\{domain_name};
-Alarm Rules:<a href="$event.annotations.alarm_rule_url ">$\{event_name}</a>;
+Account:$${domain_name};
+Alarm Rules:<a href="$event.annotations.alarm_rule_url">$${event_name}</a>;
 Alarm Status:$event.annotations.alarm_status;
-Severity:<span style="color: red">$\{event_severity}</span>;
-Occurred:$\{starts_at};
+Severity:<span style="color: red">$${event_severity}</span>;
+Occurred:$${starts_at};
 Type:Keywords;
 Condition Expression:$event.annotations.condition_expression;
 Current Value:$event.annotations.current_value;
 Frequency:$event.annotations.frequency;
 Log Group/Stream Name:$event.annotations.results[0].resource_id;
 Query Time:$event.annotations.results[0].time;
-Query URL:<a href="$event.annotations.results[0].url ">details</a>;
+Query URL:<a href="$event.annotations.results[0].url">details</a>;
 EOF
   }
 }
@@ -144,36 +144,36 @@ resource "huaweicloud_lts_notification_template" "test" {
   templates {
     sub_type = "sms"
     content  = <<EOF
-Account:$\{domain_name};
-Alarm Rules:<a href="$event.annotations.alarm_rule_url ">$\{event_name}</a>;
+Account:$${domain_name};
+Alarm Rules:<a href="$event.annotations.alarm_rule_url">$${event_name}</a>;
 Alarm Status:$event.annotations.alarm_status;
-Severity:<span style="color: red">$\{event_severity}</span>;
-Occurred:$\{starts_at};
+Severity:<span style="color: red">$${event_severity}</span>;
+Occurred:$${starts_at};
 Type:Keywords;
 Condition Expression:$event.annotations.condition_expression;
 Current Value:$event.annotations.current_value;
 Frequency:$event.annotations.frequency;
 Log Group/Stream Name:$event.annotations.results[0].resource_id;
 Query Time:$event.annotations.results[0].time;
-Query URL:<a href="$event.annotations.results[0].url ">details</a>;
+Query URL:<a href="$event.annotations.results[0].url">details</a>;
 EOF
   }
 
   templates {
     sub_type = "email"
     content  = <<EOF
-Account:$\{domain_name};
-Alarm Rules:<a href="$event.annotations.alarm_rule_url ">$\{event_name}</a>;
+Account:$${domain_name};
+Alarm Rules:<a href="$event.annotations.alarm_rule_url">$${event_name}</a>;
 Alarm Status:$event.annotations.alarm_status;
-Severity:<span style="color: red">$\{event_severity}</span>;
-Occurred:$\{starts_at};
+Severity:<span style="color: red">$${event_severity}</span>;
+Occurred:$${starts_at};
 Type:Keywords;
 Condition Expression:$event.annotations.condition_expression;
 Current Value:$event.annotations.current_value;
 Frequency:$event.annotations.frequency;
 Log Group/Stream Name:$event.annotations.results[0].resource_id;
 Query Time:$event.annotations.results[0].time;
-Query URL:<a href="$event.annotations.results[0].url ">details</a>;
+Query URL:<a href="$event.annotations.results[0].url">details</a>;
 EOF
   }
 }
