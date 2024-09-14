@@ -76,7 +76,7 @@ resource "huaweicloud_dms_rabbitmq_exchange" "test" {
 `, testRabbitmqVhost_basic(rName), rName)
 }
 
-func TestAccRabbitmqExchange_slash(t *testing.T) {
+func TestAccRabbitmqExchange_special_charcters(t *testing.T) {
 	var obj interface{}
 	resourceName := "huaweicloud_dms_rabbitmq_exchange.test"
 	rc := acceptance.InitResourceCheck(
@@ -91,11 +91,11 @@ func TestAccRabbitmqExchange_slash(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRabbitmqExchange_slash(),
+				Config: testRabbitmqExchange_special_charcters(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", "/test/Exchange"),
-					resource.TestCheckResourceAttr(resourceName, "vhost", "__F_SLASH__test__F_SLASH__Vhost"),
+					resource.TestCheckResourceAttr(resourceName, "name", "/test%Exchange|-_"),
+					resource.TestCheckResourceAttr(resourceName, "vhost", "__F_SLASH__test%25Vhost%7C-_"),
 				),
 			},
 			{
@@ -108,7 +108,7 @@ func TestAccRabbitmqExchange_slash(t *testing.T) {
 	})
 }
 
-func testRabbitmqExchange_slash() string {
+func testRabbitmqExchange_special_charcters() string {
 	return fmt.Sprintf(`
 %s
 
@@ -116,12 +116,12 @@ resource "huaweicloud_dms_rabbitmq_exchange" "test" {
   depends_on = [huaweicloud_dms_rabbitmq_vhost.test]
 
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
-  vhost       = "__F_SLASH__test__F_SLASH__Vhost"
-  name        = "/test/Exchange"
+  vhost       = urlencode(replace(huaweicloud_dms_rabbitmq_vhost.test.name, "/", "__F_SLASH__"))
+  name        = "/test%%Exchange|-_"
   type        = "direct"
   auto_delete = false
 }
-`, testRabbitmqVhost_slash())
+`, testRabbitmqVhost_special_charcters())
 }
 
 func testAccResourceExchangeOrQueueImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {

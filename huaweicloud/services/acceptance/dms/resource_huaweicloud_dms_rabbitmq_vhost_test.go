@@ -64,7 +64,7 @@ resource "huaweicloud_dms_rabbitmq_vhost" "test" {
 `, testAccDmsRabbitmqInstance_basic(rName), rName)
 }
 
-func TestAccRabbitmqVhost_slash(t *testing.T) {
+func TestAccRabbitmqVhost_special_charcters(t *testing.T) {
 	var obj interface{}
 	resourceName := "huaweicloud_dms_rabbitmq_vhost.test"
 	rc := acceptance.InitResourceCheck(
@@ -79,10 +79,10 @@ func TestAccRabbitmqVhost_slash(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRabbitmqVhost_slash(),
+				Config: testRabbitmqVhost_special_charcters(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", "/test/Vhost"),
+					resource.TestCheckResourceAttr(resourceName, "name", "/test%Vhost|-_"),
 				),
 			},
 			{
@@ -95,14 +95,14 @@ func TestAccRabbitmqVhost_slash(t *testing.T) {
 	})
 }
 
-func testRabbitmqVhost_slash() string {
+func testRabbitmqVhost_special_charcters() string {
 	rNameWithDash := acceptance.RandomAccResourceNameWithDash()
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_dms_rabbitmq_vhost" "test" {
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
-  name        = "/test/Vhost"
+  name        = "/test%%Vhost|-_"
 }
 `, testAccDmsRabbitmqInstance_basic(rNameWithDash))
 }
