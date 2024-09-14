@@ -68,6 +68,20 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the VPC endpoint service.
 
+* `tcp_proxy` - (Optional, String) Specifies whether to transfer client information (such as source IP address,
+  source port number and packet ID) to the server.
+  The valid values are as follows:
+  + **close**: Neither **TCP TOA** nor **Proxy Protocol** information is carried. Default value.
+  + **toa_open**: **TCP TOA** information is carried.
+  + **proxy_open**: **Proxy Protocol** information is carried.
+  + **open**: Both **TCP TOA** and **Proxy Protocol** information are carried.
+
+  -> 1.**TCP TOA**: The client information is placed into the `tcp option` field and sent to the server.
+    This type is available only when the backend resource is an OBS resource.
+  <br/>2.**Proxy Protocol**: The client information is placed into the `tcp payload` field and sent to the server.
+
+  -> This parameter is available only when the server can parse the `tcp option` and `tcp payload` fields.
+
 * `enable_policy` - (Optional, Bool, ForceNew) Specifies whether the VPC endpoint policy is enabled. Defaults to **false**.
   Changing this creates a new VPC endpoint service resource.
 

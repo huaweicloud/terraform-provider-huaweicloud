@@ -97,6 +97,8 @@ type UpdateOpts struct {
 	VipPortID string `json:"vip_port_id,omitempty"`
 	// Specifies the description
 	Description *string `json:"description,omitempty"`
+	// Specifies whether the client IP address and port number or marker_id information is transmitted to the server.
+	TCPProxy string `json:"tcp_proxy,omitempty"`
 }
 
 // ToServiceUpdateMap builds an update body based on UpdateOpts.
