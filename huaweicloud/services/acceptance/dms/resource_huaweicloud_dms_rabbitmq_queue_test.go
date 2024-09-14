@@ -81,7 +81,7 @@ resource "huaweicloud_dms_rabbitmq_queue" "test" {
 `, testRabbitmqVhost_basic(rName), rName)
 }
 
-func TestAccRabbitmqQueue_slash(t *testing.T) {
+func TestAccRabbitmqQueue_special_charcters(t *testing.T) {
 	var obj interface{}
 	resourceName := "huaweicloud_dms_rabbitmq_queue.test"
 	rc := acceptance.InitResourceCheck(
@@ -96,11 +96,11 @@ func TestAccRabbitmqQueue_slash(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRabbitmqQueue_slash(),
+				Config: testRabbitmqQueue_special_charcters(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", "/test/Queue"),
-					resource.TestCheckResourceAttr(resourceName, "vhost", "__F_SLASH__test__F_SLASH__Vhost"),
+					resource.TestCheckResourceAttr(resourceName, "name", "/test%Queue|-_"),
+					resource.TestCheckResourceAttr(resourceName, "vhost", "__F_SLASH__test%25Vhost%7C-_"),
 					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_dms_rabbitmq_instance.test", "id"),
 				),
 			},
@@ -114,7 +114,7 @@ func TestAccRabbitmqQueue_slash(t *testing.T) {
 	})
 }
 
-func testRabbitmqQueue_slash() string {
+func testRabbitmqQueue_special_charcters() string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -122,10 +122,10 @@ resource "huaweicloud_dms_rabbitmq_queue" "test" {
   depends_on = [huaweicloud_dms_rabbitmq_vhost.test]
 
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
-  vhost       = "__F_SLASH__test__F_SLASH__Vhost"
-  name        = "/test/Queue"
+  vhost       = urlencode(replace(huaweicloud_dms_rabbitmq_vhost.test.name, "/", "__F_SLASH__"))
+  name        = "/test%%Queue|-_"
   auto_delete = false
   durable     = true
 }
-`, testRabbitmqVhost_slash())
+`, testRabbitmqVhost_special_charcters())
 }

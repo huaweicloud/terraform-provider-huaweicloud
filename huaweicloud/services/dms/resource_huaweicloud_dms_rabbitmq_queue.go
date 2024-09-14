@@ -3,6 +3,7 @@ package dms
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -278,11 +279,12 @@ func GetRabbitmqQueue(client *golangsdk.ServiceClient, instanceID, vhost, name s
 	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceID)
 	getPath = strings.ReplaceAll(getPath, "{vhost}", vhost)
 
+	// queue name may have % or |
 	if strings.Contains(name, "/") {
 		replacedName := strings.ReplaceAll(name, "/", "__F_SLASH__")
-		getPath = strings.ReplaceAll(getPath, "{queue}", replacedName)
+		getPath = strings.ReplaceAll(getPath, "{queue}", url.PathEscape(replacedName))
 	} else {
-		getPath = strings.ReplaceAll(getPath, "{queue}", name)
+		getPath = strings.ReplaceAll(getPath, "{queue}", url.PathEscape(name))
 	}
 
 	getOpt := golangsdk.RequestOpts{
