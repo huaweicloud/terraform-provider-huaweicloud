@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -101,11 +100,11 @@ func resourceAccessAnalyzerCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createAnalyzerRespBody)
-	if err != nil {
+	id := utils.PathSearch("id", createAnalyzerRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating access analyzer: id is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceAccessAnalyzerRead(ctx, d, meta)
 }
@@ -143,8 +142,8 @@ func resourceAccessAnalyzerRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	analyzer, err := jmespath.Search("analyzer", getAnalyzerRespBody)
-	if err != nil {
+	analyzer := utils.PathSearch("analyzer", getAnalyzerRespBody, nil)
+	if analyzer == nil {
 		return diag.Errorf("error getting access analyzer: analyzer is not found in API response")
 	}
 

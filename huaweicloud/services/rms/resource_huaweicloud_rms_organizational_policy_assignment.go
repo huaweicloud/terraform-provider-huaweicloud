@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -273,11 +272,11 @@ func resourceOrganizationalPolicyAssignmentCreateOrUpdate(ctx context.Context, d
 	waitTimeout := d.Timeout(schema.TimeoutUpdate)
 
 	if d.IsNewResource() {
-		id, err := jmespath.Search("organization_policy_assignment_id", createOrgPolicyAssignmentRespBody)
-		if err != nil {
+		id := utils.PathSearch("organization_policy_assignment_id", createOrgPolicyAssignmentRespBody, "").(string)
+		if id == "" {
 			return diag.Errorf("error creating RMS assignment package: ID is not found in API response")
 		}
-		d.SetId(id.(string))
+		d.SetId(id)
 
 		waitTimeout = d.Timeout(schema.TimeoutCreate)
 	}

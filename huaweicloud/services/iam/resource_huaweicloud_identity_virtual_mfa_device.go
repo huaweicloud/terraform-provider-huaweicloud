@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -83,18 +82,18 @@ func resourceMFACreate(_ context.Context, d *schema.ResourceData, meta interface
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("virtual_mfa_device.serial_number", createMFARespBody)
-	if err != nil {
+	id := utils.PathSearch("virtual_mfa_device.serial_number", createMFARespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating IAM virtual MFA device: serial_number is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	// Base32StringSeed and QRCodePNG must be set here, because they are not available via ShowUserMFADevice
-	seed, err := jmespath.Search("virtual_mfa_device.base32_string_seed", createMFARespBody)
-	if err != nil {
+	seed := utils.PathSearch("virtual_mfa_device.base32_string_seed", createMFARespBody, "").(string)
+	if seed == "" {
 		return diag.Errorf("error creating IAM virtual MFA device: base32_string_seed is not found in API response")
 	}
-	d.Set("base32_string_seed", seed.(string))
+	d.Set("base32_string_seed", seed)
 
 	// Get domain name and user name combine with `base32_string_seed` to form `qr_code_png`.
 	domainName, err := getDomainName(client)
@@ -126,11 +125,11 @@ func getDomainName(client *golangsdk.ServiceClient) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	domainName, err := jmespath.Search("domains[0].name", getDomainNameRespBody)
-	if err != nil {
+	domainName := utils.PathSearch("domains[0].name", getDomainNameRespBody, "").(string)
+	if domainName == "" {
 		return "", fmt.Errorf("error getting IAM domain name: name is not found in API response")
 	}
-	return domainName.(string), nil
+	return domainName, nil
 }
 
 func getUserName(client *golangsdk.ServiceClient, userID string) (string, error) {
@@ -148,11 +147,11 @@ func getUserName(client *golangsdk.ServiceClient, userID string) (string, error)
 	if err != nil {
 		return "", err
 	}
-	userName, err := jmespath.Search("user.name", getUserNameRespBody)
-	if err != nil {
+	userName := utils.PathSearch("user.name", getUserNameRespBody, "").(string)
+	if userName == "nil" {
 		return "", fmt.Errorf("error getting IAM user name: name is not found in API response")
 	}
-	return userName.(string), nil
+	return userName, nil
 }
 
 func resourceMFARead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -179,14 +178,14 @@ func resourceMFARead(_ context.Context, d *schema.ResourceData, meta interface{}
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("virtual_mfa_device.serial_number", getMFARespBody)
-	if err != nil {
+	id := utils.PathSearch("virtual_mfa_device.serial_number", getMFARespBody, "").(string)
+	if id == "nil" {
 		return diag.Errorf("error getting IAM virtual MFA device: serial_number is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
-	index := strings.LastIndex(id.(string), ":mfa/") + len(":mfa/")
-	d.Set("name", id.(string)[index:])
+	index := strings.LastIndex(id, ":mfa/") + len(":mfa/")
+	d.Set("name", id[index:])
 
 	return nil
 }

@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -94,12 +93,12 @@ func resourceAggregationAuthCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("authorized_account_id", createAggregationAuthRespBody)
-	if err != nil {
+	id := utils.PathSearch("authorized_account_id", createAggregationAuthRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating aggregation authorization: ID is not found in API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(id)
 	return resourceAggregationAuthRead(ctx, d, meta)
 }
 

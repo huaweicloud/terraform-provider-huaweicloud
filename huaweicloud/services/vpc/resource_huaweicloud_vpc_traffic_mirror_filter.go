@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -101,11 +100,11 @@ func resourceTrafficMirrorFilterCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("traffic_mirror_filter.id", createTrafficMirrorFilterRespBody)
-	if err != nil {
+	id := utils.PathSearch("traffic_mirror_filter.id", createTrafficMirrorFilterRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating traffic mirror filter: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceTrafficMirrorFilterRead(ctx, d, meta)
 }

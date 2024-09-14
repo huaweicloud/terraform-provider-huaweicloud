@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -197,29 +196,29 @@ func resourceNetworkAclCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("firewall.id", createNetworkAclRespBody)
-	if err != nil || id == nil {
+	id := utils.PathSearch("firewall.id", createNetworkAclRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("unable to find ID in API response: %s", err)
 	}
 
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	if v, ok := d.GetOk("ingress_rules"); ok {
-		err = networkAclInsertRules(client, v.([]interface{}), "ingress_rules", id.(string))
+		err = networkAclInsertRules(client, v.([]interface{}), "ingress_rules", id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if v, ok := d.GetOk("egress_rules"); ok {
-		err = networkAclInsertRules(client, v.([]interface{}), "egress_rules", id.(string))
+		err = networkAclInsertRules(client, v.([]interface{}), "egress_rules", id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if v, ok := d.GetOk("associated_subnets"); ok {
-		err = networkAclAssociatSubnets(client, v.(*schema.Set).List(), id.(string))
+		err = networkAclAssociatSubnets(client, v.(*schema.Set).List(), id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -228,7 +227,7 @@ func resourceNetworkAclCreate(ctx context.Context, d *schema.ResourceData, meta 
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		err := doTagsAction(client, tagRaw, id.(string), "create")
+		err := doTagsAction(client, tagRaw, id, "create")
 		if err != nil {
 			return diag.FromErr(err)
 		}

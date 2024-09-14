@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -171,11 +170,11 @@ func resourceOrgAssignmentPackageCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("org_conformance_pack_id", createOrgAssignmentPackageRespBody)
-	if err != nil {
+	id := utils.PathSearch("org_conformance_pack_id", createOrgAssignmentPackageRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating RMS organizational assignment package: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"CREATE_SUCCESSFUL", "ROLLBACK_SUCCESSFUL"},
@@ -188,7 +187,7 @@ func resourceOrgAssignmentPackageCreate(ctx context.Context, d *schema.ResourceD
 
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
 		return diag.Errorf("error waiting for RMS organizational assignment Package (%s) to be created: %s",
-			id.(string), err)
+			id, err)
 	}
 
 	return resourceOrgAssignmentPackageRead(ctx, d, meta)
