@@ -31,7 +31,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) The name of a datasource connection.  
-  The name can contain 1 to 64 characters, only letters, digits and underscore (_) are allowed.
+  The name can contain `1` to `64` characters, only letters, digits and underscores (_) are allowed.
 
   Changing this parameter will create a new resource.
 
@@ -63,14 +63,17 @@ The [Route](#datasourceConnection_Route) structure is documented below.
 <a name="datasourceConnection_Host"></a>
 The `Host` block supports:
 
-* `name` - (Required, String) The user-defined host name.
+* `name` - (Required, String) The user-defined host name.  
+  The valid length is limited from `1` to `128`, only letters, digits, hyphens (-) and underscores (_) are allowed.
+  And the name must be start with a letter.
 
 * `ip` - (Required, String) IPv4 address of the host.
 
 <a name="datasourceConnection_Route"></a>
 The `Route` block supports:
 
-* `name` - (Required, String) The route Name.
+* `name` - (Required, String) The route name.  
+  The valid length is limited from `1` to `64`.
 
 * `cidr` - (Required, String) The CIDR of the route.
 

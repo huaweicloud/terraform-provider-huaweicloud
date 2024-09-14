@@ -62,9 +62,8 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"records": {
 				Type:     schema.TypeList,
@@ -73,10 +72,9 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 				MinItems: 1,
 			},
 			"ttl": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      300,
-				ValidateFunc: validation.IntBetween(1, 2147483647),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  300,
 			},
 			"type": {
 				Type:     schema.TypeString,

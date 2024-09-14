@@ -68,10 +68,10 @@ The following arguments are supported:
 * `type` - (Optional, String) Specifies the mirror source type. The value can be **eni**(elastic network interface).
 
 * `virtual_network_id` - (Optional, Int) Specifies the VNI, which is used to distinguish mirrored traffic of
-  different sessions. The value range is **0-16777215**, defaults to **1**.
+  different sessions. The valid value is range from `0` to `16,777,215`, defaults to `1`.
 
 * `packet_length` - (Optional, Int) Specifies the maximum transmission unit (MTU).
-  The value range is **1-1460**, defaults to **96**.
+ The valid value is range from `1` to `1,460`, defaults to `96`.
 
 ## Attribute Reference
 

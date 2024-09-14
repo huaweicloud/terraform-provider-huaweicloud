@@ -2,7 +2,6 @@ package dms
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -49,11 +48,6 @@ func ResourceDmsRocketMQTopic() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the name of the topic.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z|%-_0-9]*$`),
-						"the input is invalid"),
-					validation.StringLenBetween(3, 64),
-				),
 			},
 			"message_type": {
 				Type:        schema.TypeString,
@@ -71,12 +65,11 @@ func ResourceDmsRocketMQTopic() *schema.Resource {
 				Description: "Specifies the list of associated brokers of the topic.",
 			},
 			"queue_num": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				Description:  `Specifies the number of queues.`,
-				ValidateFunc: validation.IntBetween(1, 50),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Specifies the number of queues.`,
 			},
 			"queues": {
 				Type:        schema.TypeList,

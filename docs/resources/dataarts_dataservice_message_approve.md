@@ -63,11 +63,11 @@ The following arguments are supported:
   + **0**: Immediate approval.
   + **1**: Regular approval.
 
-  Defaults to **0**. Changing this parameter will create a new resource.
+  Defaults to `0`. Changing this parameter will create a new resource.
 
 * `time` - (Optional, String, ForceNew) Specifies the regular approval time.  
   The format is `YYYY-MM-DDThh:mm:ss.000Z`.  
-  Required if the value of the parameter `action` is **1**.  
+  Required if the value of the parameter `action` is `1`.  
   Changing this parameter will create a new resource.
 
 ## Attribute Reference

@@ -61,8 +61,10 @@ The `workspaces` block supports:
 
 * `member_num` - The member num of the workspace.
 
-* `is_default` - Indicates the workspace is default sapce or not. **0** means private space, **1** means default space
-  and **2** means public space.
+* `is_default` - Indicates the workspace is default sapce or not.
+  + **0** means private space.
+  + **1** means default space.
+  + **2** means public space.
 
 * `created_at` - The create time of the workspace.
 

@@ -51,12 +51,12 @@ Changing this parameter will create a new resource.
 * `video_encoding` - (Required, String) Specifies the video codec. The valid values are **H264** and **H265**.
 
 * `templates` - (Required, List) Specifies the video quality templates.
-The [object](#templates_resource) structure is documented below. A maximum of 4 templates can be added.
+The [object](#templates_resource) structure is documented below. A maximum of `4` templates can be added.
 For resolution and bitrate settings in the presets,
 please refer to the [document](https://support.huaweicloud.com/intl/en-us/usermanual-live/live01000802.html).
 
 * `low_bitrate_hd` - (Optional, Bool) Specifies whether to enable low bitrate HD rates. If enabled
-the output media will have a lower bitrate with the same image quality. Defaults to `false`.
+the output media will have a lower bitrate with the same image quality. Defaults to **false**.
 
 <a name="templates_resource"></a>
 The `templates` block supports:
@@ -65,16 +65,16 @@ The `templates` block supports:
 contains letters, digits and hyphens (-).
 
 * `width` - (Required, Int) Specifies video width (unit: pixel).
-  + **When the video encoding is H264**, value range: 32 ~ 3840 and must be a multiple of 2.
-  + **When the video encoding is H265**, value range: 320 ~ 3840 and must be a multiple of 4.
+  + **When the video encoding is H264**, value range: `32` ~ `3,840` and must be a multiple of `2`.
+  + **When the video encoding is H265**, value range: `320` ~ `3,840` and must be a multiple of `4`.
 
 * `height` - (Required, Int) Specifies video height (unit: pixel).
-  + **When the video encoding is H264**, value range: 32 ~ 2160 and must be a multiple of 2.
-  + **When the video encoding is H265**, value range: 240 ~ 2160 and must be a multiple of 4.
+  + **When the video encoding is H264**, value range: 32 ~ 2160 and must be a multiple of `2`.
+  + **When the video encoding is H265**, value range: 240 ~ 2160 and must be a multiple of `4`.
 
-* `bitrate` - (Required, Int) Specifies the bitrate of a transcoded video, in kbit/s. Value range: 40 ~ 30000.
+* `bitrate` - (Required, Int) Specifies the bitrate of a transcoded video, in kbit/s. Value range: `40` ~ `30,000`.
 
-* `frame_rate` - (Optional, Int) Specifies the frame rate of the transcoded video, in fps. Value range: 0 ~ 30.
+* `frame_rate` - (Optional, Int) Specifies the frame rate of the transcoded video, in fps. Value range: `0` ~ `30`.
 Value 0 indicates that the frame rate remains unchanged.
 
 ## Attribute Reference

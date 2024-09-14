@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -40,11 +39,6 @@ func ResourceRepoPwdAuth() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\w.-]*$`),
-						"The name can only contain letters, digits, underscores (_), hyphens (-) and dots (.)."),
-					validation.StringLenBetween(4, 63),
-				),
 			},
 			"type": {
 				Type:     schema.TypeString,

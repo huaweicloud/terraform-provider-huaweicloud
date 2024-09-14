@@ -126,16 +126,16 @@ The following arguments are supported:
 
 -> Exactly one of account authorization and application authorization you must select.
 
-* `name` - (Required, String) Specifies the user name. The value can contain **1** to **64** characters.
+* `name` - (Required, String) Specifies the user name. The value can contain `1` to `64` characters.
 
 * `password` - (Required, String) Specifies the user password.
   The following conditions must be met:
-  + **8** to **32** characters
+  + `8` to `32` characters.
   + It cannot be consistent with the positive and reverse order of the `account` parameter.
   + Contains at least two character types: lowercase letters, uppercase letters, numbers, special characters
     (**`~!@#$%^&*()-_=+|[{}];:",'<.>/?**).
 
-* `account` - (Optional, String, ForceNew) Specifies the user account. The value can contain **1** to **64** characters.
+* `account` - (Optional, String, ForceNew) Specifies the user account. The value can contain `1` to `64` characters.
   If omitted, the service will automatically generate a value.
   Changing this parameter will create a new resource.
 
@@ -143,11 +143,11 @@ The following arguments are supported:
 
 * `department_code` - (Optional, String) Specifies the department code. Defaults to **1** (Root department).
 
-* `description` - (Optional, String) Specifies the description. The value can contain **0** to **128** characters.
+* `description` - (Optional, String) Specifies the description. The value can contain `0` to `128` characters.
 
 * `email` - (Optional, String) Specifies the email address.
 
-* `english_name` - (Optional, String) Specifies the english name. The value can contain **0** to **64** characters.
+* `english_name` - (Optional, String) Specifies the english name. The value can contain `0` to `64` characters.
 
 * `country` - (Optional, String) Specifies the country to which the phone number belongs to.
 
@@ -159,19 +159,19 @@ The following arguments are supported:
 * `is_send_notify` - (Optional, Bool) Specifies whether to send email and SMS notifications for account opening.
   Defaults to **true**.
 
-* `signature` - (Optional, String) Specifies the signature. The value can contain **0** to **512** characters.
+* `signature` - (Optional, String) Specifies the signature. The value can contain `0` to `512` characters.
 
 * `status` - (Optional, Int) Specifies the status. The valid values are as follows:
   + **0**: Normal.
   + **1**: Disable.
 
-  Defaults to **0**.
+  Defaults to `0`.
 
-* `title` - (Optional, String) Specifies the title name. The value can contain **0** to **32** characters.
+* `title` - (Optional, String) Specifies the title name. The value can contain `0` to `32` characters.
 
 * `sort_level` - (Optional, Int) Specifies the address book sorting level.
   The lower the serial number, the higher the priority.
-  The valid value is range from **1** to **10000**. Defaults to **10000**.
+  The valid value is range from `1` to `10,000`. Defaults to `10,000`.
 
 * `is_admin` - (Optional, Bool) Specifies whether to send email and SMS notifications for account opening.
   Defaults to **true**.

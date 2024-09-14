@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -318,8 +317,6 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\-?\d+$`),
-					`invalid value of maximum instance number, want an integer number or integer string.`),
 			},
 			"versions": {
 				Type:     schema.TypeSet,

@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/agency"
@@ -63,15 +62,11 @@ func ResourceIAMAgencyV3() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ExactlyOneOf: []string{"delegated_service_name"},
-				ValidateFunc: validation.StringDoesNotMatch(regexp.MustCompile("^op_svc_[A-Za-z]+"),
-					"the value can not start with op_svc_, use `delegated_service_name` instead"),
-				Description: "schema: Required",
+				Description:  "schema: Required",
 			},
 			"delegated_service_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^op_svc_[A-Za-z]+"),
-					"the value must start with op_svc_."),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "schema: Internal",
 			},
 			"description": {

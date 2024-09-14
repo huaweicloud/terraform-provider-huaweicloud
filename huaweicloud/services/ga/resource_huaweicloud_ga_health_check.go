@@ -8,7 +8,6 @@ package ga
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -62,35 +61,26 @@ func ResourceHealthCheck() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the endpoint group ID.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 36),
-				),
 			},
 			"interval": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the health check interval, in seconds.`,
-				ValidateFunc: validation.IntBetween(1, 60),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the health check interval, in seconds.`,
 			},
 			"max_retries": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the maximum number of retries.`,
-				ValidateFunc: validation.IntBetween(1, 10),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the maximum number of retries.`,
 			},
 			"port": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the port used for the health check.`,
-				ValidateFunc: validation.IntBetween(1, 65535),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the port used for the health check.`,
 			},
 			"timeout": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the timeout duration of the health check, in seconds.`,
-				ValidateFunc: validation.IntBetween(1, 60),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the timeout duration of the health check, in seconds.`,
 			},
 			"protocol": {
 				Type:        schema.TypeString,

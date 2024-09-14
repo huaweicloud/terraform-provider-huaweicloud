@@ -44,12 +44,6 @@ func ResourceMicroservice() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9]([\w-.]*[A-Za-z0-9])?$`),
-						"The name must start and end with a letter or a digit, and can only contain letters, digits, "+
-							"underscore (_), hyphens (-) and dots (.)."),
-					validation.StringLenBetween(1, 128),
-				),
 			},
 			"app_name": {
 				Type:     schema.TypeString,
@@ -78,10 +72,9 @@ func ResourceMicroservice() *schema.Resource {
 				}, false),
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringLenBetween(0, 256),
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"admin_user": {
 				Type:     schema.TypeString,

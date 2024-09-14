@@ -108,8 +108,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the IoTDA product resource.
 If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the product name. The name contains a maximum of 64 characters. Only letters,
-Chinese characters, digits, hyphens (-), underscores (_) and the following special characters are allowed: `?'#().,&%@!`.
+* `name` - (Required, String) Specifies the product name. The name contains a maximum of `64` characters.  
+Only English letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters are
+allowed: `?'#().,&%@!`.
 
 * `protocol` - (Required, String) Specifies the protocol.
 The valid values are **MQTT**, **CoAP**, **HTTP**, **HTTPS**, **Modbus**, **ONVIF**, **OPC-UA**, **OPC-DA**, **Other**.
@@ -117,26 +118,27 @@ The valid values are **MQTT**, **CoAP**, **HTTP**, **HTTPS**, **Modbus**, **ONVI
 * `data_type` - (Required, String) Specifies the type of data.
 The valid values are **json** and **binary**.
 
-* `device_type` - (Required, String) Specifies the device type. The device type contains a maximum of 32 characters.
+* `device_type` - (Required, String) Specifies the device type. The device type contains a maximum of `32` characters.
 Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters
 are allowed: `?'#().,&%@!`. Example: StreetLight, GasMeter, or WaterMeter.
 
 * `services` - (Required, List) Specifies the list of services.
 The [services](#IoTDA_service) structure is documented below.
 
-* `manufacturer_name` - (Optional, String) Specifies the manufacturer name. The name contains a maximum of 32 characters.
+* `manufacturer_name` - (Optional, String) Specifies the manufacturer name.
+The name contains a maximum of `32` characters.
 Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special
 characters are allowed: `?'#().,&%@!`.
 
 * `industry` - (Optional, String) Specifies the industry which the device belongs to. The industry contains a maximum of
-64 characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and
+`64` characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and
 the following special characters are allowed: `?'#().,&%@!`.
 
-* `description` - (Optional, String) Specifies the description of product. The description contains a maximum of 128
+* `description` - (Optional, String) Specifies the description of product. The description contains a maximum of `128`
 characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters
 are allowed: `?'#().,&%@!`.
 
-* `product_id` - (Optional, String, ForceNew) Specifies the product ID. The product ID contains a maximum of 32
+* `product_id` - (Optional, String, ForceNew) Specifies the product ID. The product ID contains a maximum of `32`
 characters. Only letters, digits, hyphens (-) and underscores (_) are allowed. If omitted, the platform will
 automatically allocate a product ID. Changing this parameter will create a new resource.
 
@@ -146,14 +148,14 @@ the product will belong to the default resource space. Changing this parameter w
 <a name="IoTDA_service"></a>
 The `services` block supports:
 
-* `id` - (Required, String) Specifies the service ID. The ID contains a maximum of 64 characters. Only letters,
+* `id` - (Required, String) Specifies the service ID. The ID contains a maximum of `64` characters. Only letters,
 Chinese characters, digits, hyphens (-), underscores (_) and the following special characters are allowed: `?'#().,&%@!`.
 
-* `type` - (Optional, String) Specifies the service type. The type contains a maximum of 64 characters. Only letters,
+* `type` - (Optional, String) Specifies the service type. The type contains a maximum of `64` characters. Only letters,
 Chinese characters, digits, hyphens (-), underscores (_) and the following special characters are allowed: `?'#().,&%@!`.
 The default value is equal to service ID.
 
-* `description` - (Optional, String) Specifies description of service. The description contains a maximum of 128
+* `description` - (Optional, String) Specifies description of service. The description contains a maximum of `128`
 characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special
 characters are allowed: `?'#().,&%@!`.
 
@@ -166,7 +168,7 @@ The [commands](#IoTDA_service_commands) structure is documented below.
 <a name="IoTDA_service_properties"></a>
 The `properties` block supports:
 
-* `name` - (Required, String) Specifies the name of the parameter. The name contains a maximum of 64 characters.
+* `name` - (Required, String) Specifies the name of the parameter. The name contains a maximum of `64` characters.
 Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters are
 allowed: `?'#().,&%@!`.
 
@@ -177,7 +179,7 @@ The valid values are **int**, **decimal**, **string**, **DateTime**, **jsonObjec
   Options: **RW**, **W**, **R**.
 
 * `description` - (Optional, String) Specifies the description of the parameter. The description contains a maximum of
-128 characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special
+`128` characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special
 characters are allowed: `?'#().,&%@!`.
 
 * `min` - (Optional, String) Specifies the min value of the parameter when the `type` is **int** or **decimal**.
@@ -187,20 +189,20 @@ Value range: -2147483647 ~ 2147483647. Defaults to **"0"**.
 Value range: -2147483647 ~ 2147483647. Defaults to **"65535"**.
 
 * `step` - (Optional, Float) Specifies the step of the parameter when the `type` is **int** or **decimal**.
-Value range: 0 ~ 2147483647. Defaults to **0**.
+Value range: `0` ~ `2,147,483,647`. Defaults to `0`.
 
 * `unit` - (Optional, String) Specifies the unit of the parameter when the `type` is **int** or **decimal**.
 The unit contains a maximum of 16 characters.
 
 * `max_length` - (Optional, Int) Specifies the max length of the parameter when the `type` is **string**, **DateTime**,
-**jsonObject** or **string list**. Value range: 0 ~ 2147483647. Defaults to **0**.
+**jsonObject** or **string list**. Value range: `0` ~ `2,147,483,647`. Defaults to `0`.
 
 * `enum_list` - (Optional, List) Specifies the list of enumerated values of the device property.
 
 <a name="IoTDA_service_commands"></a>
 The `commands` block supports:
 
-* `name` - (Required, String) Specifies the name of the command. The name contains a maximum of 64 characters.
+* `name` - (Required, String) Specifies the name of the command. The name contains a maximum of `64` characters.
 Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters
 are allowed: `?'#().,&%@!`.
 
@@ -213,7 +215,7 @@ The [responses](#IoTDA_service_commands_properties) structure is documented belo
 <a name="IoTDA_service_commands_properties"></a>
 The `paras` and `responses` block supports:
 
-* `name` - (Required, String) Specifies the name of the parameter. The name contains a maximum of 64 characters.
+* `name` - (Required, String) Specifies the name of the parameter. The name contains a maximum of `64` characters.
 Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters are
 allowed: `?'#().,&%@!`.
 
@@ -221,7 +223,7 @@ allowed: `?'#().,&%@!`.
 The valid values are **int**, **decimal**, **string**, **DateTime**, **jsonObject** and **string list**.
 
 * `description` - (Optional, String) Specifies the description of the parameter. The description contains a maximum of
-128 characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special
+`128` characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special
 characters are allowed: `?'#().,&%@!`.
 
 * `min` - (Optional, String) Specifies the min value of the parameter when the `type` is **int** or **decimal**.
@@ -231,13 +233,13 @@ Value range: -2147483647 ~ 2147483647. Defaults to **"0"**.
 Value range: -2147483647 ~ 2147483647. Defaults to **"65535"**.
 
 * `step` - (Optional, Float) Specifies the step of the parameter when the `type` is **int** or **decimal**.
-Value range: 0 ~ 2147483647. Defaults to **0**.
+Value range: `0` ~ `2,147,483,647`. Defaults to `0`.
 
 * `unit` - (Optional, String) Specifies the unit of the parameter when the `type` is **int** or **decimal**.
 The unit contains a maximum of 16 characters.
 
 * `max_length` - (Optional, Int) Specifies the max length of the parameter when the `type` is **string**, **DateTime**,
-**jsonObject** or **string list**. Value range: 0 ~ 2147483647. Defaults to **0**.
+**jsonObject** or **string list**. Value range: `0` ~ `2,147,483,647`. Defaults to `0`.
 
 * `enum_list` - (Optional, List) Specifies the list of enumerated values of the parameter.
 

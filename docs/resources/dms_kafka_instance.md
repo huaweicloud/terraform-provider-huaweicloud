@@ -278,7 +278,7 @@ In addition to all arguments above, the following attributes are exported:
 * `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
 * `charging_mode` - Indicates the charging mode of the instance.
 * `public_ip_address` - Indicates the public IP addresses list of the instance.
-* `extend_times` - Indicates the extend times. If the value exceeds **20**, disk expansion is no longer allowed.
+* `extend_times` - Indicates the extend times. If the value exceeds `20`, disk expansion is no longer allowed.
 * `connector_id` - Indicates the connector ID.
 * `connector_node_num` - Indicates the number of connector node.
 * `storage_resource_id` - Indicates the storage resource ID.

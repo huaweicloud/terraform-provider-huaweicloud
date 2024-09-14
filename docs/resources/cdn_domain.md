@@ -259,16 +259,16 @@ The `sources` block supports:
   + **1**: Primary.
   + **0**: Standby.
 
-  Defaults to **1**.
+  Defaults to `1`.
 
 * `obs_web_hosting_enabled` - (Optional, Bool) Specifies whether to enable static website hosting for the OBS bucket.
   This parameter is valid only when the `origin_type` is set to **obs_bucket**. Defaults to **false**.
 
-* `http_port` - (Optional, Int) Specifies the HTTP port. The port number ranges from `1` to `65535`.
-  Defaults to **80**.
+* `http_port` - (Optional, Int) Specifies the HTTP port. The port number ranges from `1` to `65,535`.
+  Defaults to `80`.
 
-* `https_port` - (Optional, Int) Specifies the HTTPS port. The port number ranges from `1` to `65535`.
-  Default value: **443**.
+* `https_port` - (Optional, Int) Specifies the HTTPS port. The port number ranges from `1` to `65,535`.
+  Default value: `443`.
 
 -> Fields `http_port` and `https_port` are valid only when `origin_type` is set to **ipaddr** or **domain**.
 
@@ -276,7 +276,7 @@ The `sources` block supports:
   + If `origin_type` is set to **ipaddr** or **domain**, the acceleration domain name will be used by default.
   + If `origin_type` is set to **obs_bucket**, the bucket's domain name will be used by default.
 
-* `weight` - (Optional, Int) Specifies the weight. The value ranges from **1** to **100**. Defaults to **50**.
+* `weight` - (Optional, Int) Specifies the weight. The value ranges from `1` to `100`. Defaults to `50`.
   A larger value indicates a larger number of times that content is pulled from this IP address.
 
   -> If there are multiple origin servers with the same priority, the weight determines the proportion of content pulled
@@ -313,7 +313,7 @@ The `configs` block support:
   Defaults to **on**.
 
 * `origin_receive_timeout` - (Optional, Int) Specifies the origin response timeout.
-  The value ranges from **5** to **60**, in seconds. Defaults to **30**.
+  The value ranges from `5` to `60`, in seconds. Defaults to `30`.
 
 * `origin_follow302_status` - (Optional, String) Specifies whether to enable redirection from the origin.
   Valid values are as follows:
@@ -564,7 +564,7 @@ The `ip_frequency_limit` block support:
 
 * `enabled` - (Required, Bool) Specifies whether to enable IP access frequency.
 
-* `qps` - (Optional, Int) Specifies the access threshold, in times/second. The value ranges from **1** to **100,000**.
+* `qps` - (Optional, Int) Specifies the access threshold, in times/second. The value ranges from `1` to `100,000`.
   This field is required when enable IP access frequency.
 
 <a name="websocket_object"></a>
@@ -573,7 +573,7 @@ The `websocket` block support:
 * `enabled` - (Required, Bool) Specifies whether to enable websocket settings.
 
 * `timeout` - (Optional, Int) Specifies the duration for keeping a connection open, in seconds. The value ranges
-  from **1** to **300**. This field is required when enable websocket settings.
+  from `1` to `300`. This field is required when enable websocket settings.
 
 <a name="flexible_origin_object"></a>
 The `flexible_origin` block support:
@@ -583,8 +583,8 @@ The `flexible_origin` block support:
   + **file_extension**: File name extension.
   + **file_path**: Directory.
 
-* `priority` - (Required, Int) Specifies the priority. The value of this field must be unique. Value ranges from **1**
-  to **100**. A greater number indicates a higher priority.
+* `priority` - (Required, Int) Specifies the priority. The value of this field must be unique. Value ranges from `1`
+  to `100`. A greater number indicates a higher priority.
 
 * `back_sources` - (Required, List) Specifies the back source information. The length of this array field cannot exceed `1`.
   The [back_sources](#flexible_origin_back_sources_object) structure is documented below.
@@ -613,9 +613,9 @@ The `back_sources` block support:
 * `obs_bucket_type` - (Optional, String) Specifies the OBS bucket type. Valid values are **private** and **public**.
   This field is required when `sources_type` is set to **obs_bucket**.
 
-* `http_port` - (Optional, Int) Specifies the HTTP port, ranging from **1** to **65535**. Defaults to **80**.
+* `http_port` - (Optional, Int) Specifies the HTTP port, ranging from `1` to `65,535`. Defaults to **80**.
 
-* `https_port` - (Optional, Int) Specifies the HTTPS port, ranging from **1** to **65535**. Defaults to **443**.
+* `https_port` - (Optional, Int) Specifies the HTTPS port, ranging from `1` to `65,535`. Defaults to **443**.
 
 -> Fields `http_port` and `https_port` do not support editing when `sources_type` is set to **obs_bucket**.
 
@@ -663,8 +663,8 @@ The `remote_auth_rules` block support:
   is failed. Value range: **2xx**, **3xx**, **4xx**, and **5xx**.
 
 * `timeout` - (Required, Int) Specifies the duration from the time when a CDN node forwards an authentication request
-  to the time when the CDN node receives the result returned by the remote authentication server. Enter **0** or a value
-  ranging from **50** to **3000**. The unit is millisecond.
+  to the time when the CDN node receives the result returned by the remote authentication server. Enter `0` or a value
+  ranging from `50` to `3,000`. The unit is millisecond.
 
 * `timeout_action` - (Required, String) Specifies the action of the CDN nodes to process user requests after the
   authentication timeout. Valid values are as follows:
@@ -749,7 +749,7 @@ The `video_seek` block support:
 The `request_limit_rules` block support:
 
 * `priority` - (Required, Int) Specifies the unique priority. A larger value indicates a higher priority.
-  The value ranges from **1** to **100**.
+  The value ranges from `1` to `100`.
 
 * `match_type` - (Required, String) Specifies the match type. The options are **all** (all files) and **catalog** (directory).
 
@@ -757,10 +757,10 @@ The `request_limit_rules` block support:
   This parameter can only be set to **size**.
 
 * `limit_rate_after` - (Required, Int) Specifies the rate limiting condition. Unit: byte.
-  The value ranges from **0** to **1,073,741,824**.
+  The value ranges from `0` to `1,073,741,824`.
 
 * `limit_rate_value` - (Required, Int) Specifies the rate limiting value, in bit/s.
-  The value ranges from **0** to **104,857,600**.
+  The value ranges from `0` to `104,857,600`.
 
 -> The speed is limited to the value of `limit_rate_value` after `limit_rate_after` bytes are transmitted.
 
@@ -773,7 +773,7 @@ The `error_code_cache` block support:
 * `code` - (Required, Int) Specifies the error code. Valid values are: **301**, **302**, **400**, **403**, **404**,
   **405**, **414**, **500**, **501**, **502**, **503**, and **504**.
 
-* `ttl` - (Required, Int) Specifies the error code cache TTL, in seconds. The value ranges from **0** to **31,536,000**.
+* `ttl` - (Required, Int) Specifies the error code cache TTL, in seconds. The value ranges from `0` to `31,536,000`.
 
 <a name="ip_filter_object"></a>
 The `ip_filter` block support:
@@ -794,8 +794,8 @@ The `ip_filter` block support:
 The `origin_request_url_rewrite` block support:
 
 * `priority` - (Required, Int) Specifies the priority of a URL rewrite rule. The priority of a rule is mandatory and
-  must be unique. The rule with the highest priority will be used for matching first. The value ranges from **1** to
-  **100**. A greater number indicates a higher priority.
+  must be unique. The rule with the highest priority will be used for matching first. The value ranges from `1` to
+  `100`. A greater number indicates a higher priority.
 
 * `match_type` - (Required, String) Specifies the match type. Valid values are:
   + **all**: All files.
@@ -839,7 +839,7 @@ The `hsts` block support:
 * `enabled` - (Required, Bool) Specifies whether to enable HSTS settings.
 
 * `max_age` - (Optional, Int) Specifies the expiration time, which means the TTL of the response header
-  `Strict-Transport-Security` on the client. The value ranges from **0** to **63,072,000**. The unit is second.
+  `Strict-Transport-Security` on the client. The value ranges from `0` to `63,072,000`. The unit is second.
   This field is required when enable HSTS settings.
 
 * `include_subdomains` - (Optional, String) Specifies whether subdomain names are included.

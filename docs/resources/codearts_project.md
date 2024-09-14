@@ -26,7 +26,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) The project name.  
-  The name can contain 1 to 128 characters.
+  The name can contain `1` to `128` characters.
 
 * `type` - (Required, String, ForceNew) The type of project.  
   The valid values are **scrum**, **xboard**, **basic**, **phoenix**.

@@ -3,7 +3,6 @@ package servicestage
 import (
 	"context"
 	"fmt"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -42,11 +41,6 @@ func ResourceRepoTokenAuth() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\w.-]*$`),
-						"The name can only contain letters, digits, underscores (_), hyphens (-) and dots (.)."),
-					validation.StringLenBetween(4, 63),
-				),
 			},
 			"type": {
 				Type:     schema.TypeString,

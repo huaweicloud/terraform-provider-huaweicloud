@@ -69,9 +69,8 @@ func ResourceSFSTurbo() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(4, 64),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"size": {
 				Type:     schema.TypeInt,

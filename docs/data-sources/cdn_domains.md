@@ -26,7 +26,7 @@ The following arguments are supported:
 * `domain_id` - (Optional, String) Specifies the ID of accelerate domain.
 
 * `name` - (Optional, String) Specifies the name of accelerate domain, using fuzzy matching.
-  The valid length is limited from **1** to **255**.
+  The valid length is limited from `1` to `255`.
 
 * `type` - (Optional, String) Specifies the business type of accelerate domain.
   The valid values are as follows;

@@ -3,7 +3,6 @@ package iotda
 import (
 	"context"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -15,12 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-const (
-	stringRegxp     = `^[\x{4E00}-\x{9FFC}A-Za-z-_0-9?'#().,&%@!]*$`
-	stringFormatMsg = "Only letters, Chinese characters, digits, hyphens (-), underscores (_) and" +
-		" the following special characters are allowed: ?'#().,&%@!"
 )
 
 // @API IoTDA PUT /v5/iot/{project_id}/products/{product_id}
@@ -48,10 +41,6 @@ func ResourceProduct() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 
 			"protocol": {
@@ -70,10 +59,6 @@ func ResourceProduct() *schema.Resource {
 			"device_type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 32),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 
 			"services": {
@@ -85,30 +70,18 @@ func ResourceProduct() *schema.Resource {
 						"id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.All(
-								validation.StringLenBetween(1, 64),
-								validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-							),
 						},
 
 						"type": { // keep same with console
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringLenBetween(0, 64),
-								validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-							),
 						},
 
 						"description": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringLenBetween(0, 128),
-								validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-							),
 						},
 
 						"properties": {
@@ -129,10 +102,6 @@ func ResourceProduct() *schema.Resource {
 									"name": {
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: validation.All(
-											validation.StringLenBetween(1, 64),
-											validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-										),
 									},
 
 									"paras": {
@@ -161,29 +130,17 @@ func ResourceProduct() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 32),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 
 			"industry": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 64),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 128),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 
 			"space_id": {
@@ -198,11 +155,6 @@ func ResourceProduct() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 32),
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"Only letters, digits, underscores (_) and hyphens (-) are allowed."),
-				),
 			},
 		},
 	}
@@ -215,10 +167,6 @@ func propertySchema(category string) *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 
 			"type": { // keep same with console
@@ -248,10 +196,9 @@ func propertySchema(category string) *schema.Resource {
 			},
 
 			"max_length": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 2147483647),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 
 			"step": {
@@ -263,18 +210,11 @@ func propertySchema(category string) *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 16),
-				),
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 128),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 		},
 	}

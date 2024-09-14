@@ -36,7 +36,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) The bandwidth package name.  
-  The name can contain a maximum of 64 characters.
+  The name can contain a maximum of `64` characters.
 
 * `local_area_id` - (Required, String, ForceNew) The local area ID.  
   Valid values are **Chinese-Mainland**, **Asia-Pacific**, **Africa**, **Western-Latin-America**,

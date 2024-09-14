@@ -161,7 +161,7 @@ The following arguments are supported:
   + **-1**: The WAF protection is bypassed. Requests of the domain name are directly sent to the backend server and do
   not pass through WAF.
 
-  Default value is **0**.
+  Default value is `0`.
 
 * `pci_3ds` - (Optional, Bool) Specifies the status of the PCI 3DS compliance certification check.
   This parameter must be used together with `tls` and `cipher`.
@@ -234,7 +234,7 @@ The `server` block supports:
 
 * `address` - (Required, String) IP address or domain name of the web server that the client accesses.
 
-* `port` - (Required, Int) Port number used by the web server. The value ranges from 0 to 65535, for example, **8080**.
+* `port` - (Required, Int) Port number used by the web server. The value ranges from `0` to `65,535`, for example, `8,080`.
 
 * `type` - (Required, String) Specifies the server network type. Valid values are: **ipv4** and **ipv6**.
   + When this field is set to **ipv4**, `address` must be set to an IPv4 address.
@@ -242,13 +242,13 @@ The `server` block supports:
 
 * `weight` - (Optional, Int) The load balancing algorithm will assign requests to the origin
   site according to this weight.
-  Defaults to **1**.
+  Defaults to `1`.
 
 <a name="Domain_custom_page"></a>
 The `custom_page` block supports:
 
 * `http_return_code` - (Required, String) Specifies the HTTP return code.
-  The value can be a positive integer in the range of 200-599 except **408**, **444** and **499**.
+  The value can be a positive integer in the range of `200` to `599` except `408`, `444` and `499`.
 
 * `block_page_type` - (Required, String) Specifies the content type of the custom alarm page.
   The value can be **text/html**, **text/xml** or **application/json**.
@@ -261,13 +261,13 @@ The `custom_page` block supports:
 The `timeout_settings` block supports:
 
 * `connection_timeout` - (Optional, Int) Specifies the timeout for WAF to connect to the origin server. The unit is second.
-  Valid value ranges from **0** to **180**.
+  Valid value ranges from `0` to `180`.
 
 * `read_timeout` - (Optional, Int) Specifies the timeout for WAF to receive responses from the origin server.
-  The unit is second. Valid value ranges from **0** to **3,600**.
+  The unit is second. Valid value ranges from `0` to `3,600`.
 
 * `write_timeout` - (Optional, Int) Specifies the timeout for WAF to send requests to the origin server. The unit is second.
-  Valid value ranges from **0** to **3,600**.
+  Valid value ranges from `0` to `3,600`.
 
 <a name="Domain_traffic_mark"></a>
 The `traffic_mark` block supports:

@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -47,10 +46,9 @@ func ResourceBandwidthPackage() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  `The bandwidth package name.`,
-				ValidateFunc: validation.StringLenBetween(1, 64),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The bandwidth package name.`,
 			},
 			"local_area_id": {
 				Type:        schema.TypeString,

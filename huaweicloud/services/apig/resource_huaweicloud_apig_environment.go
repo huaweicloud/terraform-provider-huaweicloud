@@ -3,13 +3,11 @@ package apig
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
@@ -49,23 +47,13 @@ func ResourceApigEnvironmentV2() *schema.Resource {
 				Description: "The ID of the dedicated instance to which the environment belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z]\w*$`),
-						"Only letters, digits and underscores (_) are allowed, and must start with a letter."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The environment name.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-						"The angle brackets (< and >) are not allowed."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The environment description.",
 			},
 			"created_at": {

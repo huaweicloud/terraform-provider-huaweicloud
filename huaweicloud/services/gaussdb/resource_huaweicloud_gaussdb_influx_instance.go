@@ -70,15 +70,13 @@ func ResourceGaussDBInfluxInstanceV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"node_num": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      3,
-				ValidateFunc: validation.IntBetween(3, 16),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  3,
 			},
 			"volume_size": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntAtLeast(100),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"password": {
 				Type:      schema.TypeString,
@@ -262,7 +260,6 @@ func ResourceGaussDBInfluxInstanceV3() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
 			},
 			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 

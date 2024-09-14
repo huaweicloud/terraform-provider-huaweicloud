@@ -3,12 +3,10 @@ package nat
 import (
 	"context"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/nat/v3/snats"
 
@@ -67,13 +65,8 @@ func ResourcePrivateSnatRule() *schema.Resource {
 				Description: "The subnet ID of the match rule.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 255),
-					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-						"The angle brackets (< and >) are not allowed."),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The description of the SNAT rule.",
 			},
 			"created_at": {

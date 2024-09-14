@@ -200,7 +200,7 @@ The `destination_task` block supports:
 
 * `deliver_time_interval` - (Optional, Int, ForceNew) Specifies the deliver time interval of the smart connect task.
   It's **required** when `destination_type` is **OBS_SINK**.
-  The value should be between **30** and **900**. Changing this parameter will create a new resource.
+  The value should be between `30` and `900`. Changing this parameter will create a new resource.
 
 * `obs_bucket_name` - (Optional, String, ForceNew) Specifies the obs bucket name of the smart connect task.
   It's **required** when `destination_type` is **OBS_SINK**.

@@ -104,7 +104,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the IoTDA device linkage rule
 resource. If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the name of the device linkage rule. The name contains a maximum of 128
+* `name` - (Required, String) Specifies the name of the device linkage rule. The name contains a maximum of `128`
 characters.
 
 * `space_id` - (Required, String, ForceNew) Specifies the resource space ID to which the device linkage rule belongs.
@@ -124,9 +124,9 @@ The options are as follows:
   Defaults to `and`.
 
 * `description` - (Optional, String) Specifies the description of device linkage rule. The description contains
-a maximum of 256 characters.
+a maximum of `256` characters.
 
-* `enabled` - (Optional, Bool) Specifies whether to enable the device linkage rule. Defaults to `true`.
+* `enabled` - (Optional, Bool) Specifies whether to enable the device linkage rule. Defaults to **true**.
 
 * `effective_period` - (Optional, List) Specifies the effective period of the device linkage rule. Always effectives
 by default. The [effective_period](#IoTDA_effective_period) structure is documented below.
@@ -253,7 +253,8 @@ The `smn_forwarding` block supports:
 
 * `message_title` - (Required, String) Specifies the message title.
 
-* `message_content` - (Required, String) Specifies the message content.
+* `message_content` - (Required, String) Specifies the message content.  
+  The value can contain a maximum of `256` characters.
 
 * `project_id` - (Optional, String) Specifies the project ID to which the SMN belongs.
 If omitted, the default project in the region will be used.
@@ -270,7 +271,8 @@ The `device_alarm` block supports:
 * `severity` - (Required, String) Specifies the severity level of the alarm.
 The valid values are **warning**, **minor**, **major** and **critical**.
 
-* `description` - (Optional, String) Specifies the description of the alarm.
+* `description` - (Optional, String) Specifies the description of the alarm.  
+  The value can contain a maximum of `256` characters.
 
 <a name="IoTDA_effective_period"></a>
 The `effective_period` block supports:

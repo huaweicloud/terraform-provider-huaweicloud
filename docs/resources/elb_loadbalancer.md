@@ -232,8 +232,8 @@ The following arguments are supported:
   Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
 
 * `period` - (Optional, Int) Specifies the charging period of the ELB load balancer.
-  If `period_unit` is set to **month**, the value ranges from 1 to 9.
-  If `period_unit` is set to **year**, the value ranges from 1 to 3.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
   This parameter is mandatory if `charging_mode` is set to **prePaid**.
 
 * `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled. Valid values are **true** and **false**.

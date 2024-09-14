@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/obs"
@@ -134,10 +133,9 @@ func ResourceObsBucket() *schema.Resource {
 			},
 
 			"quota": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      0,
-				ValidateFunc: validation.IntAtLeast(0),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  0,
 			},
 
 			"storage_info": {

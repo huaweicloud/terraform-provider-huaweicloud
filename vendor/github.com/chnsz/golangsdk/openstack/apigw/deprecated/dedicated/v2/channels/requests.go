@@ -101,7 +101,7 @@ type VpcHealthConfig struct {
 	// Destination path for health checks. This parameter is required if protocol is set to http.
 	Path string `json:"path,omitempty"`
 	// Destination port for health checks. By default, the host port of the VPC channel is used.
-	// The valid value is range from 1 to 65535.
+	// The valid value is range from `1` to `65,535`.
 	Port int `json:"port,omitempty"`
 }
 

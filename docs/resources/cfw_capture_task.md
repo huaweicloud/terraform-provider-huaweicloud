@@ -59,7 +59,7 @@ The following arguments are supported:
 * `duration` - (Required, Int, NonUpdatable) Specifies the capture task duration.
 
 * `max_packets` - (Required, Int, NonUpdatable) Specifies the maximum number of packets captured.
-  The Maximum value is **1000000**.
+  The Maximum value is `1,000,000`.
 
 * `destination` - (Required, List, NonUpdatable) Specifies the destination configuration.
   The [destination](#Address) structure is documented below.

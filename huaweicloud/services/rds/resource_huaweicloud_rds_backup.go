@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strings"
 	"time"
 
@@ -17,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -56,11 +54,6 @@ func ResourceBackup() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Backup name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"the input is invalid"),
-					validation.StringLenBetween(4, 64),
-				),
 			},
 			"instance_id": {
 				Type:        schema.TypeString,
@@ -74,11 +67,6 @@ func ResourceBackup() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: `The description about the backup.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^>!<"&'=]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 256),
-				),
 			},
 			"databases": {
 				Type:        schema.TypeList,

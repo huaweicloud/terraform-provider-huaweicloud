@@ -248,9 +248,8 @@ func ResourceDcsInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"save_days": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(1, 7),
+							Type:     schema.TypeInt,
+							Optional: true,
 						},
 						"backup_type": {
 							Type:         schema.TypeString,
@@ -275,8 +274,7 @@ func ResourceDcsInstance() *schema.Resource {
 							Type:     schema.TypeList,
 							Required: true,
 							Elem: &schema.Schema{
-								Type:         schema.TypeInt,
-								ValidateFunc: validation.IntBetween(1, 7),
+								Type: schema.TypeInt,
 							},
 						},
 					},

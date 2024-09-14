@@ -60,12 +60,12 @@ The following arguments are supported:
 * `security_group_id` - (Required, String, ForceNew) Specifies the security group ID. Changing this creates a new instance.
 
 * `period_unit` - (Required, String, ForceNew) Specifies the charging period unit of the instance.
-  Valid values are *month* and *year*.
+  Valid values are **month** and **year**.
   Changing this creates a new instance.
 
 * `period` - (Required, Int, ForceNew) Specifies the charging period of the DataArts Studio instance.
-  If `period_unit` is set to *month*, the value ranges from 1 to 9.
-  If `period_unit` is set to *year*, the value ranges from 1 to 3.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
   Changing this creates a new instance.
 
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.

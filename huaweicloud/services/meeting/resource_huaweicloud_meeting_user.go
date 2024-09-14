@@ -89,9 +89,8 @@ func ResourceUser() *schema.Resource {
 
 			// Arguments
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 64),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"password": {
 				Type:      schema.TypeString,
@@ -99,11 +98,10 @@ func ResourceUser() *schema.Resource {
 				Sensitive: true,
 			},
 			"account": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringLenBetween(1, 64),
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 			"third_account": {
 				Type:         schema.TypeString,
@@ -117,22 +115,19 @@ func ResourceUser() *schema.Resource {
 				Computed: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 128),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"email": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				Sensitive:    true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
+				Type:      schema.TypeString,
+				Optional:  true,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"english_name": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 64),
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"country": {
 				Type:     schema.TypeString,
@@ -156,10 +151,9 @@ func ResourceUser() *schema.Resource {
 				Default:  true,
 			},
 			"signature": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 512),
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeInt,
@@ -170,16 +164,14 @@ func ResourceUser() *schema.Resource {
 				}),
 			},
 			"title": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 32),
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"sort_level": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(1, 10000),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"is_admin": {
 				Type:     schema.TypeBool,

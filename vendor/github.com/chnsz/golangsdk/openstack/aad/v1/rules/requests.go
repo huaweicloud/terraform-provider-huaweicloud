@@ -15,10 +15,10 @@ type RuleOpts struct {
 	// The forward protocol.
 	ForwardProtocol string `json:"forward_protocol" required:"true"`
 	// The forward port.
-	// The valid value is range from 1 to 65535.
+	// The valid value is range from `1` to `65,535`.
 	ForwardPort int `json:"forward_port" required:"true"`
 	// The source port.
-	// The valid value is range from 1 to 65535.
+	// The valid value is range from `1` to `65,535`.
 	SourcePort int `json:"source_port" required:"true"`
 	// The source IP list, separate the IPs with commas.
 	SourceIp string `json:"source_ip" required:"true"`
@@ -57,10 +57,10 @@ type UpdateOpts struct {
 	// The forward protocol.
 	ForwardProtocol string `json:"forward_protocol" required:"true"`
 	// The forward port.
-	// The valid value is range from 1 to 65535.
+	// The valid value is range from `1` to `65,535`.
 	ForwardPort int `json:"forward_port" required:"true"`
 	// The source port.
-	// The valid value is range from 1 to 65535.
+	// The valid value is range from `1` to `65,535`.
 	SourcePort int `json:"source_port" required:"true"`
 	// The source IP list, separate the IPs with commas.
 	SourceIp string `json:"source_ip" required:"true"`

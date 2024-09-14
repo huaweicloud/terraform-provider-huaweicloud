@@ -52,8 +52,8 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Server name.  
-  The name can contain 1 to 60 characters, only english and chinese letters, digits, underscore (_) and hyphens (-) are
-  allowed.
+  The name can contain `1` to `60` characters, only English letters, Chinese characters, digits, underscore (_) and
+  hyphens (-) are allowed.
 
 * `server_flavor` - (Required, String, ForceNew) The CPH server flavor.
 
@@ -104,8 +104,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `period` - (Required, Int, ForceNew) The charging period.  
-  If `period_unit` is set to **month**, the value ranges from 1 to 9.
-  If `period_unit` is set to **year**, the value ranges from 1 to 3.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
 
   Changing this parameter will create a new resource.
 
@@ -141,7 +141,8 @@ The `BandWidth` block supports:
  This parameter is mandatory when you create a shared bandwidth.
 
 * `size` - (Optional, Int) The bandwidth (Mbit/s).  
- This parameter is mandatory for a dedicated bandwidth.
+  The valid value is range from `1` to `2,000`.  
+  This parameter is mandatory for a dedicated bandwidth.
 
 * `charge_mode` - (Optional, String) Which the bandwidth used by the CPH server is billed.  
  This parameter is mandatory for a dedicated bandwidth.
@@ -155,7 +156,7 @@ The `ApplicationPort` block supports:
 * `name` - (Required, String) The application port name, which can contain a maximum of 16 bytes.  
  The key service name cannot be **adb** or **vnc**.
 
-* `listen_port` - (Required, Int) The port number, which ranges from 10000 to 50000.
+* `listen_port` - (Required, Int) The port number, which ranges from `10,000` to `50,000`.
 
 * `internet_accessible` - (Required, String) Whether public network access is mapped.
   The options are as follows:

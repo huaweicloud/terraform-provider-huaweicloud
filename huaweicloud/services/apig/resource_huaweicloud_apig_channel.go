@@ -5,13 +5,11 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/channels"
 
@@ -51,14 +49,8 @@ func ResourceChannel() *schema.Resource {
 				Description: "The ID of the dedicated instance to which the channel belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\x{4E00}-\x{9FFC}A-Za-z]([\x{4E00}-\x{9FFC}\w-.]*)?$`),
-						"Only chinese letters, english letters, digits hyphens (-), underscores (_) and dots (.) are "+
-							"allowed, and must start with a chinese or english letter."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The channel name.",
 			},
 			"port": {

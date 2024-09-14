@@ -59,7 +59,6 @@ func ResourceVBSBackupPolicyV2() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				ConflictsWith: []string{"week_frequency"},
-				ValidateFunc:  validation.IntBetween(1, 14),
 			},
 			"week_frequency": {
 				Type:     schema.TypeList,
@@ -71,12 +70,10 @@ func ResourceVBSBackupPolicyV2() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				ConflictsWith: []string{"rentention_day"},
-				ValidateFunc:  validation.IntAtLeast(2),
 			},
 			"rentention_day": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntAtLeast(2),
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"retain_first_backup": {
 				Type:     schema.TypeString,

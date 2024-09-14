@@ -63,7 +63,7 @@ The following arguments are supported:
   Changing this will create a new trust agency.
 
 * `duration` - (Optional, Int) Specifies the validity period of a trust agency.
-  Default value is **3600**. The unit is seconds.
+  Default value is `3,600`. The unit is seconds.
 
 * `tags` - (Optional, Map) Specifies the tags of the trust agency.
 

@@ -239,14 +239,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[A-Za-z][\w-.]*$`),
-									"Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed, "+
-										"and must start with a letter."),
-								validation.StringLenBetween(1, 32),
-							),
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "The name of the request parameter.",
 						},
 						"required": {
@@ -301,36 +295,21 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The minimum value or length (string parameter) for parameter.",
 						},
 						"example": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-									"The angle brackets (< and >) are not allowed."),
-								validation.StringLenBetween(0, 255),
-							),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
 							Description: "The parameter example.",
 						},
 						"default": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-									"The angle brackets (< and >) are not allowed."),
-								validation.StringLenBetween(0, 255),
-							),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
 							Description: "The default value of the parameter.",
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-									"The angle brackets (< and >) are not allowed."),
-								validation.StringLenBetween(0, 255),
-							),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
 							Description: "The parameter description.",
 						},
 						"valid_enable": {
@@ -352,9 +331,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "The configurations of the backend parameters.",
 			},
 			"body_description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 20480),
+				Type:     schema.TypeString,
+				Optional: true,
 				Description: "The description of the API request body, which can be an example request body, media " +
 					"type or parameters.",
 			},
@@ -365,13 +343,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "Whether CORS is supported.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-						"The angle brackets (< and >) are not allowed."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The API description.",
 			},
 			"matching": {
@@ -390,16 +363,14 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "The ID of the custom response that API used.",
 			},
 			"success_response": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 20480),
-				Description:  "The example response for a successful request.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The example response for a successful request.",
 			},
 			"failure_response": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 20480),
-				Description:  "The example response for a failure request.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The example response for a failure request.",
 			},
 			"mock": {
 				Type:         schema.TypeList,
@@ -417,9 +388,8 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The custom status code of the mock response.",
 						},
 						"response": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringLenBetween(0, 2048),
+							Type:     schema.TypeString,
+							Optional: true,
 							Description: utils.SchemaDesc(
 								"The response content of the mock.",
 								utils.SchemaDescInput{
@@ -470,11 +440,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The request protocol of the FunctionGraph function.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"invocation_type": {
 							Type:     schema.TypeString,
@@ -552,11 +521,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The web protocol type of the API request.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"retry_count": {
 							Type:        schema.TypeInt,
@@ -587,13 +555,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[A-Za-z]\w*$`),
-									"Only letters, digits and underscores (_) are allowed, and start with a letter."),
-								validation.StringLenBetween(3, 64),
-							),
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "The backend policy name.",
 						},
 						"conditions": {
@@ -610,10 +573,9 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The custom status code of the mock response.",
 						},
 						"response": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringLenBetween(8, 2048),
-							Description:  "The response content of the mock.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The response content of the mock.",
 						},
 						"effective_mode": {
 							Type:     schema.TypeString,
@@ -649,13 +611,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[A-Za-z]\w*$`),
-									"Only letters, digits and underscores (_) are allowed, and must start with a letter."),
-								validation.StringLenBetween(3, 64),
-							),
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "The name of the backend policy.",
 						},
 						"function_urn": {
@@ -711,11 +668,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The effective mode of the backend policy.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"backend_params": {
 							Type:        schema.TypeSet,
@@ -757,13 +713,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[A-Za-z]\w*$`),
-									"Only letters, digits and underscores (_) are allowed, and must start with a letter."),
-								validation.StringLenBetween(3, 64),
-							),
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "The name of the web policy.",
 						},
 						"path": {
@@ -828,11 +779,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The effective mode of the backend policy.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"retry_count": {
 							Type:        schema.TypeInt,
@@ -954,14 +904,8 @@ func backendParamSchemaResource() *schema.Resource {
 				Description: "The parameter type.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z][\w-.]*$`),
-						"Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed, and must "+
-							"start with a letter."),
-					validation.StringLenBetween(1, 32),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The parameter name.",
 			},
 			"location": {
@@ -975,23 +919,13 @@ func backendParamSchemaResource() *schema.Resource {
 				Description: "Where the parameter is located.",
 			},
 			"value": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
-						"The angle brackets (< and >) are not allowed."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The value of the parameter",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
-						"The angle brackets (< and >) are not allowed."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The description of the parameter.",
 			},
 			"system_param_type": {

@@ -54,11 +54,14 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the consumer group.
+* `name` - (Required, String, ForceNew) Specifies the name of the consumer group.  
+  The valid length is limited from `3` to `64`, only letters, digits, vertical lines (|), percent sign (%), hyphens (-)
+  and underscores (_) are allowed.
 
   Changing this parameter will create a new resource.
 
-* `retry_max_times` - (Required, Int) Specifies the maximum number of retry times.
+* `retry_max_times` - (Required, Int) Specifies the maximum number of retry times.  
+  The valid value is range from `1` to `16`.
 
 * `enabled` - (Optional, Bool) Specifies the consumer group is enabled or not. Defaults to true.
 

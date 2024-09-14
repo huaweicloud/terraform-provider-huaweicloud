@@ -68,7 +68,7 @@ The `instances` block supports:
 
 * `ip_num_now` - Indicates the current ip num of the instance.
 
-* `protection_num` - Indicates the protection num of the instance, value **9999** means unlimited times.
+* `protection_num` - Indicates the protection num of the instance, value `9,999` means unlimited times.
 
 * `protection_num_now` - Indicates the current protection num of the instance.
 

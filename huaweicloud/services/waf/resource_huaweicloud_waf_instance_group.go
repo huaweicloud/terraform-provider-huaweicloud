@@ -2,12 +2,10 @@ package waf
 
 import (
 	"context"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/pools"
@@ -39,9 +37,6 @@ func ResourceWafInstanceGroup() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[\w]{1,64}$`),
-					"The maximum length is 64 characters. "+
-						"Only letters, digits and underscores (_) are allowed"),
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -49,9 +44,8 @@ func ResourceWafInstanceGroup() *schema.Resource {
 				ForceNew: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 256),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"body_limit": {
 				Type:     schema.TypeInt,

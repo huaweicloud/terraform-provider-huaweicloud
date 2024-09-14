@@ -3,13 +3,11 @@ package dli
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -43,11 +41,6 @@ func ResourceDatasourceAuth() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The name of a datasource authentication.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9][\w]*$`),
-						"Only letters, digits and underscores (_) are allowed."),
-					validation.StringDoesNotMatch(regexp.MustCompile(`^[0-9]*$`), "The name cannot be all digits."),
-				),
 			},
 			"type": {
 				Type:        schema.TypeString,

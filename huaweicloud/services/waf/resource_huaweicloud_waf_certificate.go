@@ -2,14 +2,12 @@ package waf
 
 import (
 	"context"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
 
@@ -47,8 +45,6 @@ func ResourceWafCertificateV1() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[\w-]{1,256}$`),
-					"The maximum length is 256 characters. Only digits, letters, underscores (_), and hyphens (-) are allowed"),
 			},
 			"certificate": {
 				Type:             schema.TypeString,

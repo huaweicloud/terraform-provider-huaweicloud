@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -68,9 +67,6 @@ func ResourceTranscoding() *schema.Resource {
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile("[a-zA-Z0-9-]{1,64}$"),
-								"The name can contain a maximum of 64 characters, and only contains letters,"+
-									" digits and hyphens (-)."),
 						},
 
 						"width": {
@@ -84,16 +80,14 @@ func ResourceTranscoding() *schema.Resource {
 						},
 
 						"bitrate": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(40, 30000),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 
 						"frame_rate": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 30),
-							Computed:     true,
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},

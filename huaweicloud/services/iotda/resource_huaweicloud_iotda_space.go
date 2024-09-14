@@ -3,12 +3,10 @@ package iotda
 import (
 	"context"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
 
@@ -40,9 +38,6 @@ func ResourceSpace() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`[A-Za-z-_0-9?'#().,&%@!]{1,64}`),
-					"The name contains a maximum of 64 characters. Only letters, digits, "+
-						"hyphens (-), underscore (_) and the following special characters are allowed: ?'#().,&%@!"),
 			},
 
 			"is_default": {

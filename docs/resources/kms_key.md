@@ -77,7 +77,7 @@ The following arguments are supported:
   -> The default master keys and externally imported keys can not be rotated.
 
 * `rotation_interval` - (Optional, Int) Specifies the KMS key rotation period.
-  The default value is **365**. The valid value range from `30` to `365`.
+  The valid value range from `30` to `365`. The default value is `365`.
 
 * `pending_days` - (Optional, String) Specifies the number of days after which the KMS key is scheduled to be deleted.
   The valid value range from `7` to `1,096`.

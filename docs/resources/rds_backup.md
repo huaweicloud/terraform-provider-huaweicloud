@@ -29,7 +29,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Backup name.  
-  It must be 4 to 64 characters long, start with a letter, and contain only letters (case-sensitive),
+  It must be `4` to `64` characters long, start with a letter, and contain only letters (case-sensitive),
   digits, hyphens (-), and underscores (_).
 
   Changing this parameter will create a new resource.
@@ -39,7 +39,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `description` - (Optional, String, ForceNew) The description about the backup.  
-  It contains a maximum of 256 characters and cannot contain the following special characters: >!<"&'=.
+  It contains a maximum of `256` characters and cannot contain the following special characters: `>!<"&'=`.
 
   Changing this parameter will create a new resource.
 

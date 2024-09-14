@@ -90,10 +90,10 @@ The following arguments are supported:
 The `port_mapping` block supports:
 
 * `service_port` - (Required, Int) Specifies the port for accessing the VPC endpoint service. This port is provided by
-  the backend service to provide services. The value ranges from 1 to 65535.
+  the backend service to provide services. The value ranges from `1` to `65,535`.
 
 * `terminal_port` - (Required, Int) Specifies the port for accessing the VPC endpoint. This port is provided by the VPC
-  endpoint, allowing you to access the VPC endpoint service. The value ranges from 1 to 65535.
+  endpoint, allowing you to access the VPC endpoint service. The value ranges from `1` to `65,535`.
 
 * `protocol` - (Optional, String) Specifies the protocol used in port mappings. Only **TCP** is supported.
 

@@ -8,7 +8,6 @@ package ga
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -53,11 +52,6 @@ func ResourceListener() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the ID of the global accelerator associated with the listener.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 36),
-				),
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -65,11 +59,6 @@ func ResourceListener() *schema.Resource {
 				Description: `|-
                     Specifies the listener name. The name can contain 1 to 64 characters.
                     Only letters, digits, and hyphens (-) are allowed.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9-]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"port_ranges": {
 				Type:        schema.TypeList,
@@ -106,11 +95,6 @@ func ResourceListener() *schema.Resource {
 				Description: `|-
                     Specifies the information about the listener. The value can contain 0 to 255 characters.
                     The following characters are not allowed: <>`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[^<>]*`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 255),
-				),
 			},
 			"tags": common.TagsSchema(),
 
@@ -142,16 +126,14 @@ func ListenerPortRangeSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"from_port": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the start port number.`,
-				ValidateFunc: validation.IntBetween(1, 65535),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the start port number.`,
 			},
 			"to_port": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the end port number.`,
-				ValidateFunc: validation.IntBetween(1, 65535),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the end port number.`,
 			},
 		},
 	}

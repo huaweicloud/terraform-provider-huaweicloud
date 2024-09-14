@@ -33,15 +33,15 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the custom line name.
-  The value consists of 1 to 80 characters including chinese and english letters, digits, hyphens (-), underscores (_),
-  and periods (.). The name of each resolution line set by one account must be unique.
+  The value consists of `1` to `80` characters including Chinese characters, English letters, digits, hyphens (-),
+  underscores (_) and periods (.). The name of each resolution line set by one account must be unique.
 
 * `ip_segments` - (Required, List) Specifies the IP address range.
   The start IP address is separated from the end IP address with a hyphen (-). The IP address ranges cannot overlap.
   If the start and end IP addresses are the same, there is only one IP address in the range. Set the value to
   IP1-IP1. Currently, only IPv4 addresses are supported. You can specify a maximum of 50 IP address ranges.
 
-* `description` - (Optional, String) Specifies the custom line description. A maximum of 255 characters are allowed.
+* `description` - (Optional, String) Specifies the custom line description. A maximum of `255` characters are allowed.
 
 ## Attribute Reference
 

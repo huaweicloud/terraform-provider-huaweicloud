@@ -209,7 +209,7 @@ The `request_params` block supports:
 
 * `name` - (Required, String) Specifies the request parameter name.  
   The valid length is limited from `1` to `32`, only letters, digits, hyphens (-), underscores (_) and
-  periods (.) are allowed.  
+  periods (.) are allowed. It must start with a letter.  
   If Location is specified as **HEADER** and `security_authentication` is specified as **APP**, the parameter name
   cannot be `Authorization` (case-insensitive) and cannot contain underscores.
 
@@ -251,10 +251,11 @@ The `backend_params` block supports:
 * `type` - (Required, String) Specifies the backend parameter type.  
   The valid values are **REQUEST**, **CONSTANT** and **SYSTEM**.
 
-* `name` - (Required, String) Specifies the backend parameter name, which contain of 1 to 32 characters and start with a
-  letter. Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed. The parameter name is not
-  case-sensitive. It cannot start with `x-apig-` or `x-sdk-` and cannot be `x-stage`. If the location is specified as
-  **HEADER**, the name cannot contain underscores.
+* `name` - (Required, String) Specifies the backend parameter name, which contain of `1` to `32` characters and start
+  with a letter. Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed.  
+  It must start with a letter.
+  The parameter name is not case-sensitive. It cannot start with `x-apig-` or `x-sdk-` and cannot be `x-stage`.
+  If the location is specified as **HEADER**, the name cannot contain underscores.
 
 * `location` - (Required, String) Specifies the location of the backend parameter.  
   The valid values are **PATH**, **QUERY** and **HEADER**.
@@ -362,7 +363,8 @@ The `web` block supports:
 The `mock_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name.  
-  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.
+  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.  
+  It must start with a letter.
 
 * `conditions` - (Required, List) Specifies an array of one or more policy conditions.  
   Up to five conditions can be set.
@@ -386,7 +388,8 @@ The `mock_policy` block supports:
 The `func_graph_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name.  
-  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.
+  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.  
+  It must start with a letter.
 
 * `function_urn` - (Required, String) Specifies the URN of the FunctionGraph function.
 
@@ -431,7 +434,8 @@ The `func_graph_policy` block supports:
 The `web_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name.  
-  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.
+  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.  
+  It must start with a letter.
 
 * `path` - (Required, String) Specifies the backend request address, which can contain a maximum of `512` characters and
   must comply with URI specifications.  

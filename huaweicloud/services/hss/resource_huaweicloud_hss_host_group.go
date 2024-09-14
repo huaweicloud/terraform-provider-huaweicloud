@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -66,12 +64,6 @@ func ResourceHostGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the host group.",
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5\\w-.+*]*$"),
-						"Only Chinese and English letters, digits, hyphens (-), underscores (_) dots (.), plusses (+) "+
-							"and asterisks (*) are allowed."),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"host_ids": {
 				Type:        schema.TypeSet,

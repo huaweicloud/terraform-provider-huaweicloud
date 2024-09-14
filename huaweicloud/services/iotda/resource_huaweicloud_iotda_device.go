@@ -3,12 +3,10 @@ package iotda
 import (
 	"context"
 	"fmt"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	iotdav5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
@@ -54,21 +52,12 @@ func ResourceDevice() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(4, 256),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 
 			"node_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(4, 256),
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"Only letters, digits, underscores (_) and hyphens (-) are allowed."),
-				),
 			},
 
 			"space_id": {
@@ -88,11 +77,6 @@ func ResourceDevice() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(4, 256),
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"Only letters, digits, underscores (_) and hyphens (-) are allowed."),
-				),
 			},
 
 			"secret": {
@@ -142,10 +126,6 @@ func ResourceDevice() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 2048),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 
 			"frozen": {

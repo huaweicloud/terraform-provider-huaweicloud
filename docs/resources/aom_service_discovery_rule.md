@@ -55,7 +55,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the service discovery rule resource. If omitted,
   the provider-level region will be used. Changing this creates a new resource.
 
-* `name` - (Required, String) Specifies the rule name, which contains 4 to 63 characters. It must start
+* `name` - (Required, String) Specifies the rule name, which contains `4` to `63` characters. It must start
   with a lowercase letter but cannot end with a hyphen (-). Only digits, lowercase letters, and hyphens are allowed.
 
 * `service_type` - (Required, String) Specifies the service type, which is used only for rule classification and UI display.

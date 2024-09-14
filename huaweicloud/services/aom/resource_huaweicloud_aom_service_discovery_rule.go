@@ -3,7 +3,6 @@ package aom
 import (
 	"context"
 	"log"
-	"regexp"
 	"strconv"
 	"time"
 
@@ -76,12 +75,6 @@ func ResourceServiceDiscoveryRule() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(4, 63),
-					validation.StringMatch(regexp.MustCompile("^[a-z]([a-z0-9-]*[a-z0-9])?$"),
-						"The name can only consist of lowercase letters, digits and hyphens (-), "+
-							"and it must start with a lowercase letter but cannot end with a hyphen (-)."),
-				),
 			},
 			"service_type": {
 				Type:     schema.TypeString,

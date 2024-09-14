@@ -57,9 +57,11 @@ The following arguments are supported:
 * `router` - (Optional, List) Router configuration block which is required if zone_type is private. The router
   structure is documented below.
 
-* `ttl` - (Optional, Int) The time to live (TTL) of the zone.
+* `ttl` - (Optional, Int) The time to live (TTL) of the zone.  
+  The valid value is range from `1` to `2,147,483,647`.
 
-* `description` - (Optional, String) A description of the zone.
+* `description` - (Optional, String) A description of the zone.  
+  A maximum of `255` characters are allowed.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the zone.
 

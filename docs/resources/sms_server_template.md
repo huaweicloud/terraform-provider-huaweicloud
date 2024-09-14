@@ -61,17 +61,19 @@ The following arguments are supported:
   If omitted or set to ["autoCreate"], a new subnet will be created automatically during migration.
 
 * `security_group_ids` - (Optional, List) Specifies an array of one or more security group IDs to associate with
-  the target server. If omitted or set to ["autoCreate"], a new security group will be created automatically during migration.
+  the target server.  
+  If omitted or set to ["autoCreate"], a new security group will be created automatically during migration.
 
-* `volume_type` - (Optional, String) Specifies the disk type of the target server. Available values are: **SAS**, **SSD**,
-  defaults to **SAS**.
+* `volume_type` - (Optional, String) Specifies the disk type of the target server.
+  Available values are: **SAS**, **SSD**, defaults to **SAS**.
 
 * `flavor` - (Optional, String) Specifies the flavor ID for the target server.
 
 * `target_server_name` - (Optional, String) Specifies the name of the target server. Defaults to the template name.
 
 * `bandwidth_size` - (Optional, Int) Specifies the bandwidth size in Mbit/s about the public IP address
-  that will be used for migration.
+  that will be used for migration.  
+  The valid value is range from `1` to `2,000`.
 
 ## Attribute Reference
 

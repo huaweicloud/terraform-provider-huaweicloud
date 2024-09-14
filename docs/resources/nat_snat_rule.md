@@ -112,7 +112,7 @@ The following arguments are supported:
   This parameter and `subnet_id` are alternative. Changing this will create a new resource.
 
 * `source_type` - (Optional, Int, ForceNew) Specifies the resource scenario.  
-  The valid values are **0** (VPC scenario) and **1** (Direct Connect scenario), and the default value is `0`.
+  The valid values are `0` (VPC scenario) and `1` (Direct Connect scenario), and the default value is `0`.
   Only `cidr` can be specified over a Direct Connect connection. Changing this will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of the SNAT rule.

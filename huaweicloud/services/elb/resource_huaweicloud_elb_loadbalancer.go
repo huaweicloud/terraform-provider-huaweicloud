@@ -253,7 +253,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
 			},
 			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 			"auto_pay":   common.SchemaAutoPay(nil),

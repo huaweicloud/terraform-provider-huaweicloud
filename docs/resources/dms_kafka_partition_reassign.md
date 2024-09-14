@@ -73,8 +73,8 @@ The following arguments are supported:
   Changing this creates a new resource.
   The [reassignments](#reassignments_struct) structure is documented below.
 
-* `throttle` - (Optional, Int, ForceNew) Specifies the reassignment threshold. Value can be specified ranges from **1**
-  to **300**. The unit is **MB/s**. Or specifies it to **-1**, indicating no throttling required.
+* `throttle` - (Optional, Int, ForceNew) Specifies the reassignment threshold. Value can be specified ranges from `1`
+  to `300`. The unit is **MB/s**. Or specifies it to `-1`, indicating no throttling required.
   Changing this creates a new resource.
 
 * `is_schedule` - (Optional, Bool, ForceNew) Specifies whether the task is scheduled. Defaults to **false**.

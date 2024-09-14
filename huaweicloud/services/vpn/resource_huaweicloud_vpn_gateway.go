@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -61,11 +60,6 @@ func ResourceGateway() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The name of the VPN gateway. Only letters, digits, underscores(_) and hypens(-) are supported.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\-_A-Za-z0-9]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"availability_zones": {
 				Type:        schema.TypeList,
@@ -200,11 +194,10 @@ func ResourceGateway() *schema.Resource {
 				Description: `The ASN number of BGP`,
 			},
 			"enterprise_project_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				Description:  `The enterprise project ID`,
-				ValidateFunc: validation.StringLenBetween(1, 64),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The enterprise project ID`,
 			},
 			"access_private_ip_1": {
 				Type:         schema.TypeString,
@@ -362,11 +355,6 @@ func GatewayEipSchema() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: `The public IP ID.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[A-Za-z0-9]{8}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{12}`),
-						"the input is invalid"),
-					validation.StringLenBetween(36, 36),
-				),
 			},
 
 			"type": {
@@ -382,11 +370,6 @@ func GatewayEipSchema() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: `The bandwidth name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\-_A-Za-z0-9]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"bandwidth_size": {
 				Type:     schema.TypeInt,
@@ -395,7 +378,6 @@ func GatewayEipSchema() *schema.Resource {
 				ForceNew: true,
 				Description: `Bandwidth size in Mbit/s. When the flavor is **V300**, the value cannot be greater than **300**.
 `,
-				ValidateFunc: validation.IntBetween(1, 1024),
 			},
 			"charge_mode": {
 				Type:        schema.TypeString,

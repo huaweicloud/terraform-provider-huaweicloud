@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -78,13 +77,8 @@ func ResourcePublicGateway() *schema.Resource {
 					"of the NAT gateway.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[\w-]*`),
-						"Only letters, digits, hyphens (-) and underscores (_) are allowed."),
-					validation.StringLenBetween(1, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The NAT gateway name.",
 			},
 			"spec": {

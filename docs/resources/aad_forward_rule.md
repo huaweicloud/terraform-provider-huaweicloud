@@ -39,10 +39,10 @@ The following arguments are supported:
   The valid values are **tcp** and **udp**.
 
 * `forward_port` - (Required, Int) Specifies the forward port.
-  The valid value is range from **1** to **65535**.
+  The valid value is range from `1` to `65,535`.
 
 * `source_port` - (Required, Int) Specifies the source port.
-  The valid value is range from **1** to **65535**.
+  The valid value is range from `1` to `65,535`.
 
 * `source_ip` - (Required, String) Specifies the source IP addresses, separated by commas (,).
 

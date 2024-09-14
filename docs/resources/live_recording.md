@@ -86,7 +86,7 @@ The `obs` block supports:
 <a name="recording_HLS"></a>
 The `hls` block supports:
 
-* `recording_length` - (Required, Int) Specifies the recording length. Value range: 15 ~ 720, unit: `minute`.
+* `recording_length` - (Required, Int) Specifies the recording length. Value range: `15` ~ `720`, unit: `minute`.
 A stream exceeding the recording length will generate a new recording.
 
 * `file_naming` - (Optional, String) Specifies the path and file name prefix of an M3U8 file. The default value is
@@ -96,7 +96,8 @@ A stream exceeding the recording length will generate a new recording.
 The default value is `{file_start_time_unix}_{file_end_time_unix}_{ts_sequence_number}`.
 
 * `max_stream_pause_length` - (Optional, Int) Specifies the interval threshold for combining HLS chunks. If the stream
-pause length exceeds the value of this parameter, a new recording is generated. Value range: -1 ~ 300, unit: `second`.
+pause length exceeds the value of this parameter, a new recording is generated.
+Value range: `-1` ~ `300`, unit: `second`.
 If the value is set to `0`, a new file will be generated once the stream is interrupted.
 If the value is set to `-1`, the HLS chunks will be combined to the previous file generated within 30 days after
 the same stream is recovered.
@@ -105,7 +106,7 @@ Defaults to `0`.
 <a name="recording_FLV_MP4"></a>
 The `flv` and `mp4` block support:
 
-* `recording_length` - (Required, Int) Specifies the recording length. Value range: 15 ~ 180, unit: `minute`.
+* `recording_length` - (Required, Int) Specifies the recording length. Value range: `15` ~ `180`, unit: `minute`.
 A stream exceeding the recording length will generate a new recording.
 
 * `file_naming` - (Optional, String) Specifies the path and file name prefix of a recording file. The default value is
@@ -113,7 +114,7 @@ A stream exceeding the recording length will generate a new recording.
 
 * `max_stream_pause_length` - (Optional, Int) Specifies the interval threshold for combining recording chunks. If the
 stream pause length exceeds the value of this parameter, a new recording is generated.
-Value range: 0 ~ 300, unit: `second`.
+Value range: `0` ~ `300`, unit: `second`.
 If the value is set to `0`, a new file will be generated once the stream is interrupted. Defaults to `0`.
 
 ## Attribute Reference

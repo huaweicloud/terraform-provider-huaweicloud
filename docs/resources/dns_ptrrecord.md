@@ -52,7 +52,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the PTR record.
 
 * `ttl` - (Optional, Int) Specifies the time to live (TTL) of the record set (in seconds).
-  The value range is 300–2147483647. The default value is 300.
+  The valid value is range from `1` to `2,147,483,647`.
 
 * `tags` - (Optional, Map) Tags key/value pairs to associate with the PTR record.
 

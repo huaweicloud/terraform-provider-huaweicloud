@@ -47,7 +47,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
   Changing this creates a new cluster resource.
 
-* `name` - (Required, String) Specifies the cluster name. It contains **4** to **32** characters.
+* `name` - (Required, String) Specifies the cluster name. It contains `4` to `32` characters.
   Only letters, digits, hyphens (-), and underscores (_) are allowed. The value must start with a letter.
 
 * `engine_version` - (Required, String, ForceNew) Specifies the engine version.
@@ -84,8 +84,8 @@ The following arguments are supported:
   The valid values are **month** and **year**.
 
 * `period` - (Optional, Int) Specifies the charging period of the instance.
-  If `period_unit` is set to **month**, the value ranges from **1** to **9**.
-  If `period_unit` is set to **year**, the value ranges from **1** to **3**.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
 
   -> **NOTE:** `charging_mode`, `period_unit`, `period` can only be updated when changing
   from **postPaid** to **prePaid** billing mode.
@@ -100,19 +100,19 @@ The following arguments are supported:
 The `node_config` block supports:
 
 * `flavor` - (Required, String, ForceNew) Specifies the flavor name. The value options are as follows:
-  + **ess.spec-4u8g**: The value range of the flavor is **40** GB to **1500** GB.
-  + **ess.spec-4u16g**: The value range of the flavor is **40** GB to **1600** GB.
-  + **ess.spec-4u32g**: The value range of the flavor is **40** GB to **2560** GB.
-  + **ess.spec-8u16g**: The value range of the flavor is **80** GB to **1600** GB.
-  + **ess.spec-8u32g**: The value range of the flavor is **80** GB to **3200** GB.
-  + **ess.spec-8u64g**: The value range of the flavor is **80** GB to **5120** GB.
-  + **ess.spec-16u32g**: The value range of the flavor is **100** GB to **3200** GB.
-  + **ess.spec-16u64g**: The value range of the flavor is **100** GB to **6400** GB.
-  + **ess.spec-32u64g**: The value range of the flavor is **100** GB to **10240** GB.
-  + **ess.spec-32u128g**: The value range of the flavor is **100** GB to **10240** GB.
+  + **ess.spec-4u8g**: The value range of the flavor is `40` GB to `1,500` GB.
+  + **ess.spec-4u16g**: The value range of the flavor is `40` GB to `1,600` GB.
+  + **ess.spec-4u32g**: The value range of the flavor is `40` GB to `2,560` GB.
+  + **ess.spec-8u16g**: The value range of the flavor is `80` GB to `1,600` GB.
+  + **ess.spec-8u32g**: The value range of the flavor is `80` GB to `3,200` GB.
+  + **ess.spec-8u64g**: The value range of the flavor is `80` GB to `5,120` GB.
+  + **ess.spec-16u32g**: The value range of the flavor is `100` GB to `3,200` GB.
+  + **ess.spec-16u64g**: The value range of the flavor is `100` GB to `6,400` GB.
+  + **ess.spec-32u64g**: The value range of the flavor is `100` GB to `10,240` GB.
+  + **ess.spec-32u128g**: The value range of the flavor is `100` GB to `10,240` GB.
   Changing this parameter will create a new resource.
 
-* `instance_number` - (Required, Int) Specifies the number of cluster instances. The value range is **1** to **32**.
+* `instance_number` - (Required, Int) Specifies the number of cluster instances. The value range is `1` to `32`.
 
 * `volume` - (Optional, List, ForceNew) Specifies the information about the volume.
   The [volume](#Css_volume) structure is documented below. Changing this parameter will create a new resource.
@@ -120,7 +120,7 @@ The `node_config` block supports:
 <a name="Css_volume"></a>
 The `volume` block supports:
 
-* `size` - (Required, Int, ForceNew) Specifies the volume size in GB, which must be a multiple of **10**.
+* `size` - (Required, Int, ForceNew) Specifies the volume size in GB, which must be a multiple of `10`.
   Changing this parameter will create a new resource.
 
 * `volume_type` - (Required, String, ForceNew) Specifies the volume type. The value options are as follows:

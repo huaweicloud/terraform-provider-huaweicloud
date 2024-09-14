@@ -3,12 +3,10 @@ package fgs
 import (
 	"context"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies"
 
@@ -44,22 +42,15 @@ func ResourceFgsDependency() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9]([\w.-]*[A-Za-z0-9])?$`),
-						"The name must start with a letter and end with a letter or digit, and can only contain "+
-							"letters, digits, underscores (_), periods (.), and hyphens (-)."),
-					validation.StringLenBetween(1, 96),
-				),
 			},
 			"link": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(1, 512),
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"etag": {
 				Type:     schema.TypeString,

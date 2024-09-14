@@ -44,10 +44,9 @@ func ResourceProject() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  `The project name.`,
-				ValidateFunc: validation.StringLenBetween(1, 128),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The project name.`,
 			},
 			"type": {
 				Type:        schema.TypeString,

@@ -48,15 +48,13 @@ func ResourceFlinkJarJob() *schema.Resource {
 			},
 
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 57),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 512),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"queue_name": {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -65,12 +64,6 @@ func ResourceMicroserviceEngine() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z]([A-Za-z0-9-]*[A-Za-z0-9])?$`),
-						"The name must start a letter and cannot end with a hyphen (-), and can only contain "+
-							"letters, digits and hyphens (-)."),
-					validation.StringLenBetween(3, 24),
-				),
 			},
 			"flavor": {
 				Type:     schema.TypeString,
@@ -116,10 +109,9 @@ func ResourceMicroserviceEngine() *schema.Resource {
 				ForceNew: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"eip_id": {
 				Type:     schema.TypeString,

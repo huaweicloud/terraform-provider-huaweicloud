@@ -92,12 +92,11 @@ func ResourceRepository() *schema.Resource {
 				Description: `The program language type for generating .gitignore files.`,
 			},
 			"license_id": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      1,
-				Description:  `The license ID for public repository.`,
-				ValidateFunc: validation.IntAtLeast(1),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Default:     1,
+				Description: `The license ID for public repository.`,
 			},
 			"enable_readme": {
 				Type:         schema.TypeInt,

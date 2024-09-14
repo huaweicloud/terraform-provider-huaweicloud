@@ -52,11 +52,11 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the VPC attachment.  
-  The name can contain 1 to 64 characters, only english and chinese letters, digits, underscore (_), hyphens (-) and
-  dots (.) allowed.
+  The name can contain `1` to `64` characters, only English letters, Chinese characters, digits, underscore (_),
+  hyphens (-) and dots (.) allowed.
 
 * `description` - (Optional, String) Specifies the description of the VPC attachment.  
-  The description contain a maximum of 255 characters, and the angle brackets (< and >) are not allowed.
+  The description contain a maximum of `255` characters, and the angle brackets (< and >) are not allowed.
 
 * `auto_create_vpc_routes` - (Optional, Bool, ForceNew) Specifies whether to automatically configure routes for the VPC
   which pointing to the ER instance.  

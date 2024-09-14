@@ -155,9 +155,6 @@ func timerSchemaResource() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^([A-Za-z][A-Za-z0-9-_]{0,63})$"),
-					"The name can contains of 1 to 64 characters and start with a letter."+
-						"Only letters, digits, hyphens (-) and underscores (_) are allowed."),
 			},
 			"schedule_type": {
 				Type:     schema.TypeString,
@@ -250,16 +247,14 @@ func disSchemaResource() *schema.Resource {
 				}, false),
 			},
 			"max_fetch_bytes": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1024, 4194304),
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
 			},
 			"pull_period": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(2, 60000),
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
 			},
 			"serial_enable": {
 				Type:     schema.TypeBool,
@@ -291,11 +286,10 @@ func kafkaSchemaResource() *schema.Resource {
 				RequiredWith: []string{"kafka.0.user_name"},
 			},
 			"batch_size": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      100,
-				ValidateFunc: validation.IntBetween(1, 1000),
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Default:  100,
 			},
 			"topic_ids": {
 				Type:     schema.TypeSet,
@@ -350,11 +344,10 @@ func apigSchemaResource() *schema.Resource {
 				Default: "HTTPS",
 			},
 			"timeout": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 60000),
-				Default:      5000,
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Default:  5000,
 			},
 		},
 	}

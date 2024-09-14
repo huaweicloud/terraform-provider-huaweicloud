@@ -42,12 +42,12 @@ The following arguments are supported:
 The `filter_policies` block supports:
 
 * `name` - (Required, String) Specifies the filter policy name. The policy name must be unique.
-  + It can contain **1** to **32** characters, including lowercase letters, digits, and underscores (_).
+  + It can contain `1` to `32` characters, including lowercase letters, digits, and underscores (_).
   + It cannot start or end with an underscore, nor contain consecutive underscores. It cannot start with **smn**.
 
-* `string_equals` - (Required, List) Specifies the string array for exact match. The array can contain **1**
-  to **10** strings. The array content must be unique. The string cannot be **null** or an empty string "".
-  A string can contain **1** to **32** characters, including letters, digits, and underscores (_).
+* `string_equals` - (Required, List) Specifies the string array for exact match. The array can contain `1`
+  to `10` strings. The array content must be unique. The string cannot be **null** or an empty string "".
+  A string can contain `1` to `32` characters, including letters, digits, and underscores (_).
 
 ## Attribute Reference
 

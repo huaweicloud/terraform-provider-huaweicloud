@@ -42,8 +42,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `period` - (Required, Int, ForceNew) The charging period.  
-  If `period_unit` is set to **month**, the value ranges from 1 to 9.
-  If `period_unit` is set to **year**, the value ranges from 1 to 3.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
   This parameter is mandatory if `charging_mode` is set to **prePaid**.
 
   Changing this parameter will create a new resource.

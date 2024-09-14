@@ -54,10 +54,10 @@ The following arguments are supported:
   parameter creates a new security group rule resource.
 
 * `port_range_min` - (Optional, Int, ForceNew) Specifies the lower part of the allowed port range, valid integer value
-  needs to be between 1 and 65535. Changing this parameter creates a new security group rule resource.
+  needs to be between `1` and `65,535`. Changing this parameter creates a new security group rule resource.
 
 * `port_range_max` - (Optional, Int, ForceNew) Specifies the higher part of the allowed port range, valid integer value
-  needs to be between 1 and 65535. Changing this parameter creates a new security group rule resource.
+  needs to be between `1` and `65,535`. Changing this parameter creates a new security group rule resource.
 
 ## Attribute Reference
 

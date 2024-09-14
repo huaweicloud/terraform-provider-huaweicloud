@@ -67,7 +67,9 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the ID of the rocketMQ instance.
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the topic.
+* `name` - (Required, String, ForceNew) Specifies the name of the topic.  
+  The valid length is limited from `3` to `64`, only letters, digits, vertical lines (|), percent sign (%), hyphens (-)
+  and underscores (_) are allowed.
   Changing this parameter will create a new resource.
 
 * `message_type` - (Optional, String, ForceNew) Specifies the message type of the topic.
@@ -84,7 +86,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
   The [brokers](#DmsRocketMQTopic_BrokerRef) structure is documented below.
 
-* `queue_num` - (Optional, Int, ForceNew) Specifies the number of queues. Default to **8**.
+* `queue_num` - (Optional, Int, ForceNew) Specifies the number of queues.  
+  The valid value is range from `1` to `50`. Defaults to `8`.
   It's only valid when RocketMQ instance version is **4.8.0**.
   Changing this parameter will create a new resource.
 
@@ -94,7 +97,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `permission` - (Optional, String) Specifies the permissions of the topic.
-  Value options: **all**, **sub**, **pub**. Default to **all**.
+  Value options: **all**, **sub**, **pub**. Defaults to **all**.
   It's only valid when RocketMQ instance version is **4.8.0**.
 
 * `total_read_queue_num` - (Optional, Int) Specifies the total number of read queues.

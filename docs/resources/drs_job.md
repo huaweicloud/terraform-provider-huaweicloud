@@ -265,7 +265,7 @@ The following arguments are supported:
   otherwise to **false**. The default value is **false**. Changing this parameter will create a new resource.
 
 * `expired_days` - (Optional, Int, ForceNew) Specifies how many days after the task is abnormal, it will automatically
-  end. The value ranges from 14 to 100. the default value is **14**. Changing this parameter will create a new resource.
+  end. The value ranges from 14 to 100. the default value is `14`. Changing this parameter will create a new resource.
 
 * `start_time` - (Optional, String, ForceNew) Specifies the time to start the job. The time format is a time stamp
   accurating to milliseconds, e.g. **1684466549755**, which indicates **2023-05-19 11:22:29.755**.
@@ -427,17 +427,19 @@ The `alarm_notify` block supports:
 * `topic_urn` - (Required, String, ForceNew) Specifies the SMN topic URN which is subscribed.
 
 * `delay_time` - (Optional, Int, ForceNew) Specifies the Delay threshold between the source and destination database,
-  in seconds. Value ranges from **1** to **3600**. Default is **0** and no notifications will be sent to recipient. If
+  in seconds. Value ranges from `1` to `3,600`. Default is `0` and no notifications will be sent to recipient. If
   the delay exceeds a specified value and lasts for 6 minutes, DRS will notify specified recipients. This option is
   available only for **full+incremental** tasks.
 
-* `rpo_delay` - (Optional, Int, ForceNew) Specifies the RPO delay threshold, in seconds. Value ranges from **1** to **3600**.
-  Default is **0** and no notifications will be sent to recipient. If the RPO delay between the service database and
-  the DRS instance exceeds a specified value and lasts for 6 minutes, DRS will notify specified recipients.
+* `rpo_delay` - (Optional, Int, ForceNew) Specifies the RPO delay threshold, in seconds.  
+  Value ranges from `1` to `3,600`. Default is `0` and no notifications will be sent to recipient.  
+  If the RPO delay between the service database and the DRS instance exceeds a specified value and lasts for `6`
+  minutes, DRS will notify specified recipients.
 
-* `rto_delay` - (Optional, Int, ForceNew) Specifies the RTO delay threshold, in seconds. Value ranges from **1** to **3600**.
-  Default is **0** and no notifications will be sent to recipient. If the RTO delay between the DRS instance and the
-  DR database exceeds a specified value and lasts for 6 minutes, DRS will notify specified recipients.
+* `rto_delay` - (Optional, Int, ForceNew) Specifies the RTO delay threshold, in seconds.  
+  Value ranges from `1` to `3,600`. Default is `0` and no notifications will be sent to recipient.  
+  If the RTO delay between the DRS instance and the DR database exceeds a specified value and lasts for `6` minutes,
+  DRS will notify specified recipients.
 
 ## Attribute Reference
 

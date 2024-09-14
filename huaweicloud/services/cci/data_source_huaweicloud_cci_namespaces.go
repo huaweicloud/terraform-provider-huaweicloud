@@ -2,7 +2,6 @@ package cci
 
 import (
 	"context"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -40,12 +39,6 @@ func DataSourceCciNamespaces() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`),
-						"The name can only consist of lowercase letters, numbers, and hyphens (-), "+
-							"and it must start and end with a letter or digit."),
-					validation.StringLenBetween(1, 63),
-				),
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,

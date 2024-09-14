@@ -67,15 +67,15 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `trigger_condition_count` - (Optional, Int) Specifies the count to trigger the alarm.
-  Defaults to **1**.
+  Defaults to `1`.
 
 * `trigger_condition_frequency` - (Optional, Int) Specifies the frequency to trigger the alarm.
-  Defaults to **1**.
+  Defaults to `1`.
 
 * `send_recovery_notifications` - (Optional, Bool) Specifies whether to send recovery notifications.
 
 * `recovery_frequency` - (Optional, Int) Specifies the frequency to recover the alarm.
-  Defaults to **3**.
+  Defaults to `3`.
 
 * `status` - (Optional, String) Specifies the status. The value can be: **RUNNING** and **STOPPING**.
   Defaults to **RUNNING**.
@@ -98,8 +98,8 @@ The `KeywordsRequests` block supports:
   The value can be: **minute** and **hour**.
 
 * `search_time_range` - (Required, Int) Specifies the search time range.
-  + When the `search_time_range_unit` is **minute**, the value ranges from **1** to **60**.
-  + When the `search_time_range_unit` is **hour**, the value ranges from **1** to **24**
+  + When the `search_time_range_unit` is **minute**, the value ranges from `1` to `60`.
+  + When the `search_time_range_unit` is **hour**, the value ranges from `1` to `24`.
 
 <a name="KeywordsAlarmRule_Frequency"></a>
 The `Frequency` block supports:
@@ -112,19 +112,19 @@ The `Frequency` block supports:
 
 * `hour_of_day` - (Optional, Int) Specifies the hour of day.
   This parameter is used when `type` is set to **DAILY** or **WEEKLY**.
-  The value ranges from **0** to **23**.
+  The value ranges from `0` to `23`.
 
 * `day_of_week` - (Optional, Int) Specifies the day of week.
   This parameter is used when `type` is set to **WEEKLY**.
-  The value ranges from **1** to **7**. **1** means Sunday.
+  The value ranges from `1` to `7`. `1` means Sunday.
 
 * `fixed_rate_unit` - (Optional, String) Specifies the unit of fixed rate.
   The value can be: **minute** and **hour**.
 
 * `fixed_rate` - (Optional, Int) Specifies the unit fixed rate.
   This parameter is used when `type` is set to **FIXED_RATE**.
-  + When the `fixed_rate_unit` is **minute**, the value ranges from **1** to **60**.
-  + When the `fixed_rate_unit` is **hour**, the value ranges from **1** to **24**
+  + When the `fixed_rate_unit` is **minute**, the value ranges from `1` to `60`.
+  + When the `fixed_rate_unit` is **hour**, the value ranges from `1` to `24`
 
 <a name="KeywordsAlarmRule_NotificationRule"></a>
 The `NotificationRule` block supports:

@@ -37,11 +37,11 @@ resource "huaweicloud_iotda_amqp" "queue" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the IoTDA AMQP queue resource.
-If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
+  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the AMQP queue name, which contains 8 to 128 characters.
-Only letters, digits, hyphens (-), underscores (_), dots (.) and colons (:) are allowed.
-Changing this parameter will create a new resource.
+* `name` - (Required, String, ForceNew) Specifies the AMQP queue name, which contains `8` to `128` characters.
+  Only letters, digits, hyphens (-), underscores (_), dots (.) and colons (:) are allowed.
+  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 

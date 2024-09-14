@@ -89,10 +89,9 @@ func ResourceGeminiDBInstanceV3() *schema.Resource {
 				Required: true,
 			},
 			"node_num": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      3,
-				ValidateFunc: validation.IntBetween(3, 200),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  3,
 			},
 			"volume_size": {
 				Type:     schema.TypeInt,
@@ -283,7 +282,6 @@ func ResourceGeminiDBInstanceV3() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
 			},
 			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 

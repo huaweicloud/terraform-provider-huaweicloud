@@ -65,16 +65,14 @@ func ResourceSecurityGroupRule() *schema.Resource {
 				ForceNew: true,
 			},
 			"port_range_min": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 65535),
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
 			},
 			"port_range_max": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 65535),
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
 			},
 			"ethertype": {
 				Type:         schema.TypeString,

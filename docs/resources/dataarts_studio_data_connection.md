@@ -62,7 +62,7 @@ The following arguments are supported:
   + **0**: Development mode.
   + **1**: Production mode.
 
-  Defaults to **0**.
+  Defaults to `0`.
 
 ## Attribute Reference
 

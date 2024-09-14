@@ -93,7 +93,7 @@ The following arguments are supported:
   + **0**: Disabled.
   + **1**: Enabled.
 
-  The default value is **1**.
+  The default value is `1`.
 
 * `start_time` - (Optional, String) Specifies the time when the precise protection rule takes effect.
   The time format is **yyyy-MM-dd HH:mm:ss**, e.g. **2023-05-01 15:04:05**.

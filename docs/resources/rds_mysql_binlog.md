@@ -29,7 +29,7 @@ The following arguments are supported:
 
 * `instance_id` - (Required, String, ForceNew) Specifies the RDS MySQL instance ID. Changing this will create a new resource.
 
-* `binlog_retention_hours` - (Required, Int) Specifies the binlog retention period. Value range: 1 to 168 (7x24).
+* `binlog_retention_hours` - (Required, Int) Specifies the binlog retention period. Value range: `1` to `168` (7x24).
 
 ## Attribute Reference
 

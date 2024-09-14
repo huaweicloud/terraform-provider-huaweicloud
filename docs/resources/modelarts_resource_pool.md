@@ -95,7 +95,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the dedicated resource pool.  
-  The name can contain **4** to **32** characters, only lowercase letters, digits and hyphens (-) are allowed.
+  The name can contain `4` to `32` characters, only lowercase letters, digits and hyphens (-) are allowed.
   The name must start with a lowercase letter and end with a lowercase letter or digit.
 
   Changing this parameter will create a new resource.
@@ -156,8 +156,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `period` - (Optional, Int, ForceNew) Specifies the charging period of the resource pool.
-  If `period_unit` is set to **month**, the value ranges from **1** to **9**.
-  If `period_unit` is set to **year**, the value ranges from **1** to **3**.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
   This parameter is mandatory if `charging_mode` is set to **prePaid**.
   Changing this parameter will create a new resource.
 
@@ -172,7 +172,7 @@ The `resources` block supports:
 
 * `count` - (Required, Int) Specifies the number of resources of the corresponding flavors.
 
-* `node_pool` - (Optional, String) Specifies the name of resource pool nodes. It can contain **1** to **50**
+* `node_pool` - (Optional, String) Specifies the name of resource pool nodes. It can contain `1` to `50`
   characters, and should start with a letter and ending with a letter or digit, only lowercase letters, digits,
   hyphens (-) are allowed, and cannot end with a hyphen (-).
 

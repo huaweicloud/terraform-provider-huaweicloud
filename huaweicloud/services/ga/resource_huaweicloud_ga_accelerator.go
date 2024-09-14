@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -53,11 +52,6 @@ func ResourceAccelerator() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the global accelerator name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9-]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"ip_sets": {
 				Type:     schema.TypeList,
@@ -71,11 +65,6 @@ func ResourceAccelerator() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the description about the global accelerator.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[^<>]*`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 255),
-				),
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -86,11 +75,6 @@ func ResourceAccelerator() *schema.Resource {
 					Specifies the enterprise project ID of the tenant. The value is **0** or a string that
 					contains a maximum of 36 characters in UUID format with hyphens (-). **0** indicates the
 					default enterprise project.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}|0`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 36),
-				),
 			},
 			"tags": common.TagsSchema(),
 

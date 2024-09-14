@@ -44,8 +44,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the IP address group. If omitted, the
   provider-level region will be used. Changing this creates a new address group.
   
-* `name` - (Required, String) Specifies the IP address group name. The value is a string of 1 to 64 characters that can contain
-  letters, digits, underscores (_), hyphens (-) and periods (.).
+* `name` - (Required, String) Specifies the IP address group name.  
+  The value is a string of `1` to `64` characters that can contain letters, digits, underscores (_), hyphens (-) and
+  periods (.).
 
 * `addresses` - (Required, List) Specifies an array of one or more IP addresses. The address can be a single IP
   address, IP address range or IP address CIDR. The maximum length is 20.
@@ -54,10 +55,10 @@ The following arguments are supported:
   Changing this creates a new address group.
 
 * `description` - (Optional, String) Specifies the supplementary information about the IP address group.
-  The value is a string of no more than 255 characters and cannot contain angle brackets (< or >).
+  The value is a string of no more than `255` characters and cannot contain angle brackets (< or >).
 
 * `max_capacity` - (Optional, Int) Specifies the maximum number of addresses that an address group can contain.
-  Value range: **1**-**20**, the default value is **20**.
+  The valid value is range from `1` to `20`, the default value is `20`.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.
   Changing this creates a new address group.

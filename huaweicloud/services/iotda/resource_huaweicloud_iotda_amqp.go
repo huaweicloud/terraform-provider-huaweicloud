@@ -3,12 +3,10 @@ package iotda
 import (
 	"context"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -42,11 +40,6 @@ func ResourceAmqp() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(8, 128),
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9.:]*$`),
-						"Only letters, digits, hyphens (-), underscores (_), dots (.) and colons (:) are allowed"),
-				),
 			},
 		},
 	}

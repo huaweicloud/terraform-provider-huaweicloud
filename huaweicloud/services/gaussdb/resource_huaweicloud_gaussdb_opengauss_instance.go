@@ -156,16 +156,14 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				},
 			},
 			"sharding_num": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      3,
-				ValidateFunc: validation.IntBetween(1, 9),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  3,
 			},
 			"coordinator_num": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      3,
-				ValidateFunc: validation.IntBetween(1, 9),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  3,
 			},
 			"replica_num": {
 				Type:     schema.TypeInt,

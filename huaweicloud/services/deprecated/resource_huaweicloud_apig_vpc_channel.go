@@ -3,7 +3,6 @@ package deprecated
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -93,21 +92,14 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 				Description: "The ID of the dedicated instance to which the VPC channel belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z]([\u4e00-\u9fa5\\w-.]*)?$"),
-						"Only chinese letters, english letters, digits hyphens (-), underscores (_) and dots (.) are "+
-							"allowed, and must start with a chinese or english letter."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The name of the VPC channel.",
 			},
 			"port": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(1, 65535),
-				Description:  "The host port of the VPC channel.",
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "The host port of the VPC channel.",
 			},
 			"members": {
 				Type:     schema.TypeSet,
@@ -126,11 +118,10 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 							Description: "The ID of the backend server.",
 						},
 						"weight": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      1,
-							ValidateFunc: validation.IntBetween(1, 100),
-							Description:  "The weight of current backend server.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     1,
+							Description: "The weight of current backend server.",
 						},
 					},
 				},
@@ -176,34 +167,30 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 				Description: "The destination path for health checks.",
 			},
 			"healthy_threshold": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      2,
-				ValidateFunc: validation.IntBetween(2, 10),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  2,
 				Description: "The the healthy threshold, which refers to the number of consecutive successful " +
 					"checks required for a backend server to be considered healthy.",
 			},
 			"unhealthy_threshold": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      5,
-				ValidateFunc: validation.IntBetween(2, 10),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  5,
 				Description: "The unhealthy threshold, which refers to the number of consecutive failed checks " +
 					"required for a backend server to be considered unhealthy.",
 			},
 			"timeout": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      5,
-				ValidateFunc: validation.IntBetween(2, 30),
-				Description:  "The timeout for determining whether a health check fails, in second.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     5,
+				Description: "The timeout for determining whether a health check fails, in second.",
 			},
 			"interval": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      10,
-				ValidateFunc: validation.IntBetween(5, 300),
-				Description:  "The interval between consecutive checks, in second.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     10,
+				Description: "The interval between consecutive checks, in second.",
 			},
 			"http_code": {
 				Type:        schema.TypeString,

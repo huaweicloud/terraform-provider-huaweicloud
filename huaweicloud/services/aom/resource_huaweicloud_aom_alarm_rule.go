@@ -3,7 +3,6 @@ package aom
 import (
 	"context"
 	"log"
-	"regexp"
 	"strconv"
 	"time"
 
@@ -50,14 +49,6 @@ func ResourceAlarmRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 100),
-					validation.StringMatch(regexp.MustCompile(
-						"^[\u4e00-\u9fa5A-Za-z0-9]([\u4e00-\u9fa5-_A-Za-z0-9]*[\u4e00-\u9fa5A-Za-z0-9])?$"),
-						"The name can only consist of letters, digits, underscores (_),"+
-							" hyphens (-) and chinese characters, and it must start and end with letters,"+
-							" digits or chinese characters."),
-				),
 			},
 			"metric_name": {
 				Type:     schema.TypeString,
@@ -96,10 +87,9 @@ func ResourceAlarmRule() *schema.Resource {
 				}),
 			},
 			"unit": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringLenBetween(1, 32),
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			"comparison_operator": {
 				Type:     schema.TypeString,
@@ -121,20 +111,17 @@ func ResourceAlarmRule() *schema.Resource {
 				Required: true,
 			},
 			"evaluation_periods": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(1, 5),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 1000),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"alarm_level": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      2,
-				ValidateFunc: validation.IntBetween(1, 4),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  2,
 			},
 			"alarm_actions": {
 				Type:     schema.TypeList,

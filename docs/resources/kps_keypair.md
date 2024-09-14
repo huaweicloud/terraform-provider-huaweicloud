@@ -77,7 +77,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the keypair resource. If omitted, the
   provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies a unique name for the keypair. The name can contain a maximum of 64
+* `name` - (Required, String, ForceNew) Specifies a unique name for the keypair. The name can contain a maximum of `64`
   characters, including letters, digits, underscores (_) and hyphens (-).
   Changing this parameter will create a new resource.
 

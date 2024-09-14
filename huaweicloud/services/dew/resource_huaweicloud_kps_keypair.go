@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -60,12 +59,6 @@ func ResourceKeypair() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile(`^[\-_A-Za-z0-9]+$`),
-						"The name can contain a maximum of 64 characters, including letters, digits, underscores (_)"+
-							" and hyphens (-)."),
-				),
 			},
 			"scope": {
 				Type:         schema.TypeString,

@@ -98,11 +98,10 @@ func ResourceDscInstance() *schema.Resource {
 				}, false),
 			},
 			"period": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `The charging period.`,
-				ValidateFunc: validation.IntBetween(1, 9),
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The charging period.`,
 			},
 			"auto_renew": {
 				Type:        schema.TypeString,

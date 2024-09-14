@@ -43,9 +43,8 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 			},
 
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 128),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 
 			"space_id": {
@@ -246,9 +245,8 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 									},
 
 									"message_content": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: validation.StringLenBetween(0, 256),
+										Type:     schema.TypeString,
+										Required: true,
 									},
 
 									"project_id": {
@@ -293,9 +291,8 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 									},
 
 									"description": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringLenBetween(0, 256),
+										Type:     schema.TypeString,
+										Optional: true,
 									},
 								},
 							},
@@ -312,9 +309,8 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 			},
 
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 256),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"enabled": {

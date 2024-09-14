@@ -47,8 +47,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the WAF certificate resource. If omitted, the
   provider-level region will be used. Changing this setting will push a new certificate.
 
-* `name` - (Required, String) Specifies the certificate name. The maximum length is 256 characters. Only digits,
-  letters, underscores(`_`), and hyphens(`-`) are allowed.
+* `name` - (Required, String) Specifies the certificate name. The maximum length is `256` characters. Only digits,
+  letters, underscores(_), and hyphens(-) are allowed.
 
 * `certificate` - (Required, String) Specifies the certificate content.
 

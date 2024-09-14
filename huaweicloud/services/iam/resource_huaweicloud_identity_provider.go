@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -60,9 +59,6 @@ func ResourceIdentityProvider() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[\w-]{1,64}$`),
-					"The maximum length is 64 characters. "+
-						"Only letters, digits, underscores (_), and hyphens (-) are allowed"),
 			},
 			"protocol": {
 				Type:         schema.TypeString,

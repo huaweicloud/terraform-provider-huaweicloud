@@ -43,7 +43,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the DDM schema.
-  An instance name starts with a letter, consists of 2 to 48 characters, and can contain only lowercase letters,
+  An instance name starts with a letter, consists of `2` to `48` characters, and can contain only lowercase letters,
   digits, and underscores (_). Cannot contain keywords information_schema, mysql, performance_schema, or sys.
 
   Changing this parameter will create a new resource.

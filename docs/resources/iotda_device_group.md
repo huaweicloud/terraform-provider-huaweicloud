@@ -44,15 +44,15 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the IoTDA device group resource.
 If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the name of device group. The name contains a maximum of 64 characters.
+* `name` - (Required, String) Specifies the name of device group. The name contains a maximum of `64` characters.
 Only letters, digits, hyphens (-) and underscores (_) are allowed.
 
 * `space_id` - (Required, String, ForceNew) Specifies the resource space ID to which the device group belongs.
 Changing this parameter will create a new resource.
 
-* `description` - (Optional, String) Specifies the description of device group. The description contains a maximum of 64
-characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters
-are allowed: `?'#().,&%@!`.
+* `description` - (Optional, String) Specifies the description of device group.
+The description contains a maximum of `64` characters. Only letters, Chinese characters, digits, hyphens (-),
+underscores (_) and the following special characters are allowed: `?'#().,&%@!`.
 
 * `parent_group_id` - (Optional, String, ForceNew) Specifies the parent group id.
 Changing this parameter will create a new resource.

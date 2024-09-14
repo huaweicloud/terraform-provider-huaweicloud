@@ -46,14 +46,14 @@ The following arguments are supported:
   creates a new listener.
 
 * `protocol_port` - (Optional, Int, ForceNew) Specifies the port used by the listener.
-  + The **QUIC** listener port cannot be **4789** or the same as the **UDP** listener port.
-  + If `protocol` is set to **IP**, the value can only be **0** or empty.
-  + If it is set to **0** and `protocol` is not set to **IP**, `port_ranges` is required.
+  + The **QUIC** listener port cannot be `4789` or the same as the **UDP** listener port.
+  + If `protocol` is set to **IP**, the value can only be `0` or empty.
+  + If it is set to `0` and `protocol` is not set to **IP**, `port_ranges` is required.
 
   Changing this creates a new listener.
 
 * `port_ranges` - (Optional, List, ForceNew) Specifies the port monitoring range (closed range), specify up to 10 port
-  groups, each group range must not overlap. This field can only be passed in when `protocol_port` is **0** or empty.
+  groups, each group range must not overlap. This field can only be passed in when `protocol_port` is `0` or empty.
   Only **TCP**, **UDP**, and **TLS** listener support this field. Changing this creates a new listener.
   The [port_ranges](#ELB_port_ranges) structure is documented below.
 

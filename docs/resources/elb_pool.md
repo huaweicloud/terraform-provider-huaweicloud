@@ -175,18 +175,18 @@ The following arguments are supported:
   -> **NOTE:** This parameter can be set to **true** when the `protocol` is set to **HTTP** or **HTTPS**, or an error
   will be returned.
 
-* `slow_start_duration` - (Optional, Int) Specifies the slow start duration, in seconds. Value ranges from **30**
-  to **1200**. Defaults to **30**.
+* `slow_start_duration` - (Optional, Int) Specifies the slow start duration, in seconds.  
+  Value ranges from `30` to `1,200`. Defaults to `30`.
 
 * `connection_drain_enabled` - (Optional, Bool) Specifies whether to enable delayed logout. This parameter can be set to
   **true** when the `protocol` is set to **TCP**, **UDP** or **QUIC**, and the value of `protocol` of the associated
   listener must be **TCP** or **UDP**. It will be triggered for the following scenes:
   + The pool member is removed from the pool.
   + The health monitor status is abnormal.
-  + The pool member weight is changed to 0.
+  + The pool member weight is changed to `0`.
 
-* `connection_drain_timeout` - (Optional, Int) Specifies the timeout of the delayed logout in seconds. Value ranges from
-  **10** to **4000**.
+* `connection_drain_timeout` - (Optional, Int) Specifies the timeout of the delayed logout in seconds.  
+  Value ranges from `10` to `4000`.
 
 * `minimum_healthy_member_count` - (Optional, Int) Specifies the minimum healthy member count. When the number of online
   members in the health check is less than this number, the status of the pool is determined to be unhealthy. Value options:
@@ -210,10 +210,10 @@ The `persistence` block supports:
 * `timeout` - (Optional, Int) Specifies the sticky session timeout duration in minutes. This parameter is
   invalid when `type` is set to **APP_COOKIE**. The value range varies depending on the protocol of the backend server
   group:
-  + When the protocol of the backend server group is **TCP** or **UDP**, the value ranges from **1** to **60**, and
-    defaults to **1**.
-  + When the protocol of the backend server group is **HTTP** or **HTTPS**, the value ranges from **1** to **1440**,
-    and defaults to **1440**.
+  + When the protocol of the backend server group is **TCP** or **UDP**, the value ranges from `1` to `60`, and
+    defaults to `1`.
+  + When the protocol of the backend server group is **HTTP** or **HTTPS**, the value ranges from `1` to `1,440`,
+    and defaults to `1,440`.
 
 ## Attribute Reference
 

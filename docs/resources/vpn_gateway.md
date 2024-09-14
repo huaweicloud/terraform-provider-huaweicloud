@@ -160,7 +160,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) The name of the VPN gateway. Only letters, digits, underscores(_) and hypens(-) are supported.
+* `name` - (Required, String) The name of the VPN gateway.  
+  The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.
 
 * `availability_zones` - (Required, List, ForceNew) The list of availability zone IDs.
 
@@ -238,8 +239,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `asn` - (Optional, Int, ForceNew) The ASN number of BGP. The value ranges from **1** to **4294967295**.
-  Defaults to **64512**
+* `asn` - (Optional, Int, ForceNew) The ASN number of BGP. The value ranges from `1` to `4,294,967,295`.
+  Defaults to `64,512`.
 
   Changing this parameter will create a new resource.
 
@@ -256,13 +257,14 @@ The `eip1` or `eip2` block supports:
 
   Changing this parameter will create a new resource.
 
-* `bandwidth_name` - (Optional, String, ForceNew) The bandwidth name.
+* `bandwidth_name` - (Optional, String, ForceNew) The bandwidth name.  
+  The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.
 
   Changing this parameter will create a new resource.
 
 * `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size in Mbit/s. When the `flavor` is **Basic**, the value
-  cannot be greater than **100**. When the `flavor` is **Professional1**, the value cannot be greater than **300**.
-  When the `flavor` is **Professional2**, the value cannot be greater than **1000**.
+  cannot be greater than `100`. When the `flavor` is **Professional1**, the value cannot be greater than `300`.
+  When the `flavor` is **Professional2**, the value cannot be greater than `1,000`.
 
   Changing this parameter will create a new resource.
 

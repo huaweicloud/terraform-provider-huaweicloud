@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/workspace/v2/users"
 
@@ -53,11 +52,6 @@ func ResourceUser() *schema.Resource {
 			"email": {
 				Type:     schema.TypeString,
 				Required: true,
-			},
-			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
 			},
 			"account_expires": {
 				Type:     schema.TypeString,

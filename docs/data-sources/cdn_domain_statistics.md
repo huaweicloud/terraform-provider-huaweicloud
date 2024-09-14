@@ -54,20 +54,20 @@ The following arguments are supported:
 
 * `start_time` - (Required, Int) Specifies the start timestamp of the query.
   The timestamp must be set to a multiple of 5 minutes.
-  + If the value of interval is **300**, set this parameter to a multiple of 5 minutes,
+  + If the value of interval is `300`, set this parameter to a multiple of `5` minutes,
     for example, 1631240100000, which means 2021-09-10 10:15:00.
-  + If the value of interval is **3600**, set this parameter to a multiple of 1 hour,
+  + If the value of interval is `3,600`, set this parameter to a multiple of `1` hour,
     for example, 1631239200000, which means 2021-09-10 10:00:00.
-  + If the value of interval is **86400**, set this parameter to 00:00:00 (GMT+08:00),
+  + If the value of interval is `86,400`, set this parameter to 00:00:00 (GMT+08:00),
     for example, 1631203200000, which means 2021-09-10 00:00:00.
 
 * `end_time` - (Required, Int) Specifies the end timestamp of the query.
-  The timestamp must be set to a multiple of 5 minutes.
-  + If the value of interval is 300, set this parameter to a multiple of 5 minutes,
+  The timestamp must be set to a multiple of `5` minutes.
+  + If the value of interval is `300`, set this parameter to a multiple of `5` minutes,
     for example, 1631243700000, which means 2021-09-10 11:15:00.
-  + If the value of interval is 3600, set this parameter to a multiple of 1 hour,
+  + If the value of interval is `3,600`, set this parameter to a multiple of `1` hour,
     for example, 1631325600000, which means 2021-09-11 10:00:00.
-  + If the value of interval is 86400, set this parameter to 00:00:00 (GMT+08:00),
+  + If the value of interval is `86,400`, set this parameter to 00:00:00 (GMT+08:00),
     for example, 1631376000000, which means 2021-09-12 00:00:00.
 
 * `interval` - (Optional, Int) Specifies the query time interval, in seconds, the value can be,

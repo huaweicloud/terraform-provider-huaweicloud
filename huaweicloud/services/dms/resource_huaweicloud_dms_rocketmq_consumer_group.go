@@ -2,13 +2,11 @@ package dms
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -50,18 +48,11 @@ func ResourceDmsRocketMQConsumerGroup() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the name of the consumer group.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z|%-_0-9]*$`),
-						"An instance name starts with a letter and can contain only letters, digits,"+
-							"vertical lines(|), percent sign(%), underscores (_), and hyphens (-)"),
-					validation.StringLenBetween(3, 64),
-				),
 			},
 			"retry_max_times": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the maximum number of retry times.`,
-				ValidateFunc: validation.IntBetween(1, 16),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the maximum number of retry times.`,
 			},
 			"enabled": {
 				Type:        schema.TypeBool,

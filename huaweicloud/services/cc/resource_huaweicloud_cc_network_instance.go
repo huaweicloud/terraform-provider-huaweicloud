@@ -7,7 +7,6 @@ package cc
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -87,21 +86,11 @@ func ResourceNetworkInstance() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `The network instance name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\x{4E00}-\x{9FFC}A-Za-z-_0-9.]*$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The description about the network instance.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^<>]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 255),
-				),
 			},
 			"instance_domain_id": {
 				Type:        schema.TypeString,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -43,11 +42,6 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 128),
-					validation.StringMatch(regexp.MustCompile(`^\w+$`),
-						"The name can only consist of letters, digits and underscores (_)."),
-				),
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -120,31 +114,18 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 									"width": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ValidateFunc: validation.Any(
-											validation.IntInSlice([]int{0}),
-											validation.IntBetween(128, 3840),
-										),
 									},
 									"height": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ValidateFunc: validation.Any(
-											validation.IntInSlice([]int{0}),
-											validation.IntBetween(128, 2160),
-										),
 									},
 									"bitrate": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ValidateFunc: validation.Any(
-											validation.IntInSlice([]int{0}),
-											validation.IntBetween(700, 3000),
-										),
 									},
 									"frame_rate": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										ValidateFunc: validation.IntBetween(1, 75),
+										Type:     schema.TypeInt,
+										Optional: true,
 									},
 								},
 							},
@@ -156,22 +137,16 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"sample_rate": {
-										Type:         schema.TypeInt,
-										Required:     true,
-										ValidateFunc: validation.IntBetween(1, 6),
+										Type:     schema.TypeInt,
+										Required: true,
 									},
 									"channels": {
-										Type:         schema.TypeInt,
-										Required:     true,
-										ValidateFunc: validation.IntBetween(1, 2),
+										Type:     schema.TypeInt,
+										Required: true,
 									},
 									"bitrate": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ValidateFunc: validation.Any(
-											validation.IntInSlice([]int{0}),
-											validation.IntBetween(8, 1000),
-										),
 									},
 								},
 							},

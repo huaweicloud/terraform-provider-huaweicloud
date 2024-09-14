@@ -142,13 +142,13 @@ The following arguments are supported:
 * `name` - (Required, String) The rule name.
 
 * `type` - (Required, Int) The rule type.
-  The value can be **0** (Internet rule), **1** (VPC rule), or **2** (NAT rule).
+  The value can be `0` (Internet rule), `1` (VPC rule), or `2` (NAT rule).
 
 * `action_type` - (Required, Int) The action type.
-  The value can be **0** (allow), **1** (deny).
+  The value can be `0` (allow), `1` (deny).
 
 * `address_type` - (Required, Int) The address type.
-  The value can be **0** (IPv4), **1** (IPv6).
+  The value can be `0` (IPv4), `1` (IPv6).
 
 * `sequence` - (Required, List) The sequence configuration.
   The [sequence](#Sequence) structure is documented below.
@@ -178,7 +178,7 @@ The following arguments are supported:
 * `source_predefined_groups` - (Optional, List) The source predefined address group list.
 
 * `source_address_type` - (Optional, Int) The source address type.
-  The value can be **0** (IPv4), **1** (IPv6).
+  The value can be `0` (IPv4), `1` (IPv6).
 
 * `destination_addresses` - (Optional, List) The destination IP address list.
 
@@ -199,7 +199,7 @@ The following arguments are supported:
 * `destination_address_groups` - (Optional, List) The destination address group list.
 
 * `destination_address_type` - (Optional, Int) The destination address type.
-  The value can be **0** (IPv4), **1** (IPv6).
+  The value can be `0` (IPv4), `1` (IPv6).
 
 * `long_connect_time_hour` - (Optional, Int) The persistent connection duration (hour).
 

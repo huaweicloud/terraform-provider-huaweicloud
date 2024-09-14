@@ -47,8 +47,9 @@ The following arguments are supported:
   Please following [reference](https://developer.huaweicloud.com/en-us/endpoint/?CloudTable) for the values.
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the cluster name. The name consists of 4 to 64 characters, including
-  lowercase letters, numbers and hyphens (-). Changing this parameter will create a new resource.
+* `name` - (Required, String, ForceNew) Specifies the cluster name.  
+  The name consists of `4` to `64` characters, including lowercase letters, numbers and hyphens (-).  
+  Changing this parameter will create a new resource.
 
 * `storage_type` - (Required, String, ForceNew) Specifies the storage type.
   The valid values are **COMMON** and **ULTRAHIGH**. Changing this parameter will create a new resource.
@@ -71,7 +72,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `rs_num` - (Optional, Int, ForceNew) Specifies the compute nodes number of the cluster.
-  The valid values must be greater than `2`. Defaults to `2`. Changing this parameter will create a new resource.
+  The valid values must be at least `2`. Defaults to `2`.  
+  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 

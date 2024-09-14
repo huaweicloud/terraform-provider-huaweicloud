@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -77,10 +76,9 @@ func ResourceNotebook() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"MANAGED", "DEDICATED"}, false),
 						},
 						"size": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.IntBetween(5, 4096),
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
 						},
 						"uri": {
 							Type:     schema.TypeString,
@@ -104,9 +102,6 @@ func ResourceNotebook() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[^&<>"'/]{1,256}$`),
-					"The description contains a maximum of 256 characters, "+
-						"and cannot contain special characters &<>\"'/."),
 			},
 			"key_pair": {
 				Type:         schema.TypeString,

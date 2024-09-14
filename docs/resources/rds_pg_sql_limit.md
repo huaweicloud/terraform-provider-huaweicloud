@@ -41,7 +41,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `max_concurrency` - (Required, Int) Specifies the number of SQL statements executed simultaneously.
-  Value ranges from **0** to **50000**. **0** means no limit.
+  Value ranges from `0` to `50000`. `0` means no limit.
 
 * `max_waiting` - (Required, Int) Specifies the max waiting time in seconds.
 

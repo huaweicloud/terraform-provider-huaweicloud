@@ -271,7 +271,7 @@ The following arguments are supported:
   launched. You can check on console to see which parameters supported. Structure is documented below.
 
 * `binlog_retention_hours` - (Optional, Int) Specify the binlog retention period in hours. This parameter applies only to
-  MySQL Server databases. Value range: **0** to **168 (7x24)**.
+  MySQL Server databases. Value range: `0` to `168` (7x24).
 
 * `msdtc_hosts` - (Optional, List) Specify the host information for MSDTC.
   The [msdtc_hosts](#RdsInstance_MsdtcHosts) structure is documented below.
@@ -305,10 +305,10 @@ The following arguments are supported:
 * `seconds_level_monitoring_enabled` - (Optional, Bool) Specifies whether to enable seconds level monitoring.
 
 * `seconds_level_monitoring_interval` - (Optional, Int) Specifies the seconds level monitoring interval. Valid values:
-  **1**, **5**. It is mandatory when `seconds_level_monitoring_enabled` is **true**.
+  `1`, `5`. It is mandatory when `seconds_level_monitoring_enabled` is **true**.
 
 * `private_dns_name_prefix` - (Optional, String) Specifies the prefix of the private domain name. The value contains
-  **8** to **64** characters. Only uppercase letters, lowercase letters, and digits are allowed.
+  `8` to `64` characters. Only uppercase letters, lowercase letters, and digits are allowed.
 
 * `slow_log_show_original_status` - (Optional, String) Specifies the slow log show original status of the instance.
   Only **MySQL** and **PostgreSQL** are supported. Value options: **on**, **off**.

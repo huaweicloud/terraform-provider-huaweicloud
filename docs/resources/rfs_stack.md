@@ -122,7 +122,7 @@ The following arguments are supported:
   Change this parameter will create a new resource.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of the resource stack, which contain maximum of
-  255 characters.  
+  `255` characters.  
   Change this parameter will create a new resource.
 
 * `agency` - (Optional, List, ForceNew) Specifies the configuration of the agencies authorized to IAC.  

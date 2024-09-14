@@ -41,7 +41,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) The instance name. The name can contain 1 to 64 characters.
+* `name` - (Required, String, ForceNew) The instance name. The name can contain `1` to `64` characters.
   Only letters, digits, underscores (_), and hyphens (-) are allowed.
 
   Changing this parameter will create a new resource.
@@ -94,8 +94,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `period` - (Required, Int, ForceNew) The charging period.  
-  If `period_unit` is set to **month**, the value ranges from 1 to 9.
-  If `period_unit` is set to **year**, the value ranges from 1 to 3.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
   This parameter is mandatory if `charging_mode` is set to **prePaid**.
 
   Changing this parameter will create a new resource.
