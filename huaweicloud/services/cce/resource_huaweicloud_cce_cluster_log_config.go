@@ -146,6 +146,9 @@ func resourceClusterLogConfigRead(_ context.Context, d *schema.ResourceData, met
 
 	getClusterLogConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 	getClusterLogConfigResp, err := client.Request("GET", getClusterLogConfigPath, &getClusterLogConfigOpt)
 	if err != nil {
