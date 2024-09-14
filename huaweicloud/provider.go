@@ -1449,6 +1449,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_public_domain_associate": dws.ResourcePublicDomainAssociate(),
 			"huaweicloud_dws_snapshot_policy":         dws.ResourceDwsSnapshotPolicy(),
 			"huaweicloud_dws_snapshot":                dws.ResourceDwsSnapshot(),
+			"huaweicloud_dws_workload_configuration":  dws.ResourceWorkLoadConfiguration(),
 			"huaweicloud_dws_workload_plan_execution": dws.ResourceWorkLoadPlanExecution(),
 			"huaweicloud_dws_workload_plan_stage":     dws.ResourceWorkLoadPlanStage(),
 			"huaweicloud_dws_workload_plan":           dws.ResourceWorkLoadPlan(),
