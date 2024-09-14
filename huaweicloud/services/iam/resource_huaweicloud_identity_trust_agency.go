@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -114,11 +113,11 @@ func resourceIAMTrustAgencyCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("agency.agency_id", createAgencyRespBody)
-	if err != nil {
+	id := utils.PathSearch("agency.agency_id", createAgencyRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating IAM trust agency: agency_id is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	// attach policies by ID
 	for _, policyID := range policyIDs {
@@ -170,8 +169,8 @@ func resourceIAMTrustAgencyRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	agency, err := jmespath.Search("agency", getAgencyRespBody)
-	if err != nil {
+	agency := utils.PathSearch("agency", getAgencyRespBody, nil)
+	if agency == nil {
 		return diag.Errorf("error getting IAM trust agency: agency is not found in API response")
 	}
 

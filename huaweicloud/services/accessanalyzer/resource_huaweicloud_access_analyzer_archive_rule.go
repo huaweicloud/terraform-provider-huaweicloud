@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -145,11 +144,11 @@ func resourceArchiveRuleCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createArchiveRuleRespBody)
-	if err != nil {
+	id := utils.PathSearch("id", createArchiveRuleRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating archive rule: id is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceArchiveRuleRead(ctx, d, meta)
 }
@@ -224,8 +223,8 @@ func resourceArchiveRuleRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	archiveRule, err := jmespath.Search("archive_rule", getArchiveRuleRespBody)
-	if err != nil {
+	archiveRule := utils.PathSearch("archive_rule", getArchiveRuleRespBody, nil)
+	if archiveRule == nil {
 		return diag.Errorf("error getting archive rule: archive_rule is not found in API response")
 	}
 

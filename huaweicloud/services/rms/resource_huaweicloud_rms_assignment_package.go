@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -163,11 +162,11 @@ func resourceAssignmentPackageCreate(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createAssignmentPackageRespBody)
-	if err != nil {
+	id := utils.PathSearch("id", createAssignmentPackageRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating RMS assignment package: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"CREATE_SUCCESSFUL", "ROLLBACK_SUCCESSFUL"},
@@ -179,7 +178,7 @@ func resourceAssignmentPackageCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for RMS assignment Package (%s) to be created: %s", id.(string), err)
+		return diag.Errorf("error waiting for RMS assignment Package (%s) to be created: %s", id, err)
 	}
 
 	return resourceAssignmentPackageRead(ctx, d, meta)
