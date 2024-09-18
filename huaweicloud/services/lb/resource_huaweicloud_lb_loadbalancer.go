@@ -119,7 +119,6 @@ func ResourceLoadBalancer() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 
@@ -520,6 +519,18 @@ func resourceLoadBalancerV2Update(ctx context.Context, d *schema.ResourceData, m
 		tagErr := utils.UpdateResourceTags(elbV2Client, d, "loadbalancers", d.Id())
 		if tagErr != nil {
 			return diag.Errorf("error updating tags of LoadBalancer:%s, err:%s", d.Id(), tagErr)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := config.MigrateResourceOpts{
+			ResourceId:   d.Id(),
+			ResourceType: "loadbalancers",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
