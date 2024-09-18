@@ -948,6 +948,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_data_classes":              secmaster.DataSourceSecmasterDataClasses(),
 			"huaweicloud_secmaster_data_class_fields":         secmaster.DataSourceSecmasterDataClassFields(),
 			"huaweicloud_secmaster_playbook_action_instances": secmaster.DataSourceSecmasterPlaybookActionInstances(),
+			"huaweicloud_secmaster_playbook_statistics":       secmaster.DataSourceSecmasterPlaybookStatistics(),
 
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
 
