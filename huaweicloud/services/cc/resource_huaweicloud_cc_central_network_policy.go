@@ -487,7 +487,7 @@ func resourceCentralNetworkPolicyDelete(_ context.Context, d *schema.ResourceDat
 	_, err = deleteCentralNetworkPolicyClient.Request("DELETE", deleteCentralNetworkPolicyPath,
 		&deleteCentralNetworkPolicyOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CentralNetworkPolicy: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting CentralNetworkPolicy")
 	}
 
 	return nil

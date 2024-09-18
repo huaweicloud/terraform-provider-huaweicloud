@@ -408,7 +408,7 @@ func resourceCentralNetworkAttachmentDelete(ctx context.Context, d *schema.Resou
 	_, err = deleteCentralNetworkAttachmentClient.Request("DELETE", deleteCentralNetworkAttachmentPath,
 		&deleteCentralNetworkAttachmentOpt)
 	if err != nil {
-		return diag.Errorf("error deleting central network attachment: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting central network attachment")
 	}
 
 	err = centralNetworkAttachmentDeleteWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))

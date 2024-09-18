@@ -397,7 +397,7 @@ func resourceGlobalConnectionBandwidthDelete(_ context.Context, d *schema.Resour
 
 	_, err = client.Request("DELETE", deleteGCBPath, &deleteGCBOpt)
 	if err != nil {
-		return diag.Errorf("error deleting global connection bandwidth: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting global connection bandwidth")
 	}
 
 	return nil

@@ -252,7 +252,9 @@ func resourceCentralNetworkConnectionBandwidthAssociateDelete(ctx context.Contex
 
 	_, err = client.Request("PUT", path, &opt)
 	if err != nil {
-		return diag.Errorf("error deleting central network connection bandwidth associate: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "GCN.101505"),
+			"error deleting central network connection bandwidth associate")
 	}
 
 	err = centralNetworkConnectionBandwidthAssociateWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))

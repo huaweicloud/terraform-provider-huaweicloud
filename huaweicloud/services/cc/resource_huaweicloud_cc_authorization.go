@@ -279,7 +279,7 @@ func resourceAuthorizationDelete(_ context.Context, d *schema.ResourceData, meta
 
 	_, err = deleteAuthorizationClient.Request("DELETE", deleteAuthorizationPath, &deleteAuthorizationOpt)
 	if err != nil {
-		return diag.Errorf("error deleting authorization: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting authorization")
 	}
 
 	return nil

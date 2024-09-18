@@ -345,7 +345,7 @@ func resourceCentralNetworkDelete(ctx context.Context, d *schema.ResourceData, m
 
 	_, err = deleteCentralNetworkClient.Request("DELETE", deleteCentralNetworkPath, &deleteCentralNetworkOpt)
 	if err != nil {
-		return diag.Errorf("error deleting central network: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting central network")
 	}
 
 	err = deleteCentralNetworkWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))

@@ -299,7 +299,7 @@ func resourceInterRegionBandwidthDelete(_ context.Context, d *schema.ResourceDat
 
 	_, err = deleteInterRegionBandwidthClient.Request("DELETE", deleteInterRegionBandwidthPath, &deleteInterRegionBandwidthOpt)
 	if err != nil {
-		return diag.Errorf("error deleting inter-region bandwidth: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting inter-region bandwidth")
 	}
 
 	return nil
