@@ -2,12 +2,15 @@
 subcategory: "Image Management Service (IMS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_images_image_share_accepter"
-description: ""
+description: |-
+  Manages an IMS image share accepter resource within HuaweiCloud.
 ---
 
 # huaweicloud_images_image_share_accepter
 
 Manages an IMS image share accepter resource within HuaweiCloud.
+
+-> Creating resource means accepting shared image, while destroying resource means rejecting shared image.
 
 ## Example Usage
 
@@ -39,7 +42,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The resource ID in UUID format.
 
 ## Timeouts
 
