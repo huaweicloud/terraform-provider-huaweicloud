@@ -198,6 +198,14 @@ func TestAccLBV2LoadBalancer_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
+			{
+				Config: testAccLBV2LoadBalancerConfig_withEpsId_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
 						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
@@ -456,6 +464,23 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancerConfig_withEpsId(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+  name                  = "%s"
+  vip_subnet_id         = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  enterprise_project_id = "0"
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccLBV2LoadBalancerConfig_withEpsId_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
