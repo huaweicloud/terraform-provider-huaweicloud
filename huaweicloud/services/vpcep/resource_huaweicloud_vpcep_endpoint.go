@@ -122,6 +122,18 @@ func ResourceVPCEndpoint() *schema.Resource {
 					`Specifies the endpoint policy information`, utils.SchemaDescInput{Deprecated: true},
 				),
 			},
+			"ip_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"ipv6_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"tags": common.TagsSchema(),
 			"status": {
 				Type:     schema.TypeString,
@@ -180,6 +192,8 @@ func resourceVPCEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 		SubnetID:        d.Get("network_id").(string),
 		PortIP:          d.Get("ip_address").(string),
 		Description:     d.Get("description").(string),
+		IPVersion:       d.Get("ip_version").(string),
+		IPv6Address:     d.Get("ipv6_address").(string),
 		EnableDNS:       utils.Bool(d.Get("enable_dns").(bool)),
 		EnableWhitelist: utils.Bool(enableACL),
 		Tags:            utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
@@ -256,6 +270,8 @@ func resourceVPCEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("packet_id", ep.MarkerID),
 		d.Set("tags", utils.TagsToMap(ep.Tags)),
 		d.Set("policy_statement", string(policyStatements)),
+		d.Set("ip_version", ep.IpVersion),
+		d.Set("ipv6_address", ep.Ipv6Address),
 	)
 
 	// if the VPC endpoint type is interface, the field is used and need to be set
