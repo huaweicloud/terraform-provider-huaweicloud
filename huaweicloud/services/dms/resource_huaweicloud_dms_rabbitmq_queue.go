@@ -248,7 +248,7 @@ func resourceDmsRabbitmqQueueRead(_ context.Context, d *schema.ResourceData, met
 
 	getRespBody, err := GetRabbitmqQueue(client, instanceID, vhost, name)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error retrieving the queue")
 	}
 
 	auguments := utils.PathSearch("arguments", getRespBody, nil)
