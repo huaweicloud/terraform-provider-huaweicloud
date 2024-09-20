@@ -68,6 +68,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   flavor_id         = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].flavor.id
   engine_version    = data.huaweicloud_dms_rabbitmq_flavors.test.versions[0]
   storage_spec_code = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].ios[0].storage_spec_code
+  broker_num        = 1
 
   vpc_id             = var.vpc_id
   network_id         = var.subnet_id

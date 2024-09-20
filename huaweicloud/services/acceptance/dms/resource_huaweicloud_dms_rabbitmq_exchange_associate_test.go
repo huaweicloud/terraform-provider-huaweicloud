@@ -253,5 +253,5 @@ resource "huaweicloud_dms_rabbitmq_exchange_associate" "test" {
   destination      = huaweicloud_dms_rabbitmq_queue.test.name
   routing_key      = "/test%%encode|\\"
 }
-`, testAccDmsRabbitmqInstance_basic(rName))
+`, testAccDmsRabbitmqInstance_newFormat_single(rName))
 }

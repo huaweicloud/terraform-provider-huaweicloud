@@ -94,5 +94,5 @@ resource "huaweicloud_dms_rabbitmq_plugin" "test" {
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
   name        = "rabbitmq_consistent_hash_exchange"
 }
-`, testAccDmsRabbitmqInstance_basic(randName))
+`, testAccDmsRabbitmqInstance_newFormat_single(randName))
 }

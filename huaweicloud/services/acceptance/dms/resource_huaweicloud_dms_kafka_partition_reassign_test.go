@@ -72,7 +72,7 @@ resource "huaweicloud_dms_kafka_partition_reassign" "test" {
       partition_brokers = [2,0,1]
     }
   }
-}`, testAccKafkaInstance_basic(rName), rName)
+}`, testAccKafkaInstance_newFormat(rName), rName)
 }
 
 func testAccKafkaPartitionReassign_automatical(rName string, timeEstimate bool) string {
@@ -98,5 +98,5 @@ resource "huaweicloud_dms_kafka_partition_reassign" "test" {
     brokers            = [0,1,2]
     replication_factor = 3
   }
-}`, testAccKafkaInstance_basic(rName), rName, timeEstimate)
+}`, testAccKafkaInstance_newFormat(rName), rName, timeEstimate)
 }

@@ -96,5 +96,5 @@ output "version_filter_is_useful" {
   ) 
 }
 
-`, testAccDmsRabbitmqInstance_basic(name))
+`, testAccDmsRabbitmqInstance_newFormat_single(name))
 }
