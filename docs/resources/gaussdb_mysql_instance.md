@@ -149,6 +149,9 @@ The following arguments are supported:
 * `parameters` - (Optional, List) Specifies an array of one or more parameters to be set to the instance after launched.
   The [parameters](#parameters_struct) structure is documented below.
 
+* `auto_scaling` - (Optional, List) Specifies the auto-scaling policies.
+  The [auto_scaling](#auto_scaling_struct) structure is documented below.
+
 * `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already
   existed.
 
@@ -188,6 +191,55 @@ The `parameters` block supports:
 
 * `value` - (Required, String) Specifies the value of the parameter.
 
+<a name="auto_scaling_struct"></a>
+The `auto_scaling` block supports:
+
+* `status` - (Required, String) Specifies whether auto-scaling is enabled. Value options:
+  + **ON**: enabled.
+  + **OFF**: disabled.
+
+* `scaling_strategy` - (Required, List) Specifies the auto-scaling policy.
+  The [scaling_strategy](#scaling_strategy_struct) structure is documented below.
+
+* `monitor_cycle` - (Optional, Int) Specifies the observation period, in seconds. During the entire observation period,
+  if the average CPU usage is greater than or equal to the preset value, a scale-up is triggered. It is mandatory when
+  `status` is set to **ON**. Value options: **300**, **600**, **900** or **1800**.
+
+* `silence_cycle` - (Optional, Int) Specifies the silent period, in seconds. It indicates the minimum interval between
+  two auto scale-up operations or two scale-down operations. It is mandatory when `status` is set to **ON**. Value
+  options: **300**,  **600**, **1800**, **3600**, **7200**, **10800**, **86400** or **604800**.
+
+* `enlarge_threshold` - (Optional, Int) Specifies the average CPU usage (%). It is mandatory when `status` is set to
+  **ON**. Value options: **50–100**.
+
+* `max_flavor` - (Optional, String) Specifies the maximum specifications. It is mandatory when the instance specifications
+  are automatically scaled up or down.
+
+* `reduce_enabled` - (Optional, Bool) Specifies whether auto-down is enabled. It is mandatory when `status` is set to
+  **ON**. Value options:
+  + **true**: enabled.
+  + **false**: disabled.
+
+* `max_read_only_count` - (Optional, Int) Specifies the maximum number of read replicas. It is mandatory when read
+  replicas are automatically added or deleted.
+
+* `read_only_weight` - (Optional, Int) Specifies the read weights of read replicas. It is mandatory when read replicas
+  are automatically added or deleted.
+
+<a name="scaling_strategy_struct"></a>
+The `scaling_strategy` block supports:
+
+* `flavor_switch` - (Required, String) Specifies whether instance specifications can be automatically scaled up or down.
+  Value options:
+  + **ON**: Yes
+  + **OFF**: No
+
+* `read_only_switch` - (Required, String) Specifies whether read replicas can be automatically added or deleted. To use
+  this function, ensure that there is only one proxy instance.
+  Value options:
+  + **ON**: Yes
+  + **OFF**: No
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -206,8 +258,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated_at` - Indicates the Update time in the **yyyy-mm-ddThh:mm:ssZ** format.
 
-* `nodes` - Indicates the instance nodes information. Structure is documented below.
+* `nodes` - Indicates the instance nodes information.
+  The [nodes](#nodes_struct) structure is documented below.
 
+* `auto_scaling` - Indicates the auto-scaling policies.
+  The [auto_scaling](#auto_scaling_struct) structure is documented below.
+
+<a name="nodes_struct"></a>
 The `nodes` block contains:
 
 * `id` - Indicates the node ID.
@@ -221,6 +278,17 @@ The `nodes` block contains:
 * `private_read_ip` - Indicates the private IP address of a node.
 
 * `availability_zone` - Indicates the availability zone where the node resides.
+
+<a name="auto_scaling_struct"></a>
+The `auto_scaling` block supports:
+
+* `id` - Indicates the ID of an auto-scaling policy.
+
+* `min_flavor` - Indicates the minimum specifications.
+
+* `silence_start_at` - Indicates the start time of the silent period.
+
+* `min_read_only_count` - Indicates the minimum number of read replicas.
 
 ## Timeouts
 

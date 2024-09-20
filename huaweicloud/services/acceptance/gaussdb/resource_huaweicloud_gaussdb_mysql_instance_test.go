@@ -60,6 +60,23 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.status", "ON"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.scaling_strategy.0.flavor_switch",
+						"ON"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.scaling_strategy.0.read_only_switch",
+						"OFF"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.monitor_cycle", "600"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.silence_cycle", "1800"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.enlarge_threshold", "70"),
+					resource.TestCheckResourceAttrPair(resourceName, "auto_scaling.0.max_flavor",
+						"data.huaweicloud_gaussdb_mysql_flavors.test", "flavors.2.name"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.reduce_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.max_read_only_count", "20"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.read_only_weight", "10"),
+					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.min_flavor"),
+					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.silence_start_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.min_read_only_count"),
 				),
 			},
 			{
@@ -93,6 +110,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
+					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.status", "OFF"),
 				),
 			},
 			{
@@ -105,6 +123,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					"password",
 					"ssl_option",
 					"parameters",
+					"auto_scaling.0.scaling_strategy",
 				},
 			},
 		},
@@ -304,6 +323,23 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
     keep_days  = "7"
   }
 
+  auto_scaling {
+    status = "ON"
+
+    scaling_strategy {
+      flavor_switch    = "ON"
+      read_only_switch = "OFF"
+    }
+
+    monitor_cycle       = 600
+    silence_cycle       = 1800
+    enlarge_threshold   = 70
+    max_flavor          = data.huaweicloud_gaussdb_mysql_flavors.test.flavors[2].name
+    reduce_enabled      = true
+    max_read_only_count = 20
+    read_only_weight    = 10
+  }
+
   tags = {
     foo = "bar"
     key = "value"
@@ -350,9 +386,22 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
     keep_days  = "10"
   }
 
+  auto_scaling {
+    status = "OFF"
+
+    scaling_strategy {
+      flavor_switch    = "ON"
+      read_only_switch = "OFF"
+    }
+  }
+
   tags = {
     foo_update = "bar"
     key        = "value_update"
+  }
+
+  lifecycle {
+    ignore_changes = [auto_scaling.0.scaling_strategy]
   }
 }
 `, testAccGaussDBInstanceConfig_base(rName), rName)
