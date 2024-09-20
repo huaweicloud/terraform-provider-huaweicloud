@@ -61,7 +61,7 @@ resource "huaweicloud_dms_rabbitmq_vhost" "test" {
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
   name        = "%s"
 }
-`, testAccDmsRabbitmqInstance_basic(rName), rName)
+`, testAccDmsRabbitmqInstance_newFormat_single(rName), rName)
 }
 
 func TestAccRabbitmqVhost_special_charcters(t *testing.T) {
@@ -104,7 +104,7 @@ resource "huaweicloud_dms_rabbitmq_vhost" "test" {
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
   name        = "/test%%Vhost|-_"
 }
-`, testAccDmsRabbitmqInstance_basic(rNameWithDash))
+`, testAccDmsRabbitmqInstance_newFormat_single(rNameWithDash))
 }
 
 func testAccResourceVhostImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {

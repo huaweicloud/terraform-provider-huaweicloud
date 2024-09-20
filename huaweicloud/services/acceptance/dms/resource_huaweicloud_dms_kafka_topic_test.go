@@ -17,7 +17,7 @@ import (
 func getDmsKafkaTopicFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.DmsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud DMS client(V2): %s", err)
+		return nil, fmt.Errorf("error creating DMS client(V2): %s", err)
 	}
 	instanceID := state.Primary.Attributes["instance_id"]
 	allTopics, err := topics.List(client, instanceID).Extract()
@@ -128,7 +128,7 @@ resource "huaweicloud_dms_kafka_topic" "topic" {
   aging_time  = 36
   description = "test"
 }
-`, testAccKafkaInstance_basic(rName), rName)
+`, testAccKafkaInstance_newFormat(rName), rName)
 }
 
 func testAccDmsKafkaTopic_update_part1(rName string) string {
@@ -141,7 +141,7 @@ resource "huaweicloud_dms_kafka_topic" "topic" {
   partitions  = 20
   aging_time  = 72
 }
-`, testAccKafkaInstance_basic(rName), rName)
+`, testAccKafkaInstance_newFormat(rName), rName)
 }
 
 func testAccDmsKafkaTopic_update_part2(rName string) string {
@@ -166,7 +166,7 @@ resource "huaweicloud_dms_kafka_topic" "topic" {
     value = "LogAppendTime"
   }
 }
-`, testAccKafkaInstance_basic(rName), rName)
+`, testAccKafkaInstance_newFormat(rName), rName)
 }
 
 func TestAccDmsKafkaTopic_test_update_partition(t *testing.T) {
@@ -223,7 +223,7 @@ resource "huaweicloud_dms_kafka_topic" "topic" {
   partitions  = %v
   replicas    = 1
 }
-`, testAccKafkaInstance_basic(rName), rName, partitions)
+`, testAccKafkaInstance_newFormat(rName), rName, partitions)
 }
 
 func testAccDmsKafkaTopic_testError(rName string, partitions int) string {
@@ -237,5 +237,5 @@ resource "huaweicloud_dms_kafka_topic" "topic" {
   replicas              = 1
   new_partition_brokers = [0]
 }
-`, testAccKafkaInstance_basic(rName), rName, partitions)
+`, testAccKafkaInstance_newFormat(rName), rName, partitions)
 }

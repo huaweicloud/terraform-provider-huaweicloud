@@ -125,7 +125,7 @@ resource "huaweicloud_dms_kafka_consumer_group" "test" {
   name        = "%s"
   description = "add"
 }
-`, testAccKafkaInstance_basic(name), name)
+`, testAccKafkaInstance_newFormat(name), name)
 }
 
 func testDmsKafkaConsumerGroup_basic_update(name string) string {
@@ -137,5 +137,5 @@ resource "huaweicloud_dms_kafka_consumer_group" "test" {
   name        = "%s"  
   description = ""
 }
-`, testAccKafkaInstance_basic(name), name)
+`, testAccKafkaInstance_newFormat(name), name)
 }
