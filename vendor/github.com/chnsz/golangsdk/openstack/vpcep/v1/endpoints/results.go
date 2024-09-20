@@ -61,6 +61,8 @@ type Endpoint struct {
 	PublicBorderGroup string `json:"public_border_group"`
 	// The IPv6 address to access the connected endpoint service
 	Ipv6Address string `json:"ipv6_address"`
+	// The IP version of the VPC endpoint.
+	IpVersion string `json:"ip_version"`
 }
 
 type QueryError struct {

@@ -23,11 +23,11 @@ type CreateOpts struct {
 	// If the parameter is left blank, all protocols are supported.
 	Protocol string `json:"protocol,omitempty"`
 	// Specifies the start port number.
-	// The value ranges from `1` to `65,535`.
+	// The value ranges from 1 to 65535.
 	// The value cannot be greater than the port_range_max value. An empty value indicates all ports.
 	PortRangeMin int `json:"port_range_min,omitempty"`
 	// Specifies the end port number.
-	// The value ranges from `1` to `65,535`.
+	// The value ranges from 1 to 65535.
 	// The value cannot be smaller than the port_range_min value. An empty value indicates all ports.
 	PortRangeMax int `json:"port_range_max,omitempty"`
 	// Specifies the remote IP address.

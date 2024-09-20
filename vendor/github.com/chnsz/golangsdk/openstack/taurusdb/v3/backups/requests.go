@@ -41,3 +41,36 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r Up
 	_, r.Err = c.Put(resourceURL(c, id), b, nil, reqOpt)
 	return
 }
+
+type UpdateEncryptionOptsBuilder interface {
+	ToUpdateEncryptionMap() (map[string]interface{}, error)
+}
+
+type UpdateEncryptionOpts struct {
+	EncryptionStatus string `json:"encryption_status" required:"true"`
+	Type             string `json:"type,omitempty"`
+	KmsKeyId         string `json:"kms_key_id,omitempty"`
+}
+
+func (opts UpdateEncryptionOpts) ToUpdateEncryptionMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func UpdateEncryption(c *golangsdk.ServiceClient, id string, opts UpdateEncryptionOptsBuilder) (r UpdateEncryptionResult) {
+	b, err := opts.ToUpdateEncryptionMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Post(updateEncryptionURL(c, id), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return
+}
+
+func GetEncryption(c *golangsdk.ServiceClient, instanceId string) (r GetEncryptionResult) {
+	_, r.Err = c.Get(getEncryptionURL(c, instanceId), &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return
+}

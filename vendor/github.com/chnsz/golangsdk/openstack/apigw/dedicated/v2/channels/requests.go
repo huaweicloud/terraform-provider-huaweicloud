@@ -15,7 +15,7 @@ type ChannelOpts struct {
 	// Chinese characters must be in UTF-8 or Unicode format.
 	Name string `json:"name" required:"true"`
 	// Host port of the channel.
-	// The valid value ranges from `1` to `65,535`.
+	// The valid value ranges from 1 to 65535.
 	Port int `json:"port" required:"true"`
 	// Distribution algorithm.
 	// The valid values are as following:
@@ -152,7 +152,7 @@ type VpcHealthConfig struct {
 	// + HEAD
 	Method string `json:"method,omitempty"`
 	// Destination port for health checks. By default, the host port of the channel is used.
-	// The valid value ranges from `1` to `65,535`.
+	// The valid value ranges from 1 to 65535.
 	Port int `json:"port,omitempty"`
 	// Response codes for determining a successful HTTP response.
 	// The value can be any integer within 100–599 in one of the following formats:

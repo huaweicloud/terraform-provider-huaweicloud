@@ -18,6 +18,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/auditlog"
+	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/autoscaling"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations"
 	"github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances"
@@ -60,6 +61,7 @@ type ctxType string
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/proxy/enlarge
 // @API GaussDBforMySQL PUT /v3/{project_id}/configurations/{configuration_id}/apply
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/configurations
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy
 // @API GaussDBforMySQL GET /v3/{project_id}/instance/{instance_id}/audit-log/switch-status
@@ -67,6 +69,7 @@ type ctxType string
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/monitor-policy
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/tags
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/configurations
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -288,6 +291,88 @@ func ResourceGaussDBInstance() *schema.Resource {
 						"value": {
 							Type:     schema.TypeString,
 							Required: true,
+						},
+					},
+				},
+				Optional: true,
+				Computed: true,
+			},
+			"auto_scaling": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"status": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"scaling_strategy": {
+							Type:     schema.TypeList,
+							Required: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"flavor_switch": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"read_only_switch": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"monitor_cycle": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"silence_cycle": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"enlarge_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"max_flavor": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"reduce_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"max_read_only_count": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"read_only_weight": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"min_flavor": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"silence_start_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"min_read_only_count": {
+							Type:     schema.TypeInt,
+							Computed: true,
 						},
 					},
 				},
@@ -710,6 +795,12 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if _, ok := d.GetOk("auto_scaling"); ok {
+		if err = updateAutoScaling(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -847,6 +938,8 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	mErr = multierror.Append(mErr, setSqlFilter(d, client, instanceID))
 	// set seconds level monitoring
 	mErr = multierror.Append(mErr, setSecondsLevelMonitoring(d, client, instanceID)...)
+	// set auto scaling
+	mErr = multierror.Append(mErr, setAutoScaling(d, client, instanceID))
 
 	// save tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
@@ -1010,6 +1103,36 @@ func setSecondsLevelMonitoring(d *schema.ResourceData, client *golangsdk.Service
 	errs = append(errs, d.Set("seconds_level_monitoring_enabled", resp.MonitorSwitch))
 	errs = append(errs, d.Set("seconds_level_monitoring_period", resp.Period))
 	return errs
+}
+
+func setAutoScaling(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
+	resp, err := autoscaling.Get(client, instanceId).Extract()
+	if err != nil {
+		log.Printf("[WARN] query instance %s auto scaling failed: %s", instanceId, err)
+		return nil
+	}
+
+	autoScaling := map[string]interface{}{
+		"id":     resp.Id,
+		"status": resp.Status,
+		"scaling_strategy": []interface{}{
+			map[string]interface{}{
+				"flavor_switch":    resp.ScalingStrategy.FlavorSwitch,
+				"read_only_switch": resp.ScalingStrategy.ReadOnlySwitch,
+			},
+		},
+		"monitor_cycle":       resp.MonitorCycle,
+		"silence_cycle":       resp.SilenceCycle,
+		"enlarge_threshold":   resp.EnlargeThreshold,
+		"max_flavor":          resp.MaxFavor,
+		"reduce_enabled":      resp.ReduceEnabled,
+		"min_flavor":          resp.MinFlavor,
+		"silence_start_at":    resp.SilenceStartAt,
+		"max_read_only_count": resp.MaxReadOnlyCount,
+		"min_read_only_count": resp.MinReadOnlyCount,
+		"read_only_weight":    resp.ReadOnlyWeight,
+	}
+	return d.Set("auto_scaling", []interface{}{autoScaling})
 }
 
 func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
@@ -1223,6 +1346,13 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChange("description") {
 		err = updateDescription(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("auto_scaling") {
+		err = updateAutoScaling(ctx, client, d, schema.TimeoutUpdate)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2089,6 +2219,49 @@ func updateDescription(client *golangsdk.ServiceClient, d *schema.ResourceData) 
 	_, err := instances.UpdateAlias(client, d.Id(), updateAliasOpts).ExtractUpdateAliasResponse()
 	if err != nil {
 		return fmt.Errorf("error updating description for instance %s: %s ", d.Id(), err)
+	}
+
+	return nil
+}
+
+func updateAutoScaling(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	rawParams := d.Get("auto_scaling").([]interface{})
+	if len(rawParams) == 0 {
+		return nil
+	}
+
+	raw := rawParams[0].(map[string]interface{})
+	updateAutoScalingOpts := autoscaling.UpdateAutoScalingOpts{
+		Status: raw["status"].(string),
+		ScalingStrategy: &autoscaling.ScalingStrategy{
+			FlavorSwitch:   raw["scaling_strategy"].([]interface{})[0].(map[string]interface{})["flavor_switch"].(string),
+			ReadOnlySwitch: raw["scaling_strategy"].([]interface{})[0].(map[string]interface{})["read_only_switch"].(string),
+		},
+		MonitorCycle:     raw["monitor_cycle"].(int),
+		SilenceCycle:     raw["silence_cycle"].(int),
+		EnlargeThreshold: raw["enlarge_threshold"].(int),
+		MaxFlavor:        raw["max_flavor"].(string),
+		ReduceEnabled:    raw["reduce_enabled"].(bool),
+		MaxReadOnlyCount: raw["max_read_only_count"].(int),
+		ReadOnlyWeight:   raw["read_only_weight"].(int),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := autoscaling.Update(client, d.Id(), updateAutoScalingOpts).ExtractUpdateResponse()
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     GaussDBInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating auto scaling for instance %s: %s ", d.Id(), err)
 	}
 
 	return nil

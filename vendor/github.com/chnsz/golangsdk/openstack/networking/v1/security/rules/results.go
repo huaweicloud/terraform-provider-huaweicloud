@@ -24,11 +24,11 @@ type SecurityGroupRule struct {
 	// Specifies the IP protocol version. The value can be IPv4 or IPv6.
 	Ethertype string `json:"ethertype"`
 	// Specifies the start port number.
-	// The value ranges from `1` to `65,535`.
+	// The value ranges from 1 to 65535.
 	// The value cannot be greater than the port_range_max value. An empty value indicates all ports.
 	PortRangeMin int `json:"port_range_min"`
 	// Specifies the end port number.
-	// The value ranges from `1` to `65,535`.
+	// The value ranges from 1 to 65535.
 	// The value cannot be smaller than the port_range_min value. An empty value indicates all ports.
 	PortRangeMax int `json:"port_range_max"`
 	// Specifies the remote IP address.
