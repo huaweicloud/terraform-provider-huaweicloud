@@ -1044,6 +1044,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_cluster_cns":                     dws.DataSourceDwsClusterCns(),
 			"huaweicloud_dws_cluster_logs":                    dws.DataSourceDwsClusterLogs(),
 			"huaweicloud_dws_cluster_nodes":                   dws.DataSourceDwsClusterNodes(),
+			"huaweicloud_dws_cluster_topo_rings":              dws.DataSourceDwsClusterTopoRings(),
 			"huaweicloud_dws_clusters":                        dws.DataSourceDwsClusters(),
 			"huaweicloud_dws_disaster_recovery_tasks":         dws.DataSourceDisasterRecoveryTasks(),
 			"huaweicloud_dws_event_subscriptions":             dws.DataSourceEventSubscriptions(),
