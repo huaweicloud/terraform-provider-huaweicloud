@@ -66,6 +66,7 @@ const (
 // @API EIP GET /v1/{project_id}/bandwidths/{id}
 // @API EIP PUT /v1/{project_id}/bandwidths/{id}
 // @API EIP PUT /v2.0/{project_id}/bandwidths/{ID}
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -189,7 +190,6 @@ func ResourceVpcEIPV1() *schema.Resource {
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: `The enterprise project ID to which the EIP belongs.`,
 			},
@@ -735,6 +735,18 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	if d.HasChange("bandwidth") {
 		err = updateEipBandwidth(vpcV1Client, cfg, d)
 		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := config.MigrateResourceOpts{
+			ResourceId:   d.Id(),
+			ResourceType: "eip",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

@@ -147,7 +147,15 @@ func TestAccVpcEip_WithEpsId(t *testing.T) {
 				Config: testAccVpcEip_epsId(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
+			{
+				Config: testAccVpcEip_epsId_update(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
+						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -398,6 +406,25 @@ resource "huaweicloud_vpc_eip" "test" {
 }
 
 func testAccVpcEip_epsId(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "test" {
+  enterprise_project_id = "0"
+
+  publicip {
+    type = "5_bgp"
+  }
+
+  bandwidth {
+    share_type  = "PER"
+    name        = "%[1]s"
+    size        = 5
+    charge_mode = "traffic"
+  }
+}
+`, rName)
+}
+
+func testAccVpcEip_epsId_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
   enterprise_project_id = "%[1]s"

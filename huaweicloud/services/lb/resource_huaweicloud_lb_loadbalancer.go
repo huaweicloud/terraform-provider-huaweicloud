@@ -31,6 +31,7 @@ import (
 // @API ELB POST /v3/{project_id}/elb/loadbalancers/change-charge-mode
 // @API VPC PUT /v2.0/ports/{port_id}
 // @API VPC GET /v2.0/ports/{port_id}
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
