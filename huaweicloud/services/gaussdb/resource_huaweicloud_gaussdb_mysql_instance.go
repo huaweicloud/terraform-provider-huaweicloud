@@ -62,6 +62,7 @@ type ctxType string
 // @API GaussDBforMySQL PUT /v3/{project_id}/configurations/{configuration_id}/apply
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/configurations
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/backups/encryption
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy
 // @API GaussDBforMySQL GET /v3/{project_id}/instance/{instance_id}/audit-log/switch-status
@@ -70,6 +71,7 @@ type ctxType string
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/tags
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/configurations
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/backups/encryption
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -378,6 +380,21 @@ func ResourceGaussDBInstance() *schema.Resource {
 				},
 				Optional: true,
 				Computed: true,
+			},
+			"encryption_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"encryption_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"encryption_status"},
+			},
+			"kms_key_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"encryption_status"},
 			},
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			// make ForceNew false here but do nothing in update method!
@@ -801,6 +818,12 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if v, ok := d.GetOk("encryption_status"); ok && v.(string) == "ON" {
+		if err = updateEncryption(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -940,6 +963,8 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	mErr = multierror.Append(mErr, setSecondsLevelMonitoring(d, client, instanceID)...)
 	// set auto scaling
 	mErr = multierror.Append(mErr, setAutoScaling(d, client, instanceID))
+	// set backup encryption
+	mErr = multierror.Append(mErr, setEncryption(d, client, instanceID))
 
 	// save tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
@@ -1133,6 +1158,15 @@ func setAutoScaling(d *schema.ResourceData, client *golangsdk.ServiceClient, ins
 		"read_only_weight":    resp.ReadOnlyWeight,
 	}
 	return d.Set("auto_scaling", []interface{}{autoScaling})
+}
+
+func setEncryption(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
+	resp, err := backups.GetEncryption(client, instanceId).Extract()
+	if err != nil {
+		log.Printf("[WARN] query instance %s backup encryption failed: %s", instanceId, err)
+		return nil
+	}
+	return d.Set("encryption_status", strings.ToUpper(resp.EncryptionStatus))
 }
 
 func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
@@ -1353,6 +1387,13 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChange("auto_scaling") {
 		err = updateAutoScaling(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("encryption_status", "encryption_type", "kms_key_id") {
+		err = updateEncryption(client, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2262,6 +2303,21 @@ func updateAutoScaling(ctx context.Context, client *golangsdk.ServiceClient, d *
 	})
 	if err != nil {
 		return fmt.Errorf("error updating auto scaling for instance %s: %s ", d.Id(), err)
+	}
+
+	return nil
+}
+
+func updateEncryption(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateEncryptionOpts := backups.UpdateEncryptionOpts{
+		EncryptionStatus: d.Get("encryption_status").(string),
+		Type:             d.Get("encryption_type").(string),
+		KmsKeyId:         d.Get("kms_key_id").(string),
+	}
+
+	_, err := backups.UpdateEncryption(client, d.Id(), updateEncryptionOpts).Extract()
+	if err != nil {
+		return fmt.Errorf("error updating backup encryption for instance %s: %s ", d.Id(), err)
 	}
 
 	return nil
