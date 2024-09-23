@@ -1145,7 +1145,8 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"huaweicloud_aad_forward_rule": aad.ResourceForwardRule(),
 
-			"huaweicloud_antiddos_basic": antiddos.ResourceCloudNativeAntiDdos(),
+			"huaweicloud_antiddos_basic":                     antiddos.ResourceCloudNativeAntiDdos(),
+			"huaweicloud_antiddos_default_protection_policy": antiddos.ResourceDefaultProtectionPolicy(),
 
 			"huaweicloud_access_analyzer":              accessanalyzer.ResourceAccessAnalyzer(),
 			"huaweicloud_access_analyzer_archive_rule": accessanalyzer.ResourceArchiveRule(),
