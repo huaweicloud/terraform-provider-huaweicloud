@@ -3,6 +3,7 @@ package ims
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API IMS POST /v2/cloudimages/action
@@ -141,7 +143,7 @@ func resourceEvsDataImageCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating IMS EVS data image: %s", err)
 	}
 
-	imageId, err := waitForCreateImageCompleted(client, d, createResp.JobID)
+	imageId, err := waitForCreateDataImageCompleted(client, d, createResp.JobID)
 	if err != nil {
 		return diag.Errorf("error waiting for IMS EVS data image to complete: %s", err)
 	}
@@ -149,6 +151,38 @@ func resourceEvsDataImageCreate(ctx context.Context, d *schema.ResourceData, met
 	d.SetId(imageId)
 
 	return resourceEvsDataImageRead(ctx, d, meta)
+}
+
+func waitForCreateDataImageCompleted(client *golangsdk.ServiceClient, d *schema.ResourceData, jobId string) (string, error) {
+	err := cloudimages.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), jobId)
+	if err != nil {
+		return "", err
+	}
+
+	getJobPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
+	getJobPath = strings.ReplaceAll(getJobPath, "{project_id}", client.ProjectID)
+	getJobPath = strings.ReplaceAll(getJobPath, "{job_id}", jobId)
+	getJobOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getJobResp, err := client.Request("GET", getJobPath, &getJobOpt)
+	if err != nil {
+		return "", fmt.Errorf("error retrieving IMS job, %s", err)
+	}
+
+	getJobRespBody, err := utils.FlattenResponse(getJobResp)
+	if err != nil {
+		return "", err
+	}
+
+	imageId := utils.PathSearch("entities.sub_jobs_result[0].entities.image_id", getJobRespBody, "").(string)
+	if imageId == "" {
+		return "", fmt.Errorf("the image_id is not found in API response")
+	}
+
+	return imageId, nil
 }
 
 func buildCreateTagsParam(d *schema.ResourceData) []string {
