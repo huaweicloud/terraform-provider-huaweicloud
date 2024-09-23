@@ -412,6 +412,8 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"huaweicloud_antiddos_config_ranges": antiddos.DataSourceConfigRanges(),
+
 			"huaweicloud_aom_alarm_action_rules":              aom.DataSourceAomAlarmActionRules(),
 			"huaweicloud_aom_alarm_group_rules":               aom.DataSourceAlarmGroupRules(),
 			"huaweicloud_aom_prom_instances":                  aom.DataSourceAomPromInstances(),
