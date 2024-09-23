@@ -828,6 +828,13 @@ func TestAccPreCheckReplication(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckDestRegion(t *testing.T) {
+	if HW_DEST_REGION == "" {
+		t.Skip("HW_DEST_REGION must be set for the acceptance tests.")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckProjectId(t *testing.T) {
 	if HW_DEST_PROJECT_ID_TEST == "" {
 		t.Skip("Skipping test because it requires the test project id.")

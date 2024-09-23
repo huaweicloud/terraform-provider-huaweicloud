@@ -2,7 +2,8 @@
 subcategory: "Image Management Service (IMS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_images_image_copy"
-description: ""
+description: |-
+  Manages an IMS image copy resource within HuaweiCloud.
 ---
 
 # huaweicloud_images_image_copy
@@ -52,8 +53,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the copy image. The name can contain `1` to `128` characters,
-  only Chinese and English letters, digits, underscore (_), hyphens (-), dots (.) and space are
-  allowed, but it cannot start or end with a space.
+  only Chinese and English letters, digits, underscore (_), hyphens (-), dots (.) and space are allowed, but it cannot
+  start or end with a space.
 
 * `target_region` - (Optional, String, ForceNew) Specifies the target region name.
   If specified, it means cross-region replication.
@@ -61,22 +62,24 @@ The following arguments are supported:
 * `kms_key_id` - (Optional, String, ForceNew) Specifies the master key used for encrypting an image.
   Only copying scene within a region is supported. Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the image.
-  Only copying scene within a region is supported. Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the image.
+  Only copying scene within a region is supported, for enterprise users, if omitted, default enterprise project will
+  be used.
 
 * `agency_name` - (Optional, String, ForceNew) Specifies the agency name. It is required in the cross-region scene.
   Changing this parameter will create a new resource.
 
-* `vault_id` - (Optional, String, ForceNew) Specifies the ID of the vault. It is used in the cross-region scene,
-  and it is mandatory if you are replicating a full-ECS image.
+* `vault_id` - (Optional, String, ForceNew) Specifies the ID of the vault. It is used in the cross-region scene, it is
+  mandatory if you are replicating a full-ECS image, and the region to which the vault belongs must be consistent with
+  the value of `target_region`.
   Changing this parameter will create a new resource.
 
-* `min_ram` - (Optional, Int) The minimum memory of the copy image in the unit of MB. The default value is 0,
-  indicating that the memory is not restricted.
+* `min_ram` - (Optional, Int) Specifies the minimum memory of the copy image in the unit of MB. The default value is
+  `0`, indicating that the memory is not restricted.
 
-* `max_ram` - (Optional, Int) The maximum memory of the copy image in the unit of MB.
+* `max_ram` - (Optional, Int) Specifies the maximum memory of the copy image in the unit of MB.
 
-* `description` - (Optional, String) A description of the copy image.
+* `description` - (Optional, String) Specifies the description of the copy image.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the copy image.
 
@@ -92,17 +95,18 @@ In addition to all arguments above, the following attributes are exported:
 
 * `visibility` - Indicates whether the image is visible to other tenants.
 
-* `data_origin` - Indicates the image resource.
-  The pattern can be 'instance,**instance_id**' or 'file,**image_url**'.
+* `data_origin` - Indicates the image source.
+  The format is **image,region,source_image_id**, e.g. **image,cn-north-4,xxxxxx**.
 
 * `disk_format` - Indicates the image file format.
-  The value can be `vhd`, `zvhd`, `raw`, `zvhd2`, or `qcow2`.
+  The value can be **zvhd2**, **vhd**, **zvhd**, **raw**, **qcow2**, or **iso**.
 
-* `image_size` - Indicates the size(bytes) of the image file format.
+* `image_size` - Indicates the size(bytes) of the image file.
 
 * `checksum` - Indicates the checksum of the data associated with the image.
 
-* `status` - Indicates the status of the image.
+* `status` - Indicates the status of the image. The value can be **active**, **queued**, **saving**, **deleted**,
+  or **killed*, only image with a status of **active** can be used.
 
 ## Timeouts
 
