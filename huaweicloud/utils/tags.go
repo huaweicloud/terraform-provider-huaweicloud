@@ -126,8 +126,13 @@ func ExpandResourceTags(tagmap map[string]interface{}) []tags.ResourceTag {
 }
 
 // ExpandResourceTagsMap returns the tags in format of list of maps for the given map of data.
-func ExpandResourceTagsMap(tagmap map[string]interface{}) []map[string]interface{} {
-	if len(tagmap) < 1 {
+// Parameters:
+// + tagmap: tags input with the map structure format.
+// + keepEmpty: whether to keep the empty list return instead of the nil.
+func ExpandResourceTagsMap(tagmap map[string]interface{}, keepEmpty ...bool) []map[string]interface{} {
+	// Empty list returned only keepEmpty is set and the value is 'true'.
+	if len(tagmap) < 1 && (len(keepEmpty) < 1 || (len(keepEmpty) > 0 && !keepEmpty[0])) {
+		// If not, returns nil and with the type, the value is '[]map[string]interface{}(nil)'.
 		return nil
 	}
 
