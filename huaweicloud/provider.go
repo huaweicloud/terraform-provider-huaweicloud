@@ -951,6 +951,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_playbook_action_instances": secmaster.DataSourceSecmasterPlaybookActionInstances(),
 
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
+			"huaweicloud_servicestage_environments":       servicestage.DataSourceEnvironments(),
 
 			"huaweicloud_smn_topics":            smn.DataSourceTopics(),
 			"huaweicloud_smn_message_templates": smn.DataSourceSmnMessageTemplates(),
