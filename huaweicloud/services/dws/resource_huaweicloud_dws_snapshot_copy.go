@@ -138,7 +138,7 @@ func resourceSnapshotCopyDelete(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
-	if err = DeleteSnapshotById(client, d.Id()); err != nil {
+	if err = deleteSnapshotById(client, d.Id()); err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting copied snapshot")
 	}
 	return nil
