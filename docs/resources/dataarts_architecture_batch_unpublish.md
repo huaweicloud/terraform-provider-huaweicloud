@@ -28,7 +28,7 @@ variable "batch_publish_objects" {
   }))
 }
 
-resource "huaweicloud_dataarts_architecture_batch_publish" "test" {
+resource "huaweicloud_dataarts_architecture_batch_unpublish" "test" {
   workspace_id       = var.workspace_id
   approver_user_id   = var.approver_user_id
   approver_user_name = var.approver_user_name

@@ -120,7 +120,7 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The dws external data source can be imported using `cluster_id`, `id`, separated by slashes, e.g.
+The dws external data source can be imported using `cluster_id` and `id`, separated by a slash, e.g.
 
 ```bash
 $ terraform import huaweicloud_dws_ext_data_source.test <cluster_id>/<id>

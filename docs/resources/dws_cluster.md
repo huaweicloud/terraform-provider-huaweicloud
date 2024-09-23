@@ -266,10 +266,10 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-Cluster can be imported using the following format:
+The resource can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dws_cluster.test 47ad727e-9dcc-4833-bde0-bb298607c719
+$ terraform import huaweicloud_dws_cluster.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -281,7 +281,7 @@ should be updated to align with the cluster. Also you can ignore changes as belo
 
 ```hcl
 resource "huaweicloud_dws_cluster" "test" {
-    ...
+  ...
 
   lifecycle {
     ignore_changes = [
