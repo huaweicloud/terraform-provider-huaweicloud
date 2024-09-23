@@ -722,35 +722,35 @@ var hsts = schema.Schema{
 var accessAreaFilters = schema.Schema{
 	Type:        schema.TypeSet,
 	Optional:    true,
-	Description: "schema: Internal; Specifies the geographic access control rules.",
+	Description: "Specifies the geographic access control rules.",
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "schema: Internal; Specifies the the blacklist and whitelist rule type.",
+				Description: "Specifies the blacklist and whitelist rule type.",
 			},
 			"content_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "schema: Internal; Specifies the content type.",
+				Description: "Specifies the content type.",
 			},
 			"area": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "schema: Internal; Specifies the areas, separated by commas.",
+				Description: "Specifies the areas, separated by commas.",
 			},
 			"content_value": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "schema: Internal; Specifies the content value.",
+				Description: "Specifies the content value.",
 			},
 			"exception_ip": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "schema: Internal; Specifies the IP addresses exception in access control, separated by commas.",
+				Description: "Specifies the IP addresses exception in access control, separated by commas.",
 			},
 		},
 	},
