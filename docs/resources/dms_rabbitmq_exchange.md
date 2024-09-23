@@ -61,6 +61,20 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
+* `bindings` - Indicates the exchange bindings.
+  The [bindings](#bindings_struct) structure is documented below.
+
+<a name="bindings_struct"></a>
+The `bindings` block supports:
+
+* `destination_type` - Indicates the destination type.
+
+* `destination` - Indicates the destination.
+
+* `routing_key` - Indicates the routin key.
+
+* `properties_key` - Indicates the properties key.
+
 ## Import
 
 The RabbitMQ exchange can be imported using the `instance_id`, `vhost` and `name` separated by slashes or commas, but if

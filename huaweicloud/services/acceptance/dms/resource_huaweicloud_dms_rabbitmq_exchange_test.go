@@ -141,3 +141,35 @@ func testAccResourceExchangeOrQueueImportStateIDFunc(resourceName string) resour
 		return fmt.Sprintf("%s,%s,%s", instanceID, vhost, name), nil
 	}
 }
+
+func TestAccRabbitmqExchange_bindings(t *testing.T) {
+	var obj interface{}
+	resourceName := "huaweicloud_dms_rabbitmq_exchange.test"
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getRabbitmqExchangeResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testRabbitmqExchangeAssociate_special_characters(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(resourceName, "bindings.#"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccResourceExchangeOrQueueImportStateIDFunc(resourceName),
+			},
+		},
+	})
+}

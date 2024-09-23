@@ -3,6 +3,8 @@ package dms
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/url"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -19,6 +21,7 @@ import (
 // @API RabbitMQ PUT /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges
 // @API RabbitMQ POST /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges
 // @API RabbitMQ GET /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges
+// @API RabbitMQ GET /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges/{exchange}/binding
 func ResourceDmsRabbitmqExchange() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsRabbitmqExchangeCreate,
@@ -72,6 +75,30 @@ func ResourceDmsRabbitmqExchange() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"bindings": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"destination_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"destination": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"routing_key": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"properties_key": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -145,6 +172,16 @@ func resourceDmsRabbitmqExchangeRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("internal", utils.PathSearch("internal", exchange, nil)),
 	)
 
+	listRabbitmqExchangeBindingsResp, err := listRabbitmqExchangeBindings(client, d)
+	if err != nil {
+		log.Printf("[WARN] Error fetching bindings of exchange (%s): %s", d.Id(), err)
+	} else {
+		mErr = multierror.Append(
+			d.Set("bindings", flattenExchangeBindings(
+				utils.PathSearch("items", listRabbitmqExchangeBindingsResp, make([]interface{}, 0)).([]interface{}))),
+		)
+	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -185,6 +222,50 @@ func GetRabbitmqExchange(client *golangsdk.ServiceClient, instanceID, vhost, nam
 			return nil, golangsdk.ErrDefault404{}
 		}
 	}
+}
+
+func listRabbitmqExchangeBindings(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	listHttpUrl := "v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges/{exchange}/binding"
+	listPath := client.Endpoint + listHttpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{instance_id}", d.Get("instance_id").(string))
+	listPath = strings.ReplaceAll(listPath, "{vhost}", d.Get("vhost").(string))
+
+	// exchange name may have /, % or |
+	name := d.Get("name").(string)
+	if strings.Contains(name, "/") {
+		replacedName := strings.ReplaceAll(name, "/", "__F_SLASH__")
+		listPath = strings.ReplaceAll(listPath, "{exchange}", url.PathEscape(replacedName))
+	} else {
+		listPath = strings.ReplaceAll(listPath, "{exchange}", url.PathEscape(name))
+	}
+
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	listResp, err := client.Request("GET", listPath, &listOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving the exchange bingdings infos: %s", err)
+	}
+
+	return utils.FlattenResponse(listResp)
+}
+
+func flattenExchangeBindings(paramsList []interface{}) interface{} {
+	if len(paramsList) == 0 {
+		return nil
+	}
+	rst := make([]interface{}, 0, len(paramsList))
+	for _, params := range paramsList {
+		rst = append(rst, map[string]interface{}{
+			"destination_type": utils.PathSearch("destination_type", params, nil),
+			"destination":      utils.PathSearch("destination", params, nil),
+			"routing_key":      utils.PathSearch("routing_key", params, nil),
+			"properties_key":   utils.PathSearch("properties_key", params, nil),
+		})
+	}
+	return rst
 }
 
 func resourceDmsRabbitmqExchangeDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
