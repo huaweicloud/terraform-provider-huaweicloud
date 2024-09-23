@@ -412,6 +412,13 @@ The `configs` block support:
 
   -> This field can only be used when the HTTPS certificate is enabled.
 
+* `access_area_filter` - (Optional, List) Specifies the geographic access control rules.
+  The [access_area_filter](#access_area_filter_object) structure is documented below.
+
+  -> 1. Before using this field, you need to submit a work order to activate this function.
+  <br/>2. CDN periodically updates the IP address library. The locations of IP address that are not in the library
+  cannot be identified. CDN allows requests from such IP addresses and returns resources to the users.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -844,6 +851,33 @@ The `hsts` block support:
 
 * `include_subdomains` - (Optional, String) Specifies whether subdomain names are included.
   The options are **on** (included) and **off** (not included). This field is required when enable HSTS settings.
+
+<a name="access_area_filter_object"></a>
+The `access_area_filter` block support:
+
+* `type` - (Required, String) Specifies the blacklist and whitelist rule type. Valid values are:
+  + **black**: Blacklist. Users in regions specified in the blacklist cannot access resources and status code `403` is
+    returned.
+  + **white**: Whitelist. Only users in regions specified in the whitelist can access resources. Status code `403` is
+    returned for other users.
+
+* `content_type` - (Required, String) Specifies the content type. Valid values are:
+  + **all**: The rule takes effect for all files.
+  + **file_directory**: The rule takes effect for resources in the specified directory.
+  + **file_path**: The rule takes effect for resources corresponding to the path.
+
+* `area` - (Required, String) Specifies the areas, separated by commas.
+  Please refer to [Geographical Location Codes](https://support.huaweicloud.com/intl/en-us/api-cdn/cdn_02_0090.html).
+
+* `content_value` - (Optional, String) Specifies the content value. The use of this field has the following restrictions:
+  + When `content_type` is set to **all**, make this parameter is empty or not passed.
+  + When `content_type` is set to **file_directory**, the value must start with a slash (/) and multiple directories
+    are separated by commas (,), for example, **/test/folder01,/test/folder02**. Up to `100` directories can be entered.
+  + When `content_type` is set to **file_path**, the value must start with a slash (/) or wildcard (\*). Up to two
+    wildcards (\*) are allowed and they cannot be consecutive. Multiple paths are separated by commas (,),
+    for example, **/test/a.txt,/test/b.txt**. Up to `100` paths can be entered.
+
+* `exception_ip` - (Optional, String) Specifies the IP addresses exception in access control, separated by commas.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
