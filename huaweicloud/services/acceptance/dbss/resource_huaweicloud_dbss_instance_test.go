@@ -83,6 +83,7 @@ func TestAccInstance_basic(t *testing.T) {
 						"data.huaweicloud_dbss_flavors.test", "flavors.0.id"),
 					resource.TestCheckResourceAttr(rName, "resource_spec_code", "dbss.bypassaudit.low"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrSet(rName, "instance_id"),
 				),
 			},
 			{
