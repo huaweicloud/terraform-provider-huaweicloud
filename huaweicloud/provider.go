@@ -1538,6 +1538,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_backup":                     gaussdb.ResourceGaussDBMysqlBackup(),
 			"huaweicloud_gaussdb_mysql_restore":                    gaussdb.ResourceGaussDBMysqlRestore(),
 			"huaweicloud_gaussdb_mysql_eip_associate":              gaussdb.ResourceGaussMysqlEipAssociate(),
+			"huaweicloud_gaussdb_mysql_recycling_policy":           gaussdb.ResourceGaussDBRecyclingPolicy(),
 
 			"huaweicloud_gaussdb_opengauss_instance": gaussdb.ResourceOpenGaussInstance(),
 			"huaweicloud_gaussdb_opengauss_database": gaussdb.ResourceOpenGaussDatabase(),
