@@ -14,6 +14,9 @@ type ClusterListDatastore struct {
 
 	// CSS集群引擎版本号。详细请参考CSS[支持的集群版本](css_03_0056.xml)。
 	Version *string `json:"version,omitempty"`
+
+	// 是否支持安全模式
+	SupportSecuritymode *bool `json:"supportSecuritymode,omitempty"`
 }
 
 func (o ClusterListDatastore) String() string {

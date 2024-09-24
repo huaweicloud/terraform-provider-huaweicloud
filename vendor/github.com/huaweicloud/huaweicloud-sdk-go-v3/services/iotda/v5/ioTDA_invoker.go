@@ -449,6 +449,66 @@ func (i *CreateCommandInvoker) Invoke() (*model.CreateCommandResponse, error) {
 	}
 }
 
+type CreateDeviceAuthorizerInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateDeviceAuthorizerInvoker) Invoke() (*model.CreateDeviceAuthorizerResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateDeviceAuthorizerResponse), nil
+	}
+}
+
+type DeleteDeviceAuthorizerInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteDeviceAuthorizerInvoker) Invoke() (*model.DeleteDeviceAuthorizerResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteDeviceAuthorizerResponse), nil
+	}
+}
+
+type ListDeviceAuthorizersInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListDeviceAuthorizersInvoker) Invoke() (*model.ListDeviceAuthorizersResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListDeviceAuthorizersResponse), nil
+	}
+}
+
+type ShowDeviceAuthorizerInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowDeviceAuthorizerInvoker) Invoke() (*model.ShowDeviceAuthorizerResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowDeviceAuthorizerResponse), nil
+	}
+}
+
+type UpdateDeviceAuthorizerInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateDeviceAuthorizerInvoker) Invoke() (*model.UpdateDeviceAuthorizerResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateDeviceAuthorizerResponse), nil
+	}
+}
+
 type AddDeviceGroupInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -893,6 +953,102 @@ func (i *ShowOtaPackageInvoker) Invoke() (*model.ShowOtaPackageResponse, error) 
 	}
 }
 
+type BindDevicePolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BindDevicePolicyInvoker) Invoke() (*model.BindDevicePolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BindDevicePolicyResponse), nil
+	}
+}
+
+type CreateDevicePolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateDevicePolicyInvoker) Invoke() (*model.CreateDevicePolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateDevicePolicyResponse), nil
+	}
+}
+
+type DeleteDevicePolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteDevicePolicyInvoker) Invoke() (*model.DeleteDevicePolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteDevicePolicyResponse), nil
+	}
+}
+
+type ListDevicePoliciesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListDevicePoliciesInvoker) Invoke() (*model.ListDevicePoliciesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListDevicePoliciesResponse), nil
+	}
+}
+
+type ShowDevicePolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowDevicePolicyInvoker) Invoke() (*model.ShowDevicePolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowDevicePolicyResponse), nil
+	}
+}
+
+type ShowTargetsInDevicePolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowTargetsInDevicePolicyInvoker) Invoke() (*model.ShowTargetsInDevicePolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowTargetsInDevicePolicyResponse), nil
+	}
+}
+
+type UnbindDevicePolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UnbindDevicePolicyInvoker) Invoke() (*model.UnbindDevicePolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UnbindDevicePolicyResponse), nil
+	}
+}
+
+type UpdateDevicePolicyInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateDevicePolicyInvoker) Invoke() (*model.UpdateDevicePolicyResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateDevicePolicyResponse), nil
+	}
+}
+
 type CreateProductInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -974,6 +1130,66 @@ func (i *UpdatePropertiesInvoker) Invoke() (*model.UpdatePropertiesResponse, err
 		return nil, err
 	} else {
 		return result.(*model.UpdatePropertiesResponse), nil
+	}
+}
+
+type CreateProvisioningTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateProvisioningTemplateInvoker) Invoke() (*model.CreateProvisioningTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateProvisioningTemplateResponse), nil
+	}
+}
+
+type DeleteProvisioningTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteProvisioningTemplateInvoker) Invoke() (*model.DeleteProvisioningTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteProvisioningTemplateResponse), nil
+	}
+}
+
+type ListProvisioningTemplatesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListProvisioningTemplatesInvoker) Invoke() (*model.ListProvisioningTemplatesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListProvisioningTemplatesResponse), nil
+	}
+}
+
+type ShowProvisioningTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowProvisioningTemplateInvoker) Invoke() (*model.ShowProvisioningTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowProvisioningTemplateResponse), nil
+	}
+}
+
+type UpdateProvisioningTemplateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateProvisioningTemplateInvoker) Invoke() (*model.UpdateProvisioningTemplateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateProvisioningTemplateResponse), nil
 	}
 }
 

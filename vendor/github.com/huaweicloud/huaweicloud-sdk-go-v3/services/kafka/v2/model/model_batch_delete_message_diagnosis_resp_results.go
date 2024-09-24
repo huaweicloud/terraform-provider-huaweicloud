@@ -11,7 +11,7 @@ type BatchDeleteMessageDiagnosisRespResults struct {
 	// 报告删除结果
 	Result bool `json:"result"`
 
-	// 报告id
+	// 报告ID
 	Id string `json:"id"`
 }
 

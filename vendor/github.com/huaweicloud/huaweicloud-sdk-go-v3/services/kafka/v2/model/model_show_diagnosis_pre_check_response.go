@@ -9,7 +9,7 @@ import (
 // ShowDiagnosisPreCheckResponse Response Object
 type ShowDiagnosisPreCheckResponse struct {
 
-	// kafka消息积压诊断预检查返回对象
+	// Kafka消息积压诊断预检查返回对象
 	Body           *[]KafkaDiagnosisCheckEntity `json:"body,omitempty"`
 	HttpStatusCode int                          `json:"-"`
 }

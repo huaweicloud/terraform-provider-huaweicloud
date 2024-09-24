@@ -15,7 +15,7 @@ type ListVulScanTaskRequest struct {
 	// 每页显示个数
 	Limit *int32 `json:"limit,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
+	// 偏移量：指定返回记录的开始位置
 	Offset *int32 `json:"offset,omitempty"`
 
 	// 扫描任务的类型，包含如下：   -manual : 手动扫描任务   -schedule : 定时扫描任务

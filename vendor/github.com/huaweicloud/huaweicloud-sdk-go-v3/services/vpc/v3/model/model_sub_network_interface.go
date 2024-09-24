@@ -44,13 +44,28 @@ type SubNetworkInterface struct {
 	SecurityGroups []string `json:"security_groups"`
 
 	// 功能说明：辅助弹性网卡的标签列表
-	Tags []string `json:"tags"`
+	Tags []ResourceTag `json:"tags"`
 
 	// 功能说明：辅助弹性网卡所属项目ID
 	ProjectId string `json:"project_id"`
 
 	// 功能说明：辅助弹性网卡的创建时间 取值范围：UTC时间格式：yyyy-MM-ddTHH:mm:ss
 	CreatedAt *sdktime.SdkTime `json:"created_at"`
+
+	// 1. 扩展属性：IP/Mac对列表，allowed_address_pair参见“allowed_address_pair对象” 2. 使用说明: IP地址不允许为 “0.0.0.0”如果allowed_address_pairs配置地址池较大的CIDR（掩码小于24位），建议为该port配置一个单独的安全组硬件SDN环境不支持ip_address属性配置为CIDR
+	AllowedAddressPairs []AllowedAddressPair `json:"allowed_address_pairs"`
+
+	// 功能说明：辅助弹性网卡当前状态
+	State string `json:"state"`
+
+	// 功能说明：辅助弹性网卡所属实例ID，例如RDS实例ID
+	InstanceId string `json:"instance_id"`
+
+	// 功能说明：辅助弹性网卡所属实例类型，例如“RDS”
+	InstanceType string `json:"instance_type"`
+
+	// 功能说明：辅助弹性网卡所在站点的公网出口信息
+	Scope string `json:"scope"`
 
 	// 功能说明：辅助弹性网卡安全使能标记，如果不使能则安全组不生效。 取值范围：true（使能），false（不使能）
 	SecurityEnabled bool `json:"security_enabled"`

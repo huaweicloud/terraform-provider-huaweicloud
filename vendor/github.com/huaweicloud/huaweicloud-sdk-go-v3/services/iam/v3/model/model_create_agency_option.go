@@ -3,9 +3,6 @@ package model
 import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/utils"
 
-	"errors"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/converter"
-
 	"strings"
 )
 
@@ -27,8 +24,8 @@ type CreateAgencyOption struct {
 	// 委托描述信息，长度不大于255位。
 	Description *string `json:"description,omitempty"`
 
-	// 委托的期限。取值为“FOREVER\"表示委托的期限为永久，取值为\"ONEDAY\"表示委托的期限为一天。不填写该参数则默认为\"null\"也表示委托的期限为永久。
-	Duration *CreateAgencyOptionDuration `json:"duration,omitempty"`
+	// description: 委托的期限，单位为“天”。默认为FOREVER。取值为“FOREVER\"表示委托的期限为永久，取值为\"ONEDAY\"表示委托的期限为一天,取值为自定义天数表示委托的期限为有限天数，如20。四个参数至少填写一个。
+	Duration *string `json:"duration,omitempty"`
 }
 
 func (o CreateAgencyOption) String() string {
@@ -38,51 +35,4 @@ func (o CreateAgencyOption) String() string {
 	}
 
 	return strings.Join([]string{"CreateAgencyOption", string(data)}, " ")
-}
-
-type CreateAgencyOptionDuration struct {
-	value string
-}
-
-type CreateAgencyOptionDurationEnum struct {
-	FOREVER CreateAgencyOptionDuration
-	ONEDAY  CreateAgencyOptionDuration
-}
-
-func GetCreateAgencyOptionDurationEnum() CreateAgencyOptionDurationEnum {
-	return CreateAgencyOptionDurationEnum{
-		FOREVER: CreateAgencyOptionDuration{
-			value: "FOREVER",
-		},
-		ONEDAY: CreateAgencyOptionDuration{
-			value: "ONEDAY",
-		},
-	}
-}
-
-func (c CreateAgencyOptionDuration) Value() string {
-	return c.value
-}
-
-func (c CreateAgencyOptionDuration) MarshalJSON() ([]byte, error) {
-	return utils.Marshal(c.value)
-}
-
-func (c *CreateAgencyOptionDuration) UnmarshalJSON(b []byte) error {
-	myConverter := converter.StringConverterFactory("string")
-	if myConverter == nil {
-		return errors.New("unsupported StringConverter type: string")
-	}
-
-	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
-	if err != nil {
-		return err
-	}
-
-	if val, ok := interf.(string); ok {
-		c.value = val
-		return nil
-	} else {
-		return errors.New("convert enum data to string error")
-	}
 }

@@ -18,6 +18,12 @@ type ListEventsRequest struct {
 	// 企业项目id。 - 查询单个企业项目下实例，填写企业项目id。 - 查询所有企业项目下实例，填写“all_granted_eps”。
 	EnterpriseProjectId *string `json:"Enterprise-Project-Id,omitempty"`
 
+	// 不填默认值为1000
+	Limit *int32 `json:"limit,omitempty"`
+
+	// 分页标记，初始为0，后续值为返回体中的next_marker
+	Marker *string `json:"marker,omitempty"`
+
 	Body *EventQueryParam2 `json:"body,omitempty"`
 }
 

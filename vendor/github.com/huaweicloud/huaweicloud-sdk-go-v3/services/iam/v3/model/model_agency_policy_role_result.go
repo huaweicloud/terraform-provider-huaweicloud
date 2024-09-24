@@ -42,9 +42,6 @@ type AgencyPolicyRoleResult struct {
 
 	// 自定义策略创建时间。
 	CreatedTime *string `json:"created_time,omitempty"`
-
-	// 自定义策略的引用次数。
-	References *string `json:"references,omitempty"`
 }
 
 func (o AgencyPolicyRoleResult) String() string {

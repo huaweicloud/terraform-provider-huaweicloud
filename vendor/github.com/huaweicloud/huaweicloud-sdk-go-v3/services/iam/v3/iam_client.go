@@ -88,7 +88,7 @@ func (c *IamClient) AssociateAgencyWithProjectPermissionInvoker(request *model.A
 	return &AssociateAgencyWithProjectPermissionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// AssociateRoleToAgencyOnEnterpriseProject application/json
+// AssociateRoleToAgencyOnEnterpriseProject 基于委托为企业项目授权
 //
 // 该接口可以基于委托为企业项目授权
 //
@@ -103,7 +103,7 @@ func (c *IamClient) AssociateRoleToAgencyOnEnterpriseProject(request *model.Asso
 	}
 }
 
-// AssociateRoleToAgencyOnEnterpriseProjectInvoker application/json
+// AssociateRoleToAgencyOnEnterpriseProjectInvoker 基于委托为企业项目授权
 func (c *IamClient) AssociateRoleToAgencyOnEnterpriseProjectInvoker(request *model.AssociateRoleToAgencyOnEnterpriseProjectRequest) *AssociateRoleToAgencyOnEnterpriseProjectInvoker {
 	requestDef := GenReqDefForAssociateRoleToAgencyOnEnterpriseProject()
 	return &AssociateRoleToAgencyOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -269,6 +269,29 @@ func (c *IamClient) CreateAgencyCustomPolicyInvoker(request *model.CreateAgencyC
 	return &CreateAgencyCustomPolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateBindingDevice 绑定MFA设备
+//
+// 该接口可以用于绑定MFA设备。
+//
+// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IamClient) CreateBindingDevice(request *model.CreateBindingDeviceRequest) (*model.CreateBindingDeviceResponse, error) {
+	requestDef := GenReqDefForCreateBindingDevice()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateBindingDeviceResponse), nil
+	}
+}
+
+// CreateBindingDeviceInvoker 绑定MFA设备
+func (c *IamClient) CreateBindingDeviceInvoker(request *model.CreateBindingDeviceRequest) *CreateBindingDeviceInvoker {
+	requestDef := GenReqDefForCreateBindingDevice()
+	return &CreateBindingDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateCloudServiceCustomPolicy 创建云服务自定义策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)创建云服务自定义策略。
@@ -340,6 +363,29 @@ func (c *IamClient) CreateMetadata(request *model.CreateMetadataRequest) (*model
 func (c *IamClient) CreateMetadataInvoker(request *model.CreateMetadataRequest) *CreateMetadataInvoker {
 	requestDef := GenReqDefForCreateMetadata()
 	return &CreateMetadataInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateMfaDevice 创建MFA设备
+//
+// 该接口可以用于创建MFA设备。
+//
+// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IamClient) CreateMfaDevice(request *model.CreateMfaDeviceRequest) (*model.CreateMfaDeviceResponse, error) {
+	requestDef := GenReqDefForCreateMfaDevice()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateMfaDeviceResponse), nil
+	}
+}
+
+// CreateMfaDeviceInvoker 创建MFA设备
+func (c *IamClient) CreateMfaDeviceInvoker(request *model.CreateMfaDeviceRequest) *CreateMfaDeviceInvoker {
+	requestDef := GenReqDefForCreateMfaDevice()
+	return &CreateMfaDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // CreateOpenIdConnectConfig 创建OpenId Connect身份提供商配置
@@ -428,6 +474,29 @@ func (c *IamClient) DeleteAgencyInvoker(request *model.DeleteAgencyRequest) *Del
 	return &DeleteAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// DeleteBindingDevice 解绑MFA设备
+//
+// 该接口可以用于解绑MFA设备
+//
+// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IamClient) DeleteBindingDevice(request *model.DeleteBindingDeviceRequest) (*model.DeleteBindingDeviceResponse, error) {
+	requestDef := GenReqDefForDeleteBindingDevice()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteBindingDeviceResponse), nil
+	}
+}
+
+// DeleteBindingDeviceInvoker 解绑MFA设备
+func (c *IamClient) DeleteBindingDeviceInvoker(request *model.DeleteBindingDeviceRequest) *DeleteBindingDeviceInvoker {
+	requestDef := GenReqDefForDeleteBindingDevice()
+	return &DeleteBindingDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // DeleteCustomPolicy 删除自定义策略
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除自定义策略。
@@ -472,6 +541,29 @@ func (c *IamClient) DeleteDomainGroupInheritedRole(request *model.DeleteDomainGr
 func (c *IamClient) DeleteDomainGroupInheritedRoleInvoker(request *model.DeleteDomainGroupInheritedRoleRequest) *DeleteDomainGroupInheritedRoleInvoker {
 	requestDef := GenReqDefForDeleteDomainGroupInheritedRole()
 	return &DeleteDomainGroupInheritedRoleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteMfaDevice 删除MFA设备
+//
+// 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除MFA设备。
+//
+// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IamClient) DeleteMfaDevice(request *model.DeleteMfaDeviceRequest) (*model.DeleteMfaDeviceResponse, error) {
+	requestDef := GenReqDefForDeleteMfaDevice()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteMfaDeviceResponse), nil
+	}
+}
+
+// DeleteMfaDeviceInvoker 删除MFA设备
+func (c *IamClient) DeleteMfaDeviceInvoker(request *model.DeleteMfaDeviceRequest) *DeleteMfaDeviceInvoker {
+	requestDef := GenReqDefForDeleteMfaDevice()
+	return &DeleteMfaDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // KeystoneAddUserToGroup 添加IAM用户到用户组
@@ -1232,29 +1324,6 @@ func (c *IamClient) KeystoneListServicesInvoker(request *model.KeystoneListServi
 	return &KeystoneListServicesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// KeystoneListUsersForGroupByAdmin 管理员查询用户组所包含的IAM用户
-//
-// 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询用户组中所包含的IAM用户。
-//
-// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
-//
-// Please refer to HUAWEI cloud API Explorer for details.
-func (c *IamClient) KeystoneListUsersForGroupByAdmin(request *model.KeystoneListUsersForGroupByAdminRequest) (*model.KeystoneListUsersForGroupByAdminResponse, error) {
-	requestDef := GenReqDefForKeystoneListUsersForGroupByAdmin()
-
-	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
-		return nil, err
-	} else {
-		return resp.(*model.KeystoneListUsersForGroupByAdminResponse), nil
-	}
-}
-
-// KeystoneListUsersForGroupByAdminInvoker 管理员查询用户组所包含的IAM用户
-func (c *IamClient) KeystoneListUsersForGroupByAdminInvoker(request *model.KeystoneListUsersForGroupByAdminRequest) *KeystoneListUsersForGroupByAdminInvoker {
-	requestDef := GenReqDefForKeystoneListUsersForGroupByAdmin()
-	return &KeystoneListUsersForGroupByAdminInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
-}
-
 // KeystoneListVersions 查询版本信息列表
 //
 // 该接口用于查询Keystone API的版本信息。
@@ -1876,7 +1945,7 @@ func (c *IamClient) ListEnterpriseProjectsForGroupInvoker(request *model.ListEnt
 	return &ListEnterpriseProjectsForGroupInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListEnterpriseProjectsForUser 查询用户关联的企业项目
+// ListEnterpriseProjectsForUser 查询用户直接关联的企业项目
 //
 // 该接口可用于查询用户所关联的企业项目。
 //
@@ -1893,7 +1962,7 @@ func (c *IamClient) ListEnterpriseProjectsForUser(request *model.ListEnterpriseP
 	}
 }
 
-// ListEnterpriseProjectsForUserInvoker 查询用户关联的企业项目
+// ListEnterpriseProjectsForUserInvoker 查询用户直接关联的企业项目
 func (c *IamClient) ListEnterpriseProjectsForUserInvoker(request *model.ListEnterpriseProjectsForUserRequest) *ListEnterpriseProjectsForUserInvoker {
 	requestDef := GenReqDefForListEnterpriseProjectsForUser()
 	return &ListEnterpriseProjectsForUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -1945,7 +2014,7 @@ func (c *IamClient) ListProjectPermissionsForAgencyInvoker(request *model.ListPr
 	return &ListProjectPermissionsForAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListRolesForGroupOnEnterpriseProject 查询企业项目已关联用户组的权限
+// ListRolesForGroupOnEnterpriseProject 查询企业项目关联用户组的权限
 //
 // 该接口可用于查询企业项目已关联用户组的权限。
 //
@@ -1962,7 +2031,7 @@ func (c *IamClient) ListRolesForGroupOnEnterpriseProject(request *model.ListRole
 	}
 }
 
-// ListRolesForGroupOnEnterpriseProjectInvoker 查询企业项目已关联用户组的权限
+// ListRolesForGroupOnEnterpriseProjectInvoker 查询企业项目关联用户组的权限
 func (c *IamClient) ListRolesForGroupOnEnterpriseProjectInvoker(request *model.ListRolesForGroupOnEnterpriseProjectRequest) *ListRolesForGroupOnEnterpriseProjectInvoker {
 	requestDef := GenReqDefForListRolesForGroupOnEnterpriseProject()
 	return &ListRolesForGroupOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -2081,7 +2150,7 @@ func (c *IamClient) RemoveProjectPermissionFromAgencyInvoker(request *model.Remo
 	return &RemoveProjectPermissionFromAgencyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// RevokeRoleFromAgencyOnEnterpriseProject
+// RevokeRoleFromAgencyOnEnterpriseProject 删除企业项目关联委托的权限
 //
 // 该接口可以删除企业项目委托上的授权
 //
@@ -2096,7 +2165,7 @@ func (c *IamClient) RevokeRoleFromAgencyOnEnterpriseProject(request *model.Revok
 	}
 }
 
-// RevokeRoleFromAgencyOnEnterpriseProjectInvoker
+// RevokeRoleFromAgencyOnEnterpriseProjectInvoker 删除企业项目关联委托的权限
 func (c *IamClient) RevokeRoleFromAgencyOnEnterpriseProjectInvoker(request *model.RevokeRoleFromAgencyOnEnterpriseProjectRequest) *RevokeRoleFromAgencyOnEnterpriseProjectInvoker {
 	requestDef := GenReqDefForRevokeRoleFromAgencyOnEnterpriseProject()
 	return &RevokeRoleFromAgencyOnEnterpriseProjectInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
@@ -2861,52 +2930,6 @@ func (c *IamClient) UpdatePermanentAccessKeyInvoker(request *model.UpdatePermane
 	return &UpdatePermanentAccessKeyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// CreateBindingDevice 绑定MFA设备
-//
-// 该接口可以用于绑定MFA设备。
-//
-// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
-//
-// Please refer to HUAWEI cloud API Explorer for details.
-func (c *IamClient) CreateBindingDevice(request *model.CreateBindingDeviceRequest) (*model.CreateBindingDeviceResponse, error) {
-	requestDef := GenReqDefForCreateBindingDevice()
-
-	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
-		return nil, err
-	} else {
-		return resp.(*model.CreateBindingDeviceResponse), nil
-	}
-}
-
-// CreateBindingDeviceInvoker 绑定MFA设备
-func (c *IamClient) CreateBindingDeviceInvoker(request *model.CreateBindingDeviceRequest) *CreateBindingDeviceInvoker {
-	requestDef := GenReqDefForCreateBindingDevice()
-	return &CreateBindingDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
-}
-
-// CreateMfaDevice 创建MFA设备
-//
-// 该接口可以用于创建MFA设备。
-//
-// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
-//
-// Please refer to HUAWEI cloud API Explorer for details.
-func (c *IamClient) CreateMfaDevice(request *model.CreateMfaDeviceRequest) (*model.CreateMfaDeviceResponse, error) {
-	requestDef := GenReqDefForCreateMfaDevice()
-
-	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
-		return nil, err
-	} else {
-		return resp.(*model.CreateMfaDeviceResponse), nil
-	}
-}
-
-// CreateMfaDeviceInvoker 创建MFA设备
-func (c *IamClient) CreateMfaDeviceInvoker(request *model.CreateMfaDeviceRequest) *CreateMfaDeviceInvoker {
-	requestDef := GenReqDefForCreateMfaDevice()
-	return &CreateMfaDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
-}
-
 // CreateUser 管理员创建IAM用户（推荐）
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)创建IAM用户。
@@ -2928,52 +2951,6 @@ func (c *IamClient) CreateUser(request *model.CreateUserRequest) (*model.CreateU
 func (c *IamClient) CreateUserInvoker(request *model.CreateUserRequest) *CreateUserInvoker {
 	requestDef := GenReqDefForCreateUser()
 	return &CreateUserInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
-}
-
-// DeleteBindingDevice 解绑MFA设备
-//
-// 该接口可以用于解绑MFA设备
-//
-// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
-//
-// Please refer to HUAWEI cloud API Explorer for details.
-func (c *IamClient) DeleteBindingDevice(request *model.DeleteBindingDeviceRequest) (*model.DeleteBindingDeviceResponse, error) {
-	requestDef := GenReqDefForDeleteBindingDevice()
-
-	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
-		return nil, err
-	} else {
-		return resp.(*model.DeleteBindingDeviceResponse), nil
-	}
-}
-
-// DeleteBindingDeviceInvoker 解绑MFA设备
-func (c *IamClient) DeleteBindingDeviceInvoker(request *model.DeleteBindingDeviceRequest) *DeleteBindingDeviceInvoker {
-	requestDef := GenReqDefForDeleteBindingDevice()
-	return &DeleteBindingDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
-}
-
-// DeleteMfaDevice 删除MFA设备
-//
-// 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)删除MFA设备。
-//
-// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
-//
-// Please refer to HUAWEI cloud API Explorer for details.
-func (c *IamClient) DeleteMfaDevice(request *model.DeleteMfaDeviceRequest) (*model.DeleteMfaDeviceResponse, error) {
-	requestDef := GenReqDefForDeleteMfaDevice()
-
-	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
-		return nil, err
-	} else {
-		return resp.(*model.DeleteMfaDeviceResponse), nil
-	}
-}
-
-// DeleteMfaDeviceInvoker 删除MFA设备
-func (c *IamClient) DeleteMfaDeviceInvoker(request *model.DeleteMfaDeviceRequest) *DeleteMfaDeviceInvoker {
-	requestDef := GenReqDefForDeleteMfaDevice()
-	return &DeleteMfaDeviceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // KeystoneCreateUser 管理员创建IAM用户
@@ -3068,6 +3045,29 @@ func (c *IamClient) KeystoneListUsersInvoker(request *model.KeystoneListUsersReq
 	return &KeystoneListUsersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// KeystoneListUsersForGroupByAdmin 管理员查询用户组所包含的IAM用户
+//
+// 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询用户组中所包含的IAM用户。
+//
+// 该接口可以使用全局区域的Endpoint和其他区域的Endpoint调用。IAM的Endpoint请参见：[地区和终端节点](https://developer.huaweicloud.com/endpoint?IAM)。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IamClient) KeystoneListUsersForGroupByAdmin(request *model.KeystoneListUsersForGroupByAdminRequest) (*model.KeystoneListUsersForGroupByAdminResponse, error) {
+	requestDef := GenReqDefForKeystoneListUsersForGroupByAdmin()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.KeystoneListUsersForGroupByAdminResponse), nil
+	}
+}
+
+// KeystoneListUsersForGroupByAdminInvoker 管理员查询用户组所包含的IAM用户
+func (c *IamClient) KeystoneListUsersForGroupByAdminInvoker(request *model.KeystoneListUsersForGroupByAdminRequest) *KeystoneListUsersForGroupByAdminInvoker {
+	requestDef := GenReqDefForKeystoneListUsersForGroupByAdmin()
+	return &KeystoneListUsersForGroupByAdminInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // KeystoneShowUser 查询IAM用户详情
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户详情，或IAM用户查询自己的用户详情。
@@ -3160,7 +3160,7 @@ func (c *IamClient) ListUserLoginProtectsInvoker(request *model.ListUserLoginPro
 	return &ListUserLoginProtectsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
-// ListUserMfaDevices 该接口可以用于获取MFA设备。
+// ListUserMfaDevices 查询IAM用户的MFA绑定信息列表
 //
 // 该接口可以用于[管理员](https://support.huaweicloud.com/usermanual-iam/iam_01_0001.html)查询IAM用户的MFA绑定信息列表。
 //
@@ -3177,7 +3177,7 @@ func (c *IamClient) ListUserMfaDevices(request *model.ListUserMfaDevicesRequest)
 	}
 }
 
-// ListUserMfaDevicesInvoker 该接口可以用于获取MFA设备。
+// ListUserMfaDevicesInvoker 查询IAM用户的MFA绑定信息列表
 func (c *IamClient) ListUserMfaDevicesInvoker(request *model.ListUserMfaDevicesRequest) *ListUserMfaDevicesInvoker {
 	requestDef := GenReqDefForListUserMfaDevices()
 	return &ListUserMfaDevicesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}

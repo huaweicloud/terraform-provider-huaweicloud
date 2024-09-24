@@ -103,8 +103,8 @@ type Port struct {
 	// 1、功能描述：迁移目的节点信息，包括目的节点的binding:vif_details和binding:vif_type 2、取值范围：N/A 3、约束：N/A 4、默认值：N/A 5、权限：N/A
 	BindingmigrationInfo *interface{} `json:"binding:migration_info"`
 
-	// 1、功能描述：DHCP的扩展属性 2、取值范围：N/A 3、约束：N/A 4、默认值：N/A 5、权限：N/A
-	ExtraDhcpOpts []interface{} `json:"extra_dhcp_opts"`
+	// 功能说明：DHCP的扩展属性
+	ExtraDhcpOpts []ExtraDhcpOpt `json:"extra_dhcp_opts"`
 
 	// 1、功能描述：边缘场景位置类型 2、取值范围：N/A 3、约束：N/A 4、默认值：center 5、权限：N/A
 	PositionType string `json:"position_type"`

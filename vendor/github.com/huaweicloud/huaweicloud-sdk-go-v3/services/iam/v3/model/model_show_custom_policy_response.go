@@ -8,8 +8,8 @@ import (
 
 // ShowCustomPolicyResponse Response Object
 type ShowCustomPolicyResponse struct {
-	Role           *PolicyRoleResult `json:"role,omitempty"`
-	HttpStatusCode int               `json:"-"`
+	Role           *ShowPolicyRoleResult `json:"role,omitempty"`
+	HttpStatusCode int                   `json:"-"`
 }
 
 func (o ShowCustomPolicyResponse) String() string {

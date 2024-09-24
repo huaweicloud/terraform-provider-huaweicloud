@@ -21,6 +21,11 @@ type NodeSpecUpdate struct {
 	InitializedConditions *[]string `json:"initializedConditions,omitempty"`
 
 	Login *Login `json:"login,omitempty"`
+
+	// 服务器企业项目ID。CCE服务不实现EPS相关特性，该字段仅用于同步服务器企业项目ID。 创建节点/节点池场景：可指定已存在企业项目，当取值为空时，该字段继承集群企业项目属性。 更新节点池场景：配置修改后仅会对新增节点的服务器生效，存量节点需前往EPS界面迁移。 如果更新时不指定值，不会更新该字段。 当该字段为空时，返回集群企业项目。
+	ServerEnterpriseProjectID *string `json:"serverEnterpriseProjectID,omitempty"`
+
+	NodeNicSpecUpdate *NodeSpecUpdateNodeNicSpecUpdate `json:"nodeNicSpecUpdate,omitempty"`
 }
 
 func (o NodeSpecUpdate) String() string {

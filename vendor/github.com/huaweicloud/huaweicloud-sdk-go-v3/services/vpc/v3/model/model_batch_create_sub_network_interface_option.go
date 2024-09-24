@@ -26,6 +26,9 @@ type BatchCreateSubNetworkInterfaceOption struct {
 
 	// 功能说明：辅助弹性网卡所属的项目ID 取值范围：标准UUID 约束：只有管理员有权限指定
 	ProjectId *string `json:"project_id,omitempty"`
+
+	// 1. 扩展属性：IP/Mac对列表，allowed_address_pair参见“allowed_address_pair对象” 2. 使用说明: IP地址不允许为 “0.0.0.0”如果allowed_address_pairs配置地址池较大的CIDR（掩码小于24位），建议为该port配置一个单独的安全组硬件SDN环境不支持ip_address属性配置为CIDR格式。
+	AllowedAddressPairs *[]AllowedAddressPair `json:"allowed_address_pairs,omitempty"`
 }
 
 func (o BatchCreateSubNetworkInterfaceOption) String() string {

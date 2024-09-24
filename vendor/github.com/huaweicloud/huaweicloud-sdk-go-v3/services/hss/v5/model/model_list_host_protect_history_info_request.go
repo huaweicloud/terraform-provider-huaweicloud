@@ -27,7 +27,7 @@ type ListHostProtectHistoryInfoRequest struct {
 	// limit
 	Limit int32 `json:"limit"`
 
-	// offset
+	// 偏移量：指定返回记录的开始位置
 	Offset int32 `json:"offset"`
 
 	// 服务器名称

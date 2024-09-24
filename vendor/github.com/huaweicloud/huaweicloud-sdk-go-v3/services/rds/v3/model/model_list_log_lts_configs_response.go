@@ -8,7 +8,13 @@ import (
 
 // ListLogLtsConfigsResponse Response Object
 type ListLogLtsConfigsResponse struct {
-	HttpStatusCode int `json:"-"`
+
+	// 实例的LTS配置
+	InstanceLtsConfigs *[]InstanceLtsConfigResp `json:"instance_lts_configs,omitempty"`
+
+	// 结果集大小
+	TotalCount     *int32 `json:"total_count,omitempty"`
+	HttpStatusCode int    `json:"-"`
 }
 
 func (o ListLogLtsConfigsResponse) String() string {

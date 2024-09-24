@@ -34,6 +34,7 @@ type MonitorMetric struct {
 	StatusCode    int
 	ContentLength int64
 	Latency       time.Duration
+	Attributes    map[string]interface{}
 }
 
 type HttpHandler struct {

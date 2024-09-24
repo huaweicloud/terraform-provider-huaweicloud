@@ -37,6 +37,9 @@ type UrlAuth struct {
 
 	// 时间格式 dec：十进制 hex：十六进制 鉴权方式A：只支持十进制 鉴权方式B：只支持十进制 鉴权方式C1：只支持十六进制鉴权方式 鉴权方式C2：支持十进制/十六进制
 	TimeFormat *string `json:"time_format,omitempty"`
+
+	// 时间参数名称：当type为“type_c2”时，该字段可选。由1-100个字符组成。必须以字母开头，后面可以衔接任意数字、字母和下划线，不允许出现其他特殊符号。鉴权方式为C2时，不传或传空默认设置为“timestamp”。
+	TimeArg *string `json:"time_arg,omitempty"`
 }
 
 func (o UrlAuth) String() string {

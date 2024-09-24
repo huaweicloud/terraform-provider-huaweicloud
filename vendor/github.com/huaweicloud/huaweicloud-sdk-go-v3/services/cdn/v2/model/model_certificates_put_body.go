@@ -9,6 +9,12 @@ import (
 // CertificatesPutBody 配置双证书时必传，需要同时传入国际证书和国密证书，不支持传两个国际证书或两个国密证书。   > - 您也可以在certificates参数下传入一个国际证书或一个国密证书。   > - 如果certificates传了证书（国际证书、国密证书或国际+国密双证书），外层证书配置将失效，仅保留当前参数传入的证书信息。
 type CertificatesPutBody struct {
 
+	// 证书来源，0：自有证书。2：SCM证书。
+	CertificateSource *int32 `json:"certificate_source,omitempty"`
+
+	// SCM证书id
+	ScmCertificateId *string `json:"scm_certificate_id,omitempty"`
+
 	// 证书类型，server：国际证书；server_sm：国密证书。
 	CertificateType string `json:"certificate_type"`
 

@@ -15,13 +15,17 @@ type DomainHttpsCertInfo struct {
 	CertificateFormat *DomainHttpsCertInfoCertificateFormat `json:"certificate_format,omitempty"`
 
 	// 证书内容
-	Certificate string `json:"certificate"`
+	Certificate *string `json:"certificate,omitempty"`
 
 	// 私钥内容
-	CertificateKey string `json:"certificate_key"`
+	CertificateKey *string `json:"certificate_key,omitempty"`
 
 	// 是否开启重定向，默认false
 	ForceRedirect *bool `json:"force_redirect,omitempty"`
+
+	GmCertificate *GmCertificateInfo `json:"gm_certificate,omitempty"`
+
+	TlsCertificate *TlsCertificateInfo `json:"tls_certificate,omitempty"`
 }
 
 func (o DomainHttpsCertInfo) String() string {

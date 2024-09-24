@@ -26,6 +26,8 @@ type NodeMetadata struct {
 
 	// 更新时间，创建成功后自动生成，填写无效
 	UpdateTimestamp *string `json:"updateTimestamp,omitempty"`
+
+	OwnerReference *NodeOwnerReference `json:"ownerReference,omitempty"`
 }
 
 func (o NodeMetadata) String() string {

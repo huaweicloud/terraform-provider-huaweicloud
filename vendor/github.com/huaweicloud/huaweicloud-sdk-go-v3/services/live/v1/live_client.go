@@ -355,6 +355,27 @@ func (c *LiveClient) DeleteRecordRuleInvoker(request *model.DeleteRecordRuleRequ
 	return &DeleteRecordRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// DeleteRefererChain 删除Referer防盗链黑白名单
+//
+// 删除Referer防盗链黑白名单
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) DeleteRefererChain(request *model.DeleteRefererChainRequest) (*model.DeleteRefererChainResponse, error) {
+	requestDef := GenReqDefForDeleteRefererChain()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteRefererChainResponse), nil
+	}
+}
+
+// DeleteRefererChainInvoker 删除Referer防盗链黑白名单
+func (c *LiveClient) DeleteRefererChainInvoker(request *model.DeleteRefererChainRequest) *DeleteRefererChainInvoker {
+	requestDef := GenReqDefForDeleteRefererChain()
+	return &DeleteRefererChainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // DeleteSnapshotConfig 删除直播截图配置
 //
 // 删除直播截图配置接口
@@ -458,6 +479,27 @@ func (c *LiveClient) ListGeoBlockingConfig(request *model.ListGeoBlockingConfigR
 func (c *LiveClient) ListGeoBlockingConfigInvoker(request *model.ListGeoBlockingConfigRequest) *ListGeoBlockingConfigInvoker {
 	requestDef := GenReqDefForListGeoBlockingConfig()
 	return &ListGeoBlockingConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListHlsConfig 查询域名HLS配置
+//
+// 查询域名HLS配置。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) ListHlsConfig(request *model.ListHlsConfigRequest) (*model.ListHlsConfigResponse, error) {
+	requestDef := GenReqDefForListHlsConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListHlsConfigResponse), nil
+	}
+}
+
+// ListHlsConfigInvoker 查询域名HLS配置
+func (c *LiveClient) ListHlsConfigInvoker(request *model.ListHlsConfigRequest) *ListHlsConfigInvoker {
+	requestDef := GenReqDefForListHlsConfig()
+	return &ListHlsConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListIpAuthList 查询IP黑/白名单
@@ -673,6 +715,27 @@ func (c *LiveClient) RunRecordInvoker(request *model.RunRecordRequest) *RunRecor
 	return &RunRecordInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// SetRefererChain 设置Referer防盗链黑白名单
+//
+// 设置Referer黑白名单，直播服务会根据配置的referer黑白名单，对访问者的身份进行识别和过滤，符合规则的可以顺利访问到该内容。如果不符合规则，该访问请求将会被禁止。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) SetRefererChain(request *model.SetRefererChainRequest) (*model.SetRefererChainResponse, error) {
+	requestDef := GenReqDefForSetRefererChain()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SetRefererChainResponse), nil
+	}
+}
+
+// SetRefererChainInvoker 设置Referer防盗链黑白名单
+func (c *LiveClient) SetRefererChainInvoker(request *model.SetRefererChainRequest) *SetRefererChainInvoker {
+	requestDef := GenReqDefForSetRefererChain()
+	return &SetRefererChainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowDomain 查询直播域名
 //
 // 查询直播域名
@@ -776,6 +839,27 @@ func (c *LiveClient) ShowRecordRule(request *model.ShowRecordRuleRequest) (*mode
 func (c *LiveClient) ShowRecordRuleInvoker(request *model.ShowRecordRuleRequest) *ShowRecordRuleInvoker {
 	requestDef := GenReqDefForShowRecordRule()
 	return &ShowRecordRuleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowRefererChain 查询Referer防盗链黑白名单
+//
+// 查询Referer防盗链黑白名单
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) ShowRefererChain(request *model.ShowRefererChainRequest) (*model.ShowRefererChainResponse, error) {
+	requestDef := GenReqDefForShowRefererChain()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowRefererChainResponse), nil
+	}
+}
+
+// ShowRefererChainInvoker 查询Referer防盗链黑白名单
+func (c *LiveClient) ShowRefererChainInvoker(request *model.ShowRefererChainRequest) *ShowRefererChainInvoker {
+	requestDef := GenReqDefForShowRefererChain()
+	return &ShowRefererChainInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowTranscodingsTemplate 查询直播转码模板
@@ -902,6 +986,27 @@ func (c *LiveClient) UpdateGeoBlockingConfig(request *model.UpdateGeoBlockingCon
 func (c *LiveClient) UpdateGeoBlockingConfigInvoker(request *model.UpdateGeoBlockingConfigRequest) *UpdateGeoBlockingConfigInvoker {
 	requestDef := GenReqDefForUpdateGeoBlockingConfig()
 	return &UpdateGeoBlockingConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateHlsConfig 修改域名HLS配置
+//
+// 修改域名HLS配置。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *LiveClient) UpdateHlsConfig(request *model.UpdateHlsConfigRequest) (*model.UpdateHlsConfigResponse, error) {
+	requestDef := GenReqDefForUpdateHlsConfig()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateHlsConfigResponse), nil
+	}
+}
+
+// UpdateHlsConfigInvoker 修改域名HLS配置
+func (c *LiveClient) UpdateHlsConfigInvoker(request *model.UpdateHlsConfigRequest) *UpdateHlsConfigInvoker {
+	requestDef := GenReqDefForUpdateHlsConfig()
+	return &UpdateHlsConfigInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdateIpAuthList 修改IP黑/白名单

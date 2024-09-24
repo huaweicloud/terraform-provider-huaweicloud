@@ -13,7 +13,7 @@ type SmnInfo struct {
 	SmnNotifiedContent *string `json:"smn_notified_content,omitempty"`
 
 	// smn的订阅的状态
-	SmnSubscriptionStatus *string `json:"smn_subscription_status,omitempty"`
+	SmnSubscriptionStatus *int32 `json:"smn_subscription_status,omitempty"`
 
 	// smn的订阅类型
 	SmnSubscriptionType *string `json:"smn_subscription_type,omitempty"`

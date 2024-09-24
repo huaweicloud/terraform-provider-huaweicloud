@@ -14,9 +14,6 @@ type TopReferSummary struct {
 
 	// 对应查询类型的值。（流量单位：Byte）
 	Value *int64 `json:"value,omitempty"`
-
-	// 该referer的流量(或请求数)占当前查询条件下总流量(或请求数)的比例。保留4位小数
-	Ratio *float64 `json:"ratio,omitempty"`
 }
 
 func (o TopReferSummary) String() string {

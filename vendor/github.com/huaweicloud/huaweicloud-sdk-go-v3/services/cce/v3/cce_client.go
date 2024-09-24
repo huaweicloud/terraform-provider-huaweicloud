@@ -41,6 +41,28 @@ func (c *CceClient) AddNodeInvoker(request *model.AddNodeRequest) *AddNodeInvoke
 	return &AddNodeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// AddNodesToNodePool 自定义节点池纳管节点
+//
+// 该API用于在指定集群自定义节点池下纳管节点。竞价实例不支持纳管。
+// &gt;集群管理的URL格式为：https://Endpoint/uri。其中uri为资源路径，也即API访问的路径。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) AddNodesToNodePool(request *model.AddNodesToNodePoolRequest) (*model.AddNodesToNodePoolResponse, error) {
+	requestDef := GenReqDefForAddNodesToNodePool()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.AddNodesToNodePoolResponse), nil
+	}
+}
+
+// AddNodesToNodePoolInvoker 自定义节点池纳管节点
+func (c *CceClient) AddNodesToNodePoolInvoker(request *model.AddNodesToNodePoolRequest) *AddNodesToNodePoolInvoker {
+	requestDef := GenReqDefForAddNodesToNodePool()
+	return &AddNodesToNodePoolInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // AwakeCluster 集群唤醒
 //
 // 集群唤醒用于唤醒已休眠的集群，唤醒后，将继续收取控制节点资源费用。
@@ -105,6 +127,27 @@ func (c *CceClient) BatchDeleteClusterTags(request *model.BatchDeleteClusterTags
 func (c *CceClient) BatchDeleteClusterTagsInvoker(request *model.BatchDeleteClusterTagsRequest) *BatchDeleteClusterTagsInvoker {
 	requestDef := GenReqDefForBatchDeleteClusterTags()
 	return &BatchDeleteClusterTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// BatchSyncNodes 批量同步节点
+//
+// 该API用于批量同步节点。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) BatchSyncNodes(request *model.BatchSyncNodesRequest) (*model.BatchSyncNodesResponse, error) {
+	requestDef := GenReqDefForBatchSyncNodes()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchSyncNodesResponse), nil
+	}
+}
+
+// BatchSyncNodesInvoker 批量同步节点
+func (c *CceClient) BatchSyncNodesInvoker(request *model.BatchSyncNodesRequest) *BatchSyncNodesInvoker {
+	requestDef := GenReqDefForBatchSyncNodes()
+	return &BatchSyncNodesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ContinueUpgradeClusterTask 继续执行集群升级任务
@@ -1025,6 +1068,29 @@ func (c *CceClient) RetryUpgradeClusterTaskInvoker(request *model.RetryUpgradeCl
 	return &RetryUpgradeClusterTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// RevokeKubernetesClusterCert 吊销用户的集群证书
+//
+// 该API用于吊销指定集群的用户证书
+//
+// &gt; 吊销操作完成后，此证书申请人之前下载的证书和 kubectl 配置文件无法再用于连接集群。此证书申请人可以重新下载证书或 kubectl 配置文件，并使用新下载的文件连接集群
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) RevokeKubernetesClusterCert(request *model.RevokeKubernetesClusterCertRequest) (*model.RevokeKubernetesClusterCertResponse, error) {
+	requestDef := GenReqDefForRevokeKubernetesClusterCert()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.RevokeKubernetesClusterCertResponse), nil
+	}
+}
+
+// RevokeKubernetesClusterCertInvoker 吊销用户的集群证书
+func (c *CceClient) RevokeKubernetesClusterCertInvoker(request *model.RevokeKubernetesClusterCertRequest) *RevokeKubernetesClusterCertInvoker {
+	requestDef := GenReqDefForRevokeKubernetesClusterCert()
+	return &RevokeKubernetesClusterCertInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // RollbackAddonInstance 回滚AddonInstance
 //
 // 将插件实例回滚到升级前的版本。只有在当前插件实例版本支持回滚到升级前的版本（status.isRollbackable为true），且插件实例状态为running（运行中）、available（可用）、abnormal（不可用）、upgradeFailed（升级失败）、rollbackFailed（回滚失败）时支持回滚。
@@ -1044,6 +1110,28 @@ func (c *CceClient) RollbackAddonInstance(request *model.RollbackAddonInstanceRe
 func (c *CceClient) RollbackAddonInstanceInvoker(request *model.RollbackAddonInstanceRequest) *RollbackAddonInstanceInvoker {
 	requestDef := GenReqDefForRollbackAddonInstance()
 	return &RollbackAddonInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ScaleNodePool 伸缩节点池
+//
+// 该API用于伸缩指定的节点池
+// &gt; 集群管理的URL格式为：https://Endpoint/uri。其中uri为资源路径，也即API访问的路径
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ScaleNodePool(request *model.ScaleNodePoolRequest) (*model.ScaleNodePoolResponse, error) {
+	requestDef := GenReqDefForScaleNodePool()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ScaleNodePoolResponse), nil
+	}
+}
+
+// ScaleNodePoolInvoker 伸缩节点池
+func (c *CceClient) ScaleNodePoolInvoker(request *model.ScaleNodePoolRequest) *ScaleNodePoolInvoker {
+	requestDef := GenReqDefForScaleNodePool()
+	return &ScaleNodePoolInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowAddonInstance 获取AddonInstance详情
@@ -1193,6 +1281,27 @@ func (c *CceClient) ShowClusterEndpoints(request *model.ShowClusterEndpointsRequ
 func (c *CceClient) ShowClusterEndpointsInvoker(request *model.ShowClusterEndpointsRequest) *ShowClusterEndpointsInvoker {
 	requestDef := GenReqDefForShowClusterEndpoints()
 	return &ShowClusterEndpointsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowClusterSupportConfiguration 根据集群版本类型等查询集群支持的详细配置项，用于集群创建时指定
+//
+// 该API用于根据集群版本类型等查询集群支持的详细配置项，用于集群创建时指定。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowClusterSupportConfiguration(request *model.ShowClusterSupportConfigurationRequest) (*model.ShowClusterSupportConfigurationResponse, error) {
+	requestDef := GenReqDefForShowClusterSupportConfiguration()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowClusterSupportConfigurationResponse), nil
+	}
+}
+
+// ShowClusterSupportConfigurationInvoker 根据集群版本类型等查询集群支持的详细配置项，用于集群创建时指定
+func (c *CceClient) ShowClusterSupportConfigurationInvoker(request *model.ShowClusterSupportConfigurationRequest) *ShowClusterSupportConfigurationInvoker {
+	requestDef := GenReqDefForShowClusterSupportConfiguration()
+	return &ShowClusterSupportConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ShowClusterUpgradeInfo 获取集群升级相关信息
@@ -1497,6 +1606,48 @@ func (c *CceClient) ShowUserChartsQuotasInvoker(request *model.ShowUserChartsQuo
 	return &ShowUserChartsQuotasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// SyncNode 同步节点
+//
+// 该API用于同步节点。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) SyncNode(request *model.SyncNodeRequest) (*model.SyncNodeResponse, error) {
+	requestDef := GenReqDefForSyncNode()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SyncNodeResponse), nil
+	}
+}
+
+// SyncNodeInvoker 同步节点
+func (c *CceClient) SyncNodeInvoker(request *model.SyncNodeRequest) *SyncNodeInvoker {
+	requestDef := GenReqDefForSyncNode()
+	return &SyncNodeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SyncNodePool 同步nodePool配置到存量节点
+//
+// 该API用于同步nodePool配置到存量节点。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) SyncNodePool(request *model.SyncNodePoolRequest) (*model.SyncNodePoolResponse, error) {
+	requestDef := GenReqDefForSyncNodePool()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SyncNodePoolResponse), nil
+	}
+}
+
+// SyncNodePoolInvoker 同步nodePool配置到存量节点
+func (c *CceClient) SyncNodePoolInvoker(request *model.SyncNodePoolRequest) *SyncNodePoolInvoker {
+	requestDef := GenReqDefForSyncNodePool()
+	return &SyncNodePoolInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateAddonInstance 更新AddonInstance
 //
 // 更新插件实例的功能。
@@ -1738,6 +1889,27 @@ func (c *CceClient) UpgradeClusterInvoker(request *model.UpgradeClusterRequest) 
 	return &UpgradeClusterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UpgradeNodePool 节点池升级
+//
+// 该API用于节点池升级。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) UpgradeNodePool(request *model.UpgradeNodePoolRequest) (*model.UpgradeNodePoolResponse, error) {
+	requestDef := GenReqDefForUpgradeNodePool()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpgradeNodePoolResponse), nil
+	}
+}
+
+// UpgradeNodePoolInvoker 节点池升级
+func (c *CceClient) UpgradeNodePoolInvoker(request *model.UpgradeNodePoolRequest) *UpgradeNodePoolInvoker {
+	requestDef := GenReqDefForUpgradeNodePool()
+	return &UpgradeNodePoolInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpgradeWorkFlowUpdate 更新指定集群升级引导任务状态
 //
 // 该API用于更新指定集群升级引导任务状态，当前仅适用于取消升级流程
@@ -1800,4 +1972,1077 @@ func (c *CceClient) ShowVersion(request *model.ShowVersionRequest) (*model.ShowV
 func (c *CceClient) ShowVersionInvoker(request *model.ShowVersionRequest) *ShowVersionInvoker {
 	requestDef := GenReqDefForShowVersion()
 	return &ShowVersionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// BatchCreateAutopilotClusterTags 批量添加指定集群的资源标签
+//
+// 该API用于批量添加指定集群的资源标签。
+// &gt; - 每个集群支持最多20个资源标签。
+// &gt; - 此接口为幂等接口：创建时，如果创建的标签已经存在（key/value均相同视为重复），默认处理成功；key相同，value不同时会覆盖原有标签。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) BatchCreateAutopilotClusterTags(request *model.BatchCreateAutopilotClusterTagsRequest) (*model.BatchCreateAutopilotClusterTagsResponse, error) {
+	requestDef := GenReqDefForBatchCreateAutopilotClusterTags()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchCreateAutopilotClusterTagsResponse), nil
+	}
+}
+
+// BatchCreateAutopilotClusterTagsInvoker 批量添加指定集群的资源标签
+func (c *CceClient) BatchCreateAutopilotClusterTagsInvoker(request *model.BatchCreateAutopilotClusterTagsRequest) *BatchCreateAutopilotClusterTagsInvoker {
+	requestDef := GenReqDefForBatchCreateAutopilotClusterTags()
+	return &BatchCreateAutopilotClusterTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// BatchDeleteAutopilotClusterTags 批量删除指定集群的资源标签
+//
+// 该API用于批量删除指定集群的资源标签。
+// &gt; - 此接口为幂等接口：删除时，如果删除的标签key不存在，默认处理成功。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) BatchDeleteAutopilotClusterTags(request *model.BatchDeleteAutopilotClusterTagsRequest) (*model.BatchDeleteAutopilotClusterTagsResponse, error) {
+	requestDef := GenReqDefForBatchDeleteAutopilotClusterTags()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BatchDeleteAutopilotClusterTagsResponse), nil
+	}
+}
+
+// BatchDeleteAutopilotClusterTagsInvoker 批量删除指定集群的资源标签
+func (c *CceClient) BatchDeleteAutopilotClusterTagsInvoker(request *model.BatchDeleteAutopilotClusterTagsRequest) *BatchDeleteAutopilotClusterTagsInvoker {
+	requestDef := GenReqDefForBatchDeleteAutopilotClusterTags()
+	return &BatchDeleteAutopilotClusterTagsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateAutopilotAddonInstance 创建AddonInstance
+//
+// 根据提供的插件模板，安装插件实例。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreateAutopilotAddonInstance(request *model.CreateAutopilotAddonInstanceRequest) (*model.CreateAutopilotAddonInstanceResponse, error) {
+	requestDef := GenReqDefForCreateAutopilotAddonInstance()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateAutopilotAddonInstanceResponse), nil
+	}
+}
+
+// CreateAutopilotAddonInstanceInvoker 创建AddonInstance
+func (c *CceClient) CreateAutopilotAddonInstanceInvoker(request *model.CreateAutopilotAddonInstanceRequest) *CreateAutopilotAddonInstanceInvoker {
+	requestDef := GenReqDefForCreateAutopilotAddonInstance()
+	return &CreateAutopilotAddonInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateAutopilotCluster 创建集群
+//
+// 该API用于创建一个空集群（即只有控制节点Master，没有工作节点Node）。请在调用本接口完成集群创建之后，通过[创建节点](cce_02_0242.xml)添加节点。
+//
+// &gt;   - 集群管理的URL格式为：https://Endpoint/uri。其中uri为资源路径，也即API访问的路径。
+// &gt;   - 调用该接口创建集群时，默认不安装ICAgent，若需安装ICAgent，可在请求Body参数的annotations中加入\&quot;cluster.install.addons.external/install\&quot;:\&quot;[{\&quot;addonTemplateName\&quot;:\&quot;icagent\&quot;}]\&quot;的集群注解，将在创建集群时自动安装ICAgent。ICAgent是应用性能管理APM的采集代理，运行在应用所在的服务器上，用于实时采集探针所获取的数据，安装ICAgent是使用应用性能管理APM的前提。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreateAutopilotCluster(request *model.CreateAutopilotClusterRequest) (*model.CreateAutopilotClusterResponse, error) {
+	requestDef := GenReqDefForCreateAutopilotCluster()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateAutopilotClusterResponse), nil
+	}
+}
+
+// CreateAutopilotClusterInvoker 创建集群
+func (c *CceClient) CreateAutopilotClusterInvoker(request *model.CreateAutopilotClusterRequest) *CreateAutopilotClusterInvoker {
+	requestDef := GenReqDefForCreateAutopilotCluster()
+	return &CreateAutopilotClusterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateAutopilotClusterMasterSnapshot 集群备份
+//
+// 集群备份
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreateAutopilotClusterMasterSnapshot(request *model.CreateAutopilotClusterMasterSnapshotRequest) (*model.CreateAutopilotClusterMasterSnapshotResponse, error) {
+	requestDef := GenReqDefForCreateAutopilotClusterMasterSnapshot()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateAutopilotClusterMasterSnapshotResponse), nil
+	}
+}
+
+// CreateAutopilotClusterMasterSnapshotInvoker 集群备份
+func (c *CceClient) CreateAutopilotClusterMasterSnapshotInvoker(request *model.CreateAutopilotClusterMasterSnapshotRequest) *CreateAutopilotClusterMasterSnapshotInvoker {
+	requestDef := GenReqDefForCreateAutopilotClusterMasterSnapshot()
+	return &CreateAutopilotClusterMasterSnapshotInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateAutopilotKubernetesClusterCert 获取集群证书
+//
+// 该API用于获取指定集群的证书信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreateAutopilotKubernetesClusterCert(request *model.CreateAutopilotKubernetesClusterCertRequest) (*model.CreateAutopilotKubernetesClusterCertResponse, error) {
+	requestDef := GenReqDefForCreateAutopilotKubernetesClusterCert()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateAutopilotKubernetesClusterCertResponse), nil
+	}
+}
+
+// CreateAutopilotKubernetesClusterCertInvoker 获取集群证书
+func (c *CceClient) CreateAutopilotKubernetesClusterCertInvoker(request *model.CreateAutopilotKubernetesClusterCertRequest) *CreateAutopilotKubernetesClusterCertInvoker {
+	requestDef := GenReqDefForCreateAutopilotKubernetesClusterCert()
+	return &CreateAutopilotKubernetesClusterCertInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateAutopilotPostCheck 集群升级后确认
+//
+// 集群升级后确认，该接口建议配合Console使用，主要用于升级步骤完成后，客户确认集群状态和业务正常后做反馈。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreateAutopilotPostCheck(request *model.CreateAutopilotPostCheckRequest) (*model.CreateAutopilotPostCheckResponse, error) {
+	requestDef := GenReqDefForCreateAutopilotPostCheck()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateAutopilotPostCheckResponse), nil
+	}
+}
+
+// CreateAutopilotPostCheckInvoker 集群升级后确认
+func (c *CceClient) CreateAutopilotPostCheckInvoker(request *model.CreateAutopilotPostCheckRequest) *CreateAutopilotPostCheckInvoker {
+	requestDef := GenReqDefForCreateAutopilotPostCheck()
+	return &CreateAutopilotPostCheckInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateAutopilotPreCheck 集群升级前检查
+//
+// 集群升级前检查
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreateAutopilotPreCheck(request *model.CreateAutopilotPreCheckRequest) (*model.CreateAutopilotPreCheckResponse, error) {
+	requestDef := GenReqDefForCreateAutopilotPreCheck()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateAutopilotPreCheckResponse), nil
+	}
+}
+
+// CreateAutopilotPreCheckInvoker 集群升级前检查
+func (c *CceClient) CreateAutopilotPreCheckInvoker(request *model.CreateAutopilotPreCheckRequest) *CreateAutopilotPreCheckInvoker {
+	requestDef := GenReqDefForCreateAutopilotPreCheck()
+	return &CreateAutopilotPreCheckInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateAutopilotRelease 创建模板实例
+//
+// 创建模板实例
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreateAutopilotRelease(request *model.CreateAutopilotReleaseRequest) (*model.CreateAutopilotReleaseResponse, error) {
+	requestDef := GenReqDefForCreateAutopilotRelease()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateAutopilotReleaseResponse), nil
+	}
+}
+
+// CreateAutopilotReleaseInvoker 创建模板实例
+func (c *CceClient) CreateAutopilotReleaseInvoker(request *model.CreateAutopilotReleaseRequest) *CreateAutopilotReleaseInvoker {
+	requestDef := GenReqDefForCreateAutopilotRelease()
+	return &CreateAutopilotReleaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateAutopilotUpgradeWorkFlow 开启集群升级流程引导任务
+//
+// 该API用于创建一个集群升级流程引导任务。请在调用本接口完成引导任务创建之后，通过集群升级前检查开始检查任务。
+// 升级流程任务用于控制集群升级任务的执行流程，执行流程为 升级前检查 &#x3D;&gt; 集群升级 &#x3D;&gt; 升级后检查。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) CreateAutopilotUpgradeWorkFlow(request *model.CreateAutopilotUpgradeWorkFlowRequest) (*model.CreateAutopilotUpgradeWorkFlowResponse, error) {
+	requestDef := GenReqDefForCreateAutopilotUpgradeWorkFlow()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateAutopilotUpgradeWorkFlowResponse), nil
+	}
+}
+
+// CreateAutopilotUpgradeWorkFlowInvoker 开启集群升级流程引导任务
+func (c *CceClient) CreateAutopilotUpgradeWorkFlowInvoker(request *model.CreateAutopilotUpgradeWorkFlowRequest) *CreateAutopilotUpgradeWorkFlowInvoker {
+	requestDef := GenReqDefForCreateAutopilotUpgradeWorkFlow()
+	return &CreateAutopilotUpgradeWorkFlowInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteAutopilotAddonInstance 删除AddonInstance
+//
+// 删除插件实例的功能。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) DeleteAutopilotAddonInstance(request *model.DeleteAutopilotAddonInstanceRequest) (*model.DeleteAutopilotAddonInstanceResponse, error) {
+	requestDef := GenReqDefForDeleteAutopilotAddonInstance()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteAutopilotAddonInstanceResponse), nil
+	}
+}
+
+// DeleteAutopilotAddonInstanceInvoker 删除AddonInstance
+func (c *CceClient) DeleteAutopilotAddonInstanceInvoker(request *model.DeleteAutopilotAddonInstanceRequest) *DeleteAutopilotAddonInstanceInvoker {
+	requestDef := GenReqDefForDeleteAutopilotAddonInstance()
+	return &DeleteAutopilotAddonInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteAutopilotChart 删除模板
+//
+// 删除模板
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) DeleteAutopilotChart(request *model.DeleteAutopilotChartRequest) (*model.DeleteAutopilotChartResponse, error) {
+	requestDef := GenReqDefForDeleteAutopilotChart()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteAutopilotChartResponse), nil
+	}
+}
+
+// DeleteAutopilotChartInvoker 删除模板
+func (c *CceClient) DeleteAutopilotChartInvoker(request *model.DeleteAutopilotChartRequest) *DeleteAutopilotChartInvoker {
+	requestDef := GenReqDefForDeleteAutopilotChart()
+	return &DeleteAutopilotChartInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteAutopilotCluster 删除集群
+//
+// 该API用于删除一个指定的集群。
+// &gt;集群管理的URL格式为：https://Endpoint/uri。其中uri为资源路径，也即API访问的路径。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) DeleteAutopilotCluster(request *model.DeleteAutopilotClusterRequest) (*model.DeleteAutopilotClusterResponse, error) {
+	requestDef := GenReqDefForDeleteAutopilotCluster()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteAutopilotClusterResponse), nil
+	}
+}
+
+// DeleteAutopilotClusterInvoker 删除集群
+func (c *CceClient) DeleteAutopilotClusterInvoker(request *model.DeleteAutopilotClusterRequest) *DeleteAutopilotClusterInvoker {
+	requestDef := GenReqDefForDeleteAutopilotCluster()
+	return &DeleteAutopilotClusterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteAutopilotRelease 删除指定模板实例
+//
+// 删除指定模板实例
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) DeleteAutopilotRelease(request *model.DeleteAutopilotReleaseRequest) (*model.DeleteAutopilotReleaseResponse, error) {
+	requestDef := GenReqDefForDeleteAutopilotRelease()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteAutopilotReleaseResponse), nil
+	}
+}
+
+// DeleteAutopilotReleaseInvoker 删除指定模板实例
+func (c *CceClient) DeleteAutopilotReleaseInvoker(request *model.DeleteAutopilotReleaseRequest) *DeleteAutopilotReleaseInvoker {
+	requestDef := GenReqDefForDeleteAutopilotRelease()
+	return &DeleteAutopilotReleaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DownloadAutopilotChart 下载模板
+//
+// 下载模板
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) DownloadAutopilotChart(request *model.DownloadAutopilotChartRequest) (*model.DownloadAutopilotChartResponse, error) {
+	requestDef := GenReqDefForDownloadAutopilotChart()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DownloadAutopilotChartResponse), nil
+	}
+}
+
+// DownloadAutopilotChartInvoker 下载模板
+func (c *CceClient) DownloadAutopilotChartInvoker(request *model.DownloadAutopilotChartRequest) *DownloadAutopilotChartInvoker {
+	requestDef := GenReqDefForDownloadAutopilotChart()
+	return &DownloadAutopilotChartInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotAddonInstances 获取AddonInstance列表
+//
+// 获取集群所有已安装插件实例
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotAddonInstances(request *model.ListAutopilotAddonInstancesRequest) (*model.ListAutopilotAddonInstancesResponse, error) {
+	requestDef := GenReqDefForListAutopilotAddonInstances()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotAddonInstancesResponse), nil
+	}
+}
+
+// ListAutopilotAddonInstancesInvoker 获取AddonInstance列表
+func (c *CceClient) ListAutopilotAddonInstancesInvoker(request *model.ListAutopilotAddonInstancesRequest) *ListAutopilotAddonInstancesInvoker {
+	requestDef := GenReqDefForListAutopilotAddonInstances()
+	return &ListAutopilotAddonInstancesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotAddonTemplates 查询AddonTemplates列表
+//
+// 插件模板查询接口，查询插件信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotAddonTemplates(request *model.ListAutopilotAddonTemplatesRequest) (*model.ListAutopilotAddonTemplatesResponse, error) {
+	requestDef := GenReqDefForListAutopilotAddonTemplates()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotAddonTemplatesResponse), nil
+	}
+}
+
+// ListAutopilotAddonTemplatesInvoker 查询AddonTemplates列表
+func (c *CceClient) ListAutopilotAddonTemplatesInvoker(request *model.ListAutopilotAddonTemplatesRequest) *ListAutopilotAddonTemplatesInvoker {
+	requestDef := GenReqDefForListAutopilotAddonTemplates()
+	return &ListAutopilotAddonTemplatesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotCharts 获取模板列表
+//
+// 获取模板列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotCharts(request *model.ListAutopilotChartsRequest) (*model.ListAutopilotChartsResponse, error) {
+	requestDef := GenReqDefForListAutopilotCharts()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotChartsResponse), nil
+	}
+}
+
+// ListAutopilotChartsInvoker 获取模板列表
+func (c *CceClient) ListAutopilotChartsInvoker(request *model.ListAutopilotChartsRequest) *ListAutopilotChartsInvoker {
+	requestDef := GenReqDefForListAutopilotCharts()
+	return &ListAutopilotChartsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotClusterMasterSnapshotTasks 获取集群备份任务详情列表
+//
+// 获取集群备份任务详情列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotClusterMasterSnapshotTasks(request *model.ListAutopilotClusterMasterSnapshotTasksRequest) (*model.ListAutopilotClusterMasterSnapshotTasksResponse, error) {
+	requestDef := GenReqDefForListAutopilotClusterMasterSnapshotTasks()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotClusterMasterSnapshotTasksResponse), nil
+	}
+}
+
+// ListAutopilotClusterMasterSnapshotTasksInvoker 获取集群备份任务详情列表
+func (c *CceClient) ListAutopilotClusterMasterSnapshotTasksInvoker(request *model.ListAutopilotClusterMasterSnapshotTasksRequest) *ListAutopilotClusterMasterSnapshotTasksInvoker {
+	requestDef := GenReqDefForListAutopilotClusterMasterSnapshotTasks()
+	return &ListAutopilotClusterMasterSnapshotTasksInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotClusterUpgradeFeatureGates 获取集群升级特性开关配置
+//
+// 获取集群升级特性开关配置
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotClusterUpgradeFeatureGates(request *model.ListAutopilotClusterUpgradeFeatureGatesRequest) (*model.ListAutopilotClusterUpgradeFeatureGatesResponse, error) {
+	requestDef := GenReqDefForListAutopilotClusterUpgradeFeatureGates()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotClusterUpgradeFeatureGatesResponse), nil
+	}
+}
+
+// ListAutopilotClusterUpgradeFeatureGatesInvoker 获取集群升级特性开关配置
+func (c *CceClient) ListAutopilotClusterUpgradeFeatureGatesInvoker(request *model.ListAutopilotClusterUpgradeFeatureGatesRequest) *ListAutopilotClusterUpgradeFeatureGatesInvoker {
+	requestDef := GenReqDefForListAutopilotClusterUpgradeFeatureGates()
+	return &ListAutopilotClusterUpgradeFeatureGatesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotClusterUpgradePaths 获取集群升级路径
+//
+// 获取集群升级路径
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotClusterUpgradePaths(request *model.ListAutopilotClusterUpgradePathsRequest) (*model.ListAutopilotClusterUpgradePathsResponse, error) {
+	requestDef := GenReqDefForListAutopilotClusterUpgradePaths()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotClusterUpgradePathsResponse), nil
+	}
+}
+
+// ListAutopilotClusterUpgradePathsInvoker 获取集群升级路径
+func (c *CceClient) ListAutopilotClusterUpgradePathsInvoker(request *model.ListAutopilotClusterUpgradePathsRequest) *ListAutopilotClusterUpgradePathsInvoker {
+	requestDef := GenReqDefForListAutopilotClusterUpgradePaths()
+	return &ListAutopilotClusterUpgradePathsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotClusters 获取指定项目下的集群
+//
+// 该API用于获取指定项目下所有集群的详细信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotClusters(request *model.ListAutopilotClustersRequest) (*model.ListAutopilotClustersResponse, error) {
+	requestDef := GenReqDefForListAutopilotClusters()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotClustersResponse), nil
+	}
+}
+
+// ListAutopilotClustersInvoker 获取指定项目下的集群
+func (c *CceClient) ListAutopilotClustersInvoker(request *model.ListAutopilotClustersRequest) *ListAutopilotClustersInvoker {
+	requestDef := GenReqDefForListAutopilotClusters()
+	return &ListAutopilotClustersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotPreCheckTasks 获取集群升级前检查任务详情列表
+//
+// 获取集群升级前检查任务详情列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotPreCheckTasks(request *model.ListAutopilotPreCheckTasksRequest) (*model.ListAutopilotPreCheckTasksResponse, error) {
+	requestDef := GenReqDefForListAutopilotPreCheckTasks()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotPreCheckTasksResponse), nil
+	}
+}
+
+// ListAutopilotPreCheckTasksInvoker 获取集群升级前检查任务详情列表
+func (c *CceClient) ListAutopilotPreCheckTasksInvoker(request *model.ListAutopilotPreCheckTasksRequest) *ListAutopilotPreCheckTasksInvoker {
+	requestDef := GenReqDefForListAutopilotPreCheckTasks()
+	return &ListAutopilotPreCheckTasksInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotReleases 获取模板实例列表
+//
+// 获取模板实例列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotReleases(request *model.ListAutopilotReleasesRequest) (*model.ListAutopilotReleasesResponse, error) {
+	requestDef := GenReqDefForListAutopilotReleases()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotReleasesResponse), nil
+	}
+}
+
+// ListAutopilotReleasesInvoker 获取模板实例列表
+func (c *CceClient) ListAutopilotReleasesInvoker(request *model.ListAutopilotReleasesRequest) *ListAutopilotReleasesInvoker {
+	requestDef := GenReqDefForListAutopilotReleases()
+	return &ListAutopilotReleasesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotUpgradeClusterTasks 获取集群升级任务详情列表
+//
+// 获取集群升级任务详情列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotUpgradeClusterTasks(request *model.ListAutopilotUpgradeClusterTasksRequest) (*model.ListAutopilotUpgradeClusterTasksResponse, error) {
+	requestDef := GenReqDefForListAutopilotUpgradeClusterTasks()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotUpgradeClusterTasksResponse), nil
+	}
+}
+
+// ListAutopilotUpgradeClusterTasksInvoker 获取集群升级任务详情列表
+func (c *CceClient) ListAutopilotUpgradeClusterTasksInvoker(request *model.ListAutopilotUpgradeClusterTasksRequest) *ListAutopilotUpgradeClusterTasksInvoker {
+	requestDef := GenReqDefForListAutopilotUpgradeClusterTasks()
+	return &ListAutopilotUpgradeClusterTasksInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListAutopilotUpgradeWorkFlows 获取UpgradeWorkFlows列表
+//
+// 获取历史集群升级引导任务列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ListAutopilotUpgradeWorkFlows(request *model.ListAutopilotUpgradeWorkFlowsRequest) (*model.ListAutopilotUpgradeWorkFlowsResponse, error) {
+	requestDef := GenReqDefForListAutopilotUpgradeWorkFlows()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListAutopilotUpgradeWorkFlowsResponse), nil
+	}
+}
+
+// ListAutopilotUpgradeWorkFlowsInvoker 获取UpgradeWorkFlows列表
+func (c *CceClient) ListAutopilotUpgradeWorkFlowsInvoker(request *model.ListAutopilotUpgradeWorkFlowsRequest) *ListAutopilotUpgradeWorkFlowsInvoker {
+	requestDef := GenReqDefForListAutopilotUpgradeWorkFlows()
+	return &ListAutopilotUpgradeWorkFlowsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RetryAutopilotUpgradeClusterTask 重试集群升级任务
+//
+// 重新执行失败的集群升级任务。
+// &gt; - 集群升级涉及多维度的组件升级操作，强烈建议统一通过CCE控制台执行交互式升级，降低集群升级过程的业务意外受损风险；
+// &gt; - 当前集群升级相关接口受限开放。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) RetryAutopilotUpgradeClusterTask(request *model.RetryAutopilotUpgradeClusterTaskRequest) (*model.RetryAutopilotUpgradeClusterTaskResponse, error) {
+	requestDef := GenReqDefForRetryAutopilotUpgradeClusterTask()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.RetryAutopilotUpgradeClusterTaskResponse), nil
+	}
+}
+
+// RetryAutopilotUpgradeClusterTaskInvoker 重试集群升级任务
+func (c *CceClient) RetryAutopilotUpgradeClusterTaskInvoker(request *model.RetryAutopilotUpgradeClusterTaskRequest) *RetryAutopilotUpgradeClusterTaskInvoker {
+	requestDef := GenReqDefForRetryAutopilotUpgradeClusterTask()
+	return &RetryAutopilotUpgradeClusterTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// RollbackAutopilotAddonInstance 回滚AddonInstance
+//
+// 将插件实例回滚到升级前的版本。只有在当前插件实例版本支持回滚到升级前的版本（status.isRollbackable为true），且插件实例状态为running（运行中）、available（可用）、abnormal（不可用）、upgradeFailed（升级失败）、rollbackFailed（回滚失败）时支持回滚。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) RollbackAutopilotAddonInstance(request *model.RollbackAutopilotAddonInstanceRequest) (*model.RollbackAutopilotAddonInstanceResponse, error) {
+	requestDef := GenReqDefForRollbackAutopilotAddonInstance()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.RollbackAutopilotAddonInstanceResponse), nil
+	}
+}
+
+// RollbackAutopilotAddonInstanceInvoker 回滚AddonInstance
+func (c *CceClient) RollbackAutopilotAddonInstanceInvoker(request *model.RollbackAutopilotAddonInstanceRequest) *RollbackAutopilotAddonInstanceInvoker {
+	requestDef := GenReqDefForRollbackAutopilotAddonInstance()
+	return &RollbackAutopilotAddonInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotAddonInstance 获取AddonInstance详情
+//
+// 获取插件实例详情。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotAddonInstance(request *model.ShowAutopilotAddonInstanceRequest) (*model.ShowAutopilotAddonInstanceResponse, error) {
+	requestDef := GenReqDefForShowAutopilotAddonInstance()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotAddonInstanceResponse), nil
+	}
+}
+
+// ShowAutopilotAddonInstanceInvoker 获取AddonInstance详情
+func (c *CceClient) ShowAutopilotAddonInstanceInvoker(request *model.ShowAutopilotAddonInstanceRequest) *ShowAutopilotAddonInstanceInvoker {
+	requestDef := GenReqDefForShowAutopilotAddonInstance()
+	return &ShowAutopilotAddonInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotChart 获取模板
+//
+// 获取模板
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotChart(request *model.ShowAutopilotChartRequest) (*model.ShowAutopilotChartResponse, error) {
+	requestDef := GenReqDefForShowAutopilotChart()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotChartResponse), nil
+	}
+}
+
+// ShowAutopilotChartInvoker 获取模板
+func (c *CceClient) ShowAutopilotChartInvoker(request *model.ShowAutopilotChartRequest) *ShowAutopilotChartInvoker {
+	requestDef := GenReqDefForShowAutopilotChart()
+	return &ShowAutopilotChartInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotChartValues 获取模板Values
+//
+// 获取模板Values
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotChartValues(request *model.ShowAutopilotChartValuesRequest) (*model.ShowAutopilotChartValuesResponse, error) {
+	requestDef := GenReqDefForShowAutopilotChartValues()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotChartValuesResponse), nil
+	}
+}
+
+// ShowAutopilotChartValuesInvoker 获取模板Values
+func (c *CceClient) ShowAutopilotChartValuesInvoker(request *model.ShowAutopilotChartValuesRequest) *ShowAutopilotChartValuesInvoker {
+	requestDef := GenReqDefForShowAutopilotChartValues()
+	return &ShowAutopilotChartValuesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotCluster 获取指定的集群
+//
+// 该API用于获取指定集群的详细信息。
+// &gt;集群管理的URL格式为：https://Endpoint/uri。其中uri为资源路径，也即API访问的路径。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotCluster(request *model.ShowAutopilotClusterRequest) (*model.ShowAutopilotClusterResponse, error) {
+	requestDef := GenReqDefForShowAutopilotCluster()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotClusterResponse), nil
+	}
+}
+
+// ShowAutopilotClusterInvoker 获取指定的集群
+func (c *CceClient) ShowAutopilotClusterInvoker(request *model.ShowAutopilotClusterRequest) *ShowAutopilotClusterInvoker {
+	requestDef := GenReqDefForShowAutopilotCluster()
+	return &ShowAutopilotClusterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotClusterEndpoints 获取集群访问的地址
+//
+// 该API用于通过集群ID获取集群访问的地址，包括PrivateIP(HA集群返回VIP)与PublicIP
+// &gt;集群管理的URL格式为：https://Endpoint/uri。其中uri为资源路径，也即API访问的路径。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotClusterEndpoints(request *model.ShowAutopilotClusterEndpointsRequest) (*model.ShowAutopilotClusterEndpointsResponse, error) {
+	requestDef := GenReqDefForShowAutopilotClusterEndpoints()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotClusterEndpointsResponse), nil
+	}
+}
+
+// ShowAutopilotClusterEndpointsInvoker 获取集群访问的地址
+func (c *CceClient) ShowAutopilotClusterEndpointsInvoker(request *model.ShowAutopilotClusterEndpointsRequest) *ShowAutopilotClusterEndpointsInvoker {
+	requestDef := GenReqDefForShowAutopilotClusterEndpoints()
+	return &ShowAutopilotClusterEndpointsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotClusterUpgradeInfo 获取集群升级相关信息
+//
+// 获取集群升级相关信息
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotClusterUpgradeInfo(request *model.ShowAutopilotClusterUpgradeInfoRequest) (*model.ShowAutopilotClusterUpgradeInfoResponse, error) {
+	requestDef := GenReqDefForShowAutopilotClusterUpgradeInfo()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotClusterUpgradeInfoResponse), nil
+	}
+}
+
+// ShowAutopilotClusterUpgradeInfoInvoker 获取集群升级相关信息
+func (c *CceClient) ShowAutopilotClusterUpgradeInfoInvoker(request *model.ShowAutopilotClusterUpgradeInfoRequest) *ShowAutopilotClusterUpgradeInfoInvoker {
+	requestDef := GenReqDefForShowAutopilotClusterUpgradeInfo()
+	return &ShowAutopilotClusterUpgradeInfoInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotJob 获取任务信息
+//
+// 该API用于获取任务信息。通过某一任务请求下发后返回的jobID来查询指定任务的进度。
+// &gt; - 集群管理的URL格式为：https://Endpoint/uri。其中uri为资源路径，也即API访问的路径
+// &gt; - 该接口通常使用场景为：
+// &gt;   - 创建、删除集群时，查询相应任务的进度。
+// &gt;   - 创建、删除节点时，查询相应任务的进度。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotJob(request *model.ShowAutopilotJobRequest) (*model.ShowAutopilotJobResponse, error) {
+	requestDef := GenReqDefForShowAutopilotJob()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotJobResponse), nil
+	}
+}
+
+// ShowAutopilotJobInvoker 获取任务信息
+func (c *CceClient) ShowAutopilotJobInvoker(request *model.ShowAutopilotJobRequest) *ShowAutopilotJobInvoker {
+	requestDef := GenReqDefForShowAutopilotJob()
+	return &ShowAutopilotJobInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotPreCheck 获取集群升级前检查任务详情
+//
+// 获取集群升级前检查任务详情，任务ID由调用集群检查API后从响应体中uid字段获取。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotPreCheck(request *model.ShowAutopilotPreCheckRequest) (*model.ShowAutopilotPreCheckResponse, error) {
+	requestDef := GenReqDefForShowAutopilotPreCheck()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotPreCheckResponse), nil
+	}
+}
+
+// ShowAutopilotPreCheckInvoker 获取集群升级前检查任务详情
+func (c *CceClient) ShowAutopilotPreCheckInvoker(request *model.ShowAutopilotPreCheckRequest) *ShowAutopilotPreCheckInvoker {
+	requestDef := GenReqDefForShowAutopilotPreCheck()
+	return &ShowAutopilotPreCheckInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotQuotas 查询CCE服务下的资源配额
+//
+// 该API用于查询CCE服务下的资源配额。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotQuotas(request *model.ShowAutopilotQuotasRequest) (*model.ShowAutopilotQuotasResponse, error) {
+	requestDef := GenReqDefForShowAutopilotQuotas()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotQuotasResponse), nil
+	}
+}
+
+// ShowAutopilotQuotasInvoker 查询CCE服务下的资源配额
+func (c *CceClient) ShowAutopilotQuotasInvoker(request *model.ShowAutopilotQuotasRequest) *ShowAutopilotQuotasInvoker {
+	requestDef := GenReqDefForShowAutopilotQuotas()
+	return &ShowAutopilotQuotasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotRelease 获取指定模板实例
+//
+// 获取指定模板实例
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotRelease(request *model.ShowAutopilotReleaseRequest) (*model.ShowAutopilotReleaseResponse, error) {
+	requestDef := GenReqDefForShowAutopilotRelease()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotReleaseResponse), nil
+	}
+}
+
+// ShowAutopilotReleaseInvoker 获取指定模板实例
+func (c *CceClient) ShowAutopilotReleaseInvoker(request *model.ShowAutopilotReleaseRequest) *ShowAutopilotReleaseInvoker {
+	requestDef := GenReqDefForShowAutopilotRelease()
+	return &ShowAutopilotReleaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotReleaseHistory 查询指定模板实例历史记录
+//
+// 查询指定模板实例历史记录
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotReleaseHistory(request *model.ShowAutopilotReleaseHistoryRequest) (*model.ShowAutopilotReleaseHistoryResponse, error) {
+	requestDef := GenReqDefForShowAutopilotReleaseHistory()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotReleaseHistoryResponse), nil
+	}
+}
+
+// ShowAutopilotReleaseHistoryInvoker 查询指定模板实例历史记录
+func (c *CceClient) ShowAutopilotReleaseHistoryInvoker(request *model.ShowAutopilotReleaseHistoryRequest) *ShowAutopilotReleaseHistoryInvoker {
+	requestDef := GenReqDefForShowAutopilotReleaseHistory()
+	return &ShowAutopilotReleaseHistoryInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotUpgradeClusterTask 获取集群升级任务详情
+//
+// 获取集群升级任务详情，任务ID由调用集群升级API后从响应体中uid字段获取。
+// &gt; - 集群升级涉及多维度的组件升级操作，强烈建议统一通过CCE控制台执行交互式升级，降低集群升级过程的业务意外受损风险；
+// &gt; - 当前集群升级相关接口受限开放。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotUpgradeClusterTask(request *model.ShowAutopilotUpgradeClusterTaskRequest) (*model.ShowAutopilotUpgradeClusterTaskResponse, error) {
+	requestDef := GenReqDefForShowAutopilotUpgradeClusterTask()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotUpgradeClusterTaskResponse), nil
+	}
+}
+
+// ShowAutopilotUpgradeClusterTaskInvoker 获取集群升级任务详情
+func (c *CceClient) ShowAutopilotUpgradeClusterTaskInvoker(request *model.ShowAutopilotUpgradeClusterTaskRequest) *ShowAutopilotUpgradeClusterTaskInvoker {
+	requestDef := GenReqDefForShowAutopilotUpgradeClusterTask()
+	return &ShowAutopilotUpgradeClusterTaskInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotUpgradeWorkFlow 获取指定集群升级引导任务详情
+//
+// 该API用于通过升级引导任务ID获取任务的详细信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotUpgradeWorkFlow(request *model.ShowAutopilotUpgradeWorkFlowRequest) (*model.ShowAutopilotUpgradeWorkFlowResponse, error) {
+	requestDef := GenReqDefForShowAutopilotUpgradeWorkFlow()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotUpgradeWorkFlowResponse), nil
+	}
+}
+
+// ShowAutopilotUpgradeWorkFlowInvoker 获取指定集群升级引导任务详情
+func (c *CceClient) ShowAutopilotUpgradeWorkFlowInvoker(request *model.ShowAutopilotUpgradeWorkFlowRequest) *ShowAutopilotUpgradeWorkFlowInvoker {
+	requestDef := GenReqDefForShowAutopilotUpgradeWorkFlow()
+	return &ShowAutopilotUpgradeWorkFlowInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowAutopilotUserChartsQuotas 获取用户模板配额
+//
+// 获取用户模板配额
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) ShowAutopilotUserChartsQuotas(request *model.ShowAutopilotUserChartsQuotasRequest) (*model.ShowAutopilotUserChartsQuotasResponse, error) {
+	requestDef := GenReqDefForShowAutopilotUserChartsQuotas()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowAutopilotUserChartsQuotasResponse), nil
+	}
+}
+
+// ShowAutopilotUserChartsQuotasInvoker 获取用户模板配额
+func (c *CceClient) ShowAutopilotUserChartsQuotasInvoker(request *model.ShowAutopilotUserChartsQuotasRequest) *ShowAutopilotUserChartsQuotasInvoker {
+	requestDef := GenReqDefForShowAutopilotUserChartsQuotas()
+	return &ShowAutopilotUserChartsQuotasInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateAutopilotAddonInstance 更新AddonInstance
+//
+// 更新插件实例的功能。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) UpdateAutopilotAddonInstance(request *model.UpdateAutopilotAddonInstanceRequest) (*model.UpdateAutopilotAddonInstanceResponse, error) {
+	requestDef := GenReqDefForUpdateAutopilotAddonInstance()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateAutopilotAddonInstanceResponse), nil
+	}
+}
+
+// UpdateAutopilotAddonInstanceInvoker 更新AddonInstance
+func (c *CceClient) UpdateAutopilotAddonInstanceInvoker(request *model.UpdateAutopilotAddonInstanceRequest) *UpdateAutopilotAddonInstanceInvoker {
+	requestDef := GenReqDefForUpdateAutopilotAddonInstance()
+	return &UpdateAutopilotAddonInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateAutopilotChart 更新模板
+//
+// 更新模板
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) UpdateAutopilotChart(request *model.UpdateAutopilotChartRequest) (*model.UpdateAutopilotChartResponse, error) {
+	requestDef := GenReqDefForUpdateAutopilotChart()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateAutopilotChartResponse), nil
+	}
+}
+
+// UpdateAutopilotChartInvoker 更新模板
+func (c *CceClient) UpdateAutopilotChartInvoker(request *model.UpdateAutopilotChartRequest) *UpdateAutopilotChartInvoker {
+	requestDef := GenReqDefForUpdateAutopilotChart()
+	return &UpdateAutopilotChartInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateAutopilotCluster 更新指定的集群
+//
+// 该API用于更新指定的集群。
+// &gt;集群管理的URL格式为：https://Endpoint/uri。其中uri为资源路径，也即API访问的路径。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) UpdateAutopilotCluster(request *model.UpdateAutopilotClusterRequest) (*model.UpdateAutopilotClusterResponse, error) {
+	requestDef := GenReqDefForUpdateAutopilotCluster()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateAutopilotClusterResponse), nil
+	}
+}
+
+// UpdateAutopilotClusterInvoker 更新指定的集群
+func (c *CceClient) UpdateAutopilotClusterInvoker(request *model.UpdateAutopilotClusterRequest) *UpdateAutopilotClusterInvoker {
+	requestDef := GenReqDefForUpdateAutopilotCluster()
+	return &UpdateAutopilotClusterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateAutopilotClusterEip 绑定、解绑集群公网apiserver地址
+//
+// 该API用于通过集群ID绑定、解绑集群公网apiserver地址
+// &gt;集群管理的URL格式为：https://Endpoint/uri。其中uri为资源路径，也即API访问的路径。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) UpdateAutopilotClusterEip(request *model.UpdateAutopilotClusterEipRequest) (*model.UpdateAutopilotClusterEipResponse, error) {
+	requestDef := GenReqDefForUpdateAutopilotClusterEip()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateAutopilotClusterEipResponse), nil
+	}
+}
+
+// UpdateAutopilotClusterEipInvoker 绑定、解绑集群公网apiserver地址
+func (c *CceClient) UpdateAutopilotClusterEipInvoker(request *model.UpdateAutopilotClusterEipRequest) *UpdateAutopilotClusterEipInvoker {
+	requestDef := GenReqDefForUpdateAutopilotClusterEip()
+	return &UpdateAutopilotClusterEipInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateAutopilotRelease 更新指定模板实例
+//
+// 更新指定模板实例
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) UpdateAutopilotRelease(request *model.UpdateAutopilotReleaseRequest) (*model.UpdateAutopilotReleaseResponse, error) {
+	requestDef := GenReqDefForUpdateAutopilotRelease()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateAutopilotReleaseResponse), nil
+	}
+}
+
+// UpdateAutopilotReleaseInvoker 更新指定模板实例
+func (c *CceClient) UpdateAutopilotReleaseInvoker(request *model.UpdateAutopilotReleaseRequest) *UpdateAutopilotReleaseInvoker {
+	requestDef := GenReqDefForUpdateAutopilotRelease()
+	return &UpdateAutopilotReleaseInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpgradeAutopilotCluster 集群升级
+//
+// 集群升级。
+// &gt; - 集群升级涉及多维度的组件升级操作，强烈建议统一通过CCE控制台执行交互式升级，降低集群升级过程的业务意外受损风险；
+// &gt; - 当前集群升级相关接口受限开放。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) UpgradeAutopilotCluster(request *model.UpgradeAutopilotClusterRequest) (*model.UpgradeAutopilotClusterResponse, error) {
+	requestDef := GenReqDefForUpgradeAutopilotCluster()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpgradeAutopilotClusterResponse), nil
+	}
+}
+
+// UpgradeAutopilotClusterInvoker 集群升级
+func (c *CceClient) UpgradeAutopilotClusterInvoker(request *model.UpgradeAutopilotClusterRequest) *UpgradeAutopilotClusterInvoker {
+	requestDef := GenReqDefForUpgradeAutopilotCluster()
+	return &UpgradeAutopilotClusterInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpgradeAutopilotWorkFlowUpdate 更新指定集群升级引导任务状态
+//
+// 该API用于更新指定集群升级引导任务状态，当前仅适用于取消升级流程
+// 调用该API时升级流程引导任务状态不能为进行中(running) 已完成(success) 已取消(cancel),升级子任务状态不能为running(进行中) init(已初始化) pause(任务被暂停) queue(队列中)
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) UpgradeAutopilotWorkFlowUpdate(request *model.UpgradeAutopilotWorkFlowUpdateRequest) (*model.UpgradeAutopilotWorkFlowUpdateResponse, error) {
+	requestDef := GenReqDefForUpgradeAutopilotWorkFlowUpdate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpgradeAutopilotWorkFlowUpdateResponse), nil
+	}
+}
+
+// UpgradeAutopilotWorkFlowUpdateInvoker 更新指定集群升级引导任务状态
+func (c *CceClient) UpgradeAutopilotWorkFlowUpdateInvoker(request *model.UpgradeAutopilotWorkFlowUpdateRequest) *UpgradeAutopilotWorkFlowUpdateInvoker {
+	requestDef := GenReqDefForUpgradeAutopilotWorkFlowUpdate()
+	return &UpgradeAutopilotWorkFlowUpdateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UploadAutopilotChart 上传模板
+//
+// 上传模板
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CceClient) UploadAutopilotChart(request *model.UploadAutopilotChartRequest) (*model.UploadAutopilotChartResponse, error) {
+	requestDef := GenReqDefForUploadAutopilotChart()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UploadAutopilotChartResponse), nil
+	}
+}
+
+// UploadAutopilotChartInvoker 上传模板
+func (c *CceClient) UploadAutopilotChartInvoker(request *model.UploadAutopilotChartRequest) *UploadAutopilotChartInvoker {
+	requestDef := GenReqDefForUploadAutopilotChart()
+	return &UploadAutopilotChartInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }

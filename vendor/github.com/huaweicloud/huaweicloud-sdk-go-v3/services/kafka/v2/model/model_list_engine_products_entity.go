@@ -24,7 +24,7 @@ type ListEngineProductsEntity struct {
 	// CPU架构。
 	ArchTypes *[]string `json:"arch_types,omitempty"`
 
-	// [计费模式。monthly：包年/包月类型。hourly：按需类型。](tag:hws,hws_hk,ctc,sbc,hk_sbc,cmcc,hws_eu)[暂未使用。](tag:hws_ocb,ocb,hcs)[计费模式。hourly：按需类型。](tag:dt,g42,tm,hk_g42,hk_tm)
+	// [计费模式。monthly：包年/包月类型。hourly：按需类型。](tag:hws,hws_hk,ctc,cmcc)[暂未使用。](tag:hws_ocb,ocb,hcs,fcs)[计费模式。hourly：按需类型。](tag:dt,g42,tm,hk_g42,hk_tm,sbc,hk_sbc,hws_eu)
 	ChargingMode *[]string `json:"charging_mode,omitempty"`
 
 	// 支持的磁盘IO类型列表。

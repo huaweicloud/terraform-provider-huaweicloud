@@ -65,6 +65,18 @@ func (i *AddMuteRulesInvoker) Invoke() (*model.AddMuteRulesResponse, error) {
 	}
 }
 
+type AddOrUpdateMetricOrEventAlarmRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddOrUpdateMetricOrEventAlarmRuleInvoker) Invoke() (*model.AddOrUpdateMetricOrEventAlarmRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddOrUpdateMetricOrEventAlarmRuleResponse), nil
+	}
+}
+
 type AddOrUpdateServiceDiscoveryRulesInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -134,6 +146,18 @@ func (i *DeleteEvent2alarmRuleInvoker) Invoke() (*model.DeleteEvent2alarmRuleRes
 		return nil, err
 	} else {
 		return result.(*model.DeleteEvent2alarmRuleResponse), nil
+	}
+}
+
+type DeleteMetricOrEventAlarmRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteMetricOrEventAlarmRuleInvoker) Invoke() (*model.DeleteMetricOrEventAlarmRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteMetricOrEventAlarmRuleResponse), nil
 	}
 }
 
@@ -242,6 +266,18 @@ func (i *ListMetricItemsInvoker) Invoke() (*model.ListMetricItemsResponse, error
 		return nil, err
 	} else {
 		return result.(*model.ListMetricItemsResponse), nil
+	}
+}
+
+type ListMetricOrEventAlarmRuleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListMetricOrEventAlarmRuleInvoker) Invoke() (*model.ListMetricOrEventAlarmRuleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListMetricOrEventAlarmRuleResponse), nil
 	}
 }
 

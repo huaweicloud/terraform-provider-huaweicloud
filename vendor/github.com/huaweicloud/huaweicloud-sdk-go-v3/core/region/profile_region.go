@@ -89,13 +89,13 @@ func resolveProfile() map[string]*Region {
 
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
-		panic(fmt.Sprintf("failed to read file: '%s'\n%s", path, err.Error()))
+		panic(fmt.Errorf("failed to read file: '%s'\n%w", path, err))
 	}
 
 	var servReg map[string][]*regionInfo
 	err = yaml.Unmarshal(bytes, &servReg)
 	if err != nil {
-		panic(fmt.Sprintf("failed to resolve file: '%s'\n%s", path, err.Error()))
+		panic(fmt.Errorf("failed to resolve file: '%s'\n%w", path, err))
 	}
 
 	for serv, regInfos := range servReg {
@@ -104,7 +104,7 @@ func resolveProfile() map[string]*Region {
 				continue
 			}
 
-			endpoints := make([]string, 0, len(regInfo.Endpoints)+1)
+			endpoints := make([]string, 0)
 			if regInfo.Endpoint != "" {
 				endpoints = append(endpoints, regInfo.Endpoint)
 			}

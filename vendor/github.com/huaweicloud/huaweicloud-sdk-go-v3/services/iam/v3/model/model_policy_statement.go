@@ -22,7 +22,7 @@ type PolicyStatement struct {
 	Condition *interface{} `json:"Condition,omitempty"`
 
 	// 资源。数组长度不超过10，每个字符串长度不超过128，规则如下： > - 可填 * 的五段式：<service-name>:<region>:<account-id>:<resource-type>:<resource-path>，例：\"obs:*:*:bucket:*\"。 > - region字段为*或用户可访问的region。service必须存在且resource属于对应service。 > - 当该自定义策略为委托自定义策略时，该字段类型为Object，值为：```\"Resource\": {\"uri\": [\"/iam/agencies/07805acaba800fdd4fbdc00b8f888c7c\"]}```。
-	Resource *[]string `json:"Resource,omitempty"`
+	Resource *interface{} `json:"Resource,omitempty"`
 }
 
 func (o PolicyStatement) String() string {

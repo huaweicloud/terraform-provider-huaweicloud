@@ -10,8 +10,10 @@ import (
 type ListEventsResponse struct {
 
 	// 事件或者告警详情。
-	Events         *[]EventModel `json:"events,omitempty"`
-	HttpStatusCode int           `json:"-"`
+	Events *[]ListEventModel `json:"events,omitempty"`
+
+	PageInfo       *PageInfo `json:"page_info,omitempty"`
+	HttpStatusCode int       `json:"-"`
 }
 
 func (o ListEventsResponse) String() string {

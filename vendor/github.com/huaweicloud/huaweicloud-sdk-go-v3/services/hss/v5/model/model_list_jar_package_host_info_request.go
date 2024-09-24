@@ -24,10 +24,10 @@ type ListJarPackageHostInfoRequest struct {
 	// 服务器IP
 	HostIp *string `json:"host_ip,omitempty"`
 
-	// 每页显示数量，默认10
+	// 每页显示数量
 	Limit *int32 `json:"limit,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
+	// 偏移量：指定返回记录的开始位置
 	Offset *int32 `json:"offset,omitempty"`
 
 	// 是否模糊匹配，默认false表示精确匹配

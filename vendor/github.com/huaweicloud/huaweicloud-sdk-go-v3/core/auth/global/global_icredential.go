@@ -38,6 +38,8 @@ const (
 	SecurityTokenInHeader = "X-Security-Token"
 	GlobalRegionId        = "globe"
 	AuthTokenInHeader     = "X-Auth-Token"
+	emptyAk               = "EMPTY_AK"
+	emptySK               = "EMPTY_SK"
 )
 
 var DefaultDerivedPredicate = auth.GetDefaultDerivedPredicate()
@@ -75,14 +77,21 @@ func (s *Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region s
 
 	req, err := s.ProcessAuthRequest(client, internal.GetKeystoneListAuthDomainsRequest(s.IamEndpoint, client.GetHttpConfig()))
 	if err != nil {
-		panic(fmt.Sprintf("failed to get domain id, %s", err.Error()))
+		panic(fmt.Errorf("failed to get domain id automatically, %w", err))
 	}
 
-	id, err := internal.KeystoneListAuthDomains(client, req)
+	resp, err := internal.KeystoneListAuthDomains(client, req)
 	if err != nil {
-		panic(fmt.Sprintf("failed to get domain id, %s", err.Error()))
+		panic(fmt.Errorf("failed to get domain id automatically, X-IAM-Trace-Id=%s, %w", resp.TraceId, err))
+	}
+	domains := *resp.Domains
+	if len(domains) == 0 {
+		panic(fmt.Errorf("failed to get domain id automatically, X-IAM-Trace-Id=%s,"+
+			" please confirm that you have 'iam:users:getUser' permission, or set domain id manually:"+
+			" global.NewCredentialsBuilder().WithAk(ak).WithSk(sk).WithDomainId(domainId).SafeBuild()", resp.TraceId))
 	}
 
+	id := domains[0].Id
 	s.DomainId = id
 	_ = authCache.PutAuth(s.AK, id)
 
@@ -242,21 +251,33 @@ func (s *Credentials) updateAuthTokenByIdToken(client *impl.DefaultHttpClient) e
 
 type CredentialsBuilder struct {
 	Credentials *Credentials
+	errMap      map[string]string
 }
 
 func NewCredentialsBuilder() *CredentialsBuilder {
-	return &CredentialsBuilder{Credentials: &Credentials{
-		IamEndpoint: internal.GetIamEndpoint(),
-	}}
+	return &CredentialsBuilder{
+		Credentials: &Credentials{IamEndpoint: internal.GetIamEndpoint()},
+		errMap:      make(map[string]string),
+	}
 }
 
 func (builder *CredentialsBuilder) WithAk(ak string) *CredentialsBuilder {
-	builder.Credentials.AK = ak
+	if ak == "" {
+		builder.errMap[emptyAk] = "input ak cannot be an empty string"
+	} else {
+		builder.Credentials.AK = ak
+		delete(builder.errMap, emptyAk)
+	}
 	return builder
 }
 
 func (builder *CredentialsBuilder) WithSk(sk string) *CredentialsBuilder {
-	builder.Credentials.SK = sk
+	if sk == "" {
+		builder.errMap[emptySK] = "input sk cannot be an empty string"
+	} else {
+		builder.Credentials.SK = sk
+		delete(builder.errMap, emptySK)
+	}
 	return builder
 }
 
@@ -300,6 +321,14 @@ func (builder *CredentialsBuilder) Build() *Credentials {
 }
 
 func (builder *CredentialsBuilder) SafeBuild() (*Credentials, error) {
+	if builder.errMap != nil && len(builder.errMap) != 0 {
+		errMsg := "build credentials failed: "
+		for _, msg := range builder.errMap {
+			errMsg += msg + "; "
+		}
+		return nil, sdkerr.NewCredentialsTypeError(errMsg)
+	}
+
 	if builder.Credentials.IdpId != "" || builder.Credentials.IdTokenFile != "" {
 		if builder.Credentials.IdpId == "" {
 			return nil, sdkerr.NewCredentialsTypeError("IdpId is required when using IdpId&IdTokenFile")

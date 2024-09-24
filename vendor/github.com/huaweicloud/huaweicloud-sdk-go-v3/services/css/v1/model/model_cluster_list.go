@@ -81,6 +81,9 @@ type ClusterList struct {
 
 	// es公网访问的资源id。
 	BandwidthResourceId *string `json:"bandwidthResourceId,omitempty"`
+
+	// 集群内网访问IPv6地址和端口号。
+	Ipv6Endpoint *string `json:"ipv6Endpoint,omitempty"`
 }
 
 func (o ClusterList) String() string {

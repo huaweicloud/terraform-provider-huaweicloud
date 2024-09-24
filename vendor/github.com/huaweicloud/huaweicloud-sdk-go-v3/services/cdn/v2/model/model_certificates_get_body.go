@@ -9,6 +9,12 @@ import (
 // CertificatesGetBody 双证书配置查询响应体。
 type CertificatesGetBody struct {
 
+	// 证书来源,0：自有证书。2：SCM证书。
+	CertificateSource *int32 `json:"certificate_source,omitempty"`
+
+	// SCM证书id
+	ScmCertificateId *string `json:"scm_certificate_id,omitempty"`
+
 	// 证书类型，server：国际证书；server_sm：国密证书。
 	CertificateType *string `json:"certificate_type,omitempty"`
 

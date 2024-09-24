@@ -24,6 +24,9 @@ type ShowPullSourcesConfigResponse struct {
 	// 回源IP地址列表，最多可配置10个。当回源方式是“ipaddr”时，此参数必选，IP配置多个时，如果回源失败，将按照配置顺序进行轮循。
 	SourcesIp *[]string `json:"sources_ip,omitempty"`
 
+	// 回源端口。
+	SourcePort *int32 `json:"source_port,omitempty"`
+
 	// 回源协议，回源方式非“huawei”时必选。
 	Scheme *ShowPullSourcesConfigResponseScheme `json:"scheme,omitempty"`
 

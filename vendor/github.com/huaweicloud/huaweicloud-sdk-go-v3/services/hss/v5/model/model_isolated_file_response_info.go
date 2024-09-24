@@ -39,7 +39,7 @@ type IsolatedFileResponseInfo struct {
 	// 资产重要性
 	AssetValue string `json:"asset_value"`
 
-	// 事件白名单更新时间，毫秒
+	// 更新时间，毫秒
 	UpdateTime int64 `json:"update_time"`
 
 	// agent版本

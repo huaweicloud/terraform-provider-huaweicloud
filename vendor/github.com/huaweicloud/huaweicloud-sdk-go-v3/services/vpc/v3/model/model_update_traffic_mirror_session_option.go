@@ -35,9 +35,6 @@ type UpdateTrafficMirrorSessionOption struct {
 
 	// 功能说明：是否开启会话 取值范围：true、false
 	Enabled *string `json:"enabled,omitempty"`
-
-	// 功能说明：支持的镜像源类型 取值范围：     eni：弹性网卡
-	Type *string `json:"type,omitempty"`
 }
 
 func (o UpdateTrafficMirrorSessionOption) String() string {

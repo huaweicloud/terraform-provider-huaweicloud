@@ -63,3 +63,20 @@ func (r *DefaultHttpResponse) GetHeader(key string) string {
 	header := r.Response.Header
 	return header.Get(key)
 }
+
+func (r *DefaultHttpResponse) GetBodyAsString() (string, error) {
+	b, err := r.GetBodyAsBytes()
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+func (r *DefaultHttpResponse) GetBodyAsBytes() ([]byte, error) {
+	defer r.Response.Body.Close()
+	data, err := ioutil.ReadAll(r.Response.Body)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}

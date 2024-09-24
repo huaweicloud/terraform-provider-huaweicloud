@@ -30,16 +30,16 @@ type ListAutoLaunchChangeHistoriesRequest struct {
 	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
-	// 排序的key值，目前只支持按照recent_scan_time排序
+	// 排序的key值，目前只支持按照recent_scan_time排序，按照recent_scan_time排序时，根据sort_dir的值决定升序还是降序
 	SortKey *string `json:"sort_key,omitempty"`
 
-	// 排序方式，默认为降序:   - asc ：升序   - desc ：降序
+	// 排序方式，默认为降序，当sort_key为按照recent_scan_time排序时，根据当前值决定升序还是降序，当sort_key为其他值时均为降序   - asc ：升序   - desc ：降序
 	SortDir *string `json:"sort_dir,omitempty"`
 
-	// 每页显示数量，默认10
+	// 每页显示数量
 	Limit *int32 `json:"limit,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
+	// 偏移量：指定返回记录的开始位置
 	Offset *int32 `json:"offset,omitempty"`
 
 	// 变更开始时间，13位时间戳

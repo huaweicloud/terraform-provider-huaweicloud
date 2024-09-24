@@ -19,6 +19,9 @@ type CreateManualBackupRequestBody struct {
 
 	// 只支持Microsoft SQL Server，局部备份的用户自建数据库名列表，当有此参数时以局部备份为准。
 	Databases *[]BackupDatabase `json:"databases,omitempty"`
+
+	// 是否分库备份，只适用于SQLServer，默认为false
+	BackupDatabaseIndividually *bool `json:"backup_database_individually,omitempty"`
 }
 
 func (o CreateManualBackupRequestBody) String() string {

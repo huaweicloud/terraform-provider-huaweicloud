@@ -119,7 +119,7 @@ func (builder *HcHttpClientBuilder) Build() *HcHttpClient {
 		}
 	}
 	if !match {
-		panic(fmt.Sprintf("Need credential type is %s, actually is %s", builder.CredentialsType, givenCredentialsType))
+		panic(fmt.Errorf("need credential type is %s, actually is %s", builder.CredentialsType, givenCredentialsType))
 	}
 
 	if builder.region != nil {

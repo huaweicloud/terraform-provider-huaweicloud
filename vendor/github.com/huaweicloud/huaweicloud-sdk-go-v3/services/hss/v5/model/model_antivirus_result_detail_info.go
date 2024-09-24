@@ -36,7 +36,7 @@ type AntivirusResultDetailInfo struct {
 	// 文件更新时间
 	FileMtime *int64 `json:"file_mtime,omitempty"`
 
-	// 事件白名单更新时间，毫秒
+	// 更新时间，毫秒
 	UpdateTime *int64 `json:"update_time,omitempty"`
 
 	// Agent ID

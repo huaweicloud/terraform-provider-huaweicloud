@@ -10,7 +10,7 @@ import (
 type ProtocolOption struct {
 
 	// 映射ID。身份提供商类型为iam_user_sso时，不需要绑定映射ID，无需传入此字段；否则此字段必填。
-	MappingId *string `json:"mapping_id,omitempty"`
+	MappingId string `json:"mapping_id"`
 }
 
 func (o ProtocolOption) String() string {

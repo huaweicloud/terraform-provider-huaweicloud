@@ -9,7 +9,7 @@ import (
 // CreateMessageDiagnosisTaskResponse Response Object
 type CreateMessageDiagnosisTaskResponse struct {
 
-	// 诊断报告id。
+	// 诊断报告ID。
 	ReportId       *string `json:"report_id,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }

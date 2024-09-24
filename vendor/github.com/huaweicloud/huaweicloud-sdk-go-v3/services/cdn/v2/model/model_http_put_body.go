@@ -15,8 +15,11 @@ type HttpPutBody struct {
 	// 证书类型，server：国际证书；server_sm：国密证书。
 	CertificateType *string `json:"certificate_type,omitempty"`
 
-	// 证书来源，0：自有证书，默认值0。  > 证书开启时必传
+	// 证书来源，0：自有证书。2：SCM证书。  > 证书开启时必传
 	CertificateSource *int32 `json:"certificate_source,omitempty"`
+
+	// SCM证书id
+	ScmCertificateId *string `json:"scm_certificate_id,omitempty"`
 
 	// 证书名字，长度限制为3-64字符。  > 当证书开启时必传。
 	CertificateName *string `json:"certificate_name,omitempty"`

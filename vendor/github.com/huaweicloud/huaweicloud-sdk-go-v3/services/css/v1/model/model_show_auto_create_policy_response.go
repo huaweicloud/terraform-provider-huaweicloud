@@ -28,7 +28,10 @@ type ShowAutoCreatePolicyResponse struct {
 	Agency *string `json:"agency,omitempty"`
 
 	// 是否开启自动创建快照策略。 - true：表示开启自动创建快照策略。 - false：表示关闭自动创建快照策略。
-	Enable         *string `json:"enable,omitempty"`
+	Enable *string `json:"enable,omitempty"`
+
+	// 自动创建快照的执行频次。
+	Frequency      *string `json:"frequency,omitempty"`
 	HttpStatusCode int     `json:"-"`
 }
 

@@ -10,18 +10,18 @@ import (
 type ListImageVulnerabilitiesRequest struct {
 
 	// Region ID
-	Region string `json:"region"`
+	Region *string `json:"region,omitempty"`
 
-	// 租户企业项目ID，查询所有企业项目时填写：all_granted_eps
+	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	// 镜像类型，包含如下:   - private_image : 私有镜像仓库   - shared_image : 共享镜像仓库   - local_image : 本地镜像   - instance_image : 企业镜像
 	ImageType string `json:"image_type"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
+	// 偏移量：指定返回记录的开始位置
 	Offset *int32 `json:"offset,omitempty"`
 
-	// 每页显示个数
+	// 每页显示数量
 	Limit *int32 `json:"limit,omitempty"`
 
 	// 镜像id

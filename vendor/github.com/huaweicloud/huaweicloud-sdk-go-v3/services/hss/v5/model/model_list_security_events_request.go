@@ -36,7 +36,7 @@ type ListSecurityEventsRequest struct {
 	// 容器实例名称
 	ContainerName *string `json:"container_name,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字
+	// 偏移量：指定返回记录的开始位置
 	Offset *int32 `json:"offset,omitempty"`
 
 	// 每页显示个数

@@ -21,10 +21,10 @@ type ListPasswordComplexityRequest struct {
 	// 主机id，不赋值时，查租户所有主机
 	HostId *string `json:"host_id,omitempty"`
 
-	// 每页显示数量，默认10
+	// 每页显示数量
 	Limit *int32 `json:"limit,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0。
+	// 偏移量：指定返回记录的开始位置
 	Offset *int32 `json:"offset,omitempty"`
 }
 

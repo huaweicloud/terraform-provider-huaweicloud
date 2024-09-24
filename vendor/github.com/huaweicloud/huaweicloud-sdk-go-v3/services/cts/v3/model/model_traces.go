@@ -72,6 +72,12 @@ type Traces struct {
 
 	// 云资源的详情页面的访问链接（不含endpoint）
 	ResourceUrl *string `json:"resource_url,omitempty"`
+
+	// 标识资源所在的企业项目ID。
+	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
+
+	// 标识资源所在的账号ID。仅在跨租户操作资源时有值。
+	ResourceAccountId *string `json:"resource_account_id,omitempty"`
 }
 
 func (o Traces) String() string {

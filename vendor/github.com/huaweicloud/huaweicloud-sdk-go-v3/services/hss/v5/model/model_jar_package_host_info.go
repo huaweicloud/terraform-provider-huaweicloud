@@ -9,7 +9,7 @@ import (
 // JarPackageHostInfo 服务器列表
 type JarPackageHostInfo struct {
 
-	// agent_id
+	// Agent ID
 	AgentId *string `json:"agent_id,omitempty"`
 
 	// 主机id

@@ -15,8 +15,11 @@ type HttpGetBody struct {
 	// 证书类型。server：国际证书；server_sm：国密证书。
 	CertificateType *string `json:"certificate_type,omitempty"`
 
-	// 证书来源，1：华为云托管证书，0：自有证书。
+	// 证书来源，1：华为云托管证书，0：自有证书。2：SCM证书。
 	CertificateSource *int32 `json:"certificate_source,omitempty"`
+
+	// SCM证书id
+	ScmCertificateId *string `json:"scm_certificate_id,omitempty"`
 
 	// 证书名字。
 	CertificateName *string `json:"certificate_name,omitempty"`

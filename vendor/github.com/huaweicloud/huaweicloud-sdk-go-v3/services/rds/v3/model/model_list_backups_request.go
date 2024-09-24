@@ -24,6 +24,9 @@ type ListBackupsRequest struct {
 	// 备份类型，取值：  - “auto”: 自动全量备份 - “manual”: 手动全量备份 - “fragment”: 差异全量备份 - “incremental”: 自动增量备份
 	BackupType *ListBackupsRequestBackupType `json:"backup_type,omitempty"`
 
+	// 备份状态，只支持筛选RDS for SQL Server的全量备份的状态。取值：  - “BUILDING”: 备份中 - “COMPLETED”: 备份完成 - “FAILED”: 备份失败
+	Status *ListBackupsRequestStatus `json:"status,omitempty"`
+
 	// 索引位置，偏移量。从第一条数据偏移offset条数据后开始查询，默认为0（偏移0条数据，表示从第一条数据开始查询），必须为数字，不能为负数。
 	Offset *int32 `json:"offset,omitempty"`
 
@@ -83,6 +86,57 @@ func (c ListBackupsRequestBackupType) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ListBackupsRequestBackupType) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type ListBackupsRequestStatus struct {
+	value string
+}
+
+type ListBackupsRequestStatusEnum struct {
+	BUILDING  ListBackupsRequestStatus
+	COMPLETED ListBackupsRequestStatus
+	FAILED    ListBackupsRequestStatus
+}
+
+func GetListBackupsRequestStatusEnum() ListBackupsRequestStatusEnum {
+	return ListBackupsRequestStatusEnum{
+		BUILDING: ListBackupsRequestStatus{
+			value: "BUILDING",
+		},
+		COMPLETED: ListBackupsRequestStatus{
+			value: "COMPLETED",
+		},
+		FAILED: ListBackupsRequestStatus{
+			value: "FAILED",
+		},
+	}
+}
+
+func (c ListBackupsRequestStatus) Value() string {
+	return c.value
+}
+
+func (c ListBackupsRequestStatus) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *ListBackupsRequestStatus) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: string")

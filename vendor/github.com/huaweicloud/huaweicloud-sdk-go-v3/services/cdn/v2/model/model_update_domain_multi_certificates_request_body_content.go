@@ -35,8 +35,11 @@ type UpdateDomainMultiCertificatesRequestBodyContent struct {
 	// HTTPS协议使用的SSL证书私钥内容，仅支持PEM编码格式。不启用证书则无需输入。初次配置证书时必传。
 	PrivateKey *string `json:"private_key,omitempty"`
 
-	// 证书类型（0为自有证书 ；1为托管证书，此时不必不传入证书内容和私钥，自动根据证书名称匹配；不传默认为自有证书）
+	// 证书类型（0为自有证书；2为SCM证书；不传默认为自有证书）
 	CertificateType *int32 `json:"certificate_type,omitempty"`
+
+	// SCM证书id
+	ScmCertificateId *string `json:"scm_certificate_id,omitempty"`
 }
 
 func (o UpdateDomainMultiCertificatesRequestBodyContent) String() string {

@@ -53,6 +53,12 @@ type ListTracesRequest struct {
 
 	// 标示查询事件列表对应的事件等级目前有三种：正常(normal), 警告(warning),事故(incident)。 当\"trace_type\"字段值为\"system\"时，该字段筛选有效\"。
 	TraceRating *ListTracesRequestTraceRating `json:"trace_rating,omitempty"`
+
+	// 标示查询事件列表对应的访问密钥ID。包含临时访问凭证和永久访问密钥。
+	AccessKeyId *string `json:"access_key_id,omitempty"`
+
+	// 标示查询事件列表对应的企业项目ID。
+	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 }
 
 func (o ListTracesRequest) String() string {

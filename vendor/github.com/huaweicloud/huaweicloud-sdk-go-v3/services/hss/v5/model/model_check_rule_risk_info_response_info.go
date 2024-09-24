@@ -39,7 +39,7 @@ type CheckRuleRiskInfoResponseInfo struct {
 	// 是否支持一键修复,1:支持一键修复,0:不支持
 	EnableFix *int32 `json:"enable_fix,omitempty"`
 
-	// 该检查项的修复&忽略&验证按钮是否可点击,true:按钮可点击,false:按钮不可点击
+	// 该检查项的修复&忽略&验证按钮是否可单击,true:按钮可单击,false:按钮不可单击
 	EnableClick *bool `json:"enable_click,omitempty"`
 
 	// 支持传递参数修复的检查项可传递参数的范围，只有支持传递参数修复的检查项才返回此数据

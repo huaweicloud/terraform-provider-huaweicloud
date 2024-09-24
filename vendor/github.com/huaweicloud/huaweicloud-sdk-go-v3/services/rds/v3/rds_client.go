@@ -355,6 +355,27 @@ func (c *RdsClient) CreateInstanceInvoker(request *model.CreateInstanceRequest) 
 	return &CreateInstanceInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateInstanceIam5 创建数据库实例V5接口，仅支持IAM5的新平面认证方式（AK/SK认证方式）
+//
+// 创建数据库实例V5接口，仅支持IAM5的新平面认证方式（AK/SK认证方式）
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) CreateInstanceIam5(request *model.CreateInstanceIam5Request) (*model.CreateInstanceIam5Response, error) {
+	requestDef := GenReqDefForCreateInstanceIam5()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateInstanceIam5Response), nil
+	}
+}
+
+// CreateInstanceIam5Invoker 创建数据库实例V5接口，仅支持IAM5的新平面认证方式（AK/SK认证方式）
+func (c *RdsClient) CreateInstanceIam5Invoker(request *model.CreateInstanceIam5Request) *CreateInstanceIam5Invoker {
+	requestDef := GenReqDefForCreateInstanceIam5()
+	return &CreateInstanceIam5Invoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateManualBackup 创建手动备份
 //
 // 创建手动备份。
@@ -479,6 +500,27 @@ func (c *RdsClient) DeleteConfiguration(request *model.DeleteConfigurationReques
 func (c *RdsClient) DeleteConfigurationInvoker(request *model.DeleteConfigurationRequest) *DeleteConfigurationInvoker {
 	requestDef := GenReqDefForDeleteConfiguration()
 	return &DeleteConfigurationInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteDisasterRecovery 解除实例容灾关系接口
+//
+// 解除实例容灾关系接口
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) DeleteDisasterRecovery(request *model.DeleteDisasterRecoveryRequest) (*model.DeleteDisasterRecoveryResponse, error) {
+	requestDef := GenReqDefForDeleteDisasterRecovery()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteDisasterRecoveryResponse), nil
+	}
+}
+
+// DeleteDisasterRecoveryInvoker 解除实例容灾关系接口
+func (c *RdsClient) DeleteDisasterRecoveryInvoker(request *model.DeleteDisasterRecoveryRequest) *DeleteDisasterRecoveryInvoker {
+	requestDef := GenReqDefForDeleteDisasterRecovery()
+	return &DeleteDisasterRecoveryInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // DeleteInstance 删除数据库实例
@@ -918,6 +960,27 @@ func (c *RdsClient) ListFlavors(request *model.ListFlavorsRequest) (*model.ListF
 func (c *RdsClient) ListFlavorsInvoker(request *model.ListFlavorsRequest) *ListFlavorsInvoker {
 	requestDef := GenReqDefForListFlavors()
 	return &ListFlavorsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListFlavorsResize 查询数据库可变更规格接口
+//
+// 查询数据库可变更规格接口
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListFlavorsResize(request *model.ListFlavorsResizeRequest) (*model.ListFlavorsResizeResponse, error) {
+	requestDef := GenReqDefForListFlavorsResize()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListFlavorsResizeResponse), nil
+	}
+}
+
+// ListFlavorsResizeInvoker 查询数据库可变更规格接口
+func (c *RdsClient) ListFlavorsResizeInvoker(request *model.ListFlavorsResizeRequest) *ListFlavorsResizeInvoker {
+	requestDef := GenReqDefForListFlavorsResize()
+	return &ListFlavorsResizeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListHistoryDatabase 查询指定时间点可恢复的库
@@ -1405,6 +1468,27 @@ func (c *RdsClient) ListRestoreTimes(request *model.ListRestoreTimesRequest) (*m
 func (c *RdsClient) ListRestoreTimesInvoker(request *model.ListRestoreTimesRequest) *ListRestoreTimesInvoker {
 	requestDef := GenReqDefForListRestoreTimes()
 	return &ListRestoreTimesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListShareBackups 查询共享备份列表
+//
+// 查询共享备份列表
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ListShareBackups(request *model.ListShareBackupsRequest) (*model.ListShareBackupsResponse, error) {
+	requestDef := GenReqDefForListShareBackups()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListShareBackupsResponse), nil
+	}
+}
+
+// ListShareBackupsInvoker 查询共享备份列表
+func (c *RdsClient) ListShareBackupsInvoker(request *model.ListShareBackupsRequest) *ListShareBackupsInvoker {
+	requestDef := GenReqDefForListShareBackups()
+	return &ListShareBackupsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // ListSimplifiedInstances
@@ -2715,6 +2799,27 @@ func (c *RdsClient) SwitchSslInvoker(request *model.SwitchSslRequest) *SwitchSsl
 	return &SwitchSslInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// UnlockNodeReadonlyStatus 解除节点只读状态接口
+//
+// 解除节点只读状态接口
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) UnlockNodeReadonlyStatus(request *model.UnlockNodeReadonlyStatusRequest) (*model.UnlockNodeReadonlyStatusResponse, error) {
+	requestDef := GenReqDefForUnlockNodeReadonlyStatus()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UnlockNodeReadonlyStatusResponse), nil
+	}
+}
+
+// UnlockNodeReadonlyStatusInvoker 解除节点只读状态接口
+func (c *RdsClient) UnlockNodeReadonlyStatusInvoker(request *model.UnlockNodeReadonlyStatusRequest) *UnlockNodeReadonlyStatusInvoker {
+	requestDef := GenReqDefForUnlockNodeReadonlyStatus()
+	return &UnlockNodeReadonlyStatusInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // UpdateConfiguration 修改参数模板参数
 //
 // 修改参数模板参数。
@@ -3939,6 +4044,27 @@ func (c *RdsClient) ShowPostgresqlParamValueInvoker(request *model.ShowPostgresq
 	return &ShowPostgresqlParamValueInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowReplayDelayStatus 获取wal日志延迟回放状态
+//
+// 获取wal日志延迟回放状态
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) ShowReplayDelayStatus(request *model.ShowReplayDelayStatusRequest) (*model.ShowReplayDelayStatusResponse, error) {
+	requestDef := GenReqDefForShowReplayDelayStatus()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowReplayDelayStatusResponse), nil
+	}
+}
+
+// ShowReplayDelayStatusInvoker 获取wal日志延迟回放状态
+func (c *RdsClient) ShowReplayDelayStatusInvoker(request *model.ShowReplayDelayStatusRequest) *ShowReplayDelayStatusInvoker {
+	requestDef := GenReqDefForShowReplayDelayStatus()
+	return &ShowReplayDelayStatusInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // StartDatabaseProxy 开启数据库代理
 //
 // 为指定实例开启数据库代理。
@@ -3979,6 +4105,27 @@ func (c *RdsClient) StopDatabaseProxy(request *model.StopDatabaseProxyRequest) (
 func (c *RdsClient) StopDatabaseProxyInvoker(request *model.StopDatabaseProxyRequest) *StopDatabaseProxyInvoker {
 	requestDef := GenReqDefForStopDatabaseProxy()
 	return &StopDatabaseProxyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// SwitchLogReplay 中止/恢复wal日志回放
+//
+// 中止/恢复wal日志回放
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *RdsClient) SwitchLogReplay(request *model.SwitchLogReplayRequest) (*model.SwitchLogReplayResponse, error) {
+	requestDef := GenReqDefForSwitchLogReplay()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.SwitchLogReplayResponse), nil
+	}
+}
+
+// SwitchLogReplayInvoker 中止/恢复wal日志回放
+func (c *RdsClient) SwitchLogReplayInvoker(request *model.SwitchLogReplayRequest) *SwitchLogReplayInvoker {
+	requestDef := GenReqDefForSwitchLogReplay()
+	return &SwitchLogReplayInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdateDatabaseOwner 修改数据库owner

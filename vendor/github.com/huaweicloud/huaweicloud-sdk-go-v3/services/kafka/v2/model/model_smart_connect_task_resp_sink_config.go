@@ -53,15 +53,6 @@ type SmartConnectTaskRespSinkConfig struct {
 	// 时区。（仅目标端类型为OBS时会显示）
 	Timezone *string `json:"timezone,omitempty"`
 
-	// connector类，默认为\"com.huawei.dms.connector.obs.OBSSinkConnector\"。（仅目标端类型为OBS时会显示）
-	ConnectorClass *string `json:"connector_class,omitempty"`
-
-	// storage类，默认为com.huawei.dms.connector.obs.storage.OBSStorage\"。（仅目标端类型为OBS时会显示）
-	StorageClass *string `json:"storage_class,omitempty"`
-
-	// format类，默认为\"com.huawei.dms.connector.obs.format.bytearray.ByteArrayFormat\"。（仅目标端类型为OBS时会显示）
-	FormatClass *string `json:"format_class,omitempty"`
-
 	// schema_generator类，默认为\"io.confluent.connect.storage.hive.schema.DefaultSchemaGenerator\"。（仅目标端类型为OBS时会显示）
 	SchemaGeneratorClass *string `json:"schema_generator_class,omitempty"`
 

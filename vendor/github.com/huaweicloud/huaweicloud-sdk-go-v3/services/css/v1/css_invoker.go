@@ -569,6 +569,18 @@ func (i *StartPublicWhitelistInvoker) Invoke() (*model.StartPublicWhitelistRespo
 	}
 }
 
+type StartTargetClusterConnectivityTestInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *StartTargetClusterConnectivityTestInvoker) Invoke() (*model.StartTargetClusterConnectivityTestResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.StartTargetClusterConnectivityTestResponse), nil
+	}
+}
+
 type StartVpecpInvoker struct {
 	*invoker.BaseInvoker
 }

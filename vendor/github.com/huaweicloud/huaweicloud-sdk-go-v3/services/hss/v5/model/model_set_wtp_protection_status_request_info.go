@@ -8,7 +8,7 @@ import (
 
 type SetWtpProtectionStatusRequestInfo struct {
 
-	// 开启关闭状态
+	// 开启关闭状态，true表示enable， false表示disable
 	Status bool `json:"status"`
 
 	// 主机ID数组，不能为空

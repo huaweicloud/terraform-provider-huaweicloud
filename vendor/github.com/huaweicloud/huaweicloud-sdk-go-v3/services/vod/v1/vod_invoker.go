@@ -245,6 +245,18 @@ func (i *DeleteTemplateGroupCollectionInvoker) Invoke() (*model.DeleteTemplateGr
 	}
 }
 
+type DeleteTranscodeProductInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteTranscodeProductInvoker) Invoke() (*model.DeleteTranscodeProductResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteTranscodeProductResponse), nil
+	}
+}
+
 type DeleteTranscodeTemplateInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -377,6 +389,18 @@ func (i *ListWatermarkTemplateInvoker) Invoke() (*model.ListWatermarkTemplateRes
 	}
 }
 
+type ModifySubtitleInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ModifySubtitleInvoker) Invoke() (*model.ModifySubtitleResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ModifySubtitleResponse), nil
+	}
+}
+
 type PublishAssetFromObsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -473,6 +497,18 @@ func (i *ShowPreheatingAssetInvoker) Invoke() (*model.ShowPreheatingAssetRespons
 	}
 }
 
+type ShowVodRetrievalInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowVodRetrievalInvoker) Invoke() (*model.ShowVodRetrievalResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowVodRetrievalResponse), nil
+	}
+}
+
 type ShowVodStatisticsInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -554,6 +590,18 @@ func (i *UpdateCoverByThumbnailInvoker) Invoke() (*model.UpdateCoverByThumbnailR
 		return nil, err
 	} else {
 		return result.(*model.UpdateCoverByThumbnailResponse), nil
+	}
+}
+
+type UpdateStorageModeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateStorageModeInvoker) Invoke() (*model.UpdateStorageModeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateStorageModeResponse), nil
 	}
 }
 
@@ -650,41 +698,5 @@ func (i *ShowTakeOverTaskDetailsInvoker) Invoke() (*model.ShowTakeOverTaskDetail
 		return nil, err
 	} else {
 		return result.(*model.ShowTakeOverTaskDetailsResponse), nil
-	}
-}
-
-type ShowVodRetrievalInvoker struct {
-	*invoker.BaseInvoker
-}
-
-func (i *ShowVodRetrievalInvoker) Invoke() (*model.ShowVodRetrievalResponse, error) {
-	if result, err := i.BaseInvoker.Invoke(); err != nil {
-		return nil, err
-	} else {
-		return result.(*model.ShowVodRetrievalResponse), nil
-	}
-}
-
-type ModifySubtitleInvoker struct {
-	*invoker.BaseInvoker
-}
-
-func (i *ModifySubtitleInvoker) Invoke() (*model.ModifySubtitleResponse, error) {
-	if result, err := i.BaseInvoker.Invoke(); err != nil {
-		return nil, err
-	} else {
-		return result.(*model.ModifySubtitleResponse), nil
-	}
-}
-
-type UpdateStorageModeInvoker struct {
-	*invoker.BaseInvoker
-}
-
-func (i *UpdateStorageModeInvoker) Invoke() (*model.UpdateStorageModeResponse, error) {
-	if result, err := i.BaseInvoker.Invoke(); err != nil {
-		return nil, err
-	} else {
-		return result.(*model.UpdateStorageModeResponse), nil
 	}
 }

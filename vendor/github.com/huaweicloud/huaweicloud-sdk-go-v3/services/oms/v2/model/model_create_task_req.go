@@ -55,6 +55,9 @@ type CreateTaskReq struct {
 
 	// 是否开启请求者付款，在启用后，请求者支付请求和数据传输费用。
 	EnableRequesterPays *bool `json:"enable_requester_pays,omitempty"`
+
+	// HIGH：高优先级 MEDIUM：中优先级 LOW：低优先级
+	TaskPriority *CreateTaskReqTaskPriority `json:"task_priority,omitempty"`
 }
 
 func (o CreateTaskReq) String() string {
@@ -268,6 +271,57 @@ func (c CreateTaskReqConsistencyCheck) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateTaskReqConsistencyCheck) UnmarshalJSON(b []byte) error {
+	myConverter := converter.StringConverterFactory("string")
+	if myConverter == nil {
+		return errors.New("unsupported StringConverter type: string")
+	}
+
+	interf, err := myConverter.CovertStringToInterface(strings.Trim(string(b[:]), "\""))
+	if err != nil {
+		return err
+	}
+
+	if val, ok := interf.(string); ok {
+		c.value = val
+		return nil
+	} else {
+		return errors.New("convert enum data to string error")
+	}
+}
+
+type CreateTaskReqTaskPriority struct {
+	value string
+}
+
+type CreateTaskReqTaskPriorityEnum struct {
+	HIGH   CreateTaskReqTaskPriority
+	MEDIUM CreateTaskReqTaskPriority
+	LOW    CreateTaskReqTaskPriority
+}
+
+func GetCreateTaskReqTaskPriorityEnum() CreateTaskReqTaskPriorityEnum {
+	return CreateTaskReqTaskPriorityEnum{
+		HIGH: CreateTaskReqTaskPriority{
+			value: "HIGH",
+		},
+		MEDIUM: CreateTaskReqTaskPriority{
+			value: "MEDIUM",
+		},
+		LOW: CreateTaskReqTaskPriority{
+			value: "LOW",
+		},
+	}
+}
+
+func (c CreateTaskReqTaskPriority) Value() string {
+	return c.value
+}
+
+func (c CreateTaskReqTaskPriority) MarshalJSON() ([]byte, error) {
+	return utils.Marshal(c.value)
+}
+
+func (c *CreateTaskReqTaskPriority) UnmarshalJSON(b []byte) error {
 	myConverter := converter.StringConverterFactory("string")
 	if myConverter == nil {
 		return errors.New("unsupported StringConverter type: string")

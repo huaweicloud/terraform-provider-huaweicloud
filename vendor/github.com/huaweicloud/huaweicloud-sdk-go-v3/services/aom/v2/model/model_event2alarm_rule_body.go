@@ -22,10 +22,10 @@ type Event2alarmRuleBody struct {
 	Description *string `json:"description,omitempty"`
 
 	// 创建时间
-	CreateTime int32 `json:"create_time"`
+	CreateTime int64 `json:"create_time"`
 
 	// 更新时间
-	UpdateTime *int32 `json:"update_time,omitempty"`
+	UpdateTime *int64 `json:"update_time,omitempty"`
 
 	// 事件源
 	ResourceProvider *string `json:"resource_provider,omitempty"`

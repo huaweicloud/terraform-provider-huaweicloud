@@ -11,7 +11,13 @@ type VodSampleData struct {
 	// 存储空间。  单位：GB。
 	Storage *float32 `json:"storage,omitempty"`
 
-	// 转码时长。  单位：秒。
+	// 低频存储空间。  单位：GB。
+	StorageWarm *float32 `json:"storage_warm,omitempty"`
+
+	// 归档存储空间。  单位：GB。
+	StorageCold *float32 `json:"storage_cold,omitempty"`
+
+	// 转码时长。  单位：分钟。
 	Transcode *int64 `json:"transcode,omitempty"`
 }
 

@@ -9,7 +9,7 @@ import (
 // BatchDeleteMessageDiagnosisReportsReq 批量删除消息积压诊断报告请求
 type BatchDeleteMessageDiagnosisReportsReq struct {
 
-	// 待删除report id 列表
+	// 待删除report id列表
 	ReportIdList []string `json:"report_id_list"`
 }
 

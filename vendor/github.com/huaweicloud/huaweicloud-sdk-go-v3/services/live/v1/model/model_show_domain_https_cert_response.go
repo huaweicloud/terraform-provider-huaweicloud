@@ -22,8 +22,12 @@ type ShowDomainHttpsCertResponse struct {
 	CertificateKey *string `json:"certificate_key,omitempty"`
 
 	// 是否开启重定向，默认false
-	ForceRedirect  *bool `json:"force_redirect,omitempty"`
-	HttpStatusCode int   `json:"-"`
+	ForceRedirect *bool `json:"force_redirect,omitempty"`
+
+	GmCertificate *GmCertificateInfo `json:"gm_certificate,omitempty"`
+
+	TlsCertificate *TlsCertificateInfo `json:"tls_certificate,omitempty"`
+	HttpStatusCode int                 `json:"-"`
 }
 
 func (o ShowDomainHttpsCertResponse) String() string {

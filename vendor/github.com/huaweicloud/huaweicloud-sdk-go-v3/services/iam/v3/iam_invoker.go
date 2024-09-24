@@ -137,6 +137,18 @@ func (i *CreateAgencyCustomPolicyInvoker) Invoke() (*model.CreateAgencyCustomPol
 	}
 }
 
+type CreateBindingDeviceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateBindingDeviceInvoker) Invoke() (*model.CreateBindingDeviceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateBindingDeviceResponse), nil
+	}
+}
+
 type CreateCloudServiceCustomPolicyInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -170,6 +182,18 @@ func (i *CreateMetadataInvoker) Invoke() (*model.CreateMetadataResponse, error) 
 		return nil, err
 	} else {
 		return result.(*model.CreateMetadataResponse), nil
+	}
+}
+
+type CreateMfaDeviceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateMfaDeviceInvoker) Invoke() (*model.CreateMfaDeviceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateMfaDeviceResponse), nil
 	}
 }
 
@@ -221,6 +245,18 @@ func (i *DeleteAgencyInvoker) Invoke() (*model.DeleteAgencyResponse, error) {
 	}
 }
 
+type DeleteBindingDeviceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteBindingDeviceInvoker) Invoke() (*model.DeleteBindingDeviceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteBindingDeviceResponse), nil
+	}
+}
+
 type DeleteCustomPolicyInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -242,6 +278,18 @@ func (i *DeleteDomainGroupInheritedRoleInvoker) Invoke() (*model.DeleteDomainGro
 		return nil, err
 	} else {
 		return result.(*model.DeleteDomainGroupInheritedRoleResponse), nil
+	}
+}
+
+type DeleteMfaDeviceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteMfaDeviceInvoker) Invoke() (*model.DeleteMfaDeviceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteMfaDeviceResponse), nil
 	}
 }
 
@@ -638,18 +686,6 @@ func (i *KeystoneListServicesInvoker) Invoke() (*model.KeystoneListServicesRespo
 		return nil, err
 	} else {
 		return result.(*model.KeystoneListServicesResponse), nil
-	}
-}
-
-type KeystoneListUsersForGroupByAdminInvoker struct {
-	*invoker.BaseInvoker
-}
-
-func (i *KeystoneListUsersForGroupByAdminInvoker) Invoke() (*model.KeystoneListUsersForGroupByAdminResponse, error) {
-	if result, err := i.BaseInvoker.Invoke(); err != nil {
-		return nil, err
-	} else {
-		return result.(*model.KeystoneListUsersForGroupByAdminResponse), nil
 	}
 }
 
@@ -1493,30 +1529,6 @@ func (i *UpdatePermanentAccessKeyInvoker) Invoke() (*model.UpdatePermanentAccess
 	}
 }
 
-type CreateBindingDeviceInvoker struct {
-	*invoker.BaseInvoker
-}
-
-func (i *CreateBindingDeviceInvoker) Invoke() (*model.CreateBindingDeviceResponse, error) {
-	if result, err := i.BaseInvoker.Invoke(); err != nil {
-		return nil, err
-	} else {
-		return result.(*model.CreateBindingDeviceResponse), nil
-	}
-}
-
-type CreateMfaDeviceInvoker struct {
-	*invoker.BaseInvoker
-}
-
-func (i *CreateMfaDeviceInvoker) Invoke() (*model.CreateMfaDeviceResponse, error) {
-	if result, err := i.BaseInvoker.Invoke(); err != nil {
-		return nil, err
-	} else {
-		return result.(*model.CreateMfaDeviceResponse), nil
-	}
-}
-
 type CreateUserInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -1526,30 +1538,6 @@ func (i *CreateUserInvoker) Invoke() (*model.CreateUserResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.CreateUserResponse), nil
-	}
-}
-
-type DeleteBindingDeviceInvoker struct {
-	*invoker.BaseInvoker
-}
-
-func (i *DeleteBindingDeviceInvoker) Invoke() (*model.DeleteBindingDeviceResponse, error) {
-	if result, err := i.BaseInvoker.Invoke(); err != nil {
-		return nil, err
-	} else {
-		return result.(*model.DeleteBindingDeviceResponse), nil
-	}
-}
-
-type DeleteMfaDeviceInvoker struct {
-	*invoker.BaseInvoker
-}
-
-func (i *DeleteMfaDeviceInvoker) Invoke() (*model.DeleteMfaDeviceResponse, error) {
-	if result, err := i.BaseInvoker.Invoke(); err != nil {
-		return nil, err
-	} else {
-		return result.(*model.DeleteMfaDeviceResponse), nil
 	}
 }
 
@@ -1598,6 +1586,18 @@ func (i *KeystoneListUsersInvoker) Invoke() (*model.KeystoneListUsersResponse, e
 		return nil, err
 	} else {
 		return result.(*model.KeystoneListUsersResponse), nil
+	}
+}
+
+type KeystoneListUsersForGroupByAdminInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *KeystoneListUsersForGroupByAdminInvoker) Invoke() (*model.KeystoneListUsersForGroupByAdminResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.KeystoneListUsersForGroupByAdminResponse), nil
 	}
 }
 

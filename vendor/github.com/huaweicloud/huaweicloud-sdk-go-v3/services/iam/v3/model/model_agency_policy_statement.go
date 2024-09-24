@@ -18,7 +18,7 @@ type AgencyPolicyStatement struct {
 	// 作用。包含两种：允许（Allow）和拒绝（Deny），既有Allow又有Deny的授权语句时，遵循Deny优先的原则。
 	Effect AgencyPolicyStatementEffect `json:"Effect"`
 
-	Resource *AgencyPolicyResource `json:"Resource"`
+	Resource *AgencyPolicyResource `json:"Resource,omitempty"`
 }
 
 func (o AgencyPolicyStatement) String() string {

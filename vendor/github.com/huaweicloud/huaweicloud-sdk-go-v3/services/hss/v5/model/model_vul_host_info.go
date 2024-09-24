@@ -21,7 +21,7 @@ type VulHostInfo struct {
 	// 受影响主机ip
 	HostIp *string `json:"host_ip,omitempty"`
 
-	// 主机对应的Agent ID
+	// Agent ID
 	AgentId *string `json:"agent_id,omitempty"`
 
 	// 主机绑定的配额版本

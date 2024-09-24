@@ -813,6 +813,113 @@ func (c *IoTDAClient) CreateCommandInvoker(request *model.CreateCommandRequest) 
 	return &CreateCommandInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// CreateDeviceAuthorizer 创建自定义鉴权
+//
+// 应用服务器可调用此接口在物联网平台创建一个自定义鉴权。自定义鉴权是指用户可以通过函数服务自定义实现鉴权逻辑，以对接入平台的设备进行身份认证。
+// - 单个实例最大可配置10个自定义鉴权
+// - 仅标准版实例、企业版实例支持该接口调用，基础版不支持。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) CreateDeviceAuthorizer(request *model.CreateDeviceAuthorizerRequest) (*model.CreateDeviceAuthorizerResponse, error) {
+	requestDef := GenReqDefForCreateDeviceAuthorizer()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateDeviceAuthorizerResponse), nil
+	}
+}
+
+// CreateDeviceAuthorizerInvoker 创建自定义鉴权
+func (c *IoTDAClient) CreateDeviceAuthorizerInvoker(request *model.CreateDeviceAuthorizerRequest) *CreateDeviceAuthorizerInvoker {
+	requestDef := GenReqDefForCreateDeviceAuthorizer()
+	return &CreateDeviceAuthorizerInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteDeviceAuthorizer 删除自定义鉴权
+//
+// 应用服务器可调用此接口在物联网平台上删除指定自定义鉴权。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) DeleteDeviceAuthorizer(request *model.DeleteDeviceAuthorizerRequest) (*model.DeleteDeviceAuthorizerResponse, error) {
+	requestDef := GenReqDefForDeleteDeviceAuthorizer()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteDeviceAuthorizerResponse), nil
+	}
+}
+
+// DeleteDeviceAuthorizerInvoker 删除自定义鉴权
+func (c *IoTDAClient) DeleteDeviceAuthorizerInvoker(request *model.DeleteDeviceAuthorizerRequest) *DeleteDeviceAuthorizerInvoker {
+	requestDef := GenReqDefForDeleteDeviceAuthorizer()
+	return &DeleteDeviceAuthorizerInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListDeviceAuthorizers 查询自定义鉴权列表
+//
+// 应用服务器可调用此接口在物联网平台查询自定义鉴权列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ListDeviceAuthorizers(request *model.ListDeviceAuthorizersRequest) (*model.ListDeviceAuthorizersResponse, error) {
+	requestDef := GenReqDefForListDeviceAuthorizers()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListDeviceAuthorizersResponse), nil
+	}
+}
+
+// ListDeviceAuthorizersInvoker 查询自定义鉴权列表
+func (c *IoTDAClient) ListDeviceAuthorizersInvoker(request *model.ListDeviceAuthorizersRequest) *ListDeviceAuthorizersInvoker {
+	requestDef := GenReqDefForListDeviceAuthorizers()
+	return &ListDeviceAuthorizersInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDeviceAuthorizer 查询自定义鉴权详情
+//
+// 应用服务器可调用此接口在物联网平台查询指定自定义鉴权ID的详细信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ShowDeviceAuthorizer(request *model.ShowDeviceAuthorizerRequest) (*model.ShowDeviceAuthorizerResponse, error) {
+	requestDef := GenReqDefForShowDeviceAuthorizer()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowDeviceAuthorizerResponse), nil
+	}
+}
+
+// ShowDeviceAuthorizerInvoker 查询自定义鉴权详情
+func (c *IoTDAClient) ShowDeviceAuthorizerInvoker(request *model.ShowDeviceAuthorizerRequest) *ShowDeviceAuthorizerInvoker {
+	requestDef := GenReqDefForShowDeviceAuthorizer()
+	return &ShowDeviceAuthorizerInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDeviceAuthorizer 更新指定id的自定义鉴权
+//
+// 应用服务器可调用此接口在物联网平台更新指定id的自定义鉴权。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) UpdateDeviceAuthorizer(request *model.UpdateDeviceAuthorizerRequest) (*model.UpdateDeviceAuthorizerResponse, error) {
+	requestDef := GenReqDefForUpdateDeviceAuthorizer()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateDeviceAuthorizerResponse), nil
+	}
+}
+
+// UpdateDeviceAuthorizerInvoker 更新指定id的自定义鉴权
+func (c *IoTDAClient) UpdateDeviceAuthorizerInvoker(request *model.UpdateDeviceAuthorizerRequest) *UpdateDeviceAuthorizerInvoker {
+	requestDef := GenReqDefForUpdateDeviceAuthorizer()
+	return &UpdateDeviceAuthorizerInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // AddDeviceGroup 添加设备组
 //
 // 应用服务器可调用此接口新建设备组，一个华为云账号下最多可有1,000个设备组，包括父设备组和子设备组。设备组的最大层级关系不超过5层，即群组形成的关系树最大深度不超过5。
@@ -1739,6 +1846,176 @@ func (c *IoTDAClient) ShowOtaPackageInvoker(request *model.ShowOtaPackageRequest
 	return &ShowOtaPackageInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// BindDevicePolicy 绑定设备策略
+//
+// 应用服务器可调用此接口在物联网平台上为批量设备绑定目标策略，目前支持绑定目标类型为：设备、产品，当目标类型为产品时，该产品下所有设备都会生效。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) BindDevicePolicy(request *model.BindDevicePolicyRequest) (*model.BindDevicePolicyResponse, error) {
+	requestDef := GenReqDefForBindDevicePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.BindDevicePolicyResponse), nil
+	}
+}
+
+// BindDevicePolicyInvoker 绑定设备策略
+func (c *IoTDAClient) BindDevicePolicyInvoker(request *model.BindDevicePolicyRequest) *BindDevicePolicyInvoker {
+	requestDef := GenReqDefForBindDevicePolicy()
+	return &BindDevicePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateDevicePolicy 创建设备策略
+//
+// 应用服务器可调用此接口在物联网平台创建一个策略，该策略需要绑定到设备和产品下才能生效。
+// - 一个实例最多能创建50个设备策略。
+// - 仅**标准版实例、企业版实例**支持该接口调用，基础版不支持。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) CreateDevicePolicy(request *model.CreateDevicePolicyRequest) (*model.CreateDevicePolicyResponse, error) {
+	requestDef := GenReqDefForCreateDevicePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateDevicePolicyResponse), nil
+	}
+}
+
+// CreateDevicePolicyInvoker 创建设备策略
+func (c *IoTDAClient) CreateDevicePolicyInvoker(request *model.CreateDevicePolicyRequest) *CreateDevicePolicyInvoker {
+	requestDef := GenReqDefForCreateDevicePolicy()
+	return &CreateDevicePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteDevicePolicy 删除设备策略
+//
+// 应用服务器可调用此接口在物联网平台上删除指定策略，注意：删除策略同时会解绑该策略下所有绑定对象。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) DeleteDevicePolicy(request *model.DeleteDevicePolicyRequest) (*model.DeleteDevicePolicyResponse, error) {
+	requestDef := GenReqDefForDeleteDevicePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteDevicePolicyResponse), nil
+	}
+}
+
+// DeleteDevicePolicyInvoker 删除设备策略
+func (c *IoTDAClient) DeleteDevicePolicyInvoker(request *model.DeleteDevicePolicyRequest) *DeleteDevicePolicyInvoker {
+	requestDef := GenReqDefForDeleteDevicePolicy()
+	return &DeleteDevicePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListDevicePolicies 查询设备策略列表
+//
+// 应用服务器可调用此接口在物联网平台查询策略列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ListDevicePolicies(request *model.ListDevicePoliciesRequest) (*model.ListDevicePoliciesResponse, error) {
+	requestDef := GenReqDefForListDevicePolicies()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListDevicePoliciesResponse), nil
+	}
+}
+
+// ListDevicePoliciesInvoker 查询设备策略列表
+func (c *IoTDAClient) ListDevicePoliciesInvoker(request *model.ListDevicePoliciesRequest) *ListDevicePoliciesInvoker {
+	requestDef := GenReqDefForListDevicePolicies()
+	return &ListDevicePoliciesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowDevicePolicy 查询设备策略详情
+//
+// 应用服务器可调用此接口在物联网平台查询指定策略ID的详细信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ShowDevicePolicy(request *model.ShowDevicePolicyRequest) (*model.ShowDevicePolicyResponse, error) {
+	requestDef := GenReqDefForShowDevicePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowDevicePolicyResponse), nil
+	}
+}
+
+// ShowDevicePolicyInvoker 查询设备策略详情
+func (c *IoTDAClient) ShowDevicePolicyInvoker(request *model.ShowDevicePolicyRequest) *ShowDevicePolicyInvoker {
+	requestDef := GenReqDefForShowDevicePolicy()
+	return &ShowDevicePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowTargetsInDevicePolicy 查询设备策略绑定的目标列表
+//
+// 应用服务器可调用此接口在物联网平台上查询指定策略ID下绑定的目标列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ShowTargetsInDevicePolicy(request *model.ShowTargetsInDevicePolicyRequest) (*model.ShowTargetsInDevicePolicyResponse, error) {
+	requestDef := GenReqDefForShowTargetsInDevicePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowTargetsInDevicePolicyResponse), nil
+	}
+}
+
+// ShowTargetsInDevicePolicyInvoker 查询设备策略绑定的目标列表
+func (c *IoTDAClient) ShowTargetsInDevicePolicyInvoker(request *model.ShowTargetsInDevicePolicyRequest) *ShowTargetsInDevicePolicyInvoker {
+	requestDef := GenReqDefForShowTargetsInDevicePolicy()
+	return &ShowTargetsInDevicePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UnbindDevicePolicy 解绑设备策略
+//
+// 应用服务器可调用此接口在物联网平台上解除指定策略下绑定的目标对象。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) UnbindDevicePolicy(request *model.UnbindDevicePolicyRequest) (*model.UnbindDevicePolicyResponse, error) {
+	requestDef := GenReqDefForUnbindDevicePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UnbindDevicePolicyResponse), nil
+	}
+}
+
+// UnbindDevicePolicyInvoker 解绑设备策略
+func (c *IoTDAClient) UnbindDevicePolicyInvoker(request *model.UnbindDevicePolicyRequest) *UnbindDevicePolicyInvoker {
+	requestDef := GenReqDefForUnbindDevicePolicy()
+	return &UnbindDevicePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateDevicePolicy 更新设备策略信息
+//
+// 应用服务器可调用此接口在物联网平台更新策略。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) UpdateDevicePolicy(request *model.UpdateDevicePolicyRequest) (*model.UpdateDevicePolicyResponse, error) {
+	requestDef := GenReqDefForUpdateDevicePolicy()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateDevicePolicyResponse), nil
+	}
+}
+
+// UpdateDevicePolicyInvoker 更新设备策略信息
+func (c *IoTDAClient) UpdateDevicePolicyInvoker(request *model.UpdateDevicePolicyRequest) *UpdateDevicePolicyInvoker {
+	requestDef := GenReqDefForUpdateDevicePolicy()
+	return &UpdateDevicePolicyInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // CreateProduct 创建产品
 //
 // 应用服务器可调用此接口创建产品。此接口仅创建了产品，没有创建和安装插件，如果需要对数据进行编解码，还需要在平台开发和安装插件。
@@ -1886,6 +2163,114 @@ func (c *IoTDAClient) UpdateProperties(request *model.UpdatePropertiesRequest) (
 func (c *IoTDAClient) UpdatePropertiesInvoker(request *model.UpdatePropertiesRequest) *UpdatePropertiesInvoker {
 	requestDef := GenReqDefForUpdateProperties()
 	return &UpdatePropertiesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// CreateProvisioningTemplate 创建预调配模板
+//
+// 应用服务器可调用此接口在物联网平台创建一个预调配模板。用户的设备未在平台注册时，可以通过预调配模板在设备首次接入物联网平台时将设备信息自动注册到物联网平台。
+// - 该预调配模板至少需要绑定到一个设备CA证书下才能生效。
+// - 一个实例最多可有10个预调配模板。
+// - 仅标准版实例、企业版实例支持该接口调用，基础版不支持。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) CreateProvisioningTemplate(request *model.CreateProvisioningTemplateRequest) (*model.CreateProvisioningTemplateResponse, error) {
+	requestDef := GenReqDefForCreateProvisioningTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.CreateProvisioningTemplateResponse), nil
+	}
+}
+
+// CreateProvisioningTemplateInvoker 创建预调配模板
+func (c *IoTDAClient) CreateProvisioningTemplateInvoker(request *model.CreateProvisioningTemplateRequest) *CreateProvisioningTemplateInvoker {
+	requestDef := GenReqDefForCreateProvisioningTemplate()
+	return &CreateProvisioningTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// DeleteProvisioningTemplate 删除预调配模板
+//
+// 应用服务器可调用此接口在物联网平台上删除指定预调配模板。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) DeleteProvisioningTemplate(request *model.DeleteProvisioningTemplateRequest) (*model.DeleteProvisioningTemplateResponse, error) {
+	requestDef := GenReqDefForDeleteProvisioningTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteProvisioningTemplateResponse), nil
+	}
+}
+
+// DeleteProvisioningTemplateInvoker 删除预调配模板
+func (c *IoTDAClient) DeleteProvisioningTemplateInvoker(request *model.DeleteProvisioningTemplateRequest) *DeleteProvisioningTemplateInvoker {
+	requestDef := GenReqDefForDeleteProvisioningTemplate()
+	return &DeleteProvisioningTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ListProvisioningTemplates 查询预调配模板列表
+//
+// 应用服务器可调用此接口在物联网平台查询预调配模板列表。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ListProvisioningTemplates(request *model.ListProvisioningTemplatesRequest) (*model.ListProvisioningTemplatesResponse, error) {
+	requestDef := GenReqDefForListProvisioningTemplates()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ListProvisioningTemplatesResponse), nil
+	}
+}
+
+// ListProvisioningTemplatesInvoker 查询预调配模板列表
+func (c *IoTDAClient) ListProvisioningTemplatesInvoker(request *model.ListProvisioningTemplatesRequest) *ListProvisioningTemplatesInvoker {
+	requestDef := GenReqDefForListProvisioningTemplates()
+	return &ListProvisioningTemplatesInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// ShowProvisioningTemplate 查询预调配模板详情
+//
+// 应用服务器可调用此接口在物联网平台查询指定预调配模板ID的详细信息。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) ShowProvisioningTemplate(request *model.ShowProvisioningTemplateRequest) (*model.ShowProvisioningTemplateResponse, error) {
+	requestDef := GenReqDefForShowProvisioningTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowProvisioningTemplateResponse), nil
+	}
+}
+
+// ShowProvisioningTemplateInvoker 查询预调配模板详情
+func (c *IoTDAClient) ShowProvisioningTemplateInvoker(request *model.ShowProvisioningTemplateRequest) *ShowProvisioningTemplateInvoker {
+	requestDef := GenReqDefForShowProvisioningTemplate()
+	return &ShowProvisioningTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateProvisioningTemplate 更新指定id的预调配模板信息
+//
+// 应用服务器可调用此接口在物联网平台更新指定id的预调配模板。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *IoTDAClient) UpdateProvisioningTemplate(request *model.UpdateProvisioningTemplateRequest) (*model.UpdateProvisioningTemplateResponse, error) {
+	requestDef := GenReqDefForUpdateProvisioningTemplate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateProvisioningTemplateResponse), nil
+	}
+}
+
+// UpdateProvisioningTemplateInvoker 更新指定id的预调配模板信息
+func (c *IoTDAClient) UpdateProvisioningTemplateInvoker(request *model.UpdateProvisioningTemplateRequest) *UpdateProvisioningTemplateInvoker {
+	requestDef := GenReqDefForUpdateProvisioningTemplate()
+	return &UpdateProvisioningTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // CreateRoutingRule 创建规则触发条件

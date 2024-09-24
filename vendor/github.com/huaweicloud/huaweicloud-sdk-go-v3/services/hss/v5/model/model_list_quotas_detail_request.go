@@ -39,7 +39,7 @@ type ListQuotasDetailRequest struct {
 	// 每页数量
 	Limit *int32 `json:"limit,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字
+	// 偏移量：指定返回记录的开始位置
 	Offset *int32 `json:"offset,omitempty"`
 }
 

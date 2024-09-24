@@ -445,6 +445,27 @@ func (c *VodClient) DeleteTemplateGroupCollectionInvoker(request *model.DeleteTe
 	return &DeleteTemplateGroupCollectionInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// DeleteTranscodeProduct 删除转码产物
+//
+// 删除转码产物。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VodClient) DeleteTranscodeProduct(request *model.DeleteTranscodeProductRequest) (*model.DeleteTranscodeProductResponse, error) {
+	requestDef := GenReqDefForDeleteTranscodeProduct()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.DeleteTranscodeProductResponse), nil
+	}
+}
+
+// DeleteTranscodeProductInvoker 删除转码产物
+func (c *VodClient) DeleteTranscodeProductInvoker(request *model.DeleteTranscodeProductRequest) *DeleteTranscodeProductInvoker {
+	requestDef := GenReqDefForDeleteTranscodeProduct()
+	return &DeleteTranscodeProductInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // DeleteTranscodeTemplate 删除自定义模板
 //
 // 删除自定义模板
@@ -680,6 +701,27 @@ func (c *VodClient) ListWatermarkTemplateInvoker(request *model.ListWatermarkTem
 	return &ListWatermarkTemplateInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ModifySubtitle 多字幕封装
+//
+// 多字幕封装，仅支持 HLS VTT格式
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VodClient) ModifySubtitle(request *model.ModifySubtitleRequest) (*model.ModifySubtitleResponse, error) {
+	requestDef := GenReqDefForModifySubtitle()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ModifySubtitleResponse), nil
+	}
+}
+
+// ModifySubtitleInvoker 多字幕封装
+func (c *VodClient) ModifySubtitleInvoker(request *model.ModifySubtitleRequest) *ModifySubtitleInvoker {
+	requestDef := GenReqDefForModifySubtitle()
+	return &ModifySubtitleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // PublishAssetFromObs 创建媒资：OBS转存方式
 //
 // 若您在使用点播服务前，已经在OBS桶中存储了音视频文件，您可以使用该接口将存储在OBS桶中的音视频文件转存到点播服务中，使用点播服务的音视频管理功能。调用该接口前，您需要调用[桶授权](https://support.huaweicloud.com/api-vod/vod_04_0199.html)接口，将存储音视频文件的OBS桶授权给点播服务。
@@ -854,6 +896,33 @@ func (c *VodClient) ShowPreheatingAssetInvoker(request *model.ShowPreheatingAsse
 	return &ShowPreheatingAssetInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// ShowVodRetrieval 查询取回数据信息
+//
+// ## 典型场景 ##
+//
+//	用于查询点播低频和归档取回量统计数据。&lt;br/&gt;
+//
+// ## 接口功能 ##
+//
+//	用于查询点播低频和归档取回量统计数据。&lt;br/&gt;
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VodClient) ShowVodRetrieval(request *model.ShowVodRetrievalRequest) (*model.ShowVodRetrievalResponse, error) {
+	requestDef := GenReqDefForShowVodRetrieval()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.ShowVodRetrievalResponse), nil
+	}
+}
+
+// ShowVodRetrievalInvoker 查询取回数据信息
+func (c *VodClient) ShowVodRetrievalInvoker(request *model.ShowVodRetrievalRequest) *ShowVodRetrievalInvoker {
+	requestDef := GenReqDefForShowVodRetrieval()
+	return &ShowVodRetrievalInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // ShowVodStatistics 查询源站统计信息
 //
 // 查询点播源站的统计数据，包括流量、存储空间、转码时长。
@@ -1005,6 +1074,29 @@ func (c *VodClient) UpdateCoverByThumbnail(request *model.UpdateCoverByThumbnail
 func (c *VodClient) UpdateCoverByThumbnailInvoker(request *model.UpdateCoverByThumbnailRequest) *UpdateCoverByThumbnailInvoker {
 	requestDef := GenReqDefForUpdateCoverByThumbnail()
 	return &UpdateCoverByThumbnailInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
+// UpdateStorageMode 修改媒资文件在obs的存储模式
+//
+// ## 接口功能 ##
+//
+//	修改媒资文件在obs的存储模式&lt;br/&gt;
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *VodClient) UpdateStorageMode(request *model.UpdateStorageModeRequest) (*model.UpdateStorageModeResponse, error) {
+	requestDef := GenReqDefForUpdateStorageMode()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateStorageModeResponse), nil
+	}
+}
+
+// UpdateStorageModeInvoker 修改媒资文件在obs的存储模式
+func (c *VodClient) UpdateStorageModeInvoker(request *model.UpdateStorageModeRequest) *UpdateStorageModeInvoker {
+	requestDef := GenReqDefForUpdateStorageMode()
+	return &UpdateStorageModeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
 // UpdateTemplateGroup 修改自定义转码模板组
@@ -1173,75 +1265,4 @@ func (c *VodClient) ShowTakeOverTaskDetails(request *model.ShowTakeOverTaskDetai
 func (c *VodClient) ShowTakeOverTaskDetailsInvoker(request *model.ShowTakeOverTaskDetailsRequest) *ShowTakeOverTaskDetailsInvoker {
 	requestDef := GenReqDefForShowTakeOverTaskDetails()
 	return &ShowTakeOverTaskDetailsInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
-}
-
-// ShowVodRetrieval 查询取回数据信息
-//
-// ## 典型场景 ##
-//
-//	用于查询点播低频和归档取回量统计数据。&lt;br/&gt;
-//
-// ## 接口功能 ##
-//
-//	用于查询点播低频和归档取回量统计数据。&lt;br/&gt;
-//
-// Please refer to HUAWEI cloud API Explorer for details.
-func (c *VodClient) ShowVodRetrieval(request *model.ShowVodRetrievalRequest) (*model.ShowVodRetrievalResponse, error) {
-	requestDef := GenReqDefForShowVodRetrieval()
-
-	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
-		return nil, err
-	} else {
-		return resp.(*model.ShowVodRetrievalResponse), nil
-	}
-}
-
-// ShowVodRetrievalInvoker 查询取回数据信息
-func (c *VodClient) ShowVodRetrievalInvoker(request *model.ShowVodRetrievalRequest) *ShowVodRetrievalInvoker {
-	requestDef := GenReqDefForShowVodRetrieval()
-	return &ShowVodRetrievalInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
-}
-
-// ModifySubtitle 多字幕封装
-//
-// 多字幕封装，仅支持 HLS VTT格式
-//
-// Please refer to HUAWEI cloud API Explorer for details.
-func (c *VodClient) ModifySubtitle(request *model.ModifySubtitleRequest) (*model.ModifySubtitleResponse, error) {
-	requestDef := GenReqDefForModifySubtitle()
-
-	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
-		return nil, err
-	} else {
-		return resp.(*model.ModifySubtitleResponse), nil
-	}
-}
-
-// ModifySubtitleInvoker 多字幕封装
-func (c *VodClient) ModifySubtitleInvoker(request *model.ModifySubtitleRequest) *ModifySubtitleInvoker {
-	requestDef := GenReqDefForModifySubtitle()
-	return &ModifySubtitleInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
-}
-
-// UpdateStorageMode 修改媒资文件在obs的存储模式
-//
-// ## 接口功能 ##
-//
-//	修改媒资文件在obs的存储模式&lt;br/&gt;
-//
-// Please refer to HUAWEI cloud API Explorer for details.
-func (c *VodClient) UpdateStorageMode(request *model.UpdateStorageModeRequest) (*model.UpdateStorageModeResponse, error) {
-	requestDef := GenReqDefForUpdateStorageMode()
-
-	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
-		return nil, err
-	} else {
-		return resp.(*model.UpdateStorageModeResponse), nil
-	}
-}
-
-// UpdateStorageModeInvoker 修改媒资文件在obs的存储模式
-func (c *VodClient) UpdateStorageModeInvoker(request *model.UpdateStorageModeRequest) *UpdateStorageModeInvoker {
-	requestDef := GenReqDefForUpdateStorageMode()
-	return &UpdateStorageModeInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }

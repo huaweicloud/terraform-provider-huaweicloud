@@ -29,6 +29,9 @@ type DeleteNodePoolStatus struct {
 
 	// 节点池当前详细状态列表，详情参见Condition类型定义。
 	Conditions *[]NodePoolCondition `json:"conditions,omitempty"`
+
+	// 伸缩组当前详细状态信息，详情参见ScaleGroupStatus类型定义
+	ScaleGroupStatuses *[]ScaleGroupStatus `json:"scaleGroupStatuses,omitempty"`
 }
 
 func (o DeleteNodePoolStatus) String() string {

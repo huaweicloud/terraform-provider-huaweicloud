@@ -14,6 +14,9 @@ type ListClustersDetailsRequest struct {
 
 	// 指定查询个数，默认值为10，即一次查询10个集群信息。
 	Limit *int32 `json:"limit,omitempty"`
+
+	// 指定查询的集群引擎类型。
+	DatastoreType *string `json:"datastoreType,omitempty"`
 }
 
 func (o ListClustersDetailsRequest) String() string {

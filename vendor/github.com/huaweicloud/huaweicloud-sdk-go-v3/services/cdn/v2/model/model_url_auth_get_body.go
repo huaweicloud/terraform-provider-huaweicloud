@@ -37,6 +37,9 @@ type UrlAuthGetBody struct {
 
 	// 时间格式， dec：十进制, hex：十六进制。
 	TimeFormat *string `json:"time_format,omitempty"`
+
+	// 时间参数。
+	TimeArg *string `json:"time_arg,omitempty"`
 }
 
 func (o UrlAuthGetBody) String() string {

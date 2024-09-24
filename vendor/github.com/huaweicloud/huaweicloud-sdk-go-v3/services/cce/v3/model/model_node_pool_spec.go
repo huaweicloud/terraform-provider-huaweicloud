@@ -27,6 +27,9 @@ type NodePoolSpec struct {
 	// 1.21版本集群节点池支持绑定安全组，最多五个。
 	PodSecurityGroups *[]SecurityId `json:"podSecurityGroups,omitempty"`
 
+	// 节点池扩展伸缩组配置列表，详情参见ExtensionScaleGroup类型定义
+	ExtensionScaleGroups *[]ExtensionScaleGroup `json:"extensionScaleGroups,omitempty"`
+
 	// 节点池自定义安全组相关配置。支持节点池新扩容节点绑定指定的安全组。  - 未指定安全组ID，新建节点将添加Node节点默认安全组。  - 指定有效安全组ID，新建节点将使用指定安全组。  - 指定安全组，应避免对CCE运行依赖的端口规则进行修改。[详细设置请参考[集群安全组规则配置](https://support.huaweicloud.com/cce_faq/cce_faq_00265.html)。](tag:hws)[详细设置请参考[集群安全组规则配置](https://support.huaweicloud.com/intl/zh-cn/cce_faq/cce_faq_00265.html)。](tag:hws_hk)
 	CustomSecurityGroups *[]string `json:"customSecurityGroups,omitempty"`
 }

@@ -197,6 +197,18 @@ func (i *DeleteRecordRuleInvoker) Invoke() (*model.DeleteRecordRuleResponse, err
 	}
 }
 
+type DeleteRefererChainInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteRefererChainInvoker) Invoke() (*model.DeleteRefererChainResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteRefererChainResponse), nil
+	}
+}
+
 type DeleteSnapshotConfigInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -254,6 +266,18 @@ func (i *ListGeoBlockingConfigInvoker) Invoke() (*model.ListGeoBlockingConfigRes
 		return nil, err
 	} else {
 		return result.(*model.ListGeoBlockingConfigResponse), nil
+	}
+}
+
+type ListHlsConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListHlsConfigInvoker) Invoke() (*model.ListHlsConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListHlsConfigResponse), nil
 	}
 }
 
@@ -377,6 +401,18 @@ func (i *RunRecordInvoker) Invoke() (*model.RunRecordResponse, error) {
 	}
 }
 
+type SetRefererChainInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *SetRefererChainInvoker) Invoke() (*model.SetRefererChainResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.SetRefererChainResponse), nil
+	}
+}
+
 type ShowDomainInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -434,6 +470,18 @@ func (i *ShowRecordRuleInvoker) Invoke() (*model.ShowRecordRuleResponse, error) 
 		return nil, err
 	} else {
 		return result.(*model.ShowRecordRuleResponse), nil
+	}
+}
+
+type ShowRefererChainInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowRefererChainInvoker) Invoke() (*model.ShowRefererChainResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowRefererChainResponse), nil
 	}
 }
 
@@ -506,6 +554,18 @@ func (i *UpdateGeoBlockingConfigInvoker) Invoke() (*model.UpdateGeoBlockingConfi
 		return nil, err
 	} else {
 		return result.(*model.UpdateGeoBlockingConfigResponse), nil
+	}
+}
+
+type UpdateHlsConfigInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateHlsConfigInvoker) Invoke() (*model.UpdateHlsConfigResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateHlsConfigResponse), nil
 	}
 }
 

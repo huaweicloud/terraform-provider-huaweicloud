@@ -30,6 +30,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -37,6 +38,8 @@ const (
 	ProjectIdInHeader     = "X-Project-Id"
 	SecurityTokenInHeader = "X-Security-Token"
 	AuthTokenInHeader     = "X-Auth-Token"
+	emptyAk               = "EMPTY_AK"
+	emptySK               = "EMPTY_SK"
 )
 
 var DefaultDerivedPredicate = auth.GetDefaultDerivedPredicate()
@@ -75,14 +78,29 @@ func (s *Credentials) ProcessAuthParams(client *impl.DefaultHttpClient, region s
 	r := internal.GetKeystoneListProjectsRequest(s.IamEndpoint, region, client.GetHttpConfig())
 	req, err := s.ProcessAuthRequest(client, r)
 	if err != nil {
-		panic(fmt.Sprintf("failed to get project id, %s", err.Error()))
+		panic(fmt.Errorf("failed to get project id of region '%s' automatically: %s", region, err.Error()))
 	}
 
-	id, err := internal.KeystoneListProjects(client, req)
+	resp, err := internal.KeystoneListProjects(client, req)
 	if err != nil {
-		panic(fmt.Sprintf("failed to get project id, %s", err.Error()))
+		panic(fmt.Errorf("failed to get project id of region '%s' automatically, X-IAM-Trace-Id=%s, %s",
+			region, resp.TraceId, err.Error()))
+	}
+	projects := *resp.Projects
+	if len(projects) < 1 {
+		panic(fmt.Errorf("failed to get project id of region '%s' automatically, X-IAM-Trace-Id=%s,"+
+			" confirm that the project exists in your account, or set project id manually:"+
+			" basic.NewCredentialsBuilder().WithAk(ak).WithSk(sk).WithProjectId(projectId).SafeBuild()", region, resp.TraceId))
+	} else if len(projects) > 1 {
+		projectIds := make([]string, 0, len(projects))
+		for _, project := range projects {
+			projectIds = append(projectIds, project.Id)
+		}
+		panic(fmt.Errorf("multiple project ids found: [%s], X-IAM-Trace-Id=%s, please select one when initializing the credentials:"+
+			" basic.NewCredentialsBuilder().WithAk(ak).WithSk(sk).WithProjectId(projectId).SafeBuild()", strings.Join(projectIds, ","), resp.TraceId))
 	}
 
+	id := projects[0].Id
 	s.ProjectId = id
 	_ = authCache.PutAuth(akWithName, id)
 
@@ -242,12 +260,14 @@ func (s *Credentials) getIdToken() (string, error) {
 
 type CredentialsBuilder struct {
 	Credentials *Credentials
+	errMap      map[string]string
 }
 
 func NewCredentialsBuilder() *CredentialsBuilder {
-	return &CredentialsBuilder{Credentials: &Credentials{
-		IamEndpoint: internal.GetIamEndpoint(),
-	}}
+	return &CredentialsBuilder{
+		Credentials: &Credentials{IamEndpoint: internal.GetIamEndpoint()},
+		errMap:      make(map[string]string),
+	}
 }
 
 func (builder *CredentialsBuilder) WithIamEndpointOverride(endpoint string) *CredentialsBuilder {
@@ -256,12 +276,22 @@ func (builder *CredentialsBuilder) WithIamEndpointOverride(endpoint string) *Cre
 }
 
 func (builder *CredentialsBuilder) WithAk(ak string) *CredentialsBuilder {
-	builder.Credentials.AK = ak
+	if ak == "" {
+		builder.errMap[emptyAk] = "input ak cannot be an empty string"
+	} else {
+		builder.Credentials.AK = ak
+		delete(builder.errMap, emptyAk)
+	}
 	return builder
 }
 
 func (builder *CredentialsBuilder) WithSk(sk string) *CredentialsBuilder {
-	builder.Credentials.SK = sk
+	if sk == "" {
+		builder.errMap[emptySK] = "input sk cannot be an empty string"
+	} else {
+		builder.Credentials.SK = sk
+		delete(builder.errMap, emptySK)
+	}
 	return builder
 }
 
@@ -300,6 +330,14 @@ func (builder *CredentialsBuilder) Build() *Credentials {
 }
 
 func (builder *CredentialsBuilder) SafeBuild() (*Credentials, error) {
+	if builder.errMap != nil && len(builder.errMap) != 0 {
+		errMsg := "build credentials failed: "
+		for _, msg := range builder.errMap {
+			errMsg += msg + "; "
+		}
+		return nil, sdkerr.NewCredentialsTypeError(errMsg)
+	}
+
 	if builder.Credentials.IdpId != "" || builder.Credentials.IdTokenFile != "" {
 		if builder.Credentials.IdpId == "" {
 			return nil, sdkerr.NewCredentialsTypeError("IdpId is required when using IdpId&IdTokenFile")

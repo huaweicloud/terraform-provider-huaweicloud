@@ -14,8 +14,13 @@ type ShowVpcepConnectionResponse struct {
 	VpcepUpdateSwitch *bool `json:"vpcepUpdateSwitch,omitempty"`
 
 	// 终端节点数量。
-	TotalCount     *int32 `json:"total_count,omitempty"`
-	HttpStatusCode int    `json:"-"`
+	TotalCount *int32 `json:"total_count,omitempty"`
+
+	// 终端节点服务名称。
+	VpcServiceName *string `json:"vpcServiceName,omitempty"`
+
+	Permissions    *[]PermissionInfo `json:"permissions,omitempty"`
+	HttpStatusCode int               `json:"-"`
 }
 
 func (o ShowVpcepConnectionResponse) String() string {

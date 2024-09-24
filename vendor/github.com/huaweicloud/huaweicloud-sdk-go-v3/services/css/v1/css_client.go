@@ -1016,6 +1016,27 @@ func (c *CssClient) StartPublicWhitelistInvoker(request *model.StartPublicWhitel
 	return &StartPublicWhitelistInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
 }
 
+// StartTargetClusterConnectivityTest 连通性测试。
+//
+// 该接口用于连通性测试。
+//
+// Please refer to HUAWEI cloud API Explorer for details.
+func (c *CssClient) StartTargetClusterConnectivityTest(request *model.StartTargetClusterConnectivityTestRequest) (*model.StartTargetClusterConnectivityTestResponse, error) {
+	requestDef := GenReqDefForStartTargetClusterConnectivityTest()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.StartTargetClusterConnectivityTestResponse), nil
+	}
+}
+
+// StartTargetClusterConnectivityTestInvoker 连通性测试。
+func (c *CssClient) StartTargetClusterConnectivityTestInvoker(request *model.StartTargetClusterConnectivityTestRequest) *StartTargetClusterConnectivityTestInvoker {
+	requestDef := GenReqDefForStartTargetClusterConnectivityTest()
+	return &StartTargetClusterConnectivityTestInvoker{invoker.NewBaseInvoker(c.HcClient, request, requestDef)}
+}
+
 // StartVpecp 开启终端节点服务
 //
 // 该接口用于开启终端节点服务。

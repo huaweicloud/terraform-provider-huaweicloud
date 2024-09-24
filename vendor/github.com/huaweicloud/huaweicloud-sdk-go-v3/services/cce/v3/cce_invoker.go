@@ -17,6 +17,18 @@ func (i *AddNodeInvoker) Invoke() (*model.AddNodeResponse, error) {
 	}
 }
 
+type AddNodesToNodePoolInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *AddNodesToNodePoolInvoker) Invoke() (*model.AddNodesToNodePoolResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.AddNodesToNodePoolResponse), nil
+	}
+}
+
 type AwakeClusterInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -50,6 +62,18 @@ func (i *BatchDeleteClusterTagsInvoker) Invoke() (*model.BatchDeleteClusterTagsR
 		return nil, err
 	} else {
 		return result.(*model.BatchDeleteClusterTagsResponse), nil
+	}
+}
+
+type BatchSyncNodesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchSyncNodesInvoker) Invoke() (*model.BatchSyncNodesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchSyncNodesResponse), nil
 	}
 }
 
@@ -557,6 +581,18 @@ func (i *RetryUpgradeClusterTaskInvoker) Invoke() (*model.RetryUpgradeClusterTas
 	}
 }
 
+type RevokeKubernetesClusterCertInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *RevokeKubernetesClusterCertInvoker) Invoke() (*model.RevokeKubernetesClusterCertResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.RevokeKubernetesClusterCertResponse), nil
+	}
+}
+
 type RollbackAddonInstanceInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -566,6 +602,18 @@ func (i *RollbackAddonInstanceInvoker) Invoke() (*model.RollbackAddonInstanceRes
 		return nil, err
 	} else {
 		return result.(*model.RollbackAddonInstanceResponse), nil
+	}
+}
+
+type ScaleNodePoolInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ScaleNodePoolInvoker) Invoke() (*model.ScaleNodePoolResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ScaleNodePoolResponse), nil
 	}
 }
 
@@ -650,6 +698,18 @@ func (i *ShowClusterEndpointsInvoker) Invoke() (*model.ShowClusterEndpointsRespo
 		return nil, err
 	} else {
 		return result.(*model.ShowClusterEndpointsResponse), nil
+	}
+}
+
+type ShowClusterSupportConfigurationInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowClusterSupportConfigurationInvoker) Invoke() (*model.ShowClusterSupportConfigurationResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowClusterSupportConfigurationResponse), nil
 	}
 }
 
@@ -821,6 +881,30 @@ func (i *ShowUserChartsQuotasInvoker) Invoke() (*model.ShowUserChartsQuotasRespo
 	}
 }
 
+type SyncNodeInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *SyncNodeInvoker) Invoke() (*model.SyncNodeResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.SyncNodeResponse), nil
+	}
+}
+
+type SyncNodePoolInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *SyncNodePoolInvoker) Invoke() (*model.SyncNodePoolResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.SyncNodePoolResponse), nil
+	}
+}
+
 type UpdateAddonInstanceInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -953,6 +1037,18 @@ func (i *UpgradeClusterInvoker) Invoke() (*model.UpgradeClusterResponse, error) 
 	}
 }
 
+type UpgradeNodePoolInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpgradeNodePoolInvoker) Invoke() (*model.UpgradeNodePoolResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpgradeNodePoolResponse), nil
+	}
+}
+
 type UpgradeWorkFlowUpdateInvoker struct {
 	*invoker.BaseInvoker
 }
@@ -986,5 +1082,605 @@ func (i *ShowVersionInvoker) Invoke() (*model.ShowVersionResponse, error) {
 		return nil, err
 	} else {
 		return result.(*model.ShowVersionResponse), nil
+	}
+}
+
+type BatchCreateAutopilotClusterTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchCreateAutopilotClusterTagsInvoker) Invoke() (*model.BatchCreateAutopilotClusterTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchCreateAutopilotClusterTagsResponse), nil
+	}
+}
+
+type BatchDeleteAutopilotClusterTagsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *BatchDeleteAutopilotClusterTagsInvoker) Invoke() (*model.BatchDeleteAutopilotClusterTagsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.BatchDeleteAutopilotClusterTagsResponse), nil
+	}
+}
+
+type CreateAutopilotAddonInstanceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateAutopilotAddonInstanceInvoker) Invoke() (*model.CreateAutopilotAddonInstanceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateAutopilotAddonInstanceResponse), nil
+	}
+}
+
+type CreateAutopilotClusterInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateAutopilotClusterInvoker) Invoke() (*model.CreateAutopilotClusterResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateAutopilotClusterResponse), nil
+	}
+}
+
+type CreateAutopilotClusterMasterSnapshotInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateAutopilotClusterMasterSnapshotInvoker) Invoke() (*model.CreateAutopilotClusterMasterSnapshotResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateAutopilotClusterMasterSnapshotResponse), nil
+	}
+}
+
+type CreateAutopilotKubernetesClusterCertInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateAutopilotKubernetesClusterCertInvoker) Invoke() (*model.CreateAutopilotKubernetesClusterCertResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateAutopilotKubernetesClusterCertResponse), nil
+	}
+}
+
+type CreateAutopilotPostCheckInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateAutopilotPostCheckInvoker) Invoke() (*model.CreateAutopilotPostCheckResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateAutopilotPostCheckResponse), nil
+	}
+}
+
+type CreateAutopilotPreCheckInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateAutopilotPreCheckInvoker) Invoke() (*model.CreateAutopilotPreCheckResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateAutopilotPreCheckResponse), nil
+	}
+}
+
+type CreateAutopilotReleaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateAutopilotReleaseInvoker) Invoke() (*model.CreateAutopilotReleaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateAutopilotReleaseResponse), nil
+	}
+}
+
+type CreateAutopilotUpgradeWorkFlowInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *CreateAutopilotUpgradeWorkFlowInvoker) Invoke() (*model.CreateAutopilotUpgradeWorkFlowResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.CreateAutopilotUpgradeWorkFlowResponse), nil
+	}
+}
+
+type DeleteAutopilotAddonInstanceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteAutopilotAddonInstanceInvoker) Invoke() (*model.DeleteAutopilotAddonInstanceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteAutopilotAddonInstanceResponse), nil
+	}
+}
+
+type DeleteAutopilotChartInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteAutopilotChartInvoker) Invoke() (*model.DeleteAutopilotChartResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteAutopilotChartResponse), nil
+	}
+}
+
+type DeleteAutopilotClusterInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteAutopilotClusterInvoker) Invoke() (*model.DeleteAutopilotClusterResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteAutopilotClusterResponse), nil
+	}
+}
+
+type DeleteAutopilotReleaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DeleteAutopilotReleaseInvoker) Invoke() (*model.DeleteAutopilotReleaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DeleteAutopilotReleaseResponse), nil
+	}
+}
+
+type DownloadAutopilotChartInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *DownloadAutopilotChartInvoker) Invoke() (*model.DownloadAutopilotChartResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.DownloadAutopilotChartResponse), nil
+	}
+}
+
+type ListAutopilotAddonInstancesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotAddonInstancesInvoker) Invoke() (*model.ListAutopilotAddonInstancesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotAddonInstancesResponse), nil
+	}
+}
+
+type ListAutopilotAddonTemplatesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotAddonTemplatesInvoker) Invoke() (*model.ListAutopilotAddonTemplatesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotAddonTemplatesResponse), nil
+	}
+}
+
+type ListAutopilotChartsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotChartsInvoker) Invoke() (*model.ListAutopilotChartsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotChartsResponse), nil
+	}
+}
+
+type ListAutopilotClusterMasterSnapshotTasksInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotClusterMasterSnapshotTasksInvoker) Invoke() (*model.ListAutopilotClusterMasterSnapshotTasksResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotClusterMasterSnapshotTasksResponse), nil
+	}
+}
+
+type ListAutopilotClusterUpgradeFeatureGatesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotClusterUpgradeFeatureGatesInvoker) Invoke() (*model.ListAutopilotClusterUpgradeFeatureGatesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotClusterUpgradeFeatureGatesResponse), nil
+	}
+}
+
+type ListAutopilotClusterUpgradePathsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotClusterUpgradePathsInvoker) Invoke() (*model.ListAutopilotClusterUpgradePathsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotClusterUpgradePathsResponse), nil
+	}
+}
+
+type ListAutopilotClustersInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotClustersInvoker) Invoke() (*model.ListAutopilotClustersResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotClustersResponse), nil
+	}
+}
+
+type ListAutopilotPreCheckTasksInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotPreCheckTasksInvoker) Invoke() (*model.ListAutopilotPreCheckTasksResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotPreCheckTasksResponse), nil
+	}
+}
+
+type ListAutopilotReleasesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotReleasesInvoker) Invoke() (*model.ListAutopilotReleasesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotReleasesResponse), nil
+	}
+}
+
+type ListAutopilotUpgradeClusterTasksInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotUpgradeClusterTasksInvoker) Invoke() (*model.ListAutopilotUpgradeClusterTasksResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotUpgradeClusterTasksResponse), nil
+	}
+}
+
+type ListAutopilotUpgradeWorkFlowsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ListAutopilotUpgradeWorkFlowsInvoker) Invoke() (*model.ListAutopilotUpgradeWorkFlowsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ListAutopilotUpgradeWorkFlowsResponse), nil
+	}
+}
+
+type RetryAutopilotUpgradeClusterTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *RetryAutopilotUpgradeClusterTaskInvoker) Invoke() (*model.RetryAutopilotUpgradeClusterTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.RetryAutopilotUpgradeClusterTaskResponse), nil
+	}
+}
+
+type RollbackAutopilotAddonInstanceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *RollbackAutopilotAddonInstanceInvoker) Invoke() (*model.RollbackAutopilotAddonInstanceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.RollbackAutopilotAddonInstanceResponse), nil
+	}
+}
+
+type ShowAutopilotAddonInstanceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotAddonInstanceInvoker) Invoke() (*model.ShowAutopilotAddonInstanceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotAddonInstanceResponse), nil
+	}
+}
+
+type ShowAutopilotChartInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotChartInvoker) Invoke() (*model.ShowAutopilotChartResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotChartResponse), nil
+	}
+}
+
+type ShowAutopilotChartValuesInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotChartValuesInvoker) Invoke() (*model.ShowAutopilotChartValuesResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotChartValuesResponse), nil
+	}
+}
+
+type ShowAutopilotClusterInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotClusterInvoker) Invoke() (*model.ShowAutopilotClusterResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotClusterResponse), nil
+	}
+}
+
+type ShowAutopilotClusterEndpointsInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotClusterEndpointsInvoker) Invoke() (*model.ShowAutopilotClusterEndpointsResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotClusterEndpointsResponse), nil
+	}
+}
+
+type ShowAutopilotClusterUpgradeInfoInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotClusterUpgradeInfoInvoker) Invoke() (*model.ShowAutopilotClusterUpgradeInfoResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotClusterUpgradeInfoResponse), nil
+	}
+}
+
+type ShowAutopilotJobInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotJobInvoker) Invoke() (*model.ShowAutopilotJobResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotJobResponse), nil
+	}
+}
+
+type ShowAutopilotPreCheckInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotPreCheckInvoker) Invoke() (*model.ShowAutopilotPreCheckResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotPreCheckResponse), nil
+	}
+}
+
+type ShowAutopilotQuotasInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotQuotasInvoker) Invoke() (*model.ShowAutopilotQuotasResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotQuotasResponse), nil
+	}
+}
+
+type ShowAutopilotReleaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotReleaseInvoker) Invoke() (*model.ShowAutopilotReleaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotReleaseResponse), nil
+	}
+}
+
+type ShowAutopilotReleaseHistoryInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotReleaseHistoryInvoker) Invoke() (*model.ShowAutopilotReleaseHistoryResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotReleaseHistoryResponse), nil
+	}
+}
+
+type ShowAutopilotUpgradeClusterTaskInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotUpgradeClusterTaskInvoker) Invoke() (*model.ShowAutopilotUpgradeClusterTaskResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotUpgradeClusterTaskResponse), nil
+	}
+}
+
+type ShowAutopilotUpgradeWorkFlowInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotUpgradeWorkFlowInvoker) Invoke() (*model.ShowAutopilotUpgradeWorkFlowResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotUpgradeWorkFlowResponse), nil
+	}
+}
+
+type ShowAutopilotUserChartsQuotasInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *ShowAutopilotUserChartsQuotasInvoker) Invoke() (*model.ShowAutopilotUserChartsQuotasResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.ShowAutopilotUserChartsQuotasResponse), nil
+	}
+}
+
+type UpdateAutopilotAddonInstanceInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateAutopilotAddonInstanceInvoker) Invoke() (*model.UpdateAutopilotAddonInstanceResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateAutopilotAddonInstanceResponse), nil
+	}
+}
+
+type UpdateAutopilotChartInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateAutopilotChartInvoker) Invoke() (*model.UpdateAutopilotChartResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateAutopilotChartResponse), nil
+	}
+}
+
+type UpdateAutopilotClusterInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateAutopilotClusterInvoker) Invoke() (*model.UpdateAutopilotClusterResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateAutopilotClusterResponse), nil
+	}
+}
+
+type UpdateAutopilotClusterEipInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateAutopilotClusterEipInvoker) Invoke() (*model.UpdateAutopilotClusterEipResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateAutopilotClusterEipResponse), nil
+	}
+}
+
+type UpdateAutopilotReleaseInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpdateAutopilotReleaseInvoker) Invoke() (*model.UpdateAutopilotReleaseResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpdateAutopilotReleaseResponse), nil
+	}
+}
+
+type UpgradeAutopilotClusterInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpgradeAutopilotClusterInvoker) Invoke() (*model.UpgradeAutopilotClusterResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpgradeAutopilotClusterResponse), nil
+	}
+}
+
+type UpgradeAutopilotWorkFlowUpdateInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UpgradeAutopilotWorkFlowUpdateInvoker) Invoke() (*model.UpgradeAutopilotWorkFlowUpdateResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UpgradeAutopilotWorkFlowUpdateResponse), nil
+	}
+}
+
+type UploadAutopilotChartInvoker struct {
+	*invoker.BaseInvoker
+}
+
+func (i *UploadAutopilotChartInvoker) Invoke() (*model.UploadAutopilotChartResponse, error) {
+	if result, err := i.BaseInvoker.Invoke(); err != nil {
+		return nil, err
+	} else {
+		return result.(*model.UploadAutopilotChartResponse), nil
 	}
 }

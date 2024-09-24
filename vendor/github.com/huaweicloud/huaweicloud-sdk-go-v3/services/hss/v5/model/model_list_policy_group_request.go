@@ -18,7 +18,7 @@ type ListPolicyGroupRequest struct {
 	// 策略组名
 	GroupName *string `json:"group_name,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
+	// 偏移量：指定返回记录的开始位置
 	Offset *int32 `json:"offset,omitempty"`
 
 	// 每页显示个数

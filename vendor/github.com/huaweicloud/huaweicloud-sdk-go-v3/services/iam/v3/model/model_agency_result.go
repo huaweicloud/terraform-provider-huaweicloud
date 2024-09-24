@@ -18,9 +18,6 @@ type AgencyResult struct {
 	// 委托方账号ID。
 	DomainId *string `json:"domain_id,omitempty"`
 
-	// 委托的期限。取值为\"FOREVER\"或“null”表示委托的期限为永久，取值为\"ONEDAY\"表示委托的期限为一天。
-	Duration string `json:"duration"`
-
 	// 委托过期时间。“null”表示不过期。
 	ExpireTime string `json:"expire_time"`
 
@@ -35,6 +32,9 @@ type AgencyResult struct {
 
 	// 被委托方账号名。
 	TrustDomainName *string `json:"trust_domain_name,omitempty"`
+
+	// 委托URN。
+	AgencyUrn *string `json:"agency_urn,omitempty"`
 }
 
 func (o AgencyResult) String() string {

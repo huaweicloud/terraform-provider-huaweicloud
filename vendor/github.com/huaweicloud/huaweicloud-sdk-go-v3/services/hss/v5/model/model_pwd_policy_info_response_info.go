@@ -9,7 +9,7 @@ import (
 // PwdPolicyInfoResponseInfo 服务器的口令复杂度策略。建议设置最小口令长度不小于8，同时包含大写字母、小写字母、数字和特殊字符。
 type PwdPolicyInfoResponseInfo struct {
 
-	// 主机id(鼠标在“服务器名称”放置后上浮显示)
+	// 主机id
 	HostId *string `json:"host_id,omitempty"`
 
 	// 服务器名称

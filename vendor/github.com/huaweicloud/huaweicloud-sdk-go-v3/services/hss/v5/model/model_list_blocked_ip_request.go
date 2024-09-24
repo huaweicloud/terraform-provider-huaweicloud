@@ -27,7 +27,7 @@ type ListBlockedIpRequest struct {
 	// 拦截状态，包含如下:   - intercepted : 已拦截   - canceled : 已解除拦截   - cancelling : 待解除拦截
 	InterceptStatus *string `json:"intercept_status,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字
+	// 偏移量：指定返回记录的开始位置
 	Offset *int32 `json:"offset,omitempty"`
 
 	// 每页显示个数

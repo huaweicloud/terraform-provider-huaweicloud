@@ -12,13 +12,13 @@ type ListSwrImageRepositoryRequest struct {
 	// Region ID
 	Region string `json:"region"`
 
-	// 租户企业项目ID，查询所有企业项目时填写：all_granted_eps
+	// 企业项目ID，查询所有企业项目时填写：all_granted_eps
 	EnterpriseProjectId *string `json:"enterprise_project_id,omitempty"`
 
 	// 组织名称
 	Namespace *string `json:"namespace,omitempty"`
 
-	// 镜像名称 id
+	// 镜像名称
 	ImageName *string `json:"image_name,omitempty"`
 
 	// 镜像版本
@@ -27,10 +27,10 @@ type ListSwrImageRepositoryRequest struct {
 	// 仅关注最新版本镜像
 	LatestVersion *bool `json:"latest_version,omitempty"`
 
-	// 偏移量：指定返回记录的开始位置，必须为数字，取值范围为大于或等于0，默认0
+	// 偏移量：指定返回记录的开始位置
 	Offset *int32 `json:"offset,omitempty"`
 
-	// 每页显示个数
+	// 每页显示数量
 	Limit *int32 `json:"limit,omitempty"`
 
 	// 镜像类型，包含如下:   - private_image : 私有镜像仓库   - shared_image : 共享镜像仓库   - local_image : 本地镜像   - instance_image : 企业镜像
