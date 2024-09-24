@@ -79,7 +79,7 @@ func TestAccLogicalCluster_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testLogicalCluster_basic(name),
+				Config: testLogicalCluster_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "cluster_id",
@@ -109,6 +109,9 @@ func TestAccLogicalCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "restart_enable"),
 					resource.TestCheckResourceAttrSet(rName, "delete_enable"),
 				),
+			},
+			{
+				Config: testLogicalCluster_basic_step2(name),
 			},
 			{
 				ResourceName:      rName,
@@ -184,6 +187,26 @@ resource "huaweicloud_dws_logical_cluster" "test2" {
   }
 }
 `, testLogicalCluster_base(name), name, name)
+}
+
+func testLogicalCluster_basic_step1(name string) string {
+	return testLogicalCluster_basic(name)
+}
+
+func testLogicalCluster_basic_step2(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dws_logical_cluster_restart" "test" {
+  cluster_id         = huaweicloud_dws_cluster.test.id
+  logical_cluster_id = huaweicloud_dws_logical_cluster.test.id
+}
+
+resource "huaweicloud_dws_logical_cluster_restart" "test2" {
+  cluster_id         = huaweicloud_dws_cluster.test.id
+  logical_cluster_id = huaweicloud_dws_logical_cluster.test2.id
+}
+`, testLogicalCluster_basic(name))
 }
 
 // testLogicalClusterImportState use to return an ID with format <cluster_id>/<id>
