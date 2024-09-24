@@ -68,6 +68,8 @@ func TestAccDataVaults_backupServer(t *testing.T) {
 					resource.TestCheckResourceAttr(byName, "vaults.0.enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(byName, "vaults.0.tags.foo", "bar"),
 					resource.TestCheckResourceAttr(byName, "vaults.0.tags.key", "value"),
+					resource.TestCheckResourceAttr(byName, "vaults.0.auto_bind", "true"),
+					resource.TestCheckResourceAttr(byName, "vaults.0.bind_rules.foo", "bar"),
 					dcByType.CheckResourceExists(),
 					resource.TestCheckOutput("is_type_filter_useful", "true"),
 					dcByConsistentLevel.CheckResourceExists(),
@@ -114,6 +116,11 @@ resource "huaweicloud_cbr_vault" "test" {
   enterprise_project_id = "0"
   backup_name_prefix    = "test-prefix-"
   is_multi_az           = true
+  auto_bind             = true
+
+  bind_rules = {
+    foo = "bar"
+  }
 
   resources {
     server_id = huaweicloud_compute_instance.test.id

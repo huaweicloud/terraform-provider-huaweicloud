@@ -181,6 +181,17 @@ func DataSourceVaults() *schema.Resource {
 							},
 							Description: "The array of one or more resources to attach to the vault.",
 						},
+						"auto_bind": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Whether automatic association is supported.",
+						},
+						"bind_rules": {
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The rules for automatic association.",
+						},
 					},
 				},
 			},
@@ -257,6 +268,8 @@ func flattenAllVaults(client *golangsdk.ServiceClient, vaultList []interface{}) 
 			"auto_expand_enabled":   utils.PathSearch("auto_expand", val, false),
 			"tags":                  utils.FlattenTagsToMap(utils.PathSearch("tags", val, make(map[string]interface{}))),
 			"resources":             flattenVaultResources(objectType, utils.PathSearch("resources", val, make([]interface{}, 0)).([]interface{})),
+			"auto_bind":             utils.PathSearch("auto_bind", val, nil),
+			"bind_rules":            utils.FlattenTagsToMap(utils.PathSearch("bind_rules.tags", val, nil)),
 		}
 
 		// Query the CBR policy which bound to the vault by ID.
