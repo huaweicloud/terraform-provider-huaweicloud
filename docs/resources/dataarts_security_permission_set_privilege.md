@@ -140,6 +140,7 @@ resource "huaweicloud_dataarts_security_permission_set_privilege" "test" {
 ## Appendix
 
 <a name="permissions_for_permission_set"></a>
+
 | Type | HIVE | DWS | DLI |
 | ---- | ---- | --- | --- |
 | Permissions | ALL<br>SELECT<br>UPDATE<br>CREATE<br>DROP<br>ALTER<br>INDEX<br>READ<br>WRITE<br> | ALL<br>SELECT<br>UPDATE<br>DROP<br>ALTER<br>INSERT<br>CREATE_TABLE<br>DELETE<br>CREATE_SCHEMA<br> | SELECT<br>DROP<br>ALTER<br>INSERT<br>CREATE_TABLE |

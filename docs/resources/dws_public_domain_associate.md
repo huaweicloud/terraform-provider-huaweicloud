@@ -1,7 +1,7 @@
 ---
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_dws_logical_cluster"
+page_title: "HuaweiCloud: huaweicloud_dws_public_domain_associate"
 description: |- 
   Use this resource to bind public domain name to DWS cluster within HuaweiCloud.
 ---

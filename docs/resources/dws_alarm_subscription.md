@@ -65,5 +65,5 @@ In addition to all arguments above, the following attributes are exported:
 The DWS alarm subscription can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dws_alarm_subscription.test 535d9c3c-e135-4a6f-bcbf-4db51446f471
+$ terraform import huaweicloud_dws_alarm_subscription.test <id>
 ```
