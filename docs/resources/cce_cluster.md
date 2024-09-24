@@ -220,8 +220,10 @@ The following arguments are supported:
   If updated, the modified security group will only be applied to nodes newly created or accepted.
   For existing nodes, you need to manually modify the security group rules for them.
 
-* `cluster_version` - (Optional, String, ForceNew) Specifies the cluster version, defaults to the latest supported
-  version. Changing this parameter will create a new cluster resource.
+* `cluster_version` - (Optional, String) Specifies the cluster version, defaults to the latest supported
+  version. Changing this parameter will not upgrade the cluster. If you want to upgrade the cluster, please use
+  resource `huaweicloud_cce_cluster_upgrade`. After upgrading cluster successfully, you can update this parameter
+  to avoid unexpected changing plan.
 
 * `cluster_type` - (Optional, String, ForceNew) Specifies the cluster Type, possible values are **VirtualMachine** and
   **ARM64**. Defaults to **VirtualMachine**. Changing this parameter will create a new cluster resource.
