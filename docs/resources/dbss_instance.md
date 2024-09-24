@@ -146,6 +146,8 @@ In addition to all arguments above, the following attributes are exported:
   + **FROZEN**: only renewal, binding, and unbinding allowed;
   + **UPGRADING**: no operations allowed;
 
+* `instance_id` - The ID of the audit instance.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:

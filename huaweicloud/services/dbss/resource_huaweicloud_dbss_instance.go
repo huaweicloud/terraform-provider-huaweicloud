@@ -188,6 +188,11 @@ func ResourceInstance() *schema.Resource {
 				Computed:    true,
 				Description: `The instance status.`,
 			},
+			"instance_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the audit instance.`,
+			},
 
 			// Deprecated
 			"product_id": {
@@ -563,6 +568,7 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("vpc_id", utils.PathSearch("vpc_id", instance, nil)),
 		d.Set("subnet_id", utils.PathSearch("subnetId", instance, nil)),
 		d.Set("availability_zone", utils.PathSearch("zone", instance, nil)),
+		d.Set("instance_id", utils.PathSearch("id", instance, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
