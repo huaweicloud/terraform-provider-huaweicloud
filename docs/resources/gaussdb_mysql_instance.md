@@ -184,6 +184,15 @@ The `backup_strategy` block supports:
 
 * `sql_filter_enabled` - (Optional, Bool) Specifies whether sql filter is enabled. The default value is `false`.
 
+* `encryption_status` - (Optional, String) Specifies whether to enable or disable encrypted backup. Value options:
+  + **ON**: enabled
+  + **OFF**: disabled
+
+* `encryption_type` - (Optional, String) Specifies the encryption type. Currently, only **kms (case-insensitive)** is
+  supported. It is mandatory when `encryption_status` is set to **ON**.
+
+* `kms_key_id` - (Optional, String) Specifies the KMS ID. It is mandatory when `encryption_status` is set to **ON**.
+
 <a name="parameters_struct"></a>
 The `parameters` block supports:
 
@@ -307,10 +316,10 @@ $ terraform import huaweicloud_gaussdb_mysql_instance.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
-API response. The missing attribute is: `table_name_case_sensitivity`, `enterprise_project_id`, `password`, `ssl_option`
-and `parameters`. It is generally recommended running `terraform plan` after importing a GaussDB MySQL instance. You can
-then decide if changes should be applied to the GaussDB MySQL instance, or the resource definition should be updated to
-align with the GaussDB MySQL instance. Also you can ignore changes as below.
+API response. The missing attribute is: `table_name_case_sensitivity`, `enterprise_project_id`, `password`, `ssl_option`,
+`encryption_type`, `kms_key_id` and `parameters`. It is generally recommended running `terraform plan` after importing
+a GaussDB MySQL instance. You can then decide if changes should be applied to the GaussDB MySQL instance, or the resource
+definition should be updated to align with the GaussDB MySQL instance. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_gaussdb_mysql_instance" "test" {
@@ -318,7 +327,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      new_node_weight, proxy_mode, readonly_nodes_weight, parameters, ssl_option,
+      new_node_weight, proxy_mode, readonly_nodes_weight, parameters, ssl_option, encryption_type, kms_key_id
     ]
   }
 }

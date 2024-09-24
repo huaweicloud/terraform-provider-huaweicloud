@@ -58,6 +58,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_period", "1"),
 					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
+					resource.TestCheckResourceAttr(resourceName, "encryption_status", "ON"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.status", "ON"),
@@ -108,6 +109,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "encryption_status", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 					resource.TestCheckResourceAttr(resourceName, "auto_scaling.0.status", "OFF"),
@@ -124,6 +126,8 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					"ssl_option",
 					"parameters",
 					"auto_scaling.0.scaling_strategy",
+					"encryption_type",
+					"kms_key_id",
 				},
 			},
 		},
@@ -282,6 +286,11 @@ resource "huaweicloud_gaussdb_mysql_parameter_template" "test" {
     character_set_server     = "gbk"
   }
 }
+
+resource "huaweicloud_kms_key" "test" {
+  key_alias    = "%[2]s"
+  pending_days = "7"
+}
 `, common.TestVpc(rName), rName)
 }
 
@@ -312,6 +321,10 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
 
   seconds_level_monitoring_enabled = true
   seconds_level_monitoring_period  = 1
+
+  encryption_status = "ON"
+  encryption_type   = "kms"
+  kms_key_id        = huaweicloud_kms_key.test.id
 
   parameters {
     name  = "auto_increment_increment"
@@ -375,6 +388,8 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   description              = ""
 
   seconds_level_monitoring_enabled = false
+
+  encryption_status = "OFF"
 
   parameters {
     name  = "character_set_server"
