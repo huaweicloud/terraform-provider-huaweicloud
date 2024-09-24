@@ -146,3 +146,18 @@ func GetCurrentTime(isUTC bool, customFormat ...string) string {
 	}
 	return now.Format(timeFormat)
 }
+
+// GetBeforeOrAfterDate is used to get a few days ago or a few days after.
+// + day: The number of days forward or backward, `-` indicates backward.
+// + customFormat: Custom output time format, default RFC3339 format
+func GetBeforeOrAfterDate(inputTime time.Time, day int, customFormat ...string) string {
+	timeFormat := time.RFC3339
+	if len(customFormat) > 0 {
+		timeFormat = customFormat[0]
+	}
+	outputTime := inputTime
+	if day != 0 {
+		outputTime = inputTime.AddDate(0, 0, day)
+	}
+	return outputTime.Format(timeFormat)
+}

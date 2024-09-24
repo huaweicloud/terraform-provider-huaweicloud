@@ -35,23 +35,15 @@ func getPlaybookRuleResourceFunc(cfg *config.Config, state *terraform.ResourceSt
 
 	getPlaybookRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getPlaybookRuleResp, err := getPlaybookRuleClient.Request("GET", getPlaybookRulePath, &getPlaybookRuleOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving PlaybookRule: %s", err)
+		return nil, err
 	}
 
-	getPlaybookRuleRespBody, err := utils.FlattenResponse(getPlaybookRuleResp)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving PlaybookRule: %s", err)
-	}
-
-	return getPlaybookRuleRespBody, nil
+	return utils.FlattenResponse(getPlaybookRuleResp)
 }
 
 func TestAccPlaybookRule_basic(t *testing.T) {

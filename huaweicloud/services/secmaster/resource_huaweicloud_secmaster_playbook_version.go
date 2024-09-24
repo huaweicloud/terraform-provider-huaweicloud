@@ -16,6 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+const (
+	PlaybookVersionNotFound = "SecMaster.20048004"
+)
+
 // @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}
 // @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{playbook_id}/versions
 // @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{id}
@@ -227,7 +231,7 @@ func resourcePlaybookVersionRead(_ context.Context, d *schema.ResourceData, meta
 	playbookVersion, err := GetPlaybookVersion(client, d.Get("workspace_id").(string), d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d,
-			common.ConvertExpected403ErrInto404Err(err, "code", "SecMaster.20010001"), "error retrieving SecMaster playbook version")
+			common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound), "error retrieving SecMaster playbook version")
 	}
 
 	mErr := multierror.Append(
@@ -305,7 +309,7 @@ func resourcePlaybookVersionDelete(_ context.Context, d *schema.ResourceData, me
 	// Before deleting this version, you need to ensure that it is not enabled.
 	playbookVersion, err := GetPlaybookVersion(client, d.Get("workspace_id").(string), d.Id())
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error querying SecMaster playbook version")
 	}
 
 	if utils.PathSearch("enabled", playbookVersion, false).(bool) {
@@ -333,8 +337,8 @@ func resourcePlaybookVersionDelete(_ context.Context, d *schema.ResourceData, me
 	if err != nil {
 		// SecMaster.20048004：the version ID not found
 		// SecMaster.20010001: the workspace ID not found
-		err = common.ConvertExpected400ErrInto404Err(err, "code", "SecMaster.20048004")
-		err = common.ConvertExpected403ErrInto404Err(err, "code", "SecMaster.20010001")
+		err = common.ConvertExpected400ErrInto404Err(err, "code", PlaybookVersionNotFound)
+		err = common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound)
 		return common.CheckDeletedDiag(d, err, "error deleting SecMaster playbook version")
 	}
 

@@ -34,23 +34,15 @@ func getIndicatorResourceFunc(cfg *config.Config, state *terraform.ResourceState
 
 	getIndicatorOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getIndicatorResp, err := getIndicatorClient.Request("GET", getIndicatorPath, &getIndicatorOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving Indicator: %s", err)
+		return nil, err
 	}
 
-	getIndicatorRespBody, err := utils.FlattenResponse(getIndicatorResp)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Indicator: %s", err)
-	}
-
-	return getIndicatorRespBody, nil
+	return utils.FlattenResponse(getIndicatorResp)
 }
 
 func TestAccIndicator_basic(t *testing.T) {
@@ -103,7 +95,7 @@ func TestAccIndicator_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "first_occurrence_time", "2023-10-26T09:33:55.000+08:00"),
 					resource.TestCheckResourceAttr(rName, "last_occurrence_time", "2023-10-27T21:15:30.000+08:00"),
 					resource.TestCheckResourceAttr(rName, "granularity", "1"),
-					resource.TestCheckResourceAttr(rName, "value", "/v1/test"),
+					resource.TestCheckResourceAttr(rName, "value", "1.1.1.1"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
@@ -121,13 +113,13 @@ func TestAccIndicator_basic(t *testing.T) {
 func testIndicator_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_secmaster_indicator" "test" {
-  workspace_id = "%s"
-  name         = "%s"
+  workspace_id = "%[1]s"
+  name         = "%[2]s"
   
   type {
     category       = "Domain"
     indicator_type = "Domain"
-    id             = "%s"
+    id             = "%[3]s"
   }
 
   data_source {
@@ -150,13 +142,13 @@ resource "huaweicloud_secmaster_indicator" "test" {
 func testIndicator_basic_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_secmaster_indicator" "test" {
-  workspace_id = "%s"
-  name         = "%s"
+  workspace_id = "%[1]s"
+  name         = "%[2]s"
   
   type {
-    category       = "URL"
-    indicator_type = "URL"
-    id             = "%s"
+    category       = "IPv4"
+    indicator_type = "IPv4"
+    id             = "%[3]s"
   }
 
   data_source {
@@ -171,7 +163,7 @@ resource "huaweicloud_secmaster_indicator" "test" {
   last_occurrence_time  = "2023-10-27T21:15:30.000+08:00"
   threat_degree         = "Gray"
   granularity           = "1"
-  value                 = "/v1/test"
+  value                 = "1.1.1.1"
 }
 `, acceptance.HW_SECMASTER_WORKSPACE_ID, name, acceptance.HW_SECMASTER_INDICATOR_TYPE_ID_UPDATE)
 }

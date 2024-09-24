@@ -35,20 +35,17 @@ func getPlaybookActionResourceFunc(cfg *config.Config, state *terraform.Resource
 
 	getPlaybookActionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getPlaybookActionResp, err := getPlaybookActionClient.Request("GET", getPlaybookActionPath, &getPlaybookActionOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving PlaybookAction: %s", err)
+		return nil, err
 	}
 
 	getPlaybookActionRespBody, err := utils.FlattenResponse(getPlaybookActionResp)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving PlaybookAction: %s", err)
+		return nil, err
 	}
 
 	jsonPath := fmt.Sprintf("data[?id=='%s']|[0]", state.Primary.ID)

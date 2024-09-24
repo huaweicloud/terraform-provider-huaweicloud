@@ -13,12 +13,14 @@ Use this data source to get the list of SecMaster baseline check results.
 ## Example Usage
 
 ```hcl
+variable "workspace_id" {}
 variable "from_date" {}
 variable "to_date" {}
 
 data "huaweicloud_secmaster_baseline_check_results" "test" {
-  from_date = var.from_date
-  to_date   = var.to_date
+  workspace_id = var.workspace_id
+  from_date    = var.from_date
+  to_date      = var.to_date
 }
 ```
 

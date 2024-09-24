@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var nonUpdatableParamsApproval = []string{"workspace_id", "version_id"}
+var nonUpdatableParamsApproval = []string{"workspace_id", "version_id", "result", "content"}
 
 // @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/approval
 func ResourcePlaybookApproval() *schema.Resource {

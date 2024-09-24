@@ -2,47 +2,25 @@ package secmaster
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/secmaster"
 )
 
 func getIncidentResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getIncident: Query the SecMaster incident detail
-	var (
-		getIncidentHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/soc/incidents/{id}"
-		getIncidentProduct = "secmaster"
-	)
-	getIncidentClient, err := cfg.NewServiceClient(getIncidentProduct, region)
+	client, err := cfg.NewServiceClient("secmaster", region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating SecMaster Client: %s", err)
 	}
 
-	getIncidentPath := getIncidentClient.Endpoint + getIncidentHttpUrl
-	getIncidentPath = strings.ReplaceAll(getIncidentPath, "{project_id}", getIncidentClient.ProjectID)
-	getIncidentPath = strings.ReplaceAll(getIncidentPath, "{workspace_id}", state.Primary.Attributes["workspace_id"])
-	getIncidentPath = strings.ReplaceAll(getIncidentPath, "{id}", state.Primary.ID)
-
-	getIncidentOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getIncidentResp, err := getIncidentClient.Request("GET", getIncidentPath, &getIncidentOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Incident: %s", err)
-	}
-	return utils.FlattenResponse(getIncidentResp)
+	return secmaster.GetIncident(client, state.Primary.Attributes["workspace_id"], state.Primary.ID)
 }
 
 func TestAccIncident_basic(t *testing.T) {

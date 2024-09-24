@@ -3,10 +3,12 @@ package secmaster
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func TestAccDataSourceAlerts_basic(t *testing.T) {
@@ -39,6 +41,9 @@ func TestAccDataSourceAlerts_basic(t *testing.T) {
 }
 
 func testDataSourceAlerts_basic(name string) string {
+	now := time.Now()
+	firstTime := utils.GetBeforeOrAfterDate(now, -3, "2024-08-26T09:33:55.000+08:00")
+	lastTime := utils.GetBeforeOrAfterDate(now, -2, "2024-08-26T09:33:55.000+08:00")
 	return fmt.Sprintf(`
 %[1]s
 
@@ -61,5 +66,5 @@ output "condition_filter_is_useful" {
     [for v in data.huaweicloud_secmaster_alerts.test.alerts[*].level : v == "Tips"]
   )
 }
-`, testAlert_basic(name), acceptance.HW_SECMASTER_WORKSPACE_ID)
+`, testAlert_basic(name, firstTime, lastTime), acceptance.HW_SECMASTER_WORKSPACE_ID)
 }
