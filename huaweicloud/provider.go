@@ -93,6 +93,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ram"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rgc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sdrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/secmaster"
@@ -1801,6 +1802,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_primary_standby_switch":       rds.ResourceRdsInstanceSwitch(),
 			"huaweicloud_rds_database_logs_shrinking":      rds.ResourceRdsDbLogsShrinking(),
 			"huaweicloud_rds_extend_log_link":              rds.ResourceRdsExtendLogLink(),
+
+			"huaweicloud_rgc_account": rgc.ResourceAccount(),
 
 			"huaweicloud_rms_policy_assignment":                  rms.ResourcePolicyAssignment(),
 			"huaweicloud_rms_policy_assignment_evaluate":         rms.ResourcePolicyAssignmentEvaluate(),
