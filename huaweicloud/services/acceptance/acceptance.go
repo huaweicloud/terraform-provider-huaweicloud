@@ -397,10 +397,10 @@ var (
 	HW_DWS_CLUSTER_ID              = os.Getenv("HW_DWS_CLUSTER_ID")
 	HW_DWS_LOGICAL_MODE_CLUSTER_ID = os.Getenv("HW_DWS_LOGICAL_MODE_CLUSTER_ID")
 	HW_DWS_LOGICAL_CLUSTER_NAME    = os.Getenv("HW_DWS_LOGICAL_CLUSTER_NAME")
-
-	HW_DWS_SNAPSHOT_POLICY_NAME = os.Getenv("HW_DWS_SNAPSHOT_POLICY_NAME")
+	HW_DWS_SNAPSHOT_POLICY_NAME    = os.Getenv("HW_DWS_SNAPSHOT_POLICY_NAME")
 	// The list of the user names under specified DWS cluster. Using commas (,) to separate multiple names.
-	HW_DWS_ASSOCIATE_USER_NAMES = os.Getenv("HW_DWS_ASSOCIATE_USER_NAMES")
+	HW_DWS_ASSOCIATE_USER_NAMES  = os.Getenv("HW_DWS_ASSOCIATE_USER_NAMES")
+	HW_DWS_AUTOMATED_SNAPSHOT_ID = os.Getenv("HW_DWS_AUTOMATED_SNAPSHOT_ID")
 
 	HW_DCS_ACCOUNT_WHITELIST = os.Getenv("HW_DCS_ACCOUNT_WHITELIST")
 
@@ -2086,6 +2086,13 @@ func TestAccPreCheckDwsClusterUserNames(t *testing.T) {
 	// One is used to associate to the queue, and the other is used to update the user associated with the queue.
 	if len(userNames) < 2 {
 		t.Skip("The length of HW_DWS_ASSOCIATE_USER_NAMES must be 2 for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDwsAutomatedSnapshot(t *testing.T) {
+	if HW_DWS_AUTOMATED_SNAPSHOT_ID == "" {
+		t.Skip("HW_DWS_AUTOMATED_SNAPSHOT_ID must be set for the acceptance test")
 	}
 }
 
