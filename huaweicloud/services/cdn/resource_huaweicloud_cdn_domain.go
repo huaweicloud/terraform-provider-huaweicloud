@@ -2453,54 +2453,662 @@ func queryAndFlattenDomainTags(cdnClient *golangsdk.ServiceClient, d *schema.Res
 	return utils.TagsToMap(tags), nil
 }
 
+// In order to prevent the user from modifying the field `name` and causing the resource not to be queried, first try
+// to obtain the value of the attribute field `domain_name`.
+func getDomainName(d *schema.ResourceData) string {
+	if domainName := d.Get("domain_name").(string); domainName != "" {
+		return domainName
+	}
+	return d.Get("name").(string)
+}
+
+func queryCdnDomainFullConfig(client *golangsdk.ServiceClient, domainName, epsID string) (interface{}, error) {
+	getPath := client.Endpoint + "v1.1/cdn/configuration/domains/{domain_name}/configs"
+	getPath = strings.ReplaceAll(getPath, "{domain_name}", domainName)
+	getPath += buildCdnDomainQueryParams(epsID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
+func queryAndFlattenCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData) (map[string]interface{}, error) {
+	getTagPath := client.Endpoint + "v1.0/cdn/configuration/tags"
+	getTagPath += fmt.Sprintf("?resource_id=%s", d.Id())
+	getTagOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getTagResp, err := client.Request("GET", getTagPath, &getTagOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	getTagRespBody, err := utils.FlattenResponse(getTagResp)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenTagsToMap(utils.PathSearch("tags", getTagRespBody, nil)), nil
+}
+
+func flattenSourcesActive(priority int32) interface{} {
+	if priority == 70 {
+		return 1
+	}
+	return 0
+}
+
+func flattenSourcesAttributes(configResp interface{}) []interface{} {
+	if configResp == nil {
+		return nil
+	}
+
+	curJson := utils.PathSearch("configs.sources", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		sourceMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"origin":                  sourceMap["origin_addr"],
+			"origin_type":             sourceMap["origin_type"],
+			"active":                  flattenSourcesActive(sourceMap["priority"].(int32)),
+			"obs_web_hosting_enabled": analyseFunctionEnabledStatus(sourceMap["obs_web_hosting_status"].(string)),
+			"http_port":               sourceMap["http_port"],
+			"https_port":              sourceMap["https_port"],
+			"retrieval_host":          sourceMap["host_name"],
+			"weight":                  sourceMap["weight"],
+			"obs_bucket_type":         sourceMap["obs_bucket_type"],
+		})
+	}
+	return rst
+}
+
+// flattenHTTPSAttributes Field `privateKey` is not returned in the details interface.
+// The value of the field `certificateBody` will be modified by the cloud, resulting in inconsistency with the local value.
+func flattenHTTPSAttributes(configResp interface{}, privateKey, certificateBody string) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.https", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	httpsMap := curJson.(map[string]interface{})
+	httpsAttributes := map[string]interface{}{
+		"https_status":         httpsMap["https_status"],
+		"certificate_name":     httpsMap["certificate_name"],
+		"certificate_body":     certificateBody,
+		"private_key":          privateKey,
+		"certificate_source":   httpsMap["certificate_source"],
+		"certificate_type":     httpsMap["certificate_type"],
+		"http2_status":         httpsMap["http2_status"],
+		"tls_version":          httpsMap["tls_version"],
+		"ocsp_stapling_status": httpsMap["ocsp_stapling_status"],
+		"https_enabled":        analyseFunctionEnabledStatus(httpsMap["https_status"].(string)),
+		"http2_enabled":        analyseFunctionEnabledStatus(httpsMap["http2_status"].(string)),
+	}
+
+	return []map[string]interface{}{httpsAttributes}
+}
+
+func flattenOriginRequestHeaderAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.origin_request_header", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		headerMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"name":   headerMap["name"],
+			"value":  headerMap["value"],
+			"action": headerMap["action"],
+		})
+	}
+	return rst
+}
+
+func flattenHttpResponseHeaderAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.http_response_header", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		headerMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"name":   headerMap["name"],
+			"value":  headerMap["value"],
+			"action": headerMap["action"],
+		})
+	}
+	return rst
+}
+
+func flattenInheritConfigAttributes(inheritConfigResp interface{}) []map[string]interface{} {
+	if inheritConfigResp == nil {
+		return nil
+	}
+
+	inheritConfigRespMap := inheritConfigResp.(map[string]interface{})
+	inheritConfigAttrs := map[string]interface{}{
+		"enabled":           analyseFunctionEnabledStatus(inheritConfigRespMap["status"].(string)),
+		"status":            inheritConfigRespMap["status"],
+		"inherit_type":      inheritConfigRespMap["inherit_type"],
+		"inherit_time_type": inheritConfigRespMap["inherit_time_type"],
+	}
+
+	return []map[string]interface{}{inheritConfigAttrs}
+}
+
+func flattenUrlAuthAttributes(configResp interface{}, urlAuthKey, urlAuthBackupKey string) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.url_auth", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	authMap := curJson.(map[string]interface{})
+	urlAuthAttrs := map[string]interface{}{
+		"enabled":        analyseFunctionEnabledStatus(authMap["status"].(string)),
+		"status":         authMap["status"],
+		"type":           authMap["type"],
+		"sign_method":    authMap["sign_method"],
+		"match_type":     authMap["match_type"],
+		"inherit_config": flattenInheritConfigAttributes(authMap["inherit_config"]),
+		"sign_arg":       authMap["sign_arg"],
+		"key":            urlAuthKey,
+		"backup_key":     urlAuthBackupKey,
+		"time_format":    authMap["time_format"],
+		"expire_time":    authMap["expire_time"],
+	}
+	return []map[string]interface{}{urlAuthAttrs}
+}
+
+func flattenForceRedirectAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.force_redirect", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	forceRedirectMap := curJson.(map[string]interface{})
+	forceRedirectAttrs := map[string]interface{}{
+		"status":        forceRedirectMap["status"],
+		"type":          forceRedirectMap["type"],
+		"enabled":       analyseFunctionEnabledStatus(forceRedirectMap["status"].(string)),
+		"redirect_code": forceRedirectMap["redirect_code"],
+	}
+
+	return []map[string]interface{}{forceRedirectAttrs}
+}
+
+func flattenCompressAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.compress", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	compressMap := curJson.(map[string]interface{})
+	compressAttrs := map[string]interface{}{
+		"status":    compressMap["status"],
+		"type":      compressMap["type"],
+		"file_type": compressMap["file_type"],
+		"enabled":   analyseFunctionEnabledStatus(compressMap["status"].(string)),
+	}
+
+	return []map[string]interface{}{compressAttrs}
+}
+
+func flattenCacheUrlParameterFilterAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.cache_url_parameter_filter", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	filterMap := curJson.(map[string]interface{})
+	cacheUrlParameterFilterAttrs := map[string]interface{}{
+		"value": filterMap["value"],
+		"type":  filterMap["type"],
+	}
+
+	return []map[string]interface{}{cacheUrlParameterFilterAttrs}
+}
+
+func flattenIpFrequencyLimitAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.ip_frequency_limit", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	ipFrequencyLimitAttrs := map[string]interface{}{
+		"enabled": analyseFunctionEnabledStatus(rawMap["status"].(string)),
+		"qps":     rawMap["qps"],
+	}
+
+	return []map[string]interface{}{ipFrequencyLimitAttrs}
+}
+
+func flattenWebsocketAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.websocket", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	websocketAttrs := map[string]interface{}{
+		"enabled": analyseFunctionEnabledStatus(rawMap["status"].(string)),
+		"timeout": rawMap["timeout"],
+	}
+
+	return []map[string]interface{}{websocketAttrs}
+}
+
+func flattenFlexibleOriginBackSourceAttributes(backSources interface{}) []interface{} {
+	if backSources == nil {
+		return nil
+	}
+
+	curArray := backSources.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"sources_type":    rawMap["sources_type"],
+			"ip_or_domain":    rawMap["ip_or_domain"],
+			"obs_bucket_type": rawMap["obs_bucket_type"],
+			"http_port":       rawMap["http_port"],
+			"https_port":      rawMap["https_port"],
+		})
+	}
+	return rst
+}
+
+func flattenFlexibleOriginAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.flexible_origin", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		flexibleOriginMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"match_type":    flexibleOriginMap["match_type"],
+			"match_pattern": flexibleOriginMap["match_pattern"],
+			"priority":      flexibleOriginMap["priority"],
+			"back_sources":  flattenFlexibleOriginBackSourceAttributes(flexibleOriginMap["back_sources"]),
+		})
+	}
+	return rst
+}
+
+func flattenCustomArgsAttributes(customArgs interface{}) []interface{} {
+	if customArgs == nil {
+		return nil
+	}
+
+	curArray := customArgs.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"type":  rawMap["type"],
+			"key":   rawMap["key"],
+			"value": rawMap["value"],
+		})
+	}
+	return rst
+}
+
+func flattenRemoteAuthRulesAttributes(remoteAuthRules interface{}) []map[string]interface{} {
+	if remoteAuthRules == nil {
+		return nil
+	}
+
+	rawMap := remoteAuthRules.(map[string]interface{})
+	remoteAuthRuleAttrs := map[string]interface{}{
+		"auth_server":              rawMap["auth_server"],
+		"request_method":           rawMap["request_method"],
+		"file_type_setting":        rawMap["file_type_setting"],
+		"specified_file_type":      rawMap["specified_file_type"],
+		"reserve_args_setting":     rawMap["reserve_args_setting"],
+		"reserve_args":             rawMap["reserve_args"],
+		"add_custom_args_rules":    flattenCustomArgsAttributes(rawMap["add_custom_args_rules"]),
+		"reserve_headers_setting":  rawMap["reserve_headers_setting"],
+		"add_custom_headers_rules": flattenCustomArgsAttributes(rawMap["add_custom_headers_rules"]),
+		"auth_success_status":      rawMap["auth_success_status"],
+		"auth_failed_status":       rawMap["auth_failed_status"],
+		"response_status":          rawMap["response_status"],
+		"timeout":                  rawMap["timeout"],
+		"timeout_action":           rawMap["timeout_action"],
+		"reserve_headers":          rawMap["reserve_headers"],
+	}
+	return []map[string]interface{}{remoteAuthRuleAttrs}
+}
+
+func flattenRemoteAuthAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.remote_auth", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	remoteAuthAttrs := map[string]interface{}{
+		"enabled":           analyseFunctionEnabledStatus(rawMap["remote_authentication"].(string)),
+		"remote_auth_rules": flattenRemoteAuthRulesAttributes(rawMap["remote_auth_rules"]),
+	}
+	return []map[string]interface{}{remoteAuthAttrs}
+}
+
+func flattenIpv6EnableAttributes(configResp interface{}) bool {
+	ipv6Accelerate := utils.PathSearch("configs.ipv6_accelerate", configResp, int32(0)).(int32)
+	return ipv6Accelerate == 1
+}
+
+func flattenQUICAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.quic", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	quicAttrs := map[string]interface{}{
+		"enabled": analyseFunctionEnabledStatus(rawMap["status"].(string)),
+	}
+
+	return []map[string]interface{}{quicAttrs}
+}
+
+func flattenRefererAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.referer", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	refererAttrs := map[string]interface{}{
+		"type":          rawMap["type"],
+		"value":         rawMap["value"],
+		"include_empty": rawMap["include_empty"],
+	}
+
+	return []map[string]interface{}{refererAttrs}
+}
+
+func flattenVideoSeekAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.video_seek", configResp, nil)
+	if curJson == nil {
+		// When closing `video_seek`, the API response body will not return the information of this field.
+		// In order to avoid plan problems in terraform, a default value is added.
+		return []map[string]interface{}{{
+			"enable_video_seek": false,
+		}}
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	return []map[string]interface{}{{
+		"enable_video_seek":       rawMap["enable_video_seek"],
+		"enable_flv_by_time_seek": rawMap["enable_flv_by_time_seek"],
+		"start_parameter":         rawMap["start_parameter"],
+		"end_parameter":           rawMap["end_parameter"],
+	}}
+}
+
+func flattenRequestLimitRulesAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.request_limit_rules", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"priority":         rawMap["priority"],
+			"match_type":       rawMap["match_type"],
+			"match_value":      rawMap["match_value"],
+			"type":             rawMap["type"],
+			"limit_rate_after": rawMap["limit_rate_after"],
+			"limit_rate_value": rawMap["limit_rate_value"],
+		})
+	}
+	return rst
+}
+
+func flattenErrorCodeCacheAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.error_code_cache", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"code": rawMap["code"],
+			"ttl":  rawMap["ttl"],
+		})
+	}
+	return rst
+}
+
+func flattenIpFilterAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.ip_filter", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	ipFilterAttrs := map[string]interface{}{
+		"type":  rawMap["type"],
+		"value": rawMap["value"],
+	}
+	return []map[string]interface{}{ipFilterAttrs}
+}
+
+func flattenOriginRequestUrlRewriteAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.origin_request_url_rewrite", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"priority":   rawMap["priority"],
+			"match_type": rawMap["match_type"],
+			"target_url": rawMap["target_url"],
+			"source_url": rawMap["source_url"],
+		})
+	}
+	return rst
+}
+
+func flattenUserAgentFilterAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.user_agent_filter", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	userAgentFilterAttrs := map[string]interface{}{
+		"type": rawMap["type"],
+	}
+
+	if uaList, ok := rawMap["ua_list"].([]interface{}); ok {
+		userAgentFilterAttrs["ua_list"] = uaList
+	}
+	return []map[string]interface{}{userAgentFilterAttrs}
+}
+
+func flattenErrorCodeRedirectRulesAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.error_code_redirect_rules", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"error_code":  rawMap["error_code"],
+			"target_code": rawMap["target_code"],
+			"target_link": rawMap["target_link"],
+		})
+	}
+	return rst
+}
+
+func flattenHstsAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.hsts", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	hstsAttrs := map[string]interface{}{
+		"enabled":            analyseFunctionEnabledStatus(rawMap["status"].(string)),
+		"max_age":            rawMap["max_age"],
+		"include_subdomains": rawMap["include_subdomains"],
+	}
+
+	return []map[string]interface{}{hstsAttrs}
+}
+
+func flattenAccessAreaFiltersAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.access_area_filter", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"type":          rawMap["type"],
+			"content_type":  rawMap["content_type"],
+			"area":          rawMap["area"],
+			"content_value": rawMap["content_value"],
+			"exception_ip":  rawMap["exception_ip"],
+		})
+	}
+	return rst
+}
+
+func flattenConfigAttributes(configResp interface{}, d *schema.ResourceData) []map[string]interface{} {
+	if configResp == nil {
+		return nil
+	}
+
+	privateKey := d.Get("configs.0.https_settings.0.private_key").(string)
+	certificateBody := d.Get("configs.0.https_settings.0.certificate_body").(string)
+	urlAuthKey := d.Get("configs.0.url_signing.0.key").(string)
+	urlAuthBackupKey := d.Get("configs.0.url_signing.0.backup_key").(string)
+
+	configsAttrs := map[string]interface{}{
+		"https_settings":                flattenHTTPSAttributes(configResp, privateKey, certificateBody),
+		"retrieval_request_header":      flattenOriginRequestHeaderAttributes(configResp),
+		"http_response_header":          flattenHttpResponseHeaderAttributes(configResp),
+		"url_signing":                   flattenUrlAuthAttributes(configResp, urlAuthKey, urlAuthBackupKey),
+		"origin_protocol":               utils.PathSearch("configs.origin_protocol", configResp, nil),
+		"force_redirect":                flattenForceRedirectAttributes(configResp),
+		"compress":                      flattenCompressAttributes(configResp),
+		"cache_url_parameter_filter":    flattenCacheUrlParameterFilterAttributes(configResp),
+		"ip_frequency_limit":            flattenIpFrequencyLimitAttributes(configResp),
+		"websocket":                     flattenWebsocketAttributes(configResp),
+		"flexible_origin":               flattenFlexibleOriginAttributes(configResp),
+		"remote_auth":                   flattenRemoteAuthAttributes(configResp),
+		"ipv6_enable":                   flattenIpv6EnableAttributes(configResp),
+		"range_based_retrieval_enabled": analyseFunctionEnabledStatus(utils.PathSearch("configs.origin_range_status", configResp, "").(string)),
+		"description":                   utils.PathSearch("configs.remark", configResp, nil),
+		"slice_etag_status":             utils.PathSearch("configs.slice_etag_status", configResp, nil),
+		"origin_receive_timeout":        utils.PathSearch("configs.origin_receive_timeout", configResp, nil),
+		"origin_follow302_status":       utils.PathSearch("configs.origin_follow302_status", configResp, nil),
+		"quic":                          flattenQUICAttributes(configResp),
+		"referer":                       flattenRefererAttributes(configResp),
+		"video_seek":                    flattenVideoSeekAttributes(configResp),
+		"request_limit_rules":           flattenRequestLimitRulesAttributes(configResp),
+		"error_code_cache":              flattenErrorCodeCacheAttributes(configResp),
+		"ip_filter":                     flattenIpFilterAttributes(configResp),
+		"origin_request_url_rewrite":    flattenOriginRequestUrlRewriteAttributes(configResp),
+		"user_agent_filter":             flattenUserAgentFilterAttributes(configResp),
+		"error_code_redirect_rules":     flattenErrorCodeRedirectRulesAttributes(configResp),
+		"hsts":                          flattenHstsAttributes(configResp),
+		"access_area_filter":            flattenAccessAreaFiltersAttributes(configResp),
+	}
+	return []map[string]interface{}{configsAttrs}
+}
+
 func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		product    = "cdn"
+		domainName = getDomainName(d)
+		epsID      = cfg.GetEnterpriseProjectID(d)
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v1 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	hcCdnClient, err := cfg.HcCdnV2Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
-	}
-
-	domainName := d.Get("domain_name").(string)
-	if domainName == "" {
-		domainName = d.Get("name").(string)
-	}
-
-	v, err := domains.GetByName(cdnClient, domainName, buildResourceExtensionOpts(d, cfg)).Extract()
+	domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
 	if err != nil {
 		return common.CheckDeletedDiag(d, parseDetailResponseError(err), "error retrieving CDN domain")
 	}
 
-	if v == nil {
-		return diag.Errorf("error retrieving CDN domain: Domain is not found in API response")
-	}
-
 	// Backfield the ID when executing the import operation
-	d.SetId(v.ID)
-	configsResp, err := queryDomainFullConfig(hcCdnClient, cfg, d, v.DomainName)
-	if err != nil {
-		return diag.FromErr(err)
+	if id := utils.PathSearch("domain.id", domainResp, "").(string); id != "" {
+		d.SetId(id)
 	}
 
-	tags, err := queryAndFlattenDomainTags(cdnClient, d)
+	configResp, err := queryCdnDomainFullConfig(client, domainName, epsID)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error retrieving CDN domain full config: %s", err)
+	}
+
+	tags, err := queryAndFlattenCdnDomainTags(client, d)
+	if err != nil {
+		return diag.Errorf("error retrieving CDN domain tags: %s", err)
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("name", v.DomainName),
-		d.Set("type", v.BusinessType),
-		d.Set("cname", v.CName),
-		d.Set("domain_status", v.DomainStatus),
-		d.Set("service_area", v.ServiceArea),
-		d.Set("sources", flattenSourcesAttrs(configsResp.Sources)),
-		d.Set("configs", flattenConfigAttrs(configsResp, d)),
+		d.Set("name", utils.PathSearch("domain.domain_name", domainResp, nil)),
+		d.Set("type", utils.PathSearch("domain.business_type", domainResp, nil)),
+		d.Set("cname", utils.PathSearch("domain.cname", domainResp, nil)),
+		d.Set("domain_status", utils.PathSearch("domain.domain_status", domainResp, nil)),
+		d.Set("service_area", utils.PathSearch("domain.service_area", domainResp, nil)),
+		d.Set("sources", flattenSourcesAttributes(configResp)),
+		d.Set("configs", flattenConfigAttributes(configResp, d)),
 		d.Set("tags", tags),
-		d.Set("domain_name", v.DomainName),
+		d.Set("domain_name", utils.PathSearch("domain.domain_name", domainResp, nil)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
