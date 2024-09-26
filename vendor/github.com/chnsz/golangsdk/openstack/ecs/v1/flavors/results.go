@@ -88,6 +88,9 @@ type OsExtraSpecs struct {
 
 	// Indicates the status of the flavor in az level.
 	OperationAz string `json:"cond:operation:az"`
+
+	// Indicates the storage type of the flavor in az level.
+	StorageType string `json:"cond:storage:type"`
 }
 
 // FlavorsPage is the page returned by a pager when traversing over a
