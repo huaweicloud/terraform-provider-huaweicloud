@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -1731,35 +1732,133 @@ func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *sch
 	return nil
 }
 
-func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
+func buildCreateCdnDomainSourcesBodyParams(d *schema.ResourceData) []interface{} {
+	sources := d.Get("sources").(*schema.Set).List()
+	rst := make([]interface{}, 0, len(sources))
+
+	for _, v := range sources {
+		sourceMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"ip_or_domain":   sourceMap["origin"],
+			"origin_type":    sourceMap["origin_type"],
+			"active_standby": sourceMap["active"],
+		})
+	}
+	return rst
+}
+
+func buildCreateCdnDomainBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"domain_name":           utils.ValueIgnoreEmpty(d.Get("name")),
+		"business_type":         utils.ValueIgnoreEmpty(d.Get("type")),
+		"sources":               utils.ValueIgnoreEmpty(buildCreateCdnDomainSourcesBodyParams(d)),
+		"service_area":          utils.ValueIgnoreEmpty(d.Get("service_area")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+	}
+	return bodyParams
+}
+
+func buildCdnDomainQueryParams(epsID string) string {
+	if epsID == "" {
+		return ""
+	}
+	return fmt.Sprintf("?enterprise_project_id=%s", epsID)
+}
+
+func ReadCdnDomainDetail(client *golangsdk.ServiceClient, domainName, epsID string) (interface{}, error) {
+	getPath := client.Endpoint + "v1.0/cdn/configuration/domains/{domain_name}"
+	getPath = strings.ReplaceAll(getPath, "{domain_name}", domainName)
+	getPath += buildCdnDomainQueryParams(epsID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return diag.Errorf("error creating CDN v1 client: %s", err)
+		return nil, err
 	}
 
-	createOpts := &domains.CreateOpts{
-		DomainName:          d.Get("name").(string),
-		BusinessType:        d.Get("type").(string),
-		Sources:             buildCreateDomainSources(d),
-		ServiceArea:         d.Get("service_area").(string),
-		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+	return utils.FlattenResponse(getResp)
+}
+
+func waitingForCdnDomainStatusOnline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, cfg *config.Config) error {
+	var (
+		domainName       = d.Get("name").(string)
+		epsID            = cfg.GetEnterpriseProjectID(d)
+		unexpectedStatus = []string{"offline", "configure_failed", "check_failed", "deleting"}
+	)
+
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			domainStatus := utils.PathSearch("domain.domain_status", domainResp, "").(string)
+			if domainStatus == "" {
+				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: domain_status is not found in API response")
+			}
+
+			if domainStatus == "online" {
+				return domainResp, "COMPLETED", nil
+			}
+
+			if utils.StrSliceContains(unexpectedStatus, domainStatus) {
+				return domainResp, domainStatus, nil
+			}
+			return domainResp, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1.0/cdn/domains"
+		product = "cdn"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	v, err := domains.Create(cdnClient, createOpts).Extract()
+	createPath := client.Endpoint + httpUrl
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateCdnDomainBodyParams(d, cfg)),
+	}
+
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating CDN domain: %s", err)
 	}
 
-	if v.ID == "" {
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	id := utils.PathSearch("domain.id", createRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating CDN domain: ID is not found in API response")
 	}
-	d.SetId(v.ID)
+	d.SetId(id)
 
-	opts := buildResourceExtensionOpts(d, cfg)
-	if err := waitingForStatusOnline(ctx, cdnClient, d, d.Timeout(schema.TimeoutCreate), opts); err != nil {
+	if err := waitingForCdnDomainStatusOnline(ctx, client, d, d.Timeout(schema.TimeoutCreate), cfg); err != nil {
 		return diag.Errorf("error waiting for CDN domain (%s) creation to become online: %s", d.Id(), err)
 	}
+
 	return resourceCdnDomainUpdate(ctx, d, meta)
 }
 
