@@ -16,6 +16,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API IMS GET /v2/cloudimages
@@ -29,75 +30,42 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
+			"most_recent": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"image_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"name_regex": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"name"},
 				ValidateFunc:  validation.StringIsValidRegExp,
 			},
-
-			"visibility": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-
-			"owner": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-
-			"sort_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "name",
-			},
-
-			"sort_direction": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "asc",
-			},
-
-			"tag": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"most_recent": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-
-			"architecture": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"os": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"os_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"image_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"enterprise_project_id": {
+			"is_whole_image": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"visibility": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"owner": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -105,7 +73,41 @@ func DataSourceImagesImageV2() *schema.Resource {
 			"flavor_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"sort_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "name",
+			},
+			"sort_direction": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "asc",
+			},
+			"os": {
+				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
+			},
+			"architecture": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"tag": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"os_version": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "schema: Computed",
 			},
 
 			// Deprecated values
@@ -121,39 +123,6 @@ func DataSourceImagesImageV2() *schema.Resource {
 			},
 
 			// Computed values
-			"container_format": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"disk_format": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"min_disk_gb": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"min_ram_mb": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"protected": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"checksum": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"size_bytes": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"metadata": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"file": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -166,7 +135,53 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"protected": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"container_format": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"min_ram_mb": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"max_ram_mb": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"min_disk_gb": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"disk_format": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"data_origin": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"backup_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"size_bytes": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"metadata": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: utils.SchemaDesc("metadata is deprecated", utils.SchemaDescInput{Internal: true}),
+			},
+			"active_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -178,47 +193,44 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"checksum": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: utils.SchemaDesc("checksum is deprecated", utils.SchemaDescInput{Internal: true}),
+			},
 		},
 	}
 }
 
 // dataSourceImagesImageV2Read performs the image lookup.
-func dataSourceImagesImageV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func dataSourceImagesImageV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
 
 	imageClient, err := cfg.ImageV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating IMS client: %s", err)
-	}
-
-	imageType := d.Get("visibility").(string)
-	if imageType == "public" {
-		imageType = "gold"
+		return diag.Errorf("error creating IMS v2 client: %s", err)
 	}
 
 	listOpts := cloudimages.ListOpts{
-		Name:           d.Get("name").(string),
-		Owner:          d.Get("owner").(string),
-		SortKey:        d.Get("sort_key").(string),
-		SortDir:        d.Get("sort_direction").(string),
-		Tag:            d.Get("tag").(string),
-		Platform:       d.Get("os").(string),
-		OsVersion:      d.Get("os_version").(string),
-		Architecture:   d.Get("architecture").(string),
-		VirtualEnvType: d.Get("image_type").(string),
-		FlavorId:       d.Get("flavor_id").(string),
-		Imagetype:      imageType,
-		Status:         "active",
+		ID:                  d.Get("image_id").(string),
+		Name:                d.Get("name").(string),
+		VirtualEnvType:      d.Get("image_type").(string),
+		WholeImage:          d.Get("is_whole_image").(bool),
+		Imagetype:           buildImageTypeParam(d),
+		Owner:               d.Get("owner").(string),
+		FlavorId:            d.Get("flavor_id").(string),
+		SortKey:             d.Get("sort_key").(string),
+		SortDir:             d.Get("sort_direction").(string),
+		Platform:            d.Get("os").(string),
+		Architecture:        d.Get("architecture").(string),
+		Tag:                 d.Get("tag").(string),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
+		// Default query status for **active** images.
+		Status: "active",
 	}
-
-	if epsId := cfg.GetEnterpriseProjectID(d); epsId != "" {
-		listOpts.EnterpriseProjectID = epsId
-	} else {
-		listOpts.EnterpriseProjectID = "all_granted_eps"
-	}
-
-	log.Printf("[DEBUG] List Options: %#v", listOpts)
 
 	allPages, err := cloudimages.List(imageClient, listOpts).AllPages()
 	if err != nil {
@@ -227,7 +239,7 @@ func dataSourceImagesImageV2Read(ctx context.Context, d *schema.ResourceData, me
 
 	allImages, err := cloudimages.ExtractImages(allPages)
 	if err != nil {
-		return diag.Errorf("unable to retrieve images: %s", err)
+		return diag.Errorf("unable to extract images: %s", err)
 	}
 
 	if len(allImages) < 1 {
@@ -235,7 +247,7 @@ func dataSourceImagesImageV2Read(ctx context.Context, d *schema.ResourceData, me
 			"Please change your search criteria and try again.")
 	}
 
-	// filter images by name_regex
+	// Filter images by `name_regex`.
 	var filteredImages []cloudimages.Image
 	if nameRegex, ok := d.GetOk("name_regex"); ok {
 		r, err := regexp.Compile(nameRegex.(string))
@@ -257,6 +269,7 @@ func dataSourceImagesImageV2Read(ctx context.Context, d *schema.ResourceData, me
 			"Please change your search criteria and try again.")
 	}
 
+	// Filter images by `most_recent`.
 	var image cloudimages.Image
 	if len(filteredImages) > 1 {
 		recent := d.Get("most_recent").(bool)
@@ -270,37 +283,38 @@ func dataSourceImagesImageV2Read(ctx context.Context, d *schema.ResourceData, me
 		image = filteredImages[0]
 	}
 
-	log.Printf("[DEBUG] Single Image found: %s", image.ID)
-	return dataSourceImagesImageV2Attributes(ctx, d, &image)
+	return dataSourceImagesImageV2Attributes(region, d, &image)
 }
 
 // dataSourceImagesImageV2Attributes populates the fields of an Image resource.
-func dataSourceImagesImageV2Attributes(_ context.Context, d *schema.ResourceData, image *cloudimages.Image) diag.Diagnostics {
-	log.Printf("[DEBUG] Get IMS image details: %#v", image)
+func dataSourceImagesImageV2Attributes(region string, d *schema.ResourceData, image *cloudimages.Image) diag.Diagnostics {
 	d.SetId(image.ID)
 
-	imageType := image.Imagetype
-	if imageType == "gold" {
-		imageType = "public"
-	}
 	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("image_id", image.ID),
 		d.Set("name", image.Name),
-		d.Set("visibility", imageType),
-		d.Set("container_format", image.ContainerFormat),
-		d.Set("disk_format", image.DiskFormat),
-		d.Set("min_disk_gb", image.MinDisk),
-		d.Set("min_ram_mb", image.MinRam),
-		d.Set("owner", image.Owner),
-		d.Set("protected", image.Protected),
 		d.Set("image_type", image.VirtualEnvType),
+		d.Set("visibility", flattenVisibility(image.Imagetype)),
+		d.Set("owner", image.Owner),
 		d.Set("os", image.Platform),
+		d.Set("architecture", getArchitecture(image.SupportArm)),
+		d.Set("enterprise_project_id", image.EnterpriseProjectID),
 		d.Set("os_version", image.OsVersion),
-		d.Set("checksum", image.Checksum),
 		d.Set("file", image.File),
 		d.Set("schema", image.Schema),
-		d.Set("enterprise_project_id", image.EnterpriseProjectID),
 		d.Set("status", image.Status),
+		d.Set("description", image.Description),
+		d.Set("protected", image.Protected),
+		d.Set("container_format", image.ContainerFormat),
+		d.Set("min_ram_mb", image.MinRam),
+		d.Set("max_ram_mb", getMaxRAM(image.MaxRam)),
+		d.Set("min_disk_gb", image.MinDisk),
+		d.Set("min_ram_mb", image.MinRam),
+		d.Set("disk_format", image.DiskFormat),
+		d.Set("data_origin", image.DataOrigin),
 		d.Set("backup_id", image.BackupID),
+		d.Set("active_at", image.ActiveAt),
 		d.Set("created_at", image.CreatedAt.Format(time.RFC3339)),
 		d.Set("updated_at", image.UpdatedAt.Format(time.RFC3339)),
 	)
