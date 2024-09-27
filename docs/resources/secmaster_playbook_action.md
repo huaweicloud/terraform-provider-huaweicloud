@@ -13,6 +13,8 @@ Manages a SecMaster playbook action resource within HuaweiCloud.
 
 ## Example Usage
 
+### Basic Example
+
 ```hcl
 variable "workspace_id" {}
 variable "version_id" {}
@@ -26,6 +28,10 @@ resource "huaweicloud_secmaster_playbook_action" "name" {
   description  = "created by terraform"
 }
 ```
+
+### More Examples
+
+For more detailed associated usage see [playbook instructions](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/secmaster/playbook/secmaster_playbook_usage_instruction.md)
 
 ## Argument Reference
 
