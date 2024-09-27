@@ -12,6 +12,8 @@ Use this resource to enable a SecMaster playbook within HuaweiCloud.
 
 ## Example Usage
 
+### Basic Example
+
 ```hcl
 variable "workspace_id" {}
 variable "playbook_id" {}
@@ -25,6 +27,10 @@ resource "huaweicloud_secmaster_playbook_enable" "test" {
   active_version_id = var.active_version_id
 }
 ```
+
+### More Examples
+
+For more detailed associated usage see [playbook instructions](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/secmaster/playbook/secmaster_playbook_usage_instruction.md)
 
 ## Argument Reference
 
