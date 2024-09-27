@@ -10,29 +10,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdn"
 )
 
-func getResourceExtensionOpts(epsId string) *domains.ExtensionOpts {
-	if epsId != "" {
-		return &domains.ExtensionOpts{
-			EnterpriseProjectId: epsId,
-		}
-	}
-	return nil
-}
-
 func getCdnDomainFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		domainName = state.Primary.Attributes["name"]
+		epsID      = state.Primary.Attributes["enterprise_project_id"]
+	)
+
 	client, err := cfg.CdnV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CDN v1 client: %s", err)
 	}
-
-	opts := getResourceExtensionOpts(state.Primary.Attributes["enterprise_project_id"])
-	return domains.GetByName(client, state.Primary.Attributes["name"], opts).Extract()
+	return cdn.ReadCdnDomainDetail(client, domainName, epsID)
 }
 
 // Try to get the domain name from the environment variable. If the environment variable does not exist, use the

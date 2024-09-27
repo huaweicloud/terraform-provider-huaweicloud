@@ -16,10 +16,6 @@ import (
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
-
-	cdnv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -1023,524 +1019,11 @@ func ResourceCdnDomain() *schema.Resource {
 	}
 }
 
-func buildCreateDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
-	var sourceRequests []domains.SourcesOpts
-
-	sources := d.Get("sources").(*schema.Set).List()
-	for i := range sources {
-		source := sources[i].(map[string]interface{})
-		sourceRequest := domains.SourcesOpts{
-			IporDomain:    source["origin"].(string),
-			OriginType:    source["origin_type"].(string),
-			ActiveStandby: source["active"].(int),
-		}
-		sourceRequests = append(sourceRequests, sourceRequest)
-	}
-	return sourceRequests
-}
-
-func buildHTTPSStatusOpts(enable bool) string {
-	if enable {
-		return "on"
-	}
-	return "off"
-}
-
-func buildHTTP2StatusOpts(enable bool) string {
-	if enable {
-		return "on"
-	}
-	// Currently, European sites do not support this parameter, so we will handle it this way for the time being.
-	return ""
-}
-
-func buildHTTPSOpts(rawHTTPS []interface{}) *model.HttpPutBody {
-	if len(rawHTTPS) != 1 {
-		return nil
-	}
-
-	https := rawHTTPS[0].(map[string]interface{})
-	httpsOpts := model.HttpPutBody{
-		HttpsStatus:        utils.String(buildHTTPSStatusOpts(https["https_enabled"].(bool))),
-		CertificateName:    utils.StringIgnoreEmpty(https["certificate_name"].(string)),
-		CertificateValue:   utils.StringIgnoreEmpty(https["certificate_body"].(string)),
-		PrivateKey:         utils.StringIgnoreEmpty(https["private_key"].(string)),
-		CertificateSource:  utils.Int32(int32(https["certificate_source"].(int))),
-		CertificateType:    utils.StringIgnoreEmpty(https["certificate_type"].(string)),
-		Http2Status:        utils.StringIgnoreEmpty(buildHTTP2StatusOpts(https["http2_enabled"].(bool))),
-		TlsVersion:         utils.StringIgnoreEmpty(https["tls_version"].(string)),
-		OcspStaplingStatus: utils.StringIgnoreEmpty(https["ocsp_stapling_status"].(string)),
-	}
-
-	return &httpsOpts
-}
-
-func buildOriginRequestHeaderOpts(rawOriginRequestHeader []interface{}) *[]model.OriginRequestHeader {
-	if len(rawOriginRequestHeader) < 1 {
-		return nil
-	}
-
-	originRequestHeaderOpts := make([]model.OriginRequestHeader, len(rawOriginRequestHeader))
-	for i, v := range rawOriginRequestHeader {
-		header := v.(map[string]interface{})
-		originRequestHeaderOpts[i] = model.OriginRequestHeader{
-			Name:   header["name"].(string),
-			Value:  utils.StringIgnoreEmpty(header["value"].(string)),
-			Action: header["action"].(string),
-		}
-	}
-
-	return &originRequestHeaderOpts
-}
-
-func buildHttpResponseHeaderOpts(rawHttpResponseHeader []interface{}) *[]model.HttpResponseHeader {
-	if len(rawHttpResponseHeader) < 1 {
-		return nil
-	}
-
-	httpResponseHeaderOpts := make([]model.HttpResponseHeader, len(rawHttpResponseHeader))
-	for i, v := range rawHttpResponseHeader {
-		header := v.(map[string]interface{})
-		httpResponseHeaderOpts[i] = model.HttpResponseHeader{
-			Name:   header["name"].(string),
-			Value:  utils.StringIgnoreEmpty(header["value"].(string)),
-			Action: header["action"].(string),
-		}
-	}
-
-	return &httpResponseHeaderOpts
-}
-
 func parseFunctionEnabledStatus(enabled bool) string {
 	if enabled {
 		return "on"
 	}
 	return "off"
-}
-
-func buildUrlAuthOpts(rawUrlAuth []interface{}) *model.UrlAuth {
-	if len(rawUrlAuth) != 1 {
-		return nil
-	}
-
-	urlAuth := rawUrlAuth[0].(map[string]interface{})
-	urlAuthOpts := model.UrlAuth{
-		Status:        parseFunctionEnabledStatus(urlAuth["enabled"].(bool)),
-		Type:          utils.StringIgnoreEmpty(urlAuth["type"].(string)),
-		SignMethod:    utils.StringIgnoreEmpty(urlAuth["sign_method"].(string)),
-		MatchType:     utils.StringIgnoreEmpty(urlAuth["match_type"].(string)),
-		InheritConfig: buildInheritConfigOpts(urlAuth["inherit_config"].([]interface{})),
-		SignArg:       utils.StringIgnoreEmpty(urlAuth["sign_arg"].(string)),
-		Key:           utils.StringIgnoreEmpty(urlAuth["key"].(string)),
-		BackupKey:     utils.StringIgnoreEmpty(urlAuth["backup_key"].(string)),
-		TimeFormat:    utils.StringIgnoreEmpty(urlAuth["time_format"].(string)),
-		ExpireTime:    utils.Int32(int32(urlAuth["expire_time"].(int))),
-	}
-
-	return &urlAuthOpts
-}
-
-func buildInheritConfigOpts(rwaInheritConfig []interface{}) *model.InheritConfig {
-	if len(rwaInheritConfig) != 1 {
-		return nil
-	}
-
-	inheritConfig := rwaInheritConfig[0].(map[string]interface{})
-	inheritConfigOpts := model.InheritConfig{
-		Status:          parseFunctionEnabledStatus(inheritConfig["enabled"].(bool)),
-		InheritType:     utils.StringIgnoreEmpty(inheritConfig["inherit_type"].(string)),
-		InheritTimeType: utils.StringIgnoreEmpty(inheritConfig["inherit_time_type"].(string)),
-	}
-
-	return &inheritConfigOpts
-}
-
-func buildForceRedirectOpts(rawForceRedirect []interface{}) *model.ForceRedirectConfig {
-	if len(rawForceRedirect) != 1 {
-		return nil
-	}
-
-	forceRedirect := rawForceRedirect[0].(map[string]interface{})
-	forceRedirectOpts := model.ForceRedirectConfig{
-		Status:       parseFunctionEnabledStatus(forceRedirect["enabled"].(bool)),
-		Type:         utils.StringIgnoreEmpty(forceRedirect["type"].(string)),
-		RedirectCode: utils.Int32IgnoreEmpty(int32(forceRedirect["redirect_code"].(int))),
-	}
-
-	return &forceRedirectOpts
-}
-
-func buildCompressOpts(rawCompress []interface{}) *model.Compress {
-	if len(rawCompress) != 1 {
-		return nil
-	}
-
-	compress := rawCompress[0].(map[string]interface{})
-	compressOpts := model.Compress{
-		Status:   parseFunctionEnabledStatus(compress["enabled"].(bool)),
-		Type:     utils.StringIgnoreEmpty(compress["type"].(string)),
-		FileType: utils.StringIgnoreEmpty(compress["file_type"].(string)),
-	}
-
-	return &compressOpts
-}
-
-func buildCacheUrlParameterFilterOpts(rawCacheUrlParameterFilter []interface{}) *model.CacheUrlParameterFilter {
-	if len(rawCacheUrlParameterFilter) != 1 {
-		return nil
-	}
-
-	cacheUrlParameterFilter := rawCacheUrlParameterFilter[0].(map[string]interface{})
-	cacheUrlParameterFilterOpts := model.CacheUrlParameterFilter{
-		Value: utils.StringIgnoreEmpty(cacheUrlParameterFilter["value"].(string)),
-		Type:  utils.StringIgnoreEmpty(cacheUrlParameterFilter["type"].(string)),
-	}
-
-	return &cacheUrlParameterFilterOpts
-}
-
-func buildIpFrequencyLimitOpts(rawIpFrequencyLimit []interface{}) *model.IpFrequencyLimit {
-	if len(rawIpFrequencyLimit) != 1 {
-		return nil
-	}
-
-	ipFrequencyLimit := rawIpFrequencyLimit[0].(map[string]interface{})
-	ipFrequencyLimitOpts := model.IpFrequencyLimit{
-		Status: parseFunctionEnabledStatus(ipFrequencyLimit["enabled"].(bool)),
-		Qps:    utils.Int32IgnoreEmpty(int32(ipFrequencyLimit["qps"].(int))),
-	}
-
-	return &ipFrequencyLimitOpts
-}
-
-func buildWebsocketOpts(rawWebsocket []interface{}) *model.WebSocketSeek {
-	if len(rawWebsocket) != 1 {
-		return nil
-	}
-
-	websocket := rawWebsocket[0].(map[string]interface{})
-	websocketOpts := model.WebSocketSeek{
-		Status:  parseFunctionEnabledStatus(websocket["enabled"].(bool)),
-		Timeout: int32(websocket["timeout"].(int)),
-	}
-
-	return &websocketOpts
-}
-
-func buildFlexibleOriginOpts(rawFlexibleOrigins []interface{}) *[]model.FlexibleOrigins {
-	if len(rawFlexibleOrigins) < 1 {
-		// Define an empty array to clear all flexible origins
-		rst := make([]model.FlexibleOrigins, 0)
-		return &rst
-	}
-
-	flexibleOriginOpts := make([]model.FlexibleOrigins, len(rawFlexibleOrigins))
-	for i, v := range rawFlexibleOrigins {
-		originMap := v.(map[string]interface{})
-		flexibleOriginOpt := model.FlexibleOrigins{
-			MatchType:    originMap["match_type"].(string),
-			MatchPattern: originMap["match_pattern"].(string),
-			Priority:     int32(originMap["priority"].(int)),
-			BackSources:  buildFlexibleOriginBackSourceOpts(originMap["back_sources"].([]interface{})),
-		}
-		flexibleOriginOpts[i] = flexibleOriginOpt
-	}
-	return &flexibleOriginOpts
-}
-
-func buildFlexibleOriginBackSourceOpts(rawBackSources []interface{}) []model.BackSources {
-	if len(rawBackSources) != 1 {
-		return nil
-	}
-
-	backSource := rawBackSources[0].(map[string]interface{})
-	backSourceOpts := model.BackSources{
-		SourcesType:   backSource["sources_type"].(string),
-		IpOrDomain:    backSource["ip_or_domain"].(string),
-		ObsBucketType: utils.StringIgnoreEmpty(backSource["obs_bucket_type"].(string)),
-		HttpPort:      utils.Int32IgnoreEmpty(int32(backSource["http_port"].(int))),
-		HttpsPort:     utils.Int32IgnoreEmpty(int32(backSource["https_port"].(int))),
-	}
-	return []model.BackSources{backSourceOpts}
-}
-
-func buildRemoteAuthOpts(rawRemoteAuth []interface{}) *model.CommonRemoteAuth {
-	if len(rawRemoteAuth) != 1 {
-		return nil
-	}
-
-	remoteAuth := rawRemoteAuth[0].(map[string]interface{})
-	remoteAuthOpts := model.CommonRemoteAuth{
-		RemoteAuthentication: parseFunctionEnabledStatus(remoteAuth["enabled"].(bool)),
-		RemoteAuthRules:      buildRemoteAuthRulesOpts(remoteAuth["remote_auth_rules"].([]interface{})),
-	}
-	return &remoteAuthOpts
-}
-
-func buildRemoteAuthRulesOpts(rawRemoteAuthRules []interface{}) *model.RemoteAuthRule {
-	if len(rawRemoteAuthRules) != 1 {
-		return nil
-	}
-
-	remoteAuthRule := rawRemoteAuthRules[0].(map[string]interface{})
-	remoteAuthRuleOpts := model.RemoteAuthRule{
-		AuthServer:            remoteAuthRule["auth_server"].(string),
-		RequestMethod:         remoteAuthRule["request_method"].(string),
-		FileTypeSetting:       remoteAuthRule["file_type_setting"].(string),
-		SpecifiedFileType:     utils.StringIgnoreEmpty(remoteAuthRule["specified_file_type"].(string)),
-		ReserveArgsSetting:    remoteAuthRule["reserve_args_setting"].(string),
-		ReserveArgs:           utils.StringIgnoreEmpty(remoteAuthRule["reserve_args"].(string)),
-		AddCustomArgsRules:    buildCustomArgsOpts(remoteAuthRule["add_custom_args_rules"].(*schema.Set).List()),
-		ReserveHeadersSetting: remoteAuthRule["reserve_headers_setting"].(string),
-		AddCustomHeadersRules: buildCustomArgsOpts(remoteAuthRule["add_custom_headers_rules"].(*schema.Set).List()),
-		AuthSuccessStatus:     remoteAuthRule["auth_success_status"].(string),
-		AuthFailedStatus:      remoteAuthRule["auth_failed_status"].(string),
-		ResponseStatus:        remoteAuthRule["response_status"].(string),
-		Timeout:               int32(remoteAuthRule["timeout"].(int)),
-		TimeoutAction:         remoteAuthRule["timeout_action"].(string),
-		ReserveHeaders:        utils.StringIgnoreEmpty(remoteAuthRule["reserve_headers"].(string)),
-	}
-	return &remoteAuthRuleOpts
-}
-
-func buildCustomArgsOpts(rawCustomArgs []interface{}) *[]model.CustomArgs {
-	if len(rawCustomArgs) < 1 {
-		// Define an empty array to clear all custom args
-		rst := make([]model.CustomArgs, 0)
-		return &rst
-	}
-
-	customArgsOpts := make([]model.CustomArgs, len(rawCustomArgs))
-	for i, v := range rawCustomArgs {
-		argMap := v.(map[string]interface{})
-		customArgsOpt := model.CustomArgs{
-			Type:  argMap["type"].(string),
-			Key:   argMap["key"].(string),
-			Value: argMap["value"].(string),
-		}
-		customArgsOpts[i] = customArgsOpt
-	}
-	return &customArgsOpts
-}
-
-func buildQUICOpts(rawQuic []interface{}) *model.Quic {
-	if len(rawQuic) != 1 {
-		return nil
-	}
-
-	quic := rawQuic[0].(map[string]interface{})
-	quicOpts := model.Quic{
-		Status: parseFunctionEnabledStatus(quic["enabled"].(bool)),
-	}
-
-	return &quicOpts
-}
-
-func buildRefererOpts(rawReferer []interface{}) *model.RefererConfig {
-	if len(rawReferer) != 1 {
-		return nil
-	}
-
-	referer := rawReferer[0].(map[string]interface{})
-	refererOpts := model.RefererConfig{
-		Type:         referer["type"].(string),
-		Value:        utils.String(referer["value"].(string)),
-		IncludeEmpty: utils.Bool(referer["include_empty"].(bool)),
-	}
-
-	return &refererOpts
-}
-
-func buildVideoSeekOpts(rawVideoSeek []interface{}) *model.VideoSeek {
-	if len(rawVideoSeek) != 1 {
-		return nil
-	}
-
-	videoSeek := rawVideoSeek[0].(map[string]interface{})
-	videoSeekOpts := model.VideoSeek{
-		EnableVideoSeek:     videoSeek["enable_video_seek"].(bool),
-		EnableFlvByTimeSeek: utils.Bool(videoSeek["enable_flv_by_time_seek"].(bool)),
-		StartParameter:      utils.String(videoSeek["start_parameter"].(string)),
-		EndParameter:        utils.String(videoSeek["end_parameter"].(string)),
-	}
-
-	return &videoSeekOpts
-}
-
-func buildRequestLimitRulesOpts(rawRequestLimitRules []interface{}) *[]model.RequestLimitRules {
-	if len(rawRequestLimitRules) < 1 {
-		// Define an empty array to clear all request limit rules
-		rst := make([]model.RequestLimitRules, 0)
-		return &rst
-	}
-
-	requestLimitRulesOpts := make([]model.RequestLimitRules, len(rawRequestLimitRules))
-	for i, v := range rawRequestLimitRules {
-		ruleMap := v.(map[string]interface{})
-		ruleOpt := model.RequestLimitRules{
-			Priority:       int32(ruleMap["priority"].(int)),
-			MatchType:      ruleMap["match_type"].(string),
-			MatchValue:     utils.String(ruleMap["match_value"].(string)),
-			Type:           ruleMap["type"].(string),
-			LimitRateAfter: int64(ruleMap["limit_rate_after"].(int)),
-			LimitRateValue: int32(ruleMap["limit_rate_value"].(int)),
-		}
-		requestLimitRulesOpts[i] = ruleOpt
-	}
-	return &requestLimitRulesOpts
-}
-
-func buildErrorCodeCacheOpts(rawErrorCodeCache []interface{}) *[]model.ErrorCodeCache {
-	if len(rawErrorCodeCache) < 1 {
-		// Define an empty array to clear all error code cache
-		rst := make([]model.ErrorCodeCache, 0)
-		return &rst
-	}
-
-	errorCodeCacheOpts := make([]model.ErrorCodeCache, len(rawErrorCodeCache))
-	for i, v := range rawErrorCodeCache {
-		cacheMap := v.(map[string]interface{})
-		cacheOpt := model.ErrorCodeCache{
-			Code: utils.Int32(int32(cacheMap["code"].(int))),
-			Ttl:  utils.Int32(int32(cacheMap["ttl"].(int))),
-		}
-		errorCodeCacheOpts[i] = cacheOpt
-	}
-	return &errorCodeCacheOpts
-}
-
-func buildIpFilterOpts(rawIpFilter []interface{}) *model.IpFilter {
-	if len(rawIpFilter) != 1 {
-		return nil
-	}
-
-	ipFilter := rawIpFilter[0].(map[string]interface{})
-	ipFilterOpts := model.IpFilter{
-		Type:  ipFilter["type"].(string),
-		Value: utils.String(ipFilter["value"].(string)),
-	}
-
-	return &ipFilterOpts
-}
-
-func buildOriginRequestUrlRewriteOpts(rawOriginRequestUrlRewrite []interface{}) *[]model.OriginRequestUrlRewrite {
-	if len(rawOriginRequestUrlRewrite) < 1 {
-		// Define an empty array to clear all origin request url rewrite
-		rst := make([]model.OriginRequestUrlRewrite, 0)
-		return &rst
-	}
-
-	originRequestUrlRewriteOpts := make([]model.OriginRequestUrlRewrite, len(rawOriginRequestUrlRewrite))
-	for i, v := range rawOriginRequestUrlRewrite {
-		urlMap := v.(map[string]interface{})
-		urlOpt := model.OriginRequestUrlRewrite{
-			Priority:  int32(urlMap["priority"].(int)),
-			MatchType: urlMap["match_type"].(string),
-			TargetUrl: urlMap["target_url"].(string),
-			SourceUrl: utils.StringIgnoreEmpty(urlMap["source_url"].(string)),
-		}
-		originRequestUrlRewriteOpts[i] = urlOpt
-	}
-	return &originRequestUrlRewriteOpts
-}
-
-func buildUserAgentFilterOpts(rawUserAgentFilter []interface{}) *model.UserAgentFilter {
-	if len(rawUserAgentFilter) != 1 {
-		return nil
-	}
-
-	userAgentFilter := rawUserAgentFilter[0].(map[string]interface{})
-	userAgentFilterOpts := model.UserAgentFilter{
-		Type:   userAgentFilter["type"].(string),
-		UaList: utils.ExpandToStringListPointer(userAgentFilter["ua_list"].(*schema.Set).List()),
-	}
-
-	return &userAgentFilterOpts
-}
-
-func buildErrorCodeRedirectRules(errorCodeRedirectRules []interface{}) *[]model.ErrorCodeRedirectRules {
-	if len(errorCodeRedirectRules) < 1 {
-		// Define an empty array to clear all error code redirect rules
-		rst := make([]model.ErrorCodeRedirectRules, 0)
-		return &rst
-	}
-
-	errorCodeRedirectRulesOpts := make([]model.ErrorCodeRedirectRules, len(errorCodeRedirectRules))
-	for i, v := range errorCodeRedirectRules {
-		ruleMap := v.(map[string]interface{})
-		ruleOpt := model.ErrorCodeRedirectRules{
-			ErrorCode:  int32(ruleMap["error_code"].(int)),
-			TargetCode: int32(ruleMap["target_code"].(int)),
-			TargetLink: ruleMap["target_link"].(string),
-		}
-		errorCodeRedirectRulesOpts[i] = ruleOpt
-	}
-	return &errorCodeRedirectRulesOpts
-}
-
-func buildHstsOpts(rawHsts []interface{}) *model.Hsts {
-	if len(rawHsts) != 1 {
-		return nil
-	}
-
-	hsts := rawHsts[0].(map[string]interface{})
-	hstsOpts := model.Hsts{
-		Status:            parseFunctionEnabledStatus(hsts["enabled"].(bool)),
-		MaxAge:            utils.Int32(int32(hsts["max_age"].(int))),
-		IncludeSubdomains: utils.StringIgnoreEmpty(hsts["include_subdomains"].(string)),
-	}
-
-	return &hstsOpts
-}
-
-func buildAccessAreaFilters(accessAreaFilters []interface{}) *[]model.AccessAreaFilter {
-	if len(accessAreaFilters) < 1 {
-		// Define an empty array to clear all access area filters
-		rst := make([]model.AccessAreaFilter, 0)
-		return &rst
-	}
-
-	accessAreaFiltersOpts := make([]model.AccessAreaFilter, len(accessAreaFilters))
-	for i, v := range accessAreaFilters {
-		filterMap := v.(map[string]interface{})
-		filterOpt := model.AccessAreaFilter{
-			Type:         utils.String(filterMap["type"].(string)),
-			ContentType:  utils.String(filterMap["content_type"].(string)),
-			Area:         utils.String(filterMap["area"].(string)),
-			ContentValue: utils.StringIgnoreEmpty(filterMap["content_value"].(string)),
-			ExceptionIp:  utils.StringIgnoreEmpty(filterMap["exception_ip"].(string)),
-		}
-		accessAreaFiltersOpts[i] = filterOpt
-	}
-	return &accessAreaFiltersOpts
-}
-
-func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
-	if len(rawSources) < 1 {
-		return nil
-	}
-	sourcesOpts := make([]model.SourcesConfig, len(rawSources))
-	for i, v := range rawSources {
-		source := v.(map[string]interface{})
-		var priority int32
-		if source["active"].(int) == 1 {
-			priority = 70
-		} else {
-			priority = 30
-		}
-		sourcesOpts[i] = model.SourcesConfig{
-			OriginAddr:          source["origin"].(string),
-			OriginType:          source["origin_type"].(string),
-			Priority:            priority,
-			ObsWebHostingStatus: utils.String(parseFunctionEnabledStatus(source["obs_web_hosting_enabled"].(bool))),
-			HttpPort:            utils.Int32IgnoreEmpty(int32(source["http_port"].(int))),
-			HttpsPort:           utils.Int32IgnoreEmpty(int32(source["https_port"].(int))),
-			HostName:            utils.StringIgnoreEmpty(source["retrieval_host"].(string)),
-			Weight:              utils.Int32IgnoreEmpty(int32(source["weight"].(int))),
-			ObsBucketType:       utils.StringIgnoreEmpty(source["obs_bucket_type"].(string)),
-		}
-	}
-	return &sourcesOpts
 }
 
 func parseCacheRuleType(ruleType string) string {
@@ -1570,168 +1053,6 @@ func parseCacheTTLUnits(ttlUnit string) string {
 	return ttlUnit
 }
 
-func buildCacheRules(followOrigin bool, rules []interface{}) *[]model.CacheRules {
-	result := make([]model.CacheRules, len(rules))
-	for i, val := range rules {
-		rule := val.(map[string]interface{})
-		result[i] = model.CacheRules{
-			FollowOrigin:      utils.StringIgnoreEmpty(parseFunctionEnabledStatus(followOrigin)),
-			MatchType:         utils.StringIgnoreEmpty(parseCacheRuleType(rule["rule_type"].(string))),
-			MatchValue:        utils.StringIgnoreEmpty(rule["content"].(string)),
-			Ttl:               utils.Int32(int32(rule["ttl"].(int))),
-			TtlUnit:           parseCacheTTLUnits(rule["ttl_type"].(string)),
-			Priority:          int32(rule["priority"].(int)),
-			UrlParameterType:  utils.StringIgnoreEmpty(rule["url_parameter_type"].(string)),
-			UrlParameterValue: utils.StringIgnoreEmpty(rule["url_parameter_value"].(string)),
-		}
-	}
-	return &result
-}
-
-func buildIpv6AccelerateOpts(ipv6Enable bool) *int32 {
-	ipv6Accelerate := 0
-	if ipv6Enable {
-		ipv6Accelerate = 1
-	}
-	return utils.Int32(int32(ipv6Accelerate))
-}
-
-// buildUpdateDomainFullConfigsOpts Build CDN domain config opts from field `configs`
-func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[string]interface{}, d *schema.ResourceData) {
-	if d.HasChange("configs.0.ipv6_enable") {
-		configsOpts.Ipv6Accelerate = buildIpv6AccelerateOpts(configs["ipv6_enable"].(bool))
-	}
-	if d.HasChange("configs.0.range_based_retrieval_enabled") {
-		retrievalEnabled := configs["range_based_retrieval_enabled"].(bool)
-		configsOpts.OriginRangeStatus = utils.String(parseFunctionEnabledStatus(retrievalEnabled))
-	}
-	if d.HasChange("configs.0.description") {
-		configsOpts.Remark = utils.String(configs["description"].(string))
-	}
-	if d.HasChange("configs.0.slice_etag_status") {
-		configsOpts.SliceEtagStatus = utils.StringIgnoreEmpty(configs["slice_etag_status"].(string))
-	}
-	if d.HasChange("configs.0.origin_receive_timeout") {
-		configsOpts.OriginReceiveTimeout = utils.Int32IgnoreEmpty(int32(configs["origin_receive_timeout"].(int)))
-	}
-	if d.HasChange("configs.0.origin_follow302_status") {
-		configsOpts.OriginFollow302Status = utils.StringIgnoreEmpty(configs["origin_follow302_status"].(string))
-	}
-	if d.HasChange("configs.0.https_settings") {
-		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
-	}
-	if d.HasChange("configs.0.retrieval_request_header") {
-		configsOpts.OriginRequestHeader = buildOriginRequestHeaderOpts(configs["retrieval_request_header"].(*schema.Set).List())
-	}
-	if d.HasChange("configs.0.http_response_header") {
-		configsOpts.HttpResponseHeader = buildHttpResponseHeaderOpts(configs["http_response_header"].(*schema.Set).List())
-	}
-	if d.HasChange("configs.0.url_signing") {
-		configsOpts.UrlAuth = buildUrlAuthOpts(configs["url_signing"].([]interface{}))
-	}
-	if d.HasChange("configs.0.origin_protocol") {
-		configsOpts.OriginProtocol = utils.StringIgnoreEmpty(configs["origin_protocol"].(string))
-	}
-	if d.HasChange("configs.0.force_redirect") {
-		configsOpts.ForceRedirect = buildForceRedirectOpts(configs["force_redirect"].([]interface{}))
-	}
-	if d.HasChange("configs.0.compress") {
-		configsOpts.Compress = buildCompressOpts(configs["compress"].([]interface{}))
-	}
-	if d.HasChange("configs.0.cache_url_parameter_filter") {
-		configsOpts.CacheUrlParameterFilter = buildCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{}))
-	}
-	if d.HasChange("configs.0.ip_frequency_limit") {
-		configsOpts.IpFrequencyLimit = buildIpFrequencyLimitOpts(configs["ip_frequency_limit"].([]interface{}))
-	}
-	if d.HasChange("configs.0.websocket") {
-		configsOpts.Websocket = buildWebsocketOpts(configs["websocket"].([]interface{}))
-	}
-	if d.HasChange("configs.0.flexible_origin") {
-		configsOpts.FlexibleOrigin = buildFlexibleOriginOpts(configs["flexible_origin"].(*schema.Set).List())
-	}
-	if d.HasChange("configs.0.remote_auth") {
-		configsOpts.RemoteAuth = buildRemoteAuthOpts(configs["remote_auth"].([]interface{}))
-	}
-	if d.HasChange("configs.0.quic") {
-		configsOpts.Quic = buildQUICOpts(configs["quic"].([]interface{}))
-	}
-	if d.HasChange("configs.0.referer") {
-		configsOpts.Referer = buildRefererOpts(configs["referer"].([]interface{}))
-	}
-	if d.HasChange("configs.0.video_seek") {
-		configsOpts.VideoSeek = buildVideoSeekOpts(configs["video_seek"].([]interface{}))
-	}
-	if d.HasChange("configs.0.request_limit_rules") {
-		configsOpts.RequestLimitRules = buildRequestLimitRulesOpts(configs["request_limit_rules"].(*schema.Set).List())
-	}
-	if d.HasChange("configs.0.error_code_cache") {
-		configsOpts.ErrorCodeCache = buildErrorCodeCacheOpts(configs["error_code_cache"].(*schema.Set).List())
-	}
-	if d.HasChange("configs.0.ip_filter") {
-		configsOpts.IpFilter = buildIpFilterOpts(configs["ip_filter"].([]interface{}))
-	}
-	if d.HasChange("configs.0.origin_request_url_rewrite") {
-		originRequestUrlRewrites := configs["origin_request_url_rewrite"].(*schema.Set).List()
-		configsOpts.OriginRequestUrlRewrite = buildOriginRequestUrlRewriteOpts(originRequestUrlRewrites)
-	}
-	if d.HasChange("configs.0.user_agent_filter") {
-		configsOpts.UserAgentFilter = buildUserAgentFilterOpts(configs["user_agent_filter"].([]interface{}))
-	}
-	if d.HasChange("configs.0.error_code_redirect_rules") {
-		errorCodeRedirectRules := configs["error_code_redirect_rules"].(*schema.Set).List()
-		configsOpts.ErrorCodeRedirectRules = buildErrorCodeRedirectRules(errorCodeRedirectRules)
-	}
-	if d.HasChange("configs.0.hsts") {
-		configsOpts.Hsts = buildHstsOpts(configs["hsts"].([]interface{}))
-	}
-	if d.HasChange("configs.0.access_area_filter") {
-		accessAreaFilters := configs["access_area_filter"].(*schema.Set).List()
-		configsOpts.AccessAreaFilter = buildAccessAreaFilters(accessAreaFilters)
-	}
-}
-
-func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *schema.ResourceData) error {
-	// When the configs configuration is empty, the interface will report an error.
-	// Make fields `business_type` and `service_area` are configured by default.
-	configsOpts := model.Configs{
-		BusinessType: utils.StringIgnoreEmpty(d.Get("type").(string)),
-		ServiceArea:  utils.StringIgnoreEmpty(d.Get("service_area").(string)),
-	}
-	if d.HasChange("sources") {
-		configsOpts.Sources = buildSourcesOpts(d.Get("sources").(*schema.Set).List())
-	}
-
-	if d.HasChange("configs") {
-		rawConfigs := d.Get("configs").([]interface{})
-		if len(rawConfigs) > 0 && rawConfigs[0] != nil {
-			buildUpdateDomainFullConfigsOpts(&configsOpts, rawConfigs[0].(map[string]interface{}), d)
-		}
-	}
-
-	if d.HasChange("cache_settings") {
-		cacheSettings := d.Get("cache_settings").([]interface{})
-		if len(cacheSettings) > 0 {
-			cacheSetting := cacheSettings[0].(map[string]interface{})
-			configsOpts.CacheRules = buildCacheRules(cacheSetting["follow_origin"].(bool), cacheSetting["rules"].(*schema.Set).List())
-		}
-	}
-
-	req := model.UpdateDomainFullConfigRequest{
-		DomainName:          d.Get("name").(string),
-		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-		Body: &model.ModifyDomainConfigRequestBody{
-			Configs: &configsOpts,
-		},
-	}
-
-	_, err := client.UpdateDomainFullConfig(&req)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func buildCreateCdnDomainSourcesBodyParams(d *schema.ResourceData) []interface{} {
 	sources := d.Get("sources").(*schema.Set).List()
 	rst := make([]interface{}, 0, len(sources))
@@ -1749,13 +1070,15 @@ func buildCreateCdnDomainSourcesBodyParams(d *schema.ResourceData) []interface{}
 
 func buildCreateCdnDomainBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"domain_name":           utils.ValueIgnoreEmpty(d.Get("name")),
-		"business_type":         utils.ValueIgnoreEmpty(d.Get("type")),
-		"sources":               utils.ValueIgnoreEmpty(buildCreateCdnDomainSourcesBodyParams(d)),
+		"domain_name":           d.Get("name"),
+		"business_type":         d.Get("type"),
+		"sources":               buildCreateCdnDomainSourcesBodyParams(d),
 		"service_area":          utils.ValueIgnoreEmpty(d.Get("service_area")),
 		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
-	return bodyParams
+	return map[string]interface{}{
+		"domain": bodyParams,
+	}
 }
 
 func buildCdnDomainQueryParams(epsID string) string {
@@ -1848,6 +1171,12 @@ func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	// Even if there is an error when creating an API, the status code for the API response is always 200.
+	errorCode := utils.PathSearch("error.error_code", createRespBody, "").(string)
+	if errorCode != "" {
+		errorMsg := utils.PathSearch("error.error_msg", createRespBody, "").(string)
+		return diag.Errorf("error creating CDN domain: error_code (%s), error_msg (%s)", errorCode, errorMsg)
+	}
 
 	id := utils.PathSearch("domain.id", createRespBody, "").(string)
 	if id == "" {
@@ -1862,595 +1191,8 @@ func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceCdnDomainUpdate(ctx, d, meta)
 }
 
-func waitingForStatusOnline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
-	timeout time.Duration, opts *domains.ExtensionOpts) error {
-	domainName := d.Get("name").(string)
-	unexpectedStatus := []string{"offline", "configure_failed", "check_failed", "deleting"}
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			domain, err := domains.GetByName(client, domainName, opts).Extract()
-			if err != nil {
-				return nil, "ERROR", err
-			}
-
-			if domain == nil {
-				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: Domain is not found in API response")
-			}
-
-			status := domain.DomainStatus
-			if status == "online" {
-				return domain, "COMPLETED", nil
-			}
-
-			if utils.StrSliceContains(unexpectedStatus, status) {
-				return domain, status, nil
-			}
-			return domain, "PENDING", nil
-		},
-		Timeout:      timeout,
-		Delay:        20 * time.Second,
-		PollInterval: 20 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
-}
-
-func waitingForStatusOffline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
-	timeout time.Duration, opts *domains.ExtensionOpts) error {
-	domainName := d.Get("name").(string)
-	unexpectedStatus := []string{"online", "configure_failed", "check_failed", "deleting"}
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			domain, err := domains.GetByName(client, domainName, opts).Extract()
-			if err != nil {
-				return nil, "ERROR", err
-			}
-
-			if domain == nil {
-				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: Domain is not found in API response")
-			}
-
-			status := domain.DomainStatus
-			if status == "offline" {
-				return domain, "COMPLETED", nil
-			}
-
-			if utils.StrSliceContains(unexpectedStatus, status) {
-				return domain, status, nil
-			}
-			return domain, "PENDING", nil
-		},
-		Timeout:      timeout,
-		Delay:        20 * time.Second,
-		PollInterval: 20 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
-}
-
 func analyseFunctionEnabledStatus(enabledStatus string) bool {
 	return enabledStatus == "on"
-}
-
-func analyseFunctionEnabledStatusPtr(enabledStatus *string) bool {
-	return enabledStatus != nil && *enabledStatus == "on"
-}
-
-// flattenHTTPSAttrs Field `privateKey` is not returned in the details interface.
-// The value of the field `certificateBody` will be modified by the cloud, resulting in inconsistency with the local value.
-func flattenHTTPSAttrs(https *model.HttpGetBody, privateKey, certificateBody string) []map[string]interface{} {
-	if https == nil {
-		return nil
-	}
-	httpsAttrs := map[string]interface{}{
-		"https_status":         https.HttpsStatus,
-		"certificate_name":     https.CertificateName,
-		"certificate_body":     certificateBody,
-		"private_key":          privateKey,
-		"certificate_source":   https.CertificateSource,
-		"certificate_type":     https.CertificateType,
-		"http2_status":         https.Http2Status,
-		"tls_version":          https.TlsVersion,
-		"ocsp_stapling_status": https.OcspStaplingStatus,
-		"https_enabled":        analyseFunctionEnabledStatusPtr(https.HttpsStatus),
-		"http2_enabled":        analyseFunctionEnabledStatusPtr(https.Http2Status),
-	}
-
-	return []map[string]interface{}{httpsAttrs}
-}
-
-func flattenOriginRequestHeaderAttrs(originRequestHeader *[]model.OriginRequestHeader) []map[string]interface{} {
-	if originRequestHeader == nil || len(*originRequestHeader) == 0 {
-		return nil
-	}
-
-	originRequestHeaderAttrs := make([]map[string]interface{}, len(*originRequestHeader))
-	for i, v := range *originRequestHeader {
-		originRequestHeaderAttrs[i] = map[string]interface{}{
-			"name":   v.Name,
-			"value":  v.Value,
-			"action": v.Action,
-		}
-	}
-
-	return originRequestHeaderAttrs
-}
-
-func flattenHttpResponseHeaderAttrs(httpResponseHeader *[]model.HttpResponseHeader) []map[string]interface{} {
-	if httpResponseHeader == nil || len(*httpResponseHeader) == 0 {
-		return nil
-	}
-
-	httpResponseHeaderAttrs := make([]map[string]interface{}, len(*httpResponseHeader))
-	for i, v := range *httpResponseHeader {
-		httpResponseHeaderAttrs[i] = map[string]interface{}{
-			"name":   v.Name,
-			"value":  v.Value,
-			"action": v.Action,
-		}
-	}
-
-	return httpResponseHeaderAttrs
-}
-
-func flattenUrlAuthAttrs(urlAuth *model.UrlAuthGetBody, urlAuthKey, urlAuthBackupKey string) []map[string]interface{} {
-	if urlAuth == nil {
-		return nil
-	}
-
-	urlAuthAttrs := map[string]interface{}{
-		"enabled":        analyseFunctionEnabledStatus(urlAuth.Status),
-		"status":         urlAuth.Status,
-		"type":           urlAuth.Type,
-		"sign_method":    urlAuth.SignMethod,
-		"match_type":     urlAuth.MatchType,
-		"inherit_config": flattenInheritConfigAttrs(urlAuth.InheritConfig),
-		"sign_arg":       urlAuth.SignArg,
-		"key":            urlAuthKey,
-		"backup_key":     urlAuthBackupKey,
-		"time_format":    urlAuth.TimeFormat,
-		"expire_time":    urlAuth.ExpireTime,
-	}
-
-	return []map[string]interface{}{urlAuthAttrs}
-}
-
-func flattenInheritConfigAttrs(inheritConfig *model.InheritConfigQuery) []map[string]interface{} {
-	if inheritConfig == nil {
-		return nil
-	}
-
-	inheritConfigAttrs := map[string]interface{}{
-		"enabled":           analyseFunctionEnabledStatus(inheritConfig.Status),
-		"status":            inheritConfig.Status,
-		"inherit_type":      inheritConfig.InheritType,
-		"inherit_time_type": inheritConfig.InheritTimeType,
-	}
-
-	return []map[string]interface{}{inheritConfigAttrs}
-}
-
-func flattenForceRedirectAttrs(forceRedirect *model.ForceRedirectConfig) []map[string]interface{} {
-	if forceRedirect == nil {
-		return nil
-	}
-
-	forceRedirectAttrs := map[string]interface{}{
-		"status":        forceRedirect.Status,
-		"type":          forceRedirect.Type,
-		"enabled":       analyseFunctionEnabledStatus(forceRedirect.Status),
-		"redirect_code": forceRedirect.RedirectCode,
-	}
-
-	return []map[string]interface{}{forceRedirectAttrs}
-}
-
-func flattenCompressAttrs(compress *model.Compress) []map[string]interface{} {
-	if compress == nil {
-		return nil
-	}
-
-	compressAttrs := map[string]interface{}{
-		"status":    compress.Status,
-		"type":      compress.Type,
-		"file_type": compress.FileType,
-		"enabled":   analyseFunctionEnabledStatus(compress.Status),
-	}
-
-	return []map[string]interface{}{compressAttrs}
-}
-
-func flattenCacheUrlParameterFilterAttrs(cacheUrlParameterFilter *model.CacheUrlParameterFilterGetBody) []map[string]interface{} {
-	if cacheUrlParameterFilter == nil {
-		return nil
-	}
-
-	cacheUrlParameterFilterAttrs := map[string]interface{}{
-		"value": cacheUrlParameterFilter.Value,
-		"type":  cacheUrlParameterFilter.Type,
-	}
-
-	return []map[string]interface{}{cacheUrlParameterFilterAttrs}
-}
-
-func flattenIpFrequencyLimitAttrs(ipFrequencyLimit *model.IpFrequencyLimitQuery) []map[string]interface{} {
-	if ipFrequencyLimit == nil {
-		return nil
-	}
-
-	ipFrequencyLimitAttrs := map[string]interface{}{
-		"enabled": analyseFunctionEnabledStatus(ipFrequencyLimit.Status),
-		"qps":     ipFrequencyLimit.Qps,
-	}
-
-	return []map[string]interface{}{ipFrequencyLimitAttrs}
-}
-
-func flattenWebsocketAttrs(websocket *model.WebSocketSeek) []map[string]interface{} {
-	if websocket == nil {
-		return nil
-	}
-
-	websocketAttrs := map[string]interface{}{
-		"enabled": analyseFunctionEnabledStatus(websocket.Status),
-		"timeout": websocket.Timeout,
-	}
-
-	return []map[string]interface{}{websocketAttrs}
-}
-
-func flattenFlexibleOriginAttrs(flexibleOrigins *[]model.FlexibleOrigins) []map[string]interface{} {
-	if flexibleOrigins == nil || len(*flexibleOrigins) == 0 {
-		return nil
-	}
-
-	flexibleOriginsAttrs := make([]map[string]interface{}, len(*flexibleOrigins))
-	for i, v := range *flexibleOrigins {
-		flexibleOriginsAttrs[i] = map[string]interface{}{
-			"match_type":    v.MatchType,
-			"match_pattern": v.MatchPattern,
-			"priority":      v.Priority,
-			"back_sources":  flattenFlexibleOriginBackSourceAttrs(v.BackSources),
-		}
-	}
-	return flexibleOriginsAttrs
-}
-
-func flattenFlexibleOriginBackSourceAttrs(backSources []model.BackSources) []map[string]interface{} {
-	if len(backSources) == 0 {
-		return nil
-	}
-
-	backSourcesAttrs := make([]map[string]interface{}, len(backSources))
-	for i, v := range backSources {
-		backSourcesAttrs[i] = map[string]interface{}{
-			"sources_type":    v.SourcesType,
-			"ip_or_domain":    v.IpOrDomain,
-			"obs_bucket_type": v.ObsBucketType,
-			"http_port":       v.HttpPort,
-			"https_port":      v.HttpsPort,
-		}
-	}
-	return backSourcesAttrs
-}
-
-func flattenRemoteAuthAttrs(remoteAuth *model.CommonRemoteAuth) []map[string]interface{} {
-	if remoteAuth == nil {
-		return nil
-	}
-
-	remoteAuthAttrs := map[string]interface{}{
-		"enabled":           analyseFunctionEnabledStatus(remoteAuth.RemoteAuthentication),
-		"remote_auth_rules": flattenRemoteAuthRulesAttrs(remoteAuth.RemoteAuthRules),
-	}
-	return []map[string]interface{}{remoteAuthAttrs}
-}
-
-func flattenRemoteAuthRulesAttrs(remoteAuthRule *model.RemoteAuthRule) []map[string]interface{} {
-	if remoteAuthRule == nil {
-		return nil
-	}
-
-	remoteAuthRuleAttrs := map[string]interface{}{
-		"auth_server":              remoteAuthRule.AuthServer,
-		"request_method":           remoteAuthRule.RequestMethod,
-		"file_type_setting":        remoteAuthRule.FileTypeSetting,
-		"specified_file_type":      remoteAuthRule.SpecifiedFileType,
-		"reserve_args_setting":     remoteAuthRule.ReserveArgsSetting,
-		"reserve_args":             remoteAuthRule.ReserveArgs,
-		"add_custom_args_rules":    flattenCustomArgsAttrs(remoteAuthRule.AddCustomArgsRules),
-		"reserve_headers_setting":  remoteAuthRule.ReserveHeadersSetting,
-		"add_custom_headers_rules": flattenCustomArgsAttrs(remoteAuthRule.AddCustomHeadersRules),
-		"auth_success_status":      remoteAuthRule.AuthSuccessStatus,
-		"auth_failed_status":       remoteAuthRule.AuthFailedStatus,
-		"response_status":          remoteAuthRule.ResponseStatus,
-		"timeout":                  remoteAuthRule.Timeout,
-		"timeout_action":           remoteAuthRule.TimeoutAction,
-		"reserve_headers":          remoteAuthRule.ReserveHeaders,
-	}
-	return []map[string]interface{}{remoteAuthRuleAttrs}
-}
-
-func flattenCustomArgsAttrs(customArgs *[]model.CustomArgs) []map[string]interface{} {
-	if customArgs == nil || len(*customArgs) == 0 {
-		return nil
-	}
-
-	customArgsAttrs := make([]map[string]interface{}, len(*customArgs))
-	for i, v := range *customArgs {
-		customArgsAttrs[i] = map[string]interface{}{
-			"type":  v.Type,
-			"key":   v.Key,
-			"value": v.Value,
-		}
-	}
-	return customArgsAttrs
-}
-
-func flattenQUICAttrs(quic *model.Quic) []map[string]interface{} {
-	if quic == nil {
-		return nil
-	}
-
-	quicAttrs := map[string]interface{}{
-		"enabled": analyseFunctionEnabledStatus(quic.Status),
-	}
-
-	return []map[string]interface{}{quicAttrs}
-}
-
-func flattenRefererAttrs(referer *model.RefererConfig) []map[string]interface{} {
-	if referer == nil {
-		return nil
-	}
-
-	refererAttrs := map[string]interface{}{
-		"type":          referer.Type,
-		"value":         referer.Value,
-		"include_empty": referer.IncludeEmpty,
-	}
-
-	return []map[string]interface{}{refererAttrs}
-}
-
-func flattenVideoSeekAttrs(videoSeek *model.VideoSeek) []map[string]interface{} {
-	if videoSeek == nil {
-		// When closing `video_seek`, the API response body will not return the information of this field.
-		// In order to avoid plan problems in terraform, a default value is added.
-		return []map[string]interface{}{{
-			"enable_video_seek": false,
-		}}
-	}
-
-	return []map[string]interface{}{{
-		"enable_video_seek":       videoSeek.EnableVideoSeek,
-		"enable_flv_by_time_seek": videoSeek.EnableFlvByTimeSeek,
-		"start_parameter":         videoSeek.StartParameter,
-		"end_parameter":           videoSeek.EndParameter,
-	}}
-}
-
-func flattenRequestLimitRulesAttrs(requestLimitRules *[]model.RequestLimitRules) []map[string]interface{} {
-	if requestLimitRules == nil || len(*requestLimitRules) == 0 {
-		return nil
-	}
-
-	requestLimitRulesAttrs := make([]map[string]interface{}, len(*requestLimitRules))
-	for i, v := range *requestLimitRules {
-		requestLimitRulesAttrs[i] = map[string]interface{}{
-			"priority":         v.Priority,
-			"match_type":       v.MatchType,
-			"match_value":      v.MatchValue,
-			"type":             v.Type,
-			"limit_rate_after": v.LimitRateAfter,
-			"limit_rate_value": v.LimitRateValue,
-		}
-	}
-	return requestLimitRulesAttrs
-}
-
-func flattenErrorCodeCacheAttrs(errorCodeCache *[]model.ErrorCodeCache) []map[string]interface{} {
-	if errorCodeCache == nil || len(*errorCodeCache) == 0 {
-		return nil
-	}
-
-	errorCodeCacheAttrs := make([]map[string]interface{}, len(*errorCodeCache))
-	for i, v := range *errorCodeCache {
-		errorCodeCacheAttrs[i] = map[string]interface{}{
-			"code": v.Code,
-			"ttl":  v.Ttl,
-		}
-	}
-	return errorCodeCacheAttrs
-}
-
-func flattenIpFilterAttrs(ipFilter *model.IpFilter) []map[string]interface{} {
-	if ipFilter == nil {
-		return nil
-	}
-
-	ipFilterAttrs := map[string]interface{}{
-		"type":  ipFilter.Type,
-		"value": ipFilter.Value,
-	}
-	return []map[string]interface{}{ipFilterAttrs}
-}
-
-func flattenOriginRequestUrlRewriteAttrs(originRequestUrlRewrite *[]model.OriginRequestUrlRewrite) []map[string]interface{} {
-	if originRequestUrlRewrite == nil || len(*originRequestUrlRewrite) == 0 {
-		return nil
-	}
-
-	originRequestUrlRewriteAttrs := make([]map[string]interface{}, len(*originRequestUrlRewrite))
-	for i, v := range *originRequestUrlRewrite {
-		originRequestUrlRewriteAttrs[i] = map[string]interface{}{
-			"priority":   v.Priority,
-			"match_type": v.MatchType,
-			"target_url": v.TargetUrl,
-			"source_url": v.SourceUrl,
-		}
-	}
-	return originRequestUrlRewriteAttrs
-}
-
-func flattenUserAgentFilterAttrs(userAgentFilter *model.UserAgentFilter) []map[string]interface{} {
-	if userAgentFilter == nil {
-		return nil
-	}
-
-	userAgentFilterAttrs := map[string]interface{}{
-		"type": userAgentFilter.Type,
-	}
-	if uaList := userAgentFilter.UaList; uaList != nil {
-		userAgentFilterAttrs["ua_list"] = *uaList
-	}
-
-	return []map[string]interface{}{userAgentFilterAttrs}
-}
-
-func flattenErrorCodeRedirectRulesAttrs(errorCodeRedirectRules *[]model.ErrorCodeRedirectRules) []map[string]interface{} {
-	if errorCodeRedirectRules == nil || len(*errorCodeRedirectRules) == 0 {
-		return nil
-	}
-
-	errorCodeRedirectRulesAttrs := make([]map[string]interface{}, len(*errorCodeRedirectRules))
-	for i, v := range *errorCodeRedirectRules {
-		errorCodeRedirectRulesAttrs[i] = map[string]interface{}{
-			"error_code":  v.ErrorCode,
-			"target_code": v.TargetCode,
-			"target_link": v.TargetLink,
-		}
-	}
-	return errorCodeRedirectRulesAttrs
-}
-
-func flattenHstsAttrs(hsts *model.HstsQuery) []map[string]interface{} {
-	if hsts == nil {
-		return nil
-	}
-
-	hstsAttrs := map[string]interface{}{
-		"enabled":            analyseFunctionEnabledStatus(hsts.Status),
-		"max_age":            hsts.MaxAge,
-		"include_subdomains": hsts.IncludeSubdomains,
-	}
-
-	return []map[string]interface{}{hstsAttrs}
-}
-
-func flattenAccessAreaFiltersAttrs(accessAreaFilters *[]model.AccessAreaFilter) []map[string]interface{} {
-	if accessAreaFilters == nil || len(*accessAreaFilters) == 0 {
-		return nil
-	}
-
-	accessAreaFiltersAttrs := make([]map[string]interface{}, len(*accessAreaFilters))
-	for i, v := range *accessAreaFilters {
-		accessAreaFiltersAttrs[i] = map[string]interface{}{
-			"type":          v.Type,
-			"content_type":  v.ContentType,
-			"area":          v.Area,
-			"content_value": v.ContentValue,
-			"exception_ip":  v.ExceptionIp,
-		}
-	}
-	return accessAreaFiltersAttrs
-}
-
-func flattenSourcesAttrs(sources *[]model.SourcesConfigResponseBody) []map[string]interface{} {
-	if sources == nil || len(*sources) == 0 {
-		return nil
-	}
-
-	sourcesAttrs := make([]map[string]interface{}, len(*sources))
-	for i, v := range *sources {
-		var active int
-		if v.Priority == 70 {
-			active = 1
-		}
-		sourcesAttrs[i] = map[string]interface{}{
-			"origin":                  v.OriginAddr,
-			"origin_type":             v.OriginType,
-			"active":                  active,
-			"obs_web_hosting_enabled": analyseFunctionEnabledStatusPtr(v.ObsWebHostingStatus),
-			"http_port":               v.HttpPort,
-			"https_port":              v.HttpsPort,
-			"retrieval_host":          v.HostName,
-			"weight":                  v.Weight,
-			"obs_bucket_type":         v.ObsBucketType,
-		}
-	}
-
-	return sourcesAttrs
-}
-
-func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceData) []map[string]interface{} {
-	privateKey := d.Get("configs.0.https_settings.0.private_key").(string)
-	certificateBody := d.Get("configs.0.https_settings.0.certificate_body").(string)
-	urlAuthKey := d.Get("configs.0.url_signing.0.key").(string)
-	urlAuthBackupKey := d.Get("configs.0.url_signing.0.backup_key").(string)
-
-	configsAttrs := map[string]interface{}{
-		"https_settings":                flattenHTTPSAttrs(configsResp.Https, privateKey, certificateBody),
-		"retrieval_request_header":      flattenOriginRequestHeaderAttrs(configsResp.OriginRequestHeader),
-		"http_response_header":          flattenHttpResponseHeaderAttrs(configsResp.HttpResponseHeader),
-		"url_signing":                   flattenUrlAuthAttrs(configsResp.UrlAuth, urlAuthKey, urlAuthBackupKey),
-		"origin_protocol":               configsResp.OriginProtocol,
-		"force_redirect":                flattenForceRedirectAttrs(configsResp.ForceRedirect),
-		"compress":                      flattenCompressAttrs(configsResp.Compress),
-		"cache_url_parameter_filter":    flattenCacheUrlParameterFilterAttrs(configsResp.CacheUrlParameterFilter),
-		"ip_frequency_limit":            flattenIpFrequencyLimitAttrs(configsResp.IpFrequencyLimit),
-		"websocket":                     flattenWebsocketAttrs(configsResp.Websocket),
-		"flexible_origin":               flattenFlexibleOriginAttrs(configsResp.FlexibleOrigin),
-		"remote_auth":                   flattenRemoteAuthAttrs(configsResp.RemoteAuth),
-		"ipv6_enable":                   configsResp.Ipv6Accelerate != nil && *configsResp.Ipv6Accelerate == 1,
-		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configsResp.OriginRangeStatus),
-		"description":                   configsResp.Remark,
-		"slice_etag_status":             configsResp.SliceEtagStatus,
-		"origin_receive_timeout":        configsResp.OriginReceiveTimeout,
-		"origin_follow302_status":       configsResp.OriginFollow302Status,
-		"quic":                          flattenQUICAttrs(configsResp.Quic),
-		"referer":                       flattenRefererAttrs(configsResp.Referer),
-		"video_seek":                    flattenVideoSeekAttrs(configsResp.VideoSeek),
-		"request_limit_rules":           flattenRequestLimitRulesAttrs(configsResp.RequestLimitRules),
-		"error_code_cache":              flattenErrorCodeCacheAttrs(configsResp.ErrorCodeCache),
-		"ip_filter":                     flattenIpFilterAttrs(configsResp.IpFilter),
-		"origin_request_url_rewrite":    flattenOriginRequestUrlRewriteAttrs(configsResp.OriginRequestUrlRewrite),
-		"user_agent_filter":             flattenUserAgentFilterAttrs(configsResp.UserAgentFilter),
-		"error_code_redirect_rules":     flattenErrorCodeRedirectRulesAttrs(configsResp.ErrorCodeRedirectRules),
-		"hsts":                          flattenHstsAttrs(configsResp.Hsts),
-		"access_area_filter":            flattenAccessAreaFiltersAttrs(configsResp.AccessAreaFilter),
-	}
-	return []map[string]interface{}{configsAttrs}
-}
-
-func queryDomainFullConfig(hcCdnClient *cdnv2.CdnClient, cfg *config.Config, d *schema.ResourceData,
-	domainName string) (*model.ConfigsGetBody, error) {
-	req := model.ShowDomainFullConfigRequest{
-		DomainName:          domainName,
-		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-	}
-
-	resp, err := hcCdnClient.ShowDomainFullConfig(&req)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving CDN domain full config: %s", err)
-	}
-
-	if resp == nil || resp.Configs == nil {
-		return nil, fmt.Errorf("error retrieving CDN domain full config: Config is not found in API response")
-	}
-	return resp.Configs, nil
-}
-
-func queryAndFlattenDomainTags(cdnClient *golangsdk.ServiceClient, d *schema.ResourceData) (map[string]string, error) {
-	tags, err := domains.GetTags(cdnClient, d.Id())
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving CDN domain tags: %s", err)
-	}
-	return utils.TagsToMap(tags), nil
 }
 
 // In order to prevent the user from modifying the field `name` and causing the resource not to be queried, first try
@@ -2497,7 +1239,7 @@ func queryAndFlattenCdnDomainTags(client *golangsdk.ServiceClient, d *schema.Res
 	return utils.FlattenTagsToMap(utils.PathSearch("tags", getTagRespBody, nil)), nil
 }
 
-func flattenSourcesActive(priority int32) interface{} {
+func flattenSourcesActive(priority int64) interface{} {
 	if priority == 70 {
 		return 1
 	}
@@ -2518,11 +1260,22 @@ func flattenSourcesAttributes(configResp interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		sourceMap := v.(map[string]interface{})
+
+		var priority float64
+		if float64Value, ok := sourceMap["priority"].(float64); ok {
+			priority = float64Value
+		}
+
+		var obsWebHostingStatus string
+		if stringValue, ok := sourceMap["obs_web_hosting_status"].(string); ok {
+			obsWebHostingStatus = stringValue
+		}
+
 		rst = append(rst, map[string]interface{}{
 			"origin":                  sourceMap["origin_addr"],
 			"origin_type":             sourceMap["origin_type"],
-			"active":                  flattenSourcesActive(sourceMap["priority"].(int32)),
-			"obs_web_hosting_enabled": analyseFunctionEnabledStatus(sourceMap["obs_web_hosting_status"].(string)),
+			"active":                  flattenSourcesActive(int64(priority)),
+			"obs_web_hosting_enabled": analyseFunctionEnabledStatus(obsWebHostingStatus),
 			"http_port":               sourceMap["http_port"],
 			"https_port":              sourceMap["https_port"],
 			"retrieval_host":          sourceMap["host_name"],
@@ -2542,6 +1295,16 @@ func flattenHTTPSAttributes(configResp interface{}, privateKey, certificateBody 
 	}
 
 	httpsMap := curJson.(map[string]interface{})
+	var httpsStatus string
+	if stringValue, ok := httpsMap["https_status"].(string); ok {
+		httpsStatus = stringValue
+	}
+
+	var http2Status string
+	if stringValue, ok := httpsMap["http2_status"].(string); ok {
+		http2Status = stringValue
+	}
+
 	httpsAttributes := map[string]interface{}{
 		"https_status":         httpsMap["https_status"],
 		"certificate_name":     httpsMap["certificate_name"],
@@ -2552,8 +1315,8 @@ func flattenHTTPSAttributes(configResp interface{}, privateKey, certificateBody 
 		"http2_status":         httpsMap["http2_status"],
 		"tls_version":          httpsMap["tls_version"],
 		"ocsp_stapling_status": httpsMap["ocsp_stapling_status"],
-		"https_enabled":        analyseFunctionEnabledStatus(httpsMap["https_status"].(string)),
-		"http2_enabled":        analyseFunctionEnabledStatus(httpsMap["http2_status"].(string)),
+		"https_enabled":        analyseFunctionEnabledStatus(httpsStatus),
+		"http2_enabled":        analyseFunctionEnabledStatus(http2Status),
 	}
 
 	return []map[string]interface{}{httpsAttributes}
@@ -2603,8 +1366,13 @@ func flattenInheritConfigAttributes(inheritConfigResp interface{}) []map[string]
 	}
 
 	inheritConfigRespMap := inheritConfigResp.(map[string]interface{})
+	var status string
+	if stringValue, ok := inheritConfigRespMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	inheritConfigAttrs := map[string]interface{}{
-		"enabled":           analyseFunctionEnabledStatus(inheritConfigRespMap["status"].(string)),
+		"enabled":           analyseFunctionEnabledStatus(status),
 		"status":            inheritConfigRespMap["status"],
 		"inherit_type":      inheritConfigRespMap["inherit_type"],
 		"inherit_time_type": inheritConfigRespMap["inherit_time_type"],
@@ -2620,8 +1388,13 @@ func flattenUrlAuthAttributes(configResp interface{}, urlAuthKey, urlAuthBackupK
 	}
 
 	authMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := authMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	urlAuthAttrs := map[string]interface{}{
-		"enabled":        analyseFunctionEnabledStatus(authMap["status"].(string)),
+		"enabled":        analyseFunctionEnabledStatus(status),
 		"status":         authMap["status"],
 		"type":           authMap["type"],
 		"sign_method":    authMap["sign_method"],
@@ -2643,10 +1416,16 @@ func flattenForceRedirectAttributes(configResp interface{}) []map[string]interfa
 	}
 
 	forceRedirectMap := curJson.(map[string]interface{})
+
+	var status string
+	if stringValue, ok := forceRedirectMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	forceRedirectAttrs := map[string]interface{}{
 		"status":        forceRedirectMap["status"],
 		"type":          forceRedirectMap["type"],
-		"enabled":       analyseFunctionEnabledStatus(forceRedirectMap["status"].(string)),
+		"enabled":       analyseFunctionEnabledStatus(status),
 		"redirect_code": forceRedirectMap["redirect_code"],
 	}
 
@@ -2660,11 +1439,16 @@ func flattenCompressAttributes(configResp interface{}) []map[string]interface{} 
 	}
 
 	compressMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := compressMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	compressAttrs := map[string]interface{}{
 		"status":    compressMap["status"],
 		"type":      compressMap["type"],
 		"file_type": compressMap["file_type"],
-		"enabled":   analyseFunctionEnabledStatus(compressMap["status"].(string)),
+		"enabled":   analyseFunctionEnabledStatus(status),
 	}
 
 	return []map[string]interface{}{compressAttrs}
@@ -2692,8 +1476,13 @@ func flattenIpFrequencyLimitAttributes(configResp interface{}) []map[string]inte
 	}
 
 	rawMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := rawMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	ipFrequencyLimitAttrs := map[string]interface{}{
-		"enabled": analyseFunctionEnabledStatus(rawMap["status"].(string)),
+		"enabled": analyseFunctionEnabledStatus(status),
 		"qps":     rawMap["qps"],
 	}
 
@@ -2707,8 +1496,13 @@ func flattenWebsocketAttributes(configResp interface{}) []map[string]interface{}
 	}
 
 	rawMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := rawMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	websocketAttrs := map[string]interface{}{
-		"enabled": analyseFunctionEnabledStatus(rawMap["status"].(string)),
+		"enabled": analyseFunctionEnabledStatus(status),
 		"timeout": rawMap["timeout"],
 	}
 
@@ -2814,16 +1608,21 @@ func flattenRemoteAuthAttributes(configResp interface{}) []map[string]interface{
 	}
 
 	rawMap := curJson.(map[string]interface{})
+	var remoteAuthentication string
+	if stringValue, ok := rawMap["remote_authentication"].(string); ok {
+		remoteAuthentication = stringValue
+	}
+
 	remoteAuthAttrs := map[string]interface{}{
-		"enabled":           analyseFunctionEnabledStatus(rawMap["remote_authentication"].(string)),
+		"enabled":           analyseFunctionEnabledStatus(remoteAuthentication),
 		"remote_auth_rules": flattenRemoteAuthRulesAttributes(rawMap["remote_auth_rules"]),
 	}
 	return []map[string]interface{}{remoteAuthAttrs}
 }
 
 func flattenIpv6EnableAttributes(configResp interface{}) bool {
-	ipv6Accelerate := utils.PathSearch("configs.ipv6_accelerate", configResp, int32(0)).(int32)
-	return ipv6Accelerate == 1
+	ipv6Accelerate := utils.PathSearch("configs.ipv6_accelerate", configResp, float64(0)).(float64)
+	return int64(ipv6Accelerate) == 1
 }
 
 func flattenQUICAttributes(configResp interface{}) []map[string]interface{} {
@@ -2833,8 +1632,13 @@ func flattenQUICAttributes(configResp interface{}) []map[string]interface{} {
 	}
 
 	rawMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := rawMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	quicAttrs := map[string]interface{}{
-		"enabled": analyseFunctionEnabledStatus(rawMap["status"].(string)),
+		"enabled": analyseFunctionEnabledStatus(status),
 	}
 
 	return []map[string]interface{}{quicAttrs}
@@ -2992,8 +1796,13 @@ func flattenHstsAttributes(configResp interface{}) []map[string]interface{} {
 	}
 
 	rawMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := rawMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	hstsAttrs := map[string]interface{}{
-		"enabled":            analyseFunctionEnabledStatus(rawMap["status"].(string)),
+		"enabled":            analyseFunctionEnabledStatus(status),
 		"max_age":            rawMap["max_age"],
 		"include_subdomains": rawMap["include_subdomains"],
 	}
@@ -3594,8 +2403,7 @@ func buildCdnDomainAccessAreaFilters(accessAreaFilters []interface{}) []interfac
 	return rst
 }
 
-// buildUpdateCdnDomainFullConfigsOpts Build CDN domain config opts from field `configs`.
-// The map type is passed by reference.
+// nolint
 func buildUpdateCdnDomainFullConfigsOpts(bodyParams map[string]interface{}, configs map[string]interface{}, d *schema.ResourceData) {
 	if d.HasChange("configs.0.ipv6_enable") {
 		bodyParams["ipv6_accelerate"] = buildCdnDomainIpv6AccelerateOpts(configs["ipv6_enable"].(bool))
@@ -3740,6 +2548,7 @@ func updateCdnDomainFullConfigs(client *golangsdk.ServiceClient, cfg *config.Con
 	updatePath += buildCdnDomainQueryParams(cfg.GetEnterpriseProjectID(d))
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		OkCodes:          []int{200, 202, 204},
 		JSONBody: map[string]interface{}{
 			"configs": utils.RemoveNil(bodyParams),
 		},
@@ -3752,6 +2561,7 @@ func createCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData
 	createPath := client.Endpoint + "v1.0/cdn/configuration/tags"
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		OkCodes:          []int{200, 202, 204},
 		JSONBody: map[string]interface{}{
 			"resource_id": d.Id(),
 			"tags":        utils.ExpandResourceTags(tags),
@@ -3763,13 +2573,14 @@ func createCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData
 
 func deleteCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tags map[string]interface{}) error {
 	tagKeys := make([]string, 0, len(tags))
-	for k, _ := range tags {
+	for k := range tags {
 		tagKeys = append(tagKeys, k)
 	}
 
 	deletePath := client.Endpoint + "v1.0/cdn/configuration/tags/batch-delete"
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		OkCodes:          []int{200, 202, 204},
 		JSONBody: map[string]interface{}{
 			"resource_id": d.Id(),
 			"tags":        tagKeys,
@@ -3843,51 +2654,6 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceCdnDomainRead(ctx, d, meta)
 }
 
-func updateDomainTags(hcCdnClient *cdnv2.CdnClient, d *schema.ResourceData) error {
-	oTagsRaw, nTagsRaw := d.GetChange("tags")
-	oTagsMap := oTagsRaw.(map[string]interface{})
-	nTagsMap := nTagsRaw.(map[string]interface{})
-
-	if len(oTagsMap) > 0 {
-		var tagList []string
-		for k := range oTagsMap {
-			tagList = append(tagList, k)
-		}
-		deleteTagsReq := model.BatchDeleteTagsRequest{
-			Body: &model.DeleteTagsRequestBody{
-				ResourceId: d.Id(),
-				Tags:       tagList,
-			},
-		}
-		_, err := hcCdnClient.BatchDeleteTags(&deleteTagsReq)
-		if err != nil {
-			return fmt.Errorf("error deleting CDN domain tags: %s", err)
-		}
-	}
-
-	if len(nTagsMap) > 0 {
-		tagList := make([]model.TagMap, 0, len(nTagsMap))
-		for k, v := range nTagsMap {
-			tag := model.TagMap{
-				Key:   k,
-				Value: utils.String(v.(string)),
-			}
-			tagList = append(tagList, tag)
-		}
-		createTagsReq := model.CreateTagsRequest{
-			Body: &model.CreateTagsRequestBody{
-				ResourceId: d.Id(),
-				Tags:       tagList,
-			},
-		}
-		_, err := hcCdnClient.CreateTags(&createTagsReq)
-		if err != nil {
-			return fmt.Errorf("error creating CDN domain tags: %s", err)
-		}
-	}
-	return nil
-}
-
 func deleteCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, epsID string) error {
 	deletePath := client.Endpoint + "v1.0/cdn/domains/{domain_id}"
 	deletePath = strings.ReplaceAll(deletePath, "{domain_id}", d.Id())
@@ -3896,7 +2662,22 @@ func deleteCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, ep
 		KeepResponseBody: true,
 	}
 
-	_, err := client.Request("DELETE", deletePath, &deleteOpt)
+	deleteResp, err := client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return err
+	}
+
+	deleteRespBody, err := utils.FlattenResponse(deleteResp)
+	if err != nil {
+		return err
+	}
+	// Even if there is an error when deleting an API, the status code for the API response is always 200.
+	errorCode := utils.PathSearch("error.error_code", deleteRespBody, "").(string)
+	if errorCode != "" {
+		errorMsg := utils.PathSearch("error.error_msg", deleteRespBody, "").(string)
+		return fmt.Errorf("error_code (%s), error_msg (%s)", errorCode, errorMsg)
+	}
+
 	return err
 }
 
@@ -3934,7 +2715,22 @@ func disableCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, e
 		KeepResponseBody: true,
 	}
 
-	_, err := client.Request("POST", disablePath, &disableOpt)
+	resp, err := client.Request("PUT", disablePath, &disableOpt)
+	if err != nil {
+		return nil
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+	// Even if there is an error when disabling an API, the status code for the API response is always 200.
+	errorCode := utils.PathSearch("error.error_code", respBody, "").(string)
+	if errorCode != "" {
+		errorMsg := utils.PathSearch("error.error_msg", respBody, "").(string)
+		return fmt.Errorf("error_code (%s), error_msg (%s)", errorCode, errorMsg)
+	}
+
 	return err
 }
 
@@ -4033,16 +2829,6 @@ func parseDeleteDetailResponseError(err error) error {
 		}
 	}
 	return err
-}
-
-func buildResourceExtensionOpts(d *schema.ResourceData, cfg *config.Config) *domains.ExtensionOpts {
-	if epsID := cfg.GetEnterpriseProjectID(d); epsID != "" {
-		return &domains.ExtensionOpts{
-			EnterpriseProjectId: epsID,
-		}
-	}
-
-	return nil
 }
 
 func resourceCDNDomainImportState(_ context.Context, d *schema.ResourceData,
