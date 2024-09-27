@@ -289,6 +289,9 @@ var (
 	// The SecMaster pipeline ID
 	HW_SECMASTER_PIPELINE_ID = os.Getenv("HW_SECMASTER_PIPELINE_ID")
 
+	// The SecMaster playbook instance ID
+	HW_SECMASTER_INSTANCE_ID = os.Getenv("HW_SECMASTER_INSTANCE_ID")
+
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
 	HW_MODELARTS_USER_LOGIN_PASSWORD = os.Getenv("HW_MODELARTS_USER_LOGIN_PASSWORD")
 
@@ -1574,6 +1577,13 @@ func TestAccPreCheckSecMasterMetricID(t *testing.T) {
 func TestAccPreCheckSecMasterPipelineID(t *testing.T) {
 	if HW_SECMASTER_PIPELINE_ID == "" {
 		t.Skip("HW_SECMASTER_PIPELINE_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterInstanceID(t *testing.T) {
+	if HW_SECMASTER_INSTANCE_ID == "" {
+		t.Skip("HW_SECMASTER_INSTANCE_ID must be set for SecMaster acceptance tests")
 	}
 }
 
