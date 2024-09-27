@@ -16,6 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+const (
+	WorkspaceNotFound = "SecMaster.20010001"
+)
+
 // @API SecMaster GET /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{playbook_id}
 // @API SecMaster PUT /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{id}
 // @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{id}
@@ -190,8 +194,9 @@ func resourcePlaybookRead(_ context.Context, d *schema.ResourceData, meta interf
 	playbook, err := GetPlaybook(client, d.Get("workspace_id").(string), d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d,
-			common.ConvertExpected403ErrInto404Err(err, "code", "SecMaster.20010001"), "error retrieving SecMaster playbook")
+			common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound), "error retrieving SecMaster playbook")
 	}
+
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", playbook, nil)),
@@ -288,7 +293,7 @@ func resourcePlaybookDelete(_ context.Context, d *schema.ResourceData, meta inte
 	_, err = deletePlaybookClient.Request("DELETE", deletePlaybookPath, &deletePlaybookOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d,
-			common.ConvertExpected403ErrInto404Err(err, "code", "SecMaster.20010001"), "error deleting SecMaster playbook")
+			common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound), "error deleting SecMaster playbook")
 	}
 	// Successful deletion API call does not guarantee that the resource is successfully deleted.
 	// Call the details API to confirm that the resource has been successfully deleted.

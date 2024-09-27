@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product SecMaster
-// ---------------------------------------------------------------
-
 package secmaster
 
 import (
@@ -59,7 +54,7 @@ func ResourceAlert() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The description of the alert.`,
+				Description: `Specifies the description of the alert.`,
 			},
 			"type": {
 				Type:     schema.TypeList,
@@ -116,7 +111,7 @@ func ResourceAlert() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `Specifies whether it's a debugging data.`,
+				Description: `Specifies whether it's debugging data.`,
 			},
 			"labels": {
 				Type:        schema.TypeString,
@@ -139,12 +134,12 @@ func ResourceAlert() *schema.Resource {
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The created time.`,
+				Description: `The creation time.`,
 			},
 			"updated_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The updated time.`,
+				Description: `The update time.`,
 			},
 		},
 	}
@@ -214,10 +209,7 @@ func resourceAlertCreate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	createAlertOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	createOpts, err := buildCreateAlertBodyParams(d, cfg)
@@ -228,7 +220,7 @@ func resourceAlertCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	createAlertOpt.JSONBody = utils.RemoveNil(createOpts)
 	createAlertResp, err := createAlertClient.Request("POST", createAlertPath, &createAlertOpt)
 	if err != nil {
-		return diag.Errorf("error creating Alert: %s", err)
+		return diag.Errorf("error creating SecMaster alert: %s", err)
 	}
 
 	createAlertRespBody, err := utils.FlattenResponse(createAlertResp)
@@ -336,8 +328,6 @@ func resourceAlertRead(_ context.Context, d *schema.ResourceData, meta interface
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	var mErr *multierror.Error
-
 	// getAlert: Query the SecMaster alert detail
 	var (
 		getAlertHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/soc/alerts/{id}"
@@ -355,20 +345,16 @@ func resourceAlertRead(_ context.Context, d *schema.ResourceData, meta interface
 
 	getAlertOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getAlertResp, err := getAlertClient.Request("GET", getAlertPath, &getAlertOpt)
-
 	if err != nil {
-		if hasErrorCode(err, AlertNotExistsCode) {
-			err = golangsdk.ErrDefault404{}
-		}
-
-		return common.CheckDeletedDiag(d, err, "error retrieving Alert")
+		// SecMaster.20030005：the alert not found
+		// SecMaster.20010001: the workspace ID not found
+		err = common.ConvertExpected400ErrInto404Err(err, "code", AlertNotExistsCode)
+		err = common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound)
+		return common.CheckDeletedDiag(d, err, "error retrieving SecMaster alert")
 	}
 
 	getAlertRespBody, err := utils.FlattenResponse(getAlertResp)
@@ -378,11 +364,10 @@ func resourceAlertRead(_ context.Context, d *schema.ResourceData, meta interface
 
 	dataObject := utils.PathSearch("data.data_object", getAlertRespBody, nil)
 	if dataObject == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving alert")
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("title", dataObject, nil)),
 		d.Set("description", utils.PathSearch("description", dataObject, nil)),
@@ -460,10 +445,7 @@ func resourceAlertUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	updateAlertOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	updateOpts, err := buildUpdateAlertBodyParams(d, cfg)
@@ -474,7 +456,7 @@ func resourceAlertUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	updateAlertOpt.JSONBody = utils.RemoveNil(updateOpts)
 	_, err = updateAlertClient.Request("PUT", updateAlertPath, &updateAlertOpt)
 	if err != nil {
-		return diag.Errorf("error updating Alert: %s", err)
+		return diag.Errorf("error updating SecMaster alert: %s", err)
 	}
 
 	return resourceAlertRead(ctx, d, meta)
@@ -542,16 +524,15 @@ func resourceAlertDelete(_ context.Context, d *schema.ResourceData, meta interfa
 
 	deleteAlertOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	deleteAlertOpt.JSONBody = utils.RemoveNil(buildDeleteAlertBodyParams(d))
 	_, err = deleteAlertClient.Request("DELETE", deleteAlertPath, &deleteAlertOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Alert: %s", err)
+		// SecMaster.20010001: the workspace ID not found
+		err = common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound)
+		return common.CheckDeletedDiag(d, err, "error deleting SecMaster alert")
 	}
 
 	return nil
@@ -572,10 +553,7 @@ func resourceAlertImportState(_ context.Context, d *schema.ResourceData, _ inter
 
 	d.SetId(parts[1])
 
-	err := d.Set("workspace_id", parts[0])
-	if err != nil {
-		return nil, err
-	}
+	mErr := multierror.Append(d.Set("workspace_id", parts[0]))
 
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

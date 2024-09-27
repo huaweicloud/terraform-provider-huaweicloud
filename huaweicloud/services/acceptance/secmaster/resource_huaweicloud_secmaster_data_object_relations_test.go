@@ -166,8 +166,8 @@ resource "huaweicloud_secmaster_indicator" "test_1" {
   name         = "%[3]s_1"
   
   type {
-    category       = "URL"
-    indicator_type = "URL"
+    category       = "Domain"
+    indicator_type = "Domain"
     id             = "%[4]s"
   }
 
@@ -183,7 +183,7 @@ resource "huaweicloud_secmaster_indicator" "test_1" {
   last_occurrence_time  = "2023-07-27T21:15:30.000+08:00"
   threat_degree         = "Gray"
   granularity           = "1"
-  value                 = "/v1/test"
+  value                 = "test.terraform.com"
 }
 
 resource "huaweicloud_secmaster_indicator" "test_2" {
@@ -191,8 +191,8 @@ resource "huaweicloud_secmaster_indicator" "test_2" {
   name         = "%[3]s_2"
   
   type {
-    category       = "URL"
-    indicator_type = "URL"
+    category       = "Domain"
+    indicator_type = "Domain"
     id             = "%[4]s"
   }
 
@@ -208,7 +208,7 @@ resource "huaweicloud_secmaster_indicator" "test_2" {
   last_occurrence_time  = "2023-07-27T21:15:30.000+08:00"
   threat_degree         = "Gray"
   granularity           = "1"
-  value                 = "/v1/test"
+  value                 = "test2.terraform.com"
 }
 `, testIncident_basic(name), acceptance.HW_SECMASTER_WORKSPACE_ID, name, acceptance.HW_SECMASTER_INDICATOR_TYPE_ID)
 }

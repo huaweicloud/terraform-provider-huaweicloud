@@ -1,21 +1,13 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product SecMaster
-// ---------------------------------------------------------------
-
 package secmaster
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -204,10 +196,7 @@ func resourceIndicatorCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	createIndicatorOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	createOpts, err := buildCreateIndicatorBodyParams(d, cfg)
@@ -337,19 +326,17 @@ func resourceIndicatorRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	getIndicatorOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getIndicatorResp, err := getIndicatorClient.Request("GET", getIndicatorPath, &getIndicatorOpt)
 
 	if err != nil {
-		if hasErrorCode(err, IndicatorNotExistsCode) {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving Indicator")
+		// SecMaster.20010001: workspace ID not found
+		// SecMaster.20030005: the incident not found
+		err = common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound)
+		err = common.ConvertExpected400ErrInto404Err(err, "code", IndicatorNotExistsCode)
+		return common.CheckDeletedDiag(d, err, "error retrieving SecMaster indicator")
 	}
 
 	getIndicatorRespBody, err := utils.FlattenResponse(getIndicatorResp)
@@ -359,7 +346,7 @@ func resourceIndicatorRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	dataObject := utils.PathSearch("data.data_object", getIndicatorRespBody, nil)
 	if dataObject == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving indicator")
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving SecMaster indicator")
 	}
 
 	mErr = multierror.Append(
@@ -382,24 +369,6 @@ func resourceIndicatorRead(_ context.Context, d *schema.ResourceData, meta inter
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func hasErrorCode(err error, expectCode string) bool {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var response interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search("code", response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse code from response body: %s", parseErr)
-			}
-
-			if errorCode == expectCode {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 func flattenGetIndicatorResponseBodyIndicatorType(resp interface{}) []interface{} {
@@ -473,10 +442,7 @@ func resourceIndicatorUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 		updateIndicatorOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: map[string]string{"Content-Type": "application/json"},
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 		}
 
 		updateOpts, err := buildUpdateIndicatorBodyParams(d, cfg)
@@ -487,7 +453,7 @@ func resourceIndicatorUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		updateIndicatorOpt.JSONBody = utils.RemoveNil(updateOpts)
 		_, err = updateIndicatorClient.Request("PUT", updateIndicatorPath, &updateIndicatorOpt)
 		if err != nil {
-			return diag.Errorf("error updating Indicator: %s", err)
+			return diag.Errorf("error updating SecMaster indicator: %s", err)
 		}
 	}
 	return resourceIndicatorRead(ctx, d, meta)
@@ -551,16 +517,13 @@ func resourceIndicatorDelete(_ context.Context, d *schema.ResourceData, meta int
 
 	deleteIndicatorOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	deleteIndicatorOpt.JSONBody = utils.RemoveNil(buildDeleteIndicatorBodyParams(d))
 	_, err = deleteIndicatorClient.Request("DELETE", deleteIndicatorPath, &deleteIndicatorOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Indicator: %s", err)
+		return diag.Errorf("error deleting SecMaster indicator: %s", err)
 	}
 
 	return nil
@@ -581,10 +544,7 @@ func resourceIndicatorImportState(_ context.Context, d *schema.ResourceData, _ i
 
 	d.SetId(parts[1])
 
-	err := d.Set("workspace_id", parts[0])
-	if err != nil {
-		return nil, err
-	}
+	mErr := multierror.Append(d.Set("workspace_id", parts[0]))
 
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

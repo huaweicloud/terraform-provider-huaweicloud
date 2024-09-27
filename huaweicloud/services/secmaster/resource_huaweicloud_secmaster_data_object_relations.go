@@ -17,6 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+const (
+	DataObjectRelationNotFound = "SecMaster.20030005"
+)
+
 var nonUpdatableParamsDataObjectRelations = []string{"workspace_id", "data_class", "data_object_id", "related_data_class"}
 
 // @API SecMaster POST /v1/{project_id}/workspaces/{workspace_id}/soc/{dataclass_type}/{data_object_id}/{related_dataclass_type}
@@ -259,10 +263,10 @@ func getDataObjectRelations(d *schema.ResourceData, client *golangsdk.ServiceCli
 
 	getDataObjectRelationsResp, err := client.Request("POST", getDataObjectRelationsPath, &getDataObjectRelationsOpt)
 	if err != nil {
-		// `workspace_id` does not exist: HTTP status is 403, error code is "SecMaster.20010001"
-		// `data_object_id` does not exist: HTTP status is 400, error code is "SecMaster.20030005"
-		err = ParseQueryError403(err, "SecMaster.20010001")
-		err = common.ConvertExpected400ErrInto404Err(err, "code", "SecMaster.20030005")
+		// SecMaster.20010001: workspace ID not found
+		// SecMaster.20030005: the incident not found
+		err = common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound)
+		err = common.ConvertExpected400ErrInto404Err(err, "code", DataObjectRelationNotFound)
 		return nil, err
 	}
 
