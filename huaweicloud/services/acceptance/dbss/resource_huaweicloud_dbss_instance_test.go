@@ -84,6 +84,18 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "resource_spec_code", "dbss.bypassaudit.low"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(rName, "instance_id"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+				),
+			},
+			{
+				Config: testInstance_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "test"),
+					resource.TestCheckResourceAttr(rName, "tags.acc", "value"),
 				),
 			},
 			{
@@ -91,7 +103,7 @@ func TestAccInstance_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"charging_mode", "enterprise_project_id", "flavor", "period", "period_unit", "product_spec_desc",
+					"charging_mode", "enterprise_project_id", "flavor", "period", "period_unit", "product_spec_desc", "tags",
 				},
 			},
 		},
@@ -161,6 +173,37 @@ resource "huaweicloud_dbss_instance" "test" {
   charging_mode      = "prePaid"
   period_unit        = "month"
   period             = 1
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testInstance_base(name), name)
+}
+
+func testInstance_update(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dbss_instance" "test" {
+  name               = "%s"
+  description        = "terraform test"
+  flavor             = data.huaweicloud_dbss_flavors.test.flavors[0].id
+  resource_spec_code = "dbss.bypassaudit.low"
+  product_spec_desc  = local.product_spec_desc
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
+  security_group_id  = data.huaweicloud_networking_secgroup.test.id
+  charging_mode      = "prePaid"
+  period_unit        = "month"
+  period             = 1
+
+  tags = {
+    foo = "test"
+    acc = "value"
+  }
 }
 `, testInstance_base(name), name)
 }
