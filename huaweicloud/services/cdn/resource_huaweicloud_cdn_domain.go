@@ -3134,32 +3134,696 @@ func parseDetailResponseError(err error) error {
 	return err
 }
 
+func buildCdnDomainSourcesPriorityOpts(active int) interface{} {
+	if active == 1 {
+		return 70
+	}
+	return 30
+}
+
+func buildCdnDomainSourcesOpts(rawSources []interface{}) []interface{} {
+	if len(rawSources) < 1 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(rawSources))
+	for _, v := range rawSources {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"origin_addr":            rawMap["origin"],
+			"origin_type":            rawMap["origin_type"],
+			"priority":               buildCdnDomainSourcesPriorityOpts(rawMap["active"].(int)),
+			"obs_web_hosting_status": parseFunctionEnabledStatus(rawMap["obs_web_hosting_enabled"].(bool)),
+			"http_port":              utils.ValueIgnoreEmpty(rawMap["http_port"]),
+			"https_port":             utils.ValueIgnoreEmpty(rawMap["https_port"]),
+			"host_name":              utils.ValueIgnoreEmpty(rawMap["retrieval_host"]),
+			"weight":                 utils.ValueIgnoreEmpty(rawMap["weight"]),
+			"obs_bucket_type":        utils.ValueIgnoreEmpty(rawMap["obs_bucket_type"]),
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainIpv6AccelerateOpts(ipv6Enable bool) interface{} {
+	if ipv6Enable {
+		return 1
+	}
+	return 0
+}
+
+func buildCdnDomainHTTPSStatusOpts(enable bool) string {
+	if enable {
+		return "on"
+	}
+	return "off"
+}
+
+func buildCdnDomainHTTP2StatusOpts(enable bool) string {
+	if enable {
+		return "on"
+	}
+	// Currently, European sites do not support this parameter, so we will handle it this way for the time being.
+	return ""
+}
+
+func buildCdnDomainHTTPSOpts(rawHTTPS []interface{}) map[string]interface{} {
+	if len(rawHTTPS) != 1 {
+		return nil
+	}
+
+	https := rawHTTPS[0].(map[string]interface{})
+	return map[string]interface{}{
+		"https_status":         buildCdnDomainHTTPSStatusOpts(https["https_enabled"].(bool)),
+		"certificate_name":     utils.ValueIgnoreEmpty(https["certificate_name"]),
+		"certificate_value":    utils.ValueIgnoreEmpty(https["certificate_body"]),
+		"private_key":          utils.ValueIgnoreEmpty(https["private_key"]),
+		"certificate_source":   https["certificate_source"],
+		"certificate_type":     utils.ValueIgnoreEmpty(https["certificate_type"]),
+		"http2_status":         utils.ValueIgnoreEmpty(buildCdnDomainHTTP2StatusOpts(https["http2_enabled"].(bool))),
+		"tls_version":          utils.ValueIgnoreEmpty(https["tls_version"]),
+		"ocsp_stapling_status": utils.ValueIgnoreEmpty(https["ocsp_stapling_status"]),
+	}
+}
+
+func buildCdnDomainOriginRequestHeaderOpts(rawOriginRequestHeader []interface{}) []interface{} {
+	if len(rawOriginRequestHeader) < 1 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(rawOriginRequestHeader))
+	for _, v := range rawOriginRequestHeader {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"name":   rawMap["name"],
+			"value":  utils.ValueIgnoreEmpty(rawMap["value"]),
+			"action": rawMap["action"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainHttpResponseHeaderOpts(rawHttpResponseHeader []interface{}) []interface{} {
+	if len(rawHttpResponseHeader) < 1 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(rawHttpResponseHeader))
+	for _, v := range rawHttpResponseHeader {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"name":   rawMap["name"],
+			"value":  utils.ValueIgnoreEmpty(rawMap["value"]),
+			"action": rawMap["action"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainInheritConfigOpts(rwaInheritConfig []interface{}) map[string]interface{} {
+	if len(rwaInheritConfig) != 1 {
+		return nil
+	}
+
+	inheritConfig := rwaInheritConfig[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":            parseFunctionEnabledStatus(inheritConfig["enabled"].(bool)),
+		"inherit_type":      utils.ValueIgnoreEmpty(inheritConfig["inherit_type"]),
+		"inherit_time_type": utils.ValueIgnoreEmpty(inheritConfig["inherit_time_type"]),
+	}
+}
+
+func buildCdnDomainUrlAuthOpts(rawUrlAuth []interface{}) map[string]interface{} {
+	if len(rawUrlAuth) != 1 {
+		return nil
+	}
+
+	urlAuth := rawUrlAuth[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":         parseFunctionEnabledStatus(urlAuth["enabled"].(bool)),
+		"type":           utils.ValueIgnoreEmpty(urlAuth["type"]),
+		"sign_method":    utils.ValueIgnoreEmpty(urlAuth["sign_method"]),
+		"match_type":     utils.ValueIgnoreEmpty(urlAuth["match_type"]),
+		"inherit_config": buildCdnDomainInheritConfigOpts(urlAuth["inherit_config"].([]interface{})),
+		"sign_arg":       utils.ValueIgnoreEmpty(urlAuth["sign_arg"]),
+		"key":            utils.ValueIgnoreEmpty(urlAuth["key"]),
+		"backup_key":     utils.ValueIgnoreEmpty(urlAuth["backup_key"]),
+		"time_format":    utils.ValueIgnoreEmpty(urlAuth["time_format"]),
+		"expire_time":    urlAuth["expire_time"],
+	}
+}
+
+func buildCdnDomainForceRedirectOpts(rawForceRedirect []interface{}) map[string]interface{} {
+	if len(rawForceRedirect) != 1 {
+		return nil
+	}
+
+	forceRedirect := rawForceRedirect[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":        parseFunctionEnabledStatus(forceRedirect["enabled"].(bool)),
+		"type":          utils.ValueIgnoreEmpty(forceRedirect["type"]),
+		"redirect_code": utils.ValueIgnoreEmpty(forceRedirect["redirect_code"]),
+	}
+}
+
+func buildCdnDomainCompressOpts(rawCompress []interface{}) map[string]interface{} {
+	if len(rawCompress) != 1 {
+		return nil
+	}
+
+	compress := rawCompress[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":    parseFunctionEnabledStatus(compress["enabled"].(bool)),
+		"type":      utils.ValueIgnoreEmpty(compress["type"]),
+		"file_type": utils.ValueIgnoreEmpty(compress["file_type"]),
+	}
+}
+
+func buildCdnDomainCacheUrlParameterFilterOpts(rawCacheUrlParameterFilter []interface{}) map[string]interface{} {
+	if len(rawCacheUrlParameterFilter) != 1 {
+		return nil
+	}
+
+	cacheUrlParameterFilter := rawCacheUrlParameterFilter[0].(map[string]interface{})
+	return map[string]interface{}{
+		"value": utils.ValueIgnoreEmpty(cacheUrlParameterFilter["value"]),
+		"type":  utils.ValueIgnoreEmpty(cacheUrlParameterFilter["type"]),
+	}
+}
+
+func buildCdnDomainIpFrequencyLimitOpts(rawIpFrequencyLimit []interface{}) map[string]interface{} {
+	if len(rawIpFrequencyLimit) != 1 {
+		return nil
+	}
+
+	ipFrequencyLimit := rawIpFrequencyLimit[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status": parseFunctionEnabledStatus(ipFrequencyLimit["enabled"].(bool)),
+		"qps":    utils.ValueIgnoreEmpty(ipFrequencyLimit["qps"]),
+	}
+}
+
+func buildCdnDomainWebsocketOpts(rawWebsocket []interface{}) map[string]interface{} {
+	if len(rawWebsocket) != 1 {
+		return nil
+	}
+
+	websocket := rawWebsocket[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":  parseFunctionEnabledStatus(websocket["enabled"].(bool)),
+		"timeout": websocket["timeout"],
+	}
+}
+
+func buildCdnDomainFlexibleOriginBackSourceOpts(rawBackSources []interface{}) []map[string]interface{} {
+	if len(rawBackSources) != 1 {
+		return nil
+	}
+
+	backSource := rawBackSources[0].(map[string]interface{})
+	backSourceOpts := map[string]interface{}{
+		"sources_type":    backSource["sources_type"],
+		"ip_or_domain":    backSource["ip_or_domain"],
+		"obs_bucket_type": utils.ValueIgnoreEmpty(backSource["obs_bucket_type"]),
+		"http_port":       utils.ValueIgnoreEmpty(backSource["http_port"]),
+		"https_port":      utils.ValueIgnoreEmpty(backSource["https_port"]),
+	}
+	return []map[string]interface{}{backSourceOpts}
+}
+
+func buildCdnDomainFlexibleOriginOpts(rawFlexibleOrigins []interface{}) []interface{} {
+	if len(rawFlexibleOrigins) < 1 {
+		// Define an empty array to clear all flexible origins
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(rawFlexibleOrigins))
+	for _, v := range rawFlexibleOrigins {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"match_type":    rawMap["match_type"],
+			"match_pattern": rawMap["match_pattern"],
+			"priority":      rawMap["priority"],
+			"back_sources":  buildCdnDomainFlexibleOriginBackSourceOpts(rawMap["back_sources"].([]interface{})),
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainCustomArgsOpts(rawCustomArgs []interface{}) []interface{} {
+	if len(rawCustomArgs) < 1 {
+		// Define an empty array to clear all custom args
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(rawCustomArgs))
+	for _, v := range rawCustomArgs {
+		argMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"type":  argMap["type"],
+			"key":   argMap["key"],
+			"value": argMap["value"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainRemoteAuthRulesOpts(rawRemoteAuthRules []interface{}) map[string]interface{} {
+	if len(rawRemoteAuthRules) != 1 {
+		return nil
+	}
+
+	remoteAuthRule := rawRemoteAuthRules[0].(map[string]interface{})
+	return map[string]interface{}{
+		"auth_server":              remoteAuthRule["auth_server"],
+		"request_method":           remoteAuthRule["request_method"],
+		"file_type_setting":        remoteAuthRule["file_type_setting"],
+		"specified_file_type":      utils.ValueIgnoreEmpty(remoteAuthRule["specified_file_type"]),
+		"reserve_args_setting":     remoteAuthRule["reserve_args_setting"],
+		"reserve_args":             utils.ValueIgnoreEmpty(remoteAuthRule["reserve_args"]),
+		"add_custom_args_rules":    buildCdnDomainCustomArgsOpts(remoteAuthRule["add_custom_args_rules"].(*schema.Set).List()),
+		"reserve_headers_setting":  remoteAuthRule["reserve_headers_setting"],
+		"add_custom_headers_rules": buildCdnDomainCustomArgsOpts(remoteAuthRule["add_custom_headers_rules"].(*schema.Set).List()),
+		"auth_success_status":      remoteAuthRule["auth_success_status"],
+		"auth_failed_status":       remoteAuthRule["auth_failed_status"],
+		"response_status":          remoteAuthRule["response_status"],
+		"timeout":                  remoteAuthRule["timeout"],
+		"timeout_action":           remoteAuthRule["timeout_action"],
+		"reserve_headers":          utils.ValueIgnoreEmpty(remoteAuthRule["reserve_headers"]),
+	}
+}
+
+func buildCdnDomainRemoteAuthOpts(rawRemoteAuth []interface{}) map[string]interface{} {
+	if len(rawRemoteAuth) != 1 {
+		return nil
+	}
+
+	remoteAuth := rawRemoteAuth[0].(map[string]interface{})
+	return map[string]interface{}{
+		"remote_authentication": parseFunctionEnabledStatus(remoteAuth["enabled"].(bool)),
+		"remote_auth_rules":     buildCdnDomainRemoteAuthRulesOpts(remoteAuth["remote_auth_rules"].([]interface{})),
+	}
+}
+
+func buildCdnDomainQUICOpts(rawQuic []interface{}) map[string]interface{} {
+	if len(rawQuic) != 1 {
+		return nil
+	}
+
+	quic := rawQuic[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status": parseFunctionEnabledStatus(quic["enabled"].(bool)),
+	}
+}
+
+func buildCdnDomainRefererOpts(rawReferer []interface{}) map[string]interface{} {
+	if len(rawReferer) != 1 {
+		return nil
+	}
+
+	referer := rawReferer[0].(map[string]interface{})
+	return map[string]interface{}{
+		"type":          referer["type"],
+		"value":         referer["value"],
+		"include_empty": referer["include_empty"],
+	}
+}
+
+func buildCdnDomainVideoSeekOpts(rawVideoSeek []interface{}) map[string]interface{} {
+	if len(rawVideoSeek) != 1 {
+		return nil
+	}
+
+	videoSeek := rawVideoSeek[0].(map[string]interface{})
+	return map[string]interface{}{
+		"enable_video_seek":       videoSeek["enable_video_seek"],
+		"enable_flv_by_time_seek": videoSeek["enable_flv_by_time_seek"],
+		"start_parameter":         videoSeek["start_parameter"],
+		"end_parameter":           videoSeek["end_parameter"],
+	}
+}
+
+func buildCdnDomainRequestLimitRulesOpts(rawRequestLimitRules []interface{}) []interface{} {
+	if len(rawRequestLimitRules) < 1 {
+		// Define an empty array to clear all request limit rules
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(rawRequestLimitRules))
+	for _, v := range rawRequestLimitRules {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"priority":         rawMap["priority"],
+			"match_type":       rawMap["match_type"],
+			"match_value":      rawMap["match_value"],
+			"type":             rawMap["type"],
+			"limit_rate_after": rawMap["limit_rate_after"],
+			"limit_rate_value": rawMap["limit_rate_value"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainErrorCodeCacheOpts(rawErrorCodeCache []interface{}) []interface{} {
+	if len(rawErrorCodeCache) < 1 {
+		// Define an empty array to clear all error code cache
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(rawErrorCodeCache))
+	for _, v := range rawErrorCodeCache {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"code": rawMap["code"],
+			"ttl":  rawMap["ttl"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainIpFilterOpts(rawIpFilter []interface{}) map[string]interface{} {
+	if len(rawIpFilter) != 1 {
+		return nil
+	}
+
+	ipFilter := rawIpFilter[0].(map[string]interface{})
+	return map[string]interface{}{
+		"type":  ipFilter["type"],
+		"value": ipFilter["value"],
+	}
+}
+
+func buildCdnDomainOriginRequestUrlRewriteOpts(rawOriginRequestUrlRewrite []interface{}) []interface{} {
+	if len(rawOriginRequestUrlRewrite) < 1 {
+		// Define an empty array to clear all origin request url rewrite
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(rawOriginRequestUrlRewrite))
+	for _, v := range rawOriginRequestUrlRewrite {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"priority":   rawMap["priority"],
+			"match_type": rawMap["match_type"],
+			"target_url": rawMap["target_url"],
+			"source_url": utils.ValueIgnoreEmpty(rawMap["source_url"]),
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainUserAgentFilterOpts(rawUserAgentFilter []interface{}) map[string]interface{} {
+	if len(rawUserAgentFilter) != 1 {
+		return nil
+	}
+
+	userAgentFilter := rawUserAgentFilter[0].(map[string]interface{})
+	return map[string]interface{}{
+		"type":    userAgentFilter["type"],
+		"ua_list": utils.ExpandToStringList(userAgentFilter["ua_list"].(*schema.Set).List()),
+	}
+}
+
+func buildCdnDomainErrorCodeRedirectRules(errorCodeRedirectRules []interface{}) []interface{} {
+	if len(errorCodeRedirectRules) < 1 {
+		// Define an empty array to clear all error code redirect rules
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(errorCodeRedirectRules))
+	for _, v := range errorCodeRedirectRules {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"error_code":  rawMap["error_code"],
+			"target_code": rawMap["target_code"],
+			"target_link": rawMap["target_link"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainHstsOpts(rawHsts []interface{}) map[string]interface{} {
+	if len(rawHsts) != 1 {
+		return nil
+	}
+
+	hsts := rawHsts[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":             parseFunctionEnabledStatus(hsts["enabled"].(bool)),
+		"max_age":            hsts["max_age"],
+		"include_subdomains": utils.ValueIgnoreEmpty(hsts["include_subdomains"]),
+	}
+}
+
+func buildCdnDomainAccessAreaFilters(accessAreaFilters []interface{}) []interface{} {
+	if len(accessAreaFilters) < 1 {
+		// Define an empty array to clear all access area filters
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(accessAreaFilters))
+	for _, v := range accessAreaFilters {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"type":          rawMap["type"],
+			"content_type":  rawMap["content_type"],
+			"area":          rawMap["area"],
+			"content_value": utils.ValueIgnoreEmpty(rawMap["content_value"]),
+			"exception_ip":  utils.ValueIgnoreEmpty(rawMap["exception_ip"]),
+		})
+	}
+	return rst
+}
+
+// buildUpdateCdnDomainFullConfigsOpts Build CDN domain config opts from field `configs`.
+// The map type is passed by reference.
+func buildUpdateCdnDomainFullConfigsOpts(bodyParams map[string]interface{}, configs map[string]interface{}, d *schema.ResourceData) {
+	if d.HasChange("configs.0.ipv6_enable") {
+		bodyParams["ipv6_accelerate"] = buildCdnDomainIpv6AccelerateOpts(configs["ipv6_enable"].(bool))
+	}
+	if d.HasChange("configs.0.range_based_retrieval_enabled") {
+		retrievalEnabled := configs["range_based_retrieval_enabled"].(bool)
+		bodyParams["origin_range_status"] = parseFunctionEnabledStatus(retrievalEnabled)
+	}
+	if d.HasChange("configs.0.description") {
+		bodyParams["remark"] = configs["description"]
+	}
+	if d.HasChange("configs.0.slice_etag_status") {
+		bodyParams["slice_etag_status"] = utils.ValueIgnoreEmpty(configs["slice_etag_status"])
+	}
+	if d.HasChange("configs.0.origin_receive_timeout") {
+		bodyParams["origin_receive_timeout"] = utils.ValueIgnoreEmpty(configs["origin_receive_timeout"])
+	}
+	if d.HasChange("configs.0.origin_follow302_status") {
+		bodyParams["origin_follow302_status"] = utils.ValueIgnoreEmpty(configs["origin_follow302_status"])
+	}
+	if d.HasChange("configs.0.https_settings") {
+		bodyParams["https"] = buildCdnDomainHTTPSOpts(configs["https_settings"].([]interface{}))
+	}
+	if d.HasChange("configs.0.retrieval_request_header") {
+		bodyParams["origin_request_header"] = buildCdnDomainOriginRequestHeaderOpts(configs["retrieval_request_header"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.http_response_header") {
+		bodyParams["http_response_header"] = buildCdnDomainHttpResponseHeaderOpts(configs["http_response_header"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.url_signing") {
+		bodyParams["url_auth"] = buildCdnDomainUrlAuthOpts(configs["url_signing"].([]interface{}))
+	}
+	if d.HasChange("configs.0.origin_protocol") {
+		bodyParams["origin_protocol"] = utils.ValueIgnoreEmpty(configs["origin_protocol"])
+	}
+	if d.HasChange("configs.0.force_redirect") {
+		bodyParams["force_redirect"] = buildCdnDomainForceRedirectOpts(configs["force_redirect"].([]interface{}))
+	}
+	if d.HasChange("configs.0.compress") {
+		bodyParams["compress"] = buildCdnDomainCompressOpts(configs["compress"].([]interface{}))
+	}
+	if d.HasChange("configs.0.cache_url_parameter_filter") {
+		bodyParams["cache_url_parameter_filter"] = buildCdnDomainCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{}))
+	}
+	if d.HasChange("configs.0.ip_frequency_limit") {
+		bodyParams["ip_frequency_limit"] = buildCdnDomainIpFrequencyLimitOpts(configs["ip_frequency_limit"].([]interface{}))
+	}
+	if d.HasChange("configs.0.websocket") {
+		bodyParams["websocket"] = buildCdnDomainWebsocketOpts(configs["websocket"].([]interface{}))
+	}
+	if d.HasChange("configs.0.flexible_origin") {
+		bodyParams["flexible_origin"] = buildCdnDomainFlexibleOriginOpts(configs["flexible_origin"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.remote_auth") {
+		bodyParams["remote_auth"] = buildCdnDomainRemoteAuthOpts(configs["remote_auth"].([]interface{}))
+	}
+	if d.HasChange("configs.0.quic") {
+		bodyParams["quic"] = buildCdnDomainQUICOpts(configs["quic"].([]interface{}))
+	}
+	if d.HasChange("configs.0.referer") {
+		bodyParams["referer"] = buildCdnDomainRefererOpts(configs["referer"].([]interface{}))
+	}
+	if d.HasChange("configs.0.video_seek") {
+		bodyParams["video_seek"] = buildCdnDomainVideoSeekOpts(configs["video_seek"].([]interface{}))
+	}
+	if d.HasChange("configs.0.request_limit_rules") {
+		bodyParams["request_limit_rules"] = buildCdnDomainRequestLimitRulesOpts(configs["request_limit_rules"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.error_code_cache") {
+		bodyParams["error_code_cache"] = buildCdnDomainErrorCodeCacheOpts(configs["error_code_cache"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.ip_filter") {
+		bodyParams["ip_filter"] = buildCdnDomainIpFilterOpts(configs["ip_filter"].([]interface{}))
+	}
+	if d.HasChange("configs.0.origin_request_url_rewrite") {
+		originRequestUrlRewrites := configs["origin_request_url_rewrite"].(*schema.Set).List()
+		bodyParams["origin_request_url_rewrite"] = buildCdnDomainOriginRequestUrlRewriteOpts(originRequestUrlRewrites)
+	}
+	if d.HasChange("configs.0.user_agent_filter") {
+		bodyParams["user_agent_filter"] = buildCdnDomainUserAgentFilterOpts(configs["user_agent_filter"].([]interface{}))
+	}
+	if d.HasChange("configs.0.error_code_redirect_rules") {
+		errorCodeRedirectRules := configs["error_code_redirect_rules"].(*schema.Set).List()
+		bodyParams["error_code_redirect_rules"] = buildCdnDomainErrorCodeRedirectRules(errorCodeRedirectRules)
+	}
+	if d.HasChange("configs.0.hsts") {
+		bodyParams["hsts"] = buildCdnDomainHstsOpts(configs["hsts"].([]interface{}))
+	}
+	if d.HasChange("configs.0.access_area_filter") {
+		accessAreaFilters := configs["access_area_filter"].(*schema.Set).List()
+		bodyParams["access_area_filter"] = buildCdnDomainAccessAreaFilters(accessAreaFilters)
+	}
+}
+
+func buildCdnDomainCacheRules(followOrigin bool, rules []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(rules))
+	for _, v := range rules {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"follow_origin":       utils.ValueIgnoreEmpty(parseFunctionEnabledStatus(followOrigin)),
+			"match_type":          utils.ValueIgnoreEmpty(parseCacheRuleType(rawMap["rule_type"].(string))),
+			"match_value":         utils.ValueIgnoreEmpty(rawMap["content"]),
+			"ttl":                 rawMap["ttl"],
+			"ttl_unit":            parseCacheTTLUnits(rawMap["ttl_type"].(string)),
+			"priority":            rawMap["priority"],
+			"url_parameter_type":  utils.ValueIgnoreEmpty(rawMap["url_parameter_type"]),
+			"url_parameter_value": utils.ValueIgnoreEmpty(rawMap["url_parameter_value"]),
+		})
+	}
+	return rst
+}
+
+func updateCdnDomainFullConfigs(client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData) error {
+	// When the configs configuration is empty, the interface will report an error.
+	// Make fields `business_type` and `service_area` are configured by default.
+	bodyParams := map[string]interface{}{
+		"business_type": utils.ValueIgnoreEmpty(d.Get("type")),
+		"service_area":  utils.ValueIgnoreEmpty(d.Get("service_area")),
+	}
+
+	if d.HasChange("sources") {
+		bodyParams["sources"] = buildCdnDomainSourcesOpts(d.Get("sources").(*schema.Set).List())
+	}
+
+	if d.HasChange("configs") {
+		rawConfigs := d.Get("configs").([]interface{})
+		if len(rawConfigs) > 0 && rawConfigs[0] != nil {
+			buildUpdateCdnDomainFullConfigsOpts(bodyParams, rawConfigs[0].(map[string]interface{}), d)
+		}
+	}
+
+	if d.HasChange("cache_settings") {
+		cacheSettings := d.Get("cache_settings").([]interface{})
+		if len(cacheSettings) > 0 {
+			cacheSetting := cacheSettings[0].(map[string]interface{})
+			bodyParams["cache_rules"] = buildCdnDomainCacheRules(cacheSetting["follow_origin"].(bool), cacheSetting["rules"].(*schema.Set).List())
+		}
+	}
+
+	updatePath := client.Endpoint + "v1.1/cdn/configuration/domains/{domain_name}/configs"
+	updatePath = strings.ReplaceAll(updatePath, "{domain_name}", d.Get("name").(string))
+	updatePath += buildCdnDomainQueryParams(cfg.GetEnterpriseProjectID(d))
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"configs": utils.RemoveNil(bodyParams),
+		},
+	}
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	return err
+}
+
+func createCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tags map[string]interface{}) error {
+	createPath := client.Endpoint + "v1.0/cdn/configuration/tags"
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"resource_id": d.Id(),
+			"tags":        utils.ExpandResourceTags(tags),
+		},
+	}
+	_, err := client.Request("POST", createPath, &createOpt)
+	return err
+}
+
+func deleteCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tags map[string]interface{}) error {
+	tagKeys := make([]string, 0, len(tags))
+	for k, _ := range tags {
+		tagKeys = append(tagKeys, k)
+	}
+
+	deletePath := client.Endpoint + "v1.0/cdn/configuration/tags/batch-delete"
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"resource_id": d.Id(),
+			"tags":        tagKeys,
+		},
+	}
+	_, err := client.Request("POST", deletePath, &deleteOpt)
+	return err
+}
+
+func updateCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	oTagsRaw, nTagsRaw := d.GetChange("tags")
+	oTagsMap := oTagsRaw.(map[string]interface{})
+	nTagsMap := nTagsRaw.(map[string]interface{})
+
+	if len(oTagsMap) > 0 {
+		err := deleteCdnDomainTags(client, d, oTagsMap)
+		if err != nil {
+			return fmt.Errorf("error deleting CDN domain tags: %s", err)
+		}
+	}
+
+	if len(nTagsMap) > 0 {
+		err := createCdnDomainTags(client, d, nTagsMap)
+		if err != nil {
+			return fmt.Errorf("error creating CDN domain tags: %s", err)
+		}
+	}
+	return nil
+}
+
 func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "cdn"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
 	if d.HasChanges("sources", "configs", "cache_settings", "type", "service_area") || d.IsNewResource() {
-		err = updateDomainFullConfigs(hcCdnClient, cfg, d)
+		err = updateCdnDomainFullConfigs(client, cfg, d)
 		if err != nil {
 			return diag.Errorf("error updating CDN domain configs settings: %s", err)
 		}
 
-		cdnClient, err := cfg.CdnV1Client(region)
-		if err != nil {
-			return diag.Errorf("error creating CDN v1 client: %s", err)
-		}
-		opts := buildResourceExtensionOpts(d, cfg)
-		if err := waitingForStatusOnline(ctx, cdnClient, d, d.Timeout(schema.TimeoutUpdate), opts); err != nil {
+		if err := waitingForCdnDomainStatusOnline(ctx, client, d, d.Timeout(schema.TimeoutUpdate), cfg); err != nil {
 			return diag.Errorf("error waiting for CDN domain (%s) update to become online: %s", d.Id(), err)
 		}
 	}
 
 	if d.HasChange("tags") {
-		if err := updateDomainTags(hcCdnClient, d); err != nil {
+		if err := updateCdnDomainTags(client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
