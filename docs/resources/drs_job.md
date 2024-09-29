@@ -63,6 +63,58 @@ resource "huaweicloud_drs_job" "test" {
 }
 ```
 
+### Create a DRS job to migrate data to DDS database
+
+```hcl
+variable "name" {}
+variable "source_db_ip" {}
+variable "source_db_user" {}
+variable "source_db_password" {}
+variable "source_db_vpc_id" {}
+variable "source_db_subnet_id" {}
+variable "destination_db_user" {}
+variable "destination_db_password" {}
+
+resource "huaweicloud_dds_instance" "test" {
+  ...
+}
+
+resource "huaweicloud_drs_job" "test" {
+  name                    = var.name
+  type                    = "migration"
+  engine_type             = "mongodb"
+  direction               = "up"
+  net_type                = "vpc"
+  migration_type          = "FULL_INCR_TRANS"
+  force_destroy           = true
+  destination_db_readnoly = false
+
+  source_db {
+    engine_type = "mongodb"
+    ip          = var.source_db_ip
+    user        = var.source_db_user
+    password    = var.source_db_password
+    vpc_id      = var.source_db_vpc_id
+    subnet_id   = var.source_db_subnet_id
+  }
+
+  destination_db {
+    engine_type = "mongodb"
+    ip          = "192.168.0.30:8635"
+    user        = var.destination_db_user
+    password    = var.destination_db_password
+    instance_id = huaweicloud_dds_instance.test.id
+    subnet_id   = huaweicloud_dds_instance.test.subnet_id
+  }
+
+  lifecycle {
+    ignore_changes = [
+      source_db.0.password, destination_db.0.password, force_destroy,
+    ]
+  }
+}
+```
+
 ### Create a DRS job to synchronize database level data to the HuaweiCloud RDS database and net type is VPC
 
 ```hcl
@@ -177,6 +229,67 @@ resource "huaweicloud_drs_job" "test" {
   tables {
     database    = var.database_name
     table_names = [var.table_name]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      source_db.0.password, destination_db.0.password,
+    ]
+  }
+}
+```
+
+### Create a DRS job to synchronize database level data to Kafka topic
+
+```hcl
+variable "name" {}
+variable "database_name" {}
+variable "topic_name" {}
+variable "destination_db_vpc_id" {}
+variable "destination_db_subnet_id" {}
+
+resource "huaweicloud_rds_instance" "mysql" {
+  ...
+}
+
+resource "huaweicloud_drs_job" "test" {
+  name                    = var.name
+  type                    = "sync"
+  engine_type             = "mysql-to-kafka"
+  direction               = "down"
+  net_type                = "vpc"
+  migration_type          = "FULL_INCR_TRANS"
+  description             = "test for API"
+  force_destroy           = true
+  destination_db_readnoly = false
+
+  source_db {
+    engine_type = "mysql"
+    ip          = huaweicloud_rds_instance.mysql.fixed_ip
+    port        = 3306
+    user        = "root"
+    password    = var.destination_db_password
+    instance_id = huaweicloud_rds_instance.mysql.id
+    subnet_id   = huaweicloud_rds_instance.mysql.subnet_id
+  }
+
+  destination_db {
+    engine_type = "kafka"
+    ip          = "192.168.0.206:9092,192.168.0.3:9092"
+    vpc_id      = var.destination_db_vpc_id
+    subnet_id   = var.destination_db_subnet_id
+
+    kafka_security_config {
+      type = "PLAINTEXT"
+    }
+  }
+
+  databases = [var.database_name]
+
+  policy_config {
+    topic_policy     = "0"
+    topic            = var.topic_name
+    partition_policy = "1"
   }
 
   lifecycle {
@@ -338,12 +451,12 @@ The `db_info` block supports:
 
 * `ip` - (Required, String, ForceNew) Specifies the IP of database. Changing this parameter will create a new resource.
 
-* `port` - (Required, Int, ForceNew) Specifies the port of database. Changing this parameter will create a new resource.
+* `port` - (Optional, Int, ForceNew) Specifies the port of database. Changing this parameter will create a new resource.
 
-* `user` - (Required, String, ForceNew) Specifies the user name of database.
+* `user` - (Optional, String, ForceNew) Specifies the user name of database.
   Changing this parameter will create a new resource.
 
-* `password` - (Required, String, ForceNew) Specifies the password of database.
+* `password` - (Optional, String, ForceNew) Specifies the password of database.
   Changing this parameter will create a new resource.
 
 * `instance_id` - (Optional, String, ForceNew) Specifies the instance id of database when it is a RDS database.
@@ -378,6 +491,10 @@ The `db_info` block supports:
 
 * `ssl_cert_password` - (Optional, String, ForceNew) Specifies SSL certificate password. It is mandatory when
   `ssl_enabled` is **true** and the certificate file suffix is **.p12**. Changing this parameter will create a new resource.
+
+* `kafka_security_config` - (Optional, List, ForceNew) Specifies the kafka security authentication info.
+  Changing this parameter will create a new resource.
+  The [kafka_security_config](#block--kafka_security_config) structure is documented below.
 
 <a name="block--limit_speed"></a>
 The `limit_speed` block supports:
@@ -414,6 +531,86 @@ The `policy_config` block supports:
   synchronize normal indexes. If it's **true**, all indexes will be synchronized, otherwise, only primary key or unique
   indexes are synchronized. Changing this parameter will create a new resource.
 
+* `topic_policy` - (Optional, String, ForceNew) Specifies the topic synchronization policy. It is mandatory when
+  destination database is Kafka.
+  + Values for synchronization from MySQL to Kafka and from GaussDB(for MySQL) to Kafka:
+      - **0**: A specified topic.
+      - **1**: Auto-generated topics.
+
+  + Values for synchronization from GaussDB Primary/Standby to Kafka:
+      - **0**: A specified topic.
+      - **1**: Automatically generated using the database_name-schema_name-table_name format.
+      - **2**: Automatically generated based on the database name.
+      - **3**: Automatically generated using the database_name-schema_name format.
+
+  Changing this parameter will create a new resource.
+
+* `topic` - (Optional, String, ForceNew) Specifies the topic name. It is mandatory when `policy_config.0.topic_policy`
+  is set to **0**. Ensure that the topic exists. Changing this parameter will create a new resource.
+
+* `partition_policy` - (Optional, String, ForceNew) Specifies the policy for synchronizing topics to the Kafka partitions.
+  It is mandatory when the destination database is Kafka.
+  + Valid values are as follows:
+      - **0**: Partitions are differentiated by the hash values of *database_name.schema_name.table_name*.
+      - **1**: Topics are synchronized to partition 0.
+      - **2**: Partitions are identified by the hash values of the primary key.
+      - **3**: Partitions are differentiated by the hash values of *database_name.schema_name*.
+      - **5**: Partitions are differentiated by the hash values of non-primary-key columns
+
+  + Options and Conditions are as follows:
+      - When `policy_config.0.topic_policy` is set to **0**, the value can be **0**, **1**, **2**, **3** or **5**.
+      - When `policy_config.0.topic_policy` is set to **1**, the value can be **1**, **2**, or **5**.
+      - When `policy_config.0.topic_policy` is set to **2**, the value can be **0**, **1** or **3**.
+      - When `policy_config.0.topic_policy` is set to **3**, the value can be **0** or **1**.
+
+  Changing this parameter will create a new resource.
+
+* `kafka_data_format` - (Optional, String, ForceNew) Specifies the data format delivered to Kafka.
+  Valid values are **json**, **avro** and **json_c**. Defaults to **json**.
+  + The value can be **json** and **json_c** for synchronization from MySQL to Kafka and from GaussDB(for MySQL) to Kafka.
+  + The value can be **json** and **avro** for synchronization from GaussDB Primary/Standby to Kafka.
+  
+  Changing this parameter will create a new resource.
+
+* `topic_name_format` - (Optional, String, ForceNew) Specifies the topic name format.
+  Valid value are as follows:
+  + If `policy_config.0.topic_policy` is set to **1**, the topic name supports the database and table names as variables.
+  Other characters are considered as constants. Replace **$database$** with the database name and **$tablename$** with the
+  table name. Defaults to **$database$-$tablename$**.
+  + If `policy_config.0.topic_policy` is set to **2**, the topic name supports the database name as a variable. Other
+  characters are regarded as constants. Defaults to **$database$**.
+  + If `policy_config.0.topic_policy` is set to **3**, the topic name supports the names of database, schema, and table
+  as variables. Other characters are considered as constants. **$database$** indicates the database name, **$schema$**
+  indicates the schema name, and **$tablename$** indicates the table name. The default value is **$database$-$schema$-$tablename$**.
+
+  Changing this parameter will create a new resource.
+
+* `partitions_num` - (Optional, String, ForceNew) Specifies the number of partitions. The value ranges from **1** to
+  **2147483647**. It can be specified if `policy_config.0.topic_policy` is set to **1**, **2**, or **3**.
+  Defaults to **1**. Changing this parameter will create a new resource.
+
+* `replication_factor` - (Optional, String, ForceNew) Specifies the number of replicas. The value ranges from **1** to
+  **32767**. It can be specified if `policy_config.0.topic_policy` is set to **1**, **2**, or **3**.
+  Defaults to **1**. Changing this parameter will create a new resource.
+
+* `is_fill_materialized_view` - (Optional, Bool, ForceNew) Specifies whether to fill the materialized view in the
+  PostgreSQL full migration or synchronization phase. Defaults to **false**.
+  Changing this parameter will create a new resource.
+
+* `export_snapshot` - (Optional, Bool, ForceNew) Specifies Whether to export data in snapshot mode in the PostgreSQL
+  full migration or synchronization phase. Defaults to **false**.
+  Changing this parameter will create a new resource.
+
+* `slot_name` - (Optional, String, ForceNew) Specifies the replication slot name. It is mandatory for primary and standby
+  tasks from GaussDB Primary/Standby to Kafka. Changing this parameter will create a new resource.
+
+* `file_and_position` - (Optional, String, ForceNew) Specifies the file and position, The value is in the format of
+  **File_name.file_number:Event_position**. Changing this parameter will create a new resource.
+
+* `gtid_set` - (Optional, String, ForceNew) Specifies the gtid set. Enter a maximum of 2048 characters. Chinese
+  characters and the following special characters are not allowed: < > & " ' / \\.
+  Changing this parameter will create a new resource.
+
 <a name="block--tables"></a>
 The `tables` block supports:
 
@@ -440,6 +637,62 @@ The `alarm_notify` block supports:
   Value ranges from `1` to `3,600`. Default is `0` and no notifications will be sent to recipient.  
   If the RTO delay between the DRS instance and the DR database exceeds a specified value and lasts for `6` minutes,
   DRS will notify specified recipients.
+
+<a name="block--kafka_security_config"></a>
+The `kafka_security_config` block supports:
+
+* `type` - (Optional, String, ForceNew) Specifies the security protocol. It is mandatory for security authentication.
+  Valid values are as follows:
+  + **PLAINTEXT**: No security authentication mode is available. You only need to enter an IP address and a port number.
+  + **SASL_PLAINTEXT**: The SASL mechanism is used to connect to Kafka, and you need to configure SASL parameters.
+  + **SSL**: The SSL encryption is used to connect to Kafka, and you need to configure SSL parameters.
+  + **SASL_SSL**: The SASL and SSL encryption authentication modes are used. You need to configure SSL and SASL parameters.
+
+  Changing this parameter will create a new resource.
+
+* `sasl_mechanism` - (Optional, String, ForceNew) Specifies the SASL mechanism used for client connection.
+  The value can be **GSSAPI**, **PLAIN**, **SCRAM-SHA-256**, **SCRAM-SHA-512**.
+  Changing this parameter will create a new resource.
+
+* `trust_store_key_name` - (Optional, String, ForceNew) Specifies the certificate name.
+  It is mandatory when the security protocol is set to **SSL** or **SASL_SSL**.
+  Changing this parameter will create a new resource.
+
+* `trust_store_key` - (Optional, String, ForceNew) Specifies the value of the security certificate after Base64 transcoding.
+  It is mandatory when the security protocol is set to **SSL** or **SASL_SSL**.
+  Changing this parameter will create a new resource.
+
+* `trust_store_password` - (Optional, String, ForceNew) Specifies the certificate password.
+  It is mandatory when the security protocol is set to **SSL** or **SASL_SSL**.
+  Changing this parameter will create a new resource.
+
+* `endpoint_algorithm` - (Optional, String, ForceNew) Specifies the host name endpoint identification algorithm, which
+  specifies the endpoint identification algorithm for verifying the server host name using the server certificate.
+  If it is not specified, host name verification is disabled. The corresponding field for Kafka is
+  **ssl.endpoint.identification.algorithm**. Changing this parameter will create a new resource.
+
+* `delegation_tokens` - (Optional, Bool, ForceNew) Specifies whether to use token authentication. It is valid only when
+  the security protocol is set to **SASL_SSL** or **SASL_PLAINTEXT** and the SASL mechanism is set to **SCRAM-SHA-256**
+  or **SCRAM-SHA-512**. Defaults to false. Changing this parameter will create a new resource.
+
+* `enable_key_store` - (Optional, Bool, ForceNew) Specifies Whether to enable two-way SSL authentication.
+  Defaults to false. Changing this parameter will create a new resource.
+
+* `key_store_key_name` - (Optional, String, ForceNew) Specifies the keystore certificate name. It is mandatory when
+  two-way SSL authentication is enabled. Changing this parameter will create a new resource.
+
+* `key_store_key` - (Optional, String, ForceNew) Specifies the keystore certificate. It is mandatory when two-way SSL
+  authentication is enabled. Changing this parameter will create a new resource.
+
+* `key_store_password` - (Optional, String, ForceNew) Specifies the keystore certificate password. It is mandatory when
+  a password is set for the keystore certificate. Changing this parameter will create a new resource.
+
+* `set_private_key_password` - (Optional, Bool, ForceNew) Specifies whether to set the keystore private key password.
+  Defaults to false. Changing this parameter will create a new resource.
+
+* `key_password` - (Optional, String, ForceNew) Specifies the keystore private key password. It is mandatory when
+  two-way SSL authentication is enabled and `set_private_key_password` is set to **true**.
+  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 
@@ -502,8 +755,9 @@ $ terraform import huaweicloud_drs_job.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `enterprise_project_id`, `force_destroy`,
-`source_db.0.password` and `destination_db.0.password`, `action`, `is_sync_re_edit`, `pause_mode`, `auto_renew`,
-`alarm_notify.0.topic_urn`. It is generally recommended running **terraform plan** after importing a job. You can then
+`source_db.0.password`, `destination_db.0.password`, `source_db.0.ip`, `destination_db.0.ip`, `action`, `is_sync_re_edit`,
+`pause_mode`, `auto_renew`, `alarm_notify.0.topic_urn`, `policy_config`, `engine_type`.
+It is generally recommended running **terraform plan** after importing a job. You can then
 decide if changes should be applied to the job, or the resource definition should be updated to align with the job. Also
 you can ignore changes as below.
 
