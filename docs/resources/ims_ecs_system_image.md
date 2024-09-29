@@ -65,6 +65,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `image_size` - The size of the image file, in bytes unit.
 
+* `min_disk` - The minimum disk space required to run an image, in GB unit.
+
 * `disk_format` - The image format. The value can be **zvhd2**, **vhd**, **zvhd**, **raw**, or **qcow2**.
 
 * `data_origin` - The image resource. The format is **instance,instance_id**.

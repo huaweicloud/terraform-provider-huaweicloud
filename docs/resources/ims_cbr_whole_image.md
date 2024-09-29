@@ -70,6 +70,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `os_version` - The operating system version of the image.
 
+* `min_disk` - The minimum disk space required to run an image, in GB unit.
+
 * `disk_format` - The image format. The value can be **zvhd2**, **vhd**, **zvhd**, **raw**, or **qcow2**.
 
 * `data_origin` - The image source. The format is **server_backup,backup_id**.

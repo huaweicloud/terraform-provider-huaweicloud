@@ -51,6 +51,7 @@ func TestAccCbrWholeImage_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttrSet(resourceName, "visibility"),
 					resource.TestCheckResourceAttrSet(resourceName, "os_version"),
+					resource.TestCheckResourceAttrSet(resourceName, "min_disk"),
 					resource.TestCheckResourceAttrSet(resourceName, "disk_format"),
 					resource.TestCheckResourceAttrSet(resourceName, "data_origin"),
 					resource.TestMatchResourceAttr(resourceName, "active_at",

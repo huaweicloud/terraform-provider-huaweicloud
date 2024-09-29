@@ -97,6 +97,10 @@ func ResourceEcsSystemImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"min_disk": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"disk_format": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -232,6 +236,7 @@ func resourceEcsSystemImageRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("status", image.Status),
 		d.Set("visibility", image.Visibility),
 		d.Set("image_size", image.ImageSize),
+		d.Set("min_disk", image.MinDisk),
 		d.Set("disk_format", image.DiskFormat),
 		d.Set("data_origin", image.DataOrigin),
 		d.Set("os_version", image.OsVersion),

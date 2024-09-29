@@ -75,6 +75,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `backup_id` - The ID of CBR backup.
 
+* `min_disk` - The minimum disk space required to run an image, in GB unit.
+
 * `disk_format` - The image format. The value can be **zvhd2**, **vhd**, **zvhd**, **raw**, or **qcow2**.
 
 * `data_origin` - The image resource. The format is **server_backup,vault_id**.
