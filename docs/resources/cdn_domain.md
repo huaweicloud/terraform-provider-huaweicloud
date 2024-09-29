@@ -160,6 +160,14 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       target_url = "/new/$1/$2.html"
     }
 
+    user_agent_filter {
+      type          = "black"
+      include_empty = "false"
+      ua_list = [
+        "t1*",
+      ]
+    }
+    
     remote_auth {
       enabled = true
 
@@ -825,6 +833,12 @@ The `user_agent_filter` block support:
   + **off**: The User-Agent blacklist/whitelist is disabled.
   + **black**: The User-Agent blacklist.
   + **white**: The User-Agent whitelist.
+
+* `include_empty` - (Optional, String) Specifies whether empty user agents are included.
+  A User-Agent blacklist including empty user agents indicates that requests without a user agent are rejected.
+  A User-Agent whitelist including empty user agents indicates that requests without a user agent are accepted.
+  Possible values: **true** (included) and **false** (excluded).
+  The default value is **false** for a blacklist and **true** for a whitelist.
 
 * `ua_list` - (Optional, List) Specifies the User-Agent blacklist or whitelist. This parameter is required when `type`
   is set to **black** or **white**. Up to `10` rules can be configured. A rule contains up to `100` characters.

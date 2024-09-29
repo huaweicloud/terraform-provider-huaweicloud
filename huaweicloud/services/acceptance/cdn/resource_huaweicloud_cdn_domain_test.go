@@ -559,6 +559,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.access_area_filter.#", "2"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "white"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.include_empty", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.ua_list.#", "3"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.remote_auth.0.enabled", "true"),
@@ -671,6 +672,7 @@ func TestAccCdnDomain_configs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "configs.0.origin_request_url_rewrite.0.target_url", "/new/$1/$2.html"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.type", "black"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.include_empty", "false"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.user_agent_filter.0.ua_list.0", "t1*"),
 
 					resource.TestCheckResourceAttr(resourceName, "configs.0.error_code_redirect_rules.#", "1"),
@@ -1128,7 +1130,8 @@ resource "huaweicloud_cdn_domain" "test" {
     }
 
     user_agent_filter {
-      type    = "black"
+      type          = "black"
+      include_empty = "false"
       ua_list = [
         "t1*",
       ]
