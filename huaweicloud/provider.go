@@ -1856,6 +1856,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_servicestage_repo_token_authorization":    servicestage.ResourceRepoTokenAuth(),
 			"huaweicloud_servicestage_repo_password_authorization": servicestage.ResourceRepoPwdAuth(),
 			// v3 managements
+			"huaweicloud_servicestagev3_application":           servicestage.ResourceV3Application(),
 			"huaweicloud_servicestagev3_environment":           servicestage.ResourceV3Environment(),
 			"huaweicloud_servicestagev3_environment_associate": servicestage.ResourceV3EnvironmentAssociate(),
 
