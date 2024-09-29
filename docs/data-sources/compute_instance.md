@@ -59,6 +59,8 @@ In addition to all arguments above, the following attributes are exported:
   The [scheduler hints](#compute_instance_scheduler_hint_object) structure is documented below.
 * `tags` - The key/value pairs to associate with the instance.
 * `status` - The status of the instance.
+* `charging_mode` - The charging mode of the instance. Valid values are **prePaid**, **postPaid** and **spot**.
+* `expired_time` - The expired time of prePaid instance, in UTC format.
 
 <a name="compute_instance_network_object"></a>
 The `network` block supports:

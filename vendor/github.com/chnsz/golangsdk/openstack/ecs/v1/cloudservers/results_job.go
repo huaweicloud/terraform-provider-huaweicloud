@@ -8,7 +8,8 @@ import (
 )
 
 type JobResponse struct {
-	JobID string `json:"job_id"`
+	JobID     string   `json:"job_id"`
+	ServerIDs []string `json:"serverIds"`
 }
 
 type JobStatus struct {

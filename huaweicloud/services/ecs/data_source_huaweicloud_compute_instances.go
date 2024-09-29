@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -136,6 +137,14 @@ func DataSourceComputeInstances() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"charging_mode": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"expired_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -239,6 +248,7 @@ func setComputeInstancesParams(d *schema.ResourceData, conf *config.Config, serv
 			"tags":                  flattenEcsInstanceTags(item.Tags),
 			"security_group_ids":    flattenEcsInstanceSecurityGroupIds(item.SecurityGroups),
 			"scheduler_hints":       flattenEcsInstanceSchedulerHints(item.OsSchedulerHints),
+			"charging_mode":         normalizeChargingMode(item.Metadata.ChargingMode),
 		}
 
 		if len(item.VolumeAttached) > 0 {
@@ -251,6 +261,16 @@ func setComputeInstancesParams(d *schema.ResourceData, conf *config.Config, serv
 			networks, eip := flattenEcsInstanceNetworks(networkingClient, item.Addresses)
 			server["network"] = networks
 			server["public_ip"] = eip
+		}
+
+		// Set expired time for prePaid instance
+		if normalizeChargingMode(item.Metadata.ChargingMode) == "prePaid" {
+			expiredTime, err := getPrePaidExpiredTime(d, conf, item.ID)
+			if err != nil {
+				log.Printf("error get prePaid expired time: %s", err)
+			}
+
+			server["expired_time"] = expiredTime
 		}
 
 		result[i] = server

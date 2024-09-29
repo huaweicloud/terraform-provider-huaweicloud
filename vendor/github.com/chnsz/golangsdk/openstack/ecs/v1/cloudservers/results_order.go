@@ -8,8 +8,9 @@ import (
 )
 
 type OrderResponse struct {
-	OrderID string `json:"order_id"`
-	JobID   string `json:"job_id"`
+	OrderID   string   `json:"order_id"`
+	JobID     string   `json:"job_id"`
+	ServerIDs []string `json:"serverIds"`
 }
 
 type OrderStatus struct {
