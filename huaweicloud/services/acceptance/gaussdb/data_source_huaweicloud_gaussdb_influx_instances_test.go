@@ -130,7 +130,7 @@ data "huaweicloud_gaussdb_influx_instances" "test" {
 data "huaweicloud_gaussdb_influx_instances" "id_filter" {
   depends_on  = [huaweicloud_gaussdb_influx_instance.test]
 
-  id = huaweicloud_gaussdb_influx_instance.test.id
+  instance_id = huaweicloud_gaussdb_influx_instance.test.id
 }
 
 locals {
