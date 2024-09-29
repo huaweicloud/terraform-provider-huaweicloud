@@ -303,16 +303,16 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	img := imageList[0]
-	imageTags := getImageTags(d, imsClient)
+	imageTags := flattenImageTags(d, imsClient)
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", img.Name),
 		d.Set("description", img.Description),
-		d.Set("max_ram", getMaxRAM(img.MaxRam)),
+		d.Set("max_ram", flattenMaxRAM(img.MaxRam)),
 		d.Set("min_ram", img.MinRam),
 		d.Set("tags", imageTags),
 		d.Set("kms_key_id", img.SystemCmkid),
-		d.Set("instance_id", getSpecificValueFormDataOrigin(img.DataOrigin, "instance")),
+		d.Set("instance_id", flattenSpecificValueFormDataOrigin(img.DataOrigin, "instance")),
 		d.Set("os_version", img.OsVersion),
 		d.Set("visibility", img.Visibility),
 		d.Set("min_disk", img.MinDisk),

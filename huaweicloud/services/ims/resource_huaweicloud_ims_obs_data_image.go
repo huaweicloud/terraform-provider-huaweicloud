@@ -179,11 +179,11 @@ func resourceObsDataImageRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	image := imageList[0]
-	imageTags := getImageTags(d, client)
+	imageTags := flattenImageTags(d, client)
 	mErr = multierror.Append(
 		d.Set("region", region),
 		d.Set("name", image.Name),
-		d.Set("image_url", getSpecificValueFormDataOrigin(image.DataOrigin, "file")),
+		d.Set("image_url", flattenSpecificValueFormDataOrigin(image.DataOrigin, "file")),
 		d.Set("min_disk", image.MinDisk),
 		d.Set("os_type", image.OsType),
 		d.Set("description", image.Description),

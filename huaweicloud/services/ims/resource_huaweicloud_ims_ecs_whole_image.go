@@ -195,7 +195,7 @@ func resourceEcsWholeImageRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	image := imageList[0]
-	imageTags := getImageTags(d, client)
+	imageTags := flattenImageTags(d, client)
 	result, err := getBackupDetail(cfg, region, image.BackupID)
 	if err != nil {
 		return diag.FromErr(err)
@@ -207,7 +207,7 @@ func resourceEcsWholeImageRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("instance_id", result[0]),
 		d.Set("vault_id", result[1]),
 		d.Set("description", image.Description),
-		d.Set("max_ram", getMaxRAM(image.MaxRam)),
+		d.Set("max_ram", flattenMaxRAM(image.MaxRam)),
 		d.Set("min_ram", image.MinRam),
 		d.Set("tags", imageTags),
 		d.Set("enterprise_project_id", image.EnterpriseProjectID),

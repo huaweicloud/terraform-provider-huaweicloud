@@ -181,14 +181,14 @@ func resourceCbrWholeImageRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	image := imageList[0]
-	imageTags := getImageTags(d, client)
+	imageTags := flattenImageTags(d, client)
 
 	mErr = multierror.Append(
 		d.Set("region", region),
 		d.Set("name", image.Name),
 		d.Set("backup_id", image.BackupID),
 		d.Set("description", image.Description),
-		d.Set("max_ram", getMaxRAM(image.MaxRam)),
+		d.Set("max_ram", flattenMaxRAM(image.MaxRam)),
 		d.Set("min_ram", image.MinRam),
 		d.Set("tags", imageTags),
 		d.Set("enterprise_project_id", image.EnterpriseProjectID),
