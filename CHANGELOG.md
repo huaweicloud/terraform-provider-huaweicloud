@@ -1,5 +1,40 @@
 # CHANGELOG
 
+## 1.69.0 (September 29, 2024)
+
+* **New Resource:**
+  + `huaweicloud_servicestagev3_environment_associate` [GH-5634]
+  + `huaweicloud_ces_microservice_engine_configuration` [GH-5633]
+  + `huaweicloud_servicestagev3_application` [GH-5570]
+  + `huaweicloud_dws_snapshot_copy` [GH-5596]
+  + `huaweicloud_rgc_account` [GH-5571]
+  + `huaweicloud_ces_one_click_alarm` [GH-5613]
+  + `huaweicloud_dws_cluster_restart` [GH-5568]
+  + `huaweicloud_gaussdb_mysql_recycling_policy` [GH-5590]
+  + `huaweicloud_antiddos_default_protection_policy` [GH-5592]
+
+* **New Data Source:**
+  + `huaweicloud_vpn_p2c_gateways` [GH-5625]
+  + `huaweicloud_ces_one_click_alarm_rules` [GH-5617]
+  + `huaweicloud_gaussdb_influx_instances` [GH-5616]
+  + `huaweicloud_cse_microservice_engines` [GH-5619]
+  + `huaweicloud_gaussdb_mysql_incremental_backups` [GH-5600]
+  + `huaweicloud_dbss_audit_sql_injection_rules` [GH-5615]
+  + `huaweicloud_dbss_audit_data_masking_rules` [GH-5611]
+  + `huaweicloud_dbss_audit_risk_rules` [GH-5610]
+  + `huaweicloud_dbss_audit_rule_scopes` [GH-5603]
+  + `huaweicloud_secmaster_playbook_statistics` [GH-5579]
+  + `huaweicloud_dws_cluster_topo_rings` [GH-5604]
+  + `huaweicloud_dws_statistics` [GH-5555]
+  + `huaweicloud_gaussdb_mysql_auto_scaling_records` [GH-5601]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cdn_domain: add user_agent_filter support [GH-5631]
+* datasource/huaweicloud_compute_flavors: add storage_type support [GH-5621]
+* resource/huaweicloud_cce_cluster: add upgrade version support [GH-5608]
+* resource/huaweicloud_vpc_eip: add update enterprise project id support [GH-5587]
+
 ## 1.68.0 (August 30, 2024)
 
 * **New Resource:**
