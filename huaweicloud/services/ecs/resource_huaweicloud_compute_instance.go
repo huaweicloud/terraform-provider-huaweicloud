@@ -547,6 +547,10 @@ func ResourceComputeInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"expired_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -691,6 +695,9 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		if err != nil {
 			return diag.Errorf("error creating server: %s", err)
 		}
+		if len(n.ServerIDs) != 0 {
+			d.SetId(n.ServerIDs[0])
+		}
 		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
@@ -709,6 +716,9 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		n, err := cloudservers.Create(ecsV11Client, createOpts).ExtractJobResponse()
 		if err != nil {
 			return diag.Errorf("error creating server: %s", err)
+		}
+		if len(n.ServerIDs) != 0 {
+			d.SetId(n.ServerIDs[0])
 		}
 		if err := cloudservers.WaitForJobSuccess(ecsClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
 			return diag.FromErr(err)
@@ -798,6 +808,7 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	serverID := d.Id()
 	ecsClient, err := cfg.ComputeV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating compute V1 client: %s", err)
@@ -811,7 +822,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating image client: %s", err)
 	}
 
-	server, err := cloudservers.Get(ecsClient, d.Id()).Extract()
+	server, err := cloudservers.Get(ecsClient, serverID).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving compute instance")
 	} else if server.Status == "DELETED" {
@@ -819,7 +830,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 		return nil
 	}
 
-	log.Printf("[DEBUG] retrieved compute instance %s: %+v", d.Id(), server)
+	log.Printf("[DEBUG] retrieved compute instance %s: %+v", serverID, server)
 	// Set some attributes
 	d.Set("region", region)
 	d.Set("enterprise_project_id", server.EnterpriseProjectID)
@@ -913,7 +924,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 			log.Printf("[DEBUG] retrieved volume %s: %#v", b.ID, volumeInfo)
 
 			// retrieve volume `pci_address`
-			va, err := block_devices.Get(ecsClient, d.Id(), b.ID).Extract()
+			va, err := block_devices.Get(ecsClient, serverID, b.ID).Extract()
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -955,7 +966,47 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 	// Set instance tags
 	d.Set("tags", flattenTagsToMap(server.Tags))
 
+	// Set expired time for prePaid instance
+	if normalizeChargingMode(server.Metadata.ChargingMode) == "prePaid" {
+		expiredTime, err := getPrePaidExpiredTime(d, cfg, serverID)
+		if err != nil {
+			log.Printf("error get prePaid expired time: %s", err)
+		}
+
+		d.Set("expired_time", expiredTime)
+	}
+
 	return nil
+}
+
+func getPrePaidExpiredTime(d *schema.ResourceData, cfg *config.Config, instanceID string) (string, error) {
+	product := "ecsv11"
+	client, err := cfg.NewServiceClient(product, cfg.GetRegion(d))
+	if err != nil {
+		return "", fmt.Errorf("error creating EVS client: %s", err)
+	}
+
+	getPrePaidExpiredTimeHttpUrl := "v1.1/{project_id}/cloudservers/detail?id={instance_id}&expect-fields=market_info"
+	getPrePaidExpiredTimePath := client.Endpoint + getPrePaidExpiredTimeHttpUrl
+	getPrePaidExpiredTimePath = strings.ReplaceAll(getPrePaidExpiredTimePath, "{project_id}", client.ProjectID)
+	getPrePaidExpiredTimePath = strings.ReplaceAll(getPrePaidExpiredTimePath, "{instance_id}", instanceID)
+
+	getPrePaidExpiredTimeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getPrePaidExpiredTimeResp, err := client.Request("GET", getPrePaidExpiredTimePath, &getPrePaidExpiredTimeOpt)
+	if err != nil {
+		return "", err
+	}
+
+	getPrePaidExpiredTimeRespBody, err := utils.FlattenResponse(getPrePaidExpiredTimeResp)
+	if err != nil {
+		return "", err
+	}
+
+	expiredTime := utils.PathSearch("servers[0].market_info.prepaid_info.expired_time", getPrePaidExpiredTimeRespBody, "")
+
+	return expiredTime.(string), nil
 }
 
 func normalizeChargingMode(mode string) string {

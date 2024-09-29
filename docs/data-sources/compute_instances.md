@@ -100,6 +100,10 @@ The `instances` block supports:
 
 * `tags` - The key/value pairs to associate with the instance.
 
+* `charging_mode` - The charging mode of the instance. Valid values are **prePaid**, **postPaid** and **spot**.
+
+* `expired_time` - The expired time of prePaid instance, in UTC format.
+
 <a name="compute_instances_network_object"></a>
 The `network` block supports:
 

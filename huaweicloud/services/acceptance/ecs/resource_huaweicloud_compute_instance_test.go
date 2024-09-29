@@ -104,6 +104,7 @@ func TestAccComputeInstance_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "delete_eip_on_termination", "true"),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "expired_time"),
 				),
 			},
 			{

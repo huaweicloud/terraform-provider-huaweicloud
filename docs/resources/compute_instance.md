@@ -520,6 +520,7 @@ In addition to all arguments above, the following attributes are exported:
 * `access_ip_v6` - The first detected Fixed IPv6 address.
 * `created_at` - The creation time, in UTC format.
 * `updated_at` - The last update time, in UTC format.
+* `expired_time` - The expired time of prePaid instance, in UTC format.
 
 * `network` - An array of one or more networks to attach to the instance.
   The [network object](#compute_instance_network_object) structure is documented below.
