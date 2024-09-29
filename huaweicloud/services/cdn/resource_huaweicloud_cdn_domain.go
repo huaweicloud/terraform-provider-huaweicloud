@@ -660,6 +660,12 @@ var userAgentFilter = schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			// This field has a default value, so Computed is added.
+			"include_empty": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"ua_list": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -1761,7 +1767,8 @@ func flattenUserAgentFilterAttributes(configResp interface{}) []map[string]inter
 
 	rawMap := curJson.(map[string]interface{})
 	userAgentFilterAttrs := map[string]interface{}{
-		"type": rawMap["type"],
+		"type":          rawMap["type"],
+		"include_empty": fmt.Sprintf("%v", rawMap["include_empty"]),
 	}
 
 	if uaList, ok := rawMap["ua_list"].([]interface{}); ok {
@@ -2340,6 +2347,17 @@ func buildCdnDomainOriginRequestUrlRewriteOpts(rawOriginRequestUrlRewrite []inte
 	return rst
 }
 
+// This method is used to handle three scenarios: passing true, passing false and not passing.
+func buildCdnDomainUserAgentFilterIncludeEmptyOpts(includeEmpty string) interface{} {
+	switch includeEmpty {
+	case "true":
+		return true
+	case "false":
+		return false
+	}
+	return nil
+}
+
 func buildCdnDomainUserAgentFilterOpts(rawUserAgentFilter []interface{}) map[string]interface{} {
 	if len(rawUserAgentFilter) != 1 {
 		return nil
@@ -2347,8 +2365,9 @@ func buildCdnDomainUserAgentFilterOpts(rawUserAgentFilter []interface{}) map[str
 
 	userAgentFilter := rawUserAgentFilter[0].(map[string]interface{})
 	return map[string]interface{}{
-		"type":    userAgentFilter["type"],
-		"ua_list": utils.ExpandToStringList(userAgentFilter["ua_list"].(*schema.Set).List()),
+		"type":          userAgentFilter["type"],
+		"ua_list":       utils.ExpandToStringList(userAgentFilter["ua_list"].(*schema.Set).List()),
+		"include_empty": buildCdnDomainUserAgentFilterIncludeEmptyOpts(userAgentFilter["include_empty"].(string)),
 	}
 }
 
