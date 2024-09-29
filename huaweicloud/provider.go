@@ -576,6 +576,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cph_phone_flavors":  cph.DataSourcePhoneFlavors(),
 			"huaweicloud_cph_phone_images":   cph.DataSourcePhoneImages(),
 
+			"huaweicloud_cse_microservice_engines": cse.DataSourceMicroserviceEngines(),
+
 			"huaweicloud_csms_events":                   dew.DataSourceDewCsmsEvents(),
 			"huaweicloud_csms_secrets":                  dew.DataSourceDewCsmsSecrets(),
 			"huaweicloud_csms_secret_version":           dew.DataSourceDewCsmsSecret(),
