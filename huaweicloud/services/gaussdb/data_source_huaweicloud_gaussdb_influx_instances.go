@@ -29,7 +29,7 @@ func DataSourceGaussDBInfluxInstances() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"id": {
+			"instance_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -301,7 +301,7 @@ func dataSourceGaussDBInfluxInstancesRead(_ context.Context, d *schema.ResourceD
 
 func buildGetGaussDBInfluxInstancesQueryParams(d *schema.ResourceData, datastoreType string) string {
 	res := fmt.Sprintf("?datastore_type=%v", datastoreType)
-	if v, ok := d.GetOk("id"); ok {
+	if v, ok := d.GetOk("instance_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
 	}
 	if v, ok := d.GetOk("name"); ok {

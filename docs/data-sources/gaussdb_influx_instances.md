@@ -21,8 +21,8 @@ data "huaweicloud_gaussdb_influx_instances" "this" {}
 * `region` - (Optional, String) The region in which to obtain the instances. If omitted, the provider-level region will
   be used.
 
-* `id` - (Optional, String) Specifies the ID of the instance. If you enter an instance ID starting with an asterisk (*),
-  fuzzy search results are returned. If you enter a valid instance ID, an exact result is returned.
+* `instance_id` - (Optional, String) Specifies the ID of the instance. If you enter an instance ID starting with
+  an asterisk (*), fuzzy search results are returned. If you enter a valid instance ID, an exact result is returned.
 
 * `name` - (Optional, String) Specifies the name of the instance. If you enter an instance name starting with an
   asterisk (*), fuzzy search results are returned. If you enter a valid instance name, an exact result is returned.
