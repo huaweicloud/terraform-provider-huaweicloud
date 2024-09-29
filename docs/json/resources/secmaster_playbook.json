@@ -5,12 +5,6 @@
         "huaweicloud_secmaster_playbook": {
           "block": {
             "attributes": {
-              "active_version_id": {
-                "type": "string",
-                "description": "Specifies the active version ID.",
-                "optional": true,
-                "computed": true
-              },
               "approve_role": {
                 "type": "string",
                 "description": "Indicates the approve role of the playbook.",
@@ -39,12 +33,6 @@
               "edit_role": {
                 "type": "string",
                 "description": "Indicates the edit role.",
-                "computed": true
-              },
-              "enabled": {
-                "type": "bool",
-                "description": "Specifies whether to enable the playbook.",
-                "optional": true,
                 "computed": true
               },
               "id": {

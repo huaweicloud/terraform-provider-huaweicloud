@@ -81,6 +81,10 @@
                 "optional": true,
                 "computed": true
               },
+              "expired_time": {
+                "type": "string",
+                "computed": true
+              },
               "flavor_id": {
                 "type": "string",
                 "required": true

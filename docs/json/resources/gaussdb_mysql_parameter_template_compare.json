@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_mysql_parameter_template_compare": {
+          "block": {
+            "attributes": {
+              "differences": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "parameter_name": "string",
+                      "source_value": "string",
+                      "target_value": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "source_configuration_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "target_configuration_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

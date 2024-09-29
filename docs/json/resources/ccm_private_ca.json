@@ -121,20 +121,24 @@
                       "type": "string",
                       "computed": true
                     },
+                    "enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
                     "obs_bucket_name": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "optional": true,
+                      "computed": true
                     },
                     "valid_days": {
                       "type": "number",
-                      "required": true,
-                      "forcenew": true
+                      "optional": true,
+                      "computed": true
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               },
               "distinguished_name": {
                 "block": {

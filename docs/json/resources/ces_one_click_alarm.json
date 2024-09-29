@@ -1,0 +1,131 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ces_one_click_alarm": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The supplementary information about one-click monitoring.",
+                "computed": true
+              },
+              "enabled": {
+                "type": "bool",
+                "description": "Whether to enable one-click monitoring.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "The metric namespace.",
+                "computed": true
+              },
+              "notification_begin_time": {
+                "type": "string",
+                "description": "Specifies the time when the alarm notification was enabled.",
+                "optional": true
+              },
+              "notification_enabled": {
+                "type": "bool",
+                "description": "Specifies whether to enable the alarm notification.",
+                "required": true
+              },
+              "notification_end_time": {
+                "type": "string",
+                "description": "Specifies the time when the alarm notification was disabled.",
+                "optional": true
+              },
+              "one_click_alarm_id": {
+                "type": "string",
+                "description": "Specifies the default one-click monitoring ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "alarm_notifications": {
+                "block": {
+                  "attributes": {
+                    "notification_list": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the list of objects to be notified if the alarm status changes.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the notification type.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the action to be triggered by an alarm."
+                },
+                "nesting_mode": "list"
+              },
+              "dimension_names": {
+                "block": {
+                  "attributes": {
+                    "event": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable the event alarm rules.",
+                      "optional": true
+                    },
+                    "metric": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies dimensions in metric alarm rules that have one-click monitoring enabled.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies dimensions in metric and event alarm rules that have one-click monitoring enabled."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "ok_notifications": {
+                "block": {
+                  "attributes": {
+                    "notification_list": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the list of objects to be notified if the alarm status changes.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the notification type.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the action to be triggered after an alarm is cleared."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

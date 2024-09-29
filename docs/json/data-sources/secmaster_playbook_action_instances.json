@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_playbook_action_instances": {
+          "block": {
+            "attributes": {
+              "action_instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "action_id": "string",
+                            "action_type": "string",
+                            "description": "string",
+                            "id": "string",
+                            "name": "string",
+                            "playbook_id": "string",
+                            "playbook_version_id": "string"
+                          }
+                        ]
+                      ],
+                      "instance_log": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "action_id": "string",
+                            "action_name": "string",
+                            "end_time": "string",
+                            "error_msg": "string",
+                            "input": "string",
+                            "instance_id": "string",
+                            "instance_type": "string",
+                            "log_level": "string",
+                            "output": "string",
+                            "parent_instance_id": "string",
+                            "start_time": "string",
+                            "status": "string",
+                            "trigger_type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The playbook action instance list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "playbook_instance_id": {
+                "type": "string",
+                "description": "Specifies the playbook instance ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID to which the playbook instance belongs.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

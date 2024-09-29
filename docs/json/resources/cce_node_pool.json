@@ -289,6 +289,97 @@
                 "forcenew": true,
                 "max_items": 1
               },
+              "extension_scale_groups": {
+                "block": {
+                  "block_types": {
+                    "metadata": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "spec": {
+                      "block": {
+                        "attributes": {
+                          "az": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "flavor": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "autoscaling": {
+                            "block": {
+                              "attributes": {
+                                "enable": {
+                                  "type": "bool",
+                                  "optional": true
+                                },
+                                "extension_priority": {
+                                  "type": "number",
+                                  "optional": true
+                                },
+                                "max_node_count": {
+                                  "type": "number",
+                                  "optional": true
+                                },
+                                "min_node_count": {
+                                  "type": "number",
+                                  "optional": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "capacity_reservation_specification": {
+                            "block": {
+                              "attributes": {
+                                "id": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "preference": {
+                                  "type": "string",
+                                  "optional": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "hostname_config": {
+                "block": {
+                  "attributes": {
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "root_volume": {
                 "block": {
                   "attributes": {

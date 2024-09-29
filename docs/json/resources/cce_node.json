@@ -285,6 +285,20 @@
                 "nesting_mode": "list",
                 "forcenew": true
               },
+              "hostname_config": {
+                "block": {
+                  "attributes": {
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "root_volume": {
                 "block": {
                   "attributes": {

@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_incremental_backups": {
+          "block": {
+            "attributes": {
+              "backups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "begin_time": "string",
+                      "end_time": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "name": "string",
+                      "size": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of incremental backups.",
+                "computed": true
+              },
+              "begin_time": {
+                "type": "string",
+                "description": "Specifies the query start time.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the query end time.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

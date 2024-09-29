@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_p2c_gateways": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "p2c_vpn_gateways": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "connect_subnet": "string",
+                      "created_at": "string",
+                      "current_connection_number": "number",
+                      "eip": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bandwidth_billing_info": "string",
+                            "bandwidth_id": "string",
+                            "bandwidth_name": "string",
+                            "bandwidth_size": "number",
+                            "charge_mode": "string",
+                            "id": "string",
+                            "ip_address": "string",
+                            "ip_billing_info": "string",
+                            "ip_version": "number",
+                            "share_type": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "enterprise_project_id": "string",
+                      "flavor": "string",
+                      "frozen_effect": "number",
+                      "id": "string",
+                      "max_connection_number": "number",
+                      "name": "string",
+                      "order_id": "string",
+                      "status": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The VPN P2C gateway List.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,23 +2,28 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_images_image": {
+        "huaweicloud_ims_obs_iso_image": {
           "block": {
             "attributes": {
-              "backup_id": {
+              "active_at": {
+                "type": "string",
+                "computed": true
+              },
+              "architecture": {
                 "type": "string",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
               },
-              "checksum": {
-                "type": "string",
-                "computed": true
-              },
               "cmk_id": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
               },
               "data_origin": {
                 "type": "string",
@@ -35,8 +40,7 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -48,13 +52,7 @@
               },
               "image_url": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
-              },
-              "instance_id": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
+                "required": true,
                 "forcenew": true
               },
               "is_config": {
@@ -69,7 +67,7 @@
               },
               "min_disk": {
                 "type": "number",
-                "optional": true,
+                "required": true,
                 "forcenew": true
               },
               "min_ram": {
@@ -81,10 +79,13 @@
                 "type": "string",
                 "required": true
               },
+              "os_type": {
+                "type": "string",
+                "computed": true
+              },
               "os_version": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
+                "required": true,
                 "forcenew": true
               },
               "region": {
@@ -102,25 +103,13 @@
                 ],
                 "optional": true
               },
-              "type": {
+              "updated_at": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
-              },
-              "vault_id": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
+                "computed": true
               },
               "visibility": {
                 "type": "string",
                 "computed": true
-              },
-              "volume_id": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
               }
             }
           },

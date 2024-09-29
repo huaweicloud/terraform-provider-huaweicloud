@@ -19,17 +19,17 @@
               },
               "created_at": {
                 "type": "string",
-                "description": "The created time.",
+                "description": "The creation time.",
                 "computed": true
               },
               "creator": {
                 "type": "string",
-                "description": "The name creator name.",
+                "description": "The creator.",
                 "computed": true
               },
               "debugging_data": {
                 "type": "bool",
-                "description": "Specifies whether it's a debugging data.",
+                "description": "Specifies whether it's debugging data.",
                 "optional": true,
                 "computed": true
               },
@@ -98,7 +98,7 @@
               },
               "updated_at": {
                 "type": "string",
-                "description": "The updated time.",
+                "description": "The update time.",
                 "computed": true
               },
               "verification_status": {

@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_data_classes": {
+          "block": {
+            "attributes": {
+              "business_code": {
+                "type": "string",
+                "description": "Specifies the business code of the data class. Fuzzy matching is supported.",
+                "optional": true
+              },
+              "data_classes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "business_code": "string",
+                      "created_at": "string",
+                      "creator": "string",
+                      "creator_id": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "id": "string",
+                      "is_built_in": "bool",
+                      "modifier": "string",
+                      "modifier_id": "string",
+                      "name": "string",
+                      "parent_id": "string",
+                      "project_id": "string",
+                      "region_id": "string",
+                      "subscribed_version": "string",
+                      "type_num": "number",
+                      "updated_at": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The data class list.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the data class description. Fuzzy matching is supported.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_built_in": {
+                "type": "string",
+                "description": "Specifies whether the data class is built in SecMaster.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the data class. Fuzzy matching is supported.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_pt_modify_records": {
+          "block": {
+            "attributes": {
+              "configuration_id": {
+                "type": "string",
+                "description": "Specifies the parameter template ID.",
+                "required": true
+              },
+              "histories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "applied": "string",
+                      "is_applied": "bool",
+                      "new_value": "string",
+                      "old_value": "string",
+                      "parameter_name": "string",
+                      "update_result": "string",
+                      "updated": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the parameter modify records.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

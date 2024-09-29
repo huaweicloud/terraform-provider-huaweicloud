@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_dataservice_message_approve": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "number",
+                "description": "The approve action performed by the message.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "message_id": {
+                "type": "string",
+                "description": "The ID of the message (to be approved).",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the message (to be approved) is located.",
+                "computed": true
+              },
+              "time": {
+                "type": "string",
+                "description": "The execution time of the message action.",
+                "optional": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID of the exclusive API to which the message (to be approved) belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

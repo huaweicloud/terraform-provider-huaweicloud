@@ -49,6 +49,18 @@
                 "type": "string",
                 "computed": true
               },
+              "hostname_config": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

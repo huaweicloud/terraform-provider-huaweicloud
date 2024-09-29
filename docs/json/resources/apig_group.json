@@ -19,7 +19,7 @@
                 "type": "bool",
                 "description": "Specifies whether to use the debugging domain name to access the APIs within the group.",
                 "optional": true,
-                "default": true
+                "computed": true
               },
               "force_destroy": {
                 "type": "bool",

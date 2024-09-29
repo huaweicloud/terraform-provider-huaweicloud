@@ -27,6 +27,7 @@
                         ]
                       ],
                       "configuration_id": "string",
+                      "created_at": "string",
                       "datastore": [
                         "list",
                         [
@@ -38,9 +39,12 @@
                         ]
                       ],
                       "db_user_name": "string",
+                      "description": "string",
                       "enterprise_project_id": "string",
                       "flavor": "string",
                       "id": "string",
+                      "maintain_begin": "string",
+                      "maintain_end": "string",
                       "master_availability_zone": "string",
                       "mode": "string",
                       "name": "string",
@@ -59,6 +63,8 @@
                         ]
                       ],
                       "port": "number",
+                      "private_dns_name": "string",
+                      "private_dns_name_prefix": "string",
                       "private_write_ip": "string",
                       "read_replicas": "number",
                       "region": "string",
@@ -66,6 +72,7 @@
                       "status": "string",
                       "subnet_id": "string",
                       "time_zone": "string",
+                      "updated_at": "string",
                       "vpc_id": "string"
                     }
                   ]

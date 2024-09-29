@@ -19,19 +19,19 @@
               },
               "created_at": {
                 "type": "string",
-                "description": "The created time.",
+                "description": "The creation time.",
                 "computed": true
               },
               "debugging_data": {
                 "type": "bool",
-                "description": "Specifies whether it's a debugging data.",
+                "description": "Specifies whether it's debugging data.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
               },
               "description": {
                 "type": "string",
-                "description": "The description of the alert.",
+                "description": "Specifies the description of the alert.",
                 "required": true
               },
               "first_occurrence_time": {
@@ -87,7 +87,7 @@
               },
               "updated_at": {
                 "type": "string",
-                "description": "The updated time.",
+                "description": "The update time.",
                 "computed": true
               },
               "verification_status": {

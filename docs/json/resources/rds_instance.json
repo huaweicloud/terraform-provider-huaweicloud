@@ -118,8 +118,7 @@
               },
               "power_action": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "private_dns_name_prefix": {
                 "type": "string",

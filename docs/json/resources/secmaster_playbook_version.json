@@ -97,7 +97,7 @@
               },
               "status": {
                 "type": "string",
-                "description": "Indicates the status of the plaubook.",
+                "description": "Indicates the status of the playbook version.",
                 "computed": true
               },
               "trigger_type": {

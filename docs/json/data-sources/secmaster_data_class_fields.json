@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_data_class_fields": {
+          "block": {
+            "attributes": {
+              "data_class_id": {
+                "type": "string",
+                "description": "Specifies the data class ID.",
+                "required": true
+              },
+              "fields": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "business_code": "string",
+                      "business_id": "string",
+                      "business_type": "string",
+                      "case_sensitive": "bool",
+                      "creatabled": "bool",
+                      "created_at": "string",
+                      "creator": "string",
+                      "creator_id": "string",
+                      "data_class_name": "string",
+                      "default_value": "string",
+                      "description": "string",
+                      "display_type": "string",
+                      "editabled": "bool",
+                      "extra_json": "string",
+                      "field_key": "string",
+                      "field_tooltip": "string",
+                      "id": "string",
+                      "io_type": "string",
+                      "is_built_in": "bool",
+                      "json_schema": "string",
+                      "maintainabled": "bool",
+                      "mapping": "bool",
+                      "modifier": "string",
+                      "modifier_id": "string",
+                      "name": "string",
+                      "read_only": "bool",
+                      "required": "bool",
+                      "searchabled": "bool",
+                      "subscribed_version": "string",
+                      "target_api": "string",
+                      "type": "string",
+                      "updated_at": "string",
+                      "used_by": "string",
+                      "visible": "bool"
+                    }
+                  ]
+                ],
+                "description": "The field list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_built_in": {
+                "type": "string",
+                "description": "Specifies whether it is built in SecMaster. The value can be **true** or **false**.",
+                "optional": true
+              },
+              "mapping": {
+                "type": "string",
+                "description": "Specifies whether to display in other places other the classification and mapping module.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the field name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

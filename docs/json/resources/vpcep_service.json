@@ -92,6 +92,11 @@
                 ],
                 "optional": true
               },
+              "tcp_proxy": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "vpc_id": {
                 "type": "string",
                 "required": true,

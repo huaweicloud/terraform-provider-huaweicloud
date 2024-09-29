@@ -34,6 +34,18 @@
                 "type": "string",
                 "computed": true
               },
+              "instance_configuration_id": {
+                "type": "string",
+                "description": "Specifies the parameter template ID of the GaussDB MySQL instance.",
+                "optional": true,
+                "forcenew": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB MySQL instance.",
+                "optional": true,
+                "forcenew": true
+              },
               "name": {
                 "type": "string",
                 "description": "Specifies the parameter template name.",
@@ -51,6 +63,12 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "source_configuration_id": {
+                "type": "string",
+                "description": "Specifies the source parameter template ID.",
+                "optional": true,
+                "forcenew": true
               },
               "updated_at": {
                 "type": "string",

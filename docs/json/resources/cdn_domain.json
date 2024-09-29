@@ -130,7 +130,36 @@
                   "block_types": {
                     "access_area_filter": {
                       "block": {
-                        "description": "schema: Internal; Specifies the geographic access control rules."
+                        "attributes": {
+                          "area": {
+                            "type": "string",
+                            "description": "Specifies the areas, separated by commas.",
+                            "required": true
+                          },
+                          "content_type": {
+                            "type": "string",
+                            "description": "Specifies the content type.",
+                            "required": true
+                          },
+                          "content_value": {
+                            "type": "string",
+                            "description": "Specifies the content value.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "exception_ip": {
+                            "type": "string",
+                            "description": "Specifies the IP addresses exception in access control, separated by commas.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Specifies the blacklist and whitelist rule type.",
+                            "required": true
+                          }
+                        },
+                        "description": "Specifies the geographic access control rules."
                       },
                       "nesting_mode": "set"
                     },
@@ -739,6 +768,11 @@
                     "user_agent_filter": {
                       "block": {
                         "attributes": {
+                          "include_empty": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
                           "type": {
                             "type": "string",
                             "required": true

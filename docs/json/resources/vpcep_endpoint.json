@@ -31,6 +31,18 @@
                 "computed": true,
                 "forcenew": true
               },
+              "ip_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "ipv6_address": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "network_id": {
                 "type": "string",
                 "optional": true,
@@ -39,11 +51,6 @@
               },
               "packet_id": {
                 "type": "number",
-                "computed": true
-              },
-              "policy_document": {
-                "type": "string",
-                "optional": true,
                 "computed": true
               },
               "policy_statement": {
@@ -65,8 +72,7 @@
                   "string"
                 ],
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "service_id": {
                 "type": "string",

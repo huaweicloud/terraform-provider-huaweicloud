@@ -33,8 +33,7 @@
                 "type": "string",
                 "description": "Specifies the enterprise project id of the image.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "id": {
                 "type": "string",

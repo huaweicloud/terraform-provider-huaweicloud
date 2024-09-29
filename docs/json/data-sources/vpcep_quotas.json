@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpcep_quotas": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "quota": "number",
+                      "type": "string",
+                      "used": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the VPC endpoint resource quotas.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the resource type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPCEP",
+            "name": "VPC Endpoint",
+            "catalog": "Networking",
+            "name_cn": "VPC终端节点",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

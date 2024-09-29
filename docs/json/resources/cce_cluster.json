@@ -82,8 +82,7 @@
               "cluster_version": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "container_network_cidr": {
                 "type": "string",
@@ -174,6 +173,10 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "lts_reclaim_policy": {
+                "type": "string",
+                "optional": true
               },
               "multi_az": {
                 "type": "bool",

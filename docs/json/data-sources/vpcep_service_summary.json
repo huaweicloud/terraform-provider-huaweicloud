@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpcep_service_summary": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the VPC endpoint service, in RFC3339 format.",
+                "computed": true
+              },
+              "enable_policy": {
+                "type": "bool",
+                "description": "Whether the VPC endpoint policy can be customized.",
+                "computed": true
+              },
+              "endpoint_service_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC endpoint service.",
+                "optional": true
+              },
+              "endpoint_service_name": {
+                "type": "string",
+                "description": "Specifies the name of the VPC endpoint service.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_charge": {
+                "type": "bool",
+                "description": "Whether the VPC endpoint connected to the VPC endpoint service is charged.",
+                "computed": true
+              },
+              "public_border_group": {
+                "type": "string",
+                "description": "The public border group information about the pool corresponding to the VPC endpoint.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "service_name": {
+                "type": "string",
+                "description": "The name of the VPC endpoint service.",
+                "computed": true
+              },
+              "service_type": {
+                "type": "string",
+                "description": "The type of the VPC endpoint service.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPCEP",
+            "name": "VPC Endpoint",
+            "catalog": "Networking",
+            "name_cn": "VPC终端节点",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

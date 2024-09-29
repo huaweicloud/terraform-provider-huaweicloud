@@ -65,7 +65,12 @@
                     "object",
                     {
                       "allocated": "number",
+                      "auto_bind": "bool",
                       "auto_expand_enabled": "bool",
+                      "bind_rules": [
+                        "map",
+                        "string"
+                      ],
                       "consistent_level": "string",
                       "enterprise_project_id": "string",
                       "id": "string",

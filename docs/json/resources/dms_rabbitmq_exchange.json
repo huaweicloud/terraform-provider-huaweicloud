@@ -10,6 +10,21 @@
                 "required": true,
                 "forcenew": true
               },
+              "bindings": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "destination": "string",
+                      "destination_type": "string",
+                      "properties_key": "string",
+                      "routing_key": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "durable": {
                 "type": "bool",
                 "optional": true,

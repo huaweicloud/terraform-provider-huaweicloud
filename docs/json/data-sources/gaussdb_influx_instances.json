@@ -1,0 +1,144 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_influx_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "actions": [
+                        "list",
+                        "string"
+                      ],
+                      "availability_zone": "string",
+                      "backup_strategy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "keep_days": "number",
+                            "start_time": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "engine": "string",
+                            "patch_available": "bool",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "db_user_name": "string",
+                      "dedicated_resource_id": "string",
+                      "engine": "string",
+                      "enterprise_project_id": "string",
+                      "groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "nodes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "availability_zone": "string",
+                                  "id": "string",
+                                  "name": "string",
+                                  "private_ip": "string",
+                                  "public_ip": "string",
+                                  "spec_code": "string",
+                                  "status": "string",
+                                  "subnet_id": "string",
+                                  "support_reduce": "bool"
+                                }
+                              ]
+                            ],
+                            "status": "string",
+                            "volume": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "size": "string",
+                                  "used": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "lb_ip_address": "string",
+                      "lb_port": "string",
+                      "maintain_begin": "string",
+                      "maintain_end": "string",
+                      "mode": "string",
+                      "name": "string",
+                      "pay_mode": "string",
+                      "port": "string",
+                      "region": "string",
+                      "security_group_id": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "time_zone": "string",
+                      "updated_at": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GeminiDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GeminiDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

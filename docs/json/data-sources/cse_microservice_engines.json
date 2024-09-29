@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cse_microservice_engines": {
+          "block": {
+            "attributes": {
+              "engines": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auth_type": "string",
+                      "availability_zones": [
+                        "list",
+                        "string"
+                      ],
+                      "config_center_addresses": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "private": "string",
+                            "public": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "eip_id": "string",
+                      "enterprise_project_id": "string",
+                      "extend_params": [
+                        "map",
+                        "string"
+                      ],
+                      "flavor": "string",
+                      "id": "string",
+                      "instance_limit": "number",
+                      "name": "string",
+                      "network_id": "string",
+                      "service_limit": "number",
+                      "service_registry_addresses": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "private": "string",
+                            "public": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "All queried dedicated microservice engines.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where dedicated microservice engines are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSE",
+            "name": "Cloud Service Engine",
+            "catalog": "Middleware",
+            "name_cn": "微服务引擎",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

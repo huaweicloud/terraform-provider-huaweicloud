@@ -66,6 +66,11 @@
                 "type": "string",
                 "computed": true
               },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the audit instance.",
+                "computed": true
+              },
               "ip_address": {
                 "type": "string",
                 "description": "Specifies the IP address.",
@@ -95,6 +100,12 @@
                 "type": "string",
                 "description": "The ID of the port that the EIP is bound to.",
                 "computed": true
+              },
+              "product_spec_desc": {
+                "type": "string",
+                "description": "The product specification description in json string format.",
+                "required": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
