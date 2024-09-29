@@ -763,6 +763,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_auto_scaling_records":    gaussdb.DataSourceGaussdbMysqlAutoScalingRecords(),
 			"huaweicloud_gaussdb_mysql_incremental_backups":     gaussdb.DataSourceGaussdbMysqlIncrementalBackups(),
 
+			"huaweicloud_gaussdb_influx_instances": gaussdb.DataSourceGaussDBInfluxInstances(),
+
 			"huaweicloud_hss_ransomware_protection_policies": hss.DataSourceRansomwareProtectionPolicies(),
 			"huaweicloud_hss_host_groups":                    hss.DataSourceHostGroups(),
 			"huaweicloud_hss_hosts":                          hss.DataSourceHosts(),
