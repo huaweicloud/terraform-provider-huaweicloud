@@ -33,6 +33,8 @@ import (
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
+// @API DBSS POST /v1/{project_id}/{resource_type}/{resource_id}/tags/create
+// @API DBSS DELETE /v1/{project_id}/{resource_type}/{resource_id}/tags/delete
 func ResourceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,
@@ -157,7 +159,7 @@ func ResourceInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the IP address.`,
 			},
-			"tags": common.TagsForceNewSchema(),
+			"tags": common.TagsSchema(),
 			"connect_ip": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -604,7 +606,79 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	// update tags
+	if d.HasChange("tags") {
+		client, err := cfg.NewServiceClient("dbss", region)
+		if err != nil {
+			return diag.Errorf("error creating DBSS client: %s", err)
+		}
+
+		oldRaw, newRaw := d.GetChange("tags")
+		oldMap := oldRaw.(map[string]interface{})
+		newMap := newRaw.(map[string]interface{})
+
+		// remove old tags
+		if len(oldMap) > 0 {
+			if err = deleteTags(client, "auditInstance", d.Id(), oldMap); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		// set new tags
+		if len(newMap) > 0 {
+			if err := createTags(client, "auditInstance", d.Id(), newMap); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	return resourceInstanceRead(ctx, d, meta)
+}
+
+func createTags(createTagsClient *golangsdk.ServiceClient, resourceType, resourceId string, tags map[string]interface{}) error {
+	createTagsHttpUrl := "v1/{project_id}/{resource_type}/{resource_id}/tags/create"
+	createTagsPath := createTagsClient.Endpoint + createTagsHttpUrl
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{project_id}", createTagsClient.ProjectID)
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{resource_type}", resourceType)
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{resource_id}", resourceId)
+	createTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	createTagsOpt.JSONBody = map[string]interface{}{
+		"tags": utils.ExpandResourceTags(tags),
+	}
+
+	_, err := createTagsClient.Request("POST", createTagsPath, &createTagsOpt)
+	if err != nil {
+		return fmt.Errorf("error creating tags: %s", err)
+	}
+	return nil
+}
+
+func deleteTags(deleteTagsClient *golangsdk.ServiceClient, resourceType, resourceId string, tags map[string]interface{}) error {
+	deleteTagsHttpUrl := "v1/{project_id}/{resource_type}/{resource_id}/tags/delete"
+	deleteTagsPath := deleteTagsClient.Endpoint + deleteTagsHttpUrl
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{project_id}", deleteTagsClient.ProjectID)
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{resource_type}", resourceType)
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{resource_id}", resourceId)
+	deleteTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	deleteTagsOpt.JSONBody = map[string]interface{}{
+		"tags": utils.ExpandResourceTags(tags),
+	}
+
+	_, err := deleteTagsClient.Request("DELETE", deleteTagsPath, &deleteTagsOpt)
+	if err != nil {
+		return fmt.Errorf("error deleting tags: %s", err)
+	}
+	return nil
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

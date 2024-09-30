@@ -115,9 +115,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the instance.
-
-  Changing this parameter will create a new resource.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
 ## Attribute Reference
 
@@ -165,7 +163,7 @@ $ terraform import huaweicloud_dbss_instance.test f440a6c3fab9be5aa8b2a139fc6fdf
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response. The missing attributes include: `charging_mode`, `enterprise_project_id`, `flavor`, `period`,
-`period_unit`, and `product_spec_desc`. It is generally recommended running `terraform plan` after importing an instance.
+`period_unit`, `product_spec_desc` and `tags`. It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to align
 with the instance. Also, you can ignore changes as below.
 
@@ -175,7 +173,7 @@ resource "huaweicloud_dbss_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      charging_mode, enterprise_project_id, flavor, period, period_unit, product_spec_desc,
+      charging_mode, enterprise_project_id, flavor, period, period_unit, product_spec_desc, tags
     ]
   }
 }
