@@ -2,6 +2,7 @@ package ims
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -70,6 +71,7 @@ func TestAccImageCopy_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "status", "active"),
 					resource.TestCheckResourceAttr(rName, "description", "description test"),
 					resource.TestCheckResourceAttr(rName, "min_ram", "1024"),
 					resource.TestCheckResourceAttr(rName, "max_ram", "4096"),
@@ -78,6 +80,18 @@ func TestAccImageCopy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", defaultEpsId),
 					resource.TestCheckResourceAttrPair(rName, "source_image_id", "huaweicloud_ims_ecs_system_image.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "kms_key_id", "huaweicloud_kms_key.test", "id"),
+					resource.TestCheckResourceAttrSet(rName, "os_version"),
+					resource.TestCheckResourceAttrSet(rName, "visibility"),
+					resource.TestCheckResourceAttrSet(rName, "min_disk"),
+					resource.TestCheckResourceAttrSet(rName, "data_origin"),
+					resource.TestCheckResourceAttrSet(rName, "disk_format"),
+					resource.TestCheckResourceAttrSet(rName, "image_size"),
+					resource.TestMatchResourceAttr(rName, "active_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
@@ -85,6 +99,7 @@ func TestAccImageCopy_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "status", "active"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "min_ram", "4096"),
 					resource.TestCheckResourceAttr(rName, "max_ram", "8192"),
@@ -99,6 +114,7 @@ func TestAccImageCopy_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "status", "active"),
 					resource.TestCheckResourceAttr(rName, "min_ram", "0"),
 					resource.TestCheckResourceAttr(rName, "max_ram", "0"),
 					resource.TestCheckResourceAttr(rName, "tags.key1", "value1_update"),
@@ -140,6 +156,7 @@ func TestAccImageCopy_cross_region_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "status", "active"),
 					resource.TestCheckResourceAttr(rName, "description", "description test"),
 					resource.TestCheckResourceAttr(rName, "min_ram", "1024"),
 					resource.TestCheckResourceAttr(rName, "max_ram", "4096"),
@@ -153,6 +170,7 @@ func TestAccImageCopy_cross_region_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "status", "active"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "min_ram", "4096"),
 					resource.TestCheckResourceAttr(rName, "max_ram", "8192"),
@@ -166,6 +184,7 @@ func TestAccImageCopy_cross_region_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "status", "active"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "min_ram", "0"),
 					resource.TestCheckResourceAttr(rName, "max_ram", "0"),
@@ -207,6 +226,7 @@ func TestAccImageCopy_cross_region_withVaultId_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "status", "active"),
 					resource.TestCheckResourceAttr(rName, "description", "description test"),
 					resource.TestCheckResourceAttr(rName, "min_ram", "1024"),
 					resource.TestCheckResourceAttr(rName, "max_ram", "4096"),
@@ -221,6 +241,7 @@ func TestAccImageCopy_cross_region_withVaultId_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "status", "active"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "min_ram", "4096"),
 					resource.TestCheckResourceAttr(rName, "max_ram", "8192"),
@@ -234,6 +255,7 @@ func TestAccImageCopy_cross_region_withVaultId_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "status", "active"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "min_ram", "0"),
 					resource.TestCheckResourceAttr(rName, "max_ram", "0"),

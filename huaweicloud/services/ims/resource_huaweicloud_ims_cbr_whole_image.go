@@ -92,6 +92,10 @@ func ResourceCbrWholeImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"min_disk": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"disk_format": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -177,20 +181,21 @@ func resourceCbrWholeImageRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	image := imageList[0]
-	imageTags := getImageTags(d, client)
+	imageTags := flattenImageTags(d, client)
 
 	mErr = multierror.Append(
 		d.Set("region", region),
 		d.Set("name", image.Name),
 		d.Set("backup_id", image.BackupID),
 		d.Set("description", image.Description),
-		d.Set("max_ram", getMaxRAM(image.MaxRam)),
+		d.Set("max_ram", flattenMaxRAM(image.MaxRam)),
 		d.Set("min_ram", image.MinRam),
 		d.Set("tags", imageTags),
 		d.Set("enterprise_project_id", image.EnterpriseProjectID),
 		d.Set("status", image.Status),
 		d.Set("visibility", image.Visibility),
 		d.Set("os_version", image.OsVersion),
+		d.Set("min_disk", image.MinDisk),
 		d.Set("disk_format", image.DiskFormat),
 		d.Set("data_origin", image.DataOrigin),
 		d.Set("active_at", image.ActiveAt),

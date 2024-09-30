@@ -218,12 +218,12 @@ func resourceEvsDataImageRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	image := imageList[0]
-	imageTags := getImageTags(d, client)
+	imageTags := flattenImageTags(d, client)
 
 	mErr = multierror.Append(
 		d.Set("region", region),
 		d.Set("name", image.Name),
-		d.Set("volume_id", getSpecificValueFormDataOrigin(image.DataOrigin, "volume")),
+		d.Set("volume_id", flattenSpecificValueFormDataOrigin(image.DataOrigin, "volume")),
 		d.Set("description", image.Description),
 		d.Set("tags", imageTags),
 		d.Set("enterprise_project_id", image.EnterpriseProjectID),

@@ -224,19 +224,19 @@ func resourceObsSystemImageRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	image := imageList[0]
-	imageTags := getImageTags(d, client)
+	imageTags := flattenImageTags(d, client)
 	mErr = multierror.Append(
 		d.Set("region", region),
 		d.Set("name", image.Name),
-		d.Set("image_url", getSpecificValueFormDataOrigin(image.DataOrigin, "file")),
+		d.Set("image_url", flattenSpecificValueFormDataOrigin(image.DataOrigin, "file")),
 		d.Set("min_disk", image.MinDisk),
 		d.Set("description", image.Description),
 		d.Set("os_type", image.OsType),
 		d.Set("os_version", image.OsVersion),
 		d.Set("cmk_id", image.SystemCmkid),
-		d.Set("max_ram", getMaxRAM(image.MaxRam)),
+		d.Set("max_ram", flattenMaxRAM(image.MaxRam)),
 		d.Set("min_ram", image.MinRam),
-		d.Set("architecture", getArchitecture(image.SupportArm)),
+		d.Set("architecture", flattenArchitecture(image.SupportArm)),
 		d.Set("tags", imageTags),
 		d.Set("enterprise_project_id", image.EnterpriseProjectID),
 		d.Set("status", image.Status),
@@ -252,7 +252,7 @@ func resourceObsSystemImageRead(_ context.Context, d *schema.ResourceData, meta 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func getArchitecture(supportArm string) string {
+func flattenArchitecture(supportArm string) string {
 	if supportArm == "true" {
 		return "arm"
 	}

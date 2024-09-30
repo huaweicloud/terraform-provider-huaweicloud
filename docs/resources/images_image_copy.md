@@ -95,6 +95,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `visibility` - Indicates whether the image is visible to other tenants.
 
+* `min_disk` - The minimum disk space required to run an image, in GB unit.
+
 * `data_origin` - Indicates the image source.
   The format is **image,region,source_image_id**, e.g. **image,cn-north-4,xxxxxx**.
 
@@ -103,10 +105,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `image_size` - Indicates the size(bytes) of the image file.
 
-* `checksum` - Indicates the checksum of the data associated with the image.
-
 * `status` - Indicates the status of the image. The value can be **active**, **queued**, **saving**, **deleted**,
   or **killed*, only image with a status of **active** can be used.
+
+* `active_at` - The time when the image status changes to active, in RFC3339 format.
+
+* `created_at` - The creation time of the image, in RFC3339 format.
+
+* `updated_at` - The last update time of the image, in RFC3339 format.
 
 ## Timeouts
 

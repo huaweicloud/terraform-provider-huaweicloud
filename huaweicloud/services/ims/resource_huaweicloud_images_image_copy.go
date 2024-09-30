@@ -123,6 +123,10 @@ func ResourceImsImageCopy() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"min_disk": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"data_origin": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -136,10 +140,23 @@ func ResourceImsImageCopy() *schema.Resource {
 				Computed: true,
 			},
 			"checksum": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: utils.SchemaDesc("checksum is deprecated", utils.SchemaDescInput{Internal: true}),
+			},
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"status": {
+			"active_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -286,24 +303,27 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	img := imageList[0]
-	imageTags := getImageTags(d, imsClient)
+	imageTags := flattenImageTags(d, imsClient)
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", img.Name),
 		d.Set("description", img.Description),
-		d.Set("max_ram", getMaxRAM(img.MaxRam)),
+		d.Set("max_ram", flattenMaxRAM(img.MaxRam)),
 		d.Set("min_ram", img.MinRam),
 		d.Set("tags", imageTags),
 		d.Set("kms_key_id", img.SystemCmkid),
-		d.Set("instance_id", getSpecificValueFormDataOrigin(img.DataOrigin, "instance")),
+		d.Set("instance_id", flattenSpecificValueFormDataOrigin(img.DataOrigin, "instance")),
 		d.Set("os_version", img.OsVersion),
 		d.Set("visibility", img.Visibility),
+		d.Set("min_disk", img.MinDisk),
 		d.Set("data_origin", img.DataOrigin),
 		d.Set("disk_format", img.DiskFormat),
 		d.Set("image_size", img.ImageSize),
-		d.Set("checksum", img.Checksum),
 		d.Set("status", img.Status),
 		d.Set("enterprise_project_id", img.EnterpriseProjectID),
+		d.Set("active_at", img.ActiveAt),
+		d.Set("created_at", img.CreatedAt.Format(time.RFC3339)),
+		d.Set("updated_at", img.UpdatedAt.Format(time.RFC3339)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

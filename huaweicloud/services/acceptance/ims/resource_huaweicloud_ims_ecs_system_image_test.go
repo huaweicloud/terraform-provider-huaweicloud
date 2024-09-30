@@ -73,6 +73,7 @@ func TestAccEcsSystemImage_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttrSet(resourceName, "visibility"),
 					resource.TestCheckResourceAttrSet(resourceName, "image_size"),
+					resource.TestCheckResourceAttrSet(resourceName, "min_disk"),
 					resource.TestCheckResourceAttrSet(resourceName, "disk_format"),
 					resource.TestCheckResourceAttrSet(resourceName, "data_origin"),
 					resource.TestCheckResourceAttrSet(resourceName, "os_version"),

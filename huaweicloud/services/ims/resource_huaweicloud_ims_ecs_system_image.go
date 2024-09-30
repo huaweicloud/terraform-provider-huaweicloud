@@ -97,6 +97,10 @@ func ResourceEcsSystemImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"min_disk": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"disk_format": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -219,19 +223,20 @@ func resourceEcsSystemImageRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	image := imageList[0]
-	imageTags := getImageTags(d, client)
+	imageTags := flattenImageTags(d, client)
 	mErr = multierror.Append(
 		d.Set("region", region),
 		d.Set("name", image.Name),
-		d.Set("instance_id", getSpecificValueFormDataOrigin(image.DataOrigin, "instance")),
+		d.Set("instance_id", flattenSpecificValueFormDataOrigin(image.DataOrigin, "instance")),
 		d.Set("description", image.Description),
-		d.Set("max_ram", getMaxRAM(image.MaxRam)),
+		d.Set("max_ram", flattenMaxRAM(image.MaxRam)),
 		d.Set("min_ram", image.MinRam),
 		d.Set("tags", imageTags),
 		d.Set("enterprise_project_id", image.EnterpriseProjectID),
 		d.Set("status", image.Status),
 		d.Set("visibility", image.Visibility),
 		d.Set("image_size", image.ImageSize),
+		d.Set("min_disk", image.MinDisk),
 		d.Set("disk_format", image.DiskFormat),
 		d.Set("data_origin", image.DataOrigin),
 		d.Set("os_version", image.OsVersion),
@@ -262,7 +267,7 @@ func GetImageList(client *golangsdk.ServiceClient, imageId string) ([]cloudimage
 	return allImages, nil
 }
 
-func getSpecificValueFormDataOrigin(dataOrigin, serverType string) string {
+func flattenSpecificValueFormDataOrigin(dataOrigin, serverType string) string {
 	if dataOrigin == "" {
 		return ""
 	}
@@ -276,7 +281,7 @@ func getSpecificValueFormDataOrigin(dataOrigin, serverType string) string {
 }
 
 // The `max_ram` field, API returns a string type, so it needs to be converted to an int type.
-func getMaxRAM(maxRAMStr string) int {
+func flattenMaxRAM(maxRAMStr string) int {
 	maxRAM, err := strconv.Atoi(maxRAMStr)
 	if err != nil {
 		log.Printf("[WARN] failed fetch image max_ram: %s", err)
@@ -285,7 +290,7 @@ func getMaxRAM(maxRAMStr string) int {
 	return maxRAM
 }
 
-func getImageTags(d *schema.ResourceData, client *golangsdk.ServiceClient) map[string]string {
+func flattenImageTags(d *schema.ResourceData, client *golangsdk.ServiceClient) map[string]string {
 	tagList, err := tags.Get(client, d.Id()).Extract()
 	if err == nil {
 		tagMap := make(map[string]string)

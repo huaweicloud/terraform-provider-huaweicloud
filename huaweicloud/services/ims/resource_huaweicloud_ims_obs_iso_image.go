@@ -208,17 +208,17 @@ func resourceObsIsoImageRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	image := imageList[0]
-	imageTags := getImageTags(d, client)
+	imageTags := flattenImageTags(d, client)
 	mErr = multierror.Append(
 		d.Set("region", region),
 		d.Set("name", image.Name),
-		d.Set("image_url", getSpecificValueFormDataOrigin(image.DataOrigin, "file")),
+		d.Set("image_url", flattenSpecificValueFormDataOrigin(image.DataOrigin, "file")),
 		d.Set("min_disk", image.MinDisk),
 		d.Set("os_version", image.OsVersion),
 		d.Set("description", image.Description),
 		d.Set("cmk_id", image.SystemCmkid),
-		d.Set("architecture", getArchitecture(image.SupportArm)),
-		d.Set("max_ram", getMaxRAM(image.MaxRam)),
+		d.Set("architecture", flattenArchitecture(image.SupportArm)),
+		d.Set("max_ram", flattenMaxRAM(image.MaxRam)),
 		d.Set("min_ram", image.MinRam),
 		d.Set("tags", imageTags),
 		d.Set("enterprise_project_id", image.EnterpriseProjectID),
