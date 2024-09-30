@@ -129,6 +129,12 @@ variable "database_name" {}
 variable "source_db_vpc_id" {}
 variable "source_db_subnet_id" {}
 
+data "huaweicloud_drs_node_types" "test" {
+  engine_type = "mysql"
+  type        = "sync"
+  direction   = "up"
+}
+
 resource "huaweicloud_rds_instance" "mysql" {
   ...
 }
@@ -138,6 +144,7 @@ resource "huaweicloud_drs_job" "test" {
   type           = "sync"
   engine_type    = "mysql"
   direction      = "up"
+  node_type      = data.huaweicloud_drs_node_types.test.node_types[0]
   net_type       = "vpc"
   migration_type = "FULL_INCR_TRANS"
   description    = "terraform demo"
@@ -342,6 +349,9 @@ The following arguments are supported:
 * `destination_db` - (Required, List, ForceNew) Specifies the destination database configuration.
   The [db_info](#block--db_info) structure of the `destination_db` is documented below.
   Changing this parameter will create a new resource.
+
+* `node_type` - (Optional, String, ForceNew) Specifies the node flavor type. Valid values are **micro**, **small**,
+  **medium**, **high**, **xlarge**, **2xlarge**. Default to **high**.
 
 * `net_type` - (Optional, String, ForceNew) Specifies the network type.
   Changing this parameter will create a new resource. The default value is **eip**. The options are as follows:

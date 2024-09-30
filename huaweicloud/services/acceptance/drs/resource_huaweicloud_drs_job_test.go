@@ -388,6 +388,12 @@ func testAccDrsJob_synchronize_mysql(name, dbName, pwd string, autoRenew bool) s
 
 data "huaweicloud_availability_zones" "test" {}
 
+data "huaweicloud_drs_node_types" "test" {
+  engine_type = "mysql"
+  type        = "sync"
+  direction   = "up"
+}
+
 %[3]s
 
 %[4]s
@@ -399,6 +405,7 @@ resource "huaweicloud_drs_job" "test" {
   type           = "sync"
   engine_type    = "mysql"
   direction      = "up"
+  node_type      = data.huaweicloud_drs_node_types.test.node_types[0]
   net_type       = "vpc"
   migration_type = "FULL_INCR_TRANS"
   description    = "%[6]s"

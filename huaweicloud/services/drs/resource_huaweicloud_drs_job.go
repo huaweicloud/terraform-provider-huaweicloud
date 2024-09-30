@@ -54,6 +54,12 @@ func ResourceDrsJob() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -61,30 +67,25 @@ func ResourceDrsJob() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"engine_type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"direction": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"source_db": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -92,7 +93,6 @@ func ResourceDrsJob() *schema.Resource {
 				MaxItems: 1,
 				Elem:     dbInfoSchemaResource(),
 			},
-
 			"destination_db": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -100,67 +100,63 @@ func ResourceDrsJob() *schema.Resource {
 				MaxItems: 1,
 				Elem:     dbInfoSchemaResource(),
 			},
-
+			"node_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "high",
+			},
 			"destination_db_readnoly": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  true,
 			},
-
 			"net_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Default:  "eip",
 			},
-
 			"migration_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Default:  "FULL_INCR_TRANS",
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-
 			"multi_write": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
 			},
-
 			"expired_days": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 				Default:  14,
 			},
-
 			"start_time": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"migrate_definer": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  true,
 			},
-
 			"limit_speed": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -173,13 +169,11 @@ func ResourceDrsJob() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
-
 						"start_time": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-
 						"end_time": {
 							Type:     schema.TypeString,
 							Required: true,
@@ -188,7 +182,6 @@ func ResourceDrsJob() *schema.Resource {
 					},
 				},
 			},
-
 			"policy_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -201,13 +194,11 @@ func ResourceDrsJob() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
-
 						"conflict_policy": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
-
 						"index_trans": {
 							Type:     schema.TypeBool,
 							Optional: true,
@@ -284,39 +275,32 @@ func ResourceDrsJob() *schema.Resource {
 					},
 				},
 			},
-
 			"tags": common.TagsSchema(),
-
 			"force_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
-
 			"action": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"is_sync_re_edit": {
 				Type:         schema.TypeBool,
 				Optional:     true,
 				RequiredWith: []string{"action"},
 			},
-
 			"pause_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"action"},
 			},
-
 			"databases": {
 				Type:          schema.TypeSet,
 				Optional:      true,
 				ConflictsWith: []string{"tables"},
 				Elem:          &schema.Schema{Type: schema.TypeString},
 			},
-
 			"tables": {
 				Type:          schema.TypeSet,
 				Optional:      true,
@@ -336,14 +320,12 @@ func ResourceDrsJob() *schema.Resource {
 					},
 				},
 			},
-
 			"master_az": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				RequiredWith: []string{"slave_az"},
 			},
-
 			"slave_az": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -402,21 +384,18 @@ func ResourceDrsJob() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
-
 						"delay_time": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
-
 						"rpo_delay": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
-
 						"rto_delay": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -426,71 +405,54 @@ func ResourceDrsJob() *schema.Resource {
 					},
 				},
 			},
-
 			"order_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"master_job_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"slave_job_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"progress": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"public_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"private_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-		},
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(60 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 	}
 }
@@ -503,96 +465,81 @@ func dbInfoSchemaResource() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-
 			"ip": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"port": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 			},
-
 			"user": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-
 			"password": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				ForceNew:  true,
 				Sensitive: true,
 			},
-
 			"instance_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-
 			"ssl_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
 			},
-
 			"ssl_cert_key": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-
 			"ssl_cert_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-
 			"ssl_cert_check_sum": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-
 			"ssl_cert_password": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-
 			"kafka_security_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -600,7 +547,6 @@ func dbInfoSchemaResource() *schema.Resource {
 				MaxItems: 1,
 				Elem:     dbInfoKafkaSecurityConfigSchemaResource(),
 			},
-
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -1011,6 +957,7 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("net_type", listResp.Jobs[0].NetType),
 		d.Set("public_ip", detail.InstInfo.PublicIp),
 		d.Set("private_ip", detail.InstInfo.Ip),
+		d.Set("node_type", detail.InstInfo.InstType),
 		d.Set("destination_db_readnoly", detail.IsTargetReadonly),
 		d.Set("migration_type", detail.TaskType),
 		d.Set("description", detail.Description),
@@ -1612,7 +1559,7 @@ func buildCreateParamter(d *schema.ResourceData, projectId, enterpriseProjectID 
 		Description:      d.Get("description").(string),
 		MultiWrite:       utils.Bool(d.Get("multi_write").(bool)),
 		ExpiredDays:      fmt.Sprint(d.Get("expired_days").(int)),
-		NodeType:         "high",
+		NodeType:         d.Get("node_type").(string),
 		SourceEndpoint:   *sourceDb,
 		TargetEndpoint:   *targetDb,
 		SubnetId:         subnetId,
