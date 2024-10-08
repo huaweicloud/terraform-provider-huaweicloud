@@ -6,7 +6,7 @@ description: |-
   Manages a VPC EIP associates with an instance resource within HuaweiCloud.
 ---
 
-# huaweicloud_vpc_eip_associate
+# huaweicloud_vpc_eipv3_associate
 
 Manages a VPC EIP associates with an instance resource within HuaweiCloud.
 
