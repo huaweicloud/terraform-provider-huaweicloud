@@ -88,6 +88,8 @@ var (
 
 	HW_ELB_CERT_ID = os.Getenv("HW_ELB_CERT_ID")
 
+	HW_DBSS_INSATNCE_ID = os.Getenv("HW_DBSS_INSATNCE_ID")
+
 	HW_DEW_ENABLE_FLAG = os.Getenv("HW_DEW_ENABLE_FLAG")
 
 	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
@@ -2378,5 +2380,12 @@ func TestAccPrecheckDewFlag(t *testing.T) {
 	// Query the task execution status(running or failed)
 	if HW_DEW_ENABLE_FLAG == "" {
 		t.Skip("HW_DEW_ENABLE_FLAG must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckDbssInstanceId(t *testing.T) {
+	if HW_DBSS_INSATNCE_ID == "" {
+		t.Skip("HW_DBSS_INSATNCE_ID must be set for the acceptance test")
 	}
 }
