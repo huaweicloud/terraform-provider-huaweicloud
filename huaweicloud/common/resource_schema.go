@@ -34,13 +34,17 @@ func TagsForceNewSchema(description ...string) *schema.Schema {
 	return &schemaObj
 }
 
-// TagsComputedSchema returns the schema to use for tags as an attribute
-func TagsComputedSchema() *schema.Schema {
-	return &schema.Schema{
+// TagsComputedSchema returns the schema to use for tags as an attribute.
+func TagsComputedSchema(description ...string) *schema.Schema {
+	schemaObj := schema.Schema{
 		Type:     schema.TypeMap,
 		Computed: true,
 		Elem:     &schema.Schema{Type: schema.TypeString},
 	}
+	if len(description) > 0 {
+		schemaObj.Description = description[0]
+	}
+	return &schemaObj
 }
 
 func SchemaChargingMode(conflicts []string) *schema.Schema {
