@@ -320,6 +320,30 @@ func ResourceDrsJob() *schema.Resource {
 					},
 				},
 			},
+			"public_ip_list": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"public_ip": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 			"master_az": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1567,6 +1591,7 @@ func buildCreateParamter(d *schema.ResourceData, projectId, enterpriseProjectID 
 		SysTags:          utils.BuildSysTags(enterpriseProjectID),
 		MasterAz:         d.Get("master_az").(string),
 		SlaveAz:          d.Get("slave_az").(string),
+		PublciIpList:     buildPublicIpListParam(d.Get("public_ip_list").([]interface{})),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode.(string) == "prePaid" {
@@ -1595,6 +1620,24 @@ func buildCreateParamter(d *schema.ResourceData, projectId, enterpriseProjectID 
 	}
 
 	return &jobs.BatchCreateJobReq{Jobs: []jobs.CreateJobReq{job}}, nil
+}
+
+func buildPublicIpListParam(publicIpList []interface{}) []jobs.PublciIpList {
+	if len(publicIpList) == 0 {
+		return nil
+	}
+
+	publicIps := make([]jobs.PublciIpList, 0, len(publicIpList))
+	for _, v := range publicIpList {
+		tmp := v.(map[string]interface{})
+		publicIps = append(publicIps, jobs.PublciIpList{
+			Id:       tmp["id"].(string),
+			PublicIp: tmp["public_ip"].(string),
+			Type:     tmp["type"].(string),
+		})
+	}
+
+	return publicIps
 }
 
 func buildDbConfigParamter(d *schema.ResourceData, dbType, projectId string) (*jobs.Endpoint, error) {

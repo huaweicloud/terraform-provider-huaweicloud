@@ -39,6 +39,7 @@ type CreateJobReq struct {
 	SlaveAz          string             `json:"slave_az,omitempty"`
 	ChargingMode     string             `json:"charging_mode,omitempty"`
 	PeriodOrder      *PeriodOrder       `json:"period_order,omitempty"`
+	PublciIpList     []PublciIpList     `json:"public_ip_list,omitempty"`
 }
 
 type Endpoint struct {
@@ -76,6 +77,12 @@ type PeriodOrder struct {
 	PeriodType  int `json:"period_type,omitempty"`
 	PeriodNum   int `json:"period_num,omitempty"`
 	IsAutoRenew int `json:"is_auto_renew,omitempty"`
+}
+
+type PublciIpList struct {
+	Id       string `json:"id" required:"true"`
+	PublicIp string `json:"public_ip" required:"true"`
+	Type     string `json:"type" required:"true"`
 }
 
 type KafkaSecurityConfig struct {
