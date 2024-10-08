@@ -7,6 +7,7 @@ package dbss
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -16,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -208,99 +208,93 @@ func ResourceInstance() *schema.Resource {
 }
 
 func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createInstance: Create a DBSS instance.
 	var (
-		createInstanceHttpUrl = "v2/{project_id}/dbss/audit/charge/period/order"
-		createInstanceProduct = "dbss"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/dbss/audit/charge/period/order"
+		product = "dbss"
 	)
-	createInstanceClient, err := cfg.NewServiceClient(createInstanceProduct, region)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Instance Client: %s", err)
+		return diag.Errorf("error creating DBSS client: %s", err)
 	}
 
-	createInstancePath := createInstanceClient.Endpoint + createInstanceHttpUrl
-	createInstancePath = strings.ReplaceAll(createInstancePath, "{project_id}", createInstanceClient.ProjectID)
-
-	createInstanceOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
 	productId, err := getOrderProductId(d, cfg, region)
 	if err != nil {
 		return diag.Errorf("error getting product ID: %s", err)
 	}
-	createInstanceOpt.JSONBody = utils.RemoveNil(buildCreateInstanceBodyParams(d, productId, cfg))
-	createInstanceResp, err := createInstanceClient.Request("POST", createInstancePath, &createInstanceOpt)
-	if err != nil {
-		return diag.Errorf("error creating Instance: %s", err)
+
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateInstanceBodyParams(d, productId, cfg)),
 	}
 
-	createInstanceRespBody, err := utils.FlattenResponse(createInstanceResp)
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return diag.Errorf("error creating DBSS instance: %s", err)
+	}
+
+	createRespBody, err := utils.FlattenResponse(createResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	orderId, err := jmespath.Search("order_id", createInstanceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DBSS instance: ID is not found in API response")
+	orderID := utils.PathSearch("order_id", createRespBody, "").(string)
+	if orderID == "" {
+		return diag.Errorf("error creating DBSS instance: order_id is not found in API response")
 	}
 
 	// pay order
-	resourceId, err := payOrder(ctx, d, cfg, orderId.(string))
+	resourceId, err := payOrder(ctx, d, cfg, orderID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	d.SetId(resourceId)
 
-	err = createInstaceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	err = waitingForInstanceStateCompleted(ctx, d, client, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the create of instance (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the instance (%s) creation to complete: %s", d.Id(), err)
 	}
 	return resourceInstanceRead(ctx, d, meta)
 }
 
 func getOrderProductId(d *schema.ResourceData, cfg *config.Config, region string) (string, error) {
 	var (
-		getOrderProductIdHttpUrl = "v2/bills/ratings/period-resources/subscribe-rate"
-		getOrderProductIdProduct = "bss"
+		httpUrl = "v2/bills/ratings/period-resources/subscribe-rate"
+		product = "bss"
 	)
-	getOrderProductIdClient, err := cfg.NewServiceClient(getOrderProductIdProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return "", fmt.Errorf("error creating BSS Client: %s", err)
+		return "", fmt.Errorf("error creating BSS client: %s", err)
 	}
 
-	getOrderProductIdPath := getOrderProductIdClient.Endpoint + getOrderProductIdHttpUrl
-
-	getOrderProductIdOpt := golangsdk.RequestOpts{
+	getPath := client.Endpoint + httpUrl
+	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildGetFlavorsBodyParams(d, client.ProjectID, region)),
 	}
-	getOrderProductIdOpt.JSONBody = utils.RemoveNil(buildGetFlavorsBodyParams(d,
-		getOrderProductIdClient.ProjectID, region))
-	getOrderProductIdResp, err := getOrderProductIdClient.Request("POST",
-		getOrderProductIdPath, &getOrderProductIdOpt)
 
+	getResp, err := client.Request("POST", getPath, &getOpt)
 	if err != nil {
-		return "", fmt.Errorf("error getting DBSS order product id: %s", err)
+		return "", fmt.Errorf("error getting the price of DBSS prepaid product: %s", err)
 	}
 
-	getCbhOrderProductIdRespBody, err := utils.FlattenResponse(getOrderProductIdResp)
+	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
 		return "", err
 	}
-	curJson := utils.PathSearch("official_website_rating_result.product_rating_results",
-		getCbhOrderProductIdRespBody, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	if len(curArray) == 0 {
-		return "", fmt.Errorf("fail to get DBSS order product id")
+
+	expression := "official_website_rating_result.product_rating_results|[0].product_id"
+	productID := utils.PathSearch(expression, getRespBody, "").(string)
+	if productID == "" {
+		return "", fmt.Errorf("error getting the price of DBSS prepaid product: product_id is not found in API response")
 	}
-	productId := utils.PathSearch("product_id", curArray[0], "")
-	return productId.(string), nil
+
+	return productID, nil
 }
 
 func buildGetFlavorsBodyParams(d *schema.ResourceData, projectId, region string) map[string]interface{} {
@@ -330,14 +324,14 @@ func buildGetFlavorsBodyParams(d *schema.ResourceData, projectId, region string)
 }
 
 func payOrder(ctx context.Context, d *schema.ResourceData, cfg *config.Config, orderId string) (string, error) {
-	region := cfg.GetRegion(d)
 	var (
+		region          = cfg.GetRegion(d)
 		payOrderHttpUrl = "v3/orders/customer-orders/pay"
 		payOrderProduct = "bssv2"
 	)
 	bssClient, err := cfg.NewServiceClient(payOrderProduct, region)
 	if err != nil {
-		return "", fmt.Errorf("error creating BSS Client: %s", err)
+		return "", fmt.Errorf("error creating BSS client: %s", err)
 	}
 
 	payOrderPath := bssClient.Endpoint + payOrderHttpUrl
@@ -346,12 +340,14 @@ func payOrder(ctx context.Context, d *schema.ResourceData, cfg *config.Config, o
 		OkCodes: []int{
 			204,
 		},
+		JSONBody: utils.RemoveNil(buildPayOrderBodyParams(orderId)),
 	}
-	payOrderOpt.JSONBody = utils.RemoveNil(buildPayOrderBodyParams(orderId))
+
 	_, err = bssClient.Request("POST", payOrderPath, &payOrderOpt)
 	if err != nil {
-		return "", fmt.Errorf("error pay DBSS order(%s): %s", orderId, err)
+		return "", fmt.Errorf("error paying DBSS order(%s): %s", orderId, err)
 	}
+
 	// wait for order success
 	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -361,7 +357,7 @@ func payOrder(ctx context.Context, d *schema.ResourceData, cfg *config.Config, o
 	if err != nil {
 		return "", fmt.Errorf("error waiting for DBSS instance order %s complete: %s", orderId, err)
 	}
-	return resourceId, err
+	return resourceId, nil
 }
 
 func buildPayOrderBodyParams(orderId string) map[string]interface{} {
@@ -441,64 +437,47 @@ func buildCreateInstanceProductInfosRequestBody(d *schema.ResourceData, productI
 	}
 }
 
-func createInstaceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func queryJobDetail(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	jobPath := client.Endpoint + "v1/{project_id}/dbss/audit/jobs/{resource_id}"
+	jobPath = strings.ReplaceAll(jobPath, "{project_id}", client.ProjectID)
+	jobPath = strings.ReplaceAll(jobPath, "{resource_id}", d.Id())
+	jobOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	jobResp, err := client.Request("GET", jobPath, &jobOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(jobResp)
+}
+
+func waitingForInstanceStateCompleted(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	t time.Duration) error {
+	unexpectedStatus := []string{"ERROR"}
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			cfg := meta.(*config.Config)
-			region := cfg.GetRegion(d)
-			var (
-				createInstaceWaitingHttpUrl = "v1/{project_id}/dbss/audit/jobs/{resource_id}"
-				createInstaceWaitingProduct = "dbss"
-			)
-			createInstaceWaitingClient, err := cfg.NewServiceClient(createInstaceWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Instance Client: %s", err)
-			}
-
-			createInstaceWaitingPath := createInstaceWaitingClient.Endpoint + createInstaceWaitingHttpUrl
-			createInstaceWaitingPath = strings.ReplaceAll(createInstaceWaitingPath, "{project_id}", createInstaceWaitingClient.ProjectID)
-			createInstaceWaitingPath = strings.ReplaceAll(createInstaceWaitingPath, "{resource_id}", fmt.Sprintf("%v", d.Id()))
-
-			createInstaceWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-			}
-			createInstaceWaitingResp, err := createInstaceWaitingClient.Request("GET", createInstaceWaitingPath, &createInstaceWaitingOpt)
+			jobRespBody, err := queryJobDetail(client, d)
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			createInstaceWaitingRespBody, err := utils.FlattenResponse(createInstaceWaitingResp)
-			if err != nil {
-				return nil, "ERROR", err
+			status := utils.PathSearch("jobs[0].status", jobRespBody, "").(string)
+			if status == "" {
+				return nil, "ERROR", fmt.Errorf("status is not found in DBSS job API response")
 			}
 
-			statusRaw, err := jmespath.Search(`jobs[0].status`, createInstaceWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `jobs[0].status`)
+			if status == "SUCCESS" {
+				return jobRespBody, "COMPLETED", nil
 			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			targetStatus := []string{
-				"SUCCESS",
-			}
-			if utils.StrSliceContains(targetStatus, status) {
-				return createInstaceWaitingRespBody, "COMPLETED", nil
-			}
-
-			unexpectedStatus := []string{
-				"ERROR",
-			}
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return createInstaceWaitingRespBody, status, nil
+				return jobRespBody, status, nil
 			}
 
-			return createInstaceWaitingRespBody, "PENDING", nil
+			return jobRespBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -508,50 +487,47 @@ func createInstaceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 	return err
 }
 
-func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getInstance: Query the DBSS instance detail
-	var (
-		getInstanceHttpUrl = "v1/{project_id}/dbss/audit/instances"
-		getInstanceProduct = "dbss"
-	)
-	getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating Instance Client: %s", err)
-	}
-
-	getInstancePath := getInstanceClient.Endpoint + getInstanceHttpUrl
-	getInstancePath = strings.ReplaceAll(getInstancePath, "{project_id}", getInstanceClient.ProjectID)
-
-	getInstanceOpt := golangsdk.RequestOpts{
+func QueryTargetDBSSInstance(client *golangsdk.ServiceClient, resourceID string) (interface{}, error) {
+	getPath := client.Endpoint + "v1/{project_id}/dbss/audit/instances"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getInstanceResp, err := getInstanceClient.Request("GET", getInstancePath, &getInstanceOpt)
-
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving instance")
 	}
 
-	getInstanceRespBody, err := utils.FlattenResponse(getInstanceResp)
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return diag.FromErr(err)
+		return nil, err
 	}
 
-	instances, err := jmespath.Search("servers", getInstanceRespBody)
+	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		diag.Errorf("error parsing servers from response= %#v", getInstanceRespBody)
+		return nil, err
 	}
 
-	instance, err := FilterInstances(instances.([]interface{}), d.Id())
+	expression := fmt.Sprintf("servers[?resource_id == '%s']|[0]", resourceID)
+	instance := utils.PathSearch(expression, getRespBody, nil)
+	if instance == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return instance, nil
+}
+
+func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		product = "dbss"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving instance")
+		return diag.Errorf("error creating DBSS client: %s", err)
+	}
+
+	instance, err := QueryTargetDBSSInstance(client, d.Id())
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving DBSS instance")
 	}
 
 	mErr = multierror.Append(
@@ -576,23 +552,12 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func FilterInstances(instances []interface{}, id string) (interface{}, error) {
-	if len(instances) != 0 {
-		for _, v := range instances {
-			instance := v.(map[string]interface{})
-			if instance["resource_id"] == id {
-				return v, nil
-			}
-		}
-	}
-
-	return nil, golangsdk.ErrDefault404{}
-}
-
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	instanceId := d.Id()
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		instanceId = d.Id()
+	)
 
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := config.MigrateResourceOpts{
@@ -682,74 +647,45 @@ func deleteTags(deleteTagsClient *golangsdk.ServiceClient, resourceType, resourc
 }
 
 func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "dbss"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating DBSS client: %s", err)
+	}
 
 	if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
-		return diag.Errorf("Error unsubscribing DBSS order = %s: %s", d.Id(), err)
+		return diag.Errorf("error unsubscribing DBSS instance (%s): %s", d.Id(), err)
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETE"},
-		Refresh:      waitForInstanceDelete(d, meta),
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETE"},
+		Refresh: func() (interface{}, string, error) {
+			instance, err := QueryTargetDBSSInstance(client, d.Id())
+			if err != nil {
+				var errDefault404 golangsdk.ErrDefault404
+				if errors.As(err, &errDefault404) {
+					return "instance", "COMPLETE", nil
+				}
+				return nil, "ERROR", err
+			}
+
+			return instance, "PENDING", nil
+		},
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        20 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("Error deleting DBSS instance: %s", err)
+		return diag.Errorf("error waiting for DBSS instance (%s) deletion to complete: %s", d.Id(), err)
 	}
 
 	return nil
-}
-
-func waitForInstanceDelete(d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	return func() (interface{}, string, error) {
-		var (
-			getInstanceHttpUrl = "v1/{project_id}/dbss/audit/instances"
-			getInstanceProduct = "dbss"
-		)
-		getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
-		if err != nil {
-			return nil, "error", fmt.Errorf("error creating Instance Client: %s", err)
-		}
-
-		getInstancePath := getInstanceClient.Endpoint + getInstanceHttpUrl
-		getInstancePath = strings.ReplaceAll(getInstancePath, "{project_id}", getInstanceClient.ProjectID)
-
-		getInstanceOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-		}
-		getInstanceResp, err := getInstanceClient.Request("GET", getInstancePath, &getInstanceOpt)
-
-		if err != nil {
-			return nil, "error", fmt.Errorf("error retrieving instance: %s", err)
-		}
-
-		getInstanceRespBody, err := utils.FlattenResponse(getInstanceResp)
-		if err != nil {
-			return nil, "error", err
-		}
-
-		instances, err := jmespath.Search("servers", getInstanceRespBody)
-		if err != nil {
-			diag.Errorf("error parsing servers from response= %#v", getInstanceRespBody)
-		}
-
-		instance, err := FilterInstances(instances.([]interface{}), d.Id())
-		if err != nil {
-			// "instance" is useless, just return it to make the WaitForState break
-			return "instance", "COMPLETE", nil
-		}
-
-		return instance, "PENDING", nil
-	}
 }
