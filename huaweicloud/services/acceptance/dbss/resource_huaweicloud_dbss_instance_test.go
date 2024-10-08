@@ -2,65 +2,36 @@ package dbss
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
-
-	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dbss"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getInstanceResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getInstance: Query the DBSS instance detail
 	var (
-		getInstanceHttpUrl = "v1/{project_id}/dbss/audit/instances"
-		getInstanceProduct = "dbss"
+		region  = acceptance.HW_REGION_NAME
+		product = "dbss"
 	)
-	getInstanceClient, err := cfg.NewServiceClient(getInstanceProduct, region)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Instance Client: %s", err)
+		return nil, fmt.Errorf("error creating DBSS client: %s", err)
 	}
 
-	getInstancePath := getInstanceClient.Endpoint + getInstanceHttpUrl
-	getInstancePath = strings.ReplaceAll(getInstancePath, "{project_id}", getInstanceClient.ProjectID)
-
-	getInstanceOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getInstanceResp, err := getInstanceClient.Request("GET", getInstancePath, &getInstanceOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Instance: %s", err)
-	}
-
-	getInstanceRespBody, err := utils.FlattenResponse(getInstanceResp)
-	if err != nil {
-		return nil, err
-	}
-
-	instances, err := jmespath.Search("servers", getInstanceRespBody)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing servers from response= %#v", getInstanceRespBody)
-	}
-
-	return dbss.FilterInstances(instances.([]interface{}), state.Primary.ID)
+	return dbss.QueryTargetDBSSInstance(client, state.Primary.ID)
 }
 
 func TestAccInstance_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dbss_instance.test"
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceName()
+		rName = "huaweicloud_dbss_instance.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -69,7 +40,9 @@ func TestAccInstance_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -209,18 +182,19 @@ resource "huaweicloud_dbss_instance" "test" {
 }
 
 func TestAccInstance_updateWithEpsId(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dbss_instance.test"
+	var (
+		obj     interface{}
+		name    = acceptance.RandomAccResourceName()
+		rName   = "huaweicloud_dbss_instance.test"
+		srcEPS  = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+		destEPS = acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
 		getInstanceResourceFunc,
 	)
-	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
-	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
