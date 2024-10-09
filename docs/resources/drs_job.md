@@ -442,6 +442,11 @@ The following arguments are supported:
   <br/>4. It's only for synchronization from **MySQL** to **MySQL**, migration from **Redis** to **GeminiDB Redis**,
        migration from cluster **Redis** to **GeminiDB Redis**, and synchronization from **Oracle** to **GaussDB Distributed**.
 
+* `public_ip_list` - (Optional, List, ForceNew)  Specifies the public IP list.
+  It can be specified when `net_type` is **eip**, and if it's not specified, DRS job will automatically bind a public IP.
+  Changing this parameter will create a new resource.
+  The [public_ip_list](#block--public_ip_list) structure is documented below.
+
 * `master_az` - (Optional, String, ForceNew) Specifies the AZ where the primary task is located.
 
 * `slave_az` - (Optional, String, ForceNew) Specifies the AZ where the standby task is located.
@@ -704,6 +709,22 @@ The `kafka_security_config` block supports:
   two-way SSL authentication is enabled and `set_private_key_password` is set to **true**.
   Changing this parameter will create a new resource.
 
+<a name="block--public_ip_list"></a>
+The `public_ip_list` block supports:
+
+* `id` - (Required, String, ForceNew) Specifies the ID of a specified EIP.
+  Changing this parameter will create a new resource.
+
+* `public_ip` - (Required, String, ForceNew) Specifies public IP.
+  Changing this parameter will create a new resource.
+
+* `type` - (Required, String, ForceNew) Specifies the type of a task with an EIP bound.
+  Valid values are **master** and **slave**.
+  + In a primary/standby task, **master** indicates the primary task, and **slave** indicates the standby task.
+  + In other cases, the value is fixed to **master**.
+
+  Changing this parameter will create a new resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -766,7 +787,7 @@ $ terraform import huaweicloud_drs_job.test <id>
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `enterprise_project_id`, `force_destroy`,
 `source_db.0.password`, `destination_db.0.password`, `source_db.0.ip`, `destination_db.0.ip`, `action`, `is_sync_re_edit`,
-`pause_mode`, `auto_renew`, `alarm_notify.0.topic_urn`, `policy_config`, `engine_type`.
+`pause_mode`, `auto_renew`, `alarm_notify.0.topic_urn`, `policy_config`, `engine_type`, `public_ip_list`.
 It is generally recommended running **terraform plan** after importing a job. You can then
 decide if changes should be applied to the job, or the resource definition should be updated to align with the job. Also
 you can ignore changes as below.
