@@ -1559,6 +1559,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_cassandra_instance": gaussdb.ResourceGeminiDBInstanceV3(),
 
 			"huaweicloud_gaussdb_mysql_instance":                   gaussdb.ResourceGaussDBInstance(),
+			"huaweicloud_gaussdb_mysql_instance_node_config":       gaussdb.ResourceGaussDBMysqlNodeConfig(),
 			"huaweicloud_gaussdb_mysql_instance_restart":           gaussdb.ResourceGaussDBMysqlRestart(),
 			"huaweicloud_gaussdb_mysql_proxy":                      gaussdb.ResourceGaussDBProxy(),
 			"huaweicloud_gaussdb_mysql_proxy_restart":              gaussdb.ResourceGaussDBProxyRestart(),
