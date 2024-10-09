@@ -79,9 +79,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required, String, ForceNew) Specifies the ID of the security group.
-
-  Changing this parameter will create a new resource.
+* `security_group_id` - (Required, String) Specifies the ID of the security group.
 
 * `charging_mode` - (Required, String, ForceNew) Specifies the billing mode.  
   The valid value is **prePaid**, which means the yearly/monthly billing mode.
