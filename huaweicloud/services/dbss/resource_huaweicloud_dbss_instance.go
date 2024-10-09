@@ -102,7 +102,6 @@ func ResourceInstance() *schema.Resource {
 			"security_group_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The security group to which the instance belongs.`,
 			},
 			"enterprise_project_id": {
@@ -597,7 +596,47 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	if d.HasChange("security_group_id") {
+		client, err := cfg.NewServiceClient("dbss", region)
+		if err != nil {
+			return diag.Errorf("error creating DBSS client: %s", err)
+		}
+
+		if err := updateSecurityGroupID(client, d); err != nil {
+			return diag.Errorf("error updating DBSS security group: %s", err)
+		}
+	}
+
 	return resourceInstanceRead(ctx, d, meta)
+}
+
+func updateSecurityGroupID(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateHttpUrl := "v1/{project_id}/dbss/audit/security-group"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"resource_id":       d.Id(),
+			"securitygroup_ids": []string{d.Get("security_group_id").(string)},
+		},
+	}
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return err
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	result := utils.PathSearch("result", updateRespBody, "").(string)
+	if result != "success" {
+		return fmt.Errorf("the security group's modification response value is not success")
+	}
+
+	return nil
 }
 
 func createTags(createTagsClient *golangsdk.ServiceClient, resourceType, resourceId string, tags map[string]interface{}) error {

@@ -59,6 +59,8 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "instance_id"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"data.huaweicloud_networking_secgroup.test", "id"),
 				),
 			},
 			{
@@ -69,6 +71,8 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "test"),
 					resource.TestCheckResourceAttr(rName, "tags.acc", "value"),
+					resource.TestCheckResourceAttrPair(rName, "security_group_id",
+						"huaweicloud_networking_secgroup.test", "id"),
 				),
 			},
 			{
@@ -157,10 +161,15 @@ resource "huaweicloud_dbss_instance" "test" {
 
 func testInstance_update(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name        = "%[2]s"
+  description = "security group acceptance test"
+}
 
 resource "huaweicloud_dbss_instance" "test" {
-  name               = "%s"
+  name               = "%[2]s"
   description        = "terraform test"
   flavor             = data.huaweicloud_dbss_flavors.test.flavors[0].id
   resource_spec_code = "dbss.bypassaudit.low"
@@ -168,7 +177,7 @@ resource "huaweicloud_dbss_instance" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
-  security_group_id  = data.huaweicloud_networking_secgroup.test.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
   charging_mode      = "prePaid"
   period_unit        = "month"
   period             = 1
