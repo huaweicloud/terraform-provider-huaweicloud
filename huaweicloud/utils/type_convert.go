@@ -101,7 +101,17 @@ func StringValue(v *string) string {
 
 // ValueIgnoreEmpty returns to the string value. if v is empty, return nil
 func ValueIgnoreEmpty(v interface{}) interface{} {
+	if v == nil {
+		return nil
+	}
+
 	vl := reflect.ValueOf(v)
+
+	if !vl.IsValid() {
+		log.Printf("[ERROR] The value (%#v) is invalid", v)
+		return nil
+	}
+
 	if (vl.Kind() != reflect.Bool) && vl.IsZero() {
 		return nil
 	}
