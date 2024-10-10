@@ -619,6 +619,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dbss_audit_rule_scopes":         dbss.DataSourceDbssAuditRuleScopes(),
 			"huaweicloud_dbss_audit_sql_injection_rules": dbss.DataSourceDbssAuditSqlInjectionRules(),
 			"huaweicloud_dbss_availability_zones":        dbss.DataSourceDbssAvailabilityZones(),
+			"huaweicloud_dbss_databases":                 dbss.DataSourceDbssDatabases(),
 			"huaweicloud_dbss_flavors":                   dbss.DataSourceDbssFlavors(),
 			"huaweicloud_dbss_instances":                 dbss.DataSourceDbssInstances(),
 			"huaweicloud_dbss_operation_logs":            dbss.DataSourceOperationLogs(),
