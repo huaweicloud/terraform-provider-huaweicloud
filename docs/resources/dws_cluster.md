@@ -133,6 +133,10 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the cluster.
 
+* `force_backup` - (Optional, Bool) Specified whether to automatically execute snapshot when shrinking the number of nodes.
+  The default value is **true**.
+  This parameter is required and available only when scaling-in the `number_of_node` parameter value.
+
 <a name="DwsCluster_PublicIp"></a>
 The `PublicIp` block supports:
 
@@ -276,7 +280,7 @@ $ terraform import huaweicloud_dws_cluster.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `user_pwd`, `number_of_cn`, `kms_key_id`,
-`volume`, `dss_pool_id`, `logical_cluster_enable`, `lts_enable`.
+`volume`, `dss_pool_id`, `logical_cluster_enable`, `lts_enable`, `force_backup`.
 It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
@@ -287,7 +291,7 @@ resource "huaweicloud_dws_cluster" "test" {
 
   lifecycle {
     ignore_changes = [
-      user_pwd, number_of_cn, kms_key_id, volume, dss_pool_id, logical_cluster_enable, lts_enable
+      user_pwd, number_of_cn, kms_key_id, volume, dss_pool_id, logical_cluster_enable, lts_enable, `force_backup`,
     ]
   }
 }

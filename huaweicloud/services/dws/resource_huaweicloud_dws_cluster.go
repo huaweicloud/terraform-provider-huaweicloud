@@ -55,6 +55,7 @@ const ClusterIdIllegalErrCode = "DWS.0001"
 // @API DWS DELETE /v2/{project_id}/clusters/{cluster_id}/eips/{eip_id}
 // @API DWS POST /v1/{project_id}/clusters/{cluster_id}/description
 // @API DWS PUT /v1/{project_id}/clusters/{cluster_id}/security-group
+// @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/cluster-shrink
 func ResourceDwsCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsClusterCreate,
@@ -214,6 +215,12 @@ func ResourceDwsCluster() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The description of the cluster.`,
+			},
+			"force_backup": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether to automatically execute snapshot when shrinking the number of nodes.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -464,7 +471,7 @@ func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, met
 	)
 	createDwsClusterClient, err := cfg.NewServiceClient(createDwsClusterProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
 	createDwsClusterPath := createDwsClusterClient.Endpoint + createDwsClusterHttpUrl
@@ -478,7 +485,7 @@ func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, met
 	createDwsClusterOpt.JSONBody = utils.RemoveNil(buildCreateDwsClusterBodyParams(d, cfg))
 	createDwsClusterResp, err := createDwsClusterClient.Request("POST", createDwsClusterPath, &createDwsClusterOpt)
 	if err != nil {
-		return diag.Errorf("error creating DWS Cluster: %s", err)
+		return diag.Errorf("error creating DWS cluster: %s", err)
 	}
 
 	createDwsClusterRespBody, err := utils.FlattenResponse(createDwsClusterResp)
@@ -539,7 +546,7 @@ func resourceDwsClusterCreateV1(ctx context.Context, d *schema.ResourceData, met
 	)
 	createDwsClusterClient, err := cfg.NewServiceClient(createDwsClusterProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
 	createDwsClusterPath := createDwsClusterClient.Endpoint + createDwsClusterHttpUrl
@@ -553,7 +560,7 @@ func resourceDwsClusterCreateV1(ctx context.Context, d *schema.ResourceData, met
 	createDwsClusterOpt.JSONBody = utils.RemoveNil(buildCreateDwsClusterBodyParamsV1(d, cfg))
 	createDwsClusterResp, err := createDwsClusterClient.Request("POST", createDwsClusterPath, &createDwsClusterOpt)
 	if err != nil {
-		return diag.Errorf("error creating DWS Cluster: %s", err)
+		return diag.Errorf("error creating DWS cluster: %s", err)
 	}
 
 	createDwsClusterRespBody, err := utils.FlattenResponse(createDwsClusterResp)
@@ -746,16 +753,12 @@ func resourceDwsClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 	// getDwsCluster: Query the DWS cluster.
 	getDwsClusterClient, err := cfg.NewServiceClient("dws", region)
 	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
 	getDwsClusterRespBody, err := GetClusterInfoByClusterId(getDwsClusterClient, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DWS Cluster")
-	}
-
-	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error retrieving DWS cluster")
 	}
 
 	mErr = multierror.Append(
@@ -914,7 +917,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		expandInstanceStorageOpt.JSONBody = utils.RemoveNil(buildExpandInstanceStorageBodyParams(d))
 		_, err = clusterClient.Request("POST", expandInstanceStoragePath, &expandInstanceStorageOpt)
 		if err != nil {
-			return diag.Errorf("error updating DWS Cluster: %s", err)
+			return diag.Errorf("error updating DWS cluster: %s", err)
 		}
 		err = clusterWaitingForAvailable(ctx, d, clusterClient, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
@@ -943,7 +946,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		resetPasswordOfClusterOpt.JSONBody = utils.RemoveNil(buildResetPasswordOfClusterBodyParams(d))
 		_, err = clusterClient.Request("POST", resetPasswordOfClusterPath, &resetPasswordOfClusterOpt)
 		if err != nil {
-			return diag.Errorf("error updating DWS Cluster: %s", err)
+			return diag.Errorf("error updating DWS cluster: %s", err)
 		}
 
 		err = clusterWaitingForAvailable(ctx, d, clusterClient, d.Timeout(schema.TimeoutUpdate))
@@ -951,34 +954,10 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 			return diag.Errorf("error waiting for the DWS cluster (%s) update to complete: %s", clusterId, err)
 		}
 	}
-	scaleOutClusterChanges := []string{
-		"number_of_node",
-	}
 
-	if d.HasChanges(scaleOutClusterChanges...) {
-		// scaleOutCluster: Scale out DWS cluster
-		var (
-			scaleOutClusterHttpUrl = "v1.0/{project_id}/clusters/{cluster_id}/resize"
-		)
-
-		scaleOutClusterPath := clusterClient.Endpoint + scaleOutClusterHttpUrl
-		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{project_id}", clusterClient.ProjectID)
-		scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{cluster_id}", d.Id())
-
-		scaleOutClusterOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			MoreHeaders:      requestOpts.MoreHeaders,
-		}
-
-		scaleOutClusterOpt.JSONBody = utils.RemoveNil(buildScaleOutClusterBodyParams(d))
-		_, err = clusterClient.Request("POST", scaleOutClusterPath, &scaleOutClusterOpt)
-		if err != nil {
-			return diag.Errorf("error updating DWS Cluster: %s", err)
-		}
-
-		err = clusterWaitingForAvailable(ctx, d, clusterClient, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return diag.Errorf("error waiting for the DWS cluster (%s) update to complete: %s", clusterId, err)
+	if d.HasChange("number_of_node") {
+		if err := updateClusterNodes(ctx, clusterClient, d, clusterId); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1074,16 +1053,99 @@ func buildResetPasswordOfClusterBodyParams(d *schema.ResourceData) map[string]in
 	return bodyParams
 }
 
-func buildScaleOutClusterBodyParams(d *schema.ResourceData) map[string]interface{} {
-	oldValue, newValue := d.GetChange("number_of_node")
-	num := newValue.(int) - oldValue.(int)
+func updateClusterNodes(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, clusterId string) error {
+	var (
+		oldValue, newValue = d.GetChange("number_of_node")
+		nodeNum            = newValue.(int) - oldValue.(int)
+		err                error
+	)
 
-	bodyParams := map[string]interface{}{
-		"scale_out": map[string]interface{}{
-			"count": num,
+	if nodeNum > 0 {
+		err = scaleOutCluster(client, clusterId, nodeNum)
+	} else {
+		err = scaleInCluster(client, d, clusterId, -nodeNum)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return waitClusterTaskStateCompleted(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId)
+}
+
+func scaleOutCluster(client *golangsdk.ServiceClient, clusterId string, scaleOutNodes int) error {
+	scaleOutClusterHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/resize"
+	scaleOutClusterPath := client.Endpoint + scaleOutClusterHttpUrl
+	scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{project_id}", client.ProjectID)
+	scaleOutClusterPath = strings.ReplaceAll(scaleOutClusterPath, "{cluster_id}", clusterId)
+
+	scaleOutClusterOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      requestOpts.MoreHeaders,
+		JSONBody: map[string]interface{}{
+			"scale_out": map[string]interface{}{
+				"count": scaleOutNodes,
+			},
 		},
 	}
-	return bodyParams
+	_, err := client.Request("POST", scaleOutClusterPath, &scaleOutClusterOpt)
+	if err != nil {
+		return fmt.Errorf("error extending nodes of the DWS cluster (%s) : %s", clusterId, err)
+	}
+	return nil
+}
+
+func buildScaleInBodyParams(d *schema.ResourceData, shrinkNum int, datastoreType string) map[string]interface{} {
+	return map[string]interface{}{
+		"shrink_number": shrinkNum,
+		"force_backup":  d.Get("force_backup"),
+		"type":          datastoreType,
+	}
+}
+
+func scaleInCluster(client *golangsdk.ServiceClient, d *schema.ResourceData, clusterId string, shrinkNum int) error {
+	clusterResp, err := GetClusterInfoByClusterId(client, clusterId)
+	if err != nil {
+		return err
+	}
+
+	datastoreType := utils.PathSearch("cluster.datastore_type", clusterResp, "").(string)
+	if datastoreType == "" {
+		return fmt.Errorf("unable to get datastore type of the cluster (%s)", clusterId)
+	}
+
+	httpUrl := "v1.0/{project_id}/clusters/{cluster_id}/cluster-shrink"
+	scaleInPath := client.Endpoint + httpUrl
+	scaleInPath = strings.ReplaceAll(scaleInPath, "{project_id}", client.ProjectID)
+	scaleInPath = strings.ReplaceAll(scaleInPath, "{cluster_id}", d.Id())
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      requestOpts.MoreHeaders,
+		JSONBody:         utils.RemoveNil(buildScaleInBodyParams(d, shrinkNum, datastoreType)),
+	}
+	resp, err := client.Request("POST", scaleInPath, &opt)
+	if err != nil {
+		return err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	// a. In some cases, the status code is 200 when the scaling-in fails, such as: The scale-in number is incorrect.
+	// b. The two situations of successful scale-in are as follows:
+	//    1. When the status id `200`, the error_code` is `DWS.0000`, it means the scale-in is successful.
+	//    2. When the status id `202`, the job_id` is not empty, it means the scale-in is successful.
+	errCode := utils.PathSearch("error_code", respBody, "").(string)
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	if errCode == "DWS.0000" || jobId != "" {
+		return nil
+	}
+
+	errMsg := utils.PathSearch("error_msg", respBody, "").(string)
+	return fmt.Errorf("error shrinking nodes of the DWS cluster (%s) : %s", clusterId, errMsg)
 }
 
 func resourceDwsClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1097,7 +1159,7 @@ func resourceDwsClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 	)
 	deleteDwsClusterClient, err := cfg.NewServiceClient(deleteDwsClusterProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
 	deleteDwsClusterPath := deleteDwsClusterClient.Endpoint + deleteDwsClusterHttpUrl
@@ -1112,7 +1174,7 @@ func resourceDwsClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 	deleteDwsClusterOpt.JSONBody = utils.RemoveNil(buildDeleteDwsClusterBodyParams(d))
 	_, err = deleteDwsClusterClient.Request("DELETE", deleteDwsClusterPath, &deleteDwsClusterOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DWS Cluster: %s", err)
+		return diag.Errorf("error deleting DWS cluster: %s", err)
 	}
 
 	err = deleteClusterWaitingForCompleted(ctx, d, deleteDwsClusterClient, d.Timeout(schema.TimeoutDelete))
