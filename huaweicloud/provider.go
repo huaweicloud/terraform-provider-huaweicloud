@@ -1498,6 +1498,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_logical_cluster_restart":       dws.ResourceLogicalClusterRestart(),
 			"huaweicloud_dws_logical_cluster":               dws.ResourceLogicalCluster(),
 			"huaweicloud_dws_om_account_action":             dws.ResourceOmAccountAction(),
+			"huaweicloud_dws_parameter_configurations":      dws.ResourceParameterConfigurations(),
 			"huaweicloud_dws_public_domain_associate":       dws.ResourcePublicDomainAssociate(),
 			"huaweicloud_dws_snapshot_copy":                 dws.ResourceSnapshotCopy(),
 			"huaweicloud_dws_snapshot_policy":               dws.ResourceDwsSnapshotPolicy(),
