@@ -131,6 +131,10 @@ The following arguments are supported:
 
 * `lts_enable` - (Optional, Bool) Specified whether to enable LTS. The default value is **false**.
 
+* `force_backup` - (Optional, Bool) Specified whether to automatically execute snapshot when shrinking the number of nodes.
+  The default value is **true**.
+  This parameter is required and available only when scaling-in the `number_of_node` parameter value.
+
 <a name="DwsCluster_PublicIp"></a>
 The `PublicIp` block supports:
 
