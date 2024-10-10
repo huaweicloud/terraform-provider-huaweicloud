@@ -80,7 +80,7 @@ The following arguments are supported:
 * `network_id` - (Required, String, ForceNew) The subnet ID.
   Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required, String, ForceNew) The security group ID.
+* `security_group_id` - (Required, String) Specifies the security group ID of the cluster.
   Changing this parameter will create a new resource.
 
 * `availability_zone` - (Required, String, ForceNew) The availability zone in which to create the cluster instance.
@@ -124,12 +124,14 @@ The following arguments are supported:
 * `keep_last_manual_snapshot` - (Optional, Int) The number of latest manual snapshots that need to be
   retained when deleting the cluster.
 
-* `logical_cluster_enable` - (Optional, Bool) Specified whether to enable logical cluster. The switch needs to be turned
+* `logical_cluster_enable` - (Optional, Bool) Specifies whether to enable logical cluster. The switch needs to be turned
   on before creating a logical cluster.
 
 * `elb_id` - (Optional, String) Specifies the ID of the ELB load balancer.
 
-* `lts_enable` - (Optional, Bool) Specified whether to enable LTS. The default value is **false**.
+* `lts_enable` - (Optional, Bool) Specifies whether to enable LTS. The default value is **false**.
+
+* `description` - (Optional, String) Specifies the description of the cluster.
 
 <a name="DwsCluster_PublicIp"></a>
 The `PublicIp` block supports:
