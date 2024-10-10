@@ -32,7 +32,7 @@ data "huaweicloud_dms_rabbitmq_flavors" "test" {
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
   name              = "instance_1"
-  flavor_id         = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].flavor.id
+  flavor_id         = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].id
   engine_version    = "3.8.35"
   storage_spec_code = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].ios[0].storage_spec_code
   broker_num        = 3
@@ -65,7 +65,7 @@ data "huaweicloud_dms_rabbitmq_flavors" "test" {
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
   name              = "instance_1"
-  flavor_id         = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].flavor.id
+  flavor_id         = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].id
   engine_version    = data.huaweicloud_dms_rabbitmq_flavors.test.versions[0]
   storage_spec_code = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0].ios[0].storage_spec_code
   broker_num        = 1
