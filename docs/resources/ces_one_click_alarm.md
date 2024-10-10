@@ -15,7 +15,7 @@ Manages a CES one-click alarm resource within HuaweiCloud.
 ```hcl
 variable "notification_object" {}
 
-resource "huaweicloud_ces_one_click_alarm" test {
+resource "huaweicloud_ces_one_click_alarm" "test" {
   one_click_alarm_id = "OBSSystemOneClickAlarm"
 
   dimension_names {

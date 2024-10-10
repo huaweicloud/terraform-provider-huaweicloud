@@ -15,7 +15,7 @@ Use this data source to get the list of CES one-click alarm rules.
 ```hcl
 variable "one_click_alarm_id" {}
 
-data "huaweicloud_ces_one_click_alarm_rules" test {
+data "huaweicloud_ces_one_click_alarm_rules" "test" {
   one_click_alarm_id = var.one_click_alarm_id
 }
 ```

@@ -13,7 +13,7 @@ Use this data source to get the list of CES one-click alarms.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_ces_one_click_alarms" test {}
+data "huaweicloud_ces_one_click_alarms" "test" {}
 ```
 
 ## Argument Reference
