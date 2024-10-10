@@ -1949,6 +1949,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_customer_gateway":        vpn.ResourceCustomerGateway(),
 			"huaweicloud_vpn_connection":              vpn.ResourceConnection(),
 			"huaweicloud_vpn_connection_health_check": vpn.ResourceConnectionHealthCheck(),
+			"huaweicloud_vpn_user":                    vpn.ResourceUser(),
 
 			"huaweicloud_waf_address_group":                       waf.ResourceWafAddressGroup(),
 			"huaweicloud_waf_certificate":                         waf.ResourceWafCertificateV1(),
