@@ -2,7 +2,9 @@ package drs
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -38,6 +40,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 	dbName := acceptance.RandomAccResourceName()
 	updateName := acceptance.RandomAccResourceName()
 	pwd := "TestDrs@123"
+	startTime := strconv.FormatInt(time.Now().Add(time.Hour).UnixMilli(), 10)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -51,7 +54,15 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDrsJob_migrate_mysql(name, dbName, pwd, ""),
+				Config: testAccDrsJob_migrate_mysql(name, dbName, pwd, "", startTime),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "status", "WAITING_FOR_START"),
+				),
+			},
+			{
+				Config: testAccDrsJob_migrate_mysql(name, dbName, pwd, "start", ""),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -83,7 +94,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDrsJob_migrate_mysql(updateName, dbName, pwd, "stop"),
+				Config: testAccDrsJob_migrate_mysql(updateName, dbName, pwd, "stop", ""),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -114,7 +125,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDrsJob_migrate_mysql(updateName, dbName, pwd, "restart"),
+				Config: testAccDrsJob_migrate_mysql(updateName, dbName, pwd, "restart", ""),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
@@ -126,7 +137,7 @@ func TestAccResourceDrsJob_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"source_db.0.password", "destination_db.0.password",
 					"expired_days", "migrate_definer", "force_destroy", "action", "updated_at",
-					"source_db.0.ip", "destination_db.0.ip", "engine_type"},
+					"source_db.0.ip", "destination_db.0.ip", "engine_type", "start_time"},
 			},
 		},
 	})
@@ -229,29 +240,30 @@ resource "huaweicloud_networking_secgroup_rule" "egress" {
 }
 `
 
-func testAccDrsJob_migrate_mysql(name, dbName, pwd, action string) string {
+func testAccDrsJob_migrate_mysql(name, dbName, pwd, action, startTime string) string {
 	netConfig := common.TestBaseNetwork(name)
 	sourceDb := testAccDrsJob_mysql(1, dbName, pwd, "192.168.0.58")
 	destDb := testAccDrsJob_mysql(2, dbName, pwd, "192.168.0.59")
 
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-%s
+%[2]s
 
 data "huaweicloud_availability_zones" "test" {}
 
-%s
-%s
+%[3]s
+
+%[4]s
 
 resource "huaweicloud_drs_job" "test" {
-  name           = "%s"
+  name           = "%[5]s"
   type           = "migration"
   engine_type    = "mysql"
   direction      = "up"
   net_type       = "eip"
   migration_type = "FULL_INCR_TRANS"
-  description    = "%s"
+  description    = "%[5]s"
   force_destroy  = true
 
   source_db {
@@ -259,7 +271,7 @@ resource "huaweicloud_drs_job" "test" {
     ip          = huaweicloud_rds_instance.test1.fixed_ip
     port        = 3306
     user        = "root"
-    password    = "%s"
+    password    = "%[6]s"
   }
 
 
@@ -269,16 +281,17 @@ resource "huaweicloud_drs_job" "test" {
     port        = 3306
     engine_type = "mysql"
     user        = "root"
-    password    = "%s"
+    password    = "%[6]s"
     instance_id = huaweicloud_rds_instance.test2.id
     subnet_id   = huaweicloud_rds_instance.test2.subnet_id
   }
 
   tags = {
-    key = "%s"
+    key = "%[5]s"
   }
 
-  action = "%s"
+  action     = "%[7]s"
+  start_time = "%[8]s"
 
   lifecycle {
     ignore_changes = [
@@ -286,7 +299,7 @@ resource "huaweicloud_drs_job" "test" {
     ]
   }
 }
-`, netConfig, testAccSecgroupRule, sourceDb, destDb, name, name, pwd, pwd, name, action)
+`, netConfig, testAccSecgroupRule, sourceDb, destDb, name, pwd, action, startTime)
 }
 
 func TestAccResourceDrsJob_eip(t *testing.T) {
