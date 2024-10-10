@@ -14,7 +14,6 @@ func TestAccDataSourceCesEventDetails_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_ces_event_details.test"
 	rName := acceptance.RandomAccResourceName()
 	dc := acceptance.InitDataSourceCheck(dataSource)
-	resourceName := "huaweicloud_vpc_subnet.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -24,18 +23,7 @@ func TestAccDataSourceCesEventDetails_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceCesEvents_basic(rName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/24"),
-				),
-			},
-			{
-				Config: testDataSourceCesEvents_update(rName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
-					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/24"),
-				),
+				Config: testEventReport_basic(),
 			},
 			{
 				Config: testDataSourceCesEventDetails_basic(rName),
@@ -61,31 +49,12 @@ func TestAccDataSourceCesEventDetails_basic(t *testing.T) {
 
 func testDataSourceCesEventDetails_basic(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s-update"
-  cidr = "192.168.0.0/16"
-}
-	
-resource "huaweicloud_vpc_subnet" "test" {
-  name              = "%[1]s-update"
-  cidr              = "192.168.0.0/24"
-  gateway_ip        = "192.168.0.1"
-  vpc_id            = huaweicloud_vpc.test.id
-  description       = "created by acc test"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-	  
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
+%[1]s
 	
 locals {
-  name       = "modifySubnet"
-  type       = "EVENT.SYS"
-  source     = "SYS.VPC"
+  name       = "test"
+  type       = "EVENT.CUSTOM"
+  source     = "test.System"
   start_time = "%[2]s"
   end_time   = "%[3]s"
 }
@@ -94,7 +63,7 @@ data "huaweicloud_ces_event_details" "test" {
   name = local.name
   type = local.type 
 
-  depends_on = [huaweicloud_vpc_subnet.test]
+  depends_on = [huaweicloud_ces_event_report.test]
 }
 
 output "is_default_filter_useful" {
@@ -108,7 +77,7 @@ data "huaweicloud_ces_event_details" "filter_by_source" {
   type   = local.type
   source = local.source
   
-  depends_on = [huaweicloud_vpc_subnet.test]
+  depends_on = [huaweicloud_ces_event_report.test]
 }
 
 output "is_source_filter_useful" {
@@ -123,7 +92,7 @@ data "huaweicloud_ces_event_details" "filter_by_timeRange" {
   from = local.start_time
   to   = local.end_time
 
-  depends_on = [huaweicloud_vpc_subnet.test]
+  depends_on = [huaweicloud_ces_event_report.test]
 }
 
 output "is_timeRange_filter_useful" {
@@ -131,5 +100,5 @@ output "is_timeRange_filter_useful" {
     [for item in data.huaweicloud_ces_event_details.filter_by_timeRange.event_info[*]: item.event_name == local.name]
   )
 }
-`, name, acceptance.HW_CES_START_TIME, acceptance.HW_CES_END_TIME)
+`, testEventReport_basic(), acceptance.HW_CES_START_TIME, acceptance.HW_CES_END_TIME)
 }
