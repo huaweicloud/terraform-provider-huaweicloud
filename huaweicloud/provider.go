@@ -1386,7 +1386,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_logstash_custom_certificate": css.ResourceLogstashCertificate(),
 			"huaweicloud_css_logstash_custom_template":    css.ResourceLogstashCustomTemplate(),
 
-			"huaweicloud_dbss_instance": dbss.ResourceInstance(),
+			"huaweicloud_dbss_audit_risk_rule_action": dbss.ResourceRiskRuleAction(),
+			"huaweicloud_dbss_instance":               dbss.ResourceInstance(),
 
 			"huaweicloud_dc_virtual_gateway":            dc.ResourceVirtualGateway(),
 			"huaweicloud_dc_virtual_interface":          dc.ResourceVirtualInterface(),
