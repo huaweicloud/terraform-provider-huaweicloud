@@ -24,6 +24,7 @@ func getMicroserviceEngineConfigurationFunc(_ *config.Config, state *terraform.R
 	return cse.QueryMicroserviceEngineConfiguration(client, token, state.Primary.ID)
 }
 
+// Beforce testing, please bind the EIP and open the access rules according to the resource ducoment appendix.
 func TestAccMicroserviceEngineConfiguration_basic(t *testing.T) {
 	var (
 		configuration interface{}
