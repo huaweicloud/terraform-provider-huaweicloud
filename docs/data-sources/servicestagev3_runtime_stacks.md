@@ -43,6 +43,8 @@ The `runtime_stacks` block supports:
 
 * `version` - The version number.
 
+* `url` - The URL of the runtime stack.
+
 * `type` - The type of the runtime stack.
   + **Nodejs**
   + **Java**
