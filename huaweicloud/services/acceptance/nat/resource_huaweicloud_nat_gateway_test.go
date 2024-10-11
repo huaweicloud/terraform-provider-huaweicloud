@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/nat/v2/gateways"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
@@ -21,13 +19,12 @@ func getPublicGatewayResourceFunc(cfg *config.Config, state *terraform.ResourceS
 		return nil, fmt.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	return gateways.Get(client, state.Primary.ID)
+	return nat.ReadPublicGateway(client, state.Primary.ID)
 }
 
 func TestAccPublicGateway_basic(t *testing.T) {
 	var (
-		obj gateways.Gateway
-
+		obj           interface{}
 		rName         = "huaweicloud_nat_gateway.test"
 		name          = acceptance.RandomAccResourceNameWithDash()
 		updateName    = acceptance.RandomAccResourceNameWithDash()
