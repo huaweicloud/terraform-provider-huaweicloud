@@ -148,8 +148,6 @@ func ResourceDrsJob() *schema.Resource {
 			"start_time": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
-				ForceNew: true,
 			},
 			"migrate_definer": {
 				Type:     schema.TypeBool,
@@ -755,21 +753,26 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 
+	startTime := d.Get("start_time").(string)
+	startMode := "start"
+	if startTime != "" && startTime != "0" {
+		startMode = "start_later"
+	}
+
 	startReq := jobs.StartJobReq{
 		Jobs: []jobs.StartInfo{
 			{
 				JobId:     jobId,
-				StartTime: d.Get("start_time").(string),
+				StartTime: startTime,
 			},
 		},
 	}
 	_, err = jobs.Start(client, startReq)
-
 	if err != nil {
 		return diag.Errorf("start DRS job failed,error: %s", err)
 	}
 
-	err = waitingforJobStatus(ctx, client, jobId, "start", d.Timeout(schema.TimeoutCreate))
+	err = waitingforJobStatus(ctx, client, jobId, startMode, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -1000,7 +1003,6 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("vpc_id", detail.VpcId),
 		d.Set("subnet_id", detail.SubnetId),
 		d.Set("security_group_id", detail.SecurityGroupId),
-		d.Set("start_time", detail.InstInfo.StartTime),
 		setDbInfoToState(d, detail.SourceEndpoint, "source_db"),
 		setDbInfoToState(d, detail.TargetEndpoint, "destination_db"),
 	)
@@ -1173,8 +1175,17 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 
+	if d.HasChange("start_time") {
+		if v := d.Get("start_time").(string); v != "0" && v != "" {
+			err = executeJobAction(clientV5, buildExecuteJobActionBodyParams(d, "start_later"), "start", d.Id())
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	if d.HasChange("action") {
-		if action, ok := d.GetOk("action"); ok && utils.StrSliceContains([]string{"stop", "restart", "reset"}, action.(string)) {
+		if action, ok := d.GetOk("action"); ok && utils.StrSliceContains([]string{"stop", "restart", "reset", "start"}, action.(string)) {
 			// precheck status
 			resp, err := jobs.Status(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
 			if err != nil {
@@ -1197,7 +1208,7 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 			}
 
 			// execute action
-			err = executeJobAction(clientV5, buildExecuteJobActionBodyParams(d), action.(string), d.Id())
+			err = executeJobAction(clientV5, buildExecuteJobActionBodyParams(d, action.(string)), action.(string), d.Id())
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -1308,12 +1319,16 @@ func preCheckStatus(action, status string) error {
 		if !utils.StrSliceContains([]string{"FULL_TRANSFER_FAILED", "INCRE_TRANSFER_FAILED"}, status) {
 			return fmt.Errorf("error reseting job for status(%s)", status)
 		}
+	case "start":
+		if status != "WAITING_FOR_START" {
+			return fmt.Errorf("error starting job for status(%s)", status)
+		}
 	}
+
 	return nil
 }
 
-func buildExecuteJobActionBodyParams(d *schema.ResourceData) map[string]interface{} {
-	action := d.Get("action").(string)
+func buildExecuteJobActionBodyParams(d *schema.ResourceData, action string) map[string]interface{} {
 	switch action {
 	case "stop":
 		return map[string]interface{}{
@@ -1325,6 +1340,12 @@ func buildExecuteJobActionBodyParams(d *schema.ResourceData) map[string]interfac
 		}
 	case "reset":
 		return map[string]interface{}{}
+	case "start":
+		return map[string]interface{}{}
+	case "start_later":
+		return map[string]interface{}{
+			"start_time": utils.ValueIgnoreEmpty(d.Get("start_time")),
+		}
 	}
 	return nil
 }
@@ -1488,6 +1509,9 @@ func waitingforJobStatus(ctx context.Context, client *golangsdk.ServiceClient, i
 	case "start":
 		pending = []string{"STARTJOBING", "WAITING_FOR_START", "CONFIGURATION"}
 		target = []string{"FULL_TRANSFER_STARTED", "FULL_TRANSFER_COMPLETE", "INCRE_TRANSFER_STARTED"}
+	case "start_later":
+		pending = []string{"CONFIGURATION"}
+		target = []string{"WAITING_FOR_START"}
 	case "terminate":
 		pending = []string{"PENDING"}
 		target = []string{"RELEASE_RESOURCE_COMPLETE"}

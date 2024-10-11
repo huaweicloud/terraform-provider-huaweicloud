@@ -390,9 +390,12 @@ The following arguments are supported:
 * `expired_days` - (Optional, Int, ForceNew) Specifies how many days after the task is abnormal, it will automatically
   end. The value ranges from 14 to 100. the default value is `14`. Changing this parameter will create a new resource.
 
-* `start_time` - (Optional, String, ForceNew) Specifies the time to start the job. The time format is a time stamp
+* `start_time` - (Optional, String) Specifies the time to start the job. The time format is a time stamp
   accurating to milliseconds, e.g. **1684466549755**, which indicates **2023-05-19 11:22:29.755**.
   Start immediately by default. Changing this parameter will create a new resource.
+
+  -> Set `action` to **start** if you want to start the job immediately. If you want to start the task within 5 minutes
+  of the current time, select start the job immediately.
 
 * `destination_db_readnoly` - (Optional, Bool, ForceNew) Specifies the destination DB instance as read-only helps
   ensure the migration is successful. Once the migration is complete, the DB instance automatically changes to
@@ -417,6 +420,7 @@ The following arguments are supported:
     **INCRE_TRANSFER_STARTED**.
   + **restart**: Continue the job. Available when job status is **PAUSING**.
   + **reset**: Retry the job. Available when job status is **FULL_TRANSFER_FAILED** or **INCRE_TRANSFER_FAILED**.
+  + **start**: Start the job. Available when job status is **WAITING_FOR_START**.
 
   -> It will only take effect when **updating** a job.
 
@@ -787,7 +791,7 @@ $ terraform import huaweicloud_drs_job.test <id>
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `enterprise_project_id`, `force_destroy`,
 `source_db.0.password`, `destination_db.0.password`, `source_db.0.ip`, `destination_db.0.ip`, `action`, `is_sync_re_edit`,
-`pause_mode`, `auto_renew`, `alarm_notify.0.topic_urn`, `policy_config`, `engine_type`, `public_ip_list`.
+`pause_mode`, `auto_renew`, `alarm_notify.0.topic_urn`, `policy_config`, `engine_type`, `public_ip_list`, `start_time`.
 It is generally recommended running **terraform plan** after importing a job. You can then
 decide if changes should be applied to the job, or the resource definition should be updated to align with the job. Also
 you can ignore changes as below.
