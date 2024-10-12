@@ -11,6 +11,8 @@ Manages a gateway resource of the **public** NAT within HuaweiCloud.
 
 ## Example Usage
 
+### Creating a postpaid NAT gateway
+
 ```hcl
 variable "gateway_name" {}
 variable "vpc_id" {}
@@ -23,6 +25,28 @@ resource "huaweicloud_nat_gateway" "test" {
   spec        = var.gateway_specification
   vpc_id      = var.vpc_id
   subnet_id   = var.network_id
+}
+```
+
+### Creating a prepaid NAT gateway
+
+```hcl
+variable "gateway_name" {}
+variable "vpc_id" {}
+variable "network_id" {}
+variable "gateway_specification" {}
+
+resource "huaweicloud_nat_gateway" "test" {
+  name        = var.gateway_name
+  description = "test for terraform"
+  spec        = var.gateway_specification
+  vpc_id      = var.vpc_id
+  subnet_id   = var.network_id
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = "1"
+  auto_renew    = "true"
 }
 ```
 
@@ -51,6 +75,28 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the NAT gateway, which contain maximum of `512`
   characters, and angle brackets (<) and (>) are not allowed.
+
+-> Fields `name`, `spec` and `description` only support editing for pay-per-use billing mode NAT gateways.
+
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the NAT gateway.
+  The valid values are as follows:
+  + **prePaid**: the yearly/monthly billing mode.
+  + **postPaid**: the pay-per-use billing mode.
+
+  Defaults to **postPaid**. Changing this will create a new resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the NAT gateway.
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this will create a new resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the NAT gateway.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.
+  Changing this will create a new resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled. This parameter is only valid when
+  `charging_mode` is set to **prePaid**. Valid values are **true** and **false**. Defaults to **false**.
 
 * `ngport_ip_address` - (Optional, String, ForceNew) Specifies the private IP address of the NAT gateway.
   The IP address must be one of the IP addresses of the VPC subnet associated with the NAT gateway.
@@ -83,5 +129,24 @@ This resource provides the following timeouts configuration options:
 NAT gateways can be imported using their `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_nat_gateway.test d126fb87-43ce-4867-a2ff-cf34af3765d9
+$ terraform import huaweicloud_nat_gateway.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `charging_mode`, `period_unit`,
+`period` and `auto_renew`.
+It is generally recommended running `terraform plan` after importing a resource.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
+with the resource. Also, you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_nat_gateway" "test" {
+  ...
+  
+  lifecycle {
+    ignore_changes = [
+      charging_mode, period_unit, period, auto_renew,
+    ]
+  }
+}
 ```

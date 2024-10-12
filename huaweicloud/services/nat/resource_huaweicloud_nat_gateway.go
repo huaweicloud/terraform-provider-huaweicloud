@@ -3,6 +3,8 @@ package nat
 import (
 	"context"
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -90,6 +92,10 @@ func ResourcePublicGateway() *schema.Resource {
 				}, false),
 				Description: "The specification of the NAT gateway.",
 			},
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -119,6 +125,20 @@ func ResourcePublicGateway() *schema.Resource {
 	}
 }
 
+func buildPrepaidOptionsBodyParams(d *schema.ResourceData) map[string]interface{} {
+	autoRenew, err := strconv.ParseBool(d.Get("auto_renew").(string))
+	if err != nil {
+		log.Printf("[WARN] error parsing auto-renew to boolean value: %s", err)
+	}
+
+	return map[string]interface{}{
+		"period_type":   d.Get("period_unit"),
+		"period_num":    d.Get("period"),
+		"is_auto_renew": autoRenew,
+		"is_auto_pay":   true,
+	}
+}
+
 func buildCreatePublicGatewayBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	natGatewayBodyParams := map[string]interface{}{
 		"name":                  d.Get("name"),
@@ -129,6 +149,11 @@ func buildCreatePublicGatewayBodyParams(d *schema.ResourceData, cfg *config.Conf
 		"ngport_ip_address":     utils.ValueIgnoreEmpty(d.Get("ngport_ip_address")),
 		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
+
+	if d.Get("charging_mode").(string) == "prePaid" {
+		natGatewayBodyParams["prepaid_options"] = buildPrepaidOptionsBodyParams(d)
+	}
+
 	return map[string]interface{}{
 		"nat_gateway": natGatewayBodyParams,
 	}
@@ -212,11 +237,32 @@ func resourcePublicGatewayCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	id := utils.PathSearch("nat_gateway.id", createRespBody, "").(string)
-	if id == "" {
-		return diag.Errorf("error creating NAT gateway: ID is not found in API response")
+	if d.Get("charging_mode").(string) == "prePaid" {
+		orderID := utils.PathSearch("order_id", createRespBody, "").(string)
+		if orderID == "" {
+			return diag.Errorf("error creating prepaid NAT gateway: order_id is not found in API response")
+		}
+
+		bssClient, err := cfg.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+
+		if err := common.WaitOrderComplete(ctx, bssClient, orderID, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.FromErr(err)
+		}
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderID, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.Errorf("error waiting for NAT gateway order (%s) complete: %s", orderID, err)
+		}
+		d.SetId(resourceId)
+	} else {
+		id := utils.PathSearch("nat_gateway.id", createRespBody, "").(string)
+		if id == "" {
+			return diag.Errorf("error creating postpaid NAT gateway: ID is not found in API response")
+		}
+		d.SetId(id)
 	}
-	d.SetId(id)
 
 	if err := waitingForPublicGatewayStatusActive(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for NAT gateway (%s) to become active in"+
@@ -288,12 +334,14 @@ func buildUpdatePublicGatewayBodyParams(d *schema.ResourceData) map[string]inter
 
 func resourcePublicGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		product = "nat"
+		cfg          = meta.(*config.Config)
+		region       = cfg.GetRegion(d)
+		product      = "nat"
+		chargingMode = d.Get("charging_mode").(string)
 	)
 
-	if d.HasChangeExcept("tags") {
+	// Due to API limitations, the prepaid NAT gateway does not support editing.
+	if d.HasChanges("name", "spec", "description") && chargingMode != "prePaid" {
 		client, err := cfg.NewServiceClient(product, region)
 		if err != nil {
 			return diag.Errorf("error creating NAT v2 client: %s", err)
@@ -329,6 +377,17 @@ func resourcePublicGatewayUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	// Only prepaid NAT gateway supports editing `auto_renew`.
+	if d.HasChange("auto_renew") && chargingMode == "prePaid" {
+		bssClient, err := cfg.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the NAT gateway (%s): %s", d.Id(), err)
+		}
+	}
+
 	return resourcePublicGatewayRead(ctx, d, meta)
 }
 
@@ -355,6 +414,19 @@ func waitingForPublicGatewayDelete(ctx context.Context, client *golangsdk.Servic
 	return err
 }
 
+func deletePostpaidGateway(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	deletePath := client.Endpoint + "v2/{project_id}/nat_gateways/{nat_gateway_id}"
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{nat_gateway_id}", d.Id())
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{200, 202, 204},
+	}
+
+	_, err := client.Request("DELETE", deletePath, &deleteOpt)
+	return err
+}
+
 func resourcePublicGatewayDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -367,18 +439,15 @@ func resourcePublicGatewayDelete(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	deletePath := client.Endpoint + "v2/{project_id}/nat_gateways/{nat_gateway_id}"
-	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{nat_gateway_id}", d.Id())
-	deleteOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes:          []int{200, 202, 204},
-	}
-
-	_, err = client.Request("DELETE", deletePath, &deleteOpt)
-	if err != nil {
-		// If the NAT gateway does not exist, the response HTTP status code of the details API is 404.
-		return common.CheckDeletedDiag(d, err, "err deleting NAT gateway")
+	if d.Get("charging_mode").(string) == "prePaid" {
+		if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+			return diag.Errorf("error unsubscribing NAT gateway (%s): %s", d.Id(), err)
+		}
+	} else {
+		if err := deletePostpaidGateway(client, d); err != nil {
+			// If the NAT gateway does not exist, the response HTTP status code of the details API is 404.
+			return common.CheckDeletedDiag(d, err, "err deleting NAT gateway")
+		}
 	}
 
 	if err := waitingForPublicGatewayDelete(ctx, client, d, d.Timeout(schema.TimeoutDelete)); err != nil {
