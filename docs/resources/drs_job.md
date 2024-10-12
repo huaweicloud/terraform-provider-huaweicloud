@@ -302,6 +302,12 @@ resource "huaweicloud_drs_job" "test" {
   lifecycle {
     ignore_changes = [
       source_db.0.password, destination_db.0.password,
+      source_db.0.kafka_security_config.0.trust_store_password,
+      destination_db.0.kafka_security_config.0.trust_store_password,
+      source_db.0.kafka_security_config.0.key_store_password,
+      destination_db.0.kafka_security_config.0.key_store_password,
+      source_db.0.kafka_security_config.0.key_password,
+      destination_db.0.kafka_security_config.0.key_password,
     ]
   }
 }
@@ -790,8 +796,12 @@ $ terraform import huaweicloud_drs_job.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `enterprise_project_id`, `force_destroy`,
-`source_db.0.password`, `destination_db.0.password`, `source_db.0.ip`, `destination_db.0.ip`, `action`, `is_sync_re_edit`,
-`pause_mode`, `auto_renew`, `alarm_notify.0.topic_urn`, `policy_config`, `engine_type`, `public_ip_list`, `start_time`.
+`source_db.0.password`, `destination_db.0.password`, `source_db.0.ip`, `destination_db.0.ip`,
+`source_db.0.kafka_security_config.0.trust_store_password`, `destination_db.0.kafka_security_config.0.trust_store_password`,
+`source_db.0.kafka_security_config.0.key_store_password`,`destination_db.0.kafka_security_config.0.key_store_password`,
+`source_db.0.kafka_security_config.0.key_password`, `destination_db.0.kafka_security_config.0.key_password`,
+`action`, `is_sync_re_edit`, `pause_mode`, `auto_renew`, `alarm_notify.0.topic_urn`, `policy_config`, `engine_type`,
+`public_ip_list`, `start_time`.
 It is generally recommended running **terraform plan** after importing a job. You can then
 decide if changes should be applied to the job, or the resource definition should be updated to align with the job. Also
 you can ignore changes as below.
