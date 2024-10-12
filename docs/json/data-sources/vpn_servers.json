@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_servers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "vpn_servers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_auth_type": "string",
+                      "client_ca_certificates": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "created_at": "string",
+                            "expiration_time": "string",
+                            "id": "string",
+                            "issuer": "string",
+                            "name": "string",
+                            "serial_number": "string",
+                            "signature_algorithm": "string",
+                            "subject": "string",
+                            "updated_at": "string"
+                          }
+                        ]
+                      ],
+                      "client_cidr": "string",
+                      "created_at": "string",
+                      "id": "string",
+                      "local_subnets": [
+                        "list",
+                        "string"
+                      ],
+                      "p2c_vgw_id": "string",
+                      "server_certificate": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "expiration_time": "string",
+                            "id": "string",
+                            "issuer": "string",
+                            "name": "string",
+                            "serial_number": "string",
+                            "signature_algorithm": "string",
+                            "subject": "string"
+                          }
+                        ]
+                      ],
+                      "ssl_options": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "authentication_algorithm": "string",
+                            "encryption_algorithm": "string",
+                            "is_compressed": "bool",
+                            "port": "number",
+                            "protocol": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "tunnel_protocol": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The VPN server list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_playbook_monitors": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "average_run_time": "number",
+                      "event_instance_run_num": "number",
+                      "fail_instance_num": "number",
+                      "max_run_time_instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "playbook_instance_id": "string",
+                            "playbook_instance_name": "string",
+                            "playbook_instance_run_time": "number"
+                          }
+                        ]
+                      ],
+                      "min_run_time_instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "playbook_instance_id": "string",
+                            "playbook_instance_name": "string",
+                            "playbook_instance_run_time": "number"
+                          }
+                        ]
+                      ],
+                      "running_instance_num": "number",
+                      "schedule_instance_run_num": "number",
+                      "success_instance_num": "number",
+                      "terminate_instance_num": "number",
+                      "total_instance_num": "number",
+                      "total_instance_run_num": "number"
+                    }
+                  ]
+                ],
+                "description": "The playbook running monitor details.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "playbook_id": {
+                "type": "string",
+                "description": "Specifies the playbook ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time.",
+                "required": true
+              },
+              "version_query_type": {
+                "type": "string",
+                "description": "Specifies the playbook version type.",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID to which the playbook belongs.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -48,6 +48,10 @@
                 "optional": true,
                 "computed": true
               },
+              "min_disk": {
+                "type": "number",
+                "computed": true
+              },
               "min_ram": {
                 "type": "number",
                 "optional": true,

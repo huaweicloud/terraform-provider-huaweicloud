@@ -5,6 +5,10 @@
         "huaweicloud_images_image_copy": {
           "block": {
             "attributes": {
+              "active_at": {
+                "type": "string",
+                "computed": true
+              },
               "agency_name": {
                 "type": "string",
                 "description": "Specifies the agency name.",
@@ -12,7 +16,7 @@
                 "computed": true,
                 "forcenew": true
               },
-              "checksum": {
+              "created_at": {
                 "type": "string",
                 "computed": true
               },
@@ -59,6 +63,10 @@
                 "optional": true,
                 "computed": true
               },
+              "min_disk": {
+                "type": "number",
+                "computed": true
+              },
               "min_ram": {
                 "type": "number",
                 "optional": true,
@@ -100,6 +108,10 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
               },
               "vault_id": {
                 "type": "string",

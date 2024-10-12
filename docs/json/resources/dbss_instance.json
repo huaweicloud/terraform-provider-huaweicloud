@@ -120,8 +120,7 @@
               "security_group_id": {
                 "type": "string",
                 "description": "The security group to which the instance belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "status": {
                 "type": "string",
@@ -139,8 +138,7 @@
                   "map",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "vpc_id": {
                 "type": "string",

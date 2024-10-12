@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_restored_tables": {
+          "block": {
+            "attributes": {
+              "database_name": {
+                "type": "string",
+                "description": "Specifies the database name, which is used for fuzzy match.",
+                "optional": true
+              },
+              "databases": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "name": "string",
+                      "tables": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "total_tables": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the database information.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB MySQL instance,",
+                "required": true
+              },
+              "last_table_info": {
+                "type": "string",
+                "description": "Specifies  whether data is restored to the most recent table.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "restore_time": {
+                "type": "string",
+                "description": "Specifies the backup time, in timestamp format.",
+                "required": true
+              },
+              "table_name": {
+                "type": "string",
+                "description": "Specifies the table name, which is used for fuzzy match.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}
