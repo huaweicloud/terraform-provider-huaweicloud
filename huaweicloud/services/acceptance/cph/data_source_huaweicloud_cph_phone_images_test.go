@@ -27,9 +27,9 @@ func TestAccDatasourcePhoneImages_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "images.0.is_public"),
 					resource.TestCheckResourceAttrSet(rName, "images.0.image_label"),
 
-					resource.TestCheckOutput("is_public_filter_is_useful", "true"),
+					resource.TestCheckOutput("is_public_filter_useful", "true"),
 
-					resource.TestCheckOutput("image_label_filter_is_useful", "true"),
+					resource.TestCheckOutput("is_image_label_filter_useful", "true"),
 				),
 			},
 		},
@@ -44,14 +44,16 @@ data "huaweicloud_cph_phone_images" "test" {
 data "huaweicloud_cph_phone_images" "is_public_filter" {
   is_public = 1
 }
-output "is_public_filter_is_useful" {
+
+output "is_public_filter_useful" {
   value = alltrue([for v in data.huaweicloud_cph_phone_images.is_public_filter.images[*].is_public : v == 1])
 }
 
 data "huaweicloud_cph_phone_images" "image_label_filter" {
   image_label = "cloud_phone"
 }
-output "image_label_filter_is_useful" {
+
+output "is_image_label_filter_useful" {
   value = alltrue([for v in data.huaweicloud_cph_phone_images.image_label_filter.images[*].image_label : v == "cloud_phone"])
 }
 `
