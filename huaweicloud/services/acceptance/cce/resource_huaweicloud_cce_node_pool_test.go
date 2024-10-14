@@ -49,6 +49,7 @@ func TestAccNodePool_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "os", "EulerOS 2.9"),
 					resource.TestCheckResourceAttr(resourceName, "current_node_count", "1"),
 				),
 			},
@@ -57,6 +58,7 @@ func TestAccNodePool_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "os", "EulerOS 2.9"),
 					resource.TestCheckResourceAttr(resourceName, "current_node_count", "2"),
 					resource.TestCheckResourceAttr(resourceName, "scall_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "min_node_count", "2"),
@@ -70,6 +72,7 @@ func TestAccNodePool_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "os", "CentOS 7.6"),
 					resource.TestCheckResourceAttr(resourceName, "root_volume.0.extend_params.test_key", "test_val"),
 					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.extend_params.test_key1", "test_val1"),
 					resource.TestCheckResourceAttr(resourceName, "data_volumes.1.extend_params.test_key2", "test_val2"),
@@ -207,7 +210,7 @@ func testAccNodePool_basic_step3(name, baseConfig string) string {
 resource "huaweicloud_cce_node_pool" "test" {
   cluster_id               = huaweicloud_cce_cluster.test.id
   name                     = "%[2]s"
-  os                       = "EulerOS 2.9"
+  os                       = "CentOS 7.6"
   flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
   initial_node_count       = 1
   availability_zone        = data.huaweicloud_availability_zones.test.names[0]
