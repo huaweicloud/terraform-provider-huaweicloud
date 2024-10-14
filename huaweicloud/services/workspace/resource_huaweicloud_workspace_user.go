@@ -53,6 +53,10 @@ func ResourceUser() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"account_expires": {
 				Type:     schema.TypeString,
 				Optional: true,
