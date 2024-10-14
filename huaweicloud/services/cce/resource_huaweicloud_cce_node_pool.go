@@ -91,7 +91,6 @@ func ResourceNodePool() *schema.Resource {
 			"os": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"key_pair": {
@@ -669,6 +668,7 @@ func buildNodePoolUpdateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 				Taints:                    buildResourceNodeTaint(d),
 				InitializedConditions:     utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
 				ServerEnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+				Os:                        d.Get("os").(string),
 			},
 			LabelPolicyOnExistingNodes:   d.Get("label_policy_on_existing_nodes").(string),
 			UserTagPolicyOnExistingNodes: d.Get("tag_policy_on_existing_nodes").(string),
