@@ -53,6 +53,7 @@ func ResourcePromInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Optional: true,
+				Computed: true,
 			},
 			"prom_version": {
 				Type:     schema.TypeString,
