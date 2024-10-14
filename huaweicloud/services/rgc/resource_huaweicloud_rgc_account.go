@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -148,15 +147,15 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	operationID, err := jmespath.Search("operation_id", createAccountRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Account: operation_id is not found in API response")
+	operationID := utils.PathSearch("operation_id", createAccountRespBody, "").(string)
+	if operationID == "" {
+		return diag.Errorf("unable to find the account operation ID from the API response")
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"IN_PROGRESS"},
 		Target:       []string{"SUCCEEDED"},
-		Refresh:      accountStateRefreshFunc(createAccountClient, operationID.(string)),
+		Refresh:      accountStateRefreshFunc(createAccountClient, operationID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -378,15 +377,15 @@ func resourceAccountDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	operationID, err := jmespath.Search("operation_id", unEnrollAccountRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Account: operation_id is not found in API response")
+	operationID := utils.PathSearch("operation_id", unEnrollAccountRespBody, "").(string)
+	if operationID == "" {
+		return diag.Errorf("unable to find the account operation ID from the API response")
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"IN_PROGRESS"},
 		Target:       []string{"SUCCEEDED"},
-		Refresh:      accountStateRefreshFunc(unEnrollAccountClient, operationID.(string)),
+		Refresh:      accountStateRefreshFunc(unEnrollAccountClient, operationID),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,

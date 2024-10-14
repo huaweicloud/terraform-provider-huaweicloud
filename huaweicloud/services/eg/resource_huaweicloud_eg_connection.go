@@ -7,13 +7,11 @@ package eg
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -180,11 +178,11 @@ func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createConnectionRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Connection: ID is not found in API response")
+	connectionId := utils.PathSearch("id", createConnectionRespBody, "").(string)
+	if connectionId == "" {
+		return diag.Errorf("unable to find the connection ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(connectionId)
 
 	return resourceConnectionRead(ctx, d, meta)
 }
@@ -285,9 +283,8 @@ func resourceConnectionRead(_ context.Context, d *schema.ResourceData, meta inte
 
 func flattenGetConnectionResponseBodyKafkaDetail(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("kafka_detail", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing kafka_detail from response= %#v", resp)
+	curJson := utils.PathSearch("kafka_detail", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

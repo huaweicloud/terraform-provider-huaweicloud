@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -147,11 +146,11 @@ func resourceAOMAccessCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("[0]|rule_id", createRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating AOM to LTS log mapping rule: ID is not found in API response")
+	ruleId := utils.PathSearch("[0]|rule_id", createRespBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("unable to find the rule ID of the AOM to LTS log mapping from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 
 	return resourceAOMAccessRead(ctx, d, meta)
 }

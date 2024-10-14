@@ -8,13 +8,11 @@ package lts
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -310,11 +308,11 @@ func resourceLtsTransferCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("log_transfer_id", createTransferRespBody)
-	if err != nil {
-		return diag.Errorf("error creating LTS transfer: ID is not found in API response")
+	transferId := utils.PathSearch("log_transfer_id", createTransferRespBody, "").(string)
+	if transferId == "" {
+		return diag.Errorf("unable to find the LTS transfer ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(transferId)
 
 	return resourceLtsTransferRead(ctx, d, meta)
 }
@@ -488,9 +486,8 @@ func flattenGetTransferResponseBodyLogStreams(resp interface{}) []interface{} {
 
 func flattenGetTransferResponseBodyLogTransferInfo(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("log_transfer_info", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing log_transfer_info from response= %#v", resp)
+	curJson := utils.PathSearch("log_transfer_info", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -509,9 +506,8 @@ func flattenGetTransferResponseBodyLogTransferInfo(resp interface{}) []interface
 
 func flattenLogTransferInfoLogAgency(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("log_agency_transfer", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing log_agency_transfer from response= %#v", resp)
+	curJson := utils.PathSearch("log_agency_transfer", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -528,9 +524,8 @@ func flattenLogTransferInfoLogAgency(resp interface{}) []interface{} {
 
 func flattenLogTransferInfoLogTransferDetail(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("log_transfer_detail", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing log_transfer_detail from response= %#v", resp)
+	curJson := utils.PathSearch("log_transfer_detail", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

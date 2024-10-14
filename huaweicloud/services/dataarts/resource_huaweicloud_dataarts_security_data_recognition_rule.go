@@ -167,12 +167,12 @@ func resourceSecurityRuleCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("uuid", createRuleRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Security data recognition rule: ID is not found in API response")
+	ruleId := utils.PathSearch("uuid", createRuleRespBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("unable to find the recognition rule ID of the DataArts Security from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 
 	return resourceSecurityRuleRead(ctx, d, meta)
 }

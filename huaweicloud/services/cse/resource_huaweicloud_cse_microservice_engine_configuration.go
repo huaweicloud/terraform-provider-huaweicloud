@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -155,11 +154,11 @@ func resourceMicroserviceEngineConfigurationCreate(ctx context.Context, d *schem
 		return diag.FromErr(err)
 	}
 
-	configId, err := jmespath.Search("id", respBody)
-	if err != nil || configId == nil {
-		return diag.Errorf("failed to find the configuration ID from the API response: %s", err)
+	configId := utils.PathSearch("id", respBody, "").(string)
+	if configId == "" {
+		return diag.Errorf("enable to find the CSE microservice configuration ID from the API response")
 	}
-	d.SetId(configId.(string))
+	d.SetId(configId)
 
 	return resourceMicroserviceEngineConfigurationRead(ctx, d, meta)
 }

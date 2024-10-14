@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -120,11 +119,11 @@ func resourceIdentityCenterUserCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("user_id", createIdentityCenterUserRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Identity Center User: ID is not found in API response")
+	userId := utils.PathSearch("user_id", createIdentityCenterUserRespBody, "").(string)
+	if userId == "" {
+		return diag.Errorf("unable to find the Identity Center user ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(userId)
 
 	return resourceIdentityCenterUserRead(ctx, d, meta)
 }

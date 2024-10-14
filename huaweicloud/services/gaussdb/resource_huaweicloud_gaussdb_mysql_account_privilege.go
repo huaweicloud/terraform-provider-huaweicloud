@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -150,9 +149,9 @@ func resourceGaussDBAccountPrivilegeCreate(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", createGaussDBAccountPrivilegeRespBody)
-	if err != nil {
-		return diag.Errorf("error creating GaussDB MySQL account privilege: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", createGaussDBAccountPrivilegeRespBody, "")
+	if jobId == "" {
+		return diag.Errorf("unable to find the job ID of the GaussDB MySQL account privilege from the API response")
 	}
 	err = waitForJobComplete(ctx, createGaussDBAccountPrivilegeClient, d.Timeout(schema.TimeoutCreate), instanceID, jobId.(string))
 	if err != nil {
@@ -358,13 +357,12 @@ func resourceGaussDBAccountPrivilegeDelete(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", deleteGaussDBAccountPrivilegeRespBody)
-	if err != nil {
-		return diag.Errorf("error deleting GaussDB MySQL account privilege: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", deleteGaussDBAccountPrivilegeRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find the job ID of the GaussDB MySQL account privilege from the API response")
 	}
 
-	err = waitForJobComplete(ctx, deleteGaussDBAccountPrivilegeClient, d.Timeout(schema.TimeoutDelete), instanceID,
-		jobId.(string))
+	err = waitForJobComplete(ctx, deleteGaussDBAccountPrivilegeClient, d.Timeout(schema.TimeoutDelete), instanceID, jobId)
 
 	return nil
 }

@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -126,11 +125,11 @@ func resourceDwsSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("snapshot.id", createDwsSnapshotRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DWS snapshot: ID is not found in API response")
+	snapshotId := utils.PathSearch("snapshot.id", createDwsSnapshotRespBody, "").(string)
+	if snapshotId == "" {
+		return diag.Errorf("unable to find the DWS snapshot ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(snapshotId)
 
 	err = createDwsSnapshotWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -185,12 +184,7 @@ func createDwsSnapshotWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`snapshot.status`, createDwsSnapshotWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `snapshot.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`snapshot.status`, createDwsSnapshotWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"AVAILABLE",

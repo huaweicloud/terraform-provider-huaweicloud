@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -116,18 +115,18 @@ func resourceKmsDataEncryptDecryptCreate(_ context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	keyId, err := jmespath.Search("key_id", dataEncryptDecryptRespBody)
-	if err != nil || keyId == nil {
-		return diag.Errorf("error running %s operation: ID is not found in API response", action)
+	keyId := utils.PathSearch("key_id", dataEncryptDecryptRespBody, "").(string)
+	if keyId == "" {
+		return diag.Errorf("unable to find the key ID from the API response for the %s operation", action)
 	}
 
-	d.SetId(keyId.(string))
+	d.SetId(keyId)
 
 	var mErr *multierror.Error
 	if action == "encrypt" {
-		cipherText, err := jmespath.Search("cipher_text", dataEncryptDecryptRespBody)
-		if err != nil || cipherText == nil {
-			return diag.Errorf("err searching cipher text when encrypting data: %s", err)
+		cipherText := utils.PathSearch("cipher_text", dataEncryptDecryptRespBody, "").(string)
+		if cipherText == "" {
+			return diag.Errorf("unable to find the cipher text from the API response for the encrypting data action")
 		}
 
 		mErr = multierror.Append(
@@ -135,14 +134,14 @@ func resourceKmsDataEncryptDecryptCreate(_ context.Context, d *schema.ResourceDa
 			d.Set("cipher_data", cipherText),
 		)
 	} else {
-		plainText, err := jmespath.Search("plain_text", dataEncryptDecryptRespBody)
-		if err != nil || plainText == nil {
-			return diag.Errorf("err searching plain text when decrypting data: %s", err)
+		plainText := utils.PathSearch("plain_text", dataEncryptDecryptRespBody, "").(string)
+		if plainText == "" {
+			return diag.Errorf("unable to find the plain text from the API response")
 		}
 
-		plainTextBase64, err := jmespath.Search("plain_text_base64", dataEncryptDecryptRespBody)
-		if err != nil || plainTextBase64 == nil {
-			return diag.Errorf("err searching base64 plain text when encrypting data: %s", err)
+		plainTextBase64 := utils.PathSearch("plain_text_base64", dataEncryptDecryptRespBody, "").(string)
+		if plainTextBase64 == "" {
+			return diag.Errorf("unable to find the base64 plain text from the API response")
 		}
 
 		mErr = multierror.Append(

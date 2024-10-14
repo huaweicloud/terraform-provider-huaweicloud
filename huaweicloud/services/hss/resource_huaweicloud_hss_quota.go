@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -194,9 +193,9 @@ func resourceQuotaCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.FromErr(err)
 	}
 
-	orderId, err := jmespath.Search("order_id", createRespBody)
-	if err != nil || orderId == nil || len(orderId.(string)) == 0 {
-		return diag.Errorf("error creating HSS quota: orderId is not found in API response")
+	orderId := utils.PathSearch("order_id", createRespBody, "").(string)
+	if orderId == "" {
+		return diag.Errorf("unable to find the order ID of the HSS quota from the API response")
 	}
 
 	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
@@ -204,13 +203,13 @@ func resourceQuotaCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
 
-	if err := common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate)); err != nil {
+	if err := common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.FromErr(err)
 	}
 
-	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for HSS quota order (%s) complete: %s", orderId.(string), err)
+		return diag.Errorf("error waiting for HSS quota order (%s) complete: %s", orderId, err)
 	}
 
 	d.SetId(resourceId)

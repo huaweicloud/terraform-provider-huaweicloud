@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -147,12 +146,11 @@ func dealGaussDBSqlControlRule(ctx context.Context, d *schema.ResourceData, cfg 
 		return err
 	}
 
-	jobId, err := jmespath.Search("job_id", gaussDBSqlControlRuleRespBody)
-	if err != nil {
-		return fmt.Errorf("error %s GaussDB MySQL SQL control rule: job_id is not found in API response",
-			operateMethod)
+	jobId := utils.PathSearch("job_id", gaussDBSqlControlRuleRespBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("unable to find the job ID of the GaussDB MySQL SQL control rule from the API response")
 	}
-	return waitForJobComplete(ctx, gaussDBSqlControlRuleClient, timeout, instanceID, jobId.(string))
+	return waitForJobComplete(ctx, gaussDBSqlControlRuleClient, timeout, instanceID, jobId)
 }
 
 func buildGaussDBSqlControlRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -307,13 +305,12 @@ func resourceGaussDBSqlControlRuleDelete(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", deleteGaussDBSqlControlRulesRespBody)
-	if err != nil {
-		return diag.Errorf("error deleting GaussDB MySQL SQL control rule: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", deleteGaussDBSqlControlRulesRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find the job ID of the GaussDB MySQL SQL control rule from the API response")
 	}
 
-	err = waitForJobComplete(ctx, deleteGaussDBSqlControlRuleClient, d.Timeout(schema.TimeoutDelete), instanceID,
-		jobId.(string))
+	err = waitForJobComplete(ctx, deleteGaussDBSqlControlRuleClient, d.Timeout(schema.TimeoutDelete), instanceID, jobId)
 	if err != nil {
 		return diag.FromErr(err)
 	}

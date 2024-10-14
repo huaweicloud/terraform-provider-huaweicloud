@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -40,8 +39,8 @@ func getPrivateCAResourceFunc(conf *config.Config, state *terraform.ResourceStat
 	}
 
 	jsonPaths := fmt.Sprintf("interfaceAttachments[?port_id=='%s']|[0]", state.Primary.ID)
-	nic, err := jmespath.Search(jsonPaths, listNicsRespBody)
-	if err != nil {
+	nic := utils.PathSearch(jsonPaths, listNicsRespBody, nil)
+	if nic == nil {
 		return nil, golangsdk.ErrDefault404{}
 	}
 

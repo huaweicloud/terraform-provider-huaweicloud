@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -199,11 +198,11 @@ func createDNSRecordset(recordsetClient *golangsdk.ServiceClient, d *schema.Reso
 		return err
 	}
 
-	id, err := jmespath.Search("id", createDNSRecordsetRespBody)
-	if err != nil {
-		return fmt.Errorf("error creating DNS recordset: ID is not found in API response")
+	recordSetID := utils.PathSearch("id", createDNSRecordsetRespBody, "").(string)
+	if recordSetID == "" {
+		return fmt.Errorf("unable to find the DNS recordset ID from the API response")
 	}
-	d.SetId(fmt.Sprintf("%s/%s", zoneID, id))
+	d.SetId(fmt.Sprintf("%s/%s", zoneID, recordSetID))
 	return nil
 }
 

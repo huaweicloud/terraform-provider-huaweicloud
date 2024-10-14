@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -158,12 +157,12 @@ func resourceImsImageShareAccepterDelete(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", deleteImageShareAccepterRespBody)
-	if err != nil {
-		return diag.Errorf("error deleting IMS image share accepter: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", deleteImageShareAccepterRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find the job ID of IMS image share accepter from the API response")
 	}
 
-	err = waitForImageShareOrAcceptJobSuccess(ctx, d, deleteImageShareAccepterClient, jobId.(string), schema.TimeoutDelete)
+	err = waitForImageShareOrAcceptJobSuccess(ctx, d, deleteImageShareAccepterClient, jobId, schema.TimeoutDelete)
 	if err != nil {
 		return diag.FromErr(err)
 	}

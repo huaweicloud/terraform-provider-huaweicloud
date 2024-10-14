@@ -7,12 +7,12 @@ package dsc
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -122,12 +122,11 @@ func resourceAssetObsCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	name := d.Get("name").(string)
-	id, err := jmespath.Search("id", FilterAssetObs(getAssetObsRespBody, name, "asset_name"))
-	if err != nil {
+	assetObsId := utils.PathSearch(fmt.Sprintf("buckets[?asset_name=='%s']|[0].id", d.Get("name").(string)), getAssetObsRespBody, "").(string)
+	if assetObsId == "" {
 		return diag.Errorf("error creating AssetObs: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(assetObsId)
 
 	return resourceAssetObsRead(ctx, d, meta)
 }
@@ -182,7 +181,7 @@ func resourceAssetObsRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.FromErr(err)
 	}
 
-	assetObs := FilterAssetObs(getAssetObsRespBody, d.Id(), "id")
+	assetObs := utils.PathSearch(fmt.Sprintf("buckets[?id=='%s']|[0]", d.Id()), getAssetObsRespBody, nil)
 
 	mErr = multierror.Append(
 		mErr,
@@ -193,21 +192,6 @@ func resourceAssetObsRead(_ context.Context, d *schema.ResourceData, meta interf
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func FilterAssetObs(resp interface{}, val string, path string) interface{} {
-	if resp == nil {
-		return nil
-	}
-
-	curJson := utils.PathSearch("buckets", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	for _, v := range curArray {
-		if val == utils.PathSearch(path, v, nil) {
-			return v
-		}
-	}
-	return nil
 }
 
 func resourceAssetObsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

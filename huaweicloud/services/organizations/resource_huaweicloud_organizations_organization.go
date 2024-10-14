@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -137,11 +136,11 @@ func resourceOrganizationCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("organization.id", createOrganizationRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Organizations organization: ID is not found in API response")
+	organizationId := utils.PathSearch("organization.id", createOrganizationRespBody, "").(string)
+	if organizationId == "" {
+		return diag.Errorf("unable to find the organization ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(organizationId)
 
 	getRootRespBody, err := getRoot(createOrganizationClient)
 	if err != nil {
@@ -355,13 +354,13 @@ func policyStateRefreshFunc(client *golangsdk.ServiceClient, policyType string) 
 			return nil, "", err
 		}
 
-		enabled, err := jmespath.Search(fmt.Sprintf("roots|[0].policy_types[?type=='%s'].status|[0]",
-			policyType), getRootRespBody)
+		enabled := utils.PathSearch(fmt.Sprintf("roots|[0].policy_types[?type=='%s'].status|[0]",
+			policyType), getRootRespBody, "").(string)
 		if err != nil {
 			return nil, "", err
 		}
 
-		return getRootRespBody, enabled.(string), nil
+		return getRootRespBody, enabled, nil
 	}
 }
 

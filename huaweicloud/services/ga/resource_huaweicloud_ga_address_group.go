@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -157,13 +156,12 @@ func resourceIpAddressGroupCreate(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	id, err := jmespath.Search("ip_group.id", createIpAddressGroupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating IP address group: ID is not found in API response")
+	groupId := utils.PathSearch("ip_group.id", createIpAddressGroupRespBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("unable to find the GA IP address group ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(groupId)
 
 	err = waitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -604,12 +602,7 @@ func waitIpAddressGroupStatusRefreshFunc(d *schema.ResourceData, meta interface{
 			return nil, "ERROR", err
 		}
 
-		statusRaw, err := jmespath.Search("ip_group.status", respBody)
-		if err != nil {
-			return nil, "ERROR", fmt.Errorf("error parsing %s from response body", statusRaw)
-		}
-
-		status := fmt.Sprintf("%v", statusRaw)
+		status := utils.PathSearch("ip_group.status", respBody, "").(string)
 
 		if utils.StrSliceContains([]string{"ERROR"}, status) {
 			return respBody, "ERROR", fmt.Errorf("unexpected address group status: %s", status)

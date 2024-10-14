@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -205,11 +204,11 @@ func resourceLogicalClusterCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error waiting for DWS logical cluster (%s) creation to complete: %s", clusterName, err)
 	}
 
-	id, err := jmespath.Search("logical_cluster_id", clusterRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DWS logical cluster: ID is not found in API response")
+	logicalClusterId := utils.PathSearch("logical_cluster_id", clusterRespBody, "").(string)
+	if logicalClusterId == "" {
+		return diag.Errorf("unable to find the DWS logical cluster ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(logicalClusterId)
 
 	return resourceLogicalClusterRead(ctx, d, meta)
 }

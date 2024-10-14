@@ -136,12 +136,12 @@ func resourceSecurityPermissionSetCreate(ctx context.Context, d *schema.Resource
 		return diag.Errorf("error retrieving DataArts Security permission set: %s", err)
 	}
 
-	id, err := jmespath.Search("id", createPermissionSetRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Security permission set: ID is not found in API response")
+	setId := utils.PathSearch("id", createPermissionSetRespBody, "").(string)
+	if setId == "" {
+		return diag.Errorf("unable to find the DataArts Security permission set ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(setId)
 	return resourceSecurityPermissionSetRead(ctx, d, meta)
 }
 

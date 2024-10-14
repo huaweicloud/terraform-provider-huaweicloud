@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -201,8 +200,8 @@ func repositoryRefreshFunc(client *golangsdk.ServiceClient, path string,
 		}
 		respBody, err := utils.FlattenResponse(resp)
 		if err == nil && respBody != nil {
-			status, err := jmespath.Search("status", respBody)
-			if err == nil && status == "success" {
+			status := utils.PathSearch("status", respBody, "").(string)
+			if status == "success" {
 				return resp, "ACTIVE", nil
 			}
 		}
@@ -243,11 +242,11 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, err := jmespath.Search("result.repository_uuid", createRepositoryRespBody)
-	if err != nil {
-		return diag.Errorf("error creating CodeHub repository: ID is not found in API response")
+	repositoryId := utils.PathSearch("result.repository_uuid", createRepositoryRespBody, "").(string)
+	if repositoryId == "" {
+		return diag.Errorf("unable to find the CodeHub repository ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(repositoryId)
 
 	if err = waitForRepositoryActive(ctx, cfg, d); err != nil {
 		return diag.Errorf("timout waiting for CodeHub repository to become active: %s", err)

@@ -8,7 +8,6 @@ package cph
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -16,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -218,9 +216,8 @@ func flattenListServerModelsFlavors(resp interface{}) []interface{} {
 
 func flattenFlavorsExtendSpec(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("extend_spec", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing extend_spec from response= %#v", resp)
+	curJson := utils.PathSearch("extend_spec", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

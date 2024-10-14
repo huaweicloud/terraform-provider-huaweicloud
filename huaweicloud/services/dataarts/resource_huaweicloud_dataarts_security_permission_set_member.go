@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -106,9 +105,9 @@ func resourceSecurityPermissionSetMemberCreate(ctx context.Context, d *schema.Re
 		return diag.Errorf("error retrieving DataArts Security permission set member: %s", err)
 	}
 
-	memberId, err := jmespath.Search("member_id", respBody)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Security permission set member: ID is not found in API response")
+	memberId := utils.PathSearch("member_id", respBody, "").(string)
+	if memberId == "" {
+		return diag.Errorf("unable to find the member ID of the DataArts Security permission set from the API response")
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s/%s", workspaceId, permissionSetId, memberId))

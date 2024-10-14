@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -425,15 +424,15 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.FromErr(err)
 		}
 
-		id, err := jmespath.Search("ca_ids|[0]", createRespBody)
-		if err != nil || id == nil {
-			return diag.Errorf("error creating CCM prepaid private CA: ID is not found in API response")
+		caId := utils.PathSearch("ca_ids|[0]", createRespBody, "").(string)
+		if caId == "" {
+			return diag.Errorf("unable to find the CCM prepaid private CA ID from the API response")
 		}
-		d.SetId(id.(string))
+		d.SetId(caId)
 
-		orderID, err := jmespath.Search("order_id", createRespBody)
-		if err != nil || orderID == nil {
-			return diag.Errorf("error creating CCM prepaid private CA: order ID is not found in API response")
+		orderId := utils.PathSearch("order_id", createRespBody, "").(string)
+		if orderId == "" {
+			return diag.Errorf("unable to find the order ID of the CCM prepaid private CA from the API response")
 		}
 
 		// wait for order success
@@ -441,7 +440,7 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
-		if err := waitingForOrderComplete(ctx, bssClient, orderID.(string), d.Timeout(schema.TimeoutCreate)); err != nil {
+		if err := waitingForOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.FromErr(err)
 		}
 
@@ -455,11 +454,11 @@ func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.FromErr(err)
 		}
 
-		id, err := jmespath.Search("ca_id", createPrivateCARespBody)
-		if err != nil || id == nil {
-			return diag.Errorf("error creating CCM postpaid private CA: ID is not found in API response")
+		caId := utils.PathSearch("ca_id", createPrivateCARespBody, "").(string)
+		if caId == "" {
+			return diag.Errorf("unable to find the CCM postpaid private CA ID from the API response")
 		}
-		d.SetId(id.(string))
+		d.SetId(caId)
 	}
 
 	// create tags

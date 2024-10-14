@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -284,11 +283,11 @@ func resourceDeployApplicationCreate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating CodeArts deploy application: %s", err)
 	}
 
-	id, err := jmespath.Search("result.id", createRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DeployApplication: ID is not found in API response")
+	appId := utils.PathSearch("result.id", createRespBody, "").(string)
+	if appId == "" {
+		return diag.Errorf("unable to find the deploy application ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(appId)
 
 	return resourceDeployApplicationRead(ctx, d, meta)
 }

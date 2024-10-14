@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -127,15 +126,15 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	// we cannot get the account ID in API response, retrieve it from ShowCreateAccountStatus API
-	statusID, err := jmespath.Search("create_account_status.id", createAccountRespBody)
-	if err != nil {
+	statusID := utils.PathSearch("create_account_status.id", createAccountRespBody, "").(string)
+	if statusID == "" {
 		return diag.Errorf("error creating Account: state is not found in API response")
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"in_progress"},
 		Target:       []string{"succeeded"},
-		Refresh:      accountStateRefreshFunc(createAccountClient, statusID.(string)),
+		Refresh:      accountStateRefreshFunc(createAccountClient, statusID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -148,14 +147,14 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	// set the account ID
-	id, err := jmespath.Search("create_account_status.account_id", accountStatusRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Account: ID is not found in API response")
+	accountId := utils.PathSearch("create_account_status.account_id", accountStatusRespBody, "").(string)
+	if accountId == "" {
+		return diag.Errorf("unable to find the account ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(accountId)
 
 	if v, ok := d.GetOk("parent_id"); ok {
-		parentID, err := getParentIdByAccountId(createAccountClient, id.(string))
+		parentID, err := getParentIdByAccountId(createAccountClient, accountId)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -189,17 +188,14 @@ func accountStateRefreshFunc(client *golangsdk.ServiceClient, accountStatusId st
 			return nil, "", err
 		}
 
-		state, err := jmespath.Search("create_account_status.state", getAccountStatusRespBody)
-		if err != nil {
-			return nil, "", err
+		state := utils.PathSearch("create_account_status.state", getAccountStatusRespBody, "").(string)
+
+		reason := utils.PathSearch("create_account_status.failure_reason", getAccountStatusRespBody, "").(string)
+		if reason != "" {
+			return getAccountStatusRespBody, state, fmt.Errorf("state: %s; failure_reason: %s", state, reason)
 		}
 
-		reason, err := jmespath.Search("create_account_status.failure_reason", getAccountStatusRespBody)
-		if err == nil && reason != nil {
-			return getAccountStatusRespBody, state.(string), fmt.Errorf("state: %s; failure_reason: %s", state, reason)
-		}
-
-		return getAccountStatusRespBody, state.(string), nil
+		return getAccountStatusRespBody, state, nil
 	}
 }
 

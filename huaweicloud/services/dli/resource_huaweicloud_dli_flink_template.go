@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -117,11 +116,11 @@ func resourceFlinkTemplateCreate(ctx context.Context, d *schema.ResourceData, me
 			utils.PathSearch("message", createFlinkTemplateRespBody, "Message Not Found"))
 	}
 
-	id, err := jmespath.Search("template.template_id", createFlinkTemplateRespBody)
-	if err != nil {
-		return diag.Errorf("error creating FlinkTemplate: ID is not found in API response")
+	templateId := utils.PathSearch("template.template_id", createFlinkTemplateRespBody, float64(0)).(float64)
+	if templateId == 0 {
+		return diag.Errorf("unable to find the Flink template ID from the API response")
 	}
-	d.SetId(fmt.Sprint(id))
+	d.SetId(fmt.Sprint(templateId))
 
 	return resourceFlinkTemplateRead(ctx, d, meta)
 }

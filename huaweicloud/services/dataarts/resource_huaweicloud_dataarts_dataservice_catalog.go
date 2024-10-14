@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -156,11 +155,11 @@ func resourceDatatServiceCatalogCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	catalogId, err := jmespath.Search("catalog_id", createAppRespBody)
-	if err != nil {
-		return diag.Errorf("catalog ID does not found in API response")
+	catalogId := utils.PathSearch("catalog_id", createAppRespBody, "").(string)
+	if catalogId == "" {
+		return diag.Errorf("unable to find the DataArts DataService catalog ID from the API response")
 	}
-	d.SetId(catalogId.(string))
+	d.SetId(catalogId)
 
 	return resourceDatatServiceCatalogRead(ctx, d, meta)
 }

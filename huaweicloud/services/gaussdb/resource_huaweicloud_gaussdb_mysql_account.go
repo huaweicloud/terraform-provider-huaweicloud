@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -142,12 +141,11 @@ func resourceGaussDBAccountCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", createGaussDBAccountRespBody)
-	if err != nil {
-		return diag.Errorf("error creating GaussDB MySQL account: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", createGaussDBAccountRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find the job ID of the GaussDB MySQL account from the API response")
 	}
-	err = waitForJobComplete(ctx, createGaussDBAccountClient, d.Timeout(schema.TimeoutCreate), instanceID,
-		jobId.(string))
+	err = waitForJobComplete(ctx, createGaussDBAccountClient, d.Timeout(schema.TimeoutCreate), instanceID, jobId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -325,12 +323,12 @@ func updateGaussDBAccountDescription(ctx context.Context, d *schema.ResourceData
 		return err
 	}
 
-	jobId, err := jmespath.Search("job_id", updateGaussDBAccountRespBody)
-	if err != nil {
-		return fmt.Errorf("error updating GaussDB account description: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", updateGaussDBAccountRespBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("unable to find the job ID of the GaussDB MySQL account from the API response while updating the description")
 	}
 
-	return waitForJobComplete(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceID, jobId.(string))
+	return waitForJobComplete(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceID, jobId)
 }
 
 func updateGaussDBAccountPassword(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
@@ -374,12 +372,12 @@ func updateGaussDBAccountPassword(ctx context.Context, d *schema.ResourceData, c
 		return err
 	}
 
-	jobId, err := jmespath.Search("job_id", updateGaussDBAccountRespBody)
-	if err != nil {
-		return fmt.Errorf("error updating GaussDB account password: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", updateGaussDBAccountRespBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("unable to find the job ID of the GaussDB MySQL account from the API response while updating the password")
 	}
 
-	return waitForJobComplete(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceID, jobId.(string))
+	return waitForJobComplete(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceID, jobId)
 }
 
 func buildUpdateGaussDBAccountDescriptionBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -457,12 +455,12 @@ func resourceGaussDBAccountDelete(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", deleteGaussDBAccountRespBody)
-	if err != nil {
-		return diag.Errorf("error deleting GaussDB MySQL account: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", deleteGaussDBAccountRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find the job ID of the GaussDB MySQL account from the API response")
 	}
 
-	err = waitForJobComplete(ctx, deleteGaussDBAccountClient, d.Timeout(schema.TimeoutDelete), instanceID, jobId.(string))
+	err = waitForJobComplete(ctx, deleteGaussDBAccountClient, d.Timeout(schema.TimeoutDelete), instanceID, jobId)
 
 	return nil
 }

@@ -8,7 +8,6 @@ package modelarts
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -16,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -426,11 +424,11 @@ func resourceModelartsServiceCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("service_id", createServiceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating ModelartsService: ID is not found in API response")
+	serviceId := utils.PathSearch("service_id", createServiceRespBody, "").(string)
+	if serviceId == "" {
+		return diag.Errorf("unable to find the ModelArts service ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(serviceId)
 
 	err = serviceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -609,12 +607,7 @@ func serviceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`status`, createServiceWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`status`, createServiceWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"running",
@@ -740,9 +733,8 @@ func flattenGetServiceResponseBodyConfig(resp interface{}) []interface{} {
 
 func flattenConfigCustomSpec(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("custom_spec", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing custom_spec from response= %#v", resp)
+	curJson := utils.PathSearch("custom_spec", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -776,9 +768,8 @@ func flattenGetServiceResponseBodySchedule(resp interface{}) []interface{} {
 
 func flattenServiceResponseAdditionalProperty(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("additional_properties", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing additional_properties from response= %#v", resp)
+	curJson := utils.PathSearch("additional_properties", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -793,9 +784,8 @@ func flattenServiceResponseAdditionalProperty(resp interface{}) []interface{} {
 
 func flattenAdditionalPropertySmnNotification(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("smn_notification", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing smn_notification from response= %#v", resp)
+	curJson := utils.PathSearch("smn_notification", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

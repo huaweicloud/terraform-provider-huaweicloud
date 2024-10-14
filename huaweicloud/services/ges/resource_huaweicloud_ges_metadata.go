@@ -9,7 +9,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -180,11 +179,11 @@ func resourceGesMetadataCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createMetadataRespBody)
-	if err != nil {
-		return diag.Errorf("error creating GES metadata: ID is not found in API response")
+	metadataId := utils.PathSearch("id", createMetadataRespBody, "").(string)
+	if metadataId == "" {
+		return diag.Errorf("unable to find the GES metadata ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(metadataId)
 
 	return resourceGesMetadataRead(ctx, d, meta)
 }
@@ -358,9 +357,8 @@ func flattenGetMetadatasRespBodyEncryption(resp interface{}) []interface{} {
 
 func flattenGetMetadataRespBodyMetadata(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("gesMetadata", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing gesMetadata from response= %#v", resp)
+	curJson := utils.PathSearch("gesMetadata", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 

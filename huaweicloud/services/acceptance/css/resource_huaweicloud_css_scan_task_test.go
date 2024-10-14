@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -49,10 +48,7 @@ func getScanTaskFunc(conf *config.Config, state *terraform.ResourceState) (inter
 		}
 		scanTasks := utils.PathSearch("aiops_list", getScanTaskRespBody, make([]interface{}, 0)).([]interface{})
 		findAiopsList := fmt.Sprintf("aiops_list | [?name=='%s'] | [0]", state.Primary.Attributes["name"])
-		scanTask, err := jmespath.Search(findAiopsList, getScanTaskRespBody)
-		if err != nil {
-			return nil, err
-		}
+		scanTask := utils.PathSearch(findAiopsList, getScanTaskRespBody, nil)
 		if scanTask != nil {
 			return scanTask, nil
 		}

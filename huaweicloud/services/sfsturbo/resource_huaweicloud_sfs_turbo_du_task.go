@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -164,12 +163,12 @@ func resourceDuTaskCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	taskId, err := jmespath.Search("task_id", createDuTaskRespBody)
-	if err != nil || taskId == nil {
-		return diag.Errorf("error creating DU task: ID is not found in API response")
+	taskId := utils.PathSearch("task_id", createDuTaskRespBody, "").(string)
+	if taskId == "" {
+		return diag.Errorf("unable to find the DU task ID from the API response")
 	}
 
-	d.SetId(taskId.(string))
+	d.SetId(taskId)
 
 	return resourceDuTaskRead(ctx, d, meta)
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -117,11 +116,11 @@ func resourceHostGroupCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("host_group_id", createHostGroupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating HostGroup: ID is not found in API response")
+	groupId := utils.PathSearch("host_group_id", createHostGroupRespBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("unable to find the LTS host group ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(groupId)
 
 	return resourceHostGroupRead(ctx, d, meta)
 }

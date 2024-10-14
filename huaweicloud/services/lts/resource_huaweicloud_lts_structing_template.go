@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -140,11 +139,11 @@ func resourceStructConfigCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating LTS structuring configuration (failed to query detail API): %s", err)
 	}
 
-	id, err := jmespath.Search("id", detailRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating LTS structuring configuration: ID is not found in detail API response")
+	templateId := utils.PathSearch("id", detailRespBody, "").(string)
+	if templateId == "" {
+		return diag.Errorf("unable to find the LTS structuring configuration ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(templateId)
 
 	return resourceStructConfigRead(ctx, d, meta)
 }

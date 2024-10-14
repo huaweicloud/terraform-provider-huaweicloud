@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -125,11 +124,11 @@ func createDNSLineGroup(lineGroupClient *golangsdk.ServiceClient, d *schema.Reso
 		return err
 	}
 
-	id, err := jmespath.Search("line_id", createDNSLineGroupRespBody)
-	if err != nil {
-		return fmt.Errorf("error creating DNS line group: ID is not found in API response")
+	lineId := utils.PathSearch("line_id", createDNSLineGroupRespBody, "").(string)
+	if lineId == "" {
+		return fmt.Errorf("unable to find the related line ID of the DNS line group from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(lineId)
 	return nil
 }
 

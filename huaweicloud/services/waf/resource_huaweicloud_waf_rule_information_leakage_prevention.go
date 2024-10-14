@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -123,12 +122,11 @@ func resourceRuleCreate(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createRespBody)
-	if err != nil {
-		return diag.Errorf("error creating WAF information leakage prevention rule: ID is not found in" +
-			" API response")
+	ruleId := utils.PathSearch("id", createRespBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("unable to find the prevention rule ID of the WAF information leakage from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 
 	return resourceRuleRead(ctx, d, meta)
 }

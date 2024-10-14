@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -168,9 +167,9 @@ func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	orderId, err := jmespath.Search("order_id", createDscInstanceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DscInstance: ID is not found in API response")
+	orderId := utils.PathSearch("order_id", createDscInstanceRespBody, "").(string)
+	if orderId == "" {
+		return diag.Errorf("unable to find the DSC instance ID from the API response")
 	}
 
 	// auto pay
@@ -191,7 +190,7 @@ func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 			204,
 		},
 	}
-	payOrderOpt.JSONBody = utils.RemoveNil(buildPayOrderBodyParams(orderId.(string)))
+	payOrderOpt.JSONBody = utils.RemoveNil(buildPayOrderBodyParams(orderId))
 	_, err = payOrderClient.Request("POST", payOrderPath, &payOrderOpt)
 	if err != nil {
 		return diag.Errorf("error pay order=%s: %s", d.Id(), err)
@@ -201,11 +200,11 @@ func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
-	err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -459,10 +458,10 @@ func resourceDscInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	dscOrder, err := jmespath.Search("orderInfo[?productInfo.resourceType=='hws.resource.type.dsc.base']",
-		getDscInstanceRespBody)
-	if err != nil {
-		return diag.Errorf("error getting the instance info: base info not found in API response")
+	dscOrder := utils.PathSearch("orderInfo[?productInfo.resourceType=='hws.resource.type.dsc.base']",
+		getDscInstanceRespBody, nil)
+	if dscOrder == nil {
+		return diag.Errorf("unable to find the base information about the DSC instance from the API response")
 	}
 
 	mErr = multierror.Append(

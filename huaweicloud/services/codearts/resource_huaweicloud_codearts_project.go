@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -136,11 +135,11 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("project_id", createProjectRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Project: ID is not found in API response")
+	projectId := utils.PathSearch("project_id", createProjectRespBody, "").(string)
+	if projectId == "" {
+		return diag.Errorf("unable to find the CodeArts project ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(projectId)
 
 	return resourceProjectRead(ctx, d, meta)
 }

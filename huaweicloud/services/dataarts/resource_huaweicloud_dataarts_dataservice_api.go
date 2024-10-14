@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -841,11 +840,11 @@ func resourceDataServiceApiCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	apiId, err := jmespath.Search("id", respBody)
-	if err != nil || apiId == "" {
-		return diag.Errorf("the API ID does not found in the API response")
+	apiId := utils.PathSearch("id", respBody, "").(string)
+	if apiId == "" {
+		return diag.Errorf("unable to find the DataArts DataService API ID from the API response")
 	}
-	d.SetId(apiId.(string))
+	d.SetId(apiId)
 
 	return resourceDataServiceApiRead(ctx, d, meta)
 }

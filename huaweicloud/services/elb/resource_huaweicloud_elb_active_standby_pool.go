@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -293,15 +292,15 @@ func resourceActiveStandbyPoolCreate(ctx context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.Errorf("error retrieving ELB active standby pool: %s", err)
 	}
-	id, err := jmespath.Search("pool.id", createActiveStandbyPoolRespBody)
-	if err != nil {
-		return diag.Errorf("error creating ELB active standby pool: ID is not found in API response")
+	poolId := utils.PathSearch("pool.id", createActiveStandbyPoolRespBody, "").(string)
+	if poolId == "" {
+		return diag.Errorf("unable to find the ELB active standby pool ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(poolId)
 
 	timeout := d.Timeout(schema.TimeoutCreate)
-	err = waitForElbActiveStandbyPool(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
+	err = waitForElbActiveStandbyPool(ctx, elbClient, poolId, "ACTIVE", nil, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -426,14 +425,11 @@ func flattenActiveStandbyPoolMembers(resp interface{}) []interface{} {
 
 func flattenActiveStandbyPoolHealthMonitor(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("pool.healthmonitor", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing healthMonitor from response= %#v", resp)
-		return rst
-	}
-	if curJson == nil {
+	curJson := utils.PathSearch("pool.healthmonitor", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return nil
 	}
+
 	rst = []interface{}{
 		map[string]interface{}{
 			"name":             utils.PathSearch("name", curJson, nil),

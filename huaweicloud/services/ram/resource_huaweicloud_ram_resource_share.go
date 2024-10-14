@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -160,11 +159,11 @@ func resourceRAMShareCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("resource_share.id", createRAMShareRespBody)
-	if err != nil {
-		return diag.Errorf("error creating RAM share: ID is not found in API response")
+	shareId := utils.PathSearch("resource_share.id", createRAMShareRespBody, "").(string)
+	if shareId == "" {
+		return diag.Errorf("unable to find the RAM share ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(shareId)
 	return resourceRAMShareRead(ctx, d, meta)
 }
 

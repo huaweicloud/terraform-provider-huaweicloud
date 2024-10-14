@@ -8,13 +8,11 @@ package lts
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -336,11 +334,11 @@ func resourceKeywordsAlarmRuleCreate(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("keywords_alarm_rule_id", createKeywordsAlarmRuleRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Keywords alarm rule: ID is not found in API response")
+	ruleId := utils.PathSearch("keywords_alarm_rule_id", createKeywordsAlarmRuleRespBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("unable to find the LTS keywords alarm rule ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 
 	if d.Get("status").(string) == "STOPPING" {
 		// updateKeywordsAlarmRuleStatus: Update the LTS KeywordsAlarmRule status.
@@ -569,9 +567,8 @@ func flattenGetKeywordsAlarmRuleResponseBodyKeywordsRequests(resp interface{}) [
 
 func flattenGetKeywordsAlarmRuleResponseBodyFrequency(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("frequency", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing frequency from response= %#v", resp)
+	curJson := utils.PathSearch("frequency", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

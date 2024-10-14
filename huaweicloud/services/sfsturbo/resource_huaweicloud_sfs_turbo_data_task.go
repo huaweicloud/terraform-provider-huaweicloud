@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -131,12 +130,12 @@ func resourceDataTaskCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	taskId, err := jmespath.Search("task_id", createDataTaskRespBody)
-	if err != nil || taskId == nil {
-		return diag.Errorf("error creating data task: ID is not found in API response")
+	taskId := utils.PathSearch("task_id", createDataTaskRespBody, "").(string)
+	if taskId == "" {
+		return diag.Errorf("unable to find the data task ID from the API response")
 	}
 
-	d.SetId(taskId.(string))
+	d.SetId(taskId)
 
 	err = dataTaskWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -234,15 +233,10 @@ func dataTaskStatusRefreshFunc(d *schema.ResourceData, meta interface{}) resourc
 			return nil, "ERROR", err
 		}
 
-		state, err := jmespath.Search("status", respBody)
-		if err != nil {
-			return nil, "ERROR", fmt.Errorf("failed to obtain the status information, error message: %s", err)
-		}
-
-		statusRaw := fmt.Sprintf("%v", state)
+		status := utils.PathSearch("status", respBody, "").(string)
 		// Whether the `status` value is SUCCESS or FAIL, it indicates that the resource creation was successful.
 		// The result can be obtained by querying the details API for detailed information.
-		if utils.StrSliceContains([]string{"SUCCESS", "FAIL"}, statusRaw) {
+		if utils.StrSliceContains([]string{"SUCCESS", "FAIL"}, status) {
 			return respBody, "COMPLETED", nil
 		}
 

@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -122,19 +121,19 @@ func resourceArchitectureDirectoryCreate(ctx context.Context, d *schema.Resource
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	directory := utils.PathSearch("data.value", createDirectoryRespBody, nil)
 
-	id, err := jmespath.Search("id", directory)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Architecture directory: %s is not found in API response", "id")
+	directoryId := utils.PathSearch("data.value.id", createDirectoryRespBody, "").(string)
+	if directoryId == "" {
+		return diag.Errorf("unable to find the DataArts Architecture directory ID from the API response")
 	}
 
 	// need to set qualified name to filter result in READ.
-	qualifiedName, err := jmespath.Search("qualified_name", directory)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Architecture directory: %s is not found in API response", "qualifiedName")
+	qualifiedName := utils.PathSearch("data.value.qualified_name", createDirectoryRespBody, "").(string)
+	if qualifiedName == "" {
+		return diag.Errorf("unable to find the qualified name of the DataArts Architecture director from the API response")
 	}
-	d.SetId(id.(string))
+
+	d.SetId(directoryId)
 	d.Set("qualified_name", qualifiedName)
 
 	return resourceArchitectureDirectoryRead(ctx, d, meta)
@@ -251,15 +250,10 @@ func resourceArchitectureDirectoryUpdate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	directory := utils.PathSearch("data.value", updateDirectoryRespBody, nil)
-
 	// if you change the parent id, the qualified name will be changed, need to set to filter result in READ.
-	qualifiedName, err := jmespath.Search("qualified_name", directory)
-	if err != nil {
-		return diag.Errorf("error updating DataArts Architecture directory: %s is not found in API response", "qualifiedName")
-	}
-	if qualifiedName == nil {
-		qualifiedName = d.Get("qualified_name")
+	qualifiedName := utils.PathSearch("data.value.qualified_name", updateDirectoryRespBody, "").(string)
+	if qualifiedName == "" {
+		qualifiedName = d.Get("qualified_name").(string)
 	}
 	d.Set("qualified_name", qualifiedName)
 

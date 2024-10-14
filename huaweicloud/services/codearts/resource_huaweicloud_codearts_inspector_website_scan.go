@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -229,11 +228,11 @@ func resourceInspectorWebsiteScanCreate(ctx context.Context, d *schema.ResourceD
 		return diag.Errorf("error creating CodeArts inspector website scan: %s", err)
 	}
 
-	id, err := jmespath.Search("task_id", createRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating CodeArts inspector website scan: ID is not found in API response")
+	taskId := utils.PathSearch("task_id", createRespBody, "").(string)
+	if taskId == "" {
+		return diag.Errorf("unable find the CodeArts inspector website scan ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(taskId)
 
 	return resourceInspectorWebsiteScanRead(ctx, d, meta)
 }

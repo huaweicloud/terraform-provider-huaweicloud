@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -131,11 +130,11 @@ func resourceDataServiceAppCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createAppRespBody)
-	if err != nil {
-		return diag.Errorf("error creating app: ID is not found in API response")
+	appId := utils.PathSearch("id", createAppRespBody, "").(string)
+	if appId == "" {
+		return diag.Errorf("unable to find the DataArts DataService APP ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(appId)
 
 	return resourceDataServiceAppRead(ctx, d, meta)
 }
