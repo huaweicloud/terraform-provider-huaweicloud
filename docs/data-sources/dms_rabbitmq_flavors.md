@@ -19,6 +19,14 @@ data "huaweicloud_dms_rabbitmq_flavors" "test" {
 }
 ```
 
+### Query the list of RabbitMQ AMQP flavors by cluster type
+
+```hcl
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "cluster.professional"
+}
+```
+
 ### Query the list of RabbitMQ flavors by flavor ID
 
 ```hcl
@@ -52,7 +60,8 @@ data "huaweicloud_dms_rabbitmq_flavors" "test" {
   + **dms.physical.storage.high.v2**: Type of the disk that uses high I/O.
   + **dms.physical.storage.ultra.v2**: Type of the disk that uses ultra-high I/O.
 
-* `type` - (Optional, String) Specifies flavor type. The valid values are **single** and **cluster**.
+* `type` - (Optional, String) Specifies flavor type.
+  The valid values are **single**, **cluster**, **single.professional** and **cluster.professional**.
 
 * `arch_type` - (Optional, String) Specifies the type of CPU architecture, e.g. **X86**.
 
