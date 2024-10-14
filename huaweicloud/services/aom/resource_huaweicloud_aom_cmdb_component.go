@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -114,12 +113,12 @@ func resourceCmdbComponentCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createComponentRespBody)
-	if err != nil {
-		return diag.Errorf("error creating CMDB component: ID is not found in API response")
+	id := utils.PathSearch("id", createComponentRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find component ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(id)
 	return resourceCmdbComponentRead(ctx, d, meta)
 }
 
@@ -143,10 +142,8 @@ func resourceCmdbComponentRead(_ context.Context, d *schema.ResourceData, meta i
 
 	getComponentResp, err := client.Request("GET", getComponentPath, &getComponentOpt)
 	if err != nil {
-		if hasErrorCode(err, ComNotExistsCode) {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving CMDB component")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", ComNotExistsCode),
+			"error retrieving CMDB component")
 	}
 
 	getComponentRespBody, err := utils.FlattenResponse(getComponentResp)
@@ -241,8 +238,9 @@ func resourceCmdbComponentDelete(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	_, err = client.Request("DELETE", deleteComponentPath, &deleteComponentOpt)
-	if err != nil && !hasErrorCode(err, ComNotExistsCode) {
-		return diag.Errorf("error deleting CMDB component: %s", err)
+	if err != nil {
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", ComNotExistsCode),
+			"error deleting CMDB component")
 	}
 
 	return nil

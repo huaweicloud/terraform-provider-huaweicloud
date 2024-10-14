@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -124,12 +123,12 @@ func resourceDmsRocketMQConsumerGroupCreate(ctx context.Context, d *schema.Resou
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("name", createRocketmqConsumerGroupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DmsRocketMQConsumerGroup: ID is not found in API response")
+	name := utils.PathSearch("name", createRocketmqConsumerGroupRespBody, "").(string)
+	if name == "" {
+		return diag.Errorf("unable to find consumer group name from the API response")
 	}
 
-	d.SetId(instanceID + "/" + id.(string))
+	d.SetId(instanceID + "/" + name)
 
 	return resourceDmsRocketMQConsumerGroupRead(ctx, d, meta)
 }
@@ -172,7 +171,7 @@ func resourceDmsRocketMQConsumerGroupUpdate(ctx context.Context, d *schema.Resou
 
 		parts := strings.SplitN(d.Id(), "/", 2)
 		if len(parts) != 2 {
-			return diag.Errorf("invalid id format, must be <instance_id>/<consumerGroup>")
+			return diag.Errorf("invalid ID format, must be <instance_id>/<name>")
 		}
 		instanceID := parts[0]
 		name := parts[1]
@@ -228,7 +227,7 @@ func resourceDmsRocketMQConsumerGroupRead(_ context.Context, d *schema.ResourceD
 
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<consumerGroup>")
+		return diag.Errorf("invalid ID format, must be <instance_id>/<name>")
 	}
 	instanceID := parts[0]
 	name := parts[1]
@@ -285,7 +284,7 @@ func resourceDmsRocketMQConsumerGroupDelete(_ context.Context, d *schema.Resourc
 
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<consumerGroup>")
+		return diag.Errorf("invalid ID format, must be <instance_id>/<name>")
 	}
 	instanceID := parts[0]
 	name := parts[1]

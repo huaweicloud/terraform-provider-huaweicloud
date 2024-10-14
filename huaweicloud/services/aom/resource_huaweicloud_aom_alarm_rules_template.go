@@ -2,7 +2,6 @@ package aom
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -10,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -898,28 +896,9 @@ func resourceAlarmRulesTemplateDelete(_ context.Context, d *schema.ResourceData,
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseQueryError400(err, "AOM.02018001"), "error deleting alarm rules template")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "AOM.02018001"),
+			"error deleting alarm rules template")
 	}
 
 	return nil
-}
-
-func parseQueryError400(err error, notFoundErrorCode string) error {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return fmt.Errorf("unmarshal response body failed: %s", jsonErr)
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
-		}
-
-		if errorCode.(string) == notFoundErrorCode {
-			return golangsdk.ErrDefault404{}
-		}
-	}
-
-	return err
 }

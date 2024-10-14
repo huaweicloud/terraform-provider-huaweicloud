@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -108,11 +107,11 @@ func resourceVPCInternetGatewayCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("vpc_igw.id", createIGWRespBody)
-	if err != nil {
-		return diag.Errorf("error creating VPC internet gateway: %s is not found in API response", "id")
+	id := utils.PathSearch("vpc_igw.id", createIGWRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find VPC IGW ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceVPCInternetGatewayRead(ctx, d, meta)
 }
@@ -160,9 +159,9 @@ func resourceVPCInternetGatewayRead(_ context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	igw, err := jmespath.Search("vpc_igw", getIGWRespBody)
-	if err != nil {
-		return diag.Errorf("error getting VPC internet gateway: %s is not found in API response", "vpc_igw")
+	igw := utils.PathSearch("vpc_igw", getIGWRespBody, nil)
+	if igw == nil {
+		return diag.Errorf("unable to find VPC IGW from the API response")
 	}
 
 	mErr := multierror.Append(nil,
@@ -209,13 +208,13 @@ func getAddRoute(client *golangsdk.ServiceClient, vpcID string) (bool, error) {
 		return false, fmt.Errorf("error flatten route tables: %s", err)
 	}
 
-	routeTableID, err := jmespath.Search("routetables[?default==`true`]|[0].id", listRouteTablesRespBody)
-	if err != nil {
-		return false, fmt.Errorf("error getting default route table ID")
+	routeTableID := utils.PathSearch("routetables[?default==`true`]|[0].id", listRouteTablesRespBody, "").(string)
+	if routeTableID == "" {
+		return false, fmt.Errorf("unable to find default route table ID from the API response")
 	}
 
 	// call Get API to retrieve more details about the default route table
-	getRouteTablePath := path + "/" + routeTableID.(string)
+	getRouteTablePath := path + "/" + routeTableID
 	getRouteTableResp, err := client.Request("GET", getRouteTablePath, &opt)
 	if err != nil {
 		return false, fmt.Errorf("error getting default route table: %s", err)
@@ -225,10 +224,7 @@ func getAddRoute(client *golangsdk.ServiceClient, vpcID string) (bool, error) {
 		return false, fmt.Errorf("error flatten default route table: %s", err)
 	}
 
-	route, err := jmespath.Search("routetable.routes[?type=='igw']", getRouteTableRespBody)
-	if err != nil {
-		return false, fmt.Errorf("error getting route from default route table")
-	}
+	route := utils.PathSearch("routetable.routes[?type=='igw']", getRouteTableRespBody, make([]interface{}, 0))
 	return len(route.([]interface{})) == 1, nil
 }
 

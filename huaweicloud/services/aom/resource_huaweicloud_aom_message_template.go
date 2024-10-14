@@ -173,7 +173,8 @@ func resourceMessageTemplateRead(_ context.Context, d *schema.ResourceData, meta
 
 	template, err := GetMessageTemplate(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseQueryError400(err, "AOM.08025006"), "error retrieving message template")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "AOM.08025006"),
+			"error retrieving message template")
 	}
 
 	mErr := multierror.Append(nil,
@@ -287,7 +288,8 @@ func resourceMessageTemplateDelete(_ context.Context, d *schema.ResourceData, me
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseQueryError400(err, "AOM.08023006"), "error deleting message template")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "AOM.08023006"),
+			"error deleting message template")
 	}
 
 	return nil

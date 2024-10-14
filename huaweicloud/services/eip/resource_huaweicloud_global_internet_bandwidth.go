@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -135,11 +134,11 @@ func resourceInternetBandwidthCreate(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("internet_bandwidth.id", createInternetBandwidthRespBody)
-	if err != nil {
-		return diag.Errorf("error creating global internet bandwidth: %s is not found in API response", "id")
+	id := utils.PathSearch("internet_bandwidth.id", createInternetBandwidthRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find internet bandwidth ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceInternetBandwidthRead(ctx, d, meta)
 }
@@ -186,9 +185,9 @@ func resourceInternetBandwidthRead(_ context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	bandwidth, err := jmespath.Search("internet_bandwidth", getInternetBandwidthRespBody)
-	if err != nil {
-		return diag.Errorf("error getting global internet bandwidth: %s is not found in API response", "bandwidth")
+	bandwidth := utils.PathSearch("internet_bandwidth", getInternetBandwidthRespBody, nil)
+	if bandwidth == nil {
+		return diag.Errorf("unable to find internet bandwidth from the API response")
 	}
 
 	mErr := multierror.Append(nil,

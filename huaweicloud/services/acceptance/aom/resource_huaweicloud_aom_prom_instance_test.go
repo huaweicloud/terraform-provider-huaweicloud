@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -41,9 +40,9 @@ func getPromInstanceResourceFunc(conf *config.Config, state *terraform.ResourceS
 		return nil, fmt.Errorf("error retrieving AOM prometheus instance: %s", err)
 	}
 
-	curJson, err := jmespath.Search("prometheus[0]", getPrometheusInstanceRespBody)
-	if err != nil || curJson == nil {
-		return nil, fmt.Errorf("error retrieving AOM prometheus instance: %s", err)
+	curJson := utils.PathSearch("prometheus[0]", getPrometheusInstanceRespBody, nil)
+	if curJson == nil {
+		return nil, fmt.Errorf("unable to find the instance from the API response")
 	}
 
 	return curJson, nil

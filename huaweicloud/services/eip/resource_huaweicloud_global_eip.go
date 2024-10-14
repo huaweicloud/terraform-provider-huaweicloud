@@ -2,6 +2,7 @@ package eip
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -160,11 +160,11 @@ func resourceGlobalEIPCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("global_eip.id", createGEIPRespBody)
-	if err != nil {
-		return diag.Errorf("error creating global EIP: %s is not found in API response", "id")
+	id := utils.PathSearch("global_eip.id", createGEIPRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find global EIP ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	err = waitForGEIPComplete(ctx, d.Timeout(schema.TimeoutCreate), d.Id(), cfg.DomainID, client)
 	if err != nil {
@@ -219,11 +219,11 @@ func geipStatusRefreshFunc(id string, domainID string, client *golangsdk.Service
 		if err != nil {
 			return nil, "ERROR", err
 		}
-		status, err := jmespath.Search("global_eip.status", getGEIPRespBody)
-		if err != nil {
-			return nil, "ERROR", err
+		status := utils.PathSearch("global_eip.status", getGEIPRespBody, "").(string)
+		if status == "" {
+			return nil, "ERROR", fmt.Errorf("unable to find global EIP status from the API response")
 		}
-		if status.(string) == "inuse" || status.(string) == "idle" {
+		if status == "inuse" || status == "idle" {
 			return getGEIPRespBody, "SUCCESS", nil
 		}
 		return getGEIPRespBody, "PENDING", nil
@@ -256,9 +256,9 @@ func resourceGlobalEIPRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.FromErr(err)
 	}
 
-	geip, err := jmespath.Search("global_eip", getGEIPRespBody)
-	if err != nil {
-		return diag.Errorf("error getting global EIP: %s is not found in API response", "global_eip")
+	geip := utils.PathSearch("global_eip", getGEIPRespBody, nil)
+	if geip == nil {
+		return diag.Errorf("unable to find global EIP from the API response")
 	}
 
 	mErr := multierror.Append(nil,

@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -122,12 +121,12 @@ func resourceCmdbEnvironmentCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createEnvironmentRespBody)
-	if err != nil {
-		return diag.Errorf("error creating CMDB environment: ID is not found in API response")
+	id := utils.PathSearch("id", createEnvironmentRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find environment ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(id)
 	return resourceCmdbEnvironmentRead(ctx, d, meta)
 }
 
@@ -152,10 +151,8 @@ func resourceCmdbEnvironmentRead(_ context.Context, d *schema.ResourceData, meta
 
 	getEnvironmentResp, err := client.Request("GET", getEnvironmentPath, &getEnvironmentOpt)
 	if err != nil {
-		if hasErrorCode(err, EnvNotExistsCode) {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving CMDB environment")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", EnvNotExistsCode),
+			"error retrieving CMDB environment")
 	}
 
 	getEnvironmentRespBody, err := utils.FlattenResponse(getEnvironmentResp)
@@ -239,8 +236,9 @@ func resourceCmdbEnvironmentDelete(_ context.Context, d *schema.ResourceData, me
 	}
 
 	_, err = client.Request("DELETE", deleteEnvironmentPath, &deleteEnvironmentOpt)
-	if err != nil && !hasErrorCode(err, EnvNotExistsCode) {
-		return diag.Errorf("error deleting CMDB environment: %s", err)
+	if err != nil {
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", EnvNotExistsCode),
+			"error deleting CMDB environment")
 	}
 
 	return nil

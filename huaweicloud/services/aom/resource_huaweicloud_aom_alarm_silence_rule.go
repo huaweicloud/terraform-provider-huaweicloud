@@ -8,13 +8,11 @@ package aom
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -322,9 +320,8 @@ func resourceAlarmSilenceRuleRead(_ context.Context, d *schema.ResourceData, met
 
 func flattenSilenceRuleSilenceTime(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("mute_config", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing silence_time from response= %#v", resp)
+	curJson := utils.PathSearch("mute_config", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 
