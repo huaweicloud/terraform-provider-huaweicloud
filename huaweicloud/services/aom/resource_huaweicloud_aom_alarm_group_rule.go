@@ -336,7 +336,8 @@ func resourceAlarmGroupRuleDelete(_ context.Context, d *schema.ResourceData, met
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseQueryError400(err, "AOM.08002002"), "error deleting alarm group rule")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "AOM.08002002"),
+			"error deleting alarm group rule")
 	}
 
 	return nil

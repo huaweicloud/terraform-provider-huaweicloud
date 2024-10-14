@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -160,11 +159,11 @@ func resourceDmsRocketMQUserCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("access_key", createRocketmqUserRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DmsRocketMQUser: ID is not found in API response")
+	accessKey := utils.PathSearch("access_key", createRocketmqUserRespBody, "").(string)
+	if accessKey == "" {
+		return diag.Errorf("unable to find access key from the API response")
 	}
-	d.SetId(instanceID + "/" + id.(string))
+	d.SetId(instanceID + "/" + accessKey)
 
 	return resourceDmsRocketMQUserRead(ctx, d, meta)
 }
@@ -209,7 +208,7 @@ func resourceDmsRocketMQUserUpdate(ctx context.Context, d *schema.ResourceData, 
 
 		parts := strings.SplitN(d.Id(), "/", 2)
 		if len(parts) != 2 {
-			return diag.Errorf("invalid id format, must be <instance_id>/<access_key>")
+			return diag.Errorf("invalid ID format, must be <instance_id>/<access_key>")
 		}
 		instanceID := parts[0]
 		user := parts[1]
@@ -281,7 +280,7 @@ func resourceDmsRocketMQUserRead(_ context.Context, d *schema.ResourceData, meta
 
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<access_key>")
+		return diag.Errorf("invalid ID format, must be <instance_id>/<access_key>")
 	}
 	instanceID := parts[0]
 	user := parts[1]
@@ -371,7 +370,7 @@ func resourceDmsRocketMQUserDelete(_ context.Context, d *schema.ResourceData, me
 
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<access_key>")
+		return diag.Errorf("invalid ID format, must be <instance_id>/<access_key>")
 	}
 	instanceID := parts[0]
 	user := parts[1]

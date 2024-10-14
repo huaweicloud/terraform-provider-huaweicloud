@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -897,9 +896,9 @@ func kafkaInstanceCreatingFunc(client *golangsdk.ServiceClient, instanceID strin
 	return func() (interface{}, string, error) {
 		res := instances.Get(client, instanceID)
 		if res.Err != nil {
-			actualCode, err := jmespath.Search("Actual", res.Err)
-			if err != nil {
-				return nil, "", err
+			actualCode := utils.PathSearch("Actual", res.Err, 0).(int)
+			if actualCode == 0 {
+				return nil, "", fmt.Errorf("unable to find status code from the API response")
 			}
 			if actualCode == 404 {
 				return res, "EMPTY", nil
@@ -1648,13 +1647,13 @@ func handleMultiOperationsError(err error) (bool, error) {
 			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
 		}
 
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		errorCode := utils.PathSearch("error_code", apiError, "").(string)
+		if errorCode == "" {
+			return false, fmt.Errorf("unable to find error code from the API response")
 		}
 
 		// CBC.99003651: unsubscribe fail, another operation is being performed
-		if errorCode.(string) == "DMS.00400026" || errorCode == "CBC.99003651" {
+		if errorCode == "DMS.00400026" || errorCode == "CBC.99003651" {
 			return true, err
 		}
 	}

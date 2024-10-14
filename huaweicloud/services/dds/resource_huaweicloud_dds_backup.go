@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -296,7 +295,9 @@ func resourceDdsBackupRead(_ context.Context, d *schema.ResourceData, meta inter
 	getBackupResp, err := getBackupClient.Request("GET", getBackupPath, &getBackupOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDdsBackupError(err), "error retrieving DDS backup")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", []string{"DBS.201502", "DBS.201214"}...),
+			"error retrieving DDS backup")
 	}
 
 	getBackupRespBody, err := utils.FlattenResponse(getBackupResp)
@@ -328,8 +329,8 @@ func resourceDdsBackupRead(_ context.Context, d *schema.ResourceData, meta inter
 
 func flattenGetBackupResponseDatastore(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("datastore", resp)
-	if err != nil {
+	curJson := utils.PathSearch("datastore", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 
@@ -388,7 +389,9 @@ func resourceDdsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 		PollInterval: 5 * time.Second,
 	})
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDdsBackupError(err), "error deleting DDS backup")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", []string{"DBS.201502", "DBS.201214"}...),
+			"error deleting DDS backup")
 	}
 
 	deleteBackupRespBody, err := utils.FlattenResponse(r.(*http.Response))
@@ -418,29 +421,10 @@ func resourceDdsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func parseDdsBackupError(err error) error {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DBS.201502" || errorCode == "DBS.201214" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
-}
-
 func backupImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import id, must be <instance_id>/<id>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<id>")
 	}
 	instanceId := parts[0]
 	backupId := parts[1]

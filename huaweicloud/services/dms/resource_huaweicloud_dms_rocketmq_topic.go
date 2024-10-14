@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -176,11 +175,11 @@ func resourceDmsRocketMQTopicCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createRocketmqTopicRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DmsRocketMQTopic: ID is not found in API response")
+	id := utils.PathSearch("id", createRocketmqTopicRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find topic ID from the API response")
 	}
-	d.SetId(instanceID + "/" + id.(string))
+	d.SetId(instanceID + "/" + id)
 
 	return resourceDmsRocketMQTopicUpdate(ctx, d, meta)
 }

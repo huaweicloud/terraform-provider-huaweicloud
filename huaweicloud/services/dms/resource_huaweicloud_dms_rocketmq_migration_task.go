@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -512,7 +511,8 @@ func resourceRocketmqMigrationTaskRead(_ context.Context, d *schema.ResourceData
 	getRocketmqMigrationTaskOpt := golangsdk.RequestOpts{KeepResponseBody: true}
 	getRocketmqMigrationTaskResp, err := getRocketmqMigrationTaskClient.Request("GET", getRocketmqMigrationTaskPath, &getRocketmqMigrationTaskOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDmsErrorToError404(err), "error retrieving RocketMQ migration task")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DMS.00405011"),
+			"error retrieving RocketMQ migration task")
 	}
 
 	getRocketmqMigrationTaskRespBody, err := utils.FlattenResponse(getRocketmqMigrationTaskResp)
@@ -631,7 +631,7 @@ func resourceRocketmqMigrationTaskDelete(ctx context.Context, d *schema.Resource
 func resourceRocketmqMigrationTaskImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import id, must be <instance_id>/<id>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <instance_id>/<id>")
 	}
 
 	mErr := multierror.Append(nil,
@@ -640,22 +640,4 @@ func resourceRocketmqMigrationTaskImportState(_ context.Context, d *schema.Resou
 	d.SetId(parts[1])
 
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
-}
-
-func parseDmsErrorToError404(respErr error) error {
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
-		}
-		// DMS.00405011: Metadata migration task error
-		if errorCode.(string) == "DMS.00405011" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return respErr
 }

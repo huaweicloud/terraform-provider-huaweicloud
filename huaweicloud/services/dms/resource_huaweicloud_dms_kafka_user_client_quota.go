@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -439,13 +438,13 @@ func handleOperationConflictError(err error) (bool, error) {
 			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
 		}
 
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		errorCode := utils.PathSearch("error_code", apiError, "").(string)
+		if errorCode == "" {
+			return false, fmt.Errorf("unable to find error code from the API response")
 		}
 
 		// DMS.00404022 This instance does not exist.
-		if errorCode.(string) == "DMS.00404022" {
+		if errorCode == "DMS.00404022" {
 			return true, err
 		}
 	}
@@ -455,13 +454,13 @@ func handleOperationConflictError(err error) (bool, error) {
 			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
 		}
 
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
+		errorCode := utils.PathSearch("error_code", apiError, "").(string)
+		if errorCode == "" {
+			return false, fmt.Errorf("unable to find error code from the API response")
 		}
 
 		// DMS.00400026 This operation is not allowed due to the instance status.
-		if errorCode.(string) == "DMS.00400026" {
+		if errorCode == "DMS.00400026" {
 			return true, err
 		}
 	}

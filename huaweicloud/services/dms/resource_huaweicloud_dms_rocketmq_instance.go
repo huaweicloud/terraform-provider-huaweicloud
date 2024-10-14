@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -341,14 +340,14 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("instance_id", createRocketmqInstanceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DmsRocketMQInstance: ID is not found in API response")
+	id := utils.PathSearch("instance_id", createRocketmqInstanceRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find instance ID from the API response")
 	}
 
 	var delayTime time.Duration = 300
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
-		err = waitForRocketMQOrderComplete(ctx, d, cfg, createRocketmqInstanceClient, id.(string))
+		err = waitForRocketMQOrderComplete(ctx, d, cfg, createRocketmqInstanceClient, id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -358,7 +357,7 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      rocketmqInstanceStateRefreshFunc(createRocketmqInstanceClient, id.(string)),
+		Refresh:      rocketmqInstanceStateRefreshFunc(createRocketmqInstanceClient, id),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        delayTime * time.Second,
 		PollInterval: 10 * time.Second,
@@ -366,10 +365,10 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for instance (%s) to create: %s", id.(string), err)
+		return diag.Errorf("error waiting for instance (%s) to create: %s", id, err)
 	}
 
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	if _, ok := d.GetOk("cross_vpc_accesses"); ok {
 		if err = updateCrossVpcAccess(ctx, createRocketmqInstanceClient, d); err != nil {
@@ -388,8 +387,8 @@ func resourceDmsRocketMQInstanceCreate(ctx context.Context, d *schema.ResourceDa
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		tagList := utils.ExpandResourceTags(tagRaw)
-		if tagErr := tags.Create(createRocketmqInstanceClient, "rocketmq", id.(string), tagList).ExtractErr(); tagErr != nil {
-			return diag.Errorf("error setting tags of RocketMQ %s: %s", id.(string), tagErr)
+		if tagErr := tags.Create(createRocketmqInstanceClient, "rocketmq", id, tagList).ExtractErr(); tagErr != nil {
+			return diag.Errorf("error setting tags of RocketMQ %s: %s", id, tagErr)
 		}
 	}
 
