@@ -3,10 +3,9 @@ package common
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"reflect"
-
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -37,21 +36,26 @@ func ConvertExpected400ErrInto404Err(err error, errCodeKey string, specErrCodes 
 		return err
 	}
 
-	errCode, searchErr := jmespath.Search(errCodeKey, apiError)
-	if searchErr != nil || errCode == nil {
-		log.Printf("[WARN] Unable to find the expected error code key (%s)", errCodeKey)
-		return err
+	errCode := utils.PathSearch(errCodeKey, apiError, nil)
+	if errCode == nil {
+		// 4xx means the client parsing was failed.
+		return golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
+					errCodeKey, apiError)),
+			},
+		}
 	}
 
 	if len(specErrCodes) < 1 {
 		log.Printf("[INFO] Identified 400 error parsed it as 404 error (without the error code control)")
 		return golangsdk.ErrDefault404{}
 	}
-	if errCodeStr, ok := errCode.(string); ok && utils.StrSliceContains(specErrCodes, errCodeStr) {
-		log.Printf("[INFO] Identified 400 error with code '%s' and parsed it as 404 error", errCode)
+	if utils.StrSliceContains(specErrCodes, fmt.Sprint(errCode)) {
+		log.Printf("[INFO] Identified 400 error with code '%v' and parsed it as 404 error", errCode)
 		return golangsdk.ErrDefault404{}
 	}
-	log.Printf("[WARN] Unable to recognize expected error code (%s), want %v", errCode, specErrCodes)
+	log.Printf("[WARN] Unable to recognize expected error code (%v), want %v", errCode, specErrCodes)
 	return err
 }
 
@@ -79,21 +83,26 @@ func ConvertExpected401ErrInto404Err(err error, errCodeKey string, specErrCodes 
 		return err
 	}
 
-	errCode, searchErr := jmespath.Search(errCodeKey, apiError)
-	if searchErr != nil || errCode == nil {
-		log.Printf("[WARN] Unable to find the expected error code key (%s)", errCodeKey)
-		return err
+	errCode := utils.PathSearch(errCodeKey, apiError, nil)
+	if errCode == nil {
+		// 4xx means the client parsing was failed.
+		return golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
+					errCodeKey, apiError)),
+			},
+		}
 	}
 
 	if len(specErrCodes) < 1 {
 		log.Printf("[INFO] Identified 401 error parsed it as 404 error (without the error code control)")
 		return golangsdk.ErrDefault404{}
 	}
-	if errCodeStr, ok := errCode.(string); ok && utils.StrSliceContains(specErrCodes, errCodeStr) {
-		log.Printf("[INFO] Identified 401 error with code '%s' and parsed it as 404 error", errCode)
+	if utils.StrSliceContains(specErrCodes, fmt.Sprint(errCode)) {
+		log.Printf("[INFO] Identified 401 error with code '%v' and parsed it as 404 error", errCode)
 		return golangsdk.ErrDefault404{}
 	}
-	log.Printf("[WARN] Unable to recognize expected error code (%s), want %v", errCode, specErrCodes)
+	log.Printf("[WARN] Unable to recognize expected error code (%v), want %v", errCode, specErrCodes)
 	return err
 }
 
@@ -121,21 +130,26 @@ func ConvertExpected403ErrInto404Err(err error, errCodeKey string, specErrCodes 
 		return err
 	}
 
-	errCode, searchErr := jmespath.Search(errCodeKey, apiError)
-	if searchErr != nil || errCode == nil {
-		log.Printf("[WARN] Unable to find the expected error code key (%s)", errCodeKey)
-		return err
+	errCode := utils.PathSearch(errCodeKey, apiError, nil)
+	if errCode == nil {
+		// 4xx means the client parsing was failed.
+		return golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
+					errCodeKey, apiError)),
+			},
+		}
 	}
 
 	if len(specErrCodes) < 1 {
 		log.Printf("[INFO] Identified 403 error parsed it as 404 error (without the error code control)")
 		return golangsdk.ErrDefault404{}
 	}
-	if errCodeStr, ok := errCode.(string); ok && utils.StrSliceContains(specErrCodes, errCodeStr) {
-		log.Printf("[INFO] Identified 403 error with code '%s' and parsed it as 404 error", errCode)
+	if utils.StrSliceContains(specErrCodes, fmt.Sprint(errCode)) {
+		log.Printf("[INFO] Identified 403 error with code '%v' and parsed it as 404 error", errCode)
 		return golangsdk.ErrDefault404{}
 	}
-	log.Printf("[WARN] Unable to recognize expected error code (%s), want %v", errCode, specErrCodes)
+	log.Printf("[WARN] Unable to recognize expected error code (%v), want %v", errCode, specErrCodes)
 	return err
 }
 
@@ -163,20 +177,25 @@ func ConvertExpected500ErrInto404Err(err error, errCodeKey string, specErrCodes 
 		return err
 	}
 
-	errCode, searchErr := jmespath.Search(errCodeKey, apiError)
-	if searchErr != nil || errCode == nil {
-		log.Printf("[WARN] Unable to find the expected error code key (%s)", errCodeKey)
-		return err
+	errCode := utils.PathSearch(errCodeKey, apiError, nil)
+	if errCode == nil {
+		// 4xx means the client parsing was failed.
+		return golangsdk.ErrDefault400{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte(fmt.Sprintf("Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
+					errCodeKey, apiError)),
+			},
+		}
 	}
 
 	if len(specErrCodes) < 1 {
 		log.Printf("[INFO] Identified 500 error parsed it as 404 error (without the error code control)")
 		return golangsdk.ErrDefault404{}
 	}
-	if errCodeStr, ok := errCode.(string); ok && utils.StrSliceContains(specErrCodes, errCodeStr) {
-		log.Printf("[INFO] Identified 500 error with code '%s' and parsed it as 404 error", errCode)
+	if utils.StrSliceContains(specErrCodes, fmt.Sprint(errCode)) {
+		log.Printf("[INFO] Identified 500 error with code '%v' and parsed it as 404 error", errCode)
 		return golangsdk.ErrDefault404{}
 	}
-	log.Printf("[WARN] Unable to recognize expected error code (%s), want %v", errCode, specErrCodes)
+	log.Printf("[WARN] Unable to recognize expected error code (%v), want %v", errCode, specErrCodes)
 	return err
 }

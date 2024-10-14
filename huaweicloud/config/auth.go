@@ -11,8 +11,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/jmespath/go-jmespath"
-
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/auth"
 	huaweisdk "github.com/chnsz/golangsdk/openstack"
@@ -363,19 +361,19 @@ func buildClientByAgencyV5(c *Config) error {
 		return fmt.Errorf("error extracting IAM agency assume response: %s", err)
 	}
 
-	accessKey, err := jmespath.Search("credentials.access_key_id", createAssumeRespBody)
-	if err != nil {
-		return fmt.Errorf("error fetching assume credentials: access_key_id is not found in API response")
+	accessKey := utils.PathSearch("credentials.access_key_id", createAssumeRespBody, "").(string)
+	if accessKey == "" {
+		log.Printf("[DEBUG] unable to find the access key ID of the assume credential from the API response")
 	}
-	secretKey, err := jmespath.Search("credentials.secret_access_key", createAssumeRespBody)
-	if err != nil {
-		return fmt.Errorf("error fetching assume credentials: secret_access_id is not found in API response")
+	secretKey := utils.PathSearch("credentials.secret_access_key", createAssumeRespBody, "").(string)
+	if secretKey == "" {
+		log.Printf("[DEBUG] unable to find the secret access ID of the assume credential from the API response")
 	}
-	securityToken, err := jmespath.Search("credentials.security_token", createAssumeRespBody)
-	if err != nil {
-		return fmt.Errorf("error fetching assume credentials: security_token is not found in API response")
+	securityToken := utils.PathSearch("credentials.security_token", createAssumeRespBody, "").(string)
+	if securityToken == "" {
+		log.Printf("[DEBUG] unable to find the security token of the assume credential from the API response")
 	}
-	c.AccessKey, c.SecretKey, c.SecurityToken = accessKey.(string), secretKey.(string), securityToken.(string)
+	c.AccessKey, c.SecretKey, c.SecurityToken = accessKey, secretKey, securityToken
 
 	return buildClientByAKSK(c)
 }
@@ -417,31 +415,19 @@ func getAuthConfigByMeta(c *Config) error {
 		return fmt.Errorf("Error unmarshal metadata API, agency_name is empty: %s", err.Error())
 	}
 
-	expiresAt, err := jmespath.Search("credential.expires_at", parsedBody)
-	if err != nil {
-		return fmt.Errorf("Error fetching metadata expires_at: %s", err.Error())
-	}
-	accessKey, err := jmespath.Search("credential.access", parsedBody)
-	if err != nil {
-		return fmt.Errorf("Error fetching metadata access: %s", err.Error())
-	}
-	secretKey, err := jmespath.Search("credential.secret", parsedBody)
-	if err != nil {
-		return fmt.Errorf("Error fetching metadata secret: %s", err.Error())
-	}
-	securityToken, err := jmespath.Search("credential.securitytoken", parsedBody)
-	if err != nil {
-		return fmt.Errorf("Error fetching metadata securitytoken: %s", err.Error())
-	}
+	expiresAt := utils.PathSearch("credential.expires_at", parsedBody, "").(string)
+	accessKey := utils.PathSearch("credential.access", parsedBody, "").(string)
+	secretKey := utils.PathSearch("credential.secret", parsedBody, "").(string)
+	securityToken := utils.PathSearch("credential.securitytoken", parsedBody, "").(string)
 
-	if accessKey == nil || secretKey == nil || securityToken == nil || expiresAt == nil {
+	if accessKey == "" || secretKey == "" || securityToken == "" || expiresAt == "" {
 		return fmt.Errorf("Error fetching metadata authentication information")
 	}
-	expairesTime, err := time.Parse(time.RFC3339, expiresAt.(string))
+	expairesTime, err := time.Parse(time.RFC3339, expiresAt)
 	if err != nil {
 		return err
 	}
-	c.AccessKey, c.SecretKey, c.SecurityToken, c.SecurityKeyExpiresAt = accessKey.(string), secretKey.(string), securityToken.(string), expairesTime
+	c.AccessKey, c.SecretKey, c.SecurityToken, c.SecurityKeyExpiresAt = accessKey, secretKey, securityToken, expairesTime
 
 	return nil
 }
