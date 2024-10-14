@@ -31,9 +31,6 @@ func DataSourceRabbitMQFlavors() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(InstanceTypeSingle), string(InstanceTypeCluster),
-				}, false),
 			},
 			"arch_type": {
 				Type:     schema.TypeString,

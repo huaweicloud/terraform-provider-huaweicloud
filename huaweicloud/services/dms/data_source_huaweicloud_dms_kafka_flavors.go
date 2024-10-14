@@ -20,14 +20,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-type InstanceType string
-
 type ChargingMode string
 
 var (
-	InstanceTypeSingle  InstanceType = "single"
-	InstanceTypeCluster InstanceType = "cluster"
-
 	ChargingModePrePaid  ChargingMode = "prePaid"
 	ChargingModePostPaid ChargingMode = "postPaid"
 
@@ -60,9 +55,6 @@ func DataSourceKafkaFlavors() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(InstanceTypeSingle), string(InstanceTypeCluster),
-				}, false),
 			},
 			"arch_type": {
 				Type:     schema.TypeString,
