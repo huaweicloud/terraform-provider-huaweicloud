@@ -391,7 +391,7 @@ type AsyncInvokeConfigOpts struct {
 	// The maximum validity period of a message.
 	MaxAsyncEventAgeInSeconds int `json:"max_async_event_age_in_seconds,omitempty"`
 	// The maximum number of retry attempts to be made if asynchronous invocation fails.
-	MaxAsyncRetryAttempts int `json:"max_async_retry_attempts,omitempty"`
+	MaxAsyncRetryAttempts *int `json:"max_async_retry_attempts,omitempty"`
 	// Asynchronous invocation target.
 	DestinationConfig DestinationConfig `json:"destination_config,omitempty"`
 	// Whether to enable asynchronous invocation status persistence.

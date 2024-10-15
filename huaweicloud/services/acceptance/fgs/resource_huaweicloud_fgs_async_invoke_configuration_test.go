@@ -67,7 +67,7 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "function_urn",
 						"huaweicloud_fgs_function.test", "urn"),
 					resource.TestCheckResourceAttr(rName, "max_async_event_age_in_seconds", "4000"),
-					resource.TestCheckResourceAttr(rName, "max_async_retry_attempts", "3"),
+					resource.TestCheckResourceAttr(rName, "max_async_retry_attempts", "0"),
 					resource.TestCheckResourceAttr(rName, "on_success.0.destination", "DIS"),
 					resource.TestCheckResourceAttrSet(rName, "on_success.0.param"),
 					resource.TestCheckResourceAttr(rName, "on_failure.0.destination", "FunctionGraph"),
@@ -170,7 +170,7 @@ resource "huaweicloud_fgs_function" "test" {
 resource "huaweicloud_fgs_async_invoke_configuration" "test" {
   function_urn                   = huaweicloud_fgs_function.test.urn
   max_async_event_age_in_seconds = 4000
-  max_async_retry_attempts       = 3
+  max_async_retry_attempts       = 0
 
   on_success {
     destination = "DIS"
