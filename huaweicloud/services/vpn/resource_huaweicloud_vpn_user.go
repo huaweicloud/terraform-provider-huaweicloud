@@ -67,6 +67,7 @@ func ResourceUser() *schema.Resource {
 			"user_group_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The user group ID.`,
 			},
 			"user_group_name": {
