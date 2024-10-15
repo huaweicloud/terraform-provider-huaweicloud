@@ -126,9 +126,12 @@ func restartInstance(ctx context.Context, d *schema.ResourceData, client *golang
 
 	d.SetId(instanceId)
 
-	err = checkGaussDBMySQLJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("error waiting for restarting instance(%s) job to complete: %s", instanceId, err)
+	// if delay is true, then the task is scheduled task, it is not needed to wait
+	if !d.Get("delay").(bool) {
+		err = checkGaussDBMySQLJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return fmt.Errorf("error waiting for restarting instance(%s) job to complete: %s", instanceId, err)
+		}
 	}
 
 	return nil
@@ -182,10 +185,13 @@ func restartNode(ctx context.Context, d *schema.ResourceData, client *golangsdk.
 
 	d.SetId(nodeId)
 
-	err = checkGaussDBMySQLJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("error waiting for restarting instance(%s) node(%s) job to complete: %s", instanceId,
-			nodeId, err)
+	// if delay is true, then the task is scheduled task, it is not needed to wait
+	if !d.Get("delay").(bool) {
+		err = checkGaussDBMySQLJobFinish(ctx, client, jobId.(string), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return fmt.Errorf("error waiting for restarting instance(%s) node(%s) job to complete: %s", instanceId,
+				nodeId, err)
+		}
 	}
 
 	return nil

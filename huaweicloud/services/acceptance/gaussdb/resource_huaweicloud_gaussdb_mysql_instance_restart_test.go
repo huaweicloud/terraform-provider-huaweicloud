@@ -64,6 +64,12 @@ func TestAccGaussDBMysqlInstanceRestart_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 				),
 			},
+			{
+				Config: testAccGaussDBMysqlInstanceRestart_instance_delay(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+				),
+			},
 		},
 	})
 }
@@ -86,6 +92,12 @@ func TestAccGaussDBMysqlInstanceRestart_node(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGaussDBMysqlInstanceRestart_node(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+				),
+			},
+			{
+				Config: testAccGaussDBMysqlInstanceRestart_node_delay(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 				),
@@ -137,5 +149,26 @@ func testAccGaussDBMysqlInstanceRestart_node(rName string) string {
 resource "huaweicloud_gaussdb_mysql_instance_restart" "test" {
   instance_id = huaweicloud_gaussdb_mysql_instance.test.id
   node_id     = huaweicloud_gaussdb_mysql_instance.test.nodes[0].id
+}`, testAccGaussDBMysqlInstanceRestart_base(rName))
+}
+
+func testAccGaussDBMysqlInstanceRestart_instance_delay(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_gaussdb_mysql_instance_restart" "test" {
+  instance_id = huaweicloud_gaussdb_mysql_instance.test.id
+  delay       = true
+}`, testAccGaussDBMysqlInstanceRestart_base(rName))
+}
+
+func testAccGaussDBMysqlInstanceRestart_node_delay(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_gaussdb_mysql_instance_restart" "test" {
+  instance_id = huaweicloud_gaussdb_mysql_instance.test.id
+  node_id     = huaweicloud_gaussdb_mysql_instance.test.nodes[0].id
+  delay       = true
 }`, testAccGaussDBMysqlInstanceRestart_base(rName))
 }
