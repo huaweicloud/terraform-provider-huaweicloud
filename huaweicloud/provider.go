@@ -1363,7 +1363,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_script":         coc.ResourceScript(),
 			"huaweicloud_coc_script_execute": coc.ResourceScriptExecute(),
 
-			"huaweicloud_cph_server": cph.ResourceCphServer(),
+			"huaweicloud_cph_server":      cph.ResourceCphServer(),
+			"huaweicloud_cph_adb_command": cph.ResourceAdbCommand(),
 
 			"huaweicloud_cse_microservice":                      cse.ResourceMicroservice(),
 			"huaweicloud_cse_microservice_engine":               cse.ResourceMicroserviceEngine(),

@@ -131,6 +131,8 @@ var (
 	HW_CCM_SSL_CERTIFICATE_ID          = os.Getenv("HW_CCM_SSL_CERTIFICATE_ID")
 	HW_CCM_ENABLE_FLAG                 = os.Getenv("HW_CCM_ENABLE_FLAG")
 
+	HW_CPH_OBS_OBJECT_PATH = os.Getenv("HW_CPH_OBS_OBJECT_PATH")
+
 	HW_DMS_ENVIRONMENT   = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER = os.Getenv("HW_SMS_SOURCE_SERVER")
 
@@ -2403,5 +2405,12 @@ func TestAccPrecheckDewFlag(t *testing.T) {
 func TestAccPrecheckDbssInstanceId(t *testing.T) {
 	if HW_DBSS_INSATNCE_ID == "" {
 		t.Skip("HW_DBSS_INSATNCE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckCphAdbObjectPath(t *testing.T) {
+	if HW_CPH_OBS_OBJECT_PATH == "" {
+		t.Skip("HW_CPH_OBS_OBJECT_PATH must be set for the acceptance test")
 	}
 }
