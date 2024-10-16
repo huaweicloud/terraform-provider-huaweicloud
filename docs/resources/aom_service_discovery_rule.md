@@ -95,6 +95,8 @@ The following arguments are supported:
   + `args` - (Required, List) Specifies the command. This is a list of strings.
   + `value` - (Required, List) Specifies the log path. This is a list of strings.
 
+* `description` - (Optional, String) Specifies the rule description.
+
 <a name="name_rules_object"></a>
 The `name_rules` block supports:
 
@@ -121,9 +123,11 @@ The `service_name_rule` block and `application_name_rule` block support:
 
 * `name_type` - (Required, String) Specifies the value type. The value can be **cmdLineHash**, **cmdLine**, **env**
 and **str**.
+
 * `args` - (Required, List) Specifies the input value.
-* `value` - (Optional, List) Specifies the application name, which is mandatory only when the value of
-`name_type` is **cmdLineHash**.
+
+* `value` - (Optional, List) Specifies the application name, which is mandatory only when the value of `name_type` is
+  **cmdLineHash**.
 
 ## Attribute Reference
 
@@ -132,6 +136,8 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - Indicates the resource ID of the service discovery rule. The value is the rule name.
 
 * `rule_id` - The rule ID in uuid format.
+
+* `created_at` - The rule create time.
 
 ## Timeouts
 
