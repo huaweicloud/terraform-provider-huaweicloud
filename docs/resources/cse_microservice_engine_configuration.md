@@ -15,6 +15,36 @@ Manages a key/value pair under a dedicated microservice engine (2.0+) resource w
 
 ## Example Usage
 
+### Create an engine configuration and the engine RBAC authentication is disabled
+
+```hcl
+variable "microservice_engine_id" {} // Enable the EIP access
+
+data "huaweicloud_cse_microservice_engines" "test" {}
+
+locals {
+  fileter_engines = [for o in data.huaweicloud_cse_microservice_engines.test.engines : o if o.id == var.microservice_engine_id]
+}
+
+resource "huaweicloud_cse_microservice_engine_configuration" "test" {
+  auth_address    = local.fileter_engines[0].service_registry_addresses[0].public
+  connect_address = local.fileter_engines[0].config_center_addresses[0].public
+
+  key        = "demo"
+  value_type = "json"
+  value      = jsonencode({
+    "foo": "bar"
+  })
+  status     = "enabled"
+
+  tags = {
+    owner = "terraform"
+  }
+}
+```
+
+### Create an engine configuration and the engine RBAC authentication is enabled
+
 ```hcl
 variable "microservice_engine_id" {} // Enable the EIP access
 variable "microservice_engine_admin_password" {}
