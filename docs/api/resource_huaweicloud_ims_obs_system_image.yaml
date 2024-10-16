@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_images_image
+    title: resource_huaweicloud_ims_obs_system_image
     description: ""
 schemes:
     - https
@@ -8,8 +8,8 @@ host: huaweicloud.com
 tags:
     - name: IMS
 paths:
-    /v1/cloudimages/wholeimages/action:
-        POST:
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
             tag: IMS
     /v2/{project_id}/images/{image_id}/tags:
         GET:
@@ -29,8 +29,3 @@ paths:
     /v2/images/{image_id}:
         DELETE:
             tag: IMS
-        GET:
-            tag: IMS
-    /v3/{project_id}/backups/{backup_id}:
-        GET:
-            tag: CBR

@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dws_public_domain_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DWS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}/dns:
+        DELETE:
+            tag: DWS
+        GET:
+            tag: DWS
+        POST:
+            tag: DWS

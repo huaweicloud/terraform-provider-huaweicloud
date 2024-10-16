@@ -8,6 +8,12 @@ host: huaweicloud.com
 tags:
     - name: SecMaster
 paths:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{id}:
+        PUT:
+            tag: SecMaster
+    /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}:
+        GET:
+            tag: SecMaster
     /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions:
         GET:
             tag: SecMaster

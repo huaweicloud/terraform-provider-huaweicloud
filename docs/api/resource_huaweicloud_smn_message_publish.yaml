@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_smn_message_publish
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SMN
+paths:
+    /v2/{project_id}/notifications/topics/{topic_urn}/publish:
+        POST:
+            tag: SMN

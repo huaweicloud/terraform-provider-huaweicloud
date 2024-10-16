@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ces_one_click_alarm
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CES
+paths:
+    /v2/{project_id}/one-click-alarms:
+        GET:
+            tag: CES
+        POST:
+            tag: CES
+    /v2/{project_id}/one-click-alarms/{one_click_alarm_id}/notifications:
+        PUT:
+            tag: CES
+    /v2/{project_id}/one-click-alarms/batch-delete:
+        POST:
+            tag: CES

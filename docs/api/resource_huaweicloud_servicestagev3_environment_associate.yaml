@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_servicestagev3_environment_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ServiceStage
+paths:
+    /v3/{project_id}/cas/environments/{environment_id}/resources:
+        GET:
+            tag: ServiceStage
+        PUT:
+            tag: ServiceStage

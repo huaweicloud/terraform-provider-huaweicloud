@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_antiddos_default_protection_policy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ANTI-DDOS
+paths:
+    /v1/{project_id}/antiddos/default-config:
+        DELETE:
+            tag: ANTI-DDOS
+        GET:
+            tag: ANTI-DDOS
+        POST:
+            tag: ANTI-DDOS

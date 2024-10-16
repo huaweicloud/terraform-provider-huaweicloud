@@ -21,3 +21,9 @@ paths:
             tag: VPCEP
         PUT:
             tag: VPCEP
+    /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}/policy:
+        PUT:
+            tag: VPCEP
+    /v1/{project_id}/vpc-endpoints/{vpc_endpoint_id}/routetables:
+        PUT:
+            tag: VPCEP

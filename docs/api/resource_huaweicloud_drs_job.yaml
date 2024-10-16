@@ -52,6 +52,9 @@ paths:
     /v3/{project_id}/jobs/batch-status:
         POST:
             tag: DRS
+    /v3/{project_id}/jobs/batch-sync-policy:
+        POST:
+            tag: DRS
     /v3/{project_id}/jobs/cluster/batch-connection:
         POST:
             tag: DRS

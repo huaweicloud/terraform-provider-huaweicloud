@@ -11,7 +11,8 @@ paths:
     /v2/{project_id}/clusters/{cluster_id}/workload/queues:
         DELETE:
             tag: DWS
-        GET:
-            tag: DWS
         PUT:
+            tag: DWS
+    /v2/{project_id}/clusters/{cluster_id}/workload/queues{queue_name}:
+        GET:
             tag: DWS

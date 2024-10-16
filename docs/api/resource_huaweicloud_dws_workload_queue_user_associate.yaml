@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dws_workload_queue_user_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DWS
+paths:
+    /v2/{project_id}/clusters/{cluster_id}/workload/queues/{queue_name}/users:
+        GET:
+            tag: DWS
+    /v2/{project_id}/clusters/{cluster_id}/workload/queues/{queue_name}/users/batch-create:
+        POST:
+            tag: DWS
+    /v2/{project_id}/clusters/{cluster_id}/workload/queues/{queue_name}/users/batch-delete:
+        POST:
+            tag: DWS

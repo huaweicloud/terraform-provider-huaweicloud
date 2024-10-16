@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aom_alarm_group_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AOM
+paths:
+    /v2/{project_id}/alert/group-rules:
+        DELETE:
+            tag: AOM
+        GET:
+            tag: AOM
+        POST:
+            tag: AOM
+        PUT:
+            tag: AOM

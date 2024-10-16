@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpc_eipv3_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EIP
+paths:
+    /v3/{project_id}/eip/publicips/{publicip_id}:
+        GET:
+            tag: EIP
+    /v3/{project_id}/eip/publicips/{publicip_id}/associate-instance:
+        POST:
+            tag: EIP
+    /v3/{project_id}/eip/publicips/{publicip_id}/disassociate-instance:
+        POST:
+            tag: EIP

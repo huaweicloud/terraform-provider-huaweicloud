@@ -9,12 +9,13 @@ tags:
     - name: SecMaster
 paths:
     /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/{playbook_id}/versions:
-        GET:
-            tag: SecMaster
         POST:
             tag: SecMaster
     /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{id}:
         DELETE:
             tag: SecMaster
         PUT:
+            tag: SecMaster
+    /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}:
+        GET:
             tag: SecMaster

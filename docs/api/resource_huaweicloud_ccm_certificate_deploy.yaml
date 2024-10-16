@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ccm_certificate_deploy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SCM
+paths:
+    /v3/scm/certificates/{certificate_id}/deploy:
+        POST:
+            tag: SCM

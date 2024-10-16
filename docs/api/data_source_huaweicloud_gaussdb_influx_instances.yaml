@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_gaussdb_influx_instances
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDBforNoSQL
+paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: GaussDBforNoSQL

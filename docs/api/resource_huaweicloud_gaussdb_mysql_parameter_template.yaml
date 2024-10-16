@@ -18,3 +18,9 @@ paths:
             tag: GaussDBforMySQL
         PUT:
             tag: GaussDBforMySQL
+    /v3/{project_id}/configurations/{configuration_id}/copy:
+        POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/configurations/{configuration_id}/copy:
+        POST:
+            tag: GaussDBforMySQL

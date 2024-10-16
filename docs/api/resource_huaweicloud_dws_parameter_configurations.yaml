@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dws_parameter_configurations
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DWS
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: DWS
+    /v1.0/{project_id}/clusters/{cluster_id}/configurations:
+        GET:
+            tag: DWS
+    /v1.0/{project_id}/clusters/{cluster_id}/configurations/{configuration_id}:
+        GET:
+            tag: DWS
+    /v2/{project_id}/clusters/{cluster_id}/configurations/{configuration_id}:
+        PUT:
+            tag: DWS

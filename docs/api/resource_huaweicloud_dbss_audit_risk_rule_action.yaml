@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dbss_audit_risk_rule_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DBSS
+paths:
+    /v1/{project_id}/{instance_id}/audit/rule/risk/switch:
+        POST:
+            tag: DBSS
