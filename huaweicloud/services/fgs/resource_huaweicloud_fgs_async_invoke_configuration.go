@@ -111,7 +111,7 @@ func modifyAsyncInvokeConfiguration(client *golangsdk.ServiceClient, d *schema.R
 		functionUrn = d.Get("function_urn").(string)
 		opts        = function.AsyncInvokeConfigOpts{
 			MaxAsyncEventAgeInSeconds: d.Get("max_async_event_age_in_seconds").(int),
-			MaxAsyncRetryAttempts:     d.Get("max_async_retry_attempts").(int),
+			MaxAsyncRetryAttempts:     utils.Int(d.Get("max_async_retry_attempts").(int)),
 			EnableAsyncStatusLog:      utils.Bool(d.Get("enable_async_status_log").(bool)),
 		}
 		destinationConfig = function.DestinationConfig{}
