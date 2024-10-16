@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -52,8 +51,8 @@ func getKmsGrantResourceFunc(cfg *config.Config, state *terraform.ResourceState)
 	}
 
 	searchPath := fmt.Sprintf("grants[?grant_id=='%s']|[0]", state.Primary.ID)
-	r, err := jmespath.Search(searchPath, grantResponseBody)
-	if err != nil || r == nil {
+	r := utils.PathSearch(searchPath, grantResponseBody, nil)
+	if r == nil {
 		return nil, fmt.Errorf("error retrieving KMS grant: %s", err)
 	}
 

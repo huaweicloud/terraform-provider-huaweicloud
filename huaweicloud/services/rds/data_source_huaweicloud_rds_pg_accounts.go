@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk/pagination"
 
@@ -204,12 +203,9 @@ func filterPgAccounts(d *schema.ResourceData, resp interface{}) []interface{} {
 
 func flattenAttributes(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("attributes", resp)
-	if err != nil {
+	curJson := utils.PathSearch("attributes", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
-	}
-	if curJson == nil {
-		return nil
 	}
 
 	rst = []interface{}{

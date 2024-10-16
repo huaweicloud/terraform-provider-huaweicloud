@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -186,11 +185,11 @@ func resourceDatasourceConnectionCreate(ctx context.Context, d *schema.ResourceD
 			utils.PathSearch("message", createDatasourceConnectionRespBody, "Message Not Found"))
 	}
 
-	id, err := jmespath.Search("connection_id", createDatasourceConnectionRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DatasourceConnection: ID is not found in API response")
+	connectionId := utils.PathSearch("connection_id", createDatasourceConnectionRespBody, "").(string)
+	if connectionId == "" {
+		return diag.Errorf("unable to find the connection ID of the DLI Data Source from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(connectionId)
 
 	// add routes
 	if v, ok := d.GetOk("routes"); ok {

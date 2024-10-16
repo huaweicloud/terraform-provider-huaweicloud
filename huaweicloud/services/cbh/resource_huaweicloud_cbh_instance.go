@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
@@ -238,12 +237,12 @@ func resourceCBHInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 	expression := fmt.Sprintf("[?resource_info.resource_id == '%s']|[0].server_id", resourceId)
-	serverId, err := jmespath.Search(expression, instances)
-	if err != nil || serverId == nil {
-		return diag.Errorf("error creating CBH instance: ID is not found in API response")
+	serverId := utils.PathSearch(expression, instances, "").(string)
+	if serverId == "" {
+		return diag.Errorf("unable to find the CBH instance ID from the API response")
 	}
 
-	d.SetId(serverId.(string))
+	d.SetId(serverId)
 	if err := waitingForCBHInstanceActive(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for CBH instance (%s) creation to active: %s", d.Id(), err)
 	}
@@ -294,11 +293,11 @@ func createCBHInstance(client *golangsdk.ServiceClient, d *schema.ResourceData, 
 		return "", err
 	}
 
-	orderId, err := jmespath.Search("order_id", createInstanceRespBody)
-	if err != nil || orderId == nil {
-		return "", fmt.Errorf("error creating CBH instance: order_id is not found in API response")
+	orderId := utils.PathSearch("order_id", createInstanceRespBody, "").(string)
+	if orderId == "" {
+		return "", fmt.Errorf("unable to find the order ID of the CBH instance from the API response")
 	}
-	return orderId.(string), nil
+	return orderId, nil
 }
 
 func buildCreateCBHInstanceBodyParam(d *schema.ResourceData, region string, epsId string, publicIp interface{}) map[string]interface{} {
@@ -887,12 +886,12 @@ func updateFlavorId(client *golangsdk.ServiceClient, resourceId, flavorId string
 		return "", err
 	}
 
-	orderId, err := jmespath.Search("order_id", updateInstanceRespBody)
-	if err != nil || orderId == nil {
-		return "", fmt.Errorf("error updating CBH instance flavor: order_id is not found in API response")
+	orderId := utils.PathSearch("order_id", updateInstanceRespBody, "").(string)
+	if orderId == "" {
+		return "", fmt.Errorf("unable to find the order ID of the CBH HA instance flavor from the API response")
 	}
 
-	return orderId.(string), nil
+	return orderId, nil
 }
 
 func updateAttachDiskSize(client *golangsdk.ServiceClient, resourceId string, attachDiskSize int32) (string, error) {
@@ -916,12 +915,12 @@ func updateAttachDiskSize(client *golangsdk.ServiceClient, resourceId string, at
 		return "", err
 	}
 
-	orderId, err := jmespath.Search("order_id", updateInstanceRespBody)
-	if err != nil || orderId == nil {
-		return "", fmt.Errorf("error updating CBH instance additional disk: order_id is not found in API response")
+	orderId := utils.PathSearch("order_id", updateInstanceRespBody, "").(string)
+	if orderId == "" {
+		return "", fmt.Errorf("unable to find the order ID of the CBH HA instance additional disk from the API response")
 	}
 
-	return orderId.(string), nil
+	return orderId, nil
 }
 
 func updateSecurityGroup(client *golangsdk.ServiceClient, resourceId string, sgIDs []string) error {

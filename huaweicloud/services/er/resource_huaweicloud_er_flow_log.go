@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -153,12 +152,12 @@ func resourceFlowLogCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("flow_log.id", createInstanceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating flow log: ID is not found in API response")
+	flowLogId := utils.PathSearch("flow_log.id", createInstanceRespBody, "").(string)
+	if flowLogId == "" {
+		return diag.Errorf("unable to find the ER flow log ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(flowLogId)
 
 	err = flowLogWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -379,11 +378,7 @@ func flowLogStatusRefreshFunc(d *schema.ResourceData, meta interface{}, isDelete
 			return nil, "ERROR", err
 		}
 
-		state, err := jmespath.Search("flow_log.state", respBody)
-		status := state.(string)
-		if err != nil {
-			return nil, "ERROR", fmt.Errorf("error parse %s from response body", status)
-		}
+		status := utils.PathSearch("flow_log.state", respBody, "").(string)
 
 		if utils.StrSliceContains([]string{"fail"}, status) {
 			return respBody, "", fmt.Errorf("unexpected status: '%s'", status)

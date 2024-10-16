@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -129,11 +128,11 @@ func resourceKmsGrantCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("grant_id", createGrantRespBody)
-	if err != nil {
-		return diag.Errorf("error creating KMS grant: ID is not found in API response")
+	grantId := utils.PathSearch("grant_id", createGrantRespBody, "").(string)
+	if grantId == "" {
+		return diag.Errorf("unable to find the KMS grant ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(grantId)
 
 	return resourceKmsGrantRead(ctx, d, meta)
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -138,11 +137,11 @@ func resourceV3EnvironmentCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	envId, err := jmespath.Search("id", respBody)
-	if err != nil || envId == nil {
-		return diag.Errorf("failed to find the environment ID from the API response: %s", err)
+	envId := utils.PathSearch("id", respBody, "").(string)
+	if envId == "" {
+		return diag.Errorf("unable to find the environment ID from the API response")
 	}
-	d.SetId(envId.(string))
+	d.SetId(envId)
 
 	return resourceV3EnvironmentRead(ctx, d, meta)
 }

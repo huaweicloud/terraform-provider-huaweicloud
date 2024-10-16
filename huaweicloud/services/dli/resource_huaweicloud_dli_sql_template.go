@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -112,11 +111,11 @@ func resourceSQLTemplateCreate(ctx context.Context, d *schema.ResourceData, meta
 			utils.PathSearch("message", createSQLTemplateRespBody, "Message Not Found"))
 	}
 
-	id, err := jmespath.Search("sql_id", createSQLTemplateRespBody)
-	if err != nil {
-		return diag.Errorf("error creating SQLTemplate: ID is not found in API response")
+	templateId := utils.PathSearch("sql_id", createSQLTemplateRespBody, "").(string)
+	if templateId == "" {
+		return diag.Errorf("unable to find the SQL template ID the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(templateId)
 
 	return resourceSQLTemplateRead(ctx, d, meta)
 }

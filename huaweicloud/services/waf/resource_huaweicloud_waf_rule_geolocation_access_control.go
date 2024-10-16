@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -119,11 +118,11 @@ func resourceRuleGeolocationCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createRespBody)
-	if err != nil {
-		return diag.Errorf("error creating WAF geolocation access control rule: ID is not found in API response")
+	ruleId := utils.PathSearch("id", createRespBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("unable to find the control rule ID of the WAF geolocation access from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 
 	return resourceRuleGeolocationRead(ctx, d, meta)
 }

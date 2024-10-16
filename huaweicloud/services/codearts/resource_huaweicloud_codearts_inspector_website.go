@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -175,11 +174,11 @@ func createInspectorWebsite(client *golangsdk.ServiceClient, d *schema.ResourceD
 		return err
 	}
 
-	id, err := jmespath.Search("domain_id", createRespBody)
-	if err != nil || id == nil {
-		return fmt.Errorf("ID is not found in API response")
+	domainId := utils.PathSearch("domain_id", createRespBody, "").(string)
+	if domainId == "" {
+		return fmt.Errorf("unable to find the CodeArts website domain ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(domainId)
 
 	return nil
 }

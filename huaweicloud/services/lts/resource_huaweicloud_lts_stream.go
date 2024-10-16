@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -107,12 +106,12 @@ func resourceStreamCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("log_stream_id", respBody)
-	if err != nil {
-		return diag.Errorf("error creating flow log: ID is not found in API response")
+	streamId := utils.PathSearch("log_stream_id", respBody, "").(string)
+	if streamId == "" {
+		return diag.Errorf("unable to find the LTS stream ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(streamId)
 
 	if _, ok := d.GetOk("tags"); ok {
 		streamId := d.Id()

@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -99,11 +98,11 @@ func resourceArchitectureReviewerCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	userName, err := jmespath.Search("data.value.user_name", createReviewerBody)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Studio architecture Reviewer: user_name is not found in API response")
+	userName := utils.PathSearch("data.value.user_name", createReviewerBody, "").(string)
+	if userName == "" {
+		return diag.Errorf("unable to find the user name of the DataArts Studio architecture reviewer from the API response")
 	}
-	d.SetId(userName.(string))
+	d.SetId(userName)
 
 	return resourceArchitectureReviewerRead(ctx, d, meta)
 }

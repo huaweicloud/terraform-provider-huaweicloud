@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -48,12 +47,8 @@ func getServiceGroupMemberResourceFunc(cfg *config.Config, state *terraform.Reso
 		return nil, err
 	}
 
-	members, err := jmespath.Search("data.records", getServiceGroupMemberRespBody)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing data.records from response= %#v", getServiceGroupMemberRespBody)
-	}
-
-	return cfw.FilterServiceGroupMembers(members.([]interface{}), state.Primary.ID)
+	members := utils.PathSearch("data.records", getServiceGroupMemberRespBody, make([]interface{}, 0)).([]interface{})
+	return cfw.FilterServiceGroupMembers(members, state.Primary.ID)
 }
 
 func TestAccServiceGroupMember_basic(t *testing.T) {

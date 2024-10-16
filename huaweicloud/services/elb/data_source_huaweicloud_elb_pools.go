@@ -9,14 +9,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk/pagination"
 
@@ -424,12 +422,8 @@ func flattenPoolMembers(resp interface{}) []interface{} {
 
 func flattenPoolPersistence(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("session_persistence", resp)
-	if err != nil {
-		log.Printf("[ERROR] Error parsing persistence from response= %#v", resp)
-		return rst
-	}
-	if curJson == nil {
+	curJson := utils.PathSearch("session_persistence", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return nil
 	}
 

@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -192,12 +191,12 @@ func resourceDeployGroupCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating CodeArts deploy group: %s", err)
 	}
 
-	id, err := jmespath.Search("id", createRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating CodeArts deploy group: ID is not found in API response")
+	groupId := utils.PathSearch("id", createRespBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("unable to find the CodeArts deploy group ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(groupId)
 
 	return resourceDeployGroupRead(ctx, d, meta)
 }
@@ -268,8 +267,8 @@ func resourceDeployGroupRead(_ context.Context, d *schema.ResourceData, meta int
 }
 
 func flattenDeployGroupCreatedBy(resp interface{}) []interface{} {
-	curJson, err := jmespath.Search("created_by", resp)
-	if err != nil {
+	curJson := utils.PathSearch("created_by", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error flatten created_by, cause this field is not found in API response")
 		return nil
 	}
@@ -283,8 +282,8 @@ func flattenDeployGroupCreatedBy(resp interface{}) []interface{} {
 }
 
 func flattenDeployGroupPermission(resp interface{}) []interface{} {
-	curJson, err := jmespath.Search("permission", resp)
-	if err != nil {
+	curJson := utils.PathSearch("permission", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error flatten permission, cause this field is not found in API response")
 		return nil
 	}

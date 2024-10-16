@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -131,11 +130,11 @@ func resourceSecurityPoliciesV3Create(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("security_policy.id", createSecurityPolicyRespBody)
-	if err != nil {
-		return diag.Errorf("error creating SecurityPolicies: ID is not found in API response")
+	policyId := utils.PathSearch("security_policy.id", createSecurityPolicyRespBody, "").(string)
+	if policyId == "" {
+		return diag.Errorf("unable to find the security policy ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(policyId)
 
 	return resourceSecurityPoliciesV3Read(ctx, d, meta)
 }

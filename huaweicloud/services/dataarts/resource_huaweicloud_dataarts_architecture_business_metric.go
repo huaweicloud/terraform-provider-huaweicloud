@@ -247,11 +247,11 @@ func resourceBusinessMetricCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.value.id", createRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Architecture business metric: ID is not found in API response")
+	metricId := utils.PathSearch("data.value.id", createRespBody, "").(string)
+	if metricId == "" {
+		return diag.Errorf("unable to find the DataArts Architecture business metric ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(metricId)
 
 	return resourceBusinessMetricRead(ctx, d, meta)
 }

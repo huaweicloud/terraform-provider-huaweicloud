@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -222,11 +221,11 @@ func resourceHostAccessConfigCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("access_config_id", createHostAccessConfigRespBody)
-	if err != nil {
-		return diag.Errorf("error creating host access config: ID is not found in API response")
+	accessId := utils.PathSearch("access_config_id", createHostAccessConfigRespBody, "").(string)
+	if accessId == "" {
+		return diag.Errorf("unable to find the LTS host access ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(accessId)
 
 	return resourceHostAccessConfigRead(ctx, d, meta)
 }

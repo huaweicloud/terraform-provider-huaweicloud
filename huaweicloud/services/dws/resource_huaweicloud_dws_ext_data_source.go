@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -164,11 +163,11 @@ func resourceDwsExtDataSourceCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createDwsExtDataSourceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DWS external data source: ID is not found in API response")
+	dataSourceId := utils.PathSearch("id", createDwsExtDataSourceRespBody, "").(string)
+	if dataSourceId == "" {
+		return diag.Errorf("unable to find the DWS external data source ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(dataSourceId)
 
 	jobId := utils.PathSearch("job_id", createDwsExtDataSourceRespBody, nil)
 	if jobId == nil {
@@ -455,12 +454,7 @@ func extDataSourceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`status`, extDataSourceWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`status`, extDataSourceWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"SUCCESS",

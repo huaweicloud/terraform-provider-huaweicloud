@@ -177,12 +177,12 @@ func resourceScriptCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data", createScriptRespBody)
-	if err != nil {
-		return diag.Errorf("error creating COC script: ID is not found in API response")
+	scriptId := utils.PathSearch("data", createScriptRespBody, "").(string)
+	if scriptId == "" {
+		return diag.Errorf("unable to find the COC script ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(scriptId)
 	return resourceScriptRead(ctx, d, meta)
 }
 

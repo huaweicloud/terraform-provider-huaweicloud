@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -108,11 +107,11 @@ func resourceRuleKnownAttackCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createRespBody)
-	if err != nil {
-		return diag.Errorf("error creating WAF known attack source rule: ID is not found in API response")
+	ruleId := utils.PathSearch("id", createRespBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("unable to find the rule ID of the WAF known attack source from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 
 	return resourceRuleKnownAttackRead(ctx, d, meta)
 }

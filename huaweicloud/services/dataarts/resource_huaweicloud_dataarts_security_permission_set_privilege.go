@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -155,12 +154,12 @@ func resourceSecurityPermissionSetPrivilegeCreate(ctx context.Context, d *schema
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", respBody)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Security permission set privilege: ID is not found in API response")
+	privilegeId := utils.PathSearch("id", respBody, "").(string)
+	if privilegeId == "" {
+		return diag.Errorf("unable to find the privilege ID of the DataArts Security permission set from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(privilegeId)
 	return resourceSecurityPermissionSetPrivilegeRead(ctx, d, meta)
 }
 

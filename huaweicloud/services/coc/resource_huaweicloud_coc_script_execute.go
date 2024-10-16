@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -202,12 +201,11 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data", createExecuteRespBody)
-	if err != nil {
-		return diag.Errorf("error executing COC script: ID is not found in API response")
+	ticketID := utils.PathSearch("data", createExecuteRespBody, "").(string)
+	if ticketID == "" {
+		return diag.Errorf("unable to find the executing COC script ID from the API response")
 	}
 
-	ticketID := id.(string)
 	d.SetId(ticketID)
 
 	// waiting the execution status of COC script

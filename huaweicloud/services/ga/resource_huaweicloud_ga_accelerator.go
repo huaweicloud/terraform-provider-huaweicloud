@@ -8,7 +8,6 @@ package ga
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -17,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -220,15 +218,15 @@ func resourceAcceleratorCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("accelerator.id", createAcceleratorRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Accelerator: ID is not found in API response")
+	acceleratorId := utils.PathSearch("accelerator.id", createAcceleratorRespBody, "").(string)
+	if acceleratorId == "" {
+		return diag.Errorf("unable to find the accelerator ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(acceleratorId)
 
 	err = createAcceleratorWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the Create of Accelerator (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the Create of Accelerator (%s) to complete: %s", acceleratorId, err)
 	}
 	return resourceAcceleratorRead(ctx, d, meta)
 }
@@ -303,12 +301,7 @@ func createAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`accelerator.status`, createAcceleratorWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `accelerator.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`accelerator.status`, createAcceleratorWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"ACTIVE",
@@ -389,13 +382,11 @@ func resourceAcceleratorRead(_ context.Context, d *schema.ResourceData, meta int
 
 func flattenGetAcceleratorResponseBodyAccelerateIp(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("accelerator.ip_sets", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing accelerator.ip_sets from response= %#v", resp)
-		return rst
+	curArray := utils.PathSearch("accelerator.ip_sets", resp, make([]interface{}, 0)).([]interface{})
+	if len(curArray) < 1 {
+		return nil
 	}
 
-	curArray := curJson.([]interface{})
 	rst = []interface{}{
 		map[string]interface{}{
 			"area":       utils.PathSearch("area", curArray[0], nil),
@@ -416,9 +407,8 @@ func flattenGetAcceleratorResponseBodyResourceTag(resp interface{}) map[string]i
 
 func flattenGetAcceleratorResponseBodyFrozenInfo(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("accelerator.frozen_info", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing accelerator.frozen_info from response= %#v", resp)
+	curJson := utils.PathSearch("accelerator.frozen_info", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -596,12 +586,7 @@ func updateAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`accelerator.status`, updateAcceleratorWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `accelerator.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`accelerator.status`, updateAcceleratorWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"ACTIVE",
@@ -703,12 +688,7 @@ func deleteAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`accelerator.status`, deleteAcceleratorWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `accelerator.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`accelerator.status`, deleteAcceleratorWaitingRespBody, "").(string)
 
 			unexpectedStatus := []string{
 				"ERROR",

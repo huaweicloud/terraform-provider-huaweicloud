@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -50,21 +49,12 @@ func getBlackWhiteListResourceFunc(cfg *config.Config, state *terraform.Resource
 		return nil, err
 	}
 
-	lists, err := jmespath.Search("data.records", getBlackWhiteListRespBody)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing data.records from response= %#v", getBlackWhiteListRespBody)
-	}
-
-	val, ok := lists.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("data.records is not a list, data.records= %#v", lists)
-	}
-
-	if len(val) != 1 {
+	list := utils.PathSearch("data.records", getBlackWhiteListRespBody, make([]interface{}, 0)).([]interface{})
+	if len(list) != 1 {
 		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return val[0], nil
+	return list[0], nil
 }
 
 func TestAccBlackWhiteList_basic(t *testing.T) {

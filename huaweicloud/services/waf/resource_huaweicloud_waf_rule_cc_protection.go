@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -222,11 +221,11 @@ func resourceRuleCCProtectionCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createRuleCCProtectionRespBody)
-	if err != nil {
-		return diag.Errorf("error creating RuleCCProtection: ID is not found in API response")
+	protectionId := utils.PathSearch("id", createRuleCCProtectionRespBody, "").(string)
+	if protectionId == "" {
+		return diag.Errorf("unable to find the CC protection ID of the WAF rule from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(protectionId)
 
 	if d.Get("status").(int) == 0 {
 		if err := updateRuleStatus(createClient, d, cfg, "cc"); err != nil {

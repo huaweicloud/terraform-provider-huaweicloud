@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -164,11 +163,11 @@ func resourceBackupCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("backup.id", createBackupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Backup: ID is not found in API response")
+	backupId := utils.PathSearch("backup.id", createBackupRespBody, "").(string)
+	if backupId == "" {
+		return diag.Errorf("unable to find the RDS backup ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(backupId)
 
 	err = createBackupWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -256,16 +255,16 @@ func createBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			status, err := jmespath.Search(`backups[0].status`, createBackupWaitingRespBody)
+			status := utils.PathSearch(`backups[0].status`, createBackupWaitingRespBody, "").(string)
 			if err != nil {
 				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `backups[0].status`)
 			}
 
-			if utils.StrSliceContains(strings.Split(`FAILED`, ","), status.(string)) {
-				return createBackupWaitingRespBody, status.(string), nil
+			if utils.StrSliceContains(strings.Split(`FAILED`, ","), status) {
+				return createBackupWaitingRespBody, status, nil
 			}
 
-			if utils.StrSliceContains(strings.Split(`COMPLETED`, ","), status.(string)) {
+			if utils.StrSliceContains(strings.Split(`COMPLETED`, ","), status) {
 				return createBackupWaitingRespBody, "COMPLETED", nil
 			}
 
@@ -467,11 +466,7 @@ func deleteBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`total_count`, deleteBackupWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `total_count`)
-			}
-
+			statusRaw := utils.PathSearch(`total_count`, deleteBackupWaitingRespBody, nil)
 			status := fmt.Sprintf("%v", statusRaw)
 			if utils.StrSliceContains(strings.Split(`1`, ","), status) {
 				return deleteBackupWaitingRespBody, "PENDING", nil

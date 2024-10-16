@@ -122,12 +122,12 @@ func resourceInstanceFeatureCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	featureName, err := jmespath.Search("name", creatRespBody)
-	if err != nil {
-		return diag.Errorf("error creating feature (%s) configuration under specified instance (%s): %s", name, instanceId, err)
+	featureName := utils.PathSearch("name", creatRespBody, "").(string)
+	if featureName == "" {
+		return diag.Errorf("unable to find the feature name from the API response")
 	}
 
-	d.SetId(featureName.(string))
+	d.SetId(featureName)
 	return resourceInstanceFeatureRead(ctx, d, meta)
 }
 

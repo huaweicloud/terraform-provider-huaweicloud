@@ -170,12 +170,12 @@ func resourceArchitectureCodeTableCreate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.value.id", createCodeTableRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Architecture code table: %s is not found in API response", "id")
+	tableId := utils.PathSearch("data.value.id", createCodeTableRespBody, "").(string)
+	if tableId == "" {
+		return diag.Errorf("unable to find the DataArts Architecture code table ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(tableId)
 
 	return resourceArchitectureCodeTableRead(ctx, d, meta)
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk/pagination"
 
@@ -422,13 +421,11 @@ func flattenActiveStandbyPoolMember(resp interface{}) []interface{} {
 
 func flattenActiveStandbyPoolMonitor(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("healthmonitor", resp)
-	if err != nil {
-		return rst
-	}
-	if curJson == nil {
+	curJson := utils.PathSearch("healthmonitor", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return nil
 	}
+
 	rst = []interface{}{
 		map[string]interface{}{
 			"name":             utils.PathSearch("name", curJson, nil),

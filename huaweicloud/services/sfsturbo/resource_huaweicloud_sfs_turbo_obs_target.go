@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -136,12 +135,12 @@ func resourceOBSTargetCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("target_id", createObsTargetRespBody)
-	if err != nil {
-		return diag.Errorf("error creating OBS target to the SFS Turbo: ID is not found in API response")
+	targetId := utils.PathSearch("target_id", createObsTargetRespBody, "").(string)
+	if targetId == "" {
+		return diag.Errorf("unable to find the OBS target ID (source for the SFS Turbo) from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(targetId)
 
 	err = obsTargetWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -282,18 +281,13 @@ func obsTargetStatusRefreshFunc(d *schema.ResourceData, meta interface{}, isDele
 			return nil, "ERROR", err
 		}
 
-		state, err := jmespath.Search("lifecycle", respBody)
-		if err != nil {
-			return nil, "ERROR", fmt.Errorf("error parsing %s from response body", state)
+		status := utils.PathSearch("lifecycle", respBody, "").(string)
+
+		if utils.StrSliceContains([]string{"MISCONFIGURED", "FAILED"}, status) {
+			return respBody, "ERROR", fmt.Errorf("unexpected status: '%s'", status)
 		}
 
-		statusRaw := fmt.Sprintf("%v", state)
-
-		if utils.StrSliceContains([]string{"MISCONFIGURED", "FAILED"}, statusRaw) {
-			return respBody, "ERROR", fmt.Errorf("unexpected status: '%s'", statusRaw)
-		}
-
-		if utils.StrSliceContains([]string{"AVAILABLE"}, statusRaw) {
+		if utils.StrSliceContains([]string{"AVAILABLE"}, status) {
 			return respBody, "COMPLETED", nil
 		}
 

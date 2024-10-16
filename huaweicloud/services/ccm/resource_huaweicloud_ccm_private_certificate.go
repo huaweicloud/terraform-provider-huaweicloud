@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -264,17 +263,17 @@ func resourcePrivateCertificateCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("certificate_id", createCertificateRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating CCM private certificate: certificate_id is not found in API response")
+	certId := utils.PathSearch("certificate_id", createCertificateRespBody, "").(string)
+	if certId == "" {
+		return diag.Errorf("unable to find the CCM private certificate ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(certId)
 
 	// deal tags
 	createTagsHttpUrl := "v1/private-certificates/{certificate_id}/tags/create"
 	tags := d.Get("tags").(map[string]interface{})
-	if err := createTags(id.(string), client, tags, createTagsHttpUrl, "{certificate_id}"); err != nil {
+	if err := createTags(certId, client, tags, createTagsHttpUrl, "{certificate_id}"); err != nil {
 		return diag.FromErr(err)
 	}
 

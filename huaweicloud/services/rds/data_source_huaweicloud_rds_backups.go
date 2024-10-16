@@ -9,7 +9,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -17,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk/pagination"
 
@@ -258,9 +256,8 @@ func flattenListBackupsBodyBackup(resp interface{}) []interface{} {
 
 func flattenBackupDatastore(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("datastore", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing datastore from response= %#v", resp)
+	curJson := utils.PathSearch("datastore", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

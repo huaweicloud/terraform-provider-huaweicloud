@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -110,12 +109,12 @@ func resourcePermissionSetCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("permission_set.permission_set_id", createPermissionSetRespBody)
-	if err != nil {
-		return diag.Errorf("error creating permission set: ID is not found in API response")
+	permissionSetId := utils.PathSearch("permission_set.permission_set_id", createPermissionSetRespBody, "").(string)
+	if permissionSetId == "" {
+		return diag.Errorf("unable to find the Identity Center permission set ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(permissionSetId)
 	return resourcePermissionSetRead(ctx, d, meta)
 }
 

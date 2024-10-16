@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -143,11 +142,11 @@ func resourceHealthCheckCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("health_check.id", createHealthCheckRespBody)
-	if err != nil {
-		return diag.Errorf("error creating HealthCheck: ID is not found in API response")
+	healthCheckId := utils.PathSearch("health_check.id", createHealthCheckRespBody, "").(string)
+	if healthCheckId == "" {
+		return diag.Errorf("unable to find the GA health check ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(healthCheckId)
 
 	err = createHealthCheckWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -207,12 +206,7 @@ func createHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`health_check.status`, createHealthCheckWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `health_check.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`health_check.status`, createHealthCheckWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"ACTIVE",
@@ -388,12 +382,7 @@ func updateHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`health_check.status`, updateHealthCheckWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `health_check.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`health_check.status`, updateHealthCheckWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"ACTIVE",
@@ -495,12 +484,7 @@ func deleteHealthCheckWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`health_check.status`, deleteHealthCheckWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `health_check.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`health_check.status`, deleteHealthCheckWaitingRespBody, "").(string)
 
 			unexpectedStatus := []string{
 				"ERROR",

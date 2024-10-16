@@ -12,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dsc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -48,7 +47,7 @@ func getAssetObsResourceFunc(cfg *config.Config, state *terraform.ResourceState)
 		return nil, fmt.Errorf("error retrieving AssetObs: %s", err)
 	}
 
-	assetObs := dsc.FilterAssetObs(getAssetObsRespBody, state.Primary.ID, "id")
+	assetObs := utils.PathSearch(fmt.Sprintf("buckets[?id=='%s']|[0]", state.Primary.ID), getAssetObsRespBody, nil)
 	if assetObs == nil {
 		return nil, fmt.Errorf("error retrieving AssetObs: %s", err)
 	}

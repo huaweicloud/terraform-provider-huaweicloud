@@ -178,11 +178,11 @@ func resourceDwsDisasterRecoveryTaskCreate(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("disaster_recovery.id", respBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DWS disaster recovery: ID is not found in API response")
+	recoveryId := utils.PathSearch("disaster_recovery.id", respBody, "").(string)
+	if recoveryId == "" {
+		return diag.Errorf("unable to find the DWS disaster recovery ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(recoveryId)
 	// When the disaster recovery successfully created, the status is unstart.
 	err = waitingForActionDisasterRecvery(ctx, d, client, "unstart", d.Timeout(schema.TimeoutCreate))
 	if err != nil {

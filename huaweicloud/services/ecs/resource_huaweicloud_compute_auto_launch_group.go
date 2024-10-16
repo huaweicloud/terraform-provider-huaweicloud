@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -208,11 +207,11 @@ func resourceAutoLaunchGroupCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("auto_launch_group_id", createAutoLaunchGroupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating auto launch group: %s is not found in API response", "id")
+	groupId := utils.PathSearch("auto_launch_group_id", createAutoLaunchGroupRespBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("unable to find the auto launch group ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(groupId)
 
 	return resourceAutoLaunchGroupRead(ctx, d, meta)
 }

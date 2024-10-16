@@ -7,13 +7,11 @@ package as
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -203,11 +201,11 @@ func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("scaling_policy_id", createBandwidthPolicyRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating AS bandwidth policy: ID is not found in API response")
+	policyId := utils.PathSearch("scaling_policy_id", createBandwidthPolicyRespBody, "").(string)
+	if policyId == "" {
+		return diag.Errorf("unable to find the AS bandwidth policy ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(policyId)
 
 	return resourceASBandWidthPolicyRead(ctx, d, meta)
 }
@@ -313,9 +311,8 @@ func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, me
 
 func flattenGetBandwidthPolicyResponseBodyScalingPolicyAction(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("scaling_policy.scaling_policy_action", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing scaling_policy_action from response= %#v", resp)
+	curJson := utils.PathSearch("scaling_policy.scaling_policy_action", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -331,9 +328,8 @@ func flattenGetBandwidthPolicyResponseBodyScalingPolicyAction(resp interface{}) 
 
 func flattenGetBandwidthPolicyResponseBodyScheduledPolicy(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("scaling_policy.scheduled_policy", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing scheduled_policy from response= %#v", resp)
+	curJson := utils.PathSearch("scaling_policy.scheduled_policy", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

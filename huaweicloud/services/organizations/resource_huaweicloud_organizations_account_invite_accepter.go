@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -125,11 +124,11 @@ func resourceAccountInviteAccepterCreate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("handshake.id", createAccountInviteAccepterRespBody)
-	if err != nil {
-		return diag.Errorf("error creating AccountInviteAccepter: ID is not found in API response")
+	handshakeId := utils.PathSearch("handshake.id", createAccountInviteAccepterRespBody, "").(string)
+	if handshakeId == "" {
+		return diag.Errorf("unable to find the handshake ID of the Organizations account invite accepter from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(handshakeId)
 
 	return resourceAccountInviteAccepterRead(ctx, d, meta)
 }

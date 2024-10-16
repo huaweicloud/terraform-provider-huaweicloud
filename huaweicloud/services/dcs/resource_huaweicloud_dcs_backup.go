@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -159,17 +158,17 @@ func resourceDcsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("backup_id", createBackupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DCS backup: backup_id is not found in API response")
+	backupId := utils.PathSearch("backup_id", createBackupRespBody, "").(string)
+	if backupId == "" {
+		return diag.Errorf("unable to find the DCS backup ID from the API response")
 	}
 
-	d.SetId(instanceId + "/" + id.(string))
+	d.SetId(instanceId + "/" + backupId)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"waiting", "backuping"},
 		Target:       []string{"succeed"},
-		Refresh:      dcsBackupStatusRefreshFunc(instanceId, id.(string), createBackupClient),
+		Refresh:      dcsBackupStatusRefreshFunc(instanceId, backupId, createBackupClient),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -177,7 +176,7 @@ func resourceDcsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for backup (%s) to become ready: %s", id.(string), err)
+		return diag.Errorf("error waiting for backup (%s) to become ready: %s", backupId, err)
 	}
 
 	return resourceDcsBackupRead(ctx, d, meta)

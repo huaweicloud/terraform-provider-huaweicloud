@@ -132,13 +132,12 @@ func resourceGaussDBDatabaseCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", createGaussDBDatabaseRespBody)
-	if err != nil {
-		return diag.Errorf("error creating GaussDB MySQL database: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", createGaussDBDatabaseRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find the job ID of the GaussDB MySQL database from the API response")
 	}
 
-	err = waitForJobComplete(ctx, createGaussDBDatabaseClient, d.Timeout(schema.TimeoutCreate),
-		instanceID, jobId.(string))
+	err = waitForJobComplete(ctx, createGaussDBDatabaseClient, d.Timeout(schema.TimeoutCreate), instanceID, jobId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -312,13 +311,12 @@ func resourceGaussDBDatabaseUpdate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", updateGaussDBDatabaseRespBody)
-	if err != nil {
-		return diag.Errorf("error updating GaussDB MySQL database: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", updateGaussDBDatabaseRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find the job ID of the GaussDB MySQL database from the API response")
 	}
 
-	err = waitForJobComplete(ctx, updateGaussDBDatabaseClient, d.Timeout(schema.TimeoutUpdate),
-		instanceID, jobId.(string))
+	err = waitForJobComplete(ctx, updateGaussDBDatabaseClient, d.Timeout(schema.TimeoutUpdate), instanceID, jobId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -387,13 +385,12 @@ func resourceGaussDBDatabaseDelete(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", deleteGaussDBDatabaseRespBody)
-	if err != nil {
-		return diag.Errorf("error deleting GaussDB MySQL database: jobId is not found in API response")
+	jobId := utils.PathSearch("job_id", deleteGaussDBDatabaseRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find the job ID of the GaussDB MySQL database from the API response")
 	}
 
-	err = waitForJobComplete(ctx, deleteGaussDBDatabaseClient, d.Timeout(schema.TimeoutDelete),
-		instanceID, jobId.(string))
+	err = waitForJobComplete(ctx, deleteGaussDBDatabaseClient, d.Timeout(schema.TimeoutDelete), instanceID, jobId)
 	if err != nil {
 		return diag.FromErr(err)
 	}

@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -90,12 +89,12 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("log_group_id", respBody)
-	if err != nil {
-		return diag.Errorf("error creating log group: ID is not found in API response")
+	logGroupId := utils.PathSearch("log_group_id", respBody, "").(string)
+	if logGroupId == "" {
+		return diag.Errorf("unable to find the LTS log group ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(logGroupId)
 
 	if _, ok := d.GetOk("tags"); ok {
 		groupId := d.Id()

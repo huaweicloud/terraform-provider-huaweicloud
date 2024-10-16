@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -108,11 +107,11 @@ func resourceIdentityCenterGroupCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("group_id", createIdentityCenterGroupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Identity Center Group: ID is not found in API response")
+	groupId := utils.PathSearch("group_id", createIdentityCenterGroupRespBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("unable to find the Identity Center group ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(groupId)
 
 	return resourceIdentityCenterGroupRead(ctx, d, meta)
 }

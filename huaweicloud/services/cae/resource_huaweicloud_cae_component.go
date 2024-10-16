@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -298,12 +297,12 @@ func resourceComponentCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("metadata.id", createRespBody)
-	if err != nil {
-		return diag.Errorf("error creating CAE component: ID is not found in API response")
+	componentId := utils.PathSearch("metadata.id", createRespBody, "").(string)
+	if componentId == "" {
+		return diag.Errorf("unable to find the CAE component ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(componentId)
 	return resourceComponentRead(ctx, d, meta)
 }
 

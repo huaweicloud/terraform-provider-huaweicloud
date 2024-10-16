@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -135,16 +134,16 @@ func resourceComputeInterfaceAttachCreate(ctx context.Context, d *schema.Resourc
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	jobID, err := jmespath.Search("job_id", createNicRespBody)
-	if err != nil {
-		return diag.Errorf("error creating ECS NIC: `job_id` not found in API response")
+	jobID := utils.PathSearch("job_id", createNicRespBody, "").(string)
+	if jobID == "" {
+		return diag.Errorf("unable to find the job ID of the ECS NIC from the API response")
 	}
 
 	// Wait for job status become `SUCCESS`.
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
-		Refresh:      getJobRefreshFunc(computeClient, jobID.(string)),
+		Refresh:      getJobRefreshFunc(computeClient, jobID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -154,12 +153,11 @@ func resourceComputeInterfaceAttachCreate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("Error waiting for ECS NIC created: %s", err)
 	}
 
-	// Get `nic_id`
-	id, err := jmespath.Search("entities.sub_jobs|[0].entities.nic_id", result)
-	if err != nil {
-		return diag.Errorf("error creating ECS NIC: `nic_id` not found in API response")
+	nicId := utils.PathSearch("entities.sub_jobs|[0].entities.nic_id", result, "").(string)
+	if nicId == "" {
+		return diag.Errorf("unable to find the ECS NIC ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(nicId)
 
 	// Update port if `source_dest_check` is false, else skip update,
 	// because `security_group_ids` is set when NIC is created.
@@ -230,16 +228,13 @@ func getJobRefreshFunc(computeClient *golangsdk.ServiceClient, id string) resour
 		if err != nil {
 			return nil, "ERROR", err
 		}
-		status, err := jmespath.Search("status", result)
-		if err != nil {
-			return nil, "ERROR", err
-		}
-		if status.(string) == "FAIL" {
+		status := utils.PathSearch("status", result, "").(string)
+		if status == "FAIL" {
 			err = fmt.Errorf("job failed with code %s: %s",
 				utils.PathSearch("error_code", result, ""), utils.PathSearch("fail_reason", result, ""))
 			return nil, "FAIL", err
 		}
-		if status.(string) == "SUCCESS" {
+		if status == "SUCCESS" {
 			return result, "SUCCESS", nil
 		}
 		return result, "PENDING", nil
@@ -308,9 +303,8 @@ func resourceComputeInterfaceAttachRead(_ context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	jsonPaths := fmt.Sprintf("interfaceAttachments[?port_id=='%s']|[0]", id)
-	nic, err := jmespath.Search(jsonPaths, listNicsRespBody)
-	if err != nil {
+	nic := utils.PathSearch(fmt.Sprintf("interfaceAttachments[?port_id=='%s']|[0]", id), listNicsRespBody, nil)
+	if nic == nil {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
@@ -411,15 +405,15 @@ func resourceComputeInterfaceAttachDelete(ctx context.Context, d *schema.Resourc
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	jobID, err := jmespath.Search("job_id", deleteNicRespBody)
-	if err != nil {
-		return diag.Errorf("error deleting ECS NIC: `job_id` not found in API response")
+	jobID := utils.PathSearch("job_id", deleteNicRespBody, "").(string)
+	if jobID == "" {
+		return diag.Errorf("unable to find the job ID of the ECS NIC from the API response")
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"SUCCESS"},
-		Refresh:      getJobRefreshFunc(computeClient, jobID.(string)),
+		Refresh:      getJobRefreshFunc(computeClient, jobID),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,

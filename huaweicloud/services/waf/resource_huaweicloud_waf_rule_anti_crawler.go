@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -156,11 +155,11 @@ func createAntiCrawlerRule(client *golangsdk.ServiceClient, httpPath string, d *
 		return err
 	}
 
-	id, err := jmespath.Search("id", createRespBody)
-	if err != nil {
-		return fmt.Errorf("error creating WAF anti crawler rule: ID is not found in API response")
+	ruleId := utils.PathSearch("id", createRespBody, "").(string)
+	if ruleId == "" {
+		return fmt.Errorf("unable to find the WAF anti crawler rule ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 	return nil
 }
 

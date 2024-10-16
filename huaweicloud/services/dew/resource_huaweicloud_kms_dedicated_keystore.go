@@ -94,11 +94,11 @@ func resourceKmsDedicatedKeystoreCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("keystore.keystore_id", createRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating KMS dedicated keystore: ID is not found in API response")
+	keystoreId := utils.PathSearch("keystore.keystore_id", createRespBody, "").(string)
+	if keystoreId == "" {
+		return diag.Errorf("unable to find the KMS dedicated keystore ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(keystoreId)
 
 	return resourceKmsDedicatedKeystoreRead(ctx, d, meta)
 }

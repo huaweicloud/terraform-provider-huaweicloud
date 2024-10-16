@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -400,11 +399,11 @@ func resourceEventStreamCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("eventStreamingID", respBody)
-	if err != nil {
-		return diag.Errorf("unable to find the resource ID in API response")
+	streamId := utils.PathSearch("eventStreamingID", respBody, "").(string)
+	if streamId == "" {
+		return diag.Errorf("unable to find the stream ID from API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(streamId)
 
 	if action, ok := d.GetOk("action"); ok && action.(string) == "START" {
 		err := doActionForEventStream(client, d.Id(), action.(string))

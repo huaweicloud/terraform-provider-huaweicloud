@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -105,11 +104,11 @@ func resourceSearchCriteriaCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createSearchCriteriaRespBody)
-	if err != nil {
-		return diag.Errorf("error creating LTS search criteria : ID is not found in API response")
+	criteriaId := utils.PathSearch("id", createSearchCriteriaRespBody, "").(string)
+	if criteriaId == "" {
+		return diag.Errorf("unable to find the LTS search criteria ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(criteriaId)
 
 	return resourceSearchCriteriaRead(ctx, d, meta)
 }

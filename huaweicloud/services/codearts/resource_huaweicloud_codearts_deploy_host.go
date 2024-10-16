@@ -8,13 +8,11 @@ package codearts
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -216,11 +214,11 @@ func resourceDeployHostCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CodeArts deploy host: %s", err)
 	}
 
-	id, err := jmespath.Search("id", createRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating CodeArts deploy host: ID is not found in API response")
+	hostId := utils.PathSearch("id", createRespBody, "").(string)
+	if hostId == "" {
+		return diag.Errorf("unable to find the CodeArts deploy host ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(hostId)
 
 	if d.Get("sync").(bool) {
 		if err := updateDeployHost(client, d); err != nil {
@@ -329,9 +327,8 @@ func resourceDeployHostRead(_ context.Context, d *schema.ResourceData, meta inte
 }
 
 func flattenDeployHostPermission(resp interface{}) []interface{} {
-	curJson, err := jmespath.Search("permission", resp)
-	if err != nil {
-		log.Printf("[ERROR] error flatten permission, cause this field is not found in API response")
+	curJson := utils.PathSearch("permission", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return nil
 	}
 

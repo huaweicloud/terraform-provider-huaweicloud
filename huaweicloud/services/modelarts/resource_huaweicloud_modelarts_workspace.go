@@ -146,11 +146,11 @@ func resourceModelartsWorkspaceCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createWorkspaceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Modelarts workspace: ID is not found in API response")
+	workspaceId := utils.PathSearch("id", createWorkspaceRespBody, "").(string)
+	if workspaceId == "" {
+		return diag.Errorf("unable to find the ModelArts workspace ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(workspaceId)
 	return resourceModelartsWorkspaceRead(ctx, d, meta)
 }
 
@@ -410,12 +410,7 @@ func deleteWorkspaceWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`status`, deleteWorkspaceWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`status`, deleteWorkspaceWaitingRespBody, "").(string)
 
 			pendingStatus := []string{
 				"DELETING",

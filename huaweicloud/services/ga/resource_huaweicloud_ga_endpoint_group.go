@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -140,11 +139,11 @@ func resourceEndpointGroupCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("endpoint_group.id", createEndpointGroupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating EndpointGroup: ID is not found in API response")
+	groupId := utils.PathSearch("endpoint_group.id", createEndpointGroupRespBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("unable to find the GA endpoint group ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(groupId)
 
 	err = createEndpointGroupWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -220,12 +219,7 @@ func createEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`endpoint_group.status`, createEndpointGroupWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `endpoint_group.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`endpoint_group.status`, createEndpointGroupWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"ACTIVE",
@@ -407,12 +401,7 @@ func updateEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`endpoint_group.status`, updateEndpointGroupWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `endpoint_group.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`endpoint_group.status`, updateEndpointGroupWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"ACTIVE",
@@ -514,12 +503,7 @@ func deleteEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`endpoint_group.status`, deleteEndpointGroupWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `endpoint_group.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`endpoint_group.status`, deleteEndpointGroupWaitingRespBody, "").(string)
 
 			unexpectedStatus := []string{
 				"ERROR",

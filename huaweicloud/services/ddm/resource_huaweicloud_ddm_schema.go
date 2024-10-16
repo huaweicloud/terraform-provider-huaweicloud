@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -232,13 +231,9 @@ func resourceDdmSchemaCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	schemas, err := jmespath.Search("databases", createSchemaRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DdmSchema: Schema is not found in API response %s", err)
-	}
-	schemaName, err := jmespath.Search("name", schemas.([]interface{})[0])
-	if err != nil {
-		return diag.Errorf("error creating DdmSchema: Schema name is not found in API response %s", err)
+	schemaName := utils.PathSearch("databases[0].name", createSchemaRespBody, "").(string)
+	if schemaName == "" {
+		return diag.Errorf("unable to find the DDM schema name from the API response %s", err)
 	}
 
 	err = waitForInstanceRunning(ctx, d, createSchemaClient, instanceID, schema.TimeoutCreate)
@@ -246,7 +241,7 @@ func resourceDdmSchemaCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	d.SetId(instanceID + "/" + schemaName.(string))
+	d.SetId(instanceID + "/" + schemaName)
 
 	return resourceDdmSchemaRead(ctx, d, meta)
 }

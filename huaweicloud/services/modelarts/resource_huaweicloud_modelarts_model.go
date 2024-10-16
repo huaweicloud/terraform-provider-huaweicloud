@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -379,11 +378,11 @@ func resourceModelartsModelCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("model_id", createModelRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Modelarts model: ID is not found in API response")
+	modelId := utils.PathSearch("model_id", createModelRespBody, "").(string)
+	if modelId == "" {
+		return diag.Errorf("unable to find the ModelArts model ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(modelId)
 
 	err = createModelWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -547,12 +546,7 @@ func createModelWaitingForStateCompleted(ctx context.Context, d *schema.Resource
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`model_status`, createModelWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `model_status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`model_status`, createModelWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"published",

@@ -5,9 +5,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/jmespath/go-jmespath"
-
 	"github.com/chnsz/golangsdk/pagination"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 type MarkerPager struct {
@@ -39,12 +39,8 @@ func (p MarkerPager) LastMarker() (string, error) {
 		return "", err
 	}
 
-	m, err := jmespath.Search(p.NextExp, rst.Value())
-	log.Printf("[DEBUG] [MarkerPager] [%v] last marker: %s, nextPath: %s, error: %s", p.uuid, m, p.NextExp, err)
-	next, _ := m.(string)
-	if next == "" || err != nil {
-		return "", nil
-	}
+	next := utils.PathSearch(p.NextExp, rst.Value(), "").(string)
+	log.Printf("[DEBUG] [MarkerPager] [%v] last marker: %s, nextPath: %s, error: %s", p.uuid, next, p.NextExp, err)
 
 	if !strings.Contains(next, "?") {
 		return next, nil

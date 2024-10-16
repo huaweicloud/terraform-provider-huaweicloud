@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -140,11 +139,11 @@ func resourceDataConnectionCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("connector_id", createDataConnectionRespBody)
-	if err != nil {
-		return diag.Errorf("error creating data connection: ID is not found in API response")
+	connectorId := utils.PathSearch("connector_id", createDataConnectionRespBody, "").(string)
+	if connectorId == "" {
+		return diag.Errorf("unable to find the data connection ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(connectorId)
 
 	return resourceDataConnectionRead(ctx, d, meta)
 }
@@ -237,14 +236,10 @@ func resourceDataConnectionRead(_ context.Context, d *schema.ResourceData, meta 
 
 func flattenGetDataConnectionResponseBodySourceInfo(resp interface{}, password string) []interface{} {
 	var rst []interface{}
-	curString, err := jmespath.Search("source_info", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing source_info from response= %#v", resp)
-		return rst
-	}
+	curString := utils.PathSearch("source_info", resp, "").(string)
 
 	var curJson map[string]interface{}
-	err = json.Unmarshal([]byte(curString.(string)), &curJson)
+	err := json.Unmarshal([]byte(curString), &curJson)
 	if err != nil {
 		log.Printf("[ERROR] error parsing source_info to json= %#v", resp)
 		return rst

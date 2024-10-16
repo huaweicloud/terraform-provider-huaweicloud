@@ -9,7 +9,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -991,9 +990,8 @@ func flattenGetJobResponseBodyNode(resp interface{}) []interface{} {
 
 func flattenNodeLocation(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("location", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing location from response= %#v", resp)
+	curJson := utils.PathSearch("location", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1040,9 +1038,8 @@ func flattenNodeProperties(resp interface{}) []interface{} {
 
 func flattenNodeEventTrigger(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("eventTrigger", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing eventTrigger from response= %#v", resp)
+	curJson := utils.PathSearch("eventTrigger", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1060,9 +1057,8 @@ func flattenNodeEventTrigger(resp interface{}) []interface{} {
 
 func flattenNodeCronTrigger(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("cron_trigger", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing cron_trigger from response= %#v", resp)
+	curJson := utils.PathSearch("cron_trigger", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1083,9 +1079,8 @@ func flattenNodeCronTrigger(resp interface{}) []interface{} {
 
 func flattenCronTriggerDependJobs(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("dependJobs", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing dependJobs from response= %#v", resp)
+	curJson := utils.PathSearch("dependJobs", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1101,9 +1096,8 @@ func flattenCronTriggerDependJobs(resp interface{}) []interface{} {
 
 func flattenGetJobResponseBodySchedule(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("schedule", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing schedule from response= %#v", resp)
+	curJson := utils.PathSearch("schedule", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1119,9 +1113,8 @@ func flattenGetJobResponseBodySchedule(resp interface{}) []interface{} {
 
 func flattenScheduleCron(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("cron", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing cron from response= %#v", resp)
+	curJson := utils.PathSearch("cron", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1140,9 +1133,8 @@ func flattenScheduleCron(resp interface{}) []interface{} {
 
 func flattenCronDependJobs(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("dependJobs", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing dependJobs from response= %#v", resp)
+	curJson := utils.PathSearch("dependJobs", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1158,9 +1150,8 @@ func flattenCronDependJobs(resp interface{}) []interface{} {
 
 func flattenScheduleEvent(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("event", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing event from response= %#v", resp)
+	curJson := utils.PathSearch("event", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1195,9 +1186,8 @@ func flattenGetJobResponseBodyParam(resp interface{}) []interface{} {
 
 func flattenGetJobResponseBodyBasicConfig(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("basicConfig", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing basicConfig from response= %#v", resp)
+	curJson := utils.PathSearch("basicConfig", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

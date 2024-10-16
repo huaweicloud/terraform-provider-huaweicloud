@@ -193,11 +193,11 @@ func resourceCustomTemplateCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createCustomTemplateRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DCS custom template: ID is not found in API response")
+	templateId := utils.PathSearch("id", createCustomTemplateRespBody, "").(string)
+	if templateId == "" {
+		return diag.Errorf("unable to find the DCS custom template ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(templateId)
 
 	return resourceCustomTemplateRead(ctx, d, meta)
 }

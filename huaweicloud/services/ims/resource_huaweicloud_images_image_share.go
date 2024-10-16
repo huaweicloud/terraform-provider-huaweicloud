@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -157,12 +156,12 @@ func dealImageMembers(ctx context.Context, d *schema.ResourceData, cfg *config.C
 		return err
 	}
 
-	jobId, err := jmespath.Search("job_id", imageMemberRespBody)
-	if err != nil {
-		return fmt.Errorf("error %s IMS image share: job_id is not found in API response", operateMethod)
+	jobId := utils.PathSearch("job_id", imageMemberRespBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("unable to find the job ID of the IMS image share from the API response")
 	}
 
-	return waitForImageShareOrAcceptJobSuccess(ctx, d, imageMemberClient, jobId.(string), timeout)
+	return waitForImageShareOrAcceptJobSuccess(ctx, d, imageMemberClient, jobId, timeout)
 }
 
 func buildImageMemberBodyParams(imageId string, projectIds []interface{}) map[string]interface{} {

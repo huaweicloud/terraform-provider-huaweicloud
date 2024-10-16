@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -123,11 +122,11 @@ func resourceV3ApplicationCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	appId, err := jmespath.Search("id", respBody)
-	if err != nil || appId == nil {
-		return diag.Errorf("failed to find the application ID from the API response: %s", err)
+	appId := utils.PathSearch("id", respBody, "").(string)
+	if appId == "" {
+		return diag.Errorf("failed to find the application ID from the API response")
 	}
-	d.SetId(appId.(string))
+	d.SetId(appId)
 
 	return resourceV3ApplicationRead(ctx, d, meta)
 }

@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -173,11 +172,11 @@ func resourceListenerCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("listener.id", createListenerRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Listener: ID is not found in API response")
+	listenerId := utils.PathSearch("listener.id", createListenerRespBody, "").(string)
+	if listenerId == "" {
+		return diag.Errorf("unable to find the GA listener ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(listenerId)
 
 	err = createListenerWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -255,12 +254,7 @@ func createListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`listener.status`, createListenerWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `listener.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`listener.status`, createListenerWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"ACTIVE",
@@ -500,12 +494,7 @@ func updateListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`listener.status`, updateListenerWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `listener.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`listener.status`, updateListenerWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"ACTIVE",
@@ -606,12 +595,7 @@ func deleteListenerWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`listener.status`, deleteListenerWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `listener.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`listener.status`, deleteListenerWaitingRespBody, "").(string)
 
 			unexpectedStatus := []string{
 				"ERROR",
