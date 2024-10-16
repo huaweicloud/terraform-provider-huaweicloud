@@ -72,6 +72,7 @@ type ctxType string
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/configurations
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/backups/encryption
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/database-version
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -451,6 +452,18 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Computed: true,
 			},
 			"private_dns_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"upgrade_flag": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"current_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"current_kernel_version": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -965,6 +978,8 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	mErr = multierror.Append(mErr, setAutoScaling(d, client, instanceID))
 	// set backup encryption
 	mErr = multierror.Append(mErr, setEncryption(d, client, instanceID))
+	// set version
+	mErr = multierror.Append(mErr, setVersion(d, client, instanceID)...)
 
 	// save tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
@@ -1167,6 +1182,19 @@ func setEncryption(d *schema.ResourceData, client *golangsdk.ServiceClient, inst
 		return nil
 	}
 	return d.Set("encryption_status", strings.ToUpper(resp.EncryptionStatus))
+}
+
+func setVersion(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) []error {
+	resp, err := instances.GetVersion(client, instanceId).Extract()
+	if err != nil {
+		log.Printf("[WARN] query instance %s version failed: %s", instanceId, err)
+		return nil
+	}
+	var errs []error
+	errs = append(errs, d.Set("upgrade_flag", resp.UpgradeFlag))
+	errs = append(errs, d.Set("current_version", resp.Datastore.CurrentVersion))
+	errs = append(errs, d.Set("current_kernel_version", resp.Datastore.CurrentKernelVersion))
+	return errs
 }
 
 func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
