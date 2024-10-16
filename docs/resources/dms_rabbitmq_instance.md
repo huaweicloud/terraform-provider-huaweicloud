@@ -80,6 +80,76 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
 }
 ```
 
+### RabbitMQ Instance with version AMQP for cluster
+
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "security_group_id" {}
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "cluster.professional"
+}
+
+locals {
+  flavor = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0]
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name              = "test-amqp-cluster"
+  vpc_id            = var.vpc_id
+  network_id        = var.subnet_id
+  security_group_id = var.security_group_id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = local.flavor.id
+  engine_version    = "AMQP-0-9-1"
+  storage_space     = 2 * local.flavor.properties[0].min_storage_per_node
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  enable_acl        = true
+}
+```
+
+### RabbitMQ Instance with version AMQP for single
+
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "security_group_id" {}
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_dms_rabbitmq_flavors" "test" {
+  type = "single.professional"
+}
+
+locals {
+  flavor = data.huaweicloud_dms_rabbitmq_flavors.test.flavors[0]
+}
+
+resource "huaweicloud_dms_rabbitmq_instance" "test" {
+  name              = "test-amqp-single"
+  vpc_id            = var.vpc_id
+  network_id        = var.subnet_id
+  security_group_id = var.security_group_id
+
+  availability_zones = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  flavor_id         = local.flavor.id
+  engine_version    = "AMQP-0-9-1"
+  storage_space     = local.flavor.properties[0].min_storage_per_node
+  storage_spec_code = local.flavor.ios[0].storage_spec_code
+  enable_acl        = true
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -119,10 +189,10 @@ The following arguments are supported:
 
   ~> The parameter behavior of `availability_zones` has been changed from `list` to `set`.
 
-* `access_user` - (Required, String, ForceNew) Specifies a username. A username consists of 4 to 64 characters and
+* `access_user` - (Optional, String, ForceNew) Specifies a username. A username consists of 4 to 64 characters and
   supports only letters, digits, and hyphens (-). Changing this creates a new instance resource.
 
-* `password` - (Required, String) Specifies the password of the DMS RabbitMQ instance. A password must meet
+* `password` - (Optional, String) Specifies the password of the DMS RabbitMQ instance. A password must meet
   the following complexity requirements: Must be 8 to 32 characters long. Must contain at least 2 of the following
   character types: lowercase letters, uppercase letters, digits,
   and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
@@ -175,6 +245,9 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are **true** and **false**.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the DMS RabbitMQ instance.
+
+* `enable_acl` - (Optional, Bool) Whether to enable ACL. Only available when `engine_version` is **AMQP-0-9-1**.
+  Default to **false**.
 
 ## Attribute Reference
 

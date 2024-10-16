@@ -83,16 +83,6 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"access_user": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"password": {
-				Type:      schema.TypeString,
-				Sensitive: true,
-				Required:  true,
-			},
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -106,6 +96,16 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+			"access_user": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"password": {
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
 			},
 			"availability_zones": {
 				// There is a problem with order of elements in Availability Zone list returned by RabbitMQ API.
@@ -151,6 +151,11 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"enable_acl": {
+				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
@@ -343,6 +348,7 @@ func createRabbitMQInstanceWithFlavor(ctx context.Context, d *schema.ResourceDat
 		SslEnable:           d.Get("ssl_enable").(bool),
 		StorageSpecCode:     d.Get("storage_spec_code").(string),
 		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+		EnableAcl:           d.Get("enable_acl").(bool),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -626,6 +632,7 @@ func resourceDmsRabbitmqInstanceRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("extend_times", v.ExtendTimes),
 		d.Set("is_logical_volume", v.IsLogicalVolume),
 		d.Set("public_ip_address", v.PublicIPAddress),
+		d.Set("enable_acl", v.EnableAcl),
 	)
 
 	// set tags
@@ -666,7 +673,7 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 
 	var mErr *multierror.Error
 	if d.HasChanges("name", "description", "maintain_begin", "maintain_end",
-		"security_group_id", "enterprise_project_id") {
+		"security_group_id", "enterprise_project_id", "enable_acl") {
 		description := d.Get("description").(string)
 		updateOpts := instances.UpdateOpts{
 			Description:         &description,
@@ -674,6 +681,11 @@ func resourceDmsRabbitmqInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 			MaintainEnd:         d.Get("maintain_end").(string),
 			SecurityGroupID:     d.Get("security_group_id").(string),
 			EnterpriseProjectID: d.Get("enterprise_project_id").(string),
+		}
+
+		if d.HasChange("enable_acl") {
+			enableAcl := d.Get("enable_acl").(bool)
+			updateOpts.EnableAcl = &enableAcl
 		}
 
 		if d.HasChange("name") {
