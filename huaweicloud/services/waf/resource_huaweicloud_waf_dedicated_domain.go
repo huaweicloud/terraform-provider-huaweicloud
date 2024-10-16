@@ -104,13 +104,6 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"cipher_1",
-					"cipher_2",
-					"cipher_3",
-					"cipher_4",
-					"cipher_default",
-				}, false),
 			},
 			"pci_3ds": {
 				Type:         schema.TypeBool,
