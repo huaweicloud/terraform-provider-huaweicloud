@@ -158,7 +158,7 @@ func dataSourceGaussDBMysqlScheduledTasksRead(_ context.Context, d *schema.Resou
 }
 
 func buildGaussDBMysqlScheduledTasksQueryParams(d *schema.ResourceData, page int) string {
-	res := fmt.Sprintf("?limit=6&offset=%v", page)
+	res := fmt.Sprintf("?limit=100&offset=%v", page)
 	if v, ok := d.GetOk("status"); ok {
 		res = fmt.Sprintf("%s&status=%s", res, v)
 	}
