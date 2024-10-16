@@ -141,7 +141,7 @@ func resourceDwsExtDataSourceCreate(ctx context.Context, d *schema.ResourceData,
 	)
 	createDwsExtDataSourceClient, err := cfg.NewServiceClient(createDwsExtDataSourceProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
 	createDwsExtDataSourcePath := createDwsExtDataSourceClient.Endpoint + createDwsExtDataSourceHttpUrl
@@ -241,7 +241,7 @@ func GetExtDataSource(cfg *config.Config, region string, d *schema.ResourceData,
 	)
 	getDwsExtDataSourceClient, err := cfg.NewServiceClient(getDwsExtDataSourceProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating DWS Client: %s", err)
+		return nil, fmt.Errorf("error creating DWS client: %s", err)
 	}
 
 	getDwsExtDataSourcePath := getDwsExtDataSourceClient.Endpoint + getDwsExtDataSourceHttpUrl
@@ -288,7 +288,7 @@ func resourceDwsExtDataSourceUpdate(ctx context.Context, d *schema.ResourceData,
 		)
 		updateDwsExtDataSourceClient, err := cfg.NewServiceClient(updateDwsExtDataSourceProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating DWS Client: %s", err)
+			return diag.Errorf("error creating DWS client: %s", err)
 		}
 
 		updateDwsExtDataSourcePath := updateDwsExtDataSourceClient.Endpoint + updateDwsExtDataSourceHttpUrl
@@ -326,11 +326,15 @@ func resourceDwsExtDataSourceUpdate(ctx context.Context, d *schema.ResourceData,
 }
 
 func buildUpdateDwsExtDataSourceBodyParams(d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
+		"reboot": utils.ValueIgnoreEmpty(d.Get("reboot")),
+	}
+	if d.Get("type").(string) == "OBS" {
+		params["agency"] = utils.ValueIgnoreEmpty(d.Get("user_name"))
+	}
+
 	bodyParams := map[string]interface{}{
-		"reconfigure": map[string]interface{}{
-			"reboot":    utils.ValueIgnoreEmpty(d.Get("reboot")),
-			"user_name": utils.ValueIgnoreEmpty(d.Get("user_name")),
-		},
+		"reconfigure": params,
 	}
 	return bodyParams
 }
@@ -346,7 +350,7 @@ func resourceDwsExtDataSourceDelete(ctx context.Context, d *schema.ResourceData,
 	)
 	deleteDwsExtDataSourceClient, err := cfg.NewServiceClient(deleteDwsExtDataSourceProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
 	deleteDwsExtDataSourcePath := deleteDwsExtDataSourceClient.Endpoint + deleteDwsExtDataSourceHttpUrl
@@ -431,7 +435,7 @@ func extDataSourceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			)
 			extDataSourceWaitingClient, err := cfg.NewServiceClient(extDataSourceWaitingProduct, region)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating DWS Client: %s", err)
+				return nil, "ERROR", fmt.Errorf("error creating DWS client: %s", err)
 			}
 
 			extDataSourceWaitingPath := extDataSourceWaitingClient.Endpoint + extDataSourceWaitingHttpUrl
