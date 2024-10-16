@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/go-multierror"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 )
@@ -67,6 +69,7 @@ func DataSourceComputeInstances() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"tags": common.TagsSchema(),
 			"instances": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -160,9 +163,23 @@ func buildListOpts(d *schema.ResourceData, cfg *config.Config) *cloudservers.Lis
 		Flavor:              d.Get("flavor_id").(string),
 		Status:              d.Get("status").(string),
 		IPEqual:             d.Get("fixed_ip_v4").(string),
+		Tags:                buildQueryInstancesTagsOpts(d),
 	}
 
 	return &result
+}
+
+func buildQueryInstancesTagsOpts(d *schema.ResourceData) []string {
+	tagsRaw := d.Get("tags").(map[string]interface{})
+	if len(tagsRaw) == 0 {
+		return nil
+	}
+	var tagList []string
+	for k, v := range tagsRaw {
+		tagList = append(tagList, fmt.Sprintf(`%s=%s`, k, v))
+	}
+
+	return tagList
 }
 
 func filterCloudServers(d *schema.ResourceData, servers []cloudservers.CloudServer) ([]cloudservers.CloudServer,
