@@ -98,8 +98,7 @@
               "os": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "password": {
                 "type": "string",

@@ -5,6 +5,16 @@
         "huaweicloud_nat_gateway": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "description": {
                 "type": "string",
                 "description": "The description of the NAT gateway.",
@@ -31,6 +41,16 @@
                 "description": "The private IP address of the NAT gateway.",
                 "optional": true,
                 "computed": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
                 "forcenew": true
               },
               "region": {

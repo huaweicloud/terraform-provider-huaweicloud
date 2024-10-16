@@ -10,6 +10,10 @@
                 "optional": true,
                 "default": "0"
               },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
               "disabled": {
                 "type": "bool",
                 "optional": true

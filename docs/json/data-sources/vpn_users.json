@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_users": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "updated_at": "string",
+                      "user_group_id": "string",
+                      "user_group_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The user list.",
+                "computed": true
+              },
+              "vpn_server_id": {
+                "type": "string",
+                "description": "Specifies the ID of a VPN server.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}
