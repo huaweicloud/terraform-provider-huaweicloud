@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"log"
 	"reflect"
 	"strconv"
@@ -100,7 +101,17 @@ func StringValue(v *string) string {
 
 // ValueIgnoreEmpty returns to the string value. if v is empty, return nil
 func ValueIgnoreEmpty(v interface{}) interface{} {
+	if v == nil {
+		return nil
+	}
+
 	vl := reflect.ValueOf(v)
+
+	if !vl.IsValid() {
+		log.Printf("[ERROR] The value (%#v) is invalid", v)
+		return nil
+	}
+
 	if (vl.Kind() != reflect.Bool) && vl.IsZero() {
 		return nil
 	}
@@ -110,4 +121,29 @@ func ValueIgnoreEmpty(v interface{}) interface{} {
 	}
 
 	return v
+}
+
+// Try to parse the string value as the JSON format, if the operation failed, returns an empty map result.
+func StringToJson(jsonStrObj string) interface{} {
+	if jsonStrObj == "" {
+		return nil
+	}
+	jsonMap := make(map[string]interface{})
+	err := json.Unmarshal([]byte(jsonStrObj), &jsonMap)
+	if err != nil {
+		log.Printf("[ERROR] Unable to convert the JSON string to the map object: %s", err)
+	}
+	return jsonMap
+}
+
+// Try to convert the JSON object to the string value, if the operation failed, returns an empty string.
+func JsonToString(jsonObj interface{}) string {
+	if jsonObj == nil {
+		return ""
+	}
+	jsonStr, err := json.Marshal(jsonObj)
+	if err != nil {
+		log.Printf("[ERROR] Unable to convert the JSON object to string: %s", err)
+	}
+	return string(jsonStr)
 }
