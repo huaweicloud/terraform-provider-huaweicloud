@@ -11,9 +11,39 @@ description: |-
 Manages a key/value pair under a dedicated microservice engine (2.0+) resource within HuaweiCloud.
 
 -> Before creating a configuration, make sure the engine has enabled the rules shown in the appendix
-   [table](#default_engine_access_rules).
+   [table](#configuration_default_engine_access_rules).
 
 ## Example Usage
+
+### Create an engine configuration and the engine RBAC authentication is disabled
+
+```hcl
+variable "microservice_engine_id" {} // Enable the EIP access
+
+data "huaweicloud_cse_microservice_engines" "test" {}
+
+locals {
+  fileter_engines = [for o in data.huaweicloud_cse_microservice_engines.test.engines : o if o.id == var.microservice_engine_id]
+}
+
+resource "huaweicloud_cse_microservice_engine_configuration" "test" {
+  auth_address    = local.fileter_engines[0].service_registry_addresses[0].public
+  connect_address = local.fileter_engines[0].config_center_addresses[0].public
+
+  key        = "demo"
+  value_type = "json"
+  value      = jsonencode({
+    "foo": "bar"
+  })
+  status     = "enabled"
+
+  tags = {
+    owner = "terraform"
+  }
+}
+```
+
+### Create an engine configuration and the engine RBAC authentication is enabled
 
 ```hcl
 variable "microservice_engine_id" {} // Enable the EIP access
@@ -55,6 +85,8 @@ The following arguments are supported:
   configuration.  
   Changing this will create a new resource.
 
+-> We are only support IPv4 addresses yet (for `auth_address` and `connect_address`).
+
 * `admin_user` - (Optional, String, ForceNew) Specifies the account name for **RBAC** login.
   Changing this will create a new resource.
 
@@ -68,7 +100,7 @@ The following arguments are supported:
 
   Changing this will create a new resource.
 
-  -> Both `admin_user` and `admin_pass` are required if **RBAC** is enabled for the microservice engine.
+-> Both `admin_user` and `admin_pass` are required if **RBAC** is enabled for the microservice engine.
 
 * `key` - (Required, String, ForceNew) Specifies the configuration key (item name).  
   The valid length is limited from `1` to `2,048` characters, only letters, digits, hyphens (-), underscores (_),
@@ -120,10 +152,22 @@ If the related engine is disable the `RBAC`, configurations (key/value pairs) ca
 $ terraform import huaweicloud_cse_microservice_engine_configuration.test <auth_address>/<connect_address>/<key>
 ```
 
-If the related engine is enable the `RBAC`, inputs `admin_user` and `admin_pass` are necessary, e.g.
+If you enabled the **RBAC** authorization in the microservice engine, it's necessary to provide the account
+name (`admin_user`) and password (`admin_pass`) of the microservice engine.
+All fields separated by the slashes (/), e.g.
 
 ```bash
 $ terraform import huaweicloud_cse_microservice_engine_configuration.test <auth_address>/<connect_address>/<key>/<admin_user>/<admin_pass>
+```
+
+The single quotes (') or backslashes (\\) can help you solve the problem of special characters reporting errors on bash.
+
+```bash
+$ terraform import huaweicloud_cse_microservice_engine_configuration.test https://124.70.26.32:30100/https://124.70.26.32:30110/demo/root/Test\!123
+```
+
+```bash
+$ terraform import huaweicloud_cse_microservice_engine_configuration.test 'https://124.70.26.32:30100/https://124.70.26.32:30110/demo/root/Test!123'
 ```
 
 Note that the imported state may not be identical to your resource definition, due to security reason.
@@ -145,7 +189,7 @@ resource "huaweicloud_cse_microservice_engine_configuration" "test" {
 
 ## Appendix
 
-<a name="default_engine_access_rules"></a>
+<a name="configuration_default_engine_access_rules"></a>
 Security group rules required to access the engine:
 (Remote is not the minimum range and can be adjusted according to business needs)
 
