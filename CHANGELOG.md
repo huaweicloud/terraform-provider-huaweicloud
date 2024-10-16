@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.69.1 (October 16, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node_pool: add updating os support [GH-5681]
+
 ## 1.69.0 (September 29, 2024)
 
 * **New Resource:**
