@@ -15,7 +15,7 @@ Use this data source to get the list of CFW address group members.
 ```hcl
 variable "group_id" {}
 
-resource "huaweicloud_cfw_address_group_members" "test" {
+data "huaweicloud_cfw_address_group_members" "test" {
   group_id = var.group_id
 }
 ```

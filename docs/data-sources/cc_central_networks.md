@@ -15,7 +15,7 @@ Use this data source to get the list of CC central networks.
 ```hcl
 variable "central_network_name" {}
 
-resource "huaweicloud_cc_central_networks" "test" {
+data "huaweicloud_cc_central_networks" "test" {
   name = var.central_network_name
 }
 ```
