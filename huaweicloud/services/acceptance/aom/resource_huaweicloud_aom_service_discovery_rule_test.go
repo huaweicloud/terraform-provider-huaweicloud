@@ -69,6 +69,7 @@ func TestAccAOMServiceDiscoveryRule_basic(t *testing.T) {
 						resourceName, "name_rules.0.service_name_rule.0.args.0", "python"),
 					resource.TestCheckResourceAttr(
 						resourceName, "name_rules.0.application_name_rule.0.args.0", "python"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test"),
 				),
 			},
 			{
@@ -108,6 +109,7 @@ resource "huaweicloud_aom_service_discovery_rule" "test" {
   is_default_rule        = true
   log_file_suffix        = ["log"]
   service_type           = "Python"
+  description            = "test"
 
   discovery_rules {
     check_content = ["python"]

@@ -168,7 +168,15 @@ func ResourceServiceDiscoveryRule() *schema.Resource {
 					},
 				},
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"rule_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -246,12 +254,14 @@ func resourceServiceDiscoveryRuleCreateOrUpdate(ctx context.Context, d *schema.R
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
+	description := d.Get("description").(string)
 	createOpts := aom.AppRules{
 		Id:        d.Get("rule_id").(string),
 		Enable:    d.Get("discovery_rule_enabled").(bool),
 		EventName: "aom_inventory_rules_event",
 		Name:      d.Get("name").(string),
 		Projectid: cfg.HwClient.ProjectID,
+		Desc:      &description,
 		Spec: &aom.AppRulesSpec{
 			AppType:       d.Get("service_type").(string),
 			DetectLog:     strconv.FormatBool(d.Get("detect_log_enabled").(bool)),
@@ -309,6 +319,7 @@ func resourceServiceDiscoveryRuleRead(_ context.Context, d *schema.ResourceData,
 
 	isDefaultRule, _ := strconv.ParseBool(rule.Spec.IsDefaultRule)
 	detectLogEnabled, _ := strconv.ParseBool(rule.Spec.DetectLog)
+	createdAt, _ := strconv.ParseInt(*rule.CreateTime, 10, 64)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
@@ -323,6 +334,8 @@ func resourceServiceDiscoveryRuleRead(_ context.Context, d *schema.ResourceData,
 		d.Set("discovery_rules", flattenDiscoveryRules(rule.Spec.DiscoveryRule)),
 		d.Set("log_path_rules", flattenLogPathRulesRules(rule.Spec.LogPathRule)),
 		d.Set("name_rules", flattenNameRulesRules(rule.Spec.NameRule)),
+		d.Set("description", rule.Desc),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(createdAt/1000, false)),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
