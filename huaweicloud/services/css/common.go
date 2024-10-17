@@ -5,8 +5,6 @@ import (
 	"log"
 	"strings"
 
-	"github.com/jmespath/go-jmespath"
-
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
@@ -31,24 +29,6 @@ func ConvertExpectedHwSdkErrInto404Err(err error, httpStatusCode int, expectCode
 				return err
 			}
 			return golangsdk.ErrDefault404{}
-		}
-	}
-
-	return err
-}
-
-func ConvertExpectOtherErrInto404Err(err error, expectStatusCode int, errCodeKey, expectErrCode string) error {
-	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == expectStatusCode {
-		var response interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search(errCodeKey, response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse %s from response body: %s", errCodeKey, parseErr)
-			}
-
-			if errorCode == expectErrCode {
-				return golangsdk.ErrDefault404{}
-			}
 		}
 	}
 
