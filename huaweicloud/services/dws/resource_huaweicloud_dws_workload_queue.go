@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -27,6 +28,11 @@ func ResourceWorkLoadQueue() *schema.Resource {
 		// The API only supports updating "configuration" parameter, but the update cannot be implemented due to
 		// inconsistencies between the parameters on the API and the resource.
 		DeleteContext: resourceWorkLoadQueueDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWorkloadQueueImportState,
@@ -80,10 +86,11 @@ func ResourceWorkLoadQueue() *schema.Resource {
 
 func resourceWorkLoadQueueCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v2/{project_id}/clusters/{cluster_id}/workload/queues"
-		product = "dws"
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		httpUrl   = "v2/{project_id}/clusters/{cluster_id}/workload/queues"
+		product   = "dws"
+		clusterId = d.Get("cluster_id").(string)
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -93,14 +100,28 @@ func resourceWorkLoadQueueCreate(ctx context.Context, d *schema.ResourceData, me
 
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{cluster_id}", d.Get("cluster_id").(string))
+	createPath = strings.ReplaceAll(createPath, "{cluster_id}", clusterId)
 	createOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildCreateWorkloadQueueBodyParams(d)),
 	}
 
-	_, err = client.Request("PUT", createPath, &createOpt)
+	retryFunc := func() (interface{}, bool, error) {
+		_, err = client.Request("PUT", createPath, &createOpt)
+		// DWS.5406: When the cluster is unavailable, the error message is
+		// "xxx({\"retCode\": -1, \"errorMsg\": \"Check cn status failed\", \"jsonData\": \"\"})`.
+		retry, err := handleQueueRetryableError(client, clusterId, err, "DWS.5406")
+		return nil, retry, err
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 30 * time.Second,
+	})
+
 	if err != nil {
 		return diag.Errorf("error creating DWS workload queue: %s", err)
 	}
@@ -108,6 +129,34 @@ func resourceWorkLoadQueueCreate(ctx context.Context, d *schema.ResourceData, me
 	d.SetId(d.Get("name").(string))
 
 	return resourceWorkLoadQueueRead(ctx, d, meta)
+}
+
+func handleQueueRetryableError(client *golangsdk.ServiceClient, clusterId string, err error, expectErrCode string) (bool, error) {
+	if err == nil {
+		return false, nil
+	}
+
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		respBody, clusterErr := GetClusterInfoByClusterId(client, clusterId)
+		if clusterErr != nil {
+			return false, clusterErr
+		}
+
+		status := utils.PathSearch("cluster.status", respBody, "").(string)
+		if utils.StrSliceContains([]string{"AVAILABLE", "ACTIVE"}, status) {
+			return false, nil
+		}
+
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
+		}
+
+		if utils.PathSearch("error_code", apiError, "").(string) == expectErrCode {
+			return true, err
+		}
+	}
+	return false, err
 }
 
 func buildCreateWorkloadQueueBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -197,12 +246,13 @@ func resourceWorkLoadQueueRead(_ context.Context, d *schema.ResourceData, meta i
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceWorkLoadQueueDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWorkLoadQueueDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v2/{project_id}/clusters/{cluster_id}/workload/queues"
-		product = "dws"
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		httpUrl   = "v2/{project_id}/clusters/{cluster_id}/workload/queues"
+		product   = "dws"
+		clusterId = d.Get("cluster_id").(string)
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -212,7 +262,7 @@ func resourceWorkLoadQueueDelete(_ context.Context, d *schema.ResourceData, meta
 
 	deletePath := client.Endpoint + httpUrl + "?workload_queue_name={name}"
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{cluster_id}", d.Get("cluster_id").(string))
+	deletePath = strings.ReplaceAll(deletePath, "{cluster_id}", clusterId)
 	deletePath = strings.ReplaceAll(deletePath, "{name}", d.Get("name").(string))
 
 	if logicalClusterName, ok := d.GetOk("logical_cluster_name"); ok {
@@ -225,7 +275,21 @@ func resourceWorkLoadQueueDelete(_ context.Context, d *schema.ResourceData, meta
 		JSONBody:         json.RawMessage("{}"),
 	}
 
-	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	retryFunc := func() (interface{}, bool, error) {
+		_, err = client.Request("DELETE", deletePath, &deleteOpt)
+		// DWS.5405: When the cluster is unavailable, the error message is
+		// "xxx({\"retCode\": -1, \"errorMsg\": \"Check cn status failed\", \"jsonData\": \"\"})`.
+		retry, err := handleQueueRetryableError(client, clusterId, err, "DWS.5405")
+		return nil, retry, err
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 30 * time.Second,
+	})
+
 	if err != nil {
 		return diag.Errorf("error deleting DWS workload queue: %s", err)
 	}

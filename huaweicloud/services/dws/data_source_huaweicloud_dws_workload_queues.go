@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -13,6 +15,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -22,6 +25,11 @@ import (
 func DataSourceWorkloadQueues() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceWorkloadQueuesRead,
+
+		Timeouts: &schema.ResourceTimeout{
+			Read: schema.DefaultTimeout(10 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -100,12 +108,13 @@ func DataSourceWorkloadQueues() *schema.Resource {
 	}
 }
 
-func resourceWorkloadQueuesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWorkloadQueuesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v2/{project_id}/clusters/{cluster_id}/workload/queues"
-		product = "dws"
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		httpUrl   = "v2/{project_id}/clusters/{cluster_id}/workload/queues"
+		product   = "dws"
+		clusterId = d.Get("cluster_id").(string)
 	)
 
 	getClient, err := cfg.NewServiceClient(product, region)
@@ -115,7 +124,7 @@ func resourceWorkloadQueuesRead(_ context.Context, d *schema.ResourceData, meta 
 
 	getPath := getClient.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", getClient.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{cluster_id}", d.Get("cluster_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{cluster_id}", clusterId)
 
 	// If cluster is logical cluster should add parameter
 	if logicalName, ok := d.GetOk("logical_cluster_name"); ok {
@@ -126,12 +135,31 @@ func resourceWorkloadQueuesRead(_ context.Context, d *schema.ResourceData, meta 
 		KeepResponseBody: true,
 	}
 
-	getResp, err := getClient.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	getRespBody, err := utils.FlattenResponse(getResp)
+	// When the cluster is being restarted or other operations are causing the cluster to be unavailable.
+	// DWS.5404: When the cluster is unavailable, the error message is
+	// "xxx({\"retCode\": -1, \"errorMsg\": \"Check cn status failed\", \"jsonData\": \"\"})`.
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := getClient.Request("GET", getPath, &getOpt)
+		retry, err := handleQueueRetryableError(getClient, clusterId, err, "DWS.5404")
+		return res, retry, err
+	}
+	getResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		Timeout:      d.Timeout(schema.TimeoutRead),
+		DelayTimeout: 30 * time.Second,
+		PollInterval: 30 * time.Second,
+	})
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp.(*http.Response))
 	if err != nil {
 		return diag.FromErr(err)
 	}
