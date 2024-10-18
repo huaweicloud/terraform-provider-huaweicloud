@@ -71,6 +71,12 @@ func ResourceRAMShare() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies the description of the resource share.`,
 			},
+			"allow_external_principals": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Specifies whether resources can be shared with any accounts outside the organization.`,
+			},
 			"tags": common.TagsSchema(),
 			"owning_account_id": {
 				Type:        schema.TypeString,
@@ -176,6 +182,12 @@ func buildCreateRAMShareBodyParams(d *schema.ResourceData) map[string]interface{
 		"resource_urns":  utils.ValueIgnoreEmpty(d.Get("resource_urns").(*schema.Set).List()),
 		"tags":           utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 	}
+
+	// The default value of this field when created is true. We do not actively add a default value.
+	if !d.Get("allow_external_principals").(bool) {
+		bodyParams["allow_external_principals"] = false
+	}
+
 	return bodyParams
 }
 
@@ -253,6 +265,7 @@ func setRAMShareInstance(client *golangsdk.ServiceClient, d *schema.ResourceData
 		d.Set("created_at", utils.PathSearch("created_at", resourceShare, nil)),
 		d.Set("updated_at", utils.PathSearch("updated_at", resourceShare, nil)),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", resourceShare, nil))),
+		d.Set("allow_external_principals", utils.PathSearch("allow_external_principals", resourceShare, nil)),
 	)
 	return mErr.ErrorOrNil()
 }
@@ -349,6 +362,7 @@ func resourceRAMShareUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	updateRAMShareChanges := []string{
 		"name",
 		"description",
+		"allow_external_principals",
 	}
 
 	if d.HasChanges(updateRAMShareChanges...) {
@@ -444,8 +458,9 @@ func updateRAMShareTags(client *golangsdk.ServiceClient, d *schema.ResourceData)
 
 func buildUpdateRAMShareBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
-		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"name":                      utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":               utils.ValueIgnoreEmpty(d.Get("description")),
+		"allow_external_principals": d.Get("allow_external_principals"),
 	}
 	return bodyParams
 }
