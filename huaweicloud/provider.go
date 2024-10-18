@@ -823,15 +823,16 @@ func Provider() *schema.Provider {
 			"huaweicloud_kps_running_tasks": dew.DataSourceDewKpsRunningTasks(),
 			"huaweicloud_kps_keypairs":      dew.DataSourceKeypairs(),
 
-			"huaweicloud_iotda_device_certificates":  iotda.DataSourceDeviceCertificates(),
 			"huaweicloud_iotda_amqps":                iotda.DataSourceAMQPQueues(),
+			"huaweicloud_iotda_batchtasks":           iotda.DataSourceBatchTasks(),
 			"huaweicloud_iotda_dataforwarding_rules": iotda.DataSourceDataForwardingRules(),
+			"huaweicloud_iotda_devices":              iotda.DataSourceDevices(),
+			"huaweicloud_iotda_device_certificates":  iotda.DataSourceDeviceCertificates(),
 			"huaweicloud_iotda_device_groups":        iotda.DataSourceDeviceGroups(),
 			"huaweicloud_iotda_device_linkage_rules": iotda.DataSourceDeviceLinkageRules(),
-			"huaweicloud_iotda_spaces":               iotda.DataSourceSpaces(),
 			"huaweicloud_iotda_products":             iotda.DataSourceProducts(),
-			"huaweicloud_iotda_devices":              iotda.DataSourceDevices(),
-			"huaweicloud_iotda_batchtasks":           iotda.DataSourceBatchTasks(),
+			"huaweicloud_iotda_spaces":               iotda.DataSourceSpaces(),
+			"huaweicloud_iotda_upgrade_packages":     iotda.DataSourceUpgradePackages(),
 
 			"huaweicloud_koogallery_assets": koogallery.DataSourceKooGalleryAssets(),
 
