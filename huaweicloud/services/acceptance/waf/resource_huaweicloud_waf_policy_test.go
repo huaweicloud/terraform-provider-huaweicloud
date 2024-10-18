@@ -68,10 +68,10 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "options.0.bot_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.known_attack_source", "false"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.anti_crawler", "false"),
+					resource.TestCheckResourceAttr(resourceName, "deep_inspection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "header_inspection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "shiro_decryption_check", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "bind_hosts.#"),
-					resource.TestCheckResourceAttrSet(resourceName, "deep_inspection"),
-					resource.TestCheckResourceAttrSet(resourceName, "header_inspection"),
-					resource.TestCheckResourceAttrSet(resourceName, "shiro_decryption_check"),
 				),
 			},
 			{
@@ -101,6 +101,9 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "options.0.bot_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.known_attack_source", "true"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.anti_crawler", "true"),
+					resource.TestCheckResourceAttr(resourceName, "deep_inspection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "header_inspection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "shiro_decryption_check", "true"),
 				),
 			},
 			{
@@ -126,6 +129,9 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "options.0.bot_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.known_attack_source", "false"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.anti_crawler", "false"),
+					resource.TestCheckResourceAttr(resourceName, "deep_inspection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "header_inspection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "shiro_decryption_check", "false"),
 				),
 			},
 			{
@@ -208,11 +214,14 @@ func testAccWafPolicyV1_update1(name string) string {
 %s
 
 resource "huaweicloud_waf_policy" "policy_1" {
-  name            = "%s_updated"
-  full_detection  = true
-  protection_mode = "block"
-  level           = 3
-  robot_action    = "block"
+  name                   = "%s_updated"
+  full_detection         = true
+  protection_mode        = "block"
+  level                  = 3
+  robot_action           = "block"
+  deep_inspection        = true
+  header_inspection      = true
+  shiro_decryption_check = true
 
   options {
     anti_crawler                   = true
@@ -245,11 +254,14 @@ func testAccWafPolicyV1_update2(name string) string {
 %s
 
 resource "huaweicloud_waf_policy" "policy_1" {
-  name            = "%s_updated"
-  full_detection  = false
-  protection_mode = "block"
-  level           = 3
-  robot_action    = "block"
+  name                   = "%s_updated"
+  full_detection         = false
+  protection_mode        = "block"
+  level                  = 3
+  robot_action           = "block"
+  deep_inspection        = false
+  header_inspection      = true
+  shiro_decryption_check = false
 
   options {
     
