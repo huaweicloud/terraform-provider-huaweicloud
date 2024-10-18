@@ -289,3 +289,25 @@ func (r GetSecondLevelMonitoringResult) Extract() (*SecondLevelMonitoring, error
 	err := r.ExtractInto(&secondLevelMonitoring)
 	return &secondLevelMonitoring, err
 }
+
+type Version struct {
+	UpgradeFlag bool      `json:"upgrade_flag"`
+	Datastore   Datastore `json:"datastore"`
+}
+
+type Datastore struct {
+	CurrentVersion       string `json:"current_version"`
+	CurrentKernelVersion string `json:"current_kernel_version"`
+	LatestVersion        string `json:"latest_version"`
+	LatestKernelVersion  string `json:"latest_kernel_version"`
+}
+
+type GetVersionResult struct {
+	commonResult
+}
+
+func (r GetVersionResult) Extract() (*Version, error) {
+	var version Version
+	err := r.ExtractInto(&version)
+	return &version, err
+}

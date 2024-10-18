@@ -263,6 +263,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `private_dns_name` - Indicates the private domain name.
 
+* `upgrade_flag` - Indicates whether the version can be upgraded.
+
+* `current_version` - Indicates the current database version.
+
+* `current_kernel_version` - Indicates the current database kernel version.
+
 * `created_at` - Indicates the creation time in the **yyyy-mm-ddThh:mm:ssZ** format.
 
 * `updated_at` - Indicates the Update time in the **yyyy-mm-ddThh:mm:ssZ** format.
