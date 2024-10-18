@@ -2,8 +2,11 @@ package cdm
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
+	"reflect"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -129,6 +132,17 @@ func resourceCdmLinkCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceCdmLinkRead(ctx, d, meta)
 }
 
+func parseValue(v string) interface{} {
+	var data map[string]interface{}
+	err := json.Unmarshal([]byte(v), &data)
+	if err != nil {
+		log.Printf("[DEBUG] Unable to parse JSON into map: %s", err)
+		return v
+	}
+
+	return data
+}
+
 func buildLinkConfigParamter(d *schema.ResourceData) (*link.LinkConfigs, error) {
 	var configs []link.Input
 	configRaw := d.Get("config").(map[string]interface{})
@@ -140,7 +154,7 @@ func buildLinkConfigParamter(d *schema.ResourceData) (*link.LinkConfigs, error) 
 	for k, v := range configRaw {
 		conf := link.Input{
 			Name:  fmt.Sprintf("%s%s", configPref, k),
-			Value: v.(string),
+			Value: parseValue(v.(string)),
 		}
 		configs = append(configs, conf)
 	}
@@ -242,14 +256,24 @@ func setLinkConfigToState(d *schema.ResourceData, configs []link.Configs) error 
 	for _, item := range configs {
 		if item.Name == "linkConfig" {
 			for _, v := range item.Inputs {
-				if v.Value != "" {
+				if v.Value != nil {
 					key := strings.Replace(v.Name, configPref, "", 1)
 					switch key {
 					case "accessKey", "ak":
 						d.Set("access_key", v.Value)
 					default:
+						if reflect.TypeOf(v.Value).Kind() == reflect.Map {
+							rst, err := json.Marshal(v.Value)
+							if err != nil {
+								return err
+							}
+							result[key] = string(rst)
+
+							continue
+						}
+
 						// Value in return is encoded, use `url.PathUnescape` to decode it.
-						rst, err := url.PathUnescape(v.Value)
+						rst, err := url.PathUnescape(v.Value.(string))
 						if err != nil {
 							return err
 						}
