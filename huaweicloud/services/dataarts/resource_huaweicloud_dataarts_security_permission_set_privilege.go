@@ -196,7 +196,7 @@ func GetPrivilegeById(client *golangsdk.ServiceClient, workspaceId, permissionSe
 		path := fmt.Sprintf("%s&offset=%v", getPath, currentTotal)
 		resp, err := client.Request("GET", path, &opts)
 		if err != nil {
-			return nil, ParseQueryError400(err, PermissionSetPrivilegeResourceNotFoundCodes)
+			return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", PermissionSetPrivilegeResourceNotFoundCodes...)
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
@@ -230,7 +230,7 @@ func resourceSecurityPermissionSetPrivilegeRead(_ context.Context, d *schema.Res
 
 	respBody, err := GetPrivilegeById(client, d.Get("workspace_id").(string), d.Get("permission_set_id").(string), d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParseQueryError400(err, PermissionSetPrivilegeResourceNotFoundCodes),
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", PermissionSetPrivilegeResourceNotFoundCodes...),
 			"DataArts Security permission set privilege")
 	}
 

@@ -2,7 +2,6 @@ package as
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
@@ -389,27 +387,6 @@ func getInstancesIDs(allIns []instances.Instance) []string {
 	return allIDs
 }
 
-// When the AS group does not exist, the response body example of the details interface is as follows:
-// {"error":{"code":"AS.2007","message":"The AS group does not exist."}}
-func parseGroupResponseError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error.code", apiError)
-		if errorCodeErr != nil || errorCode == nil {
-			return err
-		}
-
-		if errorCode.(string) == "AS.2007" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
-}
-
 // isAllInstanceInService Used to determine whether all instances in the scaling group are `INSERVICE`.
 // When the array is empty, return `true` directly.
 func isAllInstanceInService(allIns []instances.Instance) bool {
@@ -481,7 +458,7 @@ func waitingForASGroupDeleted(ctx context.Context, client *golangsdk.ServiceClie
 			asGroup, err := groups.Get(client, groupID).Extract()
 			if err != nil {
 				var errDefault404 golangsdk.ErrDefault404
-				if errors.As(parseGroupResponseError(err), &errDefault404) {
+				if errors.As(common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), &errDefault404) {
 					return "success", "COMPLETED", nil
 				}
 				return nil, "ERROR", err
@@ -586,7 +563,7 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 	groupID := d.Id()
 	asg, err := groups.Get(asClient, groupID).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "error retrieving AS group")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error retrieving AS group")
 	}
 
 	allIns, err := getInstancesInGroup(asClient, groupID, nil)
@@ -777,7 +754,7 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 func forceDeleteASGroup(ctx context.Context, asClient *golangsdk.ServiceClient, d *schema.ResourceData) diag.Diagnostics {
 	if err := groups.ForceDelete(asClient, d.Id()).ExtractErr(); err != nil {
-		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "error deleting AS group")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error deleting AS group")
 	}
 
 	if err := waitingForASGroupDeleted(ctx, asClient, d.Id(), d.Timeout(schema.TimeoutDelete)); err != nil {
@@ -830,7 +807,7 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 	if err != nil {
 		// When the Group ID does not exist, the query instance list interface will also report an error,
 		// and the 404 error judgment also needs to be performed.
-		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "error getting instances in AS group")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error getting instances in AS group")
 	}
 	allIns, err := page.(instances.InstancePage).Extract()
 	if err != nil {
@@ -845,7 +822,7 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if delErr := groups.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
-		return common.CheckDeletedDiag(d, parseGroupResponseError(delErr), "error deleting AS group")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(delErr, "error.code", "AS.2007"), "error deleting AS group")
 	}
 	return nil
 }

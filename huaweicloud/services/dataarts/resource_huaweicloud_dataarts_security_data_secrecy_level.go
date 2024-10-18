@@ -148,7 +148,7 @@ func resourceSecurityDataSecrecyLevelRead(_ context.Context, d *schema.ResourceD
 	}
 	resp, err := client.Request("GET", getPath, &getDataSecrecyLevelOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParseQueryError400(err, DataSecrecyLevelResourceNotFoundCodes),
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", DataSecrecyLevelResourceNotFoundCodes...),
 			"error retrieving DataArts Security data secrecy level")
 	}
 

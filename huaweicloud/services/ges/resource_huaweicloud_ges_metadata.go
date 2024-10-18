@@ -7,14 +7,12 @@ package ges
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -279,7 +277,8 @@ func resourceGesMetadataRead(_ context.Context, d *schema.ResourceData, meta int
 	getMetadataDetailResp, err := getMetadataDetailClient.Request("GET", getMetadataDetailPath, &getMetadataDetailOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseMetadataNotFoundError(err), "error retrieving GES metadata")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errCode", "GES.2067"),
+			"error retrieving GES metadata")
 	}
 
 	getMetadataDetailRespBody, err := utils.FlattenResponse(getMetadataDetailResp)
@@ -471,23 +470,4 @@ func resourceGesMetadataDelete(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	return nil
-}
-
-func parseMetadataNotFoundError(respErr error) error {
-	var apiErr interface{}
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr != nil {
-			return pErr
-		}
-		errCode, err := jmespath.Search(`errCode`, apiErr)
-		if err != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", err.Error())
-		}
-
-		if errCode == `GES.2067` {
-			return golangsdk.ErrDefault404{}
-		}
-	}
-	return respErr
 }

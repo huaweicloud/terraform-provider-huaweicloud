@@ -10,6 +10,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dataarts"
@@ -31,7 +32,7 @@ func getSecurityDataSecrecyLevelResourceFunc(conf *config.Config, state *terrafo
 	}
 	resp, err := client.Request("GET", getPath, &opts)
 	if err != nil {
-		return nil, dataarts.ParseQueryError400(err, dataarts.DataSecrecyLevelResourceNotFoundCodes)
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", dataarts.DataSecrecyLevelResourceNotFoundCodes...)
 	}
 
 	return utils.FlattenResponse(resp)

@@ -2,7 +2,6 @@ package gaussdb
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
@@ -10,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -157,8 +155,8 @@ func resourceGaussMysqlEipAssociateRead(_ context.Context, d *schema.ResourceDat
 	getResp, err := client.Request("GET", getPath, &getOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseMysqlProxyEipAssociateError(err), "error retrieving EIP associated "+
-			"with GaussDB MySQL")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DBS.280238"),
+			"error retrieving EIP associated with GaussDB MySQL")
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -246,23 +244,4 @@ func resourceGaussMysqlEipAssociateDelete(ctx context.Context, d *schema.Resourc
 	}
 
 	return nil
-}
-
-func parseMysqlProxyEipAssociateError(err error) error {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DBS.280238" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }

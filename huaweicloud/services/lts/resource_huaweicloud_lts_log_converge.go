@@ -349,7 +349,7 @@ func GetLogConvergeConfigsById(client *golangsdk.ServiceClient, memberAccountId 
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return nil, parseQueryError500(err, logConvergeNotFoundCodes)
+		return nil, common.ConvertExpected500ErrInto404Err(err, "error_code", logConvergeNotFoundCodes...)
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {

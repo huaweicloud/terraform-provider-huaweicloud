@@ -190,7 +190,8 @@ func resourceDatatServiceCatalogRead(_ context.Context, d *schema.ResourceData, 
 
 	requestResp, err := client.Request("GET", getPath, &opt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParseQueryError400(err, CatalogResourceNotFoundCodes), "error retrieving catalog")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", CatalogResourceNotFoundCodes...),
+			"error retrieving catalog")
 	}
 
 	respBody, err := utils.FlattenResponse(requestResp)

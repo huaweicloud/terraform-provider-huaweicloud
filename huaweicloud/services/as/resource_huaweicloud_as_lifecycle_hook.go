@@ -130,7 +130,7 @@ func resourceASLifecycleHookRead(_ context.Context, d *schema.ResourceData, meta
 		// When querying the lifecycle hook details, if the group does not exist, the following error will be reported:
 		// {"error": {"code": "AS.2007","message": "The AS group does not exist."}}.
 		// If the hook name does not exist, the response HTTP status code of the details API is 404.
-		return common.CheckDeletedDiag(d, parseGroupResponseError(err),
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"),
 			"error getting the specifies lifecycle hook of the autoscaling service")
 	}
 
@@ -203,7 +203,7 @@ func resourceASLifecycleHookDelete(_ context.Context, d *schema.ResourceData, me
 		// When deleting the lifecycle hook, if the group does not exist, the following error will be reported:
 		// {"error": {"code": "AS.2007","message": "The AS group does not exist."}}.
 		// If the hook name does not exist, the response HTTP status code of the deletion API is 404.
-		return common.CheckDeletedDiag(d, parseGroupResponseError(err),
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"),
 			"error deleting the lifecycle hook of the autoscaling service")
 	}
 

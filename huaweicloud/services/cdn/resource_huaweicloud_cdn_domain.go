@@ -2,8 +2,6 @@ package cdn
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -13,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -1897,7 +1894,8 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDetailResponseError(err), "error retrieving CDN domain")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.error_code", "CDN.0170"),
+			"error retrieving CDN domain")
 	}
 
 	// Backfield the ID when executing the import operation
@@ -1927,27 +1925,6 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("domain_name", utils.PathSearch("domain.domain_name", domainResp, nil)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-// When the domain name does not exist, the response body example of the details interface is as follows:
-// {"error": {"error_code": "CDN.0170","error_msg": "domain not exist!"}}
-func parseDetailResponseError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error.error_code", apiError)
-		if errorCodeErr != nil || errorCode == nil {
-			return err
-		}
-
-		if errorCode.(string) == "CDN.0170" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func buildCdnDomainSourcesPriorityOpts(active int) interface{} {
@@ -2702,14 +2679,20 @@ func deleteCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, ep
 
 func waitingForCdnDomainDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
 	timeout time.Duration, epsID string) error {
-	domainName := d.Get("name").(string)
+	var (
+		domainName               = d.Get("name").(string)
+		resourceNotFoundErrCodes = []string{
+			"CDN.0170",     // Domain not exist.
+			"CDN.00010182", // The resource is not belong to the enterprise project.
+		}
+	)
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
 			domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
 			if err != nil {
-				parseErr := parseDeleteDetailResponseError(err)
+				parseErr := common.ConvertExpected400ErrInto404Err(err, "error.error_code", resourceNotFoundErrCodes...)
 				if _, ok := parseErr.(golangsdk.ErrDefault404); ok {
 					return "success", "COMPLETED", nil
 				}
@@ -2825,29 +2808,6 @@ func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	return nil
-}
-
-// When the deletion interface is successfully called, in the error information responded by the query details interface,
-// the following two situations need to be processed as 404:
-// {"error": {"error_code": "CDN.0170","error_msg": "domain not exist!"}}
-// {"error": {"error_code": "CDN.00010182","error_msg": "The resource is not belong to the enterprise project."}}
-func parseDeleteDetailResponseError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error.error_code", apiError)
-		if errorCodeErr != nil || errorCode == nil {
-			return err
-		}
-
-		if errorCode.(string) == "CDN.0170" || errorCode.(string) == "CDN.00010182" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func resourceCDNDomainImportState(_ context.Context, d *schema.ResourceData,

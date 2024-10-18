@@ -2,7 +2,6 @@ package dcs
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -211,7 +209,8 @@ func resourceBigKeyAnalysisRead(_ context.Context, d *schema.ResourceData, meta 
 	instanceId := d.Get("instance_id").(string)
 	getBigKeyAnalysisResp, err := getBigKeyAnalysis(getBigKeyAnalysisClient, instanceId, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseBigKeyAnalysisError(err), "error retrieving DCS big key analysis")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DCS.4942"),
+			"error retrieving DCS big key analysis")
 	}
 
 	getBigKeyAnalysisRespBody, err := utils.FlattenResponse(getBigKeyAnalysisResp)
@@ -295,26 +294,6 @@ func bigKeyAnalysisStatusRefreshFunc(instanceId, bigKeyId string, client *golang
 		status := utils.PathSearch("status", task, "")
 		return task, status.(string), nil
 	}
-}
-
-// The example of error message is: {"error_code": "DCS.4942","error_msg": "The bigkey id does not exist."}
-func parseBigKeyAnalysisError(err error) error {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DCS.4942" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func getBigKeyAnalysis(client *golangsdk.ServiceClient, instanceId string, bigKeyId string) (*http.Response, error) {
