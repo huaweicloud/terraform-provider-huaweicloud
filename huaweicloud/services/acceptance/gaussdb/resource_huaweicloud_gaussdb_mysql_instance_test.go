@@ -78,6 +78,9 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.min_flavor"),
 					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.silence_start_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "auto_scaling.0.min_read_only_count"),
+					resource.TestCheckResourceAttrSet(resourceName, "upgrade_flag"),
+					resource.TestCheckResourceAttrSet(resourceName, "current_version"),
+					resource.TestCheckResourceAttrSet(resourceName, "current_kernel_version"),
 				),
 			},
 			{

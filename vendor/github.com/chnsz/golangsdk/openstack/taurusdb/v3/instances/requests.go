@@ -749,3 +749,13 @@ func UpdatePrivateDnsName(client *golangsdk.ServiceClient, instanceId string, op
 	})
 	return
 }
+
+func GetVersion(client *golangsdk.ServiceClient, instanceId string) (r GetVersionResult) {
+	url := versionURL(client, instanceId)
+
+	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
