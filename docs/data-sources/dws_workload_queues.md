@@ -67,3 +67,9 @@ The `configuration` block supports:
 * `resource_value` - The resource attribute value.
 
 * `value_unit` - The resource attribute unit.
+
+## Timeouts
+
+This data source provides the following timeouts configuration options:
+
+* `read` - Default is 10 minutes.

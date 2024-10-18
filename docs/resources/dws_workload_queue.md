@@ -121,6 +121,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID, same as `name`.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
+
 ## Import
 
 The workload queue can be imported using `cluster_id` and `name`, separated by a slash, e.g.
