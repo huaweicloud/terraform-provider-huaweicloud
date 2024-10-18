@@ -2,15 +2,12 @@ package dli
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -143,32 +140,6 @@ func resourceDatasourceConnectionPrivilegeCreate(ctx context.Context, d *schema.
 	return resourceDatasourceConnectionPrivilegeRead(ctx, d, meta)
 }
 
-// ParsePrivilegesQueryError is a method that used to parse the special error returned by the permission query request
-// of the DLI object (enhanced connection, database or table).
-// + DLI.0001: enhanced connection has been deleted.
-// + DLI.0002: database or table has been deleted.
-func ParsePrivilegesQueryError(err error, special404ErrCode string) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		// If the error code is consistent with the expected 404 error code, it means that the resource has been
-		// deleted.
-		if errorCode == special404ErrCode {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
-}
-
 func resourceDatasourceConnectionPrivilegeRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -192,7 +163,8 @@ func resourceDatasourceConnectionPrivilegeRead(_ context.Context, d *schema.Reso
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParsePrivilegesQueryError(err, ErrCodeConnNotFound), "error retrieving privileges")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", ErrCodeConnNotFound),
+			"error retrieving privileges")
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {

@@ -117,7 +117,8 @@ func resourceRdsExtendLogLinkRead(_ context.Context, d *schema.ResourceData, met
 	fileName := d.Get("file_name").(string)
 	resp, err := extendLogLink(client, instanceID, fileName)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseRdsErrorToError404(err), "error retrieving RDS extend log link")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code||errCode", "DBS.280343"),
+			"error retrieving RDS extend log link")
 	}
 	logInfo := utils.PathSearch(fmt.Sprintf("list|[?file_name=='%s']|[0]", fileName), resp, nil)
 	mErr := multierror.Append(

@@ -7,8 +7,6 @@ package dataarts
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,7 +15,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -286,7 +283,8 @@ func resourceArchitectureProcessUpdate(ctx context.Context, d *schema.ResourceDa
 	if parentID != "" {
 		getResp, err := readArchitectureProcess(client, parentID, workspaceID)
 		if err != nil {
-			return common.CheckDeletedDiag(d, parseArchitectureProcessError(err), "error retrieving DataArts Architecture process")
+			return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", "DLG.3903"),
+				"error retrieving DataArts Architecture process")
 		}
 
 		getRespBody, err := utils.FlattenResponse(getResp)
@@ -343,7 +341,8 @@ func resourceArchitectureProcessDelete(_ context.Context, d *schema.ResourceData
 		return diag.Errorf("error deleting DataArts Architecture process: the process still exists")
 	}
 
-	return common.CheckDeletedDiag(d, parseArchitectureProcessError(err), "error deleting DataArts Architecture process")
+	return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", "DLG.3903"),
+		"error deleting DataArts Architecture process")
 }
 
 func buildDeleteArchitectureProcessBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -363,26 +362,6 @@ func readArchitectureProcess(client *golangsdk.ServiceClient, catalogID, workspa
 	}
 
 	return client.Request("GET", getPath, &getOpt)
-}
-
-// The example of error message is: {"errors": [{"error_code": "DLG.3903","error_msg": "Definition [XXX] does not exist"}]}
-func parseArchitectureProcessError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("errors|[0].error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DLG.3903" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func resourceArchitectureProcessImportState(_ context.Context, d *schema.ResourceData, meta interface{}) (

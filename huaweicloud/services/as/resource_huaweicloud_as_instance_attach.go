@@ -305,7 +305,7 @@ func getGroupInstanceByID(client *golangsdk.ServiceClient, groupID, instanceID s
 		// When the group does not exist, the query instance list API response reports the following error:
 		// {"error":{"code":"AS.2007","message":"The AS group does not exist."}.
 		// It needs to be specially processed into 404
-		return nil, parseGroupResponseError(err)
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007")
 	}
 
 	allInstances, err := page.(instances.InstancePage).Extract()

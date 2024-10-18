@@ -7,14 +7,12 @@ package rds
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -159,7 +157,8 @@ func resourcePgHbaRead(_ context.Context, d *schema.ResourceData, meta interface
 
 	getPgHbaResp, err := getPgHbaClient.Request("GET", getPgHbaPath, &getPgHbaOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseRdsErrorToError404(err), "error retrieving RDS PostgreSQL hba")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code||errCode", "DBS.280343"),
+			"error retrieving RDS PostgreSQL hba")
 	}
 
 	getPgHbaRespBody, err := utils.FlattenResponse(getPgHbaResp)
@@ -194,23 +193,6 @@ func flattenPgHbaRequestBodyHostBasedAuthentication(resp interface{}) []interfac
 		})
 	}
 	return rst
-}
-
-func parseRdsErrorToError404(respErr error) error {
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code||errCode", apiError)
-		if errorCodeErr != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
-		}
-		if errorCode.(string) == "DBS.280343" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return respErr
 }
 
 func resourcePgHbaDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

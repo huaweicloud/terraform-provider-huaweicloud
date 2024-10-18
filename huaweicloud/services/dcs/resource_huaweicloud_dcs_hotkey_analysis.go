@@ -2,7 +2,6 @@ package dcs
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -217,7 +215,8 @@ func resourceHotKeyAnalysisRead(_ context.Context, d *schema.ResourceData, meta 
 	getHotKeyAnalysisRes, err := getHotKeyAnalysis(getHotKeyAnalysisClient, instanceId, d.Id())
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseHotKeyAnalysisError(err), "error retrieving DCS hot key analysis")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DCS.4941"),
+			"error retrieving DCS hot key analysis")
 	}
 
 	getHotKeyAnalysisRespBody, err := utils.FlattenResponse(getHotKeyAnalysisRes)
@@ -301,26 +300,6 @@ func hotKeyAnalysisStatusRefreshFunc(instanceId, hotkeyId string, client *golang
 		status := utils.PathSearch("status", task, "")
 		return task, status.(string), nil
 	}
-}
-
-// The example of error message is: {"error_code": "DCS.4941","error_msg": "The hotkey id does not exist."}
-func parseHotKeyAnalysisError(err error) error {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DCS.4941" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func getHotKeyAnalysis(client *golangsdk.ServiceClient, instanceId string, hotkeyId string) (*http.Response, error) {

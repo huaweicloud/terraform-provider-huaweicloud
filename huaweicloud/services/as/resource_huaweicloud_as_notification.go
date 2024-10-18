@@ -132,7 +132,7 @@ func resourceAsNotificationRead(_ context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		// When the group does not exist, the response error information of the detailed API is as follows:
 		// {"error": {"code": "AS.2007","message": "The AS group does not exist."}}.
-		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "error retrieving AS notification")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error retrieving AS notification")
 	}
 
 	getASNotificationRespBody, err := utils.FlattenResponse(getResp)
@@ -202,7 +202,7 @@ func resourceAsNotificationDelete(_ context.Context, d *schema.ResourceData, met
 		// When the group does not exist, the response error message of the delete API is:
 		// {"error": {"code": "AS.2007","message": "The AS group does not exist."}}.
 		// When AS notification does not exist, the response HTTP status code of the delete API is 404
-		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "error deleting AS notification")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error deleting AS notification")
 	}
 	return nil
 }

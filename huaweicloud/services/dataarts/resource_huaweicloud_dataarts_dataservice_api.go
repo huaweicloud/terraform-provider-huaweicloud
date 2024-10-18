@@ -866,7 +866,7 @@ func GetDataServiceApi(client *golangsdk.ServiceClient, workspaceId, dlmType, ap
 
 	requestResp, err := client.Request("GET", getPath, &opt)
 	if err != nil {
-		return nil, ParseQueryError400(err, apiResourceNotFoundCodes)
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", apiResourceNotFoundCodes...)
 	}
 	return utils.FlattenResponse(requestResp)
 }
@@ -1208,7 +1208,8 @@ func resourceDataServiceApiDelete(_ context.Context, d *schema.ResourceData, met
 
 	_, err = client.Request("POST", createPath, &opt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParseQueryError400(err, apiResourceNotFoundCodesForDelete), fmt.Sprintf("error deleting API (%s)", apiId))
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", apiResourceNotFoundCodesForDelete...),
+			fmt.Sprintf("error deleting API (%s)", apiId))
 	}
 	return nil
 }

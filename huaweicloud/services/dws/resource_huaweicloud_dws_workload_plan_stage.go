@@ -2,8 +2,6 @@ package dws
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -11,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -260,44 +257,12 @@ func refreshWorkloadPlanStageID(client *golangsdk.ServiceClient, d *schema.Resou
 }
 
 func parseWorkLoadPlanStageError(err error) error {
-	var errCode400 golangsdk.ErrDefault400
-	var errCode403 golangsdk.ErrDefault403
-	if errors.As(err, &errCode400) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode400.Body, &apiError); jsonErr != nil {
-			if decodeRes, decodeErr := base64.URLEncoding.DecodeString(string(errCode400.Body)); decodeErr == nil {
-				if jsonErr = json.Unmarshal(decodeRes, &apiError); jsonErr != nil {
-					return err
-				}
-			}
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DWS.0001" {
-			return golangsdk.ErrDefault404(errCode400)
-		}
+	if errors.As(err, &golangsdk.ErrDefault403{}) {
+		return common.ConvertExpected400ErrInto404Err(err, "error_code", "DWS.0001")
 	}
 
-	if errors.As(err, &errCode403) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode403.Body, &apiError); jsonErr != nil {
-			if decodeRes, decodeErr := base64.URLEncoding.DecodeString(string(errCode403.Body)); decodeErr == nil {
-				if jsonErr = json.Unmarshal(decodeRes, &apiError); jsonErr != nil {
-					return err
-				}
-			}
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DWS.0015" {
-			return golangsdk.ErrDefault404(errCode403)
-		}
+	if errors.As(err, &golangsdk.ErrDefault400{}) {
+		return common.ConvertExpected403ErrInto404Err(err, "error_code", "DWS.0015")
 	}
 	return err
 }

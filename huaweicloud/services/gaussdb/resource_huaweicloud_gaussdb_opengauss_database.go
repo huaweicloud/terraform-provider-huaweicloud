@@ -2,7 +2,6 @@ package gaussdb
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -10,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -274,29 +272,11 @@ func resourceOpenGaussDatabaseDelete(ctx context.Context, d *schema.ResourceData
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseOpenGaussDatabaseError(err), "error deleting GaussDB openGauss database")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DBS.200823"),
+			"error deleting GaussDB openGauss database")
 	}
 
 	return nil
-}
-
-func parseOpenGaussDatabaseError(err error) error {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DBS.200823" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func resourceOpenGaussDatabaseImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,

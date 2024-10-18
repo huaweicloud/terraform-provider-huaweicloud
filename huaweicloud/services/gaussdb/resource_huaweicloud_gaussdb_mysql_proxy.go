@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -1432,20 +1431,8 @@ func checkGaussDBMySQLProxyJobFinish(ctx context.Context, client *golangsdk.Serv
 }
 
 func parseMysqlProxyError(err error) error {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DBS.201028" {
-			return golangsdk.ErrDefault404(errCode)
-		}
+	if parsedErr, ok := err.(golangsdk.ErrDefault400); ok {
+		return common.ConvertExpected400ErrInto404Err(parsedErr, "error_code", "DBS.201028")
 	}
 	return common.ConvertUndefinedErrInto404Err(err, 409, "error_code", "DBS.200932")
 }

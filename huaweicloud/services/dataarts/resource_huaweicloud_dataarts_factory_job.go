@@ -7,14 +7,12 @@ package dataarts
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -937,7 +935,8 @@ func resourceFactoryJobRead(_ context.Context, d *schema.ResourceData, meta inte
 	getJobResp, err := getJobClient.Request("GET", getJobPath, &getJobOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseFactoryJobNotFoundError(err), "error retrieving Job")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DLF.0100"),
+			"error retrieving Job")
 	}
 
 	getJobRespBody, err := utils.FlattenResponse(getJobResp)
@@ -1316,23 +1315,4 @@ func resourceFactoryJobImportState(_ context.Context, d *schema.ResourceData, _ 
 	d.SetId(parts[1])
 
 	return []*schema.ResourceData{d}, nil
-}
-
-func parseFactoryJobNotFoundError(respErr error) error {
-	var apiErr interface{}
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr != nil {
-			return pErr
-		}
-		errCode, err := jmespath.Search(`error_code`, apiErr)
-		if err != nil {
-			return fmt.Errorf("error parse error_code from response body: %s", err.Error())
-		}
-
-		if errCode == `DLF.0100` {
-			return golangsdk.ErrDefault404{}
-		}
-	}
-	return respErr
 }

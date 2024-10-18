@@ -7,13 +7,11 @@ package dcs
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -258,7 +256,8 @@ func resourceCustomTemplateRead(_ context.Context, d *schema.ResourceData, meta 
 	getCustomTemplateResp, err := getCustomTemplateClient.Request("GET", getCustomTemplatePath, &getCustomTemplateOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDcsErrorToError404(err), "error retrieving DCS custom template")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DCS.4988"),
+			"error retrieving DCS custom template")
 	}
 
 	getCustomTemplateRespBody, err := utils.FlattenResponse(getCustomTemplateResp)
@@ -282,26 +281,6 @@ func resourceCustomTemplateRead(_ context.Context, d *schema.ResourceData, meta 
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func parseDcsErrorToError404(err error) error {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DCS.4988" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-
-	return err
 }
 
 func flattenGetCustomTemplateResponseBodyParam(d *schema.ResourceData, resp interface{}) []interface{} {

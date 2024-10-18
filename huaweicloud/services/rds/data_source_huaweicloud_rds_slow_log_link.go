@@ -79,7 +79,8 @@ func dataSourceRdsSlowLogLinkRead(ctx context.Context, d *schema.ResourceData, m
 	fileName := d.Get("file_name").(string)
 	resp, err := waitForSlowLogLinkCompleted(ctx, client, instanceID, fileName, d.Timeout(schema.TimeoutRead))
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseRdsErrorToError404(err), "error retrieving RDS slow log link")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code||errCode", "DBS.280343"),
+			"error retrieving RDS slow log link")
 	}
 
 	dataSourceId, err := uuid.GenerateUUID()

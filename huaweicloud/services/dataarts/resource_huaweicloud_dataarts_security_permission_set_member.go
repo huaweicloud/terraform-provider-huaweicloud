@@ -133,7 +133,7 @@ func GetMemberByObjectId(cfg *config.Config, region, workspaceId, permissionSetI
 	}
 	resp, err := client.Request("GET", getPath, &getPermissionSetMemberOpt)
 	if err != nil {
-		return nil, ParseQueryError400(err, []string{"DLS.6036"})
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", "DLS.6036")
 	}
 
 	respBody, err := utils.FlattenResponse(resp)

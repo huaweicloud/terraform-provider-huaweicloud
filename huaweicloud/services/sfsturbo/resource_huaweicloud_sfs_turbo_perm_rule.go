@@ -2,14 +2,12 @@ package sfsturbo
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -119,26 +117,6 @@ func resourceSFSTurboPermRuleCreate(ctx context.Context, d *schema.ResourceData,
 	return resourceSFSTurboPermRuleRead(ctx, d, meta)
 }
 
-func parsePermRuleError(respErr error) error {
-	var apiErr interface{}
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr != nil {
-			return pErr
-		}
-		errCode, err := jmespath.Search(`errCode`, apiErr)
-		if err != nil {
-			return fmt.Errorf("error parsing errorCode from response body: %s", err.Error())
-		}
-
-		if errCode == `SFS.TURBO.0001` {
-			return golangsdk.ErrDefault404{}
-		}
-	}
-
-	return respErr
-}
-
 func resourceSFSTurboPermRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -161,7 +139,8 @@ func resourceSFSTurboPermRuleRead(_ context.Context, d *schema.ResourceData, met
 
 	getResp, err := sfsClient.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parsePermRuleError(err), "error retrieving SFS Turbo permission rule")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errCode", "SFS.TURBO.0001"),
+			"error retrieving SFS Turbo permission rule")
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)

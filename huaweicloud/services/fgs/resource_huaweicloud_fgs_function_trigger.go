@@ -3,7 +3,6 @@ package fgs
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -14,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -205,30 +203,9 @@ func GetTriggerById(client *golangsdk.ServiceClient, functionUrn, triggerType, t
 
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return nil, parseTriggerQueryError(err)
+		return nil, common.ConvertExpected500ErrInto404Err(err, "error_code", "FSS.0500")
 	}
 	return utils.FlattenResponse(requestResp)
-}
-
-func parseTriggerQueryError(err error) error {
-	var errCode golangsdk.ErrDefault500
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		// Error code FSS.0500 indicates that the function to which the trigger belongs has been deleted.
-		if errorCode == "FSS.0500" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func parseEventData(eventData interface{}) interface{} {

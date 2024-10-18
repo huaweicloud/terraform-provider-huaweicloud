@@ -542,7 +542,7 @@ func GetDataServiceApis(client *golangsdk.ServiceClient, d *schema.ResourceData)
 
 	requestResp, err := client.Request("GET", getPath, &opt)
 	if err != nil {
-		return nil, ParseQueryError400(err, apiResourceNotFoundCodes)
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", apiResourceNotFoundCodes...)
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
@@ -605,7 +605,7 @@ func GetDataServiceApiDetail(client *golangsdk.ServiceClient, workspaceId, dlmTy
 
 	requestResp, err := client.Request("GET", getPath, &opt)
 	if err != nil {
-		return nil, ParseQueryError400(err, apiResourceNotFoundCodes)
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", apiResourceNotFoundCodes...)
 	}
 	return utils.FlattenResponse(requestResp)
 }
