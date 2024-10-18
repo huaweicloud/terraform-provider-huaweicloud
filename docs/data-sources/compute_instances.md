@@ -51,6 +51,8 @@ The following arguments are supported:
 
 * `key_pair` - (Optional, String) Specifies the key pair that is used to authenticate the instance.
 
+* `tags` - (Optional, String) Specifies the tags qurey the instances.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
