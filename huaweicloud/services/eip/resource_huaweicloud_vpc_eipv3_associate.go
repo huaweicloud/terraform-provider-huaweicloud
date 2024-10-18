@@ -2,13 +2,11 @@ package eip
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -165,27 +163,9 @@ func resourceEipv3AssociateDelete(_ context.Context, d *schema.ResourceData, met
 
 	_, err = client.Request("POST", deletePath, &deleteOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseVpcEipAssociateError(err), "error deleting VPC EIP associate")
+		return common.CheckDeletedDiag(d, common.ConvertUndefinedErrInto404Err(err, 409, "error_code", "EIP.7902"),
+			"error deleting VPC EIP associate")
 	}
 
 	return nil
-}
-
-func parseVpcEipAssociateError(err error) error {
-	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "EIP.7902" {
-			return golangsdk.ErrDefault404{}
-		}
-	}
-	return err
 }

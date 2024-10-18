@@ -172,6 +172,17 @@ func NormalizeJsonString(jsonString interface{}) (string, error) {
 	return string(bytes[:]), nil
 }
 
+// SliceContains checks if a target object is present in a slice (the type of the elemetes which same as the target
+// object).
+func SliceContains(slice []interface{}, target interface{}) bool {
+	for _, v := range slice {
+		if reflect.DeepEqual(v, target) {
+			return true
+		}
+	}
+	return false
+}
+
 // StrSliceContains checks if a given string is contained in a slice
 // When anybody asks why Go needs generics, here you go.
 func StrSliceContains(haystack []string, needle string) bool {

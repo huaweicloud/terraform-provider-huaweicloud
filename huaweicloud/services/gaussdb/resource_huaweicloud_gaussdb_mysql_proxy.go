@@ -1447,22 +1447,7 @@ func parseMysqlProxyError(err error) error {
 			return golangsdk.ErrDefault404(errCode)
 		}
 	}
-	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DBS.200932" {
-			return golangsdk.ErrDefault404{}
-		}
-	}
-	return err
+	return common.ConvertUndefinedErrInto404Err(err, 409, "error_code", "DBS.200932")
 }
 
 func resourceGaussDBMySQLProxyImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,

@@ -232,7 +232,7 @@ func resourceLogSettingDelete(_ context.Context, d *schema.ResourceData, meta in
 		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
 		// "CSS.0004": Invalid operation. Status code is 415.
 		// {"errCode":"CSS.0004","externalMessage":"CSS.0004 : Invalid operation. (Illegal operation)"}
-		err = ConvertExpectOtherErrInto404Err(err, 415, "errCode", "CSS.0004")
+		err = common.ConvertUndefinedErrInto404Err(err, 415, "errCode", "CSS.0004")
 		return common.CheckDeletedDiag(d, err, "error closing CSS cluster log function")
 	}
 
