@@ -5,6 +5,7 @@ page_title: "HuaweiCloud: huaweicloud_vpn_user"
 description: |-
   Manages a VPN user resource within HuaweiCloud.
 ---
+
 # huaweicloud_vpn_user
 
 Manages a VPN user resource within HuaweiCloud.
