@@ -1172,6 +1172,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_product_v1":                deprecated.DataSourceDcsProductV1(),
 			"huaweicloud_dms_az":                        deprecated.DataSourceDmsAZ(),
 			"huaweicloud_dms_az_v1":                     deprecated.DataSourceDmsAZ(),
+			"huaweicloud_dms_rabbitmq_users":            dms.DataSourceDmsRabbitmqUsers(),
 			"huaweicloud_sfs_file_system":               deprecated.DataSourceSFSFileSystemV2(),
 			"huaweicloud_sfs_file_system_v2":            deprecated.DataSourceSFSFileSystemV2(),
 			"huaweicloud_vbs_backup_policy":             deprecated.DataSourceVBSBackupPolicyV2(),
@@ -1475,6 +1476,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rabbitmq_queue":               dms.ResourceDmsRabbitmqQueue(),
 			"huaweicloud_dms_rabbitmq_queue_message_clear": dms.ResourceDmsRabbitmqQueueMessageClear(),
 			"huaweicloud_dms_rabbitmq_exchange_associate":  dms.ResourceDmsRabbitmqExchangeAssociate(),
+			"huaweicloud_dms_rabbitmq_user":                dms.ResourceDmsRabbitmqUser(),
 
 			"huaweicloud_dms_rocketmq_instance":       dms.ResourceDmsRocketMQInstance(),
 			"huaweicloud_dms_rocketmq_consumer_group": dms.ResourceDmsRocketMQConsumerGroup(),
