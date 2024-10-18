@@ -54,13 +54,14 @@ type UpdateOptsBuilder interface {
 
 // UpdateOpts contains all the values needed to update a policy.
 type UpdateOpts struct {
-	FullDetection       *bool         `json:"full_detection,omitempty"`
-	RobotAction         *Action       `json:"robot_action,omitempty"`
-	Action              *Action       `json:"action,omitempty"`
-	Options             *PolicyOption `json:"options,omitempty"`
-	Name                string        `json:"name,omitempty"`
-	Level               int           `json:"level,omitempty"`
-	EnterpriseProjectId string        `q:"enterprise_project_id" json:"-"`
+	FullDetection       *bool             `json:"full_detection,omitempty"`
+	RobotAction         *Action           `json:"robot_action,omitempty"`
+	Action              *Action           `json:"action,omitempty"`
+	Options             *PolicyOption     `json:"options,omitempty"`
+	Name                string            `json:"name,omitempty"`
+	Level               int               `json:"level,omitempty"`
+	Extend              map[string]string `json:"extend,omitempty"`
+	EnterpriseProjectId string            `q:"enterprise_project_id" json:"-"`
 }
 
 // ToPolicyUpdateMap builds a update request body from UpdateOpts.

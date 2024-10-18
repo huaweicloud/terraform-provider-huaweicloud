@@ -72,6 +72,21 @@ func ResourceWafPolicyV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"deep_inspection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"header_inspection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"shiro_decryption_check": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 			"options": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -82,18 +97,6 @@ func ResourceWafPolicyV1() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     policyBindHostSchema(),
-			},
-			"deep_inspection": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"header_inspection": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"shiro_decryption_check": {
-				Type:     schema.TypeBool,
-				Computed: true,
 			},
 		},
 	}
@@ -240,6 +243,7 @@ func updatePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *
 		FullDetection:       utils.Bool(d.Get("full_detection").(bool)),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		Options:             buildUpdatePolicyOption(d),
+		Extend:              buildExtend(d),
 	}
 
 	if v, ok := d.GetOk("protection_mode"); ok {
@@ -255,6 +259,24 @@ func updatePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *
 	}
 	_, err := policies.Update(client, d.Id(), updateOpts).Extract()
 	return err
+}
+
+// Due to API reasons, these three fields need to be edited through the `extend` structure.
+func buildExtend(d *schema.ResourceData) map[string]string {
+	extendObj := map[string]interface{}{
+		"deep_decode":             d.Get("deep_inspection"),
+		"check_all_headers":       d.Get("header_inspection"),
+		"shiro_rememberMe_enable": d.Get("shiro_decryption_check"),
+	}
+
+	extendJsonString := utils.JsonToString(extendObj)
+	if extendJsonString == "" {
+		return nil
+	}
+
+	return map[string]string{
+		"extend": extendJsonString,
+	}
 }
 
 func buildUpdatePolicyOption(d *schema.ResourceData) *policies.PolicyOption {
