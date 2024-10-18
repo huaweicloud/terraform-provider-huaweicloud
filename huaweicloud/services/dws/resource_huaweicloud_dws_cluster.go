@@ -53,6 +53,8 @@ const ClusterIdIllegalErrCode = "DWS.0001"
 // @API DWS POST /v1/{project_id}/clusters/{cluster_id}/lts-logs/disable
 // @API DWS POST /v2/{project_id}/clusters/{cluster_id}/eips/{eip_id}
 // @API DWS DELETE /v2/{project_id}/clusters/{cluster_id}/eips/{eip_id}
+// @API DWS POST /v1/{project_id}/clusters/{cluster_id}/description
+// @API DWS PUT /v1/{project_id}/clusters/{cluster_id}/security-group
 func ResourceDwsCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsClusterCreate,
@@ -119,7 +121,6 @@ func ResourceDwsCluster() *schema.Resource {
 			"security_group_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The security group ID.`,
 			},
 			"availability_zone": {
@@ -197,7 +198,7 @@ func ResourceDwsCluster() *schema.Resource {
 			"logical_cluster_enable": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: `Specified whether to enable logical cluster.`,
+				Description: `Whether to enable logical cluster.`,
 			},
 			"elb_id": {
 				Type:        schema.TypeString,
@@ -207,7 +208,12 @@ func ResourceDwsCluster() *schema.Resource {
 			"lts_enable": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: `Specified whether to enable LTS.`,
+				Description: `Whether to enable LTS.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the cluster.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -488,7 +494,7 @@ func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, met
 
 	err = clusterWaitingForAvailable(ctx, d, createDwsClusterClient, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the DWS cluster (%s) creation to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the DWS cluster (%s) creation to complete: %s", clusterId, err)
 	}
 
 	if d.Get("logical_cluster_enable").(bool) {
@@ -514,6 +520,11 @@ func resourceDwsClusterCreateV2(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	if v, ok := d.GetOk("description"); ok {
+		if err := updateDescription(createDwsClusterClient, clusterId, v.(string)); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceDwsClusterRead(ctx, d, meta)
 }
 
@@ -558,7 +569,7 @@ func resourceDwsClusterCreateV1(ctx context.Context, d *schema.ResourceData, met
 
 	err = clusterWaitingForAvailable(ctx, d, createDwsClusterClient, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the DWS cluster (%s) creation to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the DWS cluster (%s) creation to complete: %s", clusterId, err)
 	}
 
 	if d.Get("logical_cluster_enable").(bool) {
@@ -572,6 +583,12 @@ func resourceDwsClusterCreateV1(ctx context.Context, d *schema.ResourceData, met
 		elbId := v.(string)
 		err := bindElb(ctx, d, createDwsClusterClient, elbId)
 		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if v, ok := d.GetOk("description"); ok {
+		if err := updateDescription(createDwsClusterClient, clusterId, v.(string)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -768,6 +785,7 @@ func resourceDwsClusterRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("private_ip", utils.PathSearch("cluster.private_ip", getDwsClusterRespBody, nil)),
 		d.Set("maintain_window", flattenGetDwsClusterRespBodyMaintainWindow(getDwsClusterRespBody)),
 		d.Set("elb", flattenGetDwsClusterRespBodyElb(getDwsClusterRespBody)),
+		d.Set("description", utils.PathSearch("cluster.cluster_description_info", getDwsClusterRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -1028,6 +1046,17 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 	}
 
+	if d.HasChange("description") {
+		if err := updateDescription(clusterClient, clusterId, d.Get("description").(string)); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("security_group_id") {
+		if err := updateSecurityGroup(clusterClient, clusterId, d.Get("security_group_id").(string)); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceDwsClusterRead(ctx, d, meta)
 }
 
@@ -1448,4 +1477,43 @@ func parseClusterNotFoundError(err error) error {
 		return parsedErr
 	}
 	return err
+}
+
+func updateDescription(client *golangsdk.ServiceClient, clusterId, description string) error {
+	httpUrl := "v1/{project_id}/clusters/{cluster_id}/description"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	path = strings.ReplaceAll(path, "{cluster_id}", clusterId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		// The description can be changed to empty.
+		JSONBody: map[string]interface{}{
+			"description_info": description,
+		},
+	}
+	_, err := client.Request("POST", path, &opt)
+	if err != nil {
+		return fmt.Errorf("unable to set description for the cluster (%s): %s", clusterId, err)
+	}
+
+	return nil
+}
+
+func updateSecurityGroup(client *golangsdk.ServiceClient, clusterId, securityGroupId string) error {
+	httpUrl := "v1/{project_id}/clusters/{cluster_id}/security-group"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	path = strings.ReplaceAll(path, "{cluster_id}", clusterId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"security_groups": []string{securityGroupId},
+		},
+	}
+	_, err := client.Request("PUT", path, &opt)
+	if err != nil {
+		return fmt.Errorf("error updating security group for the cluster (%s): %s", clusterId, err)
+	}
+
+	return nil
 }
