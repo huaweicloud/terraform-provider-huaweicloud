@@ -22,7 +22,7 @@ func TestAccDatasourcePhoneFlavors_basic(t *testing.T) {
 				Config: testAccDatasourcePhoneFlavors_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					statusFilter.CheckResourceExists(),
-					resource.TestCheckOutput("status_filter_is_useful", "true"),
+					resource.TestCheckOutput("is_status_filter_useful", "true"),
 					resource.TestCheckResourceAttrSet(rName, "flavors.0.flavor_id"),
 					resource.TestCheckResourceAttrSet(rName, "flavors.0.server_flavor_id"),
 					resource.TestCheckResourceAttrSet(rName, "flavors.0.vcpus"),
@@ -35,10 +35,10 @@ func TestAccDatasourcePhoneFlavors_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "flavors.0.extend_spec"),
 
 					typeFilter.CheckResourceExists(),
-					resource.TestCheckOutput("type_filter_is_useful", "true"),
+					resource.TestCheckOutput("is_type_filter_useful", "true"),
 
 					vcpusFilter.CheckResourceExists(),
-					resource.TestCheckOutput("vcpus_filter_is_useful", "true"),
+					resource.TestCheckOutput("is_vcpus_filter_useful", "true"),
 				),
 			},
 		},
@@ -50,21 +50,24 @@ func testAccDatasourcePhoneFlavors_basic() string {
 data "huaweicloud_cph_phone_flavors" "status_filter" {
   status = "1"
 }
-output "status_filter_is_useful" {
+
+output "is_status_filter_useful" {
   value = !contains([for v in data.huaweicloud_cph_phone_flavors.status_filter.flavors[*].status : v == "1"], "false")
 }
 
 data "huaweicloud_cph_phone_flavors" "type_filter" {
   type = "0"
 }
-output "type_filter_is_useful" {
+
+output "is_type_filter_useful" {
   value = !contains([for v in data.huaweicloud_cph_phone_flavors.type_filter.flavors[*].type : v == "0"], "false")
 }
 
 data "huaweicloud_cph_phone_flavors" "vcpus_filter" {
   vcpus = 4
 }
-output "vcpus_filter_is_useful" {
+
+output "is_vcpus_filter_useful" {
   value = !contains([for v in data.huaweicloud_cph_phone_flavors.vcpus_filter.flavors[*].vcpus : v == 4], "false")
 }
 `

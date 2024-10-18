@@ -18,7 +18,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -153,7 +152,7 @@ func resourceServerFlavorsRead(_ context.Context, d *schema.ResourceData, meta i
 	)
 	listFlavorsClient, err := cfg.NewServiceClient(listFlavorsProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CPH Client: %s", err)
+		return diag.Errorf("error creating CPH client: %s", err)
 	}
 
 	listFlavorsPath := listFlavorsClient.Endpoint + listFlavorsHttpUrl
@@ -164,14 +163,10 @@ func resourceServerFlavorsRead(_ context.Context, d *schema.ResourceData, meta i
 
 	listFlavorsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	listFlavorsResp, err := listFlavorsClient.Request("GET", listFlavorsPath, &listFlavorsOpt)
-
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving ServerFlavors")
+		return diag.Errorf("error retrieving CPH server flavors: %s", err)
 	}
 
 	listFlavorsRespBody, err := utils.FlattenResponse(listFlavorsResp)

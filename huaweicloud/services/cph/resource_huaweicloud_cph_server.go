@@ -516,7 +516,7 @@ func resourceCphServerRead(_ context.Context, d *schema.ResourceData, meta inter
 	)
 	getCphServerClient, err := cfg.NewServiceClient(getCphServerProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CPH Client: %s", err)
+		return diag.Errorf("error creating CPH client: %s", err)
 	}
 
 	getCphServerPath := getCphServerClient.Endpoint + getCphServerHttpUrl
@@ -525,14 +525,11 @@ func resourceCphServerRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	getCphServerOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getCphServerResp, err := getCphServerClient.Request("GET", getCphServerPath, &getCphServerOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CPH Server")
+		return common.CheckDeletedDiag(d, err, "error retrieving CPH server")
 	}
 
 	getCphServerRespBody, err := utils.FlattenResponse(getCphServerResp)
@@ -542,7 +539,7 @@ func resourceCphServerRead(_ context.Context, d *schema.ResourceData, meta inter
 	statusRaw := utils.PathSearch("status", getCphServerRespBody, nil)
 
 	if fmt.Sprint(statusRaw) == "6" {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving CPH Server")
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving CPH server")
 	}
 
 	mErr = multierror.Append(
@@ -591,10 +588,10 @@ func flattenGetCphServerResponseBodyBandWidth(resp interface{}) []interface{} {
 
 	rst = []interface{}{
 		map[string]interface{}{
-			"share_type":  fmt.Sprint(utils.PathSearch("band_width_share_type", curJson, nil)),
+			"share_type":  fmt.Sprintf("%v", utils.PathSearch("band_width_share_type", curJson, nil)),
 			"id":          utils.PathSearch("band_width_id", curJson, nil),
 			"size":        utils.PathSearch("band_width_size", curJson, nil),
-			"charge_mode": fmt.Sprint(utils.PathSearch("band_width_charge_mode", curJson, nil)),
+			"charge_mode": fmt.Sprintf("%v", utils.PathSearch("band_width_charge_mode", curJson, nil)),
 		},
 	}
 	return rst
@@ -616,7 +613,7 @@ func resourceCphServerUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		)
 		updateCphServerNameClient, err := cfg.NewServiceClient(updateCphServerNameProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating CPH Client: %s", err)
+			return diag.Errorf("error creating CPH client: %s", err)
 		}
 
 		updateCphServerNamePath := updateCphServerNameClient.Endpoint + updateCphServerNameHttpUrl
@@ -625,14 +622,11 @@ func resourceCphServerUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 		updateCphServerNameOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateCphServerNameOpt.JSONBody = utils.RemoveNil(buildUpdateCphServerNameBodyParams(d, cfg))
 		_, err = updateCphServerNameClient.Request("PUT", updateCphServerNamePath, &updateCphServerNameOpt)
 		if err != nil {
-			return diag.Errorf("error updating CPH Server: %s", err)
+			return diag.Errorf("error updating CPH server: %s", err)
 		}
 	}
 	return resourceCphServerRead(ctx, d, meta)
@@ -671,7 +665,7 @@ func deleteCphServerWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 			)
 			getCphServerClient, err := cfg.NewServiceClient(getCphServerProduct, region)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating CPH Client: %s", err)
+				return nil, "ERROR", fmt.Errorf("error creating CPH client: %s", err)
 			}
 
 			getCphServerPath := getCphServerClient.Endpoint + getCphServerHttpUrl
@@ -680,9 +674,6 @@ func deleteCphServerWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 
 			getCphServerOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
 			}
 			getCphServerResp, err := getCphServerClient.Request("GET", getCphServerPath, &getCphServerOpt)
 
