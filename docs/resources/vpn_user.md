@@ -5,6 +5,7 @@ page_title: "HuaweiCloud: huaweicloud_vpn_user"
 description: |-
   Manages a VPN user resource within HuaweiCloud.
 ---
+
 # huaweicloud_vpn_user
 
 Manages a VPN user resource within HuaweiCloud.
@@ -39,19 +40,19 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the user.
 
-* `user_group_id` - (Optional, String) Specifies the user group ID.
-
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
+* `user_group_id` - The user group ID.
+
+* `user_group_name` - The user group name.
+
 * `created_at` - The creation time.
 
 * `updated_at` - The update time.
-
-* `user_group_name` - The user group name.
 
 ## Import
 

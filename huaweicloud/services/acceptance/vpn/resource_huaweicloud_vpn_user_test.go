@@ -57,7 +57,6 @@ func TestAccUser_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckVPNP2cServer(t)
-			acceptance.TestAccPreCheckVPNP2cUserGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -81,7 +80,6 @@ func TestAccUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "password", "Gaia1234"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
-					resource.TestCheckResourceAttrSet(rName, "user_group_id"),
 				),
 			},
 			{
@@ -115,7 +113,6 @@ resource "huaweicloud_vpn_user" "test" {
   name          = "%[2]s"
   password      = "Gaia1234"
   description   = ""
-  user_group_id = "%[3]s"
 }
-`, acceptance.HW_VPN_P2C_SERVER, name, acceptance.HW_VPN_P2C_USER_GROUP)
+`, acceptance.HW_VPN_P2C_SERVER, name)
 }

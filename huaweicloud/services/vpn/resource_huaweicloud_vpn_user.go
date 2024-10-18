@@ -65,9 +65,14 @@ func ResourceUser() *schema.Resource {
 				Description: `The description of the user.`,
 			},
 			"user_group_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The user group ID.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The user group ID.`,
+					utils.SchemaDescInput{
+						Computed: true,
+					}),
 			},
 			"user_group_name": {
 				Type:        schema.TypeString,

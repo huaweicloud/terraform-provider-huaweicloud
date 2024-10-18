@@ -44,7 +44,6 @@ var (
 	HW_VPC_ID                 = os.Getenv("HW_VPC_ID")
 	HW_VPN_P2C_GATEWAY_ID     = os.Getenv("HW_VPN_P2C_GATEWAY_ID")
 	HW_VPN_P2C_SERVER         = os.Getenv("HW_VPN_P2C_SERVER")
-	HW_VPN_P2C_USER_GROUP     = os.Getenv("HW_VPN_P2C_USER_GROUP")
 	HW_NETWORK_ID             = os.Getenv("HW_NETWORK_ID")
 	HW_SUBNET_ID              = os.Getenv("HW_SUBNET_ID")
 	HW_SECURITY_GROUP_ID      = os.Getenv("HW_SECURITY_GROUP_ID")
@@ -2350,13 +2349,6 @@ func TestAccPreCheckVPNP2cGatewayId(t *testing.T) {
 func TestAccPreCheckVPNP2cServer(t *testing.T) {
 	if HW_VPN_P2C_SERVER == "" {
 		t.Skip("HW_VPN_P2C_SERVER must be set for the acceptance test")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckVPNP2cUserGroup(t *testing.T) {
-	if HW_VPN_P2C_USER_GROUP == "" {
-		t.Skip("HW_VPN_P2C_USER_GROUP must be set for the acceptance test")
 	}
 }
 
