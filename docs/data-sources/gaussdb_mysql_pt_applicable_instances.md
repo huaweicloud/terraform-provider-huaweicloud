@@ -13,7 +13,11 @@ Use this data source to get the GaussDB MySQL instances that a parameter templat
 ## Example Usage
 
 ```hcl
-data "huaweicloud_gaussdb_mysql_pt_applicable_instances" "test" {}
+variable "configuration_id"  {}
+
+data "huaweicloud_gaussdb_mysql_pt_applicable_instances" "test" {
+  configuration_id = var.configuration_id
+}
 ```
 
 ## Argument Reference

@@ -13,7 +13,11 @@ Use this data source to get the application records of a parameter template.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_gaussdb_mysql_pt_apply_records" "test" {}
+variable "config_id"  {}
+
+data "huaweicloud_gaussdb_mysql_pt_apply_records" "test" {
+  config_id = var.config_id
+}
 ```
 
 ## Argument Reference
