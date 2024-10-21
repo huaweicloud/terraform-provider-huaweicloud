@@ -13,7 +13,11 @@ Use this data source to get the change history of a parameter template.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_gaussdb_mysql_pt_modify_records" "test" {}
+variable "configuration_id"  {}
+
+data "huaweicloud_gaussdb_mysql_pt_modify_records" "test" {
+  configuration_id = var.configuration_id
+}
 ```
 
 ## Argument Reference
