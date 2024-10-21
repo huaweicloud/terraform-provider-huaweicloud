@@ -165,6 +165,7 @@ var (
 	HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID = os.Getenv("HW_GAUSSDB_MYSQL_INSTANCE_CONFIGURATION_ID")
 	HW_GAUSSDB_MYSQL_BACKUP_BEGIN_TIME         = os.Getenv("HW_GAUSSDB_MYSQL_BACKUP_BEGIN_TIME")
 	HW_GAUSSDB_MYSQL_BACKUP_END_TIME           = os.Getenv("HW_GAUSSDB_MYSQL_BACKUP_END_TIME")
+	HW_GAUSSDB_MYSQL_JOB_ID                    = os.Getenv("HW_GAUSSDB_MYSQL_JOB_ID")
 
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
@@ -1210,6 +1211,13 @@ func TestAccPreCheckGaussDBMysqlBackupBeginTime(t *testing.T) {
 func TestAccPreCheckGaussDBMysqlBackupEndTime(t *testing.T) {
 	if HW_GAUSSDB_MYSQL_BACKUP_END_TIME == "" {
 		t.Skip("HW_GAUSSDB_MYSQL_BACKUP_END_TIME must be set for GaussDB MySQL acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGaussDBMysqlJobId(t *testing.T) {
+	if HW_GAUSSDB_MYSQL_JOB_ID == "" {
+		t.Skip("HW_GAUSSDB_MYSQL_JOB_ID must be set for GaussDB MySQL acceptance tests.")
 	}
 }
 
