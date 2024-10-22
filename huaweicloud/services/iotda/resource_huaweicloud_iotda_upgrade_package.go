@@ -83,6 +83,12 @@ func ResourceUpgradePackage() *schema.Resource {
 										Required: true,
 										ForceNew: true,
 									},
+									"sign": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
 								},
 							},
 						},
@@ -119,6 +125,7 @@ func buildObsLocationParam(raw interface{}) *model.ObsLocation {
 		RegionName: obsLocationMap["region"].(string),
 		BucketName: obsLocationMap["bucket_name"].(string),
 		ObjectKey:  obsLocationMap["object_key"].(string),
+		Sign:       utils.StringIgnoreEmpty(obsLocationMap["sign"].(string)),
 	}
 
 	return &obsLocationParam
@@ -236,6 +243,7 @@ func flattenObsLocation(resp *model.ObsLocation) []interface{} {
 			"region":      resp.RegionName,
 			"bucket_name": resp.BucketName,
 			"object_key":  resp.ObjectKey,
+			"sign":        resp.Sign,
 		},
 	}
 

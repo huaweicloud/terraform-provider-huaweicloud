@@ -65,6 +65,8 @@ func TestAccUpgradePackage_basic(t *testing.T) {
 						"huaweicloud_obs_bucket_object.test", "bucket"),
 					resource.TestCheckResourceAttrPair(resourceName, "file_location.0.obs_location.0.object_key",
 						"huaweicloud_obs_bucket_object.test", "key"),
+					resource.TestCheckResourceAttr(resourceName, "file_location.0.obs_location.0.sign",
+						"0d6afb7e939f0936f40afdc759b5a354ea5427ec250a47e7b904ab1ea800a01d"),
 					resource.TestCheckResourceAttr(resourceName, "support_source_versions.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "description", "description test"),
 					resource.TestCheckResourceAttr(resourceName, "custom_info", "custom_info test"),
@@ -113,6 +115,8 @@ func TestAccUpgradePackage_derived(t *testing.T) {
 						"huaweicloud_obs_bucket_object.test", "bucket"),
 					resource.TestCheckResourceAttrPair(resourceName, "file_location.0.obs_location.0.object_key",
 						"huaweicloud_obs_bucket_object.test", "key"),
+					resource.TestCheckResourceAttr(resourceName, "file_location.0.obs_location.0.sign",
+						"0d6afb7e939f0936f40afdc759b5a354ea5427ec250a47e7b904ab1ea800a01d"),
 					resource.TestCheckResourceAttr(resourceName, "support_source_versions.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "description", "description test"),
 					resource.TestCheckResourceAttr(resourceName, "custom_info", "custom_info test"),
@@ -162,6 +166,7 @@ resource "huaweicloud_iotda_upgrade_package" "test" {
       region      = "%[3]s"
       bucket_name = huaweicloud_obs_bucket_object.test.bucket
       object_key  = huaweicloud_obs_bucket_object.test.key
+      sign        = "0d6afb7e939f0936f40afdc759b5a354ea5427ec250a47e7b904ab1ea800a01d"
     }
   }
 
