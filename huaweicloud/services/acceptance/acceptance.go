@@ -1001,6 +1001,14 @@ func TestAccPreCheckRAM(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckRAMResourceShare(t *testing.T) {
+	if HW_RAM_SHARE_ACCOUNT_ID == "" || HW_RAM_SHARE_RESOURCE_URN == "" {
+		t.Skip("HW_RAM_SHARE_ACCOUNT_ID and HW_RAM_SHARE_RESOURCE_URN " +
+			"must be set for create ram resource tests.")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckRAMEnableFlag(t *testing.T) {
 	if HW_RAM_ENABLE_FLAG == "" {
 		t.Skip("Skip the RAM acceptance tests.")
