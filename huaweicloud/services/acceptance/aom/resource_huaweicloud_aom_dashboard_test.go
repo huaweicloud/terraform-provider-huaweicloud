@@ -68,29 +68,29 @@ func TestAccDashboard_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDashboard_basic(rName, true),
+				Config: testDashboard_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "dashboard_title", rName),
 					resource.TestCheckResourceAttrPair(resourceName, "folder_title", "huaweicloud_aom_dashboards_folder.test", "folder_title"),
-					resource.TestCheckResourceAttr(resourceName, "dashboard_type", rName),
+					resource.TestCheckResourceAttr(resourceName, "dashboard_type", "dashboard"),
 					resource.TestCheckResourceAttr(resourceName, "is_favorite", "true"),
 					resource.TestCheckResourceAttrPair(resourceName, "enterprise_project_id",
 						"huaweicloud_aom_dashboards_folder.test", "enterprise_project_id"),
-					resource.TestCheckResourceAttr(resourceName, "dashboard_tags.0.key", rName),
+					resource.TestCheckResourceAttr(resourceName, "dashboard_tags.0.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "charts"),
 				),
 			},
 			{
-				Config: testDashboard_basic(newName, false),
+				Config: testDashboard_update(newName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "dashboard_title", newName),
 					resource.TestCheckResourceAttrPair(resourceName, "folder_title", "huaweicloud_aom_dashboards_folder.test", "folder_title"),
-					resource.TestCheckResourceAttr(resourceName, "dashboard_type", newName),
+					resource.TestCheckResourceAttr(resourceName, "dashboard_type", "custom"),
 					resource.TestCheckResourceAttr(resourceName, "is_favorite", "false"),
 					resource.TestCheckResourceAttrPair(resourceName, "enterprise_project_id",
 						"huaweicloud_aom_dashboards_folder.test", "enterprise_project_id"),
-					resource.TestCheckResourceAttr(resourceName, "dashboard_tags.0.key", newName),
 				),
 			},
 			{
@@ -102,7 +102,8 @@ func TestAccDashboard_basic(t *testing.T) {
 	})
 }
 
-func testDashboard_basic(name string, isFavorite bool) string {
+//nolint:revive
+func testDashboard_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -111,13 +112,65 @@ resource "huaweicloud_aom_dashboard" "test" {
 
   dashboard_title       = "%[2]s"
   folder_title          = huaweicloud_aom_dashboards_folder.test.folder_title
-  dashboard_type        = "%[2]s"
-  is_favorite           = %[3]t
+  dashboard_type        = "dashboard"
+  is_favorite           = true
   enterprise_project_id = huaweicloud_aom_dashboards_folder.test.enterprise_project_id
   dashboard_tags        = [
     {
-      key = "%[2]s"
+      key = "value"
     }
   ]
-}`, testDashboardsFolder_basic(name, false), name, isFavorite)
+
+  charts = jsonencode(
+    [
+      {
+        "definition": {
+          "requests": {
+            "promql": [
+              "label_replace(avg_over_time(actual_workload{version=\"latest\"}[59999ms]),\"__name__\",\"actual_workload\",\"\",\"\")"
+            ],
+            "copyPromql": [
+              "label_replace(avg_over_time(actual_workload{version=\"latest\"}[59999ms]),\"__name__\",\"actual_workload\",\"\",\"\")"
+            ],
+            "sql": "label_replace(avg_over_time(actual_workload{version=\"latest\"}[59999ms]),\"__name__\",\"actual_workload\",\"\",\"\")"
+          },
+          "requests_datasource": "prometheus",
+          "requests_type": "metric",
+          "type": "line",
+          "chart_title": "test",
+          "config": "{\"chartConfig\":{},\"data\":[{\"namespace\":\"\",\"metricName\":\"actual_workload\",\"alias\":\"\",\"isShowCharts\":true}],\"metricSelectConfig\":{\"metricData\":[{\"code\":\"a\",\"metricName\":\"actual_workload\",\"period\":60000,\"statisticRule\":{\"aggregation_type\":\"average\",\"operator\":\">\",\"thresholdNum\":1},\"aggregate_type\":{\"aggregate_type\":\"by\",\"groupByDimension\":[]},\"triggerRule\":3,\"alarmLevel\":\"Critical\",\"conditionOption\":[{\"id\":\"first\",\"dimension\":\"version\",\"conditionValue\":[{\"name\":\"latest\"}],\"conditionList\":[{\"name\":\"latest\"}],\"addMode\":\"first\",\"conditionCompare\":\"=\",\"regExpress\":null}],\"isShowCharts\":true,\"alias\":\"\",\"query\":\"label_replace({statisticMethod}_over_time(actual_workload{version=\\\"latest\\\"}[59999ms]),\\\"__name__\\\",\\\"actual_workload\\\",\\\"\\\",\\\"\\\")\",\"metircV3OriginData\":{\"metricName\":\"actual_workload\",\"label\":\"actual_workload\",\"namespace\":\"\",\"unit\":\"count\",\"help\":\"\"},\"promql\":\"label_replace(avg_over_time(actual_workload{version=\\\"latest\\\"}[59999ms]),\\\"__name__\\\",\\\"actual_workload\\\",\\\"\\\",\\\"\\\")\",\"transformPromql\":\"label_replace(avg_over_time(actual_workload{version=\\\"latest\\\"}[59999ms]),\\\"__name__\\\",\\\"actual_workload\\\",\\\"\\\",\\\"\\\")\"}],\"mixValue\":{\"mixValue\":\"\",\"statisticRule\":{\"aggregation_type\":\"average\",\"operator\":\">\",\"thresholdNum\":1},\"triggerRule\":3,\"alarmLevel\":\"Critical\",\"isShowCharts\":true,\"alias\":\"\"},\"type\":\"single\"}}",
+          "period": 60000,
+          "currentTime": "-1.-1.30",
+          "promMethod": "avg",
+          "statsMethod": "average",
+          "operationType": "edit",
+          "chart_id": "5k7n66zwew1xoxupkxray7dp"
+        },
+        "chart_layout": {
+          "width": 6,
+          "x": 0,
+          "y": 0,
+          "height": 4
+        },
+        "chart_id": "5k7n66zwew1xoxupkxray7dp",
+        "chart_title": "test"
+      }
+    ]
+  )
+}`, testDashboardsFolder_basic(name, false), name)
+}
+
+func testDashboard_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_aom_dashboard" "test" {
+  depends_on = [huaweicloud_aom_dashboards_folder.test]
+
+  dashboard_title       = "%[2]s"
+  folder_title          = huaweicloud_aom_dashboards_folder.test.folder_title
+  dashboard_type        = "custom"
+  is_favorite           = false
+  enterprise_project_id = huaweicloud_aom_dashboards_folder.test.enterprise_project_id
+}`, testDashboardsFolder_basic(name, false), name)
 }

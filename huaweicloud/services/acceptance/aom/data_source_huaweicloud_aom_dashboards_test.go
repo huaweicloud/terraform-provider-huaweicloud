@@ -46,5 +46,5 @@ data "huaweicloud_aom_dashboards" "test" {
   enterprise_project_id = huaweicloud_aom_dashboard.test.enterprise_project_id
   dashboard_type        = huaweicloud_aom_dashboard.test.dashboard_type
 }
-`, testDashboard_basic(name, false))
+`, testDashboard_basic(name))
 }
