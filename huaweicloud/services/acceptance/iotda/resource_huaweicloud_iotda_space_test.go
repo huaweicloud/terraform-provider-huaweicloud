@@ -60,6 +60,7 @@ func TestAccSpace_derived(t *testing.T) {
 	var obj model.ShowApplicationRequest
 
 	name := acceptance.RandomAccResourceName()
+	updatename := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_iotda_space.test"
 
 	rc := acceptance.InitResourceCheck(
@@ -82,6 +83,13 @@ func TestAccSpace_derived(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "is_default", "false"),
+				),
+			},
+			{
+				Config: testSpace_basic(updatename),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updatename),
 				),
 			},
 			{
