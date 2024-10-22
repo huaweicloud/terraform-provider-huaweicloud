@@ -199,6 +199,23 @@ func (c *HttpHelper) Request() *HttpHelper {
 	return c
 }
 
+func (c *HttpHelper) Send() (*gjson.Result, error) {
+	if c.result.Err != nil {
+		return nil, c.result.Err
+	}
+	if c.method == "" {
+		return nil, fmt.Errorf("`method` is empty, please specify the client through Client(method string)")
+	}
+
+	c.buildURL()
+	c.appendQueryParams()
+	c.requestOpts.JSONBody = c.body
+
+	_, err := c.client.Request(c.method, c.url, c.requestOpts)
+
+	return nil, err
+}
+
 func (c *HttpHelper) buildURL() *HttpHelper {
 	endpoint := strings.TrimRight(c.client.Endpoint, "/")
 	c.url = fmt.Sprintf("%s/%s", endpoint, strings.TrimLeft(c.url, "/"))
