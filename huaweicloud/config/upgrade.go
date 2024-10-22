@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -27,6 +28,11 @@ type VersionConfig struct {
 }
 
 func CheckUpgrade(version string) diag.Diagnostics {
+	if os.Getenv("SKIP_CHECK_UPGRADE") == "true" {
+		log.Printf("[WARN] check upgrade skipped")
+		return nil
+	}
+
 	log.Printf("[DEBUG] current version: %s", version)
 	if version == "" {
 		return nil

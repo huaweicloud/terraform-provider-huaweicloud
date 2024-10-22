@@ -2417,17 +2417,21 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 	}
 
 	if conf.Cloud == defaultCloud {
-		if err := conf.SetWebsiteType(); err != nil {
-			log.Printf("[WARN] failed to get the website type: %s", err)
-		}
+		if os.Getenv("SKIP_CHECK_WEBSITE_TYPE") != "true" {
+			if err := conf.SetWebsiteType(); err != nil {
+				log.Printf("[WARN] failed to get the website type: %s", err)
+			}
 
-		if conf.GetWebsiteType() == config.InternationalSite {
-			// refer to https://developer.huaweicloud.com/intl/en-us/endpoint
-			bssIntlEndpoint := fmt.Sprintf("https://bss-intl.%s/", conf.Cloud)
-			tmsIntlEndpoint := fmt.Sprintf("https://tms.ap-southeast-1.%s/", conf.Cloud)
+			if conf.GetWebsiteType() == config.InternationalSite {
+				// refer to https://developer.huaweicloud.com/intl/en-us/endpoint
+				bssIntlEndpoint := fmt.Sprintf("https://bss-intl.%s/", conf.Cloud)
+				tmsIntlEndpoint := fmt.Sprintf("https://tms.ap-southeast-1.%s/", conf.Cloud)
 
-			conf.SetServiceEndpoint("bss", bssIntlEndpoint)
-			conf.SetServiceEndpoint("tms", tmsIntlEndpoint)
+				conf.SetServiceEndpoint("bss", bssIntlEndpoint)
+				conf.SetServiceEndpoint("tms", tmsIntlEndpoint)
+			}
+		} else {
+			log.Printf("[WARN] check website type skipped")
 		}
 	}
 
