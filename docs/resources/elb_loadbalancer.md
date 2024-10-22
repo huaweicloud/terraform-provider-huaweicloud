@@ -222,8 +222,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the load balancer.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the load balancer. Changing this
-  creates a new load balancer.
+* `enterprise_project_id` - (Optional, String) The enterprise project id of the load balancer.
 
 * `charging_mode` - (Optional, String) Specifies the charging mode of the ELB load balancer.
   Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.

@@ -147,7 +147,15 @@ func TestAccElbV3LoadBalancer_withEpsId(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccElbV3LoadBalancerConfig_withEpsId(rName),
+				Config: testAccElbV3LoadBalancerConfig_withEpsId(rName, "0"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
+			{
+				Config: testAccElbV3LoadBalancerConfig_withEpsId(rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -607,7 +615,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 `, common.TestVpc(rName), rName, deletionProtection)
 }
 
-func testAccElbV3LoadBalancerConfig_withEpsId(rName string) string {
+func testAccElbV3LoadBalancerConfig_withEpsId(rName, enterpriseProjectId string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
@@ -616,9 +624,9 @@ data "huaweicloud_vpc_subnet" "test" {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name                  = "%s"
+  name                  = "%[1]s"
   ipv4_subnet_id        = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  enterprise_project_id = "%s"
+  enterprise_project_id = "%[2]s"
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -629,7 +637,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     owner = "terraform"
   }
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, enterpriseProjectId)
 }
 
 func testAccElbV3LoadBalancerConfig_withEIP(rName string) string {

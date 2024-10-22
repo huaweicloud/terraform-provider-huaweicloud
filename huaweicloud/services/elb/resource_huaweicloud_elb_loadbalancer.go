@@ -35,6 +35,7 @@ import (
 // @API ELB DELETE /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}
 // @API EIP DELETE /v1/{project_id}/publicips/{publicip_id}
 // @API ELB POST /v3/{project_id}/elb/loadbalancers/change-charge-mode
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -259,7 +260,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"deletion_protection_enable": {
@@ -554,11 +554,12 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	elbClient, err := cfg.ElbV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
-	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	bssClient, err := cfg.BssV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating BSS V2 client: %s", err)
 	}
@@ -631,7 +632,7 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 
 	// update tags
 	if d.HasChange("tags") {
-		elbV2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
+		elbV2Client, err := cfg.ElbV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating ELB 2.0 client: %s", err)
 		}
@@ -645,6 +646,18 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChange("availability_zone") {
 		if err = updateAvailabilityZone(ctx, cfg, elbClient, d); err != nil {
 			return diag.Errorf("error updating availability zone of LoadBalancer:%s, err:%s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := config.MigrateResourceOpts{
+			ResourceId:   d.Id(),
+			ResourceType: "loadbalancers",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err = cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
