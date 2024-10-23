@@ -15,7 +15,7 @@ Use this data source to get the list of DDM accounts.
 variable "ddm_instance_id" {}
 variable "account_name" {}
 
-data "huaweicloud_ddm_accounts" test {
+data "huaweicloud_ddm_accounts" "test" {
   instance_id = var.ddm_instance_id
   name        = var.account_name
 }

@@ -12,7 +12,7 @@ Use this data source to get the list of DDM engines.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_ddm_engines" test {
+data "huaweicloud_ddm_engines" "test" {
   version = "3.0.8.5"
 }
 ```

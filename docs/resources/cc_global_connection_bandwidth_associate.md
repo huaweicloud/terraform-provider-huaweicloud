@@ -16,7 +16,7 @@ variable "project_id" {}
 variable "gcb_id" {}
 variable "resource_id" {}
 
-resource "huaweicloud_cc_global_connection_bandwidth_associate" test {
+resource "huaweicloud_cc_global_connection_bandwidth_associate" "test" {
   gcb_id = var.gcb_id
 
   gcb_binding_resources {
