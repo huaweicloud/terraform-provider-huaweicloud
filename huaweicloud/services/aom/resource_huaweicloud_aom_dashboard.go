@@ -2,7 +2,9 @@ package aom
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -69,6 +71,10 @@ func ResourceDashboard() *schema.Resource {
 					Elem: &schema.Schema{Type: schema.TypeString},
 				},
 			},
+			"charts": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -119,7 +125,39 @@ func buildCreateDashboardBodyParams(d *schema.ResourceData) map[string]interface
 		"dashboard_tags":  utils.ValueIgnoreEmpty(d.Get("dashboard_tags")),
 	}
 
+	if v, ok := d.GetOk("charts"); ok {
+		bodyParams["charts"] = parseCharts(v.(string))
+	}
+
 	return bodyParams
+}
+
+func parseCharts(v string) interface{} {
+	if v == "" {
+		return nil
+	}
+	// charts may be list or map
+	var data interface{}
+	err := json.Unmarshal([]byte(v), &data)
+	if err != nil {
+		log.Printf("[DEBUG] Unable to parse JSON: %s", err)
+		return v
+	}
+
+	return data
+}
+
+func encodeCharts(v interface{}) interface{} {
+	if v == nil {
+		return nil
+	}
+	rst, err := json.Marshal(v)
+	if err != nil {
+		log.Printf("[DEBUG] Unable to encode charts: %s", err)
+		return nil
+	}
+
+	return string(rst)
 }
 
 func resourceDashboardRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -150,6 +188,7 @@ func resourceDashboardRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("is_favorite", utils.PathSearch("is_favorite", dashboard, nil)),
 		d.Set("dashboard_tags", utils.PathSearch("dashboard_tags", dashboard, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", dashboard, nil)),
+		d.Set("charts", encodeCharts(utils.PathSearch("charts", dashboard, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -220,6 +259,7 @@ func resourceDashboardUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		"dashboard_type",
 		"is_favorite",
 		"dashboard_tags",
+		"charts",
 	}
 
 	if d.HasChanges(changes...) {
@@ -251,6 +291,7 @@ func buildUpdateDashboardBodyParams(d *schema.ResourceData) map[string]interface
 		"dashboard_type":   d.Get("dashboard_type"),
 		"is_favorite":      utils.ValueIgnoreEmpty(d.Get("is_favorite")),
 		"dashboard_tags":   utils.ValueIgnoreEmpty(d.Get("dashboard_tags")),
+		"charts":           parseCharts(d.Get("charts").(string)),
 	}
 
 	return bodyParams
