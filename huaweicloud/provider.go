@@ -1994,6 +1994,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_instance_group_associate":            waf.ResourceWafInstGroupAssociate(),
 			"huaweicloud_waf_reference_table":                     waf.ResourceWafReferenceTableV1(),
 
+			"huaweicloud_workspace_app_group":         workspace.ResourceWorkspaceAppGroup(),
 			"huaweicloud_workspace_user_group":        workspace.ResourceUserGroup(),
 			"huaweicloud_workspace_access_policy":     workspace.ResourceAccessPolicy(),
 			"huaweicloud_workspace_desktop_name_rule": workspace.ResourceDesktopNameRule(),
