@@ -18,7 +18,7 @@ variable "lts_access_log_stream_id" {}
 variable "fw_instance_id" {}
 variable "lts_log_group_id" {}
 
-resource "huaweicloud_cfw_lts_log" test {
+resource "huaweicloud_cfw_lts_log" "test" {
   fw_instance_id               = var.fw_instance_id
   lts_log_group_id             = var.lts_log_group_id
   lts_attack_log_stream_enable = 1

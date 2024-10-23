@@ -12,11 +12,11 @@ Use this data source to get the list of DDM flavors.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_ddm_engines" test {
+data "huaweicloud_ddm_engines" "test" {
   version = "3.0.8.5"
 }
 
-data "huaweicloud_ddm_flavors" test {
+data "huaweicloud_ddm_flavors" "test" {
   engine_id = data.huaweicloud_ddm_engines.test.engines[0].id
   cpu_arch  = "X86"
 }

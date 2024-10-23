@@ -13,7 +13,7 @@ Use the data source to get the list of VPN P2C gateways.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_vpn_p2c_gateways" test {}
+data "huaweicloud_vpn_p2c_gateways" "test" {}
 ```
 
 ## Argument Reference
