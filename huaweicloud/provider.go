@@ -749,6 +749,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_cassandra_dedicated_resource":  gaussdb.DataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_flavors":             gaussdb.DataSourceCassandraFlavors(),
 			"huaweicloud_gaussdb_nosql_flavors":                 gaussdb.DataSourceGaussDBNoSQLFlavors(),
+			"huaweicloud_gaussdb_redis_flavors":                 gaussdb.DataSourceGaussDBRedisFlavors(),
 			"huaweicloud_gaussdb_cassandra_instance":            gaussdb.DataSourceGeminiDBInstance(),
 			"huaweicloud_gaussdb_cassandra_instances":           gaussdb.DataSourceGeminiDBInstances(),
 			"huaweicloud_gaussdb_opengauss_instance":            gaussdb.DataSourceOpenGaussInstance(),
