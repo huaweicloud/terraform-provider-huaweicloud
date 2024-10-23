@@ -15,7 +15,7 @@ Use this data source to get a list of the VPC endpoint resource quotas.
 ```hcl
 variable type {}
 
-data "huaweicloud_vpcep_quotas" {
+data "huaweicloud_vpcep_quotas" "test" {
   type = var.type
 }
 ```

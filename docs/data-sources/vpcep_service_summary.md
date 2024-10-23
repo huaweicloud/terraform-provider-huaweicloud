@@ -16,10 +16,10 @@ Use this data source to get a VPC endpoint service summary information.
 ## Example Usage
 
 ```hcl
-variable "service_name" {}
+variable "endpoint_service_name" {}
 
 data "huaweicloud_vpcep_service_summary" "test" {
-  service_name = var.service_name
+  endpoint_service_name = var.endpoint_service_name
 }
 ```
 
