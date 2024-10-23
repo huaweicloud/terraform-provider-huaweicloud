@@ -12,15 +12,18 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API IoTDA POST /v5/iot/{project_id}/apps
-// @API IoTDA DELETE /v5/iot/{project_id}/apps/{app_id}
 // @API IoTDA GET /v5/iot/{project_id}/apps/{app_id}
+// @API IoTDA PUT /v5/iot/{project_id}/apps/{app_id}
+// @API IoTDA DELETE /v5/iot/{project_id}/apps/{app_id}
 func ResourceSpace() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSpaceCreate,
 		ReadContext:   resourceSpaceRead,
+		UpdateContext: resourceSpaceUpdate,
 		DeleteContext: resourceSpaceDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -37,7 +40,6 @@ func ResourceSpace() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"is_default": {
@@ -98,6 +100,33 @@ func resourceSpaceRead(_ context.Context, d *schema.ResourceData, meta interface
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+// The **basic** edition instance not support update.
+func resourceSpaceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*config.Config)
+	region := c.GetRegion(d)
+	isDerived := WithDerivedAuth(c, region)
+	client, err := c.HcIoTdaV5Client(region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+	}
+
+	if d.HasChange("name") {
+		updateOpts := model.UpdateApplicationRequest{
+			AppId: d.Id(),
+			Body: &model.UpdateApplicationDto{
+				AppName: utils.String(d.Get("name").(string)),
+			},
+		}
+
+		_, err = client.UpdateApplication(&updateOpts)
+		if err != nil {
+			return diag.Errorf("error updating IoTDA space: %s", err)
+		}
+	}
+
+	return resourceSpaceRead(ctx, d, meta)
 }
 
 func resourceSpaceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
