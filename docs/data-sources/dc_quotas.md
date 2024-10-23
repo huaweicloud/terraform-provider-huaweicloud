@@ -15,7 +15,7 @@ Use this data source to get a list of the DC resource quotas.
 ```hcl
 variable type {}
 
-data "huaweicloud_dc_quotas" {
+data "huaweicloud_dc_quotas" "test" {
   type = var.type
 }
 ```
