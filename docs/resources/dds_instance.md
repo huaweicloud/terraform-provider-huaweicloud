@@ -18,7 +18,7 @@ resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -66,7 +66,7 @@ resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -198,10 +198,10 @@ The `datastore` block supports:
 * `type` - (Required, String, ForceNew) Specifies the DB engine. **DDS-Community** is supported.
 
 * `version` - (Required, String, ForceNew) Specifies the DB instance version. For the Community Edition, the valid
-  values are `3.2`, `3.4`, `4.0`, `4.2`, or `4.4`.
+  values are `4.0`, `4.2`, or `4.4`.
 
 * `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance.
-  If `version` is set to `3.2`, `3.4`, or `4.0`, the value is **wiredTiger**.
+  If `version` is set to `4.0`, the value is **wiredTiger**.
   If `version` is set to `4.2`, or `4.4`, the value is **rocksDB**.
 
 The `configuration` block supports:
