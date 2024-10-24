@@ -16,6 +16,9 @@ func TestAccDatasourceRAMPermissions_basic(t *testing.T) {
 		byResourceType   = "data.huaweicloud_ram_resource_permissions.filter_by_resource_type"
 		dcByResourceType = acceptance.InitDataSourceCheck(byResourceType)
 
+		byPermissionType   = "data.huaweicloud_ram_resource_permissions.filter_by_permission_type"
+		dcByPermissionType = acceptance.InitDataSourceCheck(byPermissionType)
+
 		byName   = "data.huaweicloud_ram_resource_permissions.filter_by_name"
 		dcByName = acceptance.InitDataSourceCheck(byName)
 	)
@@ -34,9 +37,17 @@ func TestAccDatasourceRAMPermissions_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "permissions.0.is_resource_type_default"),
 					resource.TestCheckResourceAttrSet(rName, "permissions.0.created_at"),
 					resource.TestCheckResourceAttrSet(rName, "permissions.0.updated_at"),
+					resource.TestCheckResourceAttrSet(rName, "permissions.0.permission_urn"),
+					resource.TestCheckResourceAttrSet(rName, "permissions.0.permission_type"),
+					resource.TestCheckResourceAttrSet(rName, "permissions.0.default_version"),
+					resource.TestCheckResourceAttrSet(rName, "permissions.0.version"),
+					resource.TestCheckResourceAttrSet(rName, "permissions.0.status"),
 
 					dcByResourceType.CheckResourceExists(),
 					resource.TestCheckOutput("is_resource_type_filter_useful", "true"),
+
+					dcByPermissionType.CheckResourceExists(),
+					resource.TestCheckOutput("is_permission_type_filter_useful", "true"),
 
 					dcByName.CheckResourceExists(),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
@@ -68,6 +79,25 @@ locals {
 
 output "is_resource_type_filter_useful" {
   value = length(local.resource_type_filter_result) > 0 && alltrue(local.resource_type_filter_result)
+}
+
+# Filter by permission_type
+locals {
+  permission_type = data.huaweicloud_ram_resource_permissions.test.permissions[0].permission_type
+}
+
+data "huaweicloud_ram_resource_permissions" "filter_by_permission_type" {
+  permission_type = local.permission_type
+}
+
+locals {
+  permission_type_filter_result = [
+    for v in data.huaweicloud_ram_resource_permissions.filter_by_permission_type.permissions[*].permission_type : v == local.permission_type
+  ]
+}
+
+output "is_permission_type_filter_useful" {
+  value = length(local.permission_type_filter_result) > 0 && alltrue(local.permission_type_filter_result)
 }
 
 # Filter by name

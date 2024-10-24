@@ -29,6 +29,13 @@ The following arguments are supported:
 * `resource_type` - (Optional, String) Specifies the resource type of RAM permission in which to query the data source.
   Valid values are **vpc:subnets**, **dns:zone** and **dns:resolverRule**.
 
+* `permission_type` - (Optional, String) Specifies the type of the permission. Valid values are as follows:
+  + **RAM_MANAGED**: Indicates RAM managed permissions.
+  + **CUSTOMER_MANAGED**: Indicates permissions created by tenants.
+  + **ALL**: Indicates both permission types.
+
+  Defaults to **ALL**.
+
 * `name` - (Optional, String) Specifies the name of RAM permission in which to query the data source.
 
 ## Attribute Reference
@@ -54,3 +61,13 @@ The `permissions` block supports:
 * `created_at` - Indicates the RAM permission create time.
 
 * `updated_at` - Indicates the RAM permission last update time.
+
+* `permission_urn` - Indicates the URN for the permission.
+
+* `permission_type` - Indicates the permission type.
+
+* `default_version` - Indicates whether the current version is the default version.
+
+* `version` - Indicates the version of the permission.
+
+* `status` - Indicates the status of the permission.

@@ -30,6 +30,11 @@ func DataSourceRAMPermissions() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the resource type of RAM permission.`,
 			},
+			"permission_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the type of the permission.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -78,6 +83,31 @@ func permissionsSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the RAM permission last update time.`,
 			},
+			"permission_urn": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the URN for the permission.`,
+			},
+			"permission_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the permission type.`,
+			},
+			"default_version": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the current version is the default version.`,
+			},
+			"version": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the version of the permission.`,
+			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the status of the permission.`,
+			},
 		},
 	}
 	return &sc
@@ -91,6 +121,10 @@ func buildGetRAMPermissionsQueryParams(d *schema.ResourceData, nextMarker string
 
 	if v, ok := d.GetOk("resource_type"); ok {
 		queryParam = fmt.Sprintf("%s&resource_type=%v", queryParam, v)
+	}
+
+	if v, ok := d.GetOk("permission_type"); ok {
+		queryParam = fmt.Sprintf("%s&permission_type=%v", queryParam, v)
 	}
 	return queryParam
 }
@@ -172,6 +206,11 @@ func flattenGetPermissionsResponseBody(totalPermissions []interface{}, d *schema
 			"is_resource_type_default": utils.PathSearch("is_resource_type_default", v, nil),
 			"created_at":               utils.PathSearch("created_at", v, nil),
 			"updated_at":               utils.PathSearch("updated_at", v, nil),
+			"permission_urn":           utils.PathSearch("permission_urn", v, nil),
+			"permission_type":          utils.PathSearch("permission_type", v, nil),
+			"default_version":          utils.PathSearch("default_version", v, nil),
+			"version":                  utils.PathSearch("version", v, nil),
+			"status":                   utils.PathSearch("status", v, nil),
 		})
 	}
 	return rst
