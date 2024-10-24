@@ -902,6 +902,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ram_shared_principals":                     ram.DataSourceRAMSharedPrincipals(),
 			"huaweicloud_ram_resource_share_associations":           ram.DataSourceShareAssociations(),
 			"huaweicloud_ram_resource_share_associated_permissions": ram.DataSourceAssociatedPermissions(),
+			"huaweicloud_ram_resource_shares":                       ram.DataSourceRAMShares(),
 
 			"huaweicloud_rds_flavors":                         rds.DataSourceRdsFlavor(),
 			"huaweicloud_rds_engine_versions":                 rds.DataSourceRdsEngineVersionsV3(),
