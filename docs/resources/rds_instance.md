@@ -64,8 +64,9 @@ resource "huaweicloud_rds_instance" "instance" {
   subnet_id           = var.subnet_id
   security_group_id   = var.secgroup_id
   availability_zone   = [
-    var.availability_zone_1,
-    var.availability_zone_2]
+    var.availability_zone1,
+    var.availability_zone2,
+  ]
 
   db {
     type     = "PostgreSQL"
