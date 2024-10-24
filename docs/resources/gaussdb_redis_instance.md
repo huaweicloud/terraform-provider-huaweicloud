@@ -89,6 +89,12 @@ The following arguments are supported:
 * `mode` - (Optional, String, ForceNew) Specifies the instance type. Value options: **Cluster**, **Replication**.
   Defaults to **Cluster**.
 
+* `availability_zone_detail` - (Optional, List, ForceNew) Specifies Multi-AZ details of the active/standby instance.
+  The system ignores this parameter if single-AZ deployment is selected. Currently, only GeminiDB Redis instances are
+  supported.
+
+  The [availability_zone_detail](#availability_zone_detail_struct) structure is documented below.
+
 * `security_group_id` - (Optional, String) Specifies the security group ID. Required if the selected subnet doesn't
   enable network ACL.
 
@@ -129,6 +135,15 @@ The following arguments are supported:
   Changing this will do nothing.
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are "true" and "false".
+
+<a name="availability_zone_detail_struct"></a>
+The `availability_zone_detail` block supports:
+
+* `primary_availability_zone` - (Required, String, ForceNew) Specifies the primary AZ, it must be a single AZ and be
+  different from the standby AZ. Changing this parameter will create a new resource.
+
+* `secondary_availability_zone` - (Required, String, ForceNew) Specifies the standby AZ, it must be a single AZ and be
+  different from the primary AZ. Changing this parameter will create a new resource.
 
 The `datastore` block supports:
 
