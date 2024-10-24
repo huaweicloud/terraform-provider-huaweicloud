@@ -105,6 +105,7 @@ var (
 	HW_RAM_SHARE_UPDATE_RESOURCE_URN = os.Getenv("HW_RAM_SHARE_UPDATE_RESOURCE_URN")
 	HW_RAM_ENABLE_FLAG               = os.Getenv("HW_RAM_ENABLE_FLAG")
 	HW_RAM_SHARE_INVITATION_ID       = os.Getenv("HW_RAM_SHARE_INVITATION_ID")
+	HW_RAM_SHARE_ID                  = os.Getenv("HW_RAM_SHARE_ID")
 
 	HW_CDN_DOMAIN_NAME = os.Getenv("HW_CDN_DOMAIN_NAME")
 	// `HW_CDN_CERT_DOMAIN_NAME` Configure the domain name environment variable of the certificate type.
@@ -1019,6 +1020,13 @@ func TestAccPreCheckRAMEnableFlag(t *testing.T) {
 func TestAccPreCheckRAMShareInvitationId(t *testing.T) {
 	if HW_RAM_SHARE_INVITATION_ID == "" {
 		t.Skip("HW_RAM_SHARE_INVITATION_ID must be set for the acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRAMShareId(t *testing.T) {
+	if HW_RAM_SHARE_ID == "" {
+		t.Skip("HW_RAM_SHARE_ID must be set for the acceptance tests.")
 	}
 }
 
