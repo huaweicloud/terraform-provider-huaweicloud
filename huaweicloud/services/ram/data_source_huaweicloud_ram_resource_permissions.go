@@ -26,10 +26,9 @@ func DataSourceRAMPermissions() *schema.Resource {
 		ReadContext: resourceRAMPermissionsRead,
 		Schema: map[string]*schema.Schema{
 			"resource_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: `Specifies the resource type of RAM permission. Valid values are **vpc:subnets**, 
-**dns:zone** and **dns:resolverRule**.`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the resource type of RAM permission.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -84,37 +83,60 @@ func permissionsSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceRAMPermissionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	var (
-		getRAMPermissionsHttpUrl = "v1/permissions"
-		getRAMPermissionsProduct = "ram"
-	)
-	getRAMPermissionsClient, err := cfg.NewServiceClient(getRAMPermissionsProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating RAM Client: %s", err)
+func buildGetRAMPermissionsQueryParams(d *schema.ResourceData, nextMarker string) string {
+	queryParam := "?limit=2000"
+	if nextMarker != "" {
+		queryParam = fmt.Sprintf("%s&marker=%s", queryParam, nextMarker)
 	}
 
-	getRAMPermissionsPath := getRAMPermissionsClient.Endpoint + getRAMPermissionsHttpUrl
-	getRAMPermissionsPath += buildGetRAMPermissionsQueryParams(d)
+	if v, ok := d.GetOk("resource_type"); ok {
+		queryParam = fmt.Sprintf("%s&resource_type=%v", queryParam, v)
+	}
+	return queryParam
+}
 
-	getRAMPermissionsOpt := golangsdk.RequestOpts{
+func resourceRAMPermissionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		mErr             *multierror.Error
+		httpUrl          = "v1/permissions"
+		product          = "ram"
+		nextMarker       string
+		totalPermissions []interface{}
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating RAM client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	getRAMPermissionsResp, err := getRAMPermissionsClient.Request("GET", getRAMPermissionsPath,
-		&getRAMPermissionsOpt)
 
-	if err != nil {
-		return diag.Errorf("error retrieving RAM permissions, %s", err)
-	}
+	for {
+		requestPathWithQueryParam := requestPath + buildGetRAMPermissionsQueryParams(d, nextMarker)
+		resp, err := client.Request("GET", requestPathWithQueryParam, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving RAM permissions, %s", err)
+		}
 
-	getRAMPermissionsRespBody, err := utils.FlattenResponse(getRAMPermissionsResp)
-	if err != nil {
-		return diag.FromErr(err)
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		permissions := utils.PathSearch("permissions", respBody, make([]interface{}, 0)).([]interface{})
+		if len(permissions) > 0 {
+			totalPermissions = append(totalPermissions, permissions...)
+		}
+
+		nextMarker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
+		if nextMarker == "" {
+			break
+		}
 	}
 
 	generateUUID, err := uuid.GenerateUUID()
@@ -125,23 +147,21 @@ func resourceRAMPermissionsRead(_ context.Context, d *schema.ResourceData, meta 
 
 	mErr = multierror.Append(
 		mErr,
-		d.Set("permissions", flattenGetPermissionsResponseBody(getRAMPermissionsRespBody, d)),
+		d.Set("permissions", flattenGetPermissionsResponseBody(totalPermissions, d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetPermissionsResponseBody(resp interface{}, d *schema.ResourceData) []interface{} {
-	if resp == nil {
+func flattenGetPermissionsResponseBody(totalPermissions []interface{}, d *schema.ResourceData) []interface{} {
+	if len(totalPermissions) == 0 {
 		return nil
 	}
-	name := d.Get("name").(string)
 
-	curJson := utils.PathSearch("permissions", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
-		permissionName := utils.PathSearch("name", v, "")
+	name := d.Get("name").(string)
+	rst := make([]interface{}, 0, len(totalPermissions))
+	for _, v := range totalPermissions {
+		permissionName := utils.PathSearch("name", v, "").(string)
 		if name != "" && name != permissionName {
 			continue
 		}
@@ -155,14 +175,4 @@ func flattenGetPermissionsResponseBody(resp interface{}, d *schema.ResourceData)
 		})
 	}
 	return rst
-}
-
-// buildGetRAMPermissionsQueryParams use the max limit number.
-// Paging is not currently implemented
-func buildGetRAMPermissionsQueryParams(d *schema.ResourceData) string {
-	res := "?limit=2000&marker=1"
-	if v, ok := d.GetOk("resource_type"); ok {
-		res = fmt.Sprintf("%s&resource_type=%v", res, v)
-	}
-	return res
 }

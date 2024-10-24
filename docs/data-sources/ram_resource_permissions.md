@@ -2,7 +2,8 @@
 subcategory: "Resource Access Manager (RAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ram_resource_permissions"
-description: ""
+description: |
+  Use this data source to get the list of RAM permissions.
 ---
 
 # huaweicloud_ram_resource_permissions
@@ -37,10 +38,10 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The data source ID.
 
 * `permissions` - Indicates the list of the RAM permissions
-  The [Permissions](#RAM_Permissions) structure is documented below.
+  The [permissions](#RAM_Permissions) structure is documented below.
 
 <a name="RAM_Permissions"></a>
-The `Permissions` block supports:
+The `permissions` block supports:
 
 * `id` - Indicates the id of RAM permission.
 
