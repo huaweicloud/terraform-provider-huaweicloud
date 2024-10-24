@@ -1682,6 +1682,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device_linkage_rule": iotda.ResourceDeviceLinkageRule(),
 			"huaweicloud_iotda_upgrade_package":     iotda.ResourceUpgradePackage(),
 			"huaweicloud_iotda_batchtask":           iotda.ResourceBatchTask(),
+			"huaweicloud_iotda_device_proxy":        iotda.ResourceDeviceProxy(),
 
 			"huaweicloud_kms_data_encrypt_decrypt": dew.ResourceKmsDataEncryptDecrypt(),
 			"huaweicloud_kms_key":                  dew.ResourceKmsKey(),
