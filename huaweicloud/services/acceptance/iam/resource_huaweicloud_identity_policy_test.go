@@ -62,18 +62,27 @@ func TestAccIdentityPolicy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform"),
 					resource.TestCheckResourceAttr(resourceName, "policy_type", "custom"),
+					resource.TestCheckResourceAttr(resourceName, "default_version_id", "v1"),
+					resource.TestCheckResourceAttr(resourceName, "version_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(resourceName, "attachment_count"),
-					resource.TestCheckResourceAttrSet(resourceName, "default_version_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "version_ids"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"policy_document"},
+				Config: testAccIdentityPolicy_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "default_version_id", "v2"),
+					resource.TestCheckResourceAttr(resourceName, "version_ids.#", "2"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -90,6 +99,26 @@ resource "huaweicloud_identity_policy" "test" {
         {
           Action = ["*"]
           Effect = "Allow"
+        },
+      ]
+      Version = "5.0"
+    }
+  )
+}
+`, rName)
+}
+
+func testAccIdentityPolicy_update(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_policy" "test" {
+  name            = "%s"
+  description     = "test for terraform"
+  policy_document = jsonencode(
+    {
+      Statement = [
+        {
+          Action = ["*"]
+          Effect = "Deny"
         },
       ]
       Version = "5.0"
