@@ -2,7 +2,8 @@
 subcategory: "Resource Access Manager (RAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ram_shared_principals"
-description: ""
+description: |
+  Use this data source to get the list of RAM shared principals.
 ---
 
 # huaweicloud_ram_shared_principals
