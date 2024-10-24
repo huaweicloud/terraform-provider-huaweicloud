@@ -56,7 +56,51 @@ The following arguments are supported:
 
 * `version_id` - (Required, String, NonUpdatable) Specifies the playbook version ID.
 
-* `status` - (Optional, String, NonUpdatable) Specifies the playbook version status. The value can only be ***APPROVING*.
+* `status` - (Optional, String, NonUpdatable) Specifies the playbook version status. The value can only be **APPROVING**.
 
 * `enabled` - (Optional, Bool, NonUpdatable) Specifies whether the playbook version is enabled.
   The value can be **true**(enable version) or **false**(disable version).
+
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - The resource ID.
+
+* `version` - The playbook version.
+
+* `type` - The playbook version type.
+
+* `description` - The description.
+
+* `created_at` - The creation time.
+
+* `data_object_create` - Whether to trigger a playbook when a data object is created.
+
+* `data_class_id` - The data class ID.
+
+* `playbook_id` - The playbook ID.
+
+* `trigger_type` - The triggering type.
+
+* `modifier_id` - The ID of the user who updated the information.
+
+* `project_id` - The project ID.
+
+* `rule_enabled` - Whether the filtering rule is enabled.
+
+* `data_object_delete` - Whether to trigger a playbook when a data object is deleted.
+
+* `data_object_update` - Whether to trigger a playbook when a data object is updated.
+
+* `rule_id` - The rule ID.
+
+* `data_class_name` - The data class name.
+
+* `updated_at` - The update time.
+
+* `creator_id` - The creator ID.
+
+* `action_strategy` - The execution policy.
+
+* `approve_name` - The reviewer.

@@ -37,6 +37,12 @@ resource "huaweicloud_secmaster_playbook_version_action" "submit_version" {
   status       = "APPROVING"
 
   depends_on = [huaweicloud_secmaster_playbook_action.test]
+
+  lifecycle {
+    ignore_changes = [
+      status, enabled,
+    ]
+  }
 }
 
 resource "huaweicloud_secmaster_playbook_approval" "test" {
@@ -54,6 +60,12 @@ resource "huaweicloud_secmaster_playbook_version_action" "disable_version" {
   enabled      = false
 
   depends_on = [huaweicloud_secmaster_playbook_approval.test]
+
+  lifecycle {
+    ignore_changes = [
+      status, enabled,
+    ]
+  }
 }
 `, testPlaybookVersion_basic(name), acceptance.HW_SECMASTER_WORKSPACE_ID)
 }

@@ -69,6 +69,12 @@ resource "huaweicloud_secmaster_playbook_version_action" "submit_version" {
   status       = "APPROVING"
 
   depends_on = [huaweicloud_secmaster_playbook_action.test]
+
+  lifecycle {
+    ignore_changes = [
+      status, enabled
+    ]
+  }
 }
 
 resource "huaweicloud_secmaster_playbook_approval" "pass" {
