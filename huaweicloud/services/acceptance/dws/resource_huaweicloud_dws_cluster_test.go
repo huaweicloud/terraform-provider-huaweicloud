@@ -63,6 +63,8 @@ func TestAccResourceCluster_basicV1(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "public_ip.0.eip_id"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id", "huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created v1 cluster by terraform script"),
 				),
 			},
 			{
@@ -77,6 +79,8 @@ func TestAccResourceCluster_basicV1(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "public_ip.0.eip_id", "huaweicloud_vpc_eip.test.0", "id"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id", "huaweicloud_networking_secgroup.test2", "id"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Updated cluster info"),
 				),
 			},
 			{
@@ -84,6 +88,7 @@ func TestAccResourceCluster_basicV1(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "public_ip.0.public_bind_type", dws.PublicBindTypeNotUse),
 					resource.TestCheckResourceAttr(resourceName, "public_ip.0.eip_id", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
@@ -140,6 +145,7 @@ resource "huaweicloud_dws_cluster" "test" {
   user_pwd               = "%[4]s"
   logical_cluster_enable = true
   enterprise_project_id  = "%[5]s"
+  description            = "Created v1 cluster by terraform script"
 
   public_ip {
     # Automatically purchase EIP when creating cluster.
@@ -160,6 +166,11 @@ func testAccDwsCluster_basic_step2(rName, password string) string {
 
 %[2]s
 
+resource "huaweicloud_networking_secgroup" "test2" {
+  name                 = "%[3]s_test2"
+  delete_default_rules = true
+}
+
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dws_cluster" "test" {
@@ -168,12 +179,13 @@ resource "huaweicloud_dws_cluster" "test" {
   number_of_node         = 6
   vpc_id                 = huaweicloud_vpc.test.id
   network_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id      = huaweicloud_networking_secgroup.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test2.id
   availability_zone      = data.huaweicloud_availability_zones.test.names[0]
   user_name              = "test_cluster_admin"
   user_pwd               = "%[4]s"
   logical_cluster_enable = false
   enterprise_project_id  = "%[5]s"
+  description            = "Updated cluster info"
 
   public_ip {
     # Modify the associated EIP.
@@ -196,6 +208,11 @@ func testAccDwsCluster_basic_step3(rName, password string) string {
 
 %[2]s
 
+resource "huaweicloud_networking_secgroup" "test2" {
+  name                 = "%[3]s_test2"
+  delete_default_rules = true
+}
+
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_dws_cluster" "test" {
@@ -204,7 +221,7 @@ resource "huaweicloud_dws_cluster" "test" {
   number_of_node         = 6
   vpc_id                 = huaweicloud_vpc.test.id
   network_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id      = huaweicloud_networking_secgroup.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test2.id
   availability_zone      = data.huaweicloud_availability_zones.test.names[0]
   user_name              = "test_cluster_admin"
   user_pwd               = "%[4]s"
@@ -269,6 +286,8 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "elb.0.name", name+"_elb0"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id", "huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created v2 cluster by terraform script"),
 				),
 			},
 			// Assert all modifiable parameters.
@@ -285,6 +304,8 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "elb.0.name", name+"_elb1"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id", "huaweicloud_networking_secgroup.test2", "id"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Updated cluster info"),
 				),
 			},
 			// Assert that ELB and EIP are unbound and delete all tags.
@@ -297,6 +318,7 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "public_ip.0.eip_id", ""),
 					resource.TestCheckResourceAttr(resourceName, "elb.0.name", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 				),
 			},
 			// Assert whether the restart is successful.
@@ -319,6 +341,11 @@ func testAccDwsCluster_basicV2_base(rName string) string {
 %[1]s
 
 %[2]s
+
+resource "huaweicloud_networking_secgroup" "test2" {
+  name                 = "%[3]s_test2"
+  delete_default_rules = true
+}
 
 data "huaweicloud_availability_zones" "test" {}
 
@@ -367,6 +394,7 @@ resource "huaweicloud_dws_cluster" "testv2" {
   logical_cluster_enable = false
   enterprise_project_id  = "%[4]s"
   elb_id                 = huaweicloud_elb_loadbalancer.test[0].id
+  description            = "Created v2 cluster by terraform script"
 
   public_ip {
     # Binging a EIP for cluster.
@@ -397,7 +425,7 @@ resource "huaweicloud_dws_cluster" "testv2" {
   number_of_node         = 6
   vpc_id                 = huaweicloud_vpc.test.id
   network_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id      = huaweicloud_networking_secgroup.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test2.id
   availability_zone      = data.huaweicloud_availability_zones.test.names[0]
   user_name              = "test_cluster_admin"
   user_pwd               = "%[3]s"
@@ -407,6 +435,7 @@ resource "huaweicloud_dws_cluster" "testv2" {
   logical_cluster_enable = false
   enterprise_project_id  = "%[4]s"
   elb_id                 = huaweicloud_elb_loadbalancer.test[1].id
+  description            = "Updated cluster info"
 
   public_ip {
     # Modify the associated EIP.
@@ -436,7 +465,7 @@ resource "huaweicloud_dws_cluster" "testv2" {
   number_of_node         = 6
   vpc_id                 = huaweicloud_vpc.test.id
   network_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id      = huaweicloud_networking_secgroup.test.id
+  security_group_id      = huaweicloud_networking_secgroup.test2.id
   availability_zone      = data.huaweicloud_availability_zones.test.names[0]
   user_name              = "test_cluster_admin"
   user_pwd               = "%[3]s"
