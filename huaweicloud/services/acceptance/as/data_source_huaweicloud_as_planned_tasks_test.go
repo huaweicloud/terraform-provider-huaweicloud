@@ -12,8 +12,6 @@ import (
 func TestAccDataSourcePlannedTasks_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_as_planned_tasks.test"
-		rName          = acceptance.RandomAccResourceName()
-		taskName       = acceptance.RandomAccResourceNameWithDash()
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
 
 		byTaskId   = "data.huaweicloud_as_planned_tasks.filter_by_task_id"
@@ -25,11 +23,14 @@ func TestAccDataSourcePlannedTasks_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// Please prepare the AS group containing the planned tasks in advance and configure the AS group ID into
+			// the environment variable.
+			acceptance.TestAccPreCheckASScalingGroupID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourcePlannedTasks_basic(rName, taskName),
+				Config: testDataSourcePlannedTasks_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "scheduled_tasks.#"),
@@ -51,24 +52,19 @@ func TestAccDataSourcePlannedTasks_basic(t *testing.T) {
 	})
 }
 
-func testDataSourcePlannedTasks_basic(name, rName string) string {
+func testDataSourcePlannedTasks_basic() string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_as_planned_tasks" "test" {
-  depends_on = [
-    huaweicloud_as_planned_task.test
-  ]
-
-  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  scaling_group_id = "%[1]s"
 }
 
+# Filter by task_id
 locals {
   task_id = data.huaweicloud_as_planned_tasks.test.scheduled_tasks[0].id
 }
 
 data "huaweicloud_as_planned_tasks" "filter_by_task_id" {
-  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  scaling_group_id = "%[1]s"
   task_id          = local.task_id
 }
 
@@ -82,12 +78,13 @@ output "task_id_filter_is_useful" {
   value = alltrue(local.task_id_filter_result) && length(local.task_id_filter_result) > 0
 }
 
+# Filter by name
 locals {
   name = data.huaweicloud_as_planned_tasks.test.scheduled_tasks[0].name
 }
 
 data "huaweicloud_as_planned_tasks" "filter_by_name" {
-  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  scaling_group_id = "%[1]s"
   name             = local.name
 }
 
@@ -100,5 +97,5 @@ locals {
 output "name_filter_is_useful" {
   value = alltrue(local.name_filter_result) && length(local.name_filter_result) > 0
 }
-`, testAccPlannedTask_basic(name, rName))
+`, acceptance.HW_AS_SCALING_GROUP_ID)
 }
