@@ -10,7 +10,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -30,6 +29,7 @@ func DataSourceRAMSharedResources() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			// This filter field was not tested due to lack of test environment.
 			"resource_ids": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -95,49 +95,48 @@ func sharedResourcesSchema() *schema.Resource {
 }
 
 func datasourceRAMSharedResourcesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
 	var (
-		getRAMSharedResourcesHttpUrl = "v1/shared-resources/search"
-		getRAMSharedResourcesProduct = "ram"
+		cfg                = meta.(*config.Config)
+		region             = cfg.GetRegion(d)
+		mErr               *multierror.Error
+		httpUrl            = "v1/shared-resources/search"
+		product            = "ram"
+		allSharedResources []interface{}
+		nextMarker         string
+		requestBody        = utils.RemoveNil(buildGetRAMSharedResourcesBodyParams(d))
 	)
-	getRAMSharedResourcesClient, err := cfg.NewServiceClient(getRAMSharedResourcesProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	getRAMSharedResourcesPath := getRAMSharedResourcesClient.Endpoint + getRAMSharedResourcesHttpUrl
-
-	getRAMSharedResourcesOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	allSharedResources := make([]interface{}, 0)
-	var nextMarker string
-	getRAMSharedResourcesOpt.JSONBody = utils.RemoveNil(buildgetRAMSharedResourcesBodyParams(d))
-	getRAMSharedResourcesJSONBody := getRAMSharedResourcesOpt.JSONBody.(map[string]interface{})
+
 	for {
-		getRAMSharedResourcesResp, err := getRAMSharedResourcesClient.Request("POST", getRAMSharedResourcesPath, &getRAMSharedResourcesOpt)
+		requestOpt.JSONBody = requestBody
+		resp, err := client.Request("POST", requestPath, &requestOpt)
 		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving RAM shared resources")
+			return diag.Errorf("error retrieving RAM shared resources: %s", err)
 		}
 
-		getRAMSharedResourcesRespBody, err := utils.FlattenResponse(getRAMSharedResourcesResp)
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		sharedResources := utils.PathSearch("shared_resources", getRAMSharedResourcesRespBody, make([]interface{}, 0)).([]interface{})
+
+		sharedResources := utils.PathSearch("shared_resources", respBody, make([]interface{}, 0)).([]interface{})
 		if len(sharedResources) > 0 {
 			allSharedResources = append(allSharedResources, sharedResources...)
 		}
 
-		nextMarker = utils.PathSearch("page_info.next_marker", getRAMSharedResourcesRespBody, "").(string)
+		nextMarker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if nextMarker == "" {
 			break
 		}
-		getRAMSharedResourcesJSONBody["marker"] = nextMarker
+		requestBody["marker"] = nextMarker
 	}
 
 	generateUUID, err := uuid.GenerateUUID()
@@ -154,7 +153,7 @@ func datasourceRAMSharedResourcesRead(_ context.Context, d *schema.ResourceData,
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildgetRAMSharedResourcesBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildGetRAMSharedResourcesBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"principal":          utils.ValueIgnoreEmpty(d.Get("principal")),
 		"resource_urns":      utils.ValueIgnoreEmpty(d.Get("resource_urns")),
