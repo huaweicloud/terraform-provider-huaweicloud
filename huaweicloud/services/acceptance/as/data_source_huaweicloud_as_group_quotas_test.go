@@ -12,18 +12,19 @@ import (
 func TestAccDataSourceAsGroupQuotas_basic(t *testing.T) {
 	var (
 		dataSource = "data.huaweicloud_as_group_quotas.test"
-		rName      = acceptance.RandomAccResourceName()
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// Please prepare AS group ID in advance.
+			acceptance.TestAccPreCheckASScalingGroupID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceAsGroupQuotas_basic(rName),
+				Config: testDataSourceDataSourceAsGroupQuotas_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "quotas.#"),
@@ -39,12 +40,10 @@ func TestAccDataSourceAsGroupQuotas_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceAsGroupQuotas_basic(name string) string {
+func testDataSourceDataSourceAsGroupQuotas_basic() string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_as_group_quotas" "test" {
-  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  scaling_group_id = "%s"
 }
-`, testACCASGroup_base(name))
+`, acceptance.HW_AS_SCALING_GROUP_ID)
 }
