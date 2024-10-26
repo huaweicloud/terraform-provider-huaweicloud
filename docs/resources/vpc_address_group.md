@@ -37,6 +37,29 @@ resource "huaweicloud_vpc_address_group" "ipv6" {
 }
 ```
 
+### Address Group with ip_extra_set
+
+```hcl
+resource "huaweicloud_vpc_address_group" "ipv6" {
+  name       = "group-ipv4"
+  ip_version = 4
+
+  ip_extra_set {
+    ip      = "192.168.3.2"
+    remarks = "terraform test 1"
+  }
+
+  ip_extra_set {
+    ip      = "192.168.5.0/24"
+    remarks = "terraform test 2"
+  }
+
+  ip_extra_set {
+    ip = "192.168.3.20-192.168.3.100"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -48,8 +71,13 @@ The following arguments are supported:
   The value is a string of `1` to `64` characters that can contain letters, digits, underscores (_), hyphens (-) and
   periods (.).
 
-* `addresses` - (Required, List) Specifies an array of one or more IP addresses. The address can be a single IP
-  address, IP address range or IP address CIDR. The maximum length is 20.
+* `addresses` - (Optional, List) Specifies an array of one or more IP addresses. The address can be a single IP
+  address, IP address range or IP address CIDR. The maximum length is 20. Only one of `addresses` and `ip_extra_set`
+  can be specified.
+
+* `ip_extra_set` - (Optional, List) Specifies the IP addresses and their remarks in an IP address group.
+  The [ip_extra_set](#address_groups_ip_extra_set_struct) structure is documented below.
+  Only one of `addresses` and `ip_extra_set` can be specified.
 
 * `ip_version` - (Optional, Int, ForceNew) Specifies the IP version, either `4` (default) or `6`.
   Changing this creates a new address group.
@@ -66,6 +94,14 @@ The following arguments are supported:
 * `force_destroy` - (Optional, Bool) Specifies whether to forcibly destroy the address group if it is associated with
   a security group rule, the address group and the associated security group rule will be deleted together.
   The default value is **false**.
+
+<a name="address_groups_ip_extra_set_struct"></a>
+The `ip_extra_set` block supports:
+
+* `ip` - (Required, String) Specifies the IP address, IP address range, or CIDR block.
+
+* `remarks` - (Optional, String) Specifies the supplementary information about the IP address,
+  IP address range, or CIDR block.
   
 ## Attribute Reference
 
