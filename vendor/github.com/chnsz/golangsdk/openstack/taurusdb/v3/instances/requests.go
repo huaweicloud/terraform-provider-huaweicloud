@@ -759,3 +759,43 @@ func GetVersion(client *golangsdk.ServiceClient, instanceId string) (r GetVersio
 
 	return
 }
+
+type UpdateSlowLogShowOriginalSwitchOpts struct {
+	OpenSlowLogSwitch bool `json:"open_slow_log_switch"`
+}
+
+type UpdateSlowLogShowOriginalSwitchBuilder interface {
+	ToSlowLogShowOriginalSwitchUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdateSlowLogShowOriginalSwitchOpts) ToSlowLogShowOriginalSwitchUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdateSlowLogShowOriginalSwitch(client *golangsdk.ServiceClient, instanceId string,
+	opts UpdateSlowLogShowOriginalSwitchBuilder) (r UpdateSlowLogShowOriginalSwitchResult) {
+	b, err := opts.ToSlowLogShowOriginalSwitchUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(updateURL(client, instanceId, "slowlog/modify"), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+	return
+}
+
+func GetSlowLogShowOriginalSwitch(client *golangsdk.ServiceClient, instanceId string) (r GetSlowLogShowOriginalSwitchResult) {
+	url := slowLogShowOriginalSwitchURL(client, instanceId)
+
+	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}

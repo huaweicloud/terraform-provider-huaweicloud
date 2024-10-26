@@ -311,3 +311,31 @@ func (r GetVersionResult) Extract() (*Version, error) {
 	err := r.ExtractInto(&version)
 	return &version, err
 }
+
+type UpdateSlowLogShowOriginalSwitchResponse struct {
+	Response string `json:"response"`
+}
+
+type UpdateSlowLogShowOriginalSwitchResult struct {
+	commonResult
+}
+
+func (r UpdateSlowLogShowOriginalSwitchResult) ExtractUpdateSlowLogShowOriginalSwitchResponse() (*UpdateSlowLogShowOriginalSwitchResponse, error) {
+	res := new(UpdateSlowLogShowOriginalSwitchResponse)
+	err := r.ExtractInto(res)
+	return res, err
+}
+
+type SlowLogShowOriginalSwitch struct {
+	OpenSlowLogSwitch string `json:"open_slow_log_switch"`
+}
+
+type GetSlowLogShowOriginalSwitchResult struct {
+	commonResult
+}
+
+func (r GetSlowLogShowOriginalSwitchResult) Extract() (*SlowLogShowOriginalSwitch, error) {
+	var slowLogShowOriginalSwitch SlowLogShowOriginalSwitch
+	err := r.ExtractInto(&slowLogShowOriginalSwitch)
+	return &slowLogShowOriginalSwitch, err
+}

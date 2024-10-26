@@ -57,6 +57,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "11:00"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_period", "1"),
+					resource.TestCheckResourceAttr(resourceName, "slow_log_show_original_switch", "true"),
 					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
 					resource.TestCheckResourceAttr(resourceName, "encryption_status", "ON"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -111,6 +112,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "slow_log_show_original_switch", "false"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "encryption_status", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
@@ -325,6 +327,8 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   seconds_level_monitoring_enabled = true
   seconds_level_monitoring_period  = 1
 
+  slow_log_show_original_switch = true
+
   encryption_status = "ON"
   encryption_type   = "kms"
   kms_key_id        = huaweicloud_kms_key.test.id
@@ -391,6 +395,8 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   description              = ""
 
   seconds_level_monitoring_enabled = false
+
+  slow_log_show_original_switch = false
 
   encryption_status = "OFF"
 
