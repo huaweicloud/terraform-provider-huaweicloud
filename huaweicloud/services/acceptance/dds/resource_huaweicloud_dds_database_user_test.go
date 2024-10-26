@@ -105,14 +105,14 @@ func testAccDatabaseUser_basic(rName string) string {
 %[1]s
 
 resource "huaweicloud_dds_database_role" "test" {
-  instance_id = huaweicloud_dds_instance.test.id
+  instance_id = huaweicloud_dds_instance.instance.id
 
   name    = "%[2]s"
   db_name = "admin"
 }
 
 resource "huaweicloud_dds_database_user" "test" {
-  instance_id = huaweicloud_dds_instance.test.id
+  instance_id = huaweicloud_dds_instance.instance.id
 
   name     = "%[2]s"
   password = "HuaweiTest@12345678"
@@ -123,7 +123,7 @@ resource "huaweicloud_dds_database_user" "test" {
     db_name = "admin"
   }
 }
-`, testAccDatabaseRole_base(rName), rName)
+`, testAccDDSInstanceV3Config_basic(rName, 8800), rName)
 }
 
 func testAccDatabaseUser_update(rName string) string {
@@ -131,14 +131,14 @@ func testAccDatabaseUser_update(rName string) string {
 %[1]s
 
 resource "huaweicloud_dds_database_role" "test" {
-  instance_id = huaweicloud_dds_instance.test.id
+  instance_id = huaweicloud_dds_instance.instance.id
 
   name    = "%[2]s"
   db_name = "admin"
 }
 
 resource "huaweicloud_dds_database_user" "test" {
-  instance_id = huaweicloud_dds_instance.test.id
+  instance_id = huaweicloud_dds_instance.instance.id
 
   name     = "%[2]s"
   password = "HuaweiTest@123"
@@ -149,5 +149,5 @@ resource "huaweicloud_dds_database_user" "test" {
     db_name = "admin"
   }
 }
-`, testAccDatabaseRole_base(rName), rName)
+`, testAccDDSInstanceV3Config_basic(rName, 8800), rName)
 }

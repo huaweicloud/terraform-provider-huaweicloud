@@ -460,7 +460,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -514,7 +514,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -569,7 +569,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -623,7 +623,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -677,7 +677,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -732,7 +732,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -787,7 +787,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -847,7 +847,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -901,7 +901,7 @@ resource "huaweicloud_dds_instance" "instance" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -1190,7 +1190,7 @@ resource "huaweicloud_dds_instance" "test" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -1242,7 +1242,7 @@ resource "huaweicloud_dds_instance" "test" {
 
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
