@@ -93,7 +93,7 @@ func TestAccGaussRedisInstance_withReplication(t *testing.T) {
 					testAccCheckGaussRedisInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "node_num", "2"),
-					resource.TestCheckResourceAttr(resourceName, "volume_size", "16"),
+					resource.TestCheckResourceAttr(resourceName, "volume_size", "2"),
 					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "ssl", "true"),
@@ -312,17 +312,13 @@ data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
 
-data "huaweicloud_gaussdb_nosql_flavors" "test" {
-  vcpus             = 2
-  engine            = "redis"
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-}
+data "huaweicloud_gaussdb_redis_flavors" "test" {}
 
 resource "huaweicloud_gaussdb_redis_instance" "test" {
   name              = "%[2]s"
   password          = "Huangwei!120521"
-  flavor            = data.huaweicloud_gaussdb_nosql_flavors.test.flavors[0].name
-  volume_size       = 16
+  flavor            = data.huaweicloud_gaussdb_redis_flavors.test.flavors[0].spec_code
+  volume_size       = 2
   vpc_id            = data.huaweicloud_vpc.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   node_num          = 2
@@ -330,7 +326,12 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   ssl               = true
   mode              = "Replication"
   security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  availability_zone = keys(data.huaweicloud_gaussdb_redis_flavors.test.flavors[0].az_status)[1]
+
+  availability_zone_detail{
+    primary_availability_zone   = split(",", keys(data.huaweicloud_gaussdb_redis_flavors.test.flavors[0].az_status)[1])[0]
+    secondary_availability_zone = split(",", keys(data.huaweicloud_gaussdb_redis_flavors.test.flavors[0].az_status)[1])[1]
+  }
 }
 `, common.TestSecGroup(rName), rName)
 }
