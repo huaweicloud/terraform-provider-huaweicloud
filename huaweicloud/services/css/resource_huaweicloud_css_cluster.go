@@ -743,7 +743,13 @@ func buildClusterCreateParameters(d *schema.ResourceData, conf *config.Config) (
 	}
 
 	if payModel, ok := d.GetOk("period_unit"); ok && d.Get("charging_mode").(string) != "postPaid" {
+
+		log.Printf("1111111111111111111")
+
 		createOpts.PayInfo = &cssv2model.PayInfoBody{
+			//nolint:gosec
+			IsAutoRenew: utils.Int32(int32(d.Get("period").(int))),
+			//nolint:gosec
 			Period:    int32(d.Get("period").(int)),
 			IsAutoPay: utils.Int32(1),
 		}
