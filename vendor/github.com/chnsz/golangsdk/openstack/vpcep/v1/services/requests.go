@@ -43,6 +43,12 @@ type CreateOpts struct {
 	IpVersion string `json:"ip_version,omitempty"`
 	// Specifies whether the VPC endpoint policy is enabled.
 	EnablePolicy *bool `json:"enable_policy,omitempty"`
+	// Specifies the network ID of any subnet within the VPC used to create the VPC endpoint service
+	SnatNetworkId string `json:"snat_network_id,omitempty"`
+	// Specifies the IPv4 address or domain name of the server in the interface type VLAN scenario
+	IpAddress string `json:"ip,omitempty"`
+	// Specifies the dedicated cluster ID associated with the VPC endpoint service
+	PoolId string `json:"pool_id,omitempty"`
 }
 
 // PortOpts contains the port mappings opened to the VPC endpoint service.
@@ -101,6 +107,8 @@ type UpdateOpts struct {
 	Description *string `json:"description,omitempty"`
 	// Specifies whether the client IP address and port number or marker_id information is transmitted to the server.
 	TCPProxy string `json:"tcp_proxy,omitempty"`
+	// Specifies the IPv4 address or domain name of the server in the interface type VLAN scenario
+	IpAddress string `json:"ip,omitempty"`
 }
 
 // ToServiceUpdateMap builds an update body based on UpdateOpts.

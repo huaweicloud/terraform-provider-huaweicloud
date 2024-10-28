@@ -52,6 +52,12 @@ type Service struct {
 	PublicBorderGroup string `json:"public_border_group"`
 	// the number of VPC endpoints that are in the Creating or Accepted status.
 	ConnectionCount int `json:"connection_count"`
+	// the network ID of any subnet within the VPC used to create the VPC endpoint service
+	SnatNetworkId string `json:"snat_network_id"`
+	// the IPv4 address or domain name of the server in the interface type VLAN scenario
+	IpAddress string `json:"ip"`
+	// the dedicated cluster ID associated with the VPC endpoint service
+	PoolId string `json:"pool_id"`
 }
 
 // PortMapping contains the port mappings opened to the VPC endpoint service
