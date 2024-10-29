@@ -433,6 +433,7 @@ func resourceAcceleratorUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	// Editing tags will cause the status to change to pending. Instances in the pending status do not support editing tags.
 	if d.HasChange("tags") {
 		oldRaw, newRaw := d.GetChange("tags")
 		oldMap := oldRaw.(map[string]interface{})
@@ -443,12 +444,22 @@ func resourceAcceleratorUpdate(ctx context.Context, d *schema.ResourceData, meta
 			if err = deleteTags(client, "ga-accelerators", d.Id(), oldMap); err != nil {
 				return diag.FromErr(err)
 			}
+
+			err = updateAcceleratorWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.Errorf("error waiting for the GA accelerator (%s) delete tags to complete: %s", d.Id(), err)
+			}
 		}
 
 		// set new tags
 		if len(newMap) > 0 {
 			if err := createTags(client, "ga-accelerators", d.Id(), newMap); err != nil {
 				return diag.FromErr(err)
+			}
+
+			err = updateAcceleratorWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.Errorf("error waiting for the GA accelerator (%s) create tags to complete: %s", d.Id(), err)
 			}
 		}
 	}
