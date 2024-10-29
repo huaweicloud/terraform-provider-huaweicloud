@@ -16,38 +16,35 @@ import (
 )
 
 func getHealthCheckResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getHealthCheck: Query the GA Health Check detail
 	var (
-		getHealthCheckHttpUrl = "v1/health-checks/{id}"
-		getHealthCheckProduct = "ga"
+		region  = acceptance.HW_REGION_NAME
+		httpUrl = "v1/health-checks/{id}"
+		product = "ga"
 	)
-	getHealthCheckClient, err := conf.NewServiceClient(getHealthCheckProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HealthCheck Client: %s", err)
+		return nil, fmt.Errorf("error creating GA client: %s", err)
 	}
 
-	getHealthCheckPath := getHealthCheckClient.Endpoint + getHealthCheckHttpUrl
-	getHealthCheckPath = strings.ReplaceAll(getHealthCheckPath, "{id}", state.Primary.ID)
-
-	getHealthCheckOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{id}", state.Primary.ID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getHealthCheckResp, err := getHealthCheckClient.Request("GET", getHealthCheckPath, &getHealthCheckOpt)
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving HealthCheck: %s", err)
+		return nil, fmt.Errorf("error retrieving GA health check: %s", err)
 	}
-	return utils.FlattenResponse(getHealthCheckResp)
+	return utils.FlattenResponse(resp)
 }
 
 func TestAccHealthCheck_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceNameWithDash()
-	rName := "huaweicloud_ga_health_check.test"
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceNameWithDash()
+		rName = "huaweicloud_ga_health_check.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,

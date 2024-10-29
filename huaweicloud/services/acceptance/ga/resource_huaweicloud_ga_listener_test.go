@@ -16,38 +16,35 @@ import (
 )
 
 func getListenerResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getListener: Query the GA Listener detail
 	var (
-		getListenerHttpUrl = "v1/listeners/{id}"
-		getListenerProduct = "ga"
+		region  = acceptance.HW_REGION_NAME
+		httpUrl = "v1/listeners/{id}"
+		product = "ga"
 	)
-	getListenerClient, err := conf.NewServiceClient(getListenerProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Listener Client: %s", err)
+		return nil, fmt.Errorf("error creating GA client: %s", err)
 	}
 
-	getListenerPath := getListenerClient.Endpoint + getListenerHttpUrl
-	getListenerPath = strings.ReplaceAll(getListenerPath, "{id}", state.Primary.ID)
-
-	getListenerOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{id}", state.Primary.ID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getListenerResp, err := getListenerClient.Request("GET", getListenerPath, &getListenerOpt)
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving Listener: %s", err)
+		return nil, fmt.Errorf("error retrieving GA listener: %s", err)
 	}
-	return utils.FlattenResponse(getListenerResp)
+	return utils.FlattenResponse(resp)
 }
 
 func TestAccListener_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceNameWithDash()
-	rName := "huaweicloud_ga_listener.test"
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceNameWithDash()
+		rName = "huaweicloud_ga_listener.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
