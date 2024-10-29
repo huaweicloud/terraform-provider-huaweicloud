@@ -415,6 +415,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 		Product: "Workspace",
 	},
+	"appstream": {
+		Name:    "appstream",
+		Version: "v1",
+		Product: "Workspace",
+	},
 	"er": {
 		Name:    "er",
 		Version: "v3",
