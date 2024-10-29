@@ -105,11 +105,15 @@ $ terraform plan
 You can use a
 [HuaweiCloud CLI configuration file](https://support.huaweicloud.com/intl/en-us/usermanual-hcli/hcli_03_002.html)
 to specify your credentials. You need to specify a location in the Terraform configuration by providing the
-`shared_configuration_file` argument or using the `HW_SHARED_CONFIGURATION_FILE` environment variable.
+`shared_config_file` argument or using the `HW_SHARED_CONFIG_FILE` environment variable.
 This method also supports a `profile` configuration and matching `HW_PROFILE` environment variable:
 
-!> **NOTE:** The CLI configuration file can not be used directly by terraform, you need to copy it to another
-path and replace the AccessKey and SecretKey with yours as they are encrypted which terraform can not read.
+!> **NOTE:** The CLI configuration file can not be used directly by terraform, you need to skip encrypting
+authentication information in the configuration file by running the following command:
+
+```sh
+hcloud configure set --cli-auth-encrypt=false
+```
 
 Usage:
 
