@@ -184,7 +184,8 @@ func dataSourceBatchTasksRead(_ context.Context, d *schema.ResourceData, meta in
 		}
 
 		allTasks = append(allTasks, *listResp.Batchtasks...)
-		offset += limit
+		//nolint:gosec
+		offset += int32(len(*listResp.Batchtasks))
 	}
 
 	uuId, err := uuid.GenerateUUID()

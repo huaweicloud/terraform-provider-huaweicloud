@@ -116,12 +116,17 @@ func dataSourceDeviceCertificatesRead(_ context.Context, d *schema.ResourceData,
 			return diag.Errorf("error querying IoTDA device CA certificates: %s", listErr)
 		}
 
+		if listResp == nil || listResp.Certificates == nil {
+			break
+		}
+
 		if len(*listResp.Certificates) == 0 {
 			break
 		}
 
 		allCertificates = append(allCertificates, *listResp.Certificates...)
-		offset += limit
+		//nolint:gosec
+		offset += int32(len(*listResp.Certificates))
 	}
 
 	uuId, err := uuid.GenerateUUID()

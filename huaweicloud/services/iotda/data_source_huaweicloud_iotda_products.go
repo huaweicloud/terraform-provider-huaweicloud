@@ -130,11 +130,17 @@ func dataSourceProductsRead(_ context.Context, d *schema.ResourceData, meta inte
 			return diag.Errorf("error querying IoTDA products: %s", listErr)
 		}
 
+		if listResp == nil || listResp.Products == nil {
+			break
+		}
+
 		if len(*listResp.Products) == 0 {
 			break
 		}
+
 		allProducts = append(allProducts, *listResp.Products...)
-		offset += limit
+		//nolint:gosec
+		offset += int32(len(*listResp.Products))
 	}
 
 	uuId, err := uuid.GenerateUUID()

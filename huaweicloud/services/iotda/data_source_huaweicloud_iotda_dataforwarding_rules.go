@@ -142,11 +142,17 @@ func dataSourceDataForwardingRulesRead(_ context.Context, d *schema.ResourceData
 			return diag.Errorf("error querying IoTDA dataforwarding rules: %s", listErr)
 		}
 
+		if listResp == nil || listResp.Rules == nil {
+			break
+		}
+
 		if len(*listResp.Rules) == 0 {
 			break
 		}
+
 		allRoutingRules = append(allRoutingRules, *listResp.Rules...)
-		offset += limit
+		//nolint:gosec
+		offset += int32(len(*listResp.Rules))
 	}
 
 	uuId, err := uuid.GenerateUUID()
