@@ -43,6 +43,9 @@ func TestAccDatasourceEndpointGroups_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "endpoint_groups.0.traffic_dial_percentage"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "endpoint_groups.0.region_id"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "endpoint_groups.0.listener_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "endpoint_groups.0.created_at"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "endpoint_groups.0.status"),
+
 					dcByEndpointGroupId.CheckResourceExists(),
 					resource.TestCheckOutput("endpoint_group_id_filter_is_useful", "true"),
 
@@ -115,6 +118,7 @@ data "huaweicloud_ga_endpoint_groups" "test" {
   ]
 }
 
+# Filter by endpoint_group_id
 locals {
   endpoint_group_id = data.huaweicloud_ga_endpoint_groups.test.endpoint_groups[0].id
 }
@@ -134,6 +138,7 @@ output "endpoint_group_id_filter_is_useful" {
   value = alltrue(local.endpoint_group_id_filter_result) && length(local.endpoint_group_id_filter_result) > 0
 }
 
+# Filter by name
 locals {
   name = data.huaweicloud_ga_endpoint_groups.test.endpoint_groups[0].name
 }
@@ -152,6 +157,7 @@ output "name_filter_is_useful" {
   value = alltrue(local.name_filter_result) && length(local.name_filter_result) > 0
 }
 
+# Filter by status
 locals {
   status = data.huaweicloud_ga_endpoint_groups.test.endpoint_groups[0].status
 }
@@ -170,6 +176,7 @@ output "status_filter_is_useful" {
   value = alltrue(local.status_filter_result) && length(local.status_filter_result) > 0
 }
 
+# Filter by listener_id
 locals {
   listener_id = data.huaweicloud_ga_endpoint_groups.test.endpoint_groups[0].listener_id
 }

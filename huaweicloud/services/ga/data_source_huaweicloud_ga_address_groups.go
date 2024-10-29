@@ -12,7 +12,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -134,55 +133,50 @@ func addressGroupsSchema() *schema.Resource {
 }
 
 func dataSourceAddressGroupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listAddressGroups: Query the list of IP address groups
 	var (
-		listAddressGroupsHttpUrl = "v1/ip-groups"
-		listAddressGroupsProduct = "ga"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/ip-groups"
+		product = "ga"
 	)
-	listAddressGroupsClient, err := cfg.NewServiceClient(listAddressGroupsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	listAddressGroupsPath := listAddressGroupsClient.Endpoint + listAddressGroupsHttpUrl
-
-	listAddressGroupsqueryParams := buildListAddressGroupsQueryParams(d)
-	listAddressGroupsPath += listAddressGroupsqueryParams
-
-	listAddressGroupsResp, err := pagination.ListAllItems(
-		listAddressGroupsClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath += buildListAddressGroupsQueryParams(d)
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listAddressGroupsPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving IP address groups")
+		return diag.Errorf("error retrieving GA IP address groups: %s", err)
 	}
 
-	listAddressGroupsRespJson, err := json.Marshal(listAddressGroupsResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listAddressGroupsRespBody interface{}
-	err = json.Unmarshal(listAddressGroupsRespJson, &listAddressGroupsRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
 	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
-		d.Set("address_groups", filterListAddressGroupsResponseBody(flattenListAddressGroupsResponseBody(listAddressGroupsRespBody), d)),
+		d.Set("address_groups", filterListAddressGroupsResponseBody(flattenListAddressGroupsResponseBody(respBody), d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -237,20 +231,23 @@ func flattenListeners(raw interface{}) []map[string]interface{} {
 }
 
 func filterListAddressGroupsResponseBody(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
+	var (
+		addressGroupID = d.Get("address_group_id").(string)
+		name           = d.Get("name").(string)
+		status         = d.Get("status").(string)
+		rst            = make([]interface{}, 0, len(all))
+	)
+
 	for _, v := range all {
-		if param, ok := d.GetOk("address_group_id"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("id", v, nil) {
+		if addressGroupID != "" && addressGroupID != utils.PathSearch("id", v, "").(string) {
 			continue
 		}
 
-		if param, ok := d.GetOk("name"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("name", v, nil) {
+		if name != "" && name != utils.PathSearch("name", v, "").(string) {
 			continue
 		}
 
-		if param, ok := d.GetOk("status"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("status", v, nil) {
+		if status != "" && status != utils.PathSearch("status", v, "").(string) {
 			continue
 		}
 
