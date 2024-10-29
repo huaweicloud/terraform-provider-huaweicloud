@@ -185,7 +185,6 @@ func testAccDataSourceProducts_derived() string {
 
 	return fmt.Sprintf(`
 %[1]s
-%[2]s
 
 data "huaweicloud_iotda_products" "test_derived" {
   depends_on = [huaweicloud_iotda_product.test]
@@ -214,5 +213,5 @@ data "huaweicloud_iotda_products" "not_found" {
 output "not_found_validation_pass" {
   value = length(data.huaweicloud_iotda_products.not_found.products) == 0
 }
-`, testProduct_basic(name), buildIoTDAEndpoint())
+`, testProduct_basic(name))
 }

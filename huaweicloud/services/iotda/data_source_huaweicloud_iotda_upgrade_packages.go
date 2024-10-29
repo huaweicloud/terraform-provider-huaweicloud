@@ -144,7 +144,8 @@ func dataSourceIotdaUpgradePackagesRead(_ context.Context, d *schema.ResourceDat
 		}
 
 		upgradePackages = append(upgradePackages, *listResp.Packages...)
-		offset += limit
+		//nolint:gosec
+		offset += int32(len(*listResp.Packages))
 	}
 
 	uuId, err := uuid.GenerateUUID()

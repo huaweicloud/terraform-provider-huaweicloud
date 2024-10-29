@@ -172,12 +172,17 @@ func dataSourceDevicesRead(_ context.Context, d *schema.ResourceData, meta inter
 			return diag.Errorf("error querying IoTDA devices: %s", listErr)
 		}
 
+		if listResp == nil || listResp.Devices == nil {
+			break
+		}
+
 		if len(*listResp.Devices) == 0 {
 			break
 		}
 
 		allDevices = append(allDevices, *listResp.Devices...)
-		offset += limit
+		//nolint:gosec
+		offset += int32(len(*listResp.Devices))
 	}
 
 	uuId, err := uuid.GenerateUUID()

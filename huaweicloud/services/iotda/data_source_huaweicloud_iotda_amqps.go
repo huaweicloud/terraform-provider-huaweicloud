@@ -89,12 +89,17 @@ func dataSourceAMQPQueuesRead(_ context.Context, d *schema.ResourceData, meta in
 			return diag.Errorf("error querying IoTDA AMQP queues: %s", listErr)
 		}
 
+		if listResp == nil || listResp.Queues == nil {
+			break
+		}
+
 		if len(*listResp.Queues) == 0 {
 			break
 		}
 
 		allQueues = append(allQueues, *listResp.Queues...)
-		offset += limit
+		//nolint:gosec
+		offset += int32(len(*listResp.Queues))
 	}
 
 	uuId, err := uuid.GenerateUUID()
