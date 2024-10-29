@@ -12,7 +12,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -131,55 +130,50 @@ func acceleratorsSchema() *schema.Resource {
 }
 
 func dataSourceAcceleratorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listAccelerators: Query the list of accelerators
 	var (
-		listAcceleratorsHttpUrl = "v1/accelerators"
-		listAcceleratorsProduct = "ga"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/accelerators"
+		product = "ga"
+		mErr    *multierror.Error
 	)
-	listAcceleratorsClient, err := cfg.NewServiceClient(listAcceleratorsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	listAcceleratorsPath := listAcceleratorsClient.Endpoint + listAcceleratorsHttpUrl
-
-	listAcceleratorsqueryParams := buildListAcceleratorsQueryParams(d, cfg)
-	listAcceleratorsPath += listAcceleratorsqueryParams
-
-	listAcceleratorsResp, err := pagination.ListAllItems(
-		listAcceleratorsClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath += buildListAcceleratorsQueryParams(d, cfg)
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listAcceleratorsPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving accelerators")
+		return diag.Errorf("error retrieving GA accelerators: %s", err)
 	}
 
-	listAcceleratorsRespJson, err := json.Marshal(listAcceleratorsResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listAcceleratorsRespBody interface{}
-	err = json.Unmarshal(listAcceleratorsRespJson, &listAcceleratorsRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
-	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
-		d.Set("accelerators", flattenListAcceleratorsResponseBody(listAcceleratorsRespBody)),
+		d.Set("accelerators", flattenListAcceleratorsResponseBody(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

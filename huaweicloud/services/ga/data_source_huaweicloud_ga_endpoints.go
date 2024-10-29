@@ -13,7 +13,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -127,56 +126,51 @@ func endpointsSchema() *schema.Resource {
 }
 
 func dataSourceEndpointsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listEndpoints: Query the list of endpoints
 	var (
-		listEndpointsHttpUrl = "v1/endpoint-groups/{endpoint_group_id}/endpoints"
-		listEndpointsProduct = "ga"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/endpoint-groups/{endpoint_group_id}/endpoints"
+		product = "ga"
 	)
-	listEndpointsClient, err := cfg.NewServiceClient(listEndpointsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	listEndpointsPath := listEndpointsClient.Endpoint + listEndpointsHttpUrl
-	listEndpointsPath = strings.ReplaceAll(listEndpointsPath, "{endpoint_group_id}", d.Get("endpoint_group_id").(string))
-
-	listEndpointsqueryParams := buildListEndpointsQueryParams(d)
-	listEndpointsPath += listEndpointsqueryParams
-
-	listEndpointsResp, err := pagination.ListAllItems(
-		listEndpointsClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{endpoint_group_id}", d.Get("endpoint_group_id").(string))
+	requestPath += buildListEndpointsQueryParams(d)
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listEndpointsPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving endpoints")
+		return diag.Errorf("error retrieving GA endpoints: %s", err)
 	}
 
-	listEndpointsRespJson, err := json.Marshal(listEndpointsResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listEndpointsRespBody interface{}
-	err = json.Unmarshal(listEndpointsRespJson, &listEndpointsRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
 	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
-		d.Set("endpoints", filterListEndpointsResponseBody(flattenListEndpointsResponseBody(listEndpointsRespBody), d)),
+		d.Set("endpoints", filterListEndpointsResponseBody(flattenListEndpointsResponseBody(respBody), d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -208,25 +202,28 @@ func flattenListEndpointsResponseBody(resp interface{}) []interface{} {
 }
 
 func filterListEndpointsResponseBody(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
+	var (
+		resourceID   = d.Get("resource_id").(string)
+		resourceType = d.Get("resource_type").(string)
+		healthState  = d.Get("health_state").(string)
+		ipAddress    = d.Get("ip_address").(string)
+		rst          = make([]interface{}, 0, len(all))
+	)
+
 	for _, v := range all {
-		if param, ok := d.GetOk("resource_id"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("resource_id", v, nil) {
+		if resourceID != "" && resourceID != utils.PathSearch("resource_id", v, "").(string) {
 			continue
 		}
 
-		if param, ok := d.GetOk("resource_type"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("resource_type", v, nil) {
+		if resourceType != "" && resourceType != utils.PathSearch("resource_type", v, "").(string) {
 			continue
 		}
 
-		if param, ok := d.GetOk("health_state"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("health_state", v, nil) {
+		if healthState != "" && healthState != utils.PathSearch("health_state", v, "").(string) {
 			continue
 		}
 
-		if param, ok := d.GetOk("ip_address"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("ip_address", v, nil) {
+		if ipAddress != "" && ipAddress != utils.PathSearch("ip_address", v, "").(string) {
 			continue
 		}
 
