@@ -466,6 +466,8 @@ var (
 
 	HW_DDS_SECOND_LEVEL_MONITORING_ENABLED = os.Getenv("HW_DDS_SECOND_LEVEL_MONITORING_ENABLED")
 	HW_DDS_INSTANCE_ID                     = os.Getenv("HW_DDS_INSTANCE_ID")
+	HW_DDS_START_TIME                      = os.Getenv("HW_DDS_START_TIME")
+	HW_DDS_END_TIME                        = os.Getenv("HW_DDS_END_TIME")
 
 	HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID = os.Getenv("HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID")
 	HW_RDS_INSTANCE_ID                     = os.Getenv("HW_RDS_INSTANCE_ID")
@@ -2290,6 +2292,13 @@ func TestAccPreCheckDDSInstanceID(t *testing.T) {
 func TestAccPreCheckDDSSecondLevelMonitoringEnabled(t *testing.T) {
 	if HW_DDS_SECOND_LEVEL_MONITORING_ENABLED == "" {
 		t.Skip("HW_DDS_SECOND_LEVEL_MONITORING_ENABLED must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDDSTimeRange(t *testing.T) {
+	if HW_DDS_START_TIME == "" || HW_DDS_END_TIME == "" {
+		t.Skip("HW_DDS_START_TIME and HW_DDS_END_TIME must be set for acceptance test")
 	}
 }
 
