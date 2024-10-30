@@ -335,7 +335,7 @@ func resourceAcceleratorRead(_ context.Context, d *schema.ResourceData, meta int
 
 	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error retrieving GA accelerator: %s", err)
+		return common.CheckDeletedDiag(d, err, "error retrieving GA accelerator")
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
