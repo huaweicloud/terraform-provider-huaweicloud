@@ -71,6 +71,9 @@ paths:
             tag: GaussDBforMySQL
         PUT:
             tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/database-version:
+        GET:
+            tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/dns:
         POST:
             tag: GaussDBforMySQL

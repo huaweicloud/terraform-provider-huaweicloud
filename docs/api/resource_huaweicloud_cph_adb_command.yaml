@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cph_adb_command
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CPH
+paths:
+    /v1/{project_id}/cloud-phone/jobs:
+        GET:
+            tag: CPH
+    /v1/{project_id}/cloud-phone/phones/commands:
+        POST:
+            tag: CPH

@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_rabbitmq_user
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RabbitMQ
+paths:
+    /v2/{project_id}/instances/{instance_id}/users:
+        GET:
+            tag: RabbitMQ
+        POST:
+            tag: RabbitMQ
+    /v2/{project_id}/instances/{instance_id}/users/{user_name}:
+        DELETE:
+            tag: RabbitMQ
+        PUT:
+            tag: RabbitMQ

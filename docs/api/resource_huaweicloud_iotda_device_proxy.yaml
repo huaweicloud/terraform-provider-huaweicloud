@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_iotda_space
+    title: resource_huaweicloud_iotda_device_proxy
     description: ""
 schemes:
     - https
@@ -8,10 +8,10 @@ host: huaweicloud.com
 tags:
     - name: IoTDA
 paths:
-    /v5/iot/{project_id}/apps:
+    /v5/iot/{project_id}/device-proxies:
         POST:
             tag: IoTDA
-    /v5/iot/{project_id}/apps/{app_id}:
+    /v5/iot/{project_id}/device-proxies/{proxy_id}:
         DELETE:
             tag: IoTDA
         GET:

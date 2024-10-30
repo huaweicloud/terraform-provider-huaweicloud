@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpn_access_policy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPN
+paths:
+    /v5/{project_id}/p2c-vpn-gateways/vpn-servers/{vpn_server_id}/access-policies:
+        POST:
+            tag: VPN
+    /v5/{project_id}/p2c-vpn-gateways/vpn-servers/{vpn_server_id}/access-policies/{policy_id}:
+        DELETE:
+            tag: VPN
+        GET:
+            tag: VPN
+        PUT:
+            tag: VPN

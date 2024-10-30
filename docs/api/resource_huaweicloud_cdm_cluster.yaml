@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: CDM
 paths:
+    /v1.1/{project_id}/cluster/modify/{cluster_id}:
+        POST:
+            tag: CDM
     /v1.1/{project_id}/clusters:
         POST:
             tag: CDM

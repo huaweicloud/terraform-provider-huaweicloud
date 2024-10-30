@@ -16,3 +16,13 @@ paths:
             tag: IAM
         GET:
             tag: IAM
+    /v5/policies/{policy_id}/versions:
+        GET:
+            tag: IAM
+        POST:
+            tag: IAM
+    /v5/policies/{policy_id}/versions/{version_id}:
+        DELETE:
+            tag: IAM
+        GET:
+            tag: IAM
