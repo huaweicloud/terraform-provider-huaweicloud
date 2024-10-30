@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## 1.70.0 (October 30, 2024)
+
+* **New Resource:**
+  + `huaweicloud_cph_phone_stop` [GH-5769]
+  + `huaweicloud_dds_primary_standby_switch` [GH-5768]
+  + `huaweicloud_gaussdb_mysql_lts_log` [GH-5756]
+  + `huaweicloud_dds_recycle_policy` [GH-5755]
+  + `huaweicloud_vpn_access_policy` [GH-5751]
+  + `huaweicloud_workspace_app_group` [GH-5747]
+
+* **New Data Source:**
+  + `huaweicloud_gaussdb_mysql_slow_logs` [GH-5777]
+  + `huaweicloud_dds_error_logs` [GH-5772]
+  + `huaweicloud_vpn_access_policies` [GH-5770]
+  + `huaweicloud_ram_resource_shares` [GH-5749]
+  + `huaweicloud_gaussdb_redis_flavors` [GH-5746]
+  + `huaweicloud_iotda_batchtasks` [GH-5745]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_address_group: add ip_extra_set support [GH-5767]
+* resource/huaweicloud_identity_policy: add policy_document updating support [GH-5757]
+
 ## 1.69.1 (October 16, 2024)
 
 ENHANCEMENTS:
