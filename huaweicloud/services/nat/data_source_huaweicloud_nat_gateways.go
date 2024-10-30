@@ -133,56 +133,46 @@ func gatewayPublicGatewaysSchema() *schema.Resource {
 }
 
 func dataSourcePublicGatewaysRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// listGateways: Query the list of NAT gateways
 	var (
-		listGatewaysHttpUrl = "v2/{project_id}/nat_gateways"
-		listGatewaysProduct = "nat"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v2/{project_id}/nat_gateways"
+		product = "nat"
 	)
-	listGatewaysClient, err := cfg.NewServiceClient(listGatewaysProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating NAT client: %s", err)
 	}
 
-	listGatewaysPath := listGatewaysClient.Endpoint + listGatewaysHttpUrl
-	listGatewaysPath = strings.ReplaceAll(listGatewaysPath, "{project_id}", listGatewaysClient.ProjectID)
-
-	listGatewaysqueryParams := buildListPublicGatewaysQueryParams(d, cfg)
-	listGatewaysPath += listGatewaysqueryParams
-
-	listGatewaysOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildListPublicGatewaysQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	listGatewaysResp, err := listGatewaysClient.Request("GET", listGatewaysPath, &listGatewaysOpt)
-
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error retrieving NAT gateways %s", err)
 	}
 
-	listGatewaysRespBody, err := utils.FlattenResponse(listGatewaysResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("gateways", flattenListGatewaysResponseBodyPublicGateways(listGatewaysRespBody)),
+		d.Set("gateways", flattenListGatewaysResponseBodyPublicGateways(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

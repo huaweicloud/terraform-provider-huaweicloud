@@ -136,56 +136,51 @@ func snatRulesSchema() *schema.Resource {
 }
 
 func dataSourcePrivateSnatRulesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listSnatRules: Query the private SNAT rule list
 	var (
-		listSnatRulesHttpUrl = "v3/{project_id}/private-nat/snat-rules"
-		listSnatRulesProduct = "nat"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/snat-rules"
+		product = "nat"
 	)
-	listSnatRulesClient, err := cfg.NewServiceClient(listSnatRulesProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating NAT client: %s", err)
 	}
 
-	listSnatRulesPath := listSnatRulesClient.Endpoint + listSnatRulesHttpUrl
-	listSnatRulesPath = strings.ReplaceAll(listSnatRulesPath, "{project_id}", listSnatRulesClient.ProjectID)
-
-	listSnatRulesQueryParams := buildListSnatRulesQueryParams(d, cfg)
-	listSnatRulesPath += listSnatRulesQueryParams
-
-	listSnatRulesResp, err := pagination.ListAllItems(
-		listSnatRulesClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildListSnatRulesQueryParams(d, cfg)
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listSnatRulesPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
 		return diag.Errorf("error retrieving private SNAT rules %s", err)
 	}
 
-	listSnatRulesRespJson, err := json.Marshal(listSnatRulesResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	var listSnatRulesRespBody interface{}
-	err = json.Unmarshal(listSnatRulesRespJson, &listSnatRulesRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
 	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("rules", flattenListSnatRuleResponseBody(listSnatRulesRespBody)),
+		d.Set("rules", flattenListSnatRuleResponseBody(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

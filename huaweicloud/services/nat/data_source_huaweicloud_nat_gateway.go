@@ -90,6 +90,20 @@ func DataSourcePublicGateway() *schema.Resource {
 	}
 }
 
+func getVpdID(d *schema.ResourceData) string {
+	if v, ok := d.GetOk("vpc_id"); ok {
+		return v.(string)
+	}
+	return d.Get("router_id").(string)
+}
+
+func getSubnetID(d *schema.ResourceData) string {
+	if v, ok := d.GetOk("subnet_id"); ok {
+		return v.(string)
+	}
+	return d.Get("internal_network_id").(string)
+}
+
 func dataSourcePublicGatewayRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	natClient, err := cfg.NatGatewayClient(cfg.GetRegion(d))
@@ -97,25 +111,13 @@ func dataSourcePublicGatewayRead(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	var vpcId, subnetId string
-	if v1, ok := d.GetOk("vpc_id"); ok {
-		vpcId = v1.(string)
-	} else {
-		vpcId = d.Get("router_id").(string)
-	}
-	if v2, ok := d.GetOk("subnet_id"); ok {
-		subnetId = v2.(string)
-	} else {
-		subnetId = d.Get("internal_network_id").(string)
-	}
-
 	listOpts := gateways.ListOpts{
 		ID:                  d.Get("id").(string),
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		Spec:                d.Get("spec").(string),
-		VpcId:               vpcId,
-		InternalNetworkId:   subnetId,
+		VpcId:               getVpdID(d),
+		InternalNetworkId:   getSubnetID(d),
 		Status:              d.Get("status").(string),
 		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
 	}
