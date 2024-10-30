@@ -197,7 +197,9 @@ data "huaweicloud_nat_private_transit_ips" "filter_by_tags" {
 
 locals {
   tags_filter_result = [
-    for v in data.huaweicloud_nat_private_transit_ips.filter_by_tags.transit_ips[*].tags : v == local.tags
+    for tagMap in data.huaweicloud_nat_private_transit_ips.filter_by_tags.transit_ips[*].tags : alltrue([
+      for k, v in local.tags : tagMap[k] == v
+    ])
   ]
 }
 
