@@ -2,12 +2,13 @@
 subcategory: "VPC Endpoint (VPCEP)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_vpcep_service"
-description: ""
+description: -|
+  Manages a VPC endpoint service resource within HuaweiCloud.
 ---
 
 # huaweicloud_vpcep_service
 
-Provides a resource to manage a VPC endpoint service resource.
+Manages a VPC endpoint service resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -81,6 +82,20 @@ The following arguments are supported:
   <br/>2.**Proxy Protocol**: The client information is placed into the `tcp payload` field and sent to the server.
 
   -> This parameter is available only when the server can parse the `tcp option` and `tcp payload` fields.
+
+* `ip_version` - (Optional, String, ForceNew) Specifies the IP version of the VPC endpoint service.
+  The valid values are as follows:
+  + **ipv4** (Default value)
+  + **ipv6**
+
+  -> 1.Only professional VPC endpoint service supports this parameter.
+    <br>2.Currently, professional VPC endpoint service are available in the **cn-east-4**, **me-east-1**,
+    **cn-east-5**, and **af-north-1** regions.
+
+* `snat_network_id` - (Optional, String, ForceNew) Specifies the network ID of any subnet within the VPC used to create
+  the VPC endpoint service.
+
+  -> This parameter is valid only when the `ip_version` is set to **ipv6**.
 
 * `enable_policy` - (Optional, Bool, ForceNew) Specifies whether the VPC endpoint policy is enabled. Defaults to **false**.
   Changing this creates a new VPC endpoint service resource.
