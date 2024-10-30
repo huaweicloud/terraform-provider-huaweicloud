@@ -57,6 +57,25 @@ underscores (_) and the following special characters are allowed: `?'#().,&%@!`.
 * `parent_group_id` - (Optional, String, ForceNew) Specifies the parent group id.
 Changing this parameter will create a new resource.
 
+* `type` - (Optional, String, ForceNew) Specifies the device group type.
+  The valid values are as follows:
+  + **STATIC**: Static device group.
+  + **DYNAMIC**: Dynamic device group.
+
+  Defaults to **STATIC**.
+
+-> When the `type` parameter is set to **DYNAMIC**:
+  <br/>1. The `dynamic_group_rule` parameter is required.
+  <br/>2. The `parent_group_id` parameter cannot be set, because dynamic group do not support parent-child nesting.
+  <br/>3. The `device_ids` does not need to be set and cannot be updated, only as an attribute. Because devices in
+  dynamic group can only be managed automatically based on dynamic group rule.
+  <br/>4. Only the standard and enterprise versions of IoTDA instances support dynamic device groups.
+
+* `dynamic_group_rule` - (Optional, String, ForceNew) Specifies the dynamic device group rule, just fill in the content
+  of the **where** clause, the remaining clauses do not need to be filled in.
+  e.g. **device_name = 'xxx' or device_name = 'xxx'**.
+  More grammar rules, please see [API docs](https://support.huaweicloud.com/intl/en-us/api-iothub/SearchDevices.html).
+
 * `device_ids` - (Optional, List) Specifies the list of device IDs bound to the group.
 
 ## Attribute Reference
