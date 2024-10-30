@@ -30,6 +30,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cce"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cceautopilot"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cci"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ccm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdm"
@@ -1299,6 +1300,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_central_network_connection_bandwidth_associate": cc.ResourceCentralNetworkConnectionBandwidthAssociate(),
 			"huaweicloud_cc_global_connection_bandwidth":                    cc.ResourceGlobalConnectionBandwidth(),
 			"huaweicloud_cc_global_connection_bandwidth_associate":          cc.ResourceGlobalConnectionBandwidthAssociate(),
+
+			"huaweicloud_cce_autopilot_cluster": cceautopilot.ResourceAutopilotCluster(),
 
 			"huaweicloud_cce_cluster":             cce.ResourceCluster(),
 			"huaweicloud_cce_cluster_log_config":  cce.ResourceClusterLogConfig(),
