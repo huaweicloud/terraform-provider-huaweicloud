@@ -54,7 +54,6 @@ func ResourceVpcAddressGroup() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				MaxItems: 20,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"ip_version": {
@@ -69,7 +68,6 @@ func ResourceVpcAddressGroup() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				MaxItems: 20,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ip": {

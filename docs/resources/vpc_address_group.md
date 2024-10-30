@@ -72,8 +72,7 @@ The following arguments are supported:
   periods (.).
 
 * `addresses` - (Optional, List) Specifies an array of one or more IP addresses. The address can be a single IP
-  address, IP address range or IP address CIDR. The maximum length is 20. Only one of `addresses` and `ip_extra_set`
-  can be specified.
+  address, IP address range or IP address CIDR. Only one of `addresses` and `ip_extra_set` can be specified.
 
 * `ip_extra_set` - (Optional, List) Specifies the IP addresses and their remarks in an IP address group.
   The [ip_extra_set](#address_groups_ip_extra_set_struct) structure is documented below.
