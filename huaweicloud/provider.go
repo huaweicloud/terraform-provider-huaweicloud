@@ -782,6 +782,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_slow_logs":               gaussdb.DataSourceGaussDBMysqlSlowLogs(),
 			"huaweicloud_gaussdb_mysql_error_logs":              gaussdb.DataSourceGaussDBMysqlErrorLogs(),
 			"huaweicloud_gaussdb_mysql_diagnosis_statistics":    gaussdb.DataSourceGaussdbMysqlDiagnosisStatistics(),
+			"huaweicloud_gaussdb_mysql_diagnosis_instances":     gaussdb.DataSourceGaussDBMysqlDiagnosisInstances(),
 
 			"huaweicloud_gaussdb_influx_instances": gaussdb.DataSourceGaussDBInfluxInstances(),
 
