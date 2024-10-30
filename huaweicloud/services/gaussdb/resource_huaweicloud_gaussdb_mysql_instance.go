@@ -235,6 +235,11 @@ func ResourceGaussDBInstance() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
+			"slow_log_show_original_switch": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -819,6 +824,12 @@ func resourceGaussDBInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if _, ok := d.GetOk("slow_log_show_original_switch"); ok {
+		if err = updateSlowLogShowOriginalSwitch(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if _, ok := d.GetOk("description"); ok {
 		if err = updateDescription(client, d); err != nil {
 			return diag.FromErr(err)
@@ -980,6 +991,8 @@ func resourceGaussDBInstanceRead(ctx context.Context, d *schema.ResourceData, me
 	mErr = multierror.Append(mErr, setEncryption(d, client, instanceID))
 	// set version
 	mErr = multierror.Append(mErr, setVersion(d, client, instanceID)...)
+	// set slow log show original
+	mErr = multierror.Append(mErr, setSlowLogShowOriginalSwitch(d, client, instanceID))
 
 	// save tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
@@ -1197,6 +1210,16 @@ func setVersion(d *schema.ResourceData, client *golangsdk.ServiceClient, instanc
 	return errs
 }
 
+func setSlowLogShowOriginalSwitch(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceId string) error {
+	resp, err := instances.GetSlowLogShowOriginalSwitch(client, instanceId).Extract()
+	if err != nil {
+		log.Printf("[WARN] query instance %s slow log show original failed: %s", instanceId, err)
+		return nil
+	}
+	slowLogShowOriginalSwitch, _ := strconv.ParseBool(resp.OpenSlowLogSwitch)
+	return d.Set("slow_log_show_original_switch", slowLogShowOriginalSwitch)
+}
+
 func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
 	parametersList, err := parameters.List(client, d.Id())
 	if err != nil {
@@ -1401,6 +1424,13 @@ func resourceGaussDBInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	if d.HasChange("ssl_option") {
 		err = updateSslOption(ctx, client, d, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("slow_log_show_original_switch") {
+		err = updateSlowLogShowOriginalSwitch(client, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2278,6 +2308,19 @@ func updateSslOption(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 
 	job := r.(*instances.JobResponse)
 	return checkGaussDBMySQLJobFinish(ctx, client, job.JobID, d.Timeout(timeout))
+}
+
+func updateSlowLogShowOriginalSwitch(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	opts := instances.UpdateSlowLogShowOriginalSwitchOpts{
+		OpenSlowLogSwitch: d.Get("slow_log_show_original_switch").(bool),
+	}
+
+	_, err := instances.UpdateSlowLogShowOriginalSwitch(client, d.Id(), opts).ExtractUpdateSlowLogShowOriginalSwitchResponse()
+	if err != nil {
+		return fmt.Errorf("error updating slow low show original switch for instance %s: %s ", d.Id(), err)
+	}
+
+	return nil
 }
 
 func updateDescription(client *golangsdk.ServiceClient, d *schema.ResourceData) error {

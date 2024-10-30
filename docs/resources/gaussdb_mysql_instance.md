@@ -82,6 +82,8 @@ The following arguments are supported:
 
   Defaults to **true**.
 
+* `slow_log_show_original_switch` - (Optional, Bool) Specifies the slow log show original switch of the instance.
+
 * `description` - (Optional, String) Specifies the description of the instance.
 
 * `private_write_ip` - (Optional, String) Specifies the private IP address of the DB instance.
