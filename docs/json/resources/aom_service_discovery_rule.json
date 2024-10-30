@@ -5,6 +5,14 @@
         "huaweicloud_aom_service_discovery_rule": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
               "detect_log_enabled": {
                 "type": "bool",
                 "optional": true,

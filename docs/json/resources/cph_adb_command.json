@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cph_adb_command": {
+          "block": {
+            "attributes": {
+              "command": {
+                "type": "string",
+                "description": "Specifies the ADB command.",
+                "required": true
+              },
+              "content": {
+                "type": "string",
+                "description": "Specifies the content.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "phone_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IDs of the CPH phone.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IDs of CPH server.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

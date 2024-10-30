@@ -77,6 +77,12 @@
                             "type": "string",
                             "required": true,
                             "forcenew": true
+                          },
+                          "sign": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
                           }
                         }
                       },

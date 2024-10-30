@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_iotda_upgrade_packages": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "packages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "custom_info": "string",
+                      "description": "string",
+                      "id": "string",
+                      "product_id": "string",
+                      "space_id": "string",
+                      "support_source_versions": [
+                        "list",
+                        "string"
+                      ],
+                      "type": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the upgrade packages.",
+                "computed": true
+              },
+              "product_id": {
+                "type": "string",
+                "description": "Specifies the product ID associated with the upgrade package.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "space_id": {
+                "type": "string",
+                "description": "Specifies the resource space ID to which the upgrade packages belong.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the upgrade package.",
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the version number of the upgrade package.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "IoT物联网"
+          }
+        }
+      }
+    }
+  }
+}

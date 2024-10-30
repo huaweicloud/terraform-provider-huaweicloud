@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dws_cluster_parameters": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "The DWS cluster ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "parameters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "name": "string",
+                      "readonly": "bool",
+                      "restart_required": "bool",
+                      "type": "string",
+                      "unit": "string",
+                      "value_range": "string",
+                      "values": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "default_value": "string",
+                            "type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of the parameters under specified DWS cluster.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

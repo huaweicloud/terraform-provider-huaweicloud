@@ -16,6 +16,11 @@
                 "description": "The creation time of the cluster.",
                 "computed": true
               },
+              "description": {
+                "type": "string",
+                "description": "The description of the cluster.",
+                "optional": true
+              },
               "dss_pool_id": {
                 "type": "string",
                 "description": "Dedicated storage pool ID.",
@@ -85,12 +90,12 @@
               },
               "logical_cluster_enable": {
                 "type": "bool",
-                "description": "Specified whether to enable logical cluster.",
+                "description": "Whether to enable logical cluster.",
                 "optional": true
               },
               "lts_enable": {
                 "type": "bool",
-                "description": "Specified whether to enable LTS.",
+                "description": "Whether to enable LTS.",
                 "optional": true
               },
               "maintain_window": {
@@ -176,8 +181,7 @@
               "security_group_id": {
                 "type": "string",
                 "description": "The security group ID.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "status": {
                 "type": "string",

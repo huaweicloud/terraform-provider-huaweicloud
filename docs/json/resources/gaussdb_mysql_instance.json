@@ -33,6 +33,14 @@
                 "type": "string",
                 "computed": true
               },
+              "current_kernel_version": {
+                "type": "string",
+                "computed": true
+              },
+              "current_version": {
+                "type": "string",
+                "computed": true
+              },
               "db_user_name": {
                 "type": "string",
                 "computed": true
@@ -178,6 +186,11 @@
                 "optional": true,
                 "computed": true
               },
+              "slow_log_show_original_switch": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "sql_filter_enabled": {
                 "type": "bool",
                 "optional": true,
@@ -215,6 +228,10 @@
               },
               "updated_at": {
                 "type": "string",
+                "computed": true
+              },
+              "upgrade_flag": {
+                "type": "bool",
                 "computed": true
               },
               "volume_size": {

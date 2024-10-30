@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_group": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the application group, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the application group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the application group.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "Specifies the server group ID associated with the application group.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the application group.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

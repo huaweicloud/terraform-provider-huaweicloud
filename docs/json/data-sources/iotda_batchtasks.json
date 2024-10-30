@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_iotda_batchtasks": {
+          "block": {
+            "attributes": {
+              "batchtasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "name": "string",
+                      "status": "string",
+                      "status_desc": "string",
+                      "targets": [
+                        "list",
+                        "string"
+                      ],
+                      "targets_filter": [
+                        "map",
+                        "string"
+                      ],
+                      "task_policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "retry_count": "number",
+                            "retry_interval": "number",
+                            "schedule_time": "string"
+                          }
+                        ]
+                      ],
+                      "task_progress": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "fail": "number",
+                            "fail_wait_retry": "number",
+                            "processing": "number",
+                            "removed": "number",
+                            "stopped": "number",
+                            "success": "number",
+                            "total": "number",
+                            "waitting": "number"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "space_id": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "IoT物联网"
+          }
+        }
+      }
+    }
+  }
+}

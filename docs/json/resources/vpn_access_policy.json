@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_vpn_user": {
+        "huaweicloud_vpn_access_policy": {
           "block": {
             "attributes": {
               "created_at": {
@@ -12,8 +12,16 @@
               },
               "description": {
                 "type": "string",
-                "description": "The description of the user.",
+                "description": "The description of the access policy.",
                 "optional": true
+              },
+              "dest_ip_cidrs": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of destination IP CIDRs.",
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -21,14 +29,8 @@
               },
               "name": {
                 "type": "string",
-                "description": "The user name.",
+                "description": "The access policy name.",
                 "required": true
-              },
-              "password": {
-                "type": "string",
-                "description": "The user password.",
-                "required": true,
-                "sensitive": true
               },
               "region": {
                 "type": "string",
@@ -42,7 +44,7 @@
               "user_group_id": {
                 "type": "string",
                 "description": "The user group ID.",
-                "computed": true
+                "required": true
               },
               "user_group_name": {
                 "type": "string",

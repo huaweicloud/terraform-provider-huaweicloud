@@ -2,72 +2,70 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_identity_policy": {
+        "huaweicloud_gaussdb_mysql_scheduled_task_cancel": {
           "block": {
             "attributes": {
-              "attachment_count": {
-                "type": "number",
-                "computed": true
-              },
-              "created_at": {
+              "create_time": {
                 "type": "string",
                 "computed": true
               },
-              "default_version_id": {
+              "datastore_type": {
                 "type": "string",
                 "computed": true
               },
-              "description": {
+              "end_time": {
                 "type": "string",
-                "optional": true
+                "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
-                "type": "string",
-                "required": true
-              },
-              "path": {
-                "type": "string",
-                "optional": true
-              },
-              "policy_document": {
-                "type": "string",
-                "required": true
-              },
-              "policy_type": {
+              "instance_id": {
                 "type": "string",
                 "computed": true
               },
-              "updated_at": {
+              "instance_name": {
                 "type": "string",
                 "computed": true
               },
-              "urn": {
+              "instance_status": {
                 "type": "string",
                 "computed": true
               },
-              "version_ids": {
-                "type": [
-                  "list",
-                  "string"
-                ],
+              "job_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "job_name": {
+                "type": "string",
                 "computed": true
               },
-              "version_to_delete": {
+              "job_status": {
                 "type": "string",
-                "optional": true
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "computed": true
               }
             }
           },
           "product": {
-            "short": "IAM",
-            "name": "Identity and Access Management",
-            "catalog": "Management & Governance",
-            "name_cn": "统一身份认证服务",
-            "catalog_cn": "管理与监管"
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
           }
         }
       }

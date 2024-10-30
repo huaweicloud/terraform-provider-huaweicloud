@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_kafka_message_diagnosis_tasks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the kafka instance ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "report_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "accumulated_partitions": "number",
+                      "begin_time": "string",
+                      "end_time": "string",
+                      "group_name": "string",
+                      "report_id": "string",
+                      "status": "string",
+                      "topic_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the diagnosis reports.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

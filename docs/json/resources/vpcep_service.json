@@ -41,6 +41,12 @@
                 "type": "string",
                 "computed": true
               },
+              "ip_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "name": {
                 "type": "string",
                 "optional": true
@@ -80,6 +86,12 @@
               "service_type": {
                 "type": "string",
                 "computed": true
+              },
+              "snat_network_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "status": {
                 "type": "string",

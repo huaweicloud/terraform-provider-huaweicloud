@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ram_resource_shares": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the resource share.",
+                "optional": true
+              },
+              "permission_id": {
+                "type": "string",
+                "description": "Specifies the permission ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_owner": {
+                "type": "string",
+                "description": "Specifies the owner type of resource sharing instance.",
+                "required": true
+              },
+              "resource_share_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of resource share IDs.",
+                "optional": true
+              },
+              "resource_shares": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "allow_external_principals": "bool",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "owning_account_id": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of details about resource shares.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the resource share.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "tag_filters": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the identifier or name of the tag key.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the list of values for the tag key.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the tags attached to the resource share."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "RAM",
+            "name": "Resource Access Manager",
+            "catalog": "Management & Governance",
+            "name_cn": "资源访问管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

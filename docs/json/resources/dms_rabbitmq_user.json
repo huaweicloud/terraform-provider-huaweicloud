@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_rabbitmq_user": {
+          "block": {
+            "attributes": {
+              "access_key": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "secret_key": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              }
+            },
+            "block_types": {
+              "vhosts": {
+                "block": {
+                  "attributes": {
+                    "conf": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "read": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "vhost": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "write": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RabbitMQ",
+            "name": "Distributed Message Service for RabbitMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RabbitMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

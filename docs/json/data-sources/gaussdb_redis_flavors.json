@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_redis_flavors": {
+          "block": {
+            "attributes": {
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "az_status": [
+                        "map",
+                        "string"
+                      ],
+                      "engine_name": "string",
+                      "engine_version": "string",
+                      "ram": "string",
+                      "spec_code": "string",
+                      "vcpus": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforNoSQL",
+            "name": "GeminiDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GeminiDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

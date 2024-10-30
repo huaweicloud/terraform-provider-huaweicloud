@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_vpn_user": {
+        "huaweicloud_vpn_user_group": {
           "block": {
             "attributes": {
               "created_at": {
@@ -12,7 +12,7 @@
               },
               "description": {
                 "type": "string",
-                "description": "The description of the user.",
+                "description": "The description of the user group.",
                 "optional": true
               },
               "id": {
@@ -21,17 +21,16 @@
               },
               "name": {
                 "type": "string",
-                "description": "The user name.",
+                "description": "The name of the user group.",
                 "required": true
-              },
-              "password": {
-                "type": "string",
-                "description": "The user password.",
-                "required": true,
-                "sensitive": true
               },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The user group type.",
                 "computed": true
               },
               "updated_at": {
@@ -39,20 +38,40 @@
                 "description": "The update time.",
                 "computed": true
               },
-              "user_group_id": {
-                "type": "string",
-                "description": "The user group ID.",
-                "computed": true
-              },
-              "user_group_name": {
-                "type": "string",
-                "description": "The user group name.",
+              "user_number": {
+                "type": "number",
+                "description": "The number of users.",
                 "computed": true
               },
               "vpn_server_id": {
                 "type": "string",
                 "description": "The VPN server ID.",
                 "required": true
+              }
+            },
+            "block_types": {
+              "users": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "The user description.",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The user ID.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The username.",
+                      "computed": true
+                    }
+                  },
+                  "description": "The user list."
+                },
+                "nesting_mode": "set"
               }
             }
           },

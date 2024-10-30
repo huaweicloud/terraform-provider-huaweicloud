@@ -2,26 +2,15 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_iotda_device_group": {
+        "huaweicloud_iotda_device_proxy": {
           "block": {
             "attributes": {
-              "description": {
-                "type": "string",
-                "optional": true
-              },
-              "device_ids": {
+              "devices": {
                 "type": [
                   "set",
                   "string"
                 ],
-                "optional": true,
-                "computed": true
-              },
-              "dynamic_group_rule": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -31,12 +20,6 @@
                 "type": "string",
                 "required": true
               },
-              "parent_group_id": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -45,12 +28,25 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
-              },
-              "type": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+              }
+            },
+            "block_types": {
+              "effective_time_range": {
+                "block": {
+                  "attributes": {
+                    "end_time": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
               }
             }
           },

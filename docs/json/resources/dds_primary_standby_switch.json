@@ -2,20 +2,22 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_iotda_space": {
+        "huaweicloud_dds_primary_standby_switch": {
           "block": {
             "attributes": {
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "is_default": {
-                "type": "bool",
-                "computed": true
-              },
-              "name": {
+              "instance_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
+              },
+              "node_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
@@ -24,11 +26,11 @@
             }
           },
           "product": {
-            "short": "IoTDA",
-            "name": "IoT Device Access",
-            "catalog": "Internet of Things",
-            "name_cn": "设备接入",
-            "catalog_cn": "IoT物联网"
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
           }
         }
       }

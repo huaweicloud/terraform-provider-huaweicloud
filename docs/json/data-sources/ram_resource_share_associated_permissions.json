@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ram_resource_share_associated_permissions": {
+          "block": {
+            "attributes": {
+              "associated_permissions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "permission_id": "string",
+                      "permission_name": "string",
+                      "resource_type": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of RAM managed permissions associated with the resource share.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "permission_name": {
+                "type": "string",
+                "description": "Specifies the name of the RAM managed permission.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_share_id": {
+                "type": "string",
+                "description": "Specifies the ID of the resource share.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "RAM",
+            "name": "Resource Access Manager",
+            "catalog": "Management & Governance",
+            "name_cn": "资源访问管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

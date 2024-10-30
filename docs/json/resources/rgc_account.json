@@ -73,7 +73,6 @@
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               }
             }

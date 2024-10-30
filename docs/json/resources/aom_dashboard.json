@@ -5,6 +5,10 @@
         "huaweicloud_aom_dashboard": {
           "block": {
             "attributes": {
+              "charts": {
+                "type": "string",
+                "optional": true
+              },
               "dashboard_tags": {
                 "type": [
                   "list",

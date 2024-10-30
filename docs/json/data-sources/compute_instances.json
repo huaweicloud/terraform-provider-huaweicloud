@@ -121,6 +121,13 @@
               "status": {
                 "type": "string",
                 "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
               }
             }
           },

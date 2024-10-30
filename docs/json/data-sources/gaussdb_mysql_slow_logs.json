@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_slow_logs": {
+          "block": {
+            "attributes": {
+              "database": {
+                "type": "string",
+                "description": "Specifies the database that slow query logs belong to.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB MySQL instance.",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the ID of the instance node.",
+                "required": true
+              },
+              "operate_type": {
+                "type": "string",
+                "description": "Specifies the SQL statement type.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "slow_log_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_ip": "string",
+                      "count": "string",
+                      "database": "string",
+                      "lock_time": "string",
+                      "node_id": "string",
+                      "query_sample": "string",
+                      "rows_examined": "string",
+                      "rows_sent": "string",
+                      "start_time": "string",
+                      "time": "string",
+                      "type": "string",
+                      "users": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the slow logs.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

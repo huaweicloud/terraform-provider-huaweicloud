@@ -10,7 +10,8 @@
                   "set",
                   "string"
                 ],
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "description": {
                 "type": "string",
@@ -49,6 +50,23 @@
               "region": {
                 "type": "string",
                 "computed": true
+              }
+            },
+            "block_types": {
+              "ip_extra_set": {
+                "block": {
+                  "attributes": {
+                    "ip": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "remarks": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               }
             }
           },

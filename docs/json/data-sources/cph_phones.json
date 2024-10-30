@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cph_phones": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "phone_name": {
+                "type": "string",
+                "description": "Specifies the cloud phone name and support fuzzy query.",
+                "optional": true
+              },
+              "phones": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "create_time": "string",
+                      "image_id": "string",
+                      "image_version": "string",
+                      "imei": "string",
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "order_id": "string",
+                            "product_id": "string"
+                          }
+                        ]
+                      ],
+                      "phone_id": "string",
+                      "phone_model_name": "string",
+                      "phone_name": "string",
+                      "server_id": "string",
+                      "status": "number",
+                      "traffic_type": "string",
+                      "type": "number",
+                      "update_time": "string",
+                      "vnc_enable": "string",
+                      "volume_mode": "number"
+                    }
+                  ]
+                ],
+                "description": "The cloud phone list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the cloud phone server ID.",
+                "optional": true
+              },
+              "status": {
+                "type": "number",
+                "description": "Specifies the cloud phone status.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the cloud phone type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}
