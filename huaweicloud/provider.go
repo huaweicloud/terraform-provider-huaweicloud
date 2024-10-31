@@ -2052,6 +2052,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_workspace_app_group_authorization": workspace.ResourceAppGroupAuthorization(),
 			"huaweicloud_workspace_app_group":               workspace.ResourceWorkspaceAppGroup(),
+			"huaweicloud_workspace_app_policy_group":        workspace.ResourceAppPolicyGroup(),
 			"huaweicloud_workspace_app_publishment":         workspace.ResourceAppPublishment(),
 			"huaweicloud_workspace_user_group":              workspace.ResourceUserGroup(),
 			"huaweicloud_workspace_access_policy":           workspace.ResourceAccessPolicy(),
