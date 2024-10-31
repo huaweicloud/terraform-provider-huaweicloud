@@ -1382,9 +1382,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_script":         coc.ResourceScript(),
 			"huaweicloud_coc_script_execute": coc.ResourceScriptExecute(),
 
-			"huaweicloud_cph_server":      cph.ResourceCphServer(),
-			"huaweicloud_cph_adb_command": cph.ResourceAdbCommand(),
-			"huaweicloud_cph_phone_stop":  cph.ResourcePhoneStop(),
+			"huaweicloud_cph_server":         cph.ResourceCphServer(),
+			"huaweicloud_cph_adb_command":    cph.ResourceAdbCommand(),
+			"huaweicloud_cph_phone_stop":     cph.ResourcePhoneStop(),
+			"huaweicloud_cph_server_restart": cph.ResourceServerRestart(),
 
 			"huaweicloud_cse_microservice":                      cse.ResourceMicroservice(),
 			"huaweicloud_cse_microservice_engine":               cse.ResourceMicroserviceEngine(),
