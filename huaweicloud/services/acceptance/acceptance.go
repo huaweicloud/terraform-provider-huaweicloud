@@ -36,21 +36,22 @@ var (
 	HW_ENTERPRISE_PROJECT_ID_TEST         = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
 	HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST = os.Getenv("HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST")
 
-	HW_FLAVOR_ID              = os.Getenv("HW_FLAVOR_ID")
-	HW_FLAVOR_NAME            = os.Getenv("HW_FLAVOR_NAME")
-	HW_IMAGE_ID               = os.Getenv("HW_IMAGE_ID")
-	HW_IMAGE_NAME             = os.Getenv("HW_IMAGE_NAME")
-	HW_IMS_DATA_DISK_IMAGE_ID = os.Getenv("HW_IMS_DATA_DISK_IMAGE_ID")
-	HW_VPC_ID                 = os.Getenv("HW_VPC_ID")
-	HW_VPN_P2C_GATEWAY_ID     = os.Getenv("HW_VPN_P2C_GATEWAY_ID")
-	HW_VPN_P2C_SERVER         = os.Getenv("HW_VPN_P2C_SERVER")
-	HW_NETWORK_ID             = os.Getenv("HW_NETWORK_ID")
-	HW_SUBNET_ID              = os.Getenv("HW_SUBNET_ID")
-	HW_SECURITY_GROUP_ID      = os.Getenv("HW_SECURITY_GROUP_ID")
-	HW_ENTERPRISE_PROJECT_ID  = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
-	HW_ADMIN                  = os.Getenv("HW_ADMIN")
-	HW_IAM_V5                 = os.Getenv("HW_IAM_V5")
-	HW_RUNNER_PUBLIC_IP       = os.Getenv("HW_RUNNER_PUBLIC_IP")
+	HW_FLAVOR_ID                     = os.Getenv("HW_FLAVOR_ID")
+	HW_FLAVOR_NAME                   = os.Getenv("HW_FLAVOR_NAME")
+	HW_IMAGE_ID                      = os.Getenv("HW_IMAGE_ID")
+	HW_IMAGE_NAME                    = os.Getenv("HW_IMAGE_NAME")
+	HW_IMS_DATA_DISK_IMAGE_ID        = os.Getenv("HW_IMS_DATA_DISK_IMAGE_ID")
+	HW_VPC_ID                        = os.Getenv("HW_VPC_ID")
+	HW_VPN_P2C_GATEWAY_ID            = os.Getenv("HW_VPN_P2C_GATEWAY_ID")
+	HW_VPN_P2C_SERVER                = os.Getenv("HW_VPN_P2C_SERVER")
+	HW_VPN_P2C_CLIENT_CA_CERTIFICATE = os.Getenv("HW_VPN_P2C_CLIENT_CA_CERTIFICATE")
+	HW_NETWORK_ID                    = os.Getenv("HW_NETWORK_ID")
+	HW_SUBNET_ID                     = os.Getenv("HW_SUBNET_ID")
+	HW_SECURITY_GROUP_ID             = os.Getenv("HW_SECURITY_GROUP_ID")
+	HW_ENTERPRISE_PROJECT_ID         = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
+	HW_ADMIN                         = os.Getenv("HW_ADMIN")
+	HW_IAM_V5                        = os.Getenv("HW_IAM_V5")
+	HW_RUNNER_PUBLIC_IP              = os.Getenv("HW_RUNNER_PUBLIC_IP")
 
 	HW_APIG_DEDICATED_INSTANCE_ID             = os.Getenv("HW_APIG_DEDICATED_INSTANCE_ID")
 	HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID = os.Getenv("HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID")
@@ -2442,6 +2443,13 @@ func TestAccPreCheckVPNP2cGatewayId(t *testing.T) {
 func TestAccPreCheckVPNP2cServer(t *testing.T) {
 	if HW_VPN_P2C_SERVER == "" {
 		t.Skip("HW_VPN_P2C_SERVER must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckVPNP2cClientCACertificate(t *testing.T) {
+	if HW_VPN_P2C_CLIENT_CA_CERTIFICATE == "" {
+		t.Skip("HW_VPN_P2C_CLIENT_CA_CERTIFICATE must be set for the acceptance test")
 	}
 }
 
