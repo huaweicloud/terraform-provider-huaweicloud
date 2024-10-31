@@ -79,6 +79,8 @@ func TestAccCphServer_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "subnet_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttr(rName, "server_flavor", "physical.rx1.xlarge"),
+					resource.TestCheckResourceAttr(rName, "phone_flavor", "rx1.cp.c15.d46.e1v1"),
 					resource.TestCheckResourceAttrSet(rName, "availability_zone"),
 					resource.TestCheckResourceAttrSet(rName, "order_id"),
 					resource.TestCheckResourceAttrSet(rName, "addresses.#"),
@@ -90,6 +92,14 @@ func TestAccCphServer_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"update"),
+				),
+			},
+			{
+				Config: testCphServer_updateFlavor(name, name+"update"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "server_flavor", "physical.kg1.4xlarge.cp"),
+					resource.TestCheckResourceAttr(rName, "phone_flavor", "rs2.max"),
 				),
 			},
 			{
@@ -169,6 +179,40 @@ resource "huaweicloud_cph_server" "test" {
   name          = "%s"
   server_flavor = "physical.rx1.xlarge"
   phone_flavor  = "rx1.cp.c15.d46.e1v1"
+  image_id      = data.huaweicloud_cph_phone_images.test.images[0].id
+  keypair_name  = huaweicloud_kps_keypair.test.name
+
+  vpc_id    = huaweicloud_vpc.test.id
+  subnet_id = huaweicloud_vpc_subnet.test.id
+  eip_type  = "5_bgp"
+
+  bandwidth {
+    share_type  = "0"
+    charge_mode = "1"
+    size        = 300
+  }
+
+  period_unit = "month"
+  period      = 1
+  auto_renew  = "true"
+
+  lifecycle {
+    ignore_changes = [
+      image_id, auto_renew, period, period_unit,
+    ]
+  }
+}
+`, testCphServerBase(name), cphServerName)
+}
+
+func testCphServer_updateFlavor(name, cphServerName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cph_server" "test" {
+  name          = "%s"
+  server_flavor = "physical.kg1.4xlarge.cp"
+  phone_flavor  = "rs2.max"
   image_id      = data.huaweicloud_cph_phone_images.test.images[0].id
   keypair_name  = huaweicloud_kps_keypair.test.name
 
