@@ -8,29 +8,16 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-const (
-	// ExpStatusNotExpired not expired
-	ExpStatusNotExpired = 0
-	// ExpStatusExpired has expired
-	ExpStatusExpired = 1
-	// ExpStatusExpiredSoon will expire soon
-	ExpStatusExpiredSoon = 2
-
-	DefaultPageNum  = 1
-	DefaultPageSize = 5
-)
-
 // @API WAF GET /v1/{project_id}/waf/certificate
-func DataSourceWafCertificateV1() *schema.Resource {
+func DataSourceWafCertificate() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceWafCertificateV1Read,
+		ReadContext: dataSourceWafCertificateRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -45,10 +32,6 @@ func DataSourceWafCertificateV1() *schema.Resource {
 			"expire_status": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  ExpStatusNotExpired,
-				ValidateFunc: validation.IntInSlice([]int{
-					ExpStatusNotExpired, ExpStatusExpired, ExpStatusExpiredSoon,
-				}),
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -62,7 +45,7 @@ func DataSourceWafCertificateV1() *schema.Resource {
 	}
 }
 
-func dataSourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceWafCertificateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	wafClient, err := conf.WafV1Client(conf.GetRegion(d))
 	if err != nil {
@@ -71,8 +54,8 @@ func dataSourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, m
 
 	expStatus := d.Get("expire_status").(int)
 	listOpts := certificates.ListOpts{
-		Page:                DefaultPageNum,
-		Pagesize:            DefaultPageSize,
+		Page:                1,
+		Pagesize:            5,
 		Name:                d.Get("name").(string),
 		ExpStatus:           &expStatus,
 		EnterpriseProjectID: conf.GetEnterpriseProjectID(d),
@@ -80,7 +63,7 @@ func dataSourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, m
 
 	page, err := certificates.List(wafClient, listOpts).AllPages()
 	if err != nil {
-		return diag.Errorf("error restrieving WAF certificates: %s", err)
+		return diag.Errorf("error retrieving WAF certificates: %s", err)
 	}
 
 	listCertificates, err := certificates.ExtractCertificates(page)

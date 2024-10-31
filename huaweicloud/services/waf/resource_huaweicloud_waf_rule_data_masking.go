@@ -30,7 +30,7 @@ const (
 // @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/privacy/{rule_id}
 // @API WAF POST /v1/{project_id}/waf/policy/{policy_id}/privacy
 // @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status
-func ResourceWafRuleDataMaskingV1() *schema.Resource {
+func ResourceWafRuleDataMasking() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafRuleDataMaskingCreate,
 		ReadContext:   resourceWafRuleDataMaskingRead,

@@ -20,12 +20,12 @@ import (
 // @API WAF PUT /v1/{project_id}/waf/certificate/{certificate_id}
 // @API WAF DELETE /v1/{project_id}/waf/certificate/{certificate_id}
 // @API WAF POST /v1/{project_id}/waf/certificate
-func ResourceWafCertificateV1() *schema.Resource {
+func ResourceWafCertificate() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceWafCertificateV1Create,
-		ReadContext:   resourceWafCertificateV1Read,
-		UpdateContext: resourceWafCertificateV1Update,
-		DeleteContext: resourceWafCertificateV1Delete,
+		CreateContext: resourceWafCertificateCreate,
+		ReadContext:   resourceWafCertificateRead,
+		UpdateContext: resourceWafCertificateUpdate,
+		DeleteContext: resourceWafCertificateDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
 		},
@@ -70,7 +70,7 @@ func ResourceWafCertificateV1() *schema.Resource {
 	}
 }
 
-func resourceWafCertificateV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafCertificateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -90,10 +90,10 @@ func resourceWafCertificateV1Create(ctx context.Context, d *schema.ResourceData,
 	}
 	d.SetId(certificate.Id)
 
-	return resourceWafCertificateV1Read(ctx, d, meta)
+	return resourceWafCertificateRead(ctx, d, meta)
 }
 
-func resourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafCertificateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.WafV1Client(region)
@@ -120,7 +120,7 @@ func resourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, met
 // Field `name` is required for updating operation.
 // Field `certificate` and `private_key` must be specified together.
 // Ignore the updating operation when field `certificate` does not change.
-func resourceWafCertificateV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -141,10 +141,10 @@ func resourceWafCertificateV1Update(ctx context.Context, d *schema.ResourceData,
 			return diag.Errorf("error updating WAF certificate: %s", err)
 		}
 	}
-	return resourceWafCertificateV1Read(ctx, d, meta)
+	return resourceWafCertificateRead(ctx, d, meta)
 }
 
-func resourceWafCertificateV1Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafCertificateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {

@@ -2,8 +2,8 @@ package waf
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"time"
@@ -195,10 +195,10 @@ func resourceCloudInstanceCreate(ctx context.Context, d *schema.ResourceData, me
 
 		orderId, err := createPrePaidCloudInstance(wafClient, cfg, region, d)
 		if err != nil {
-			return diag.Errorf("error creating prepaid cloud WAF: %s", err)
+			return diag.Errorf("error creating prepaid WAF cloud instance: %s", err)
 		}
 		if orderId == nil {
-			return diag.Errorf("error creating prepaid cloud WAF, cause cannot find order id in response")
+			return diag.Errorf("error creating prepaid WAF cloud instance: Order ID is not found in API response")
 		}
 
 		bssClient, err := cfg.BssV2Client(region)
@@ -207,7 +207,7 @@ func resourceCloudInstanceCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 		err = common.WaitOrderComplete(ctx, bssClient, *orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return diag.Errorf("the order is not completed while creating prepaid cloud WAF: %s", err)
+			return diag.Errorf("the order is not completed while creating prepaid WAF cloud instance: %s", err)
 		}
 		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, *orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
@@ -222,10 +222,10 @@ func resourceCloudInstanceCreate(ctx context.Context, d *schema.ResourceData, me
 
 		instance, err := createPostPaidCloudInstance(wafClient, cfg, region, d)
 		if err != nil {
-			return diag.Errorf("error creating postpaid cloud WAF: %s", err)
+			return diag.Errorf("error creating postpaid WAF cloud instance: %s", err)
 		}
 		if instance == nil {
-			return diag.Errorf("error creating postpaid cloud WAF, cause cannot find instance in response")
+			return diag.Errorf("error creating postpaid WAF cloud instance: Instance is empty in API response")
 		}
 
 		resourceId, err := flattenResourceIdByType(instance, ResourceTypePayPerUseDomain)
@@ -299,7 +299,7 @@ func analysisSpecCode(specCode string) (string, error) {
 	// The right length of the string match is two, first is the match result of the regex string,
 	// second is the match result of the regex group.
 	if len(result) < 2 {
-		return "", fmt.Errorf("invalid specification code, want 'waf.xxx' or 'waf.xxx.xxx', but '%s'.", specCode)
+		return "", fmt.Errorf("invalid specification code, want 'waf.xxx' or 'waf.xxx.xxx', but '%s'", specCode)
 	}
 	return result[1], nil
 }
@@ -345,13 +345,10 @@ func resourceCloudInstanceRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating WAF v1 client: %s", err)
 	}
 
-	instanceId := d.Id()
-	epsId := d.Get("enterprise_project_id").(string)
-	resp, chargingMode, err := QueryCloudInstance(wafClient, instanceId, epsId)
+	resp, chargingMode, err := QueryCloudInstance(wafClient, d.Id(), cfg.GetEnterpriseProjectID(d))
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "cloud WAF")
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF cloud instance")
 	}
-	log.Printf("[DEBUG] The resources list of the cloud WAF is: %#v", resp.Resources)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -381,7 +378,7 @@ func resourceCloudInstanceRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving cluod WAF fields: %s", err)
+		return diag.Errorf("error saving WAF cloud instance fields: %s", err)
 	}
 	return nil
 }
@@ -471,7 +468,7 @@ func updateExtendedPackages(ctx context.Context, wafClient *golangsdk.ServiceCli
 
 func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	if d.Get("charging_mode").(string) == string(ChargingModePostPaid) {
-		return diag.Errorf("the postpaid charging mode cloud WAF instances cannot be updated.")
+		return diag.Errorf("the postpaid charging mode WAF cloud instances cannot be updated.")
 	}
 
 	cfg := meta.(*config.Config)
@@ -483,13 +480,11 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 
 	instanceId := d.Id()
 	if d.HasChange("resource_spec_code") {
-		var (
-			opts = clouds.UpdateOpts{
-				ProjectId:           cfg.GetProjectID(region),
-				IsAutoPay:           utils.Bool(true),
-				EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-			}
-		)
+		opts := clouds.UpdateOpts{
+			ProjectId:           cfg.GetProjectID(region),
+			IsAutoPay:           utils.Bool(true),
+			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		}
 
 		if d.HasChange("resource_spec_code") {
 			opts.ProductInfo = &clouds.UpdateProductInfo{
@@ -498,7 +493,11 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 		orderId, err := clouds.Update(wafClient, opts)
 		if err != nil {
-			return diag.Errorf("error updating cloud WAF (%s): %s", instanceId, err)
+			return diag.Errorf("error updating WAF cloud instance (%s): %s", instanceId, err)
+		}
+
+		if orderId == nil {
+			return diag.Errorf("error updating WAF cloud instance (%s): Order ID is not found in API response", instanceId)
 		}
 
 		bssClient, err := cfg.BssV2Client(region)
@@ -524,7 +523,7 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
-			return diag.Errorf("error updating the auto-renew of the cloud WAF (%s): %s", instanceId, err)
+			return diag.Errorf("error updating the auto-renew of the WAF cloud instance (%s): %s", instanceId, err)
 		}
 	}
 
@@ -545,11 +544,15 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 
 func cloudInstanceDeleteRefreshFunc(client *golangsdk.ServiceClient, instanceId, epsId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var unprotectedHostId string = ""
 		resp, _, err := QueryCloudInstance(client, instanceId, epsId)
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			return unprotectedHostId, "DELETED", nil
+		if err != nil {
+			var errDefault404 golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) {
+				return "success delete", "DELETED", nil
+			}
+			return nil, "ERROR", err
 		}
+
 		return resp, "PENDING", nil
 	}
 }
@@ -570,7 +573,7 @@ func resourceCloudInstanceDelete(ctx context.Context, d *schema.ResourceData, me
 			EnterpriseProjectId: epsId,
 		}
 		if err = clouds.DeletePostPaid(wafClient, opts); err != nil {
-			return diag.Errorf("error deleting the postpaid cloud WAF: %s", err)
+			return diag.Errorf("error deleting the postpaid WAF cloud instance: %s", err)
 		}
 		return nil
 	}
@@ -597,7 +600,7 @@ func resourceCloudInstanceDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting to delete the postpaid cloud WAF (%s): %s", instanceId, err)
+		return diag.Errorf("error waiting to delete the prepaid WAF cloud instance (%s): %s", instanceId, err)
 	}
 	return nil
 }

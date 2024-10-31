@@ -137,46 +137,43 @@ func rulesInfoSchema() *schema.Resource {
 }
 
 func datasourceAddressGroupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getWAFAddressGroup: Query WAF address group
 	var (
-		getWAFAddressGroupHttpUrl = "v1/{project_id}/waf/ip-groups"
-		getWAFAddressGroupProduct = "waf"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/{project_id}/waf/ip-groups"
+		product = "waf"
 	)
-	getWAFAddressGroupClient, err := cfg.NewServiceClient(getWAFAddressGroupProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	getWAFAddressGroupsPath := getWAFAddressGroupClient.Endpoint + getWAFAddressGroupHttpUrl
-	getWAFAddressGroupsPath = strings.ReplaceAll(getWAFAddressGroupsPath, "{project_id}",
-		getWAFAddressGroupClient.ProjectID)
-	getWAFAddressGroupsPath += buildWAFAddressGroupsQueryParams(d, cfg)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildWAFAddressGroupsQueryParams(d, cfg)
 
-	getWAFAddressGroupsResp, err := pagination.ListAllItems(
-		getWAFAddressGroupClient,
+	resp, err := pagination.ListAllItems(
+		client,
 		"page",
-		getWAFAddressGroupsPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return diag.Errorf("error retrieving address groups, %s", err)
+		return diag.Errorf("error retrieving WAF address groups, %s", err)
 	}
 
-	listWAFAddressGroupsRespJson, err := json.Marshal(getWAFAddressGroupsResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listWAFAddressGroupsRespBody interface{}
-	err = json.Unmarshal(listWAFAddressGroupsRespJson, &listWAFAddressGroupsRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
@@ -186,7 +183,7 @@ func datasourceAddressGroupsRead(_ context.Context, d *schema.ResourceData, meta
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("groups", flattenListAddressGroupsBody(listWAFAddressGroupsRespBody)),
+		d.Set("groups", flattenListAddressGroupsBody(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

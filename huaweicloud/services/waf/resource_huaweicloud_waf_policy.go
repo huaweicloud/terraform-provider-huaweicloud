@@ -22,12 +22,12 @@ import (
 // @API WAF GET /v1/{project_id}/waf/policy/{policy_id}
 // @API WAF PATCH /v1/{project_id}/waf/policy/{policy_id}
 // @API WAF POST /v1/{project_id}/waf/policy
-func ResourceWafPolicyV1() *schema.Resource {
+func ResourceWafPolicy() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceWafPolicyV1Create,
-		ReadContext:   resourceWafPolicyV1Read,
-		UpdateContext: resourceWafPolicyV1Update,
-		DeleteContext: resourceWafPolicyV1Delete,
+		CreateContext: resourceWafPolicyCreate,
+		ReadContext:   resourceWafPolicyRead,
+		UpdateContext: resourceWafPolicyUpdate,
+		DeleteContext: resourceWafPolicyDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
 		},
@@ -211,7 +211,7 @@ func policyBindHostSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceWafPolicyV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -233,7 +233,7 @@ func resourceWafPolicyV1Create(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	return resourceWafPolicyV1Read(ctx, d, meta)
+	return resourceWafPolicyRead(ctx, d, meta)
 }
 
 func updatePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
@@ -312,7 +312,7 @@ func buildUpdatePolicyOption(d *schema.ResourceData) *policies.PolicyOption {
 	}
 }
 
-func resourceWafPolicyV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	wafClient, err := cfg.WafV1Client(region)
@@ -388,7 +388,7 @@ func flattenBindHosts(bindHosts []policies.BindHost) []map[string]interface{} {
 	return rst
 }
 
-func resourceWafPolicyV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -398,10 +398,10 @@ func resourceWafPolicyV1Update(ctx context.Context, d *schema.ResourceData, meta
 	if err := updatePolicy(wafClient, d, cfg); err != nil {
 		return diag.Errorf("error updating WAF policy: %s", err)
 	}
-	return resourceWafPolicyV1Read(ctx, d, meta)
+	return resourceWafPolicyRead(ctx, d, meta)
 }
 
-func resourceWafPolicyV1Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
