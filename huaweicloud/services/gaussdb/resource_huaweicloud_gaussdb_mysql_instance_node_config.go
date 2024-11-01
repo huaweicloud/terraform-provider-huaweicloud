@@ -21,7 +21,9 @@ import (
 
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/nodes/name
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/priority
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/details
+// @API GaussDBforMySQL GET /v3/{project_id}/jobs
 func ResourceGaussDBMysqlNodeConfig() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussDBMysqlNodeConfigCreate,

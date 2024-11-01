@@ -17,6 +17,7 @@ import (
 )
 
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/backups/restore/tables
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}
 // @API GaussDBforMySQL GET /v3/{project_id}/jobs
 func ResourceGaussDBMysqlTableRestore() *schema.Resource {
 	return &schema.Resource{

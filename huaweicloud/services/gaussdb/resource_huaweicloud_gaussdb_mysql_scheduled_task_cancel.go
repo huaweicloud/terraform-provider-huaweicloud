@@ -16,7 +16,6 @@ import (
 )
 
 // @API GaussDBforMySQL DELETE /v3/{project_id}/scheduled-jobs
-// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/restart
 // @API GaussDBforMySQL GET /v3/{project_id}/jobs
 func ResourceGaussDBScheduledTaskCancel() *schema.Resource {
 	return &schema.Resource{

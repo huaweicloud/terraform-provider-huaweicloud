@@ -15,6 +15,7 @@ import (
 )
 
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/db-upgrade
+// @API GaussDBforMySQL GET /v3/{project_id}/jobs
 func ResourceGaussDBMysqlUpgrade() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGaussDBMysqlUpgradeCreate,
