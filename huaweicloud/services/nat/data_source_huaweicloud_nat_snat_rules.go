@@ -161,57 +161,53 @@ func snatRuleSchema() *schema.Resource {
 }
 
 func dataSourceSnatRulesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listSnatRules: Query the public SNAT rule list
 	var (
-		listSnatRulesHttpUrl = "v2/{project_id}/snat_rules"
-		listSnatRulesProduct = "nat"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/snat_rules"
+		product = "nat"
 	)
-	listSnatRulesClient, err := cfg.NewServiceClient(listSnatRulesProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating NAT client: %s", err)
 	}
 
-	listSnatRulesPath := listSnatRulesClient.Endpoint + listSnatRulesHttpUrl
-	listSnatRulesPath = strings.ReplaceAll(listSnatRulesPath, "{project_id}", listSnatRulesClient.ProjectID)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildListSnatRuleQueryParams(d)
 
-	listSnatRulesQueryParams := buildListSnatRuleQueryParams(d)
-	listSnatRulesPath += listSnatRulesQueryParams
-
-	listSnatRulesResp, err := pagination.ListAllItems(
-		listSnatRulesClient,
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listSnatRulesPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
 		return diag.Errorf("error retrieving SNAT rules %s", err)
 	}
 
-	listSnatRulesRespJson, err := json.Marshal(listSnatRulesResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listSnatRulesRespBody interface{}
-	err = json.Unmarshal(listSnatRulesRespJson, &listSnatRulesRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
 	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("rules", filterListSnatRulesResponseBody(flattenListSnatRulesResponseBody(listSnatRulesRespBody), d)),
+		d.Set("rules", filterListSnatRulesResponseBody(flattenListSnatRulesResponseBody(respBody), d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -246,15 +242,18 @@ func flattenListSnatRulesResponseBody(resp interface{}) []interface{} {
 }
 
 func filterListSnatRulesResponseBody(all []interface{}, d *schema.ResourceData) []interface{} {
+	var (
+		globalEipID      = d.Get("global_eip_id").(string)
+		globalEipAddress = d.Get("global_eip_address").(string)
+	)
+
 	rst := make([]interface{}, 0, len(all))
 	for _, v := range all {
-		if param, ok := d.GetOk("global_eip_id"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("global_eip_id", v, nil) {
+		if globalEipID != "" && globalEipID != utils.PathSearch("global_eip_id", v, nil) {
 			continue
 		}
 
-		if param, ok := d.GetOk("global_eip_address"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("global_eip_address", v, nil) {
+		if globalEipAddress != "" && globalEipAddress != utils.PathSearch("global_eip_address", v, nil) {
 			continue
 		}
 

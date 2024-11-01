@@ -133,52 +133,48 @@ func transitIpSchema() *schema.Resource {
 }
 
 func dataSourcePrivateTransitIpsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listTransitIps: Query the transit IP list
 	var (
-		listTransitIpsHttpUrl = "v3/{project_id}/private-nat/transit-ips"
-		listTransitIpsProduct = "nat"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/transit-ips"
+		product = "nat"
 	)
-	listTransitIpsClient, err := cfg.NewServiceClient(listTransitIpsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating NAT client: %s", err)
 	}
 
-	listTransitIpsPath := listTransitIpsClient.Endpoint + listTransitIpsHttpUrl
-	listTransitIpsPath = strings.ReplaceAll(listTransitIpsPath, "{project_id}", listTransitIpsClient.ProjectID)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildListTransitIpsQueryParams(d, cfg)
 
-	listTransitIpsQueryParams := buildListTransitIpsQueryParams(d, cfg)
-	listTransitIpsPath += listTransitIpsQueryParams
-
-	listTransitIpsResp, err := pagination.ListAllItems(
-		listTransitIpsClient,
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listTransitIpsPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
 		return diag.Errorf("error retrieving transit IPs %s", err)
 	}
 
-	listTransitIpsRespJson, err := json.Marshal(listTransitIpsResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	var listTransitIpsRespBody interface{}
-	err = json.Unmarshal(listTransitIpsRespJson, &listTransitIpsRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
-	curJson := utils.PathSearch("transit_ips", listTransitIpsRespBody, make([]interface{}, 0))
+	curJson := utils.PathSearch("transit_ips", respBody, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
 
 	var mErr *multierror.Error
@@ -214,16 +210,16 @@ func flattenListTransitIpsResponseBody(resp []interface{}) []interface{} {
 }
 
 func filterListTransitIpsResponseBody(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
 	tagFilter := d.Get("tags").(map[string]interface{})
 	if len(tagFilter) == 0 {
 		return all
 	}
 
+	rst := make([]interface{}, 0, len(all))
 	for _, v := range all {
 		tags := utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil))
-		tagmap := utils.ExpandToStringMap(tags)
-		if !utils.HasMapContains(tagmap, tagFilter) {
+		tagMap := utils.ExpandToStringMap(tags)
+		if !utils.HasMapContains(tagMap, tagFilter) {
 			continue
 		}
 

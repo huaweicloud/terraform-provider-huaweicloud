@@ -255,7 +255,9 @@ data "huaweicloud_nat_private_gateways" "filter_by_tags" {
 
 locals {
   tags_filter_result = [
-    for v in data.huaweicloud_nat_private_gateways.filter_by_tags.gateways[*].tags : v == local.tags
+    for tagMap in data.huaweicloud_nat_private_gateways.filter_by_tags.gateways[*].tags : alltrue([
+      for k, v in local.tags : tagMap[k] == v
+    ])
   ]
 }
 

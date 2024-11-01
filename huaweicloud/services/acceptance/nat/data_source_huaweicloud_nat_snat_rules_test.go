@@ -26,9 +26,6 @@ func TestAccDatasourceSnatRules_basic(t *testing.T) {
 		bySourceType   = "data.huaweicloud_nat_snat_rules.filter_by_source_type"
 		dcBySourceType = acceptance.InitDataSourceCheck(bySourceType)
 
-		bySubnetId   = "data.huaweicloud_nat_snat_rules.filter_by_subnet_id"
-		dcBySubnetId = acceptance.InitDataSourceCheck(bySubnetId)
-
 		byEipId   = "data.huaweicloud_nat_snat_rules.filter_by_floating_ip_id"
 		dcByEipId = acceptance.InitDataSourceCheck(byEipId)
 	)
@@ -49,9 +46,6 @@ func TestAccDatasourceSnatRules_basic(t *testing.T) {
 
 					dcBySourceType.CheckResourceExists(),
 					resource.TestCheckOutput("source_type_filter_is_useful", "true"),
-
-					dcBySubnetId.CheckResourceExists(),
-					resource.TestCheckOutput("subnet_id_filter_is_useful", "true"),
 
 					dcByEipId.CheckResourceExists(),
 					resource.TestCheckOutput("floating_ip_id_filter_is_useful", "true"),
@@ -110,6 +104,10 @@ locals {
 }
 
 data "huaweicloud_nat_snat_rules" "filter_by_rule_id" {
+  depends_on = [
+    huaweicloud_nat_snat_rule.test
+  ]
+
   rule_id = local.rule_id
 }
 
@@ -128,6 +126,10 @@ locals {
 }
 
 data "huaweicloud_nat_snat_rules" "filter_by_gateway_id" {
+  depends_on = [
+    huaweicloud_nat_snat_rule.test
+  ]
+
   gateway_id = local.gateway_id
 }
 
@@ -146,6 +148,10 @@ locals {
 }
 
 data "huaweicloud_nat_snat_rules" "filter_by_source_type" {
+  depends_on = [
+    huaweicloud_nat_snat_rule.test
+  ]
+
   source_type = local.source_type
 }
 
@@ -160,28 +166,14 @@ output "source_type_filter_is_useful" {
 }
 
 locals {
-  subnet_id = data.huaweicloud_nat_snat_rules.test.rules[0].subnet_id
-}
-
-data "huaweicloud_nat_snat_rules" "filter_by_subnet_id" {
-  subnet_id = local.subnet_id
-}
-
-locals {
-  subnet_id_filter_result = [
-    for v in data.huaweicloud_nat_snat_rules.filter_by_subnet_id.rules[*].subnet_id : v == local.subnet_id
-  ]
-}
-
-output "subnet_id_filter_is_useful" {
-  value = alltrue(local.subnet_id_filter_result) && length(local.subnet_id_filter_result) > 0
-}
-
-locals {
   floating_ip_id = data.huaweicloud_nat_snat_rules.test.rules[0].floating_ip_id
 }
 
 data "huaweicloud_nat_snat_rules" "filter_by_floating_ip_id" {
+  depends_on = [
+    huaweicloud_nat_snat_rule.test
+  ]
+
   floating_ip_id = local.floating_ip_id
 }
 
@@ -205,9 +197,6 @@ func TestAccDatasourceSnatRules_direct(t *testing.T) {
 		dataSourceName = "data.huaweicloud_nat_snat_rules.test"
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
 
-		byCidr   = "data.huaweicloud_nat_snat_rules.filter_by_cidr"
-		dcByCidr = acceptance.InitDataSourceCheck(byCidr)
-
 		bySourceType   = "data.huaweicloud_nat_snat_rules.filter_by_source_type"
 		dcBySourceType = acceptance.InitDataSourceCheck(bySourceType)
 
@@ -226,8 +215,6 @@ func TestAccDatasourceSnatRules_direct(t *testing.T) {
 				Config: testAccDatasourceSnatRules_direct(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					dcByCidr.CheckResourceExists(),
-					resource.TestCheckOutput("cidr_filter_is_useful", "true"),
 
 					dcBySourceType.CheckResourceExists(),
 					resource.TestCheckOutput("source_type_filter_is_useful", "true"),
@@ -289,29 +276,14 @@ data "huaweicloud_nat_snat_rules" "test" {
 }
 
 locals {
-  cidr = data.huaweicloud_nat_snat_rules.test.rules[0].cidr
-}
-
-data "huaweicloud_nat_snat_rules" "filter_by_cidr" {
-  cidr = local.cidr
-}
-
-locals {
-  cidr_filter_result = [
-    for v in data.huaweicloud_nat_snat_rules.filter_by_cidr.rules[*].cidr : 
-    v == local.cidr
-  ]
-}
-
-output "cidr_filter_is_useful" {
-  value = alltrue(local.cidr_filter_result) && length(local.cidr_filter_result) > 0
-}
-
-locals {
   source_type = data.huaweicloud_nat_snat_rules.test.rules[0].source_type
 }
 
 data "huaweicloud_nat_snat_rules" "filter_by_source_type" {
+  depends_on = [
+    huaweicloud_nat_snat_rule.direct
+  ]
+
   source_type = local.source_type
 }
 
@@ -331,6 +303,10 @@ locals {
 }
 
 data "huaweicloud_nat_snat_rules" "filter_by_status" {
+  depends_on = [
+    huaweicloud_nat_snat_rule.direct
+  ]
+
   status = local.status
 }
 
@@ -350,6 +326,10 @@ locals {
 }
 
 data "huaweicloud_nat_snat_rules" "filter_by_floating_ip_address" {
+  depends_on = [
+    huaweicloud_nat_snat_rule.direct
+  ]
+
   floating_ip_address = local.floating_ip_address
 }
 

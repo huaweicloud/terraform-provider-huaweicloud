@@ -149,52 +149,47 @@ func gatewayGatewaysSchema() *schema.Resource {
 }
 
 func dataSourcePrivateGatewaysRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listGateways: Query the list of NAT private gateways
 	var (
-		listGatewaysHttpUrl = "v3/{project_id}/private-nat/gateways"
-		listGatewaysProduct = "nat"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/gateways"
+		product = "nat"
 	)
-	listGatewaysClient, err := cfg.NewServiceClient(listGatewaysProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating NAT client: %s", err)
 	}
 
-	listGatewaysPath := listGatewaysClient.Endpoint + listGatewaysHttpUrl
-	listGatewaysPath = strings.ReplaceAll(listGatewaysPath, "{project_id}", listGatewaysClient.ProjectID)
-
-	listGatewaysqueryParams := buildListGatewaysQueryParams(d, cfg)
-	listGatewaysPath += listGatewaysqueryParams
-
-	listGatewaysResp, err := pagination.ListAllItems(
-		listGatewaysClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildListGatewaysQueryParams(d, cfg)
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listGatewaysPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
 		return diag.Errorf("error retrieving private NAT gateways %s", err)
 	}
 
-	listGatewaysRespJson, err := json.Marshal(listGatewaysResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	var listGatewaysRespBody interface{}
-	err = json.Unmarshal(listGatewaysRespJson, &listGatewaysRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
-	curJson := utils.PathSearch("gateways", listGatewaysRespBody, make([]interface{}, 0))
+	curJson := utils.PathSearch("gateways", respBody, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
 
 	var mErr *multierror.Error
@@ -232,16 +227,16 @@ func flattenListGatewaysResponseBodyGateways(resp []interface{}) []interface{} {
 }
 
 func filterListGatewaysResponseByTags(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
 	tagFilter := d.Get("tags").(map[string]interface{})
 	if len(tagFilter) == 0 {
 		return all
 	}
 
+	rst := make([]interface{}, 0, len(all))
 	for _, v := range all {
 		tags := utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil))
-		tagmap := utils.ExpandToStringMap(tags)
-		if !utils.HasMapContains(tagmap, tagFilter) {
+		tagMap := utils.ExpandToStringMap(tags)
+		if !utils.HasMapContains(tagMap, tagFilter) {
 			continue
 		}
 
