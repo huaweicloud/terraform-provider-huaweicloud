@@ -182,8 +182,8 @@ The following arguments are supported:
 <a name="DedicatedDomain_server"></a>
 The `server` block supports:
 
-* `client_protocol` - (Required, String, ForceNew) Specifies the protocol type of the client. The options include `HTTP`
-  and `HTTPS`. Changing this creates a new service.
+* `client_protocol` - (Required, String, ForceNew) Specifies the protocol type of the client. The options include **HTTP**
+  and **HTTPS**. Changing this creates a new service.
 
 * `server_protocol` - (Required, String, ForceNew) Specifies the protocol used by WAF to forward client requests to the
   server. The valid values are **HTTP** and **HTTPS**. Changing this creates a new service.
@@ -197,7 +197,7 @@ The `server` block supports:
   client. For example, `192.168.1.1` or `www.example.com`. Changing this creates a new service.
 
 * `port` - (Required, Int, ForceNew) Specifies the port number used by the web server. The value ranges from `0` to
-  `65535`. Changing this creates a new service.
+  `65,535`. Changing this creates a new service.
 
 <a name="DedicatedDomain_custom_page"></a>
 The `custom_page` block supports:
