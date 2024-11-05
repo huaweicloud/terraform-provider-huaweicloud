@@ -20,12 +20,12 @@ import (
 // @API WAF PUT /v1/{project_id}/waf/certificate/{certificate_id}
 // @API WAF DELETE /v1/{project_id}/waf/certificate/{certificate_id}
 // @API WAF POST /v1/{project_id}/waf/certificate
-func ResourceWafCertificateV1() *schema.Resource {
+func ResourceWafCertificate() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceWafCertificateV1Create,
-		ReadContext:   resourceWafCertificateV1Read,
-		UpdateContext: resourceWafCertificateV1Update,
-		DeleteContext: resourceWafCertificateV1Delete,
+		CreateContext: resourceWafCertificateCreate,
+		ReadContext:   resourceWafCertificateRead,
+		UpdateContext: resourceWafCertificateUpdate,
+		DeleteContext: resourceWafCertificateDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
 		},
@@ -62,15 +62,27 @@ func ResourceWafCertificateV1() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"expiration": {
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"expired_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			// Deprecated; Reasons for abandonment are as follows:
+			// `expiration`: Uniformly use dates in RFC3339 format.
+			"expiration": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "Use 'expired_at' instead. ",
+				Description: `schema: Deprecated; The certificate expiration time.`,
 			},
 		},
 	}
 }
 
-func resourceWafCertificateV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafCertificateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -90,10 +102,10 @@ func resourceWafCertificateV1Create(ctx context.Context, d *schema.ResourceData,
 	}
 	d.SetId(certificate.Id)
 
-	return resourceWafCertificateV1Read(ctx, d, meta)
+	return resourceWafCertificateRead(ctx, d, meta)
 }
 
-func resourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafCertificateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.WafV1Client(region)
@@ -108,11 +120,13 @@ func resourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, met
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF certificate")
 	}
 
-	expires := time.Unix(int64(n.ExpireTime/1000), 0).UTC().Format("2006-01-02 15:04:05 MST")
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", n.Name),
-		d.Set("expiration", expires),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(n.TimeStamp/1000), true)),
+		d.Set("expired_at", utils.FormatTimeStampRFC3339(int64(n.ExpireTime/1000), true)),
+		// Keep historical code logic
+		d.Set("expiration", utils.FormatTimeStampRFC3339(int64(n.ExpireTime/1000), true, "2006-01-02 15:04:05 MST")),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -120,7 +134,7 @@ func resourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, met
 // Field `name` is required for updating operation.
 // Field `certificate` and `private_key` must be specified together.
 // Ignore the updating operation when field `certificate` does not change.
-func resourceWafCertificateV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -141,10 +155,10 @@ func resourceWafCertificateV1Update(ctx context.Context, d *schema.ResourceData,
 			return diag.Errorf("error updating WAF certificate: %s", err)
 		}
 	}
-	return resourceWafCertificateV1Read(ctx, d, meta)
+	return resourceWafCertificateRead(ctx, d, meta)
 }
 
-func resourceWafCertificateV1Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafCertificateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {

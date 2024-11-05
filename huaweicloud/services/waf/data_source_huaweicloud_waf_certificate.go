@@ -2,35 +2,23 @@ package waf
 
 import (
 	"context"
-	"log"
-	"time"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-)
-
-const (
-	// ExpStatusNotExpired not expired
-	ExpStatusNotExpired = 0
-	// ExpStatusExpired has expired
-	ExpStatusExpired = 1
-	// ExpStatusExpiredSoon will expire soon
-	ExpStatusExpiredSoon = 2
-
-	DefaultPageNum  = 1
-	DefaultPageSize = 5
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API WAF GET /v1/{project_id}/waf/certificate
-func DataSourceWafCertificateV1() *schema.Resource {
+func DataSourceWafCertificate() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceWafCertificateV1Read,
+		ReadContext: dataSourceWafCertificateRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -40,68 +28,134 @@ func DataSourceWafCertificateV1() *schema.Resource {
 			},
 			"name": {
 				Type:     schema.TypeString,
-				Required: true,
-			},
-			"expire_status": {
-				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  ExpStatusNotExpired,
-				ValidateFunc: validation.IntInSlice([]int{
-					ExpStatusNotExpired, ExpStatusExpired, ExpStatusExpiredSoon,
-				}),
+				Computed: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
-			"expiration": {
+			// In some scenarios, the attribute value of this field will be empty in API response.
+			"expiration_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			// In some scenarios, the attribute value of this field will be empty in API response.
+			"expired_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			// Deprecated; Reasons for abandonment are as follows:
+			// `expire_status`: Default value of this field is empty, not zero.
+			"expire_status": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Deprecated:  "Use 'expiration_status' instead. ",
+				Description: `schema: Deprecated; The certificate expiration status.`,
+			},
+			// `expiration`: Uniformly use dates in RFC3339 format.
+			"expiration": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "Use 'expired_at' instead. ",
+				Description: `schema: Deprecated; The certificate expiration time.`,
 			},
 		},
 	}
 }
 
-func dataSourceWafCertificateV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	wafClient, err := conf.WafV1Client(conf.GetRegion(d))
+// Paging is not considered cause this resource is a singular resource.
+func buildCertificateQueryParams(d *schema.ResourceData, cfg *config.Config) string {
+	res := ""
+	if epsId := cfg.GetEnterpriseProjectID(d); epsId != "" {
+		res = fmt.Sprintf("%s&enterprise_project_id=%s", res, epsId)
+	}
+	if v, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&name=%v", res, v)
+	}
+	if v, ok := d.GetOk("expiration_status"); ok {
+		res = fmt.Sprintf("%s&exp_status=%v", res, v)
+	}
+
+	if res != "" {
+		res = "?" + res[1:]
+	}
+	return res
+}
+
+func dataSourceWafCertificateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/waf/certificate"
+		product = "waf"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	expStatus := d.Get("expire_status").(int)
-	listOpts := certificates.ListOpts{
-		Page:                DefaultPageNum,
-		Pagesize:            DefaultPageSize,
-		Name:                d.Get("name").(string),
-		ExpStatus:           &expStatus,
-		EnterpriseProjectID: conf.GetEnterpriseProjectID(d),
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildCertificateQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf8",
+		},
+		KeepResponseBody: true,
 	}
 
-	page, err := certificates.List(wafClient, listOpts).AllPages()
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error restrieving WAF certificates: %s", err)
+		return diag.Errorf("error retrieving WAF certificates: %s", err)
 	}
 
-	listCertificates, err := certificates.ExtractCertificates(page)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
-		return diag.Errorf("Unable to retrieve certificates: %s", err)
+		return diag.FromErr(err)
 	}
-	log.Printf("[DEBUG] Get certificate list: %#v", listCertificates)
 
-	if len(listCertificates) == 0 {
-		return diag.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+	certificatesResp := utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{})
+	if len(certificatesResp) == 0 {
+		return diag.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
-	c := listCertificates[0]
-	d.SetId(c.Id)
-	expires := time.Unix(int64(c.ExpireTime/1000), 0).UTC().Format("2006-01-02 15:04:05 MST")
+
+	id := utils.PathSearch("[0]|id", certificatesResp, "").(string)
+	if id == "" {
+		return diag.Errorf("error retrieving WAF certificates: Certificate ID is not found in API response")
+	}
+
+	d.SetId(id)
+
+	expireTimestamp := utils.PathSearch("[0]|expire_time", certificatesResp, float64(0)).(float64)
+	createTimestamp := utils.PathSearch("[0]|timestamp", certificatesResp, float64(0)).(float64)
+
 	mErr := multierror.Append(
 		nil,
-		d.Set("name", c.Name),
-		d.Set("expire_status", c.ExpStatus),
-		d.Set("expiration", expires),
+		d.Set("name", utils.PathSearch("[0]|name", certificatesResp, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("[0]|enterprise_project_id", certificatesResp, nil)),
+		d.Set("expiration_status", flattenCertificateExpirationStatus(certificatesResp)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(createTimestamp)/1000, true)),
+		d.Set("expired_at", utils.FormatTimeStampRFC3339(int64(expireTimestamp)/1000, true)),
+		// Keep historical code logic
+		d.Set("expiration", utils.FormatTimeStampRFC3339(int64(expireTimestamp)/1000, true, "2006-01-02 15:04:05 MST")),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+// This field may not be returned by the API.
+// When the field is not returned, the default value is empty instead of `0`.
+func flattenCertificateExpirationStatus(certificatesResp interface{}) string {
+	expStatus := utils.PathSearch("[0]|exp_status", certificatesResp, nil)
+	if expStatus == nil {
+		return ""
+	}
+	return fmt.Sprintf("%v", expStatus)
 }
