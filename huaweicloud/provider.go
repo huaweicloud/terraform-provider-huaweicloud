@@ -652,6 +652,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_databases":                  dds.DataSourceDdsDatabases(),
 			"huaweicloud_dds_database_users":             dds.DateSourceDDSDatabaseUser(),
 			"huaweicloud_dds_storage_types":              dds.DataSourceDdsStorageTypes(),
+			"huaweicloud_dds_restore_databases":          dds.DataSourceDdsRestoreDatabases(),
+			"huaweicloud_dds_restore_collections":        dds.DataSourceDdsRestoreCollections(),
 			"huaweicloud_dds_restore_time_ranges":        dds.DataSourceDdsRestoreTimeRanges(),
 			"huaweicloud_dds_backups":                    dds.DataSourceDDSBackups(),
 			"huaweicloud_dds_database_roles":             dds.DateSourceDDSDatabaseRoles(),

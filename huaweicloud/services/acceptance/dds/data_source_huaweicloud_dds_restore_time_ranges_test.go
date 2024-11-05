@@ -14,7 +14,6 @@ import (
 func TestAccDataSourceDdsRestoreTimeRanges_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_dds_restore_time_ranges.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
-	date := strings.Split(time.Now().Format("2006-01-02T15:04:05Z"), "T")[0]
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -24,7 +23,7 @@ func TestAccDataSourceDdsRestoreTimeRanges_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceDdsRestoreTimeRanges_basic(date),
+				Config: testDataSourceDdsRestoreTimeRanges_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "restore_times.#"),
@@ -36,7 +35,9 @@ func TestAccDataSourceDdsRestoreTimeRanges_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceDdsRestoreTimeRanges_basic(date string) string {
+func testDataSourceDdsRestoreTimeRanges_basic() string {
+	date := strings.Split(time.Now().Format("2006-01-02T15:04:05Z"), "T")[0]
+
 	return fmt.Sprintf(`
 data "huaweicloud_dds_restore_time_ranges" "test" {
   instance_id = "%s"
