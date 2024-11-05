@@ -2008,7 +2008,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_client_ca_certificate":   vpn.ResourceClientCACertificate(),
 
 			"huaweicloud_waf_address_group":                       waf.ResourceWafAddressGroup(),
-			"huaweicloud_waf_certificate":                         waf.ResourceWafCertificateV1(),
+			"huaweicloud_waf_certificate":                         waf.ResourceWafCertificate(),
 			"huaweicloud_waf_cloud_instance":                      waf.ResourceCloudInstance(),
 			"huaweicloud_waf_domain":                              waf.ResourceWafDomain(),
 			"huaweicloud_waf_policy":                              waf.ResourceWafPolicyV1(),
