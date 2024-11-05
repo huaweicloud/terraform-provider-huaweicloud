@@ -787,6 +787,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_incremental_backups":      gaussdb.DataSourceGaussdbMysqlIncrementalBackups(),
 			"huaweicloud_gaussdb_mysql_restored_tables":          gaussdb.DataSourceGaussdbMysqlRestoredTables(),
 			"huaweicloud_gaussdb_mysql_project_quotas":           gaussdb.DataSourceGaussdbMysqlProjectQuotas(),
+			"huaweicloud_gaussdb_mysql_instant_tasks":            gaussdb.DataSourceGaussDBMysqlInstantTasks(),
 			"huaweicloud_gaussdb_mysql_scheduled_tasks":          gaussdb.DataSourceGaussDBMysqlScheduledTasks(),
 			"huaweicloud_gaussdb_mysql_slow_logs":                gaussdb.DataSourceGaussDBMysqlSlowLogs(),
 			"huaweicloud_gaussdb_mysql_error_logs":               gaussdb.DataSourceGaussDBMysqlErrorLogs(),
