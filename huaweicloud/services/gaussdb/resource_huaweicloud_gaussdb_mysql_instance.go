@@ -63,6 +63,7 @@ type ctxType string
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/configurations
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/backups/encryption
+// @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/slowlog/modify
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/proxy
 // @API GaussDBforMySQL GET /v3/{project_id}/instance/{instance_id}/audit-log/switch-status
@@ -73,6 +74,7 @@ type ctxType string
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/auto-scaling/policy
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/backups/encryption
 // @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/database-version
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/slowlog/query
 // @API GaussDBforMySQL DELETE /v3/{project_id}/instances/{instance_id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
