@@ -2,6 +2,10 @@ package waf
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"log"
+	"slices"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -15,29 +19,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-const (
-	// runStatusCreating the instance is creating.
-	runStatusCreating = 0
-	// runStatusRunning the instance has been created.
-	runStatusRunning = 1
-	// runStatusDeleting the instance deleting.
-	runStatusDeleting = 2
-	// runStatusDeleting the instance has be deleted.
-	runStatusDeleted = 3
-)
-
-const (
-	// defaultCount the number of instances created.
-	defaultCount = 1
-	// Billing mode, payPerUseMode: pay pre use mode
-	payPerUseMode = 30
-)
-
-// ResourceWafDedicatedInstance the resource of managing a dedicated mode instance within HuaweiCloud.
 // @API WAF DELETE /v1/{project_id}/premium-waf/instance/{instance_id}
 // @API WAF GET /v1/{project_id}/premium-waf/instance/{instance_id}
 // @API WAF PUT /v1/{project_id}/premium-waf/instance/{instance_id}
@@ -107,11 +90,6 @@ func ResourceWafDedicatedInstance() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"res_tenant": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -147,6 +125,15 @@ func ResourceWafDedicatedInstance() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+
+			// Deprecated; Reasons for abandonment are as follows:
+			// `group_id`: Legacy fields are no longer supported.
+			"group_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `schema: Deprecated;`,
+			},
 		},
 	}
 }
@@ -157,11 +144,10 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 	for _, v := range sg {
 		groups = append(groups, v.(string))
 	}
-	logp.Printf("[DEBUG] The security_group parameters are: %+v.", groups)
 
 	createOpts := instances.CreateInstanceOpts{
 		Region:        region,
-		ChargeMode:    payPerUseMode,
+		ChargeMode:    30,
 		AvailableZone: d.Get("available_zone").(string),
 		Arch:          d.Get("cpu_architecture").(string),
 		NamePrefix:    d.Get("name").(string),
@@ -170,7 +156,7 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 		VpcId:         d.Get("vpc_id").(string),
 		SubnetId:      d.Get("subnet_id").(string),
 		SecurityGroup: groups,
-		Count:         defaultCount,
+		Count:         1,
 		PoolId:        d.Get("group_id").(string),
 		ResTenant:     utils.Bool(d.Get("res_tenant").(bool)),
 	}
@@ -183,22 +169,22 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 }
 
 func waitForInstanceCreated(c *golangsdk.ServiceClient, id string, epsId string) resource.StateRefreshFunc {
+	unexpectedRunStatus := []int{2, 3, 4, 5, 6, 7, 8}
 	return func() (interface{}, string, error) {
 		r, err := instances.GetWithEpsId(c, id, epsId)
 		if err != nil {
-			return nil, "Error", err
+			return nil, "ERROR", err
 		}
 
-		switch r.RunStatus {
-		case runStatusCreating:
-			return r, "Creating", nil
-		case runStatusRunning:
-			return r, "Created", nil
-		default:
-			err = fmtp.Errorf("Error in create WAF dedicated instance[%s]. "+
-				"Unexpected run_status: %v.", r.Id, r.RunStatus)
-			return r, "Error", err
+		runStatus := r.RunStatus
+		if runStatus == 1 {
+			return r, "COMPLETED", nil
 		}
+
+		if slices.Contains(unexpectedRunStatus, runStatus) {
+			return r, "ERROR", fmt.Errorf("got unexpected run status %d", runStatus)
+		}
+		return r, "PENDING", nil
 	}
 }
 
@@ -206,7 +192,7 @@ func resourceDedicatedInstanceCreate(ctx context.Context, d *schema.ResourceData
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client : %s", err)
+		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
 
 	createOpts := buildCreateOpts(d, cfg.GetRegion(d))
@@ -214,25 +200,30 @@ func resourceDedicatedInstanceCreate(ctx context.Context, d *schema.ResourceData
 
 	r, err := instances.CreateWithEpsId(client, *createOpts, epsId)
 	if err != nil {
-		return fmtp.DiagErrorf("error creating WAF dedicated : %w", err)
+		return diag.Errorf("error creating WAF dedicated instance: %s", err)
 	}
+
+	if r == nil || len(r.Instances) == 0 || r.Instances[0].Id == "" {
+		return diag.Errorf("error creating WAF dedicated instance: ID is not found in API response")
+	}
+
 	d.SetId(r.Instances[0].Id)
 
-	logp.Printf("[DEBUG] Waiting for WAF dedicated instance[%s] to be created.", r.Instances[0].Id)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Creating"},
-		Target:       []string{"Created"},
-		Refresh:      waitForInstanceCreated(client, r.Instances[0].Id, epsId),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      waitForInstanceCreated(client, d.Id(), epsId),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 15 * time.Second,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
-	if err == nil {
-		err = updateInstanceName(client, r.Instances[0].Id, d.Get("name").(string), epsId)
-	}
 	if err != nil {
-		logp.Printf("[DEBUG] Error while waiting to create  Waf dedicated instance. %s : %v", d.Id(), err)
+		return diag.Errorf("error waiting for WAF dedicated instance (%s) creation to completed: %s", d.Id(), err)
+	}
+
+	err = updateInstanceName(client, d.Id(), d.Get("name").(string), epsId)
+	if err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -243,7 +234,7 @@ func resourceDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, me
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
+		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
 
 	epsId := cfg.GetEnterpriseProjectID(d)
@@ -252,7 +243,6 @@ func resourceDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, me
 		// If the dedicated instance does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF dedicated instance")
 	}
-	logp.Printf("[DEBUG] Get a WAF dedicated instance :%#v", r)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", r.Region),
@@ -269,12 +259,12 @@ func resourceDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("access_status", r.AccessStatus),
 		d.Set("upgradable", r.Upgradable),
 		d.Set("specification_code", r.ResourceSpecCode),
+		// Only ELB mode uses this field
+		d.Set("group_id", r.PoolId),
 	)
-	// Only ELB mode uses this field
-	d.Set("group_id", r.PoolId)
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.DiagErrorf("error setting WAF dedicated instance fields: %s", err)
+		return diag.Errorf("error setting WAF dedicated instance fields: %s", err)
 	}
 	return nil
 }
@@ -287,7 +277,7 @@ func updateInstanceName(c *golangsdk.ServiceClient, id, name, epsId string) erro
 
 	_, err := instances.UpdateWithEpsId(c, id, opt, epsId)
 	if err != nil {
-		return fmtp.Errorf("error update name of WAF dedicate instance %s: %s", id, err)
+		return fmt.Errorf("error updating WAF dedicated instance (%s) name: %s", id, err)
 	}
 	return nil
 }
@@ -301,12 +291,8 @@ func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData
 	}
 	epsId := cfg.GetEnterpriseProjectID(d)
 	instanceId := d.Id()
-	if d.HasChanges("name") {
-		err = updateInstanceName(client, instanceId, d.Get("name").(string), epsId)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	}
+
+	// Prioritize changes to enterprise project ID to avoid failure of other changes.
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
@@ -317,12 +303,13 @@ func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
-		// check waf with enterprise_project_id
-		_, err = instances.GetWithEpsId(client, instanceId, d.Get("enterprise_project_id").(string))
+	}
+
+	if d.HasChanges("name") {
+		err = updateInstanceName(client, instanceId, d.Get("name").(string), epsId)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		return nil
 	}
 	return resourceDedicatedInstanceRead(ctx, d, meta)
 }
@@ -331,23 +318,20 @@ func waitForInstanceDeleted(c *golangsdk.ServiceClient, id string, epsId string)
 	return func() (interface{}, string, error) {
 		r, err := instances.GetWithEpsId(c, id, epsId)
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] The Waf dedicated instance has been deleted(ID:%s).", id)
-				return &(instances.DedicatedInstance{}), "Deleted", nil
+			var errDefault404 golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) {
+				log.Printf("[DEBUG] The WAF dedicated instance (%s) has been deleted.", id)
+				return "success deleted", "COMPLETED", nil
 			}
-			return nil, "Error", err
+			return nil, "ERROR", err
 		}
 
-		switch r.RunStatus {
-		case runStatusDeleting:
-			return r, "Deleting", nil
-		case runStatusDeleted:
-			return r, "Deleted", nil
-		default:
-			err = fmtp.Errorf("Error in delete WAF dedicated instance[%s]. "+
-				"Unexpected run_status: %s.", r.Id, r.RunStatus)
-			return r, "Error", err
+		runStatus := r.RunStatus
+		if runStatus == 3 {
+			return r, "COMPLETED", nil
 		}
+
+		return r, "PENDING", nil
 	}
 }
 
@@ -355,7 +339,7 @@ func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
+		return diag.Errorf("error creating WAF dedicated client: %s", err)
 	}
 
 	epsId := cfg.GetEnterpriseProjectID(d)
@@ -365,10 +349,10 @@ func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData
 		return common.CheckDeletedDiag(d, err, "error deleting WAF dedicated instance")
 	}
 
-	logp.Printf("[DEBUG] Waiting for WAF dedicated instance to be deleted(ID:%s).", d.Id())
+	log.Printf("[DEBUG] Waiting for WAF dedicated instance (%s) to be deleted.", d.Id())
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"Deleting"},
-		Target:       []string{"Deleted"},
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
 		Refresh:      waitForInstanceDeleted(client, d.Id(), epsId),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        5 * time.Second,
@@ -376,9 +360,7 @@ func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		logp.Printf("[DEBUG] Error while waiting to delete Waf dedicated instance. \n%s : %v", d.Id(), err)
-		return diag.FromErr(err)
+		return diag.Errorf("error waiting for WAF dedicated instance (%s) deletion to completed: %s", d.Id(), err)
 	}
-	d.SetId("")
 	return nil
 }
