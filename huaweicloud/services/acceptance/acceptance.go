@@ -475,6 +475,9 @@ var (
 
 	HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID = os.Getenv("HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID")
 	HW_RDS_INSTANCE_ID                     = os.Getenv("HW_RDS_INSTANCE_ID")
+	HW_RDS_INSTANCE_NAME                   = os.Getenv("HW_RDS_INSTANCE_NAME")
+	HW_RDS_DATABASE_NAME                   = os.Getenv("HW_RDS_DATABASE_NAME")
+	HW_RDS_TABLE_NAME                      = os.Getenv("HW_RDS_TABLE_NAME")
 	HW_RDS_BACKUP_ID                       = os.Getenv("HW_RDS_BACKUP_ID")
 	HW_RDS_START_TIME                      = os.Getenv("HW_RDS_START_TIME")
 	HW_RDS_END_TIME                        = os.Getenv("HW_RDS_END_TIME")
@@ -2331,6 +2334,27 @@ func TestAccPreCheckRdsCrossRegionBackupInstanceId(t *testing.T) {
 func TestAccPreCheckRdsInstanceId(t *testing.T) {
 	if HW_RDS_INSTANCE_ID == "" {
 		t.Skip("HW_RDS_INSTANCE_ID must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsInstanceName(t *testing.T) {
+	if HW_RDS_INSTANCE_NAME == "" {
+		t.Skip("HW_RDS_INSTANCE_NAME must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsDatabaseName(t *testing.T) {
+	if HW_RDS_DATABASE_NAME == "" {
+		t.Skip("HW_RDS_DATABASE_NAME must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsTableName(t *testing.T) {
+	if HW_RDS_TABLE_NAME == "" {
+		t.Skip("HW_RDS_TABLE_NAME must be set for RDS acceptance tests")
 	}
 }
 
