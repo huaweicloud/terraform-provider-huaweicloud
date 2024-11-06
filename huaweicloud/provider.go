@@ -660,6 +660,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_error_log_links":            dds.DataSourceDDSErrorLogLinks(),
 			"huaweicloud_dds_slow_log_links":             dds.DataSourceDDSSlowLogLinks(),
 			"huaweicloud_dds_slow_logs":                  dds.DataSourceDDSSlowLogs(),
+			"huaweicloud_dds_backup_download_links":      dds.DataSourceDdsBackupDownloadLinks(),
+			"huaweicloud_dds_ssl_cert_download_links":    dds.DataSourceDdsSslCertDownloadLinks(),
 
 			"huaweicloud_dli_datasource_auths":       dli.DataSourceAuths(),
 			"huaweicloud_dli_datasource_connections": dli.DataSourceConnections(),
