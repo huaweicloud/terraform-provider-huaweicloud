@@ -167,17 +167,16 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `flavor` - (Optional, String, ForceNew) The flavor of the VPN gateway.
-  The value can be **Basic**, **Professional1**, **Professional2** and **GM**. Defaults to **Professional1**.
+* `flavor` - (Optional, String) The flavor of the VPN gateway.
+  + The value at creation can be **Basic**, **Professional1**, **Professional2** or **GM**. Defaults to **Professional1**.
+  + The value during update can be **Basic**, **Professional1** or **Professional2**.
 
-  Changing this parameter will create a new resource.
-
-* `attachment_type` - (Optional, String, ForceNew) The attachment type. The value can be **vpc** and **er**.
+* `attachment_type` - (Optional, String, ForceNew) The attachment type. The value can be **vpc** or **er**.
   Defaults to **vpc**.
 
   Changing this parameter will create a new resource.
 
-* `network_type` - (Optional, String, ForceNew) The network type. The value can be **public** and **private**.
+* `network_type` - (Optional, String, ForceNew) The network type. The value can be **public** or **private**.
   Defaults to **public**.
 
   Changing this parameter will create a new resource.
