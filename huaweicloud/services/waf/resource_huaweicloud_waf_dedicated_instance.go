@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"slices"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -169,7 +168,7 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 }
 
 func waitForInstanceCreated(c *golangsdk.ServiceClient, id string, epsId string) resource.StateRefreshFunc {
-	unexpectedRunStatus := []int{2, 3, 4, 5, 6, 7, 8}
+	unexpectedRunStatus := []interface{}{2, 3, 4, 5, 6, 7, 8}
 	return func() (interface{}, string, error) {
 		r, err := instances.GetWithEpsId(c, id, epsId)
 		if err != nil {
@@ -181,7 +180,7 @@ func waitForInstanceCreated(c *golangsdk.ServiceClient, id string, epsId string)
 			return r, "COMPLETED", nil
 		}
 
-		if slices.Contains(unexpectedRunStatus, runStatus) {
+		if utils.SliceContains(unexpectedRunStatus, runStatus) {
 			return r, "ERROR", fmt.Errorf("got unexpected run status %d", runStatus)
 		}
 		return r, "PENDING", nil
