@@ -65,15 +65,44 @@ func TestAccDeviceLinkageRule_basic(t *testing.T) {
 						"huaweicloud_smn_topic.topic", "name"),
 					resource.TestCheckResourceAttrPair(rName, "actions.0.smn_forwarding.0.topic_urn",
 						"huaweicloud_smn_topic.topic", "topic_urn"),
+					resource.TestCheckResourceAttrPair(rName, "actions.0.smn_forwarding.0.message_template_name",
+						"huaweicloud_smn_message_template.test", "name"),
 				),
 			},
 			{
-				Config: testDeviceLinkageRule_timer(name + "_update"),
+				Config: testDeviceLinkageRule_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"_update"),
 					resource.TestCheckResourceAttrPair(rName, "space_id", "huaweicloud_iotda_space.test", "id"),
 					resource.TestCheckResourceAttr(rName, "trigger_logic", "and"),
 					resource.TestCheckResourceAttr(rName, "enabled", "false"),
+					resource.TestCheckResourceAttr(rName, "triggers.#", "1"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.type", "DEVICE_DATA"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.device_data_condition.0.path", "service_1/p_1"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.device_data_condition.0.operator", "in"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.device_data_condition.0.in_values.#", "3"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.device_data_condition.0.trigger_strategy", "pulse"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.device_data_condition.0.data_validatiy_period",
+						"300"),
+					resource.TestCheckResourceAttrPair(rName, "triggers.0.device_data_condition.0.product_id",
+						"huaweicloud_iotda_product.test", "id"),
+					resource.TestCheckResourceAttr(rName, "actions.#", "1"),
+					resource.TestCheckResourceAttr(rName, "actions.0.type", "DEVICE_ALARM"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_alarm.0.name", name),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_alarm.0.type", "fault"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_alarm.0.severity", "warning"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_alarm.0.dimension", "device"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_alarm.0.description", "description test"),
+				),
+			},
+			{
+				Config: testDeviceLinkageRule_timer(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrPair(rName, "space_id", "huaweicloud_iotda_space.test", "id"),
+					resource.TestCheckResourceAttr(rName, "trigger_logic", "and"),
+					resource.TestCheckResourceAttr(rName, "enabled", "true"),
 					resource.TestCheckResourceAttr(rName, "triggers.#", "1"),
 					resource.TestCheckResourceAttr(rName, "triggers.0.type", "SIMPLE_TIMER"),
 					resource.TestCheckResourceAttr(rName, "triggers.0.simple_timer_condition.0.start_time", "20220622T160000Z"),
@@ -95,7 +124,7 @@ func TestAccDeviceLinkageRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttrPair(rName, "space_id", "huaweicloud_iotda_space.test", "id"),
 					resource.TestCheckResourceAttr(rName, "trigger_logic", "and"),
-					resource.TestCheckResourceAttr(rName, "enabled", "false"),
+					resource.TestCheckResourceAttr(rName, "enabled", "true"),
 					resource.TestCheckResourceAttr(rName, "triggers.#", "1"),
 					resource.TestCheckResourceAttr(rName, "triggers.0.type", "DAILY_TIMER"),
 					resource.TestCheckResourceAttr(rName, "triggers.0.daily_timer_condition.0.start_time", "19:02"),
@@ -107,6 +136,9 @@ func TestAccDeviceLinkageRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "actions.0.device_command.0.command_name", "cmd_1"),
 					resource.TestCheckResourceAttr(rName, "actions.0.device_command.0.command_body",
 						"{\"cmd_p_1\":\"3\"}"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_command.0.buffer_timeout", "180"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_command.0.response_timeout", "60"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_command.0.mode", "PASSIVE"),
 					resource.TestCheckResourceAttrPair(rName, "actions.0.device_command.0.device_id",
 						"huaweicloud_iotda_device.test", "id"),
 					resource.TestCheckResourceAttr(rName, "effective_period.0.start_time", "00:00"),
@@ -169,15 +201,44 @@ func TestAccDeviceLinkageRule_derived(t *testing.T) {
 						"huaweicloud_smn_topic.topic", "name"),
 					resource.TestCheckResourceAttrPair(rName, "actions.0.smn_forwarding.0.topic_urn",
 						"huaweicloud_smn_topic.topic", "topic_urn"),
+					resource.TestCheckResourceAttrPair(rName, "actions.0.smn_forwarding.0.message_template_name",
+						"huaweicloud_smn_message_template.test", "name"),
 				),
 			},
 			{
-				Config: testDeviceLinkageRule_timer(name + "_update"),
+				Config: testDeviceLinkageRule_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"_update"),
 					resource.TestCheckResourceAttrPair(rName, "space_id", "huaweicloud_iotda_space.test", "id"),
 					resource.TestCheckResourceAttr(rName, "trigger_logic", "and"),
 					resource.TestCheckResourceAttr(rName, "enabled", "false"),
+					resource.TestCheckResourceAttr(rName, "triggers.#", "1"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.type", "DEVICE_DATA"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.device_data_condition.0.path", "service_1/p_1"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.device_data_condition.0.operator", "in"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.device_data_condition.0.in_values.#", "3"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.device_data_condition.0.trigger_strategy", "pulse"),
+					resource.TestCheckResourceAttr(rName, "triggers.0.device_data_condition.0.data_validatiy_period",
+						"300"),
+					resource.TestCheckResourceAttrPair(rName, "triggers.0.device_data_condition.0.product_id",
+						"huaweicloud_iotda_product.test", "id"),
+					resource.TestCheckResourceAttr(rName, "actions.#", "1"),
+					resource.TestCheckResourceAttr(rName, "actions.0.type", "DEVICE_ALARM"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_alarm.0.name", name),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_alarm.0.type", "fault"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_alarm.0.severity", "warning"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_alarm.0.dimension", "device"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_alarm.0.description", "description test"),
+				),
+			},
+			{
+				Config: testDeviceLinkageRule_timer(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrPair(rName, "space_id", "huaweicloud_iotda_space.test", "id"),
+					resource.TestCheckResourceAttr(rName, "trigger_logic", "and"),
+					resource.TestCheckResourceAttr(rName, "enabled", "true"),
 					resource.TestCheckResourceAttr(rName, "triggers.#", "1"),
 					resource.TestCheckResourceAttr(rName, "triggers.0.type", "SIMPLE_TIMER"),
 					resource.TestCheckResourceAttr(rName, "triggers.0.simple_timer_condition.0.start_time", "20220622T160000Z"),
@@ -199,7 +260,7 @@ func TestAccDeviceLinkageRule_derived(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttrPair(rName, "space_id", "huaweicloud_iotda_space.test", "id"),
 					resource.TestCheckResourceAttr(rName, "trigger_logic", "and"),
-					resource.TestCheckResourceAttr(rName, "enabled", "false"),
+					resource.TestCheckResourceAttr(rName, "enabled", "true"),
 					resource.TestCheckResourceAttr(rName, "triggers.#", "1"),
 					resource.TestCheckResourceAttr(rName, "triggers.0.type", "DAILY_TIMER"),
 					resource.TestCheckResourceAttr(rName, "triggers.0.daily_timer_condition.0.start_time", "19:02"),
@@ -211,6 +272,9 @@ func TestAccDeviceLinkageRule_derived(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "actions.0.device_command.0.command_name", "cmd_1"),
 					resource.TestCheckResourceAttr(rName, "actions.0.device_command.0.command_body",
 						"{\"cmd_p_1\":\"3\"}"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_command.0.buffer_timeout", "180"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_command.0.response_timeout", "60"),
+					resource.TestCheckResourceAttr(rName, "actions.0.device_command.0.mode", "PASSIVE"),
 					resource.TestCheckResourceAttrPair(rName, "actions.0.device_command.0.device_id",
 						"huaweicloud_iotda_device.test", "id"),
 					resource.TestCheckResourceAttr(rName, "effective_period.0.start_time", "00:00"),
@@ -227,21 +291,35 @@ func TestAccDeviceLinkageRule_derived(t *testing.T) {
 	})
 }
 
-func testDeviceLinkageRule_basic(name string) string {
-	deviceConfig := testDevice_basic(name, name)
+func testDeviceLinkageRuleBase(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_smn_topic" "topic" {
-  name = "%s"
+  name = "%[1]s"
 }
 
+resource "huaweicloud_smn_message_template" "test" {
+  name     = "%[1]s"
+  protocol = "default"
+  content  = "content test"
+}
+`, name)
+}
+
+func testDeviceLinkageRule_basic(name string) string {
+	deviceConfig := testDevice_basic(name, name)
+	deviceLinkageRuleBase := testDeviceLinkageRuleBase(name)
+
+	return fmt.Sprintf(`
+%[1]s
+%[2]s
+
 resource "huaweicloud_iotda_device_linkage_rule" "test" {
-  name     = "%s"
+  name     = "%[3]s"
   space_id = huaweicloud_iotda_space.test.id
 
   triggers {
     type = "DEVICE_DATA"
+
     device_data_condition {
       product_id            = huaweicloud_iotda_device.test.product_id
       path                  = "service_1/p_1"
@@ -254,39 +332,92 @@ resource "huaweicloud_iotda_device_linkage_rule" "test" {
 
   actions {
     type = "SMN_FORWARDING"
+
     smn_forwarding {
-      region          = huaweicloud_smn_topic.topic.region
-      topic_name      = huaweicloud_smn_topic.topic.name
-      topic_urn       = huaweicloud_smn_topic.topic.topic_urn
-      message_title   = "title"
-      message_content = "content"
+      region                = huaweicloud_smn_topic.topic.region
+      topic_name            = huaweicloud_smn_topic.topic.name
+      topic_urn             = huaweicloud_smn_topic.topic.topic_urn
+      message_title         = "title"
+      message_content       = "content"
+      message_template_name = huaweicloud_smn_message_template.test.name
+    }
+  }
+
+  depends_on = [
+    huaweicloud_iotda_space.test,
+    huaweicloud_iotda_product.test,
+    huaweicloud_iotda_device.test,
+    huaweicloud_smn_topic.topic,
+    huaweicloud_smn_message_template.test,
+  ]
+}
+`, deviceLinkageRuleBase, deviceConfig, name)
+}
+
+func testDeviceLinkageRule_basic_update(name string) string {
+	deviceConfig := testDevice_basic(name, name)
+	deviceLinkageRuleBase := testDeviceLinkageRuleBase(name)
+
+	return fmt.Sprintf(`
+%[1]s
+%[2]s
+
+resource "huaweicloud_iotda_device_linkage_rule" "test" {
+  name     = "%[3]s_update"
+  space_id = huaweicloud_iotda_space.test.id
+  enabled  = false
+
+  triggers {
+    type = "DEVICE_DATA"
+
+    device_data_condition {
+      product_id            = huaweicloud_iotda_device.test.product_id
+      path                  = "service_1/p_1"
+      operator              = "in"
+      in_values             = ["20","30","40"]
+      trigger_strategy      = "pulse"
+      data_validatiy_period = 300
+    }
+  }
+
+  actions {
+    type = "DEVICE_ALARM"
+
+    device_alarm {
+      name        = "%[3]s"
+      type        = "fault"
+      severity    = "warning"
+      dimension   = "device"
+      description = "description test"
     }
   }
 
   depends_on = [
     huaweicloud_iotda_device.test,
     huaweicloud_iotda_product.test,
+    huaweicloud_smn_topic.topic,
+    huaweicloud_smn_message_template.test,
   ]
 }
-`, deviceConfig, name, name)
+`, deviceLinkageRuleBase, deviceConfig, name)
 }
 
 func testDeviceLinkageRule_timer(name string) string {
 	deviceConfig := testDevice_basic(name, name)
-	return fmt.Sprintf(`
-%s
+	deviceLinkageRuleBase := testDeviceLinkageRuleBase(name)
 
-resource "huaweicloud_smn_topic" "topic" {
-  name = "%s"
-}
+	return fmt.Sprintf(`
+%[1]s
+%[2]s
 
 resource "huaweicloud_iotda_device_linkage_rule" "test" {
-  name     = "%s"
+  name     = "%[3]s"
   space_id = huaweicloud_iotda_space.test.id
-  enabled  = false
+  enabled  = true
 
   triggers {
     type = "SIMPLE_TIMER"
+
     simple_timer_condition {
       start_time      = "20220622T160000Z"
       repeat_interval = 2
@@ -297,38 +428,41 @@ resource "huaweicloud_iotda_device_linkage_rule" "test" {
   actions {
     type = "SMN_FORWARDING"
     smn_forwarding {
-      region          = huaweicloud_smn_topic.topic.region
-      topic_name      = huaweicloud_smn_topic.topic.name
-      topic_urn       = huaweicloud_smn_topic.topic.topic_urn
-      message_title   = "title"
-      message_content = "content"
+      region                = huaweicloud_smn_topic.topic.region
+      topic_name            = huaweicloud_smn_topic.topic.name
+      topic_urn             = huaweicloud_smn_topic.topic.topic_urn
+      message_title         = "title"
+      message_content       = "content"
+      message_template_name = huaweicloud_smn_message_template.test.name
     }
   }
 
   depends_on = [
     huaweicloud_iotda_device.test,
     huaweicloud_iotda_product.test,
+    huaweicloud_smn_topic.topic,
+    huaweicloud_smn_message_template.test,
   ]
 }
-`, deviceConfig, name, name)
+`, deviceLinkageRuleBase, deviceConfig, name)
 }
 
 func testDeviceLinkageRule_daily(name string) string {
 	deviceConfig := testDevice_basic(name, name)
-	return fmt.Sprintf(`
-%s
+	deviceLinkageRuleBase := testDeviceLinkageRuleBase(name)
 
-resource "huaweicloud_smn_topic" "topic" {
-  name = "%s"
-}
+	return fmt.Sprintf(`
+%[1]s
+%[2]s
 
 resource "huaweicloud_iotda_device_linkage_rule" "test" {
-  name     = "%s"
+  name     = "%[3]s"
   space_id = huaweicloud_iotda_space.test.id
-  enabled  = false
+  enabled  = true
 
   triggers {
     type = "DAILY_TIMER"
+
     daily_timer_condition {
       start_time   = "19:02"
       days_of_week = "1,2,3,4,5,6,7"
@@ -337,11 +471,15 @@ resource "huaweicloud_iotda_device_linkage_rule" "test" {
 
   actions {
     type = "DEVICE_CMD"
+
     device_command {
-      device_id    = huaweicloud_iotda_device.test.id
-      service_id   = "service_1"
-      command_name = "cmd_1"
-      command_body = "{\"cmd_p_1\":\"3\"}"
+      device_id        = huaweicloud_iotda_device.test.id
+      service_id       = "service_1"
+      command_name     = "cmd_1"
+      command_body     = "{\"cmd_p_1\":\"3\"}"
+      buffer_timeout   = 180
+      response_timeout = 60
+      mode             = "PASSIVE"
     }
   }
 
@@ -354,7 +492,9 @@ resource "huaweicloud_iotda_device_linkage_rule" "test" {
   depends_on = [
     huaweicloud_iotda_device.test,
     huaweicloud_iotda_product.test,
+    huaweicloud_smn_topic.topic,
+    huaweicloud_smn_message_template.test,
   ]
 }
-`, deviceConfig, name, name)
+`, deviceLinkageRuleBase, deviceConfig, name)
 }

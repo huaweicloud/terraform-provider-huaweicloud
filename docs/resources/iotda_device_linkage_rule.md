@@ -162,11 +162,15 @@ the rule. Exactly one of `device_id` or `product_id` must be provided.
 * `path` - (Required, String) Specifies the path of the device property, in the format: **service_id/DataProperty**.
 
 * `operator` - (Required, String) Specifies the data comparison operator. The valid values are: **>**, **<**,
-**>=**, **<=**, **=** and **between**.
+  **>=**, **<=**, **=**, **in** and **between**.
 
-* `value` - (Required, String) Specifies the Rvalue of a data comparison expression. When the `operator` is `between`,
-the Rvalue represents the minimum and maximum values, separated by commas, such as "20,30",
-which means greater than or equal to 20 and less than 30.
+* `value` - (Optional, String) Specifies the Rvalue of a data comparison expression. When the `operator` is **between**,
+  the Rvalue represents the minimum and maximum values, separated by commas, such as **20,30**,
+  which means greater than or equal to `20` and less than `30`.
+
+* `in_values` - (Optional, List) Specifies the Rvalue of a data comparison expression. Only when the `operator` is
+  **in**, this field is valid and required, with a maximum of `20` characters, represents matching within the specified
+  values, e.g. **20,30,40**,
 
 * `trigger_strategy` - (Optional, String) Specifies the trigger strategy. The options are as follows:
   + **pulse**: When the data reported by the device meets the conditions, the rule can be triggered.
@@ -242,6 +246,23 @@ The `device_command` block supports:
       - **body**: optional, the message body of the command, which contains key-value pairs, each key is the parameter
         name of the command in the product model. The specific format requires application and device conventions.
 
+* `buffer_timeout` - (Optional, Int) Specifies the cache time of device commands, in seconds. Representing the effective
+  time for the IoT platform to cache commands before issuing them to the device. After this time, the commands will no
+  longer be issued. The default value is `172,800` seconds (`48` hours). If set to `0`, the command will be immediately
+  issued to the device regardless of the command issuance mode set on the IoT platform.
+
+* `response_timeout` - (Optional, Int) Specifies the effective time of the command response, in seconds. Indicating that
+  the device responds effectively within the `response_timeout` time after receiving the command. If no response is
+  received after this time, the command response is considered to have timed out. The default value is `1,800` seconds.
+
+* `mode` - (Optional, String) Specifies the issuance mode of device commands, which is only valid when the value of
+  `buffer_timeout` is greater than `0`.  
+  The valid values are as follows:
+  + **ACTIVE**: Active mode, the IoT platform actively issues commands to devices.
+  + **PASSIVE**: Passive mode, after the IoT platform creates device commands, it will directly cache the commands.
+    Wait until the device goes online again or reports the execution result of the previous command before issuing the
+    command.
+
 <a name="IoTDA_smn_forwarding"></a>
 The `smn_forwarding` block supports:
 
@@ -253,8 +274,9 @@ The `smn_forwarding` block supports:
 
 * `message_title` - (Required, String) Specifies the message title.
 
-* `message_content` - (Required, String) Specifies the message content.  
-  The value can contain a maximum of `256` characters.
+* `message_content` - (Optional, String) Specifies the message content.  
+
+* `message_template_name` - (Optional, String) Specifies the template name corresponding to the SMN service.
 
 * `project_id` - (Optional, String) Specifies the project ID to which the SMN belongs.
 If omitted, the default project in the region will be used.
@@ -270,6 +292,14 @@ The `device_alarm` block supports:
 
 * `severity` - (Required, String) Specifies the severity level of the alarm.
 The valid values are **warning**, **minor**, **major** and **critical**.
+
+* `dimension` - (Optional, String) Specifies the dimension of the alarm. Combine the alarm name and alarm level to
+  jointly identify an alarm.
+  The valid values are as follows:
+  + **device**: Device dimension
+  + **app**: Resource space dimension.
+
+  If not specified, default to user dimension.
 
 * `description` - (Optional, String) Specifies the description of the alarm.  
   The value can contain a maximum of `256` characters.
