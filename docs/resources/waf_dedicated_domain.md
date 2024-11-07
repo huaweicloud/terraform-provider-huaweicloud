@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_dedicated_domain"
-description: ""
+description: |
+  Manages a dedicated mode domain resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_dedicated_domain
@@ -10,7 +11,7 @@ description: ""
 Manages a dedicated mode domain resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The dedicated mode domain name resource can be used in Dedicated Mode and ELB Mode.
+used. The dedicated mode domain name resource can be used in Dedicated Mode.
 
 ## Example Usage
 
@@ -19,7 +20,7 @@ variable "certificated_id" {}
 variable "vpc_id" {}
 variable "enterprise_project_id" {}
 
-resource "huaweicloud_waf_dedicated_domain" "domain_1" {
+resource "huaweicloud_waf_dedicated_domain" "test" {
   domain                = "www.example.com"
   certificate_id        = var.certificated_id
   enterprise_project_id = var.enterprise_project_id
@@ -80,55 +81,56 @@ EOF
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the dedicated mode domain resource. If omitted,
-  the provider-level region will be used. Changing this setting will push a new domain.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the dedicated mode domain resource.
+  If omitted, the provider-level region will be used. Changing this setting will push a new domain.
 
 * `domain` - (Required, String, ForceNew) Specifies the protected domain name or IP address (port allowed). For example,
   `www.example.com` or `*.example.com` or `www.example.com:89`. Changing this creates a new domain.
 
-* `server` - (Required, List, ForceNew) The server configuration list of the domain. A maximum of 80 can be configured.
-  The object structure is documented below.
+* `server` - (Required, List, ForceNew) Specifies the server configuration list of the domain.
+  A maximum of `80` can be configured. The [server](#DedicatedDomain_server) structure is documented below.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF dedicated domain.
+  For enterprise users, if omitted, default enterprise project will be used.
   Changing this parameter will create a new resource.
 
 * `certificate_id` - (Optional, String) Specifies the certificate ID. This parameter is mandatory when `client_protocol`
-  is set to HTTPS.
+  is set to **HTTPS**.
 
 * `policy_id` - (Optional, String) Specifies the policy ID associated with the domain. If not specified, a new policy
   will be created automatically.
 
-* `proxy` - (Optional, Bool) Specifies whether a proxy is configured. Default value is `false`.
+* `proxy` - (Optional, Bool) Specifies whether a proxy is configured. Defaults to **false**.
 
   -> **NOTE:** WAF forwards only HTTP/S traffic. So WAF cannot serve your non-HTTP/S traffic, such as UDP, SMTP, FTP,
   and basically all other non-HTTP/S traffic. If a proxy such as public network ELB (or Nginx) has been used, set
   proxy `true` to ensure that the WAF security policy takes effect for the real source IP address.
 
 * `keep_policy` - (Optional, Bool) Specifies whether to retain the policy when deleting a domain name.
-  Defaults to `true`.
+  Defaults to **true**.
 
-* `protect_status` - (Optional, Int) The protection status of domain, `0`: suspended, `1`: enabled.
-  Default value is `0`.
+* `protect_status` - (Optional, Int) Specifies the protection status of domain, `0`: suspended, `1`: enabled.
+  Defaults to `0`.
 
-* `tls` - (Optional, String) Specifies the minimum required TLS version. The options include `TLS v1.0`, `TLS v1.1`,
-  `TLS v1.2`.
+* `tls` - (Optional, String) Specifies the minimum required TLS version. The valid values are: **TLS v1.0**,
+  **TLS v1.1** and **TLS v1.2**.
 
-* `cipher` - (Optional, String) Specifies the cipher suite of domain. The options include `cipher_1`, `cipher_2`,
-  `cipher_3`, `cipher_4`, `cipher_default`.
+* `cipher` - (Optional, String) Specifies the cipher suite of domain. The valid values are: **cipher_1**, **cipher_2**,
+  **cipher_3**, **cipher_4** and **cipher_default**.
 
 * `pci_3ds` - (Optional, Bool) Specifies the status of the PCI 3DS compliance certification check. The options
-  include `true` and `false`. This parameter must be used together with tls and cipher.
+  include **true** and **false**. This parameter must be used together with `tls` and `cipher`.
 
-  -> **NOTE:** Tls must be set to TLS v1.2, and cipher must be set to cipher_2. The PCI 3DS compliance certification
+  -> **NOTE:** Tls must be set to **TLS v1.2**, and cipher must be set to **cipher_2**. The PCI 3DS compliance certification
   check cannot be disabled after being enabled.
 
 * `pci_dss` - (Optional, Bool) Specifies the status of the PCI DSS compliance certification check. The options
-  include `true` and `false`. This parameter must be used together with tls and cipher.
+  include **true** and **false**. This parameter must be used together with `tls` and `cipher`.
 
-  -> **NOTE:** Tls must be set to TLS v1.2, and cipher must be set to cipher_2.
+  -> **NOTE:** Tls must be set to **TLS v1.2**, and cipher must be set to **cipher_2**.
 
 * `website_name` - (Optional, String) Specifies the website name. This website name must start with a letter and only
-  letters, digits, underscores (_), hyphens (-), colons (:) and periods (.) are allowed. The value contains 1 to 128
+  letters, digits, underscores (_), hyphens (-), colons (:) and periods (.) are allowed. The value contains `1` to `128`
   characters. The website name must be unique within this account.
 
 * `custom_page` - (Optional, List) Specifies the custom page. Only supports one custom alarm page.
@@ -177,30 +179,31 @@ The following arguments are supported:
   Only supports one traffic identifier.
   The [traffic_mark](#DedicatedDomain_traffic_mark) structure is documented below.
 
+<a name="DedicatedDomain_server"></a>
 The `server` block supports:
 
-* `client_protocol` - (Required, String, ForceNew) Protocol type of the client. The options include `HTTP` and `HTTPS`.
-  Changing this creates a new service.
+* `client_protocol` - (Required, String, ForceNew) Specifies the protocol type of the client. The options include **HTTP**
+  and **HTTPS**. Changing this creates a new service.
 
-* `server_protocol` - (Required, String, ForceNew) Protocol used by WAF to forward client requests to the server. The
-  options include `HTTP` and `HTTPS`. Changing this creates a new service.
+* `server_protocol` - (Required, String, ForceNew) Specifies the protocol used by WAF to forward client requests to the
+  server. The valid values are **HTTP** and **HTTPS**. Changing this creates a new service.
 
-* `vpc_id` - (Required, String, ForceNew) The id of the vpc used by the server. Changing this creates a service.
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC used by the server. Changing this creates a service.
 
-* `type` - (Required, String, ForceNew) Server network type, IPv4 or IPv6. Valid values are: `ipv4` and `ipv6`. Changing
-  this creates a new service.
+* `type` - (Required, String, ForceNew) Specifies the server network type, IPv4 or IPv6.
+  Valid values are **ipv4** and **ipv6**. Changing this creates a new service.
 
-* `address` - (Required, String, ForceNew) IP address or domain name of the web server that the client accesses. For
-  example, `192.168.1.1` or `www.example.com`. Changing this creates a new service.
+* `address` - (Required, String, ForceNew) Specifies the IP address or domain name of the web server accessed by the
+  client. For example, `192.168.1.1` or `www.example.com`. Changing this creates a new service.
 
-* `port` - (Required, Int, ForceNew) Port number used by the web server. The value ranges from 0 to 65535. Changing this
-  creates a new service.
+* `port` - (Required, Int, ForceNew) Specifies the port number used by the web server. The value ranges from `0` to
+  `65,535`. Changing this creates a new service.
 
 <a name="DedicatedDomain_custom_page"></a>
 The `custom_page` block supports:
 
 * `http_return_code` - (Required, String) Specifies the HTTP return code.
-  The value can be a positive integer in the range of 200-599 except 408, 444 and 499.
+  The value can be a positive integer in the range of `200`-`599` except `408`, `444` and `499`.
 
 * `block_page_type` - (Required, String) Specifies the content type of the custom alarm page.
   The value can be **text/html**, **text/xml** or **application/json**.
@@ -212,11 +215,11 @@ The `custom_page` block supports:
 <a name="DedicatedDomain_connection_protection"></a>
 The `connection_protection` block supports:
 
-* `error_threshold` - (Optional, Int) Specifies the 502/504 error threshold for every 30 seconds. Valid value ranges
+* `error_threshold` - (Optional, Int) Specifies the `502`/`504` error threshold for every 30 seconds. Valid value ranges
   from `0` to `2,147,483,647`.
 
-* `error_percentage` - (Optional, Float) Specifies the 502/504 error percentage. A breakdown protection is triggered
-  when the 502/504 error threshold and percentage threshold have been reached. Valid value ranges from `0` to `99`.
+* `error_percentage` - (Optional, Float) Specifies the `502`/`504` error percentage. A breakdown protection is triggered
+  when the `502`/`504` error threshold and percentage threshold have been reached. Valid value ranges from `0` to `99`.
 
 * `initial_downtime` - (Optional, Int) Specifies the breakdown duration (s) when the breakdown is triggered for the first
   time. Valid value ranges from `0` to `2,147,483,647`.

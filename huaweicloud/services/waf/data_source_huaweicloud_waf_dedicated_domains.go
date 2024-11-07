@@ -41,7 +41,7 @@ func DataSourceWafDedicatedDomains() *schema.Resource {
 				Optional: true,
 			},
 			"protect_status": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"domains": {
@@ -110,46 +110,42 @@ func domainSchema() *schema.Resource {
 }
 
 func datasourceDedicatedDomainsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getWAFDedicatedDomains: Query WAF dedicated domains
 	var (
-		getWAFDedicatedDomainsHttpUrl = "v1/{project_id}/premium-waf/host"
-		getWAFDedicatedDomainsProduct = "waf"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/{project_id}/premium-waf/host"
+		product = "waf"
 	)
-	getWAFDedicatedDomainsClient, err := cfg.NewServiceClient(getWAFDedicatedDomainsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	getWAFDedicatedDomainsPath := getWAFDedicatedDomainsClient.Endpoint + getWAFDedicatedDomainsHttpUrl
-	getWAFDedicatedDomainsPath = strings.ReplaceAll(getWAFDedicatedDomainsPath, "{project_id}",
-		getWAFDedicatedDomainsClient.ProjectID)
-	getWAFDedicatedDomainsPath += buildWAFDedicatedDomainsQueryParams(d, cfg)
-
-	getWAFDedicatedDomainsResp, err := pagination.ListAllItems(
-		getWAFDedicatedDomainsClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildWAFDedicatedDomainsQueryParams(d, cfg)
+	requestResp, err := pagination.ListAllItems(
+		client,
 		"page",
-		getWAFDedicatedDomainsPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return diag.Errorf("error retrieving dedicated domains, %s", err)
+		return diag.Errorf("error retrieving WAF dedicated domains, %s", err)
 	}
 
-	listWAFDedicatedDomainsRespJson, err := json.Marshal(getWAFDedicatedDomainsResp)
+	respJson, err := json.Marshal(requestResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listWAFDedicatedDomainsRespBody interface{}
-	err = json.Unmarshal(listWAFDedicatedDomainsRespJson, &listWAFDedicatedDomainsRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
@@ -159,7 +155,7 @@ func datasourceDedicatedDomainsRead(_ context.Context, d *schema.ResourceData, m
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("domains", flattenListDedicatedDomainsBody(listWAFDedicatedDomainsRespBody)),
+		d.Set("domains", flattenListDedicatedDomainsBody(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

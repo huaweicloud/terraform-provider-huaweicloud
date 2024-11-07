@@ -23,11 +23,15 @@ func getWafDedicateDomainResourceFunc(cfg *config.Config, state *terraform.Resou
 	return domains.GetWithEpsID(client, state.Primary.ID, epsID)
 }
 
-func TestAccWafDedicateDomainV1_basic(t *testing.T) {
-	var obj interface{}
+// Before running the test case, please ensure that there is at least one WAF dedicated instance in the current region.
+func TestAccWafDedicateDomain_basic(t *testing.T) {
+	var (
+		obj             interface{}
+		certificateBody = generateCertificateBody()
 
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_waf_dedicated_domain.domain_1"
+		randName     = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_waf_dedicated_domain.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -39,20 +43,22 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWafDedicatedDomainV1_basic(randName),
+				Config: testAccWafDedicatedDomain_basic(randName, certificateBody),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.1"),
 					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_1"),
 					resource.TestCheckResourceAttr(resourceName, "protect_status", "1"),
-					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", randName),
 					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
@@ -93,16 +99,17 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccWafDedicatedDomainV1_update1(randName),
+				Config: testAccWafDedicatedDomain_update1(randName, certificateBody),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.2"),
 					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_2"),
 					resource.TestCheckResourceAttr(resourceName, "pci_3ds", "true"),
 					resource.TestCheckResourceAttr(resourceName, "pci_dss", "true"),
 					resource.TestCheckResourceAttr(resourceName, "protect_status", "0"),
-					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName_update"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", fmt.Sprintf("%s_update", randName)),
 					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
 					resource.TestCheckResourceAttr(resourceName, "redirect_url", "${http_host}/error.html"),
 					resource.TestCheckResourceAttr(resourceName, "server.#", "2"),
@@ -130,9 +137,10 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccWafDedicatedDomainV1_update2(randName),
+				Config: testAccWafDedicatedDomain_update2(randName, certificateBody),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.error_threshold", "2147483647"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.error_percentage", "99"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.initial_downtime", "2147483647"),
@@ -150,9 +158,10 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccWafDedicatedDomainV1_update3(randName),
+				Config: testAccWafDedicatedDomain_update3(randName, certificateBody),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.error_threshold", "0"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.error_percentage", "0"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.initial_downtime", "0"),
@@ -166,109 +175,7 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccWafDedicatedDomainV1_policy(randName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
-					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
-					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.2"),
-					resource.TestCheckResourceAttr(resourceName, "protect_status", "0"),
-					resource.TestCheckResourceAttr(resourceName, "server.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.type", "ipv4"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.address", "119.8.0.14"),
-					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
-				),
-			},
-			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"keep_policy"},
-			},
-		},
-	})
-}
-
-func TestAccWafDedicateDomainV1_withEpsID(t *testing.T) {
-	var obj interface{}
-
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_waf_dedicated_domain.domain_1"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getWafDedicateDomainResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
-			acceptance.TestAccPreCheckEpsID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccWafDedicatedDomainV1_basic_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
-					resource.TestCheckResourceAttr(resourceName, "proxy", "false"),
-					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.1"),
-					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_1"),
-					resource.TestCheckResourceAttr(resourceName, "redirect_url", "${http_host}/error.html"),
-					resource.TestCheckResourceAttr(resourceName, "website_name", ""),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "server.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.address", "119.8.0.14"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.type", "ipv4"),
-					resource.TestCheckResourceAttrSet(resourceName, "server.0.vpc_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "certificate_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "certificate_name"),
-					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "protect_status"),
-					resource.TestCheckResourceAttrSet(resourceName, "protocol"),
-					resource.TestCheckResourceAttrSet(resourceName, "tls"),
-					resource.TestCheckResourceAttrSet(resourceName, "cipher"),
-					resource.TestCheckResourceAttrSet(resourceName, "alarm_page.template_name"),
-					resource.TestCheckResourceAttrSet(resourceName, "compliance_certification.pci_3ds"),
-					resource.TestCheckResourceAttrSet(resourceName, "compliance_certification.pci_dss"),
-				),
-			},
-			{
-				Config: testAccWafDedicatedDomainV1_update_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
-					resource.TestCheckResourceAttr(resourceName, "tls", "TLS v1.2"),
-					resource.TestCheckResourceAttr(resourceName, "cipher", "cipher_2"),
-					resource.TestCheckResourceAttr(resourceName, "redirect_url", ""),
-					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName"),
-					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
-					resource.TestCheckResourceAttr(resourceName, "pci_3ds", "true"),
-					resource.TestCheckResourceAttr(resourceName, "pci_dss", "true"),
-					resource.TestCheckResourceAttr(resourceName, "server.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8443"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.address", "119.8.0.14"),
-					resource.TestCheckResourceAttr(resourceName, "server.1.address", "119.8.0.15"),
-					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$request_length"),
-					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key3", "$remote_addr"),
-				),
-			},
-			{
-				Config: testAccWafDedicatedDomainV1_policy_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Config: testAccWafDedicatedDomain_policy(randName, certificateBody),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
@@ -296,20 +203,32 @@ func TestAccWafDedicateDomainV1_withEpsID(t *testing.T) {
 	})
 }
 
-func testAccWafDedicatedDomainV1_basic(name string) string {
+func testAccWafDedicatedDomain_base(name, certificateBody string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_waf_dedicated_domain" "domain_1" {
-  domain         = "www.%s.com"
-  certificate_id = huaweicloud_waf_certificate.certificate_1.id
-  keep_policy    = false
-  proxy          = false
-  tls            = "TLS v1.1"
-  cipher         = "cipher_1"
-  protect_status = 1
-  website_name   = "websiteName"
-  description    = "test description"
+# Using this datasource to get the vpc_id to which the dedicated instance belongs.
+data "huaweicloud_waf_dedicated_instances" "test" {
+  enterprise_project_id = "%[2]s"
+}
+`, testAccWafCertificate_basic(name, certificateBody), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccWafDedicatedDomain_basic(name, certificateBody string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_waf_dedicated_domain" "test" {
+  domain                = "www.%[2]s.com"
+  certificate_id        = huaweicloud_waf_certificate.test.id
+  keep_policy           = false
+  proxy                 = false
+  tls                   = "TLS v1.1"
+  cipher                = "cipher_1"
+  protect_status        = 1
+  website_name          = "%[2]s"
+  description           = "test description"
+  enterprise_project_id = "%[3]s"
 
   server {
     client_protocol = "HTTPS"
@@ -317,7 +236,7 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     address         = "119.8.0.14"
     port            = 8080
     type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
+    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
   }
 
   custom_page {
@@ -347,31 +266,28 @@ EOF
     session_tag = "session_tag"
     user_tag    = "user_tag"
   }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
 }
-`, testAccWafCertificateV1_conf(name), name)
+`, testAccWafDedicatedDomain_base(name, certificateBody), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccWafDedicatedDomainV1_update1(name string) string {
+func testAccWafDedicatedDomain_update1(name, certificateBody string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_waf_dedicated_domain" "domain_1" {
-  domain         = "www.%s.com"
-  certificate_id = huaweicloud_waf_certificate.certificate_1.id
-  keep_policy    = false
-  proxy          = true
-  tls            = "TLS v1.2"
-  cipher         = "cipher_2"
-  pci_3ds        = true
-  pci_dss        = true
-  protect_status = 0
-  website_name   = "websiteName_update"
-  description    = "test description update"
-  redirect_url   = "$${http_host}/error.html"
+resource "huaweicloud_waf_dedicated_domain" "test" {
+  domain                = "www.%[2]s.com"
+  certificate_id        = huaweicloud_waf_certificate.test.id
+  keep_policy           = false
+  proxy                 = true
+  tls                   = "TLS v1.2"
+  cipher                = "cipher_2"
+  pci_3ds               = true
+  pci_dss               = true
+  protect_status        = 0
+  website_name          = "%[2]s_update"
+  description           = "test description update"
+  redirect_url          = "$${http_host}/error.html"
+  enterprise_project_id = "%[3]s"
 
   server {
     client_protocol = "HTTPS"
@@ -379,7 +295,7 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     address         = "119.8.0.14"
     port            = 8443
     type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
+    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
   }
 
   server {
@@ -388,7 +304,7 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     address         = "119.8.0.15"
     port            = 8443
     type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
+    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
   }
 
   forward_header_map = {
@@ -417,31 +333,28 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     session_tag = "session_tag_update"
     user_tag    = "user_tag_update"
   }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
 }
-`, testAccWafCertificateV1_conf(name), name)
+`, testAccWafDedicatedDomain_base(name, certificateBody), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccWafDedicatedDomainV1_update2(name string) string {
+func testAccWafDedicatedDomain_update2(name, certificateBody string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_waf_dedicated_domain" "domain_1" {
-  domain         = "www.%s.com"
-  certificate_id = huaweicloud_waf_certificate.certificate_1.id
-  keep_policy    = false
-  proxy          = true
-  tls            = "TLS v1.2"
-  cipher         = "cipher_2"
-  pci_3ds        = true
-  pci_dss        = true
-  protect_status = 0
-  website_name   = "websiteName_update"
-  description    = "test description update"
-  redirect_url   = "$${http_host}/error.html"
+resource "huaweicloud_waf_dedicated_domain" "test" {
+  domain                = "www.%[2]s.com"
+  certificate_id        = huaweicloud_waf_certificate.test.id
+  keep_policy           = false
+  proxy                 = true
+  tls                   = "TLS v1.2"
+  cipher                = "cipher_2"
+  pci_3ds               = true
+  pci_dss               = true
+  protect_status        = 0
+  website_name          = "%[2]s_update"
+  description           = "test description update"
+  redirect_url          = "$${http_host}/error.html"
+  enterprise_project_id = "%[3]s"
 
   server {
     client_protocol = "HTTPS"
@@ -449,7 +362,7 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     address         = "119.8.0.14"
     port            = 8443
     type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
+    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
   }
 
   server {
@@ -458,7 +371,7 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     address         = "119.8.0.15"
     port            = 8443
     type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
+    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
   }
 
   forward_header_map = {
@@ -481,31 +394,28 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     read_timeout       = 3600
     write_timeout      = 3600
   }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
 }
-`, testAccWafCertificateV1_conf(name), name)
+`, testAccWafDedicatedDomain_base(name, certificateBody), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccWafDedicatedDomainV1_update3(name string) string {
+func testAccWafDedicatedDomain_update3(name, certificateBody string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_waf_dedicated_domain" "domain_1" {
-  domain         = "www.%s.com"
-  certificate_id = huaweicloud_waf_certificate.certificate_1.id
-  keep_policy    = false
-  proxy          = true
-  tls            = "TLS v1.2"
-  cipher         = "cipher_2"
-  pci_3ds        = true
-  pci_dss        = true
-  protect_status = 0
-  website_name   = "websiteName_update"
-  description    = "test description update"
-  redirect_url   = "$${http_host}/error.html"
+resource "huaweicloud_waf_dedicated_domain" "test" {
+  domain                = "www.%[2]s.com"
+  certificate_id        = huaweicloud_waf_certificate.test.id
+  keep_policy           = false
+  proxy                 = true
+  tls                   = "TLS v1.2"
+  cipher                = "cipher_2"
+  pci_3ds               = true
+  pci_dss               = true
+  protect_status        = 0
+  website_name          = "%[2]s_update"
+  description           = "test description update"
+  redirect_url          = "$${http_host}/error.html"
+  enterprise_project_id = "%[3]s"
 
   server {
     client_protocol = "HTTPS"
@@ -513,7 +423,7 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     address         = "119.8.0.14"
     port            = 8443
     type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
+    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
   }
 
   server {
@@ -522,7 +432,7 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     address         = "119.8.0.15"
     port            = 8443
     type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
+    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
   }
 
   forward_header_map = {
@@ -545,14 +455,42 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     read_timeout       = 0
     write_timeout      = 0
   }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
 }
-`, testAccWafCertificateV1_conf(name), name)
+`, testAccWafDedicatedDomain_base(name, certificateBody), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
+func testAccWafDedicatedDomain_policy(name, certificateBody string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_waf_policy" "test" {
+  name                  = "%[2]s"
+  enterprise_project_id = "%[3]s"
+}
+
+resource "huaweicloud_waf_dedicated_domain" "test" {
+  domain         = "www.%[2]s.com"
+  certificate_id = huaweicloud_waf_certificate.test.id
+  policy_id      = huaweicloud_waf_policy.test.id
+  keep_policy    = true
+  proxy          = true
+  tls            = "TLS v1.2"
+  protect_status = 0
+  enterprise_project_id = "%[3]s"
+
+  server {
+    client_protocol = "HTTPS"
+    server_protocol = "HTTP"
+    address         = "119.8.0.14"
+    port            = 8080
+    type            = "ipv4"
+    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
+  }
+}
+`, testAccWafDedicatedDomain_base(name, certificateBody), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+// This use case has dependencies and will be deleted later.
 func testAccWafDedicatedDomainV1_policy(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -590,75 +528,7 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
 `, testAccWafCertificateV1_conf(name), name, name)
 }
 
-func testAccWafDedicatedDomainV1_basic_withEpsID(name, epsID string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_dedicated_domain" "domain_1" {
-  domain                = "www.%s.com"
-  certificate_id        = huaweicloud_waf_certificate.certificate_1.id
-  keep_policy           = false
-  proxy                 = false
-  tls                   = "TLS v1.1"
-  cipher                = "cipher_1"
-  redirect_url          = "$${http_host}/error.html"
-  enterprise_project_id = "%s"
-
-  server {
-    client_protocol = "HTTPS"
-    server_protocol = "HTTP"
-    address         = "119.8.0.14"
-    port            = 8080
-    type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
-  }
-}
-`, testAccWafCertificateV1_conf_withEpsID(name, epsID), name, epsID)
-}
-
-func testAccWafDedicatedDomainV1_update_withEpsID(name, epsID string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_dedicated_domain" "domain_1" {
-  domain                = "www.%s.com"
-  certificate_id        = huaweicloud_waf_certificate.certificate_1.id
-  keep_policy           = false
-  proxy                 = true
-  tls                   = "TLS v1.2"
-  cipher                = "cipher_2"
-  pci_3ds               = true
-  pci_dss               = true
-  website_name          = "websiteName"
-  description           = "test description"
-  enterprise_project_id = "%s"
-
-  server {
-    client_protocol = "HTTPS"
-    server_protocol = "HTTP"
-    address         = "119.8.0.14"
-    port            = 8443
-    type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
-  }
-
-  server {
-    client_protocol = "HTTPS"
-    server_protocol = "HTTP"
-    address         = "119.8.0.15"
-    port            = 8443
-    type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
-  }
-
-  forward_header_map = {
-    "key2" = "$request_length"
-    "key3" = "$remote_addr"
-  }
-}
-`, testAccWafCertificateV1_conf_withEpsID(name, epsID), name, epsID)
-}
-
+// This use case has dependencies and will be deleted later.
 func testAccWafDedicatedDomainV1_policy_withEpsID(name, epsID string) string {
 	return fmt.Sprintf(`
 %[1]s
