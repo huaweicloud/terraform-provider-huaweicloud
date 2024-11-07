@@ -184,7 +184,10 @@ func resourceBlackWhiteListRead(_ context.Context, d *schema.ResourceData, meta 
 		&getBlackWhiteListOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving black white list")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error retrieving black white list",
+		)
 	}
 
 	getBlackWhiteListRespBody, err := utils.FlattenResponse(getBlackWhiteListResp)
@@ -319,7 +322,10 @@ func resourceBlackWhiteListDelete(_ context.Context, d *schema.ResourceData, met
 	}
 	_, err = deleteBlackWhiteListClient.Request("DELETE", deleteBlackWhiteListPath, &deleteBlackWhiteListOpt)
 	if err != nil {
-		return diag.Errorf("error deleting black white list: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting black white list",
+		)
 	}
 
 	return nil

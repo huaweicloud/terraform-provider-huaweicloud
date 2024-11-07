@@ -154,7 +154,10 @@ func resourceAddressGroupMemberRead(_ context.Context, d *schema.ResourceData, m
 
 	addressGroupMembers, respBody, err := ReadAddressGroupMembers(d.Get("group_id").(string), getAddressGroupMemberClient)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving address group member")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error retrieving address group member",
+		)
 	}
 
 	findAddressGroupMemberExpr := fmt.Sprintf("[?item_id == '%s']|[0]", d.Id())
@@ -240,7 +243,10 @@ func resourceAddressGroupMemberDelete(_ context.Context, d *schema.ResourceData,
 	}
 	_, err = deleteAddressGroupMemberClient.Request("DELETE", deleteAddressGroupMemberPath, &deleteAddressGroupMemberOpt)
 	if err != nil {
-		return diag.Errorf("error deleting AddressGroupMember: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting address group member",
+		)
 	}
 
 	return nil

@@ -175,7 +175,10 @@ func resourceServiceGroupMemberRead(_ context.Context, d *schema.ResourceData, m
 		&getServiceGroupMemberOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving ServiceGroupMember")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error retrieving ServiceGroupMember",
+		)
 	}
 
 	getServiceGroupMemberRespBody, err := utils.FlattenResponse(getServiceGroupMemberResp)
@@ -252,7 +255,10 @@ func resourceServiceGroupMemberDelete(_ context.Context, d *schema.ResourceData,
 	_, err = deleteServiceGroupMemberClient.Request("DELETE", deleteServiceGroupMemberPath,
 		&deleteServiceGroupMemberOpt)
 	if err != nil {
-		return diag.Errorf("error deleting ServiceGroupMember: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting ServiceGroupMember",
+		)
 	}
 
 	return nil

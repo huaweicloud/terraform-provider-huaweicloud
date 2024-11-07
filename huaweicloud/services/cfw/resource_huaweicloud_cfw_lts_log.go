@@ -162,35 +162,16 @@ func resourceLtsLogRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	var mErr *multierror.Error
 
-	var (
-		httpUrl = "v1/{project_id}/cfw/logs/configuration"
-		product = "cfw"
-	)
+	product := "cfw"
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating CFW Client: %s", err)
 	}
 
-	path := client.Endpoint + httpUrl
-	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
-	path += fmt.Sprintf("?fw_instance_id=%s", d.Id())
-
-	opt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	resp, err := client.Request("GET", path, &opt)
+	id := d.Id()
+	configuration, err := getLtsLog(client, id)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseError(err), "error retrieving CFW lts log configuration")
-	}
-
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	configuration := utils.PathSearch("data", respBody, nil)
-	if configuration == nil {
-		return diag.Errorf("error parsing data from response= %#v", respBody)
+		return common.CheckDeletedDiag(d, err, "error retrieving CFW lts log configuration")
 	}
 
 	ltsEnable := utils.PathSearch("lts_enable", configuration, float64(0)).(float64)
@@ -212,6 +193,33 @@ func resourceLtsLogRead(_ context.Context, d *schema.ResourceData, meta interfac
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getLtsLog(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+	httpUrl := "v1/{project_id}/cfw/logs/configuration"
+	path := client.Endpoint + httpUrl
+	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	path += fmt.Sprintf("?fw_instance_id=%s", id)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	resp, err := client.Request("GET", path, &opt)
+	if err != nil {
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005")
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	configuration := utils.PathSearch("data", respBody, nil)
+	if configuration == nil {
+		return nil, fmt.Errorf("error parsing data from response= %#v", respBody)
+	}
+
+	return configuration, nil
 }
 
 func resourceLtsLogUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -256,6 +264,17 @@ func resourceLtsLogDelete(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error creating CFW Client: %s", err)
 	}
 
+	id := d.Id()
+	configuration, err := getLtsLog(client, id)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving CFW lts log configuration")
+	}
+
+	ltsEnable := utils.PathSearch("lts_enable", configuration, float64(0)).(float64)
+	if int(ltsEnable) == 0 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving CFW lts log configuration")
+	}
+
 	path := client.Endpoint + httpUrl
 	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
 	path += fmt.Sprintf("?fw_instance_id=%s", d.Get("fw_instance_id"))
@@ -266,7 +285,10 @@ func resourceLtsLogDelete(_ context.Context, d *schema.ResourceData, meta interf
 	opt.JSONBody = buildDeleteLtsLogConfigurationBodyParams(d)
 	_, err = client.Request("PUT", path, &opt)
 	if err != nil {
-		return diag.Errorf("error deleting CFW lts log configuration: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting CFW lts log configuration",
+		)
 	}
 
 	return nil
