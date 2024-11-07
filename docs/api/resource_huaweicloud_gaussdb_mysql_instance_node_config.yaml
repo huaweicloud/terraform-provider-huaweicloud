@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: GaussDBforMySQL
 paths:
+    /v3/{project_id}/instances/{instance_id}:
+        GET:
+            tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/priority:
         PUT:
             tag: GaussDBforMySQL
@@ -15,5 +18,8 @@ paths:
         PUT:
             tag: GaussDBforMySQL
     /v3/{project_id}/instances/details:
+        GET:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/jobs:
         GET:
             tag: GaussDBforMySQL

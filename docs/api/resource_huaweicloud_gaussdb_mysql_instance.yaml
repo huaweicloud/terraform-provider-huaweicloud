@@ -118,6 +118,12 @@ paths:
     /v3/{project_id}/instances/{instance_id}/restart:
         POST:
             tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/slowlog/modify:
+        POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/slowlog/query:
+        GET:
+            tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/sql-filter/switch:
         GET:
             tag: GaussDBforMySQL

@@ -11,6 +11,3 @@ paths:
     /v1/{project_id}/premium-waf/instance:
         GET:
             tag: WAF
-    /v1/{project_id}/premium-waf/instance/{instance_id}:
-        GET:
-            tag: WAF
