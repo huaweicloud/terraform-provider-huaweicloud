@@ -94,15 +94,17 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 									"operator": {
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: validation.StringInSlice(
-											[]string{">", "<", ">=", "<=", "=", "between"}, false),
 									},
 
 									"value": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
-
+									"in_values": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
 									"trigger_strategy": {
 										Type:         schema.TypeString,
 										Optional:     true,
@@ -213,6 +215,18 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
+									"buffer_timeout": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"response_timeout": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"mode": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 								},
 							},
 						},
@@ -246,9 +260,14 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 
 									"message_content": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
+										Computed: true,
 									},
-
+									"message_template_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
 									"project_id": {
 										Type:     schema.TypeString,
 										Optional: true,
@@ -289,7 +308,10 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 											"critical",
 										}, false),
 									},
-
+									"dimension": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 									"description": {
 										Type:     schema.TypeString,
 										Optional: true,
@@ -542,7 +564,8 @@ func buildlinkageTrigger(raw map[string]interface{}, triggerType string) (*model
 					{
 						Path:     f["path"].(string),
 						Operator: f["operator"].(string),
-						Value:    utils.String(f["value"].(string)),
+						Value:    utils.StringIgnoreEmpty(f["value"].(string)),
+						InValues: utils.ExpandToStringListPointer(f["in_values"].([]interface{})),
 						Strategy: &model.Strategy{
 							Trigger:        utils.StringIgnoreEmpty(f["trigger_strategy"].(string)),
 							EventValidTime: utils.Int32(int32(f["data_validatiy_period"].(int))),
@@ -622,6 +645,11 @@ func buildlinkageAction(raw map[string]interface{}, projectId string) (*model.Ru
 					CommandName: f["command_name"].(string),
 					ServiceId:   f["service_id"].(string),
 					CommandBody: &commandBody, // Json string and Map, all support.
+					//nolint:gosec
+					BufferTimeout: utils.Int32IgnoreEmpty(int32(f["buffer_timeout"].(int))),
+					//nolint:gosec
+					ResponseTimeout: utils.Int32IgnoreEmpty(int32(f["response_timeout"].(int))),
+					Mode:            utils.StringIgnoreEmpty(f["mode"].(string)),
 				},
 			},
 		}
@@ -641,12 +669,13 @@ func buildlinkageAction(raw map[string]interface{}, projectId string) (*model.Ru
 		d := model.RuleAction{
 			Type: actionType,
 			SmnForwarding: &model.ActionSmnForwarding{
-				RegionName:     f["region"].(string),
-				ProjectId:      projectIdStr,
-				ThemeName:      f["topic_name"].(string),
-				TopicUrn:       f["topic_urn"].(string),
-				MessageTitle:   f["message_title"].(string),
-				MessageContent: utils.String(f["message_content"].(string)),
+				RegionName:          f["region"].(string),
+				ProjectId:           projectIdStr,
+				ThemeName:           f["topic_name"].(string),
+				TopicUrn:            f["topic_urn"].(string),
+				MessageTitle:        f["message_title"].(string),
+				MessageContent:      utils.StringIgnoreEmpty(f["message_content"].(string)),
+				MessageTemplateName: utils.StringIgnoreEmpty(f["message_template_name"].(string)),
 			},
 		}
 		return &d, nil
@@ -663,6 +692,7 @@ func buildlinkageAction(raw map[string]interface{}, projectId string) (*model.Ru
 				Name:        f["name"].(string),
 				AlarmStatus: f["type"].(string),
 				Severity:    f["severity"].(string),
+				Dimension:   utils.StringIgnoreEmpty(f["dimension"].(string)),
 				Description: utils.StringIgnoreEmpty(f["description"].(string)),
 			},
 		}
@@ -703,6 +733,7 @@ func flattenLinkageTriggers(conditionGroup *model.ConditionGroup) []interface{} 
 							"path":                  filter[0].Path,
 							"operator":              filter[0].Operator,
 							"value":                 filter[0].Value,
+							"in_values":             filter[0].InValues,
 							"trigger_strategy":      filter[0].Strategy.Trigger,
 							"data_validatiy_period": filter[0].Strategy.EventValidTime,
 						},
@@ -762,10 +793,13 @@ func flattenLinkageActions(actions *[]model.RuleAction) []interface{} {
 					"type": v.Type,
 					"device_command": []interface{}{
 						map[string]interface{}{
-							"service_id":   v.DeviceCommand.Cmd.ServiceId,
-							"command_name": v.DeviceCommand.Cmd.CommandName,
-							"command_body": string(jsonStr),
-							"device_id":    v.DeviceCommand.DeviceId,
+							"service_id":       v.DeviceCommand.Cmd.ServiceId,
+							"command_name":     v.DeviceCommand.Cmd.CommandName,
+							"command_body":     string(jsonStr),
+							"buffer_timeout":   v.DeviceCommand.Cmd.BufferTimeout,
+							"response_timeout": v.DeviceCommand.Cmd.ResponseTimeout,
+							"mode":             v.DeviceCommand.Cmd.Mode,
+							"device_id":        v.DeviceCommand.DeviceId,
 						},
 					},
 				})
@@ -776,12 +810,13 @@ func flattenLinkageActions(actions *[]model.RuleAction) []interface{} {
 					"type": v.Type,
 					"smn_forwarding": []interface{}{
 						map[string]interface{}{
-							"region":          v.SmnForwarding.RegionName,
-							"project_id":      v.SmnForwarding.ProjectId,
-							"topic_name":      v.SmnForwarding.ThemeName,
-							"topic_urn":       v.SmnForwarding.TopicUrn,
-							"message_content": v.SmnForwarding.MessageContent,
-							"message_title":   v.SmnForwarding.MessageTitle,
+							"region":                v.SmnForwarding.RegionName,
+							"project_id":            v.SmnForwarding.ProjectId,
+							"topic_name":            v.SmnForwarding.ThemeName,
+							"topic_urn":             v.SmnForwarding.TopicUrn,
+							"message_content":       v.SmnForwarding.MessageContent,
+							"message_template_name": v.SmnForwarding.MessageTemplateName,
+							"message_title":         v.SmnForwarding.MessageTitle,
 						},
 					},
 				})
@@ -795,6 +830,7 @@ func flattenLinkageActions(actions *[]model.RuleAction) []interface{} {
 							"name":        v.DeviceAlarm.Name,
 							"type":        v.DeviceAlarm.AlarmStatus,
 							"severity":    v.DeviceAlarm.Severity,
+							"dimension":   v.DeviceAlarm.Dimension,
 							"description": v.DeviceAlarm.Description,
 						},
 					},
