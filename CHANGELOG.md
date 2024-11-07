@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.70.1 (November 7, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_coc_script: handle more NotFound errors [GH-5825]
+
 ## 1.70.0 (October 30, 2024)
 
 * **New Resource:**
