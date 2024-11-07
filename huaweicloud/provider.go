@@ -1408,6 +1408,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cph_phone_stop":     cph.ResourcePhoneStop(),
 			"huaweicloud_cph_server_restart": cph.ResourceServerRestart(),
 			"huaweicloud_cph_phone_reset":    cph.ResourcePhoneReset(),
+			"huaweicloud_cph_share_app":      cph.ResourceShareApp(),
 
 			"huaweicloud_cse_microservice":                      cse.ResourceMicroservice(),
 			"huaweicloud_cse_microservice_engine":               cse.ResourceMicroserviceEngine(),

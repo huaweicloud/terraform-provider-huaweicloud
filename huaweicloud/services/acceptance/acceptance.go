@@ -134,6 +134,7 @@ var (
 	HW_CCM_ENABLE_FLAG                 = os.Getenv("HW_CCM_ENABLE_FLAG")
 
 	HW_CPH_OBS_OBJECT_PATH = os.Getenv("HW_CPH_OBS_OBJECT_PATH")
+	HW_CPH_OBS_BUCKET_NAME = os.Getenv("HW_CPH_OBS_BUCKET_NAME")
 
 	HW_DMS_ENVIRONMENT   = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER = os.Getenv("HW_SMS_SOURCE_SERVER")
@@ -2530,5 +2531,12 @@ func TestAccPrecheckDbssInstanceId(t *testing.T) {
 func TestAccPrecheckCphAdbObjectPath(t *testing.T) {
 	if HW_CPH_OBS_OBJECT_PATH == "" {
 		t.Skip("HW_CPH_OBS_OBJECT_PATH must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckCphObsBucketName(t *testing.T) {
+	if HW_CPH_OBS_BUCKET_NAME == "" {
+		t.Skip("HW_CPH_OBS_BUCKET_NAME must be set for the acceptance test")
 	}
 }
