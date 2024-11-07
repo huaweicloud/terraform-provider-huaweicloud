@@ -34,6 +34,7 @@ import (
 // @API VPN DELETE /v5/{project_id}/vpn-gateways/{id}
 // @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/create
 // @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/delete
+// @API VPN POST /v5/{project_id}/vpn-gateways/{vgw_id}/update-specification
 func ResourceGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGatewayCreate,
@@ -71,12 +72,8 @@ func ResourceGateway() *schema.Resource {
 			"flavor": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: `The flavor of the VPN gateway.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"V1G", "V300", "Basic", "Professional1", "Professional2", "GM",
-				}, false),
 			},
 			"attachment_type": {
 				Type:        schema.TypeString,
@@ -838,6 +835,7 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	var (
 		updateGatewayHttpUrl            = "v5/{project_id}/vpn-gateways/{id}"
 		updateGatewayCertificateHttpUrl = "v5/{project_id}/vpn-gateways/{gateway_id}/certificate/{certificate_id}"
+		updateFlavorHttpUrl             = "v5/{project_id}/vpn-gateways/{vgw_id}/update-specification"
 		updateGatewayProduct            = "vpn"
 	)
 	updateGatewayClient, err := cfg.NewServiceClient(updateGatewayProduct, region)
@@ -922,6 +920,30 @@ func resourceGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			return diag.Errorf("error updating tags of VPN gateway (%s): %s", d.Id(), tagErr)
 		}
 	}
+
+	if d.HasChange("flavor") {
+		updateFlavorPath := updateGatewayClient.Endpoint + updateFlavorHttpUrl
+		updateFlavorPath = strings.ReplaceAll(updateFlavorPath, "{project_id}", updateGatewayClient.ProjectID)
+		updateFlavorPath = strings.ReplaceAll(updateFlavorPath, "{vgw_id}", gatewayId)
+
+		updateGatewayOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		updateGatewayOpt.JSONBody = map[string]interface{}{
+			"vpn_gateway": map[string]interface{}{
+				"flavor": d.Get("flavor"),
+			},
+		}
+		_, err = updateGatewayClient.Request("POST", updateFlavorPath, &updateGatewayOpt)
+		if err != nil {
+			return diag.Errorf("error updating VPN gateway flavor: %s", err)
+		}
+		err = updateGatewayWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.Errorf("error waiting for updating VPN gateway (%s) flavor to complete: %s", gatewayId, err)
+		}
+	}
+
 	return resourceGatewayRead(ctx, d, meta)
 }
 
