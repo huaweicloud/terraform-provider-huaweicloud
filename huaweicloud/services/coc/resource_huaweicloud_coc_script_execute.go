@@ -24,6 +24,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var scriptOrderNotFoundErrCodes = []string{
+	"COC.00040709", // Script not found
+}
+
 // @API COC POST /v1/job/scripts/{script_uuid}
 // @API COC GET /v1/job/script/orders/{execute_uuid}
 // @API COC PUT /v1/job/script/orders/{execute_uuid}/operation
@@ -276,7 +280,8 @@ func resourceScriptExecuteRead(_ context.Context, d *schema.ResourceData, meta i
 	ticketID := d.Id()
 	ticketDetail, err := getExecutionTicketDetail(client, ticketID)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving COC script execute")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code",
+			scriptOrderNotFoundErrCodes...), "COC script execute")
 	}
 
 	mErr := multierror.Append(nil,

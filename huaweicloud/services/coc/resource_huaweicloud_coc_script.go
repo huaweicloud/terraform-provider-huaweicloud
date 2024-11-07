@@ -7,14 +7,11 @@ package coc
 
 import (
 	"context"
-	"encoding/json"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -24,6 +21,12 @@ import (
 )
 
 const defaultSensitiveValue = "*****************"
+
+var scriptResourceNotFoundErrCodes = []string{
+	"COC.00040601", // Invalid script uuid
+	"COC.00040603", // Script not exist
+	"COC.00040604", // Script not exist
+}
 
 // @API COC POST /v1/job/scripts
 // @API COC GET /v1/job/scripts/{script_uuid}
@@ -206,12 +209,8 @@ func resourceScriptRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	getScriptResp, err := client.Request("GET", getScriptPath, &getScriptOpt)
 	if err != nil {
-		// error_msg: invalid script uuid.
-		if hasErrorCode(err, "COC.00040601") {
-			err = golangsdk.ErrDefault404{}
-		}
-
-		return common.CheckDeletedDiag(d, err, "error retrieving COC script")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code",
+			scriptResourceNotFoundErrCodes...), "COC script")
 	}
 
 	getScriptRespBody, err := utils.FlattenResponse(getScriptResp)
@@ -328,7 +327,8 @@ func resourceScriptDelete(_ context.Context, d *schema.ResourceData, meta interf
 
 	_, err = client.Request("DELETE", deleteScriptPath, &deleteScriptOpt)
 	if err != nil {
-		return diag.Errorf("error deleting COC script: %s", err)
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code",
+			scriptResourceNotFoundErrCodes...), "error deleting COC script")
 	}
 
 	return nil
@@ -336,22 +336,4 @@ func resourceScriptDelete(_ context.Context, d *schema.ResourceData, meta interf
 
 func suppressDosOrUnix(_, old, new string, _ *schema.ResourceData) bool {
 	return strings.ReplaceAll(old, "\r\n", "\n") == strings.ReplaceAll(new, "\r\n", "\n")
-}
-
-func hasErrorCode(err error, expectCode string) bool {
-	if errCode, ok := err.(golangsdk.ErrDefault500); ok {
-		var response interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search("error_code", response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse error_code from response body: %s", parseErr)
-			}
-
-			if errorCode == expectCode {
-				return true
-			}
-		}
-	}
-
-	return false
 }
