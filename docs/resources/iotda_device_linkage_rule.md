@@ -138,17 +138,23 @@ The `triggers` block supports:
   + **DEVICE_DATA**: Triggered upon the property of device.
   + **SIMPLE_TIMER**: Triggered by policy.
   + **DAILY_TIMER**: Triggered at specified time every day.
+  + **DEVICE_LINKAGE_STATUS**: Triggered by device status.
 
 * `device_data_condition` - (Optional, List) Specifies the condition triggered upon the property of device. It is
-required when type is `DEVICE_DATA`. The [device_data_condition](#IoTDA_device_data_condition) structure is
-documented below.
+  required when `type` is **DEVICE_DATA**.
+  The [device_data_condition](#IoTDA_device_data_condition) structure is documented below.
 
-* `simple_timer_condition` - (Optional, List) Specifies the condition triggered by policy. It is required when type
-is `SIMPLE_TIMER`. The [simple_timer_condition](#IoTDA_simple_timer_condition) structure is documented below.
+* `simple_timer_condition` - (Optional, List) Specifies the condition triggered by policy. It is required when `type`
+  is **SIMPLE_TIMER**.
+  The [simple_timer_condition](#IoTDA_simple_timer_condition) structure is documented below.
 
 * `daily_timer_condition` - (Optional, List) Specifies the condition triggered at specified time every day. It is
-required when type is `DAILY_TIMER`. The [daily_timer_condition](#IoTDA_daily_timer_condition) structure is
-documented below.
+  required when `type` is **DAILY_TIMER**.
+  The [daily_timer_condition](#IoTDA_daily_timer_condition) structure is documented below.
+
+* `device_linkage_status_condition` - (Optional, List) Specifies the condition triggered by device status. It is
+  required when `type` is **DEVICE_LINKAGE_STATUS**.
+  The [device_linkage_status_condition](#IoTDA_device_status_condition) structure is documented below.
 
 <a name="IoTDA_device_data_condition"></a>
 The `device_data_condition` block supports:
@@ -202,6 +208,26 @@ For example: `03:00`.
 
 * `days_of_week` - (Optional, String) Specifies a list of days of week, separated by commas. 1 represents Sunday,
 2 represents Monday, and so on. Defaults to `1,2,3,4,5,6,7` (every day).
+
+<a name="IoTDA_device_status_condition"></a>
+The `device_linkage_status_condition` block supports:
+
+* `device_id` - (Optional, String) Specifies the device ID. If this field is set, the device attribute trigger will be
+  triggered based on the specified device.
+
+* `product_id` - (Optional, String) Specifies the product ID. If this field is set and the `device_id` is empty, the
+  device attribute will trigger the matching of all devices under this product.
+
+-> 1. `device_id` and `product_id` cannot be empty at the same time.<br/>2. If both the `device_id` and `product_id` are
+  set, the `device_id` field will prevail, and `product_id` will not take effect at this time.
+
+* `status_list` - (Optional, List) Specifies device status list, separate multiple status with commas.
+  e.g. **ONLINE**, **OFFLINE**.  
+  The valid device status values are as follows:
+  + **ONLINE**: Device online.
+  + **OFFLINE**: Device offline.
+
+* `duration` - (Optional, Int) Specifies the duration of device status. The valid value ranges from `0` to `60` minutes.
 
 <a name="IoTDA_actions"></a>
 The `actions` block supports:

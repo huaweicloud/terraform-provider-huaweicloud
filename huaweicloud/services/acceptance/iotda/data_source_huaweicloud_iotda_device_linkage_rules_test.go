@@ -174,5 +174,5 @@ data "huaweicloud_iotda_device_linkage_rules" "not_found" {
 output "not_found_validation_pass" {
   value = length(data.huaweicloud_iotda_device_linkage_rules.not_found.rules) == 0
 }
-`, testDeviceLinkageRule_basic(name))
+`, testDeviceLinkageRule_deviceData(name))
 }
