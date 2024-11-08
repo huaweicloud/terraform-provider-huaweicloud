@@ -52,13 +52,16 @@ func TestAccProduct_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "industry", "demo_industry"),
 					resource.TestCheckResourceAttr(rName, "services.0.id", "service_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.type", "serv_type"),
+					resource.TestCheckResourceAttr(rName, "services.0.option", "Master"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.#", "4"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.name", "p_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.properties.0.required", "false"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.description", "desc"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.min", "3"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.max", "666"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.method", "RW"),
+					resource.TestCheckResourceAttr(rName, "services.0.properties.0.default_value", "{\"foo\":\"bar\"}"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.name", "p_2"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.type", "string"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.max_length", "20"),
@@ -70,27 +73,32 @@ func TestAccProduct_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.name", "cmd_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.name", "cmd_p_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.required", "false"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.description", "desc"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.min", "3"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.max", "33"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.name", "cmd_r_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.required", "false"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.min", "1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.max", "22"),
 				),
 			},
 			{
-				Config: testProduct_update(name + "_update"),
+				Config: testProduct_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"_update"),
+					resource.TestCheckResourceAttr(rName, "services.0.option", "Optional"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.#", "3"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.name", "p_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.properties.0.required", "true"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.description", "desc_update"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.min", "4"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.max", "5"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.method", "RW"),
+					resource.TestCheckResourceAttr(rName, "services.0.properties.0.default_value", "{\"tf\":\"test\"}"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.name", "p_3"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.type", "string"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.max_length", "20"),
@@ -102,11 +110,13 @@ func TestAccProduct_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.name", "cmd_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.name", "cmd_p_2"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.required", "true"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.description", "desc"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.min", "5"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.max", "33"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.name", "cmd_r_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.required", "true"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.min", "2"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.max", "33"),
 				),
@@ -124,6 +134,7 @@ func TestAccProduct_derived(t *testing.T) {
 	var obj model.ShowProductResponse
 
 	name := acceptance.RandomAccResourceName()
+
 	rName := "huaweicloud_iotda_product.test"
 
 	rc := acceptance.InitResourceCheck(
@@ -153,13 +164,16 @@ func TestAccProduct_derived(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "industry", "demo_industry"),
 					resource.TestCheckResourceAttr(rName, "services.0.id", "service_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.type", "serv_type"),
+					resource.TestCheckResourceAttr(rName, "services.0.option", "Master"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.#", "4"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.name", "p_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.properties.0.required", "false"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.description", "desc"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.min", "3"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.max", "666"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.method", "RW"),
+					resource.TestCheckResourceAttr(rName, "services.0.properties.0.default_value", "{\"foo\":\"bar\"}"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.name", "p_2"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.type", "string"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.max_length", "20"),
@@ -171,27 +185,32 @@ func TestAccProduct_derived(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.name", "cmd_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.name", "cmd_p_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.required", "false"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.description", "desc"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.min", "3"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.max", "33"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.name", "cmd_r_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.required", "false"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.min", "1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.max", "22"),
 				),
 			},
 			{
-				Config: testProduct_update(name + "_update"),
+				Config: testProduct_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"_update"),
+					resource.TestCheckResourceAttr(rName, "services.0.option", "Optional"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.#", "3"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.name", "p_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.properties.0.required", "true"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.description", "desc_update"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.min", "4"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.max", "5"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.0.method", "RW"),
+					resource.TestCheckResourceAttr(rName, "services.0.properties.0.default_value", "{\"tf\":\"test\"}"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.name", "p_3"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.type", "string"),
 					resource.TestCheckResourceAttr(rName, "services.0.properties.1.max_length", "20"),
@@ -203,11 +222,13 @@ func TestAccProduct_derived(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.name", "cmd_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.name", "cmd_p_2"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.required", "true"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.description", "desc"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.min", "5"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.paras.0.max", "33"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.name", "cmd_r_1"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.type", "int"),
+					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.required", "true"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.min", "2"),
 					resource.TestCheckResourceAttr(rName, "services.0.commands.0.responses.0.max", "33"),
 				),
@@ -225,12 +246,8 @@ func testProduct_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_iotda_space" "test" {
-  name = "%[2]s"
-}
-
 resource "huaweicloud_iotda_product" "test" {
-  name              = "%[3]s"
+  name              = "%[2]s"
   device_type       = "test"
   protocol          = "MQTT"
   space_id          = huaweicloud_iotda_space.test.id
@@ -239,16 +256,19 @@ resource "huaweicloud_iotda_product" "test" {
   industry          = "demo_industry"
 
   services {
-    id   = "service_1"
-    type = "serv_type"
+    id     = "service_1"
+    type   = "serv_type"
+    option = "Master"
 
     properties {
-      name        = "p_1"
-      type        = "int"
-      min         = "3"
-      max         = "666"
-      description = "desc"
-      method      = "RW"
+      name          = "p_1"
+      type          = "int"
+      required      = false
+      min           = "3"
+      max           = "666"
+      description   = "desc"
+      method        = "RW"
+      default_value = "{\"foo\":\"bar\"}"
     }
 
     properties {
@@ -280,33 +300,31 @@ resource "huaweicloud_iotda_product" "test" {
       paras {
         name        = "cmd_p_1"
         type        = "int"
+        required    = false
         description = "desc"
         min         = "3"
         max         = 33
       }
 
       responses {
-        name = "cmd_r_1"
-        type = "int"
-        min  = "1"
-        max  = "22"
+        name     = "cmd_r_1"
+        type     = "int"
+        required = false
+        min      = "1"
+        max      = "22"
       }
     }
   }
 }
-`, buildIoTDAEndpoint(), name, name)
+`, testSpace_basic(name), name)
 }
 
 func testProduct_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_iotda_space" "test" {
-  name = "%[2]s"
-}
-
 resource "huaweicloud_iotda_product" "test" {
-  name              = "%[3]s"
+  name              = "%[2]s_update"
   device_type       = "test"
   protocol          = "MQTT"
   space_id          = huaweicloud_iotda_space.test.id
@@ -315,16 +333,19 @@ resource "huaweicloud_iotda_product" "test" {
   industry          = "demo_industry"
 
   services {
-    id   = "service_1"
-    type = "serv_type"
+    id     = "service_1"
+    type   = "serv_type"
+    option = "Optional"
 
     properties {
-      name        = "p_1"
-      type        = "int"
-      min         = "4"
-      max         = "5"
-      description = "desc_update"
-      method      = "RW"
+      name          = "p_1"
+      type          = "int"
+      required      = true
+      min           = "4"
+      max           = "5"
+      description   = "desc_update"
+      method        = "RW"
+      default_value = "{\"tf\":\"test\"}"
     }
 
     properties {
@@ -348,19 +369,21 @@ resource "huaweicloud_iotda_product" "test" {
       paras {
         name        = "cmd_p_2"
         type        = "int"
+        required    = true
         description = "desc"
         min         = "5"
         max         = 33
       }
 
       responses {
-        name = "cmd_r_1"
-        type = "int"
-        min  = "2"
-        max  = "33"
+        name     = "cmd_r_1"
+        type     = "int"
+        required = true
+        min      = "2"
+        max      = "33"
       }
     }
   }
 }
-`, buildIoTDAEndpoint(), name, name)
+`, testSpace_basic(name), name)
 }

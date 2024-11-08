@@ -2,12 +2,13 @@
 subcategory: "IoT Device Access (IoTDA)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_iotda_product"
-description: ""
+description: |-
+  Manages a product resource within HuaweiCloud.
 ---
 
 # huaweicloud_iotda_product
 
-Manages an IoTDA product within HuaweiCloud.
+Manages a product resource within HuaweiCloud.
 
 -> When accessing an IoTDA **standard** or **enterprise** edition instance, you need to specify the IoTDA service
 endpoint in `provider` block.
@@ -159,6 +160,15 @@ The default value is equal to service ID.
 characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special
 characters are allowed: `?'#().,&%@!`.
 
+* `option` - (Optional, String) Specifies whether the device service is mandatory.
+  Currently, this field is not a functional field and is used only for identification.
+  The valid values are as follows:
+  + **Master**: The master service.
+  + **Mandatory**: The mandatory service.
+  + **Optional**:  The optional service.
+
+  Defaults to **Optional**.
+
 * `properties` - (Optional, List) Specifies the list of properties for the service.
 The [properties](#IoTDA_service_properties) structure is documented below.
 
@@ -175,8 +185,12 @@ allowed: `?'#().,&%@!`.
 * `type` - (Required, String) Specifies the type of the parameter.
 The valid values are **int**, **decimal**, **string**, **DateTime**, **jsonObject** and **string list**.
 
+* `required` - (Optional, Bool) Specifies the device property is mandatory or not.
+  The default value is **false**.
+
 * `method` - (Required, String) Specifies the access mode of the device property.
-  Options: **RW**, **W**, **R**.
+  The value can be **RWE**, **RW**, **RE**, **WE**, **R** (the property value can be read),
+  **W** (the property value can be written) or **E** (the property value can be subscribed to).
 
 * `description` - (Optional, String) Specifies the description of the parameter. The description contains a maximum of
 `128` characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special
@@ -198,6 +212,13 @@ The unit contains a maximum of 16 characters.
 **jsonObject** or **string list**. Value range: `0` ~ `2,147,483,647`. Defaults to `0`.
 
 * `enum_list` - (Optional, List) Specifies the list of enumerated values of the device property.
+
+* `default_value` - (Optional, String) Specifies the default value of the device property.
+  This parameter allowed value is a JSON string. e.g. **{\"foo\":\"bar\"}**
+  If this parameter is set value, the value will be written to the desired data of the device shadow when
+  the product is used to create a device. When the device goes online, the value will be delivered to the device.
+
+  -> If you want to set this parameter, the `method` must set **RWE**, **RW**, **WE** or **W**.
 
 <a name="IoTDA_service_commands"></a>
 The `commands` block supports:
@@ -221,6 +242,9 @@ allowed: `?'#().,&%@!`.
 
 * `type` - (Required, String) Specifies the type of the parameter.
 The valid values are **int**, **decimal**, **string**, **DateTime**, **jsonObject** and **string list**.
+
+* `required` - (Optional, Bool) Specifies the parameter is mandatory or not.
+  The default value is **false**.
 
 * `description` - (Optional, String) Specifies the description of the parameter. The description contains a maximum of
 `128` characters. Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special
@@ -247,12 +271,12 @@ The unit contains a maximum of 16 characters.
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID in UUID format.
+* `id` - The resource ID.
 
 ## Import
 
-Products can be imported using the `id`, e.g.
+The product resource can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_iotda_product.test 10022532f4f94f26b01daa1e424853e1
+$ terraform import huaweicloud_iotda_product.test <id>
 ```
