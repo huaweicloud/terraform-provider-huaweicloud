@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_rds_restored_databases
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/{project_id}/{engine}/instances/history/databases:
+        POST:
+            tag: RDS

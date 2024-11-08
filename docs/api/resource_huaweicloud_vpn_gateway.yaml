@@ -32,3 +32,6 @@ paths:
             tag: VPN
         PUT:
             tag: VPN
+    /v5/{project_id}/vpn-gateways/{vgw_id}/update-specification:
+        POST:
+            tag: VPN
