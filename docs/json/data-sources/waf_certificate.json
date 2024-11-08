@@ -5,18 +5,23 @@
         "huaweicloud_waf_certificate": {
           "block": {
             "attributes": {
-              "enterprise_project_id": {
-                "type": "string",
-                "optional": true
-              },
-              "expiration": {
+              "created_at": {
                 "type": "string",
                 "computed": true
               },
-              "expire_status": {
-                "type": "number",
+              "enterprise_project_id": {
+                "type": "string",
                 "optional": true,
-                "default": 0
+                "computed": true
+              },
+              "expiration_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "expired_at": {
+                "type": "string",
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -24,7 +29,8 @@
               },
               "name": {
                 "type": "string",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",

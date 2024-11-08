@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_diagnosis_statistics": {
+          "block": {
+            "attributes": {
+              "diagnosis_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "count": "number",
+                      "metric_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Specifies the diagnosis information list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

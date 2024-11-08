@@ -38,6 +38,7 @@
                                 "object",
                                 {
                                   "description": "string",
+                                  "dimension": "string",
                                   "name": "string",
                                   "severity": "string",
                                   "type": "string"
@@ -49,9 +50,12 @@
                               [
                                 "object",
                                 {
+                                  "buffer_timeout": "number",
                                   "command_body": "string",
                                   "command_name": "string",
                                   "device_id": "string",
+                                  "mode": "string",
+                                  "response_timeout": "number",
                                   "service_id": "string"
                                 }
                               ]
@@ -62,6 +66,7 @@
                                 "object",
                                 {
                                   "message_content": "string",
+                                  "message_template_name": "string",
                                   "message_title": "string",
                                   "project_id": "string",
                                   "region": "string",
@@ -113,6 +118,10 @@
                                 {
                                   "data_validatiy_period": "number",
                                   "device_id": "string",
+                                  "in_values": [
+                                    "list",
+                                    "string"
+                                  ],
                                   "operator": "string",
                                   "path": "string",
                                   "product_id": "string",

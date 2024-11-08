@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_error_log_links": {
+          "block": {
+            "attributes": {
+              "file_name_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the names of the files.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the instance.",
+                "required": true
+              },
+              "links": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "file_link": "string",
+                      "file_name": "string",
+                      "file_size": "string",
+                      "node_name": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the error logs.",
+                "computed": true
+              },
+              "node_id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the node IDs to which the files belong.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

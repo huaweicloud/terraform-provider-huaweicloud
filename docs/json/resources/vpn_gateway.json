@@ -88,8 +88,7 @@
                 "type": "string",
                 "description": "The flavor of the VPN gateway.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "ha_mode": {
                 "type": "string",

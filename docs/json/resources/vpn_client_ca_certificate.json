@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpn_client_ca_certificate": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "description": "The content of client CA certificate.",
+                "required": true,
+                "sensitive": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "expiration_time": {
+                "type": "string",
+                "description": "The client CA certificate expiration time.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "issuer": {
+                "type": "string",
+                "description": "The client CA certificate issuer.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of client CA certificate.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "serial_number": {
+                "type": "string",
+                "description": "The client CA certificate serial number.",
+                "computed": true
+              },
+              "signature_algorithm": {
+                "type": "string",
+                "description": "The signature algorithm of the client CA certificate.",
+                "computed": true
+              },
+              "subject": {
+                "type": "string",
+                "description": "The client CA certificate subject.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              },
+              "vpn_server_id": {
+                "type": "string",
+                "description": "The VPN server ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

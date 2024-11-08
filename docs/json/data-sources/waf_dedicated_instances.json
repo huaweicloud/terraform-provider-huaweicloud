@@ -24,7 +24,6 @@
                       "available_zone": "string",
                       "cpu_architecture": "string",
                       "ecs_flavor": "string",
-                      "group_id": "string",
                       "id": "string",
                       "name": "string",
                       "run_status": "number",

@@ -18,7 +18,6 @@
                     {
                       "accept_count": "number",
                       "description": "string",
-                      "enterprise_project_id": "string",
                       "id": "string",
                       "ip_addresses": "string",
                       "name": "string",

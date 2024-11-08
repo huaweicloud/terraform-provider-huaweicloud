@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_instant_tasks": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "Specifies the task ID.",
+                "optional": true
+              },
+              "job_name": {
+                "type": "string",
+                "description": "Specifies the task name. Value options:",
+                "optional": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_time": "string",
+                      "ended_time": "string",
+                      "fail_reason": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "instance_status": "string",
+                      "job_id": "string",
+                      "job_name": "string",
+                      "order_id": "string",
+                      "process": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the task details.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the task execution status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cph_share_app": {
+          "block": {
+            "attributes": {
+              "bucket_name": {
+                "type": "string",
+                "description": "Specifies the OBS bucket name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "object_path": {
+                "type": "string",
+                "description": "Specifies the OBS object path.",
+                "required": true
+              },
+              "package_name": {
+                "type": "string",
+                "description": "Specifies the package name.",
+                "required": true
+              },
+              "pre_install_app": {
+                "type": "number",
+                "description": "Specifies whether to pre-install the application.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the CPH server ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}
