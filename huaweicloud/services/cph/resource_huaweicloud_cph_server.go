@@ -691,7 +691,7 @@ func deleteCphServerWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 			}
 
 			statusRaw := utils.PathSearch(`status`, getCphServerRespBody, nil)
-			if statusRaw == 0 {
+			if statusRaw == nil {
 				return nil, "ERROR", fmt.Errorf("unable to find the status from the API response")
 			}
 			status := fmt.Sprint(statusRaw)

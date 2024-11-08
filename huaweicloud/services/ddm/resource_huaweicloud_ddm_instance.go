@@ -262,13 +262,13 @@ func resourceDdmInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	instanceId := utils.PathSearch("id", createInstanceRespBody, "").(string)
-	if instanceId == "" {
-		return diag.Errorf("unable to find the DDM instance ID from the API response")
-	}
-
+	var instanceId string
 	var delayTime time.Duration = 200
-	if orderId := utils.PathSearch("order_id", createInstanceRespBody, "").(string); orderId != "" {
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		orderId := utils.PathSearch("order_id", createInstanceRespBody, "").(string)
+		if orderId == "" {
+			return diag.Errorf("unable to find order_id of the DDM instance from the API response")
+		}
 		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
@@ -278,13 +278,17 @@ func resourceDdmInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId,
-			d.Timeout(schema.TimeoutCreate))
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.Errorf("error waiting for replica order resource %s complete: %s", orderId, err)
 		}
 		instanceId = resourceId
 		delayTime = 20
+	} else {
+		instanceId = utils.PathSearch("id", createInstanceRespBody, "").(string)
+	}
+	if instanceId == "" {
+		return diag.Errorf("unable to find the DDM instance ID from the API response")
 	}
 
 	stateConf := &resource.StateChangeConf{
