@@ -62,11 +62,6 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"DEVICE_DATA",
-								"SIMPLE_TIMER",
-								"DAILY_TIMER",
-							}, false),
 						},
 
 						"device_data_condition": {
@@ -163,6 +158,38 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 
 									"days_of_week": {
 										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"device_linkage_status_condition": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"device_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									// When both `device_id` and `product_id` are set simultaneously, the API does not
+									// return the `product_id` field, so there is no need to add the Computed attribute.
+									"product_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"status_list": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"duration": {
+										Type:     schema.TypeInt,
 										Optional: true,
 										Computed: true,
 									},
@@ -607,6 +634,25 @@ func buildlinkageTrigger(raw map[string]interface{}, triggerType string) (*model
 		}
 		return &d, nil
 
+	case "DEVICE_LINKAGE_STATUS":
+		trigger := raw["device_linkage_status_condition"].([]interface{})
+		if len(trigger) == 0 {
+			return nil, fmt.Errorf("device_linkage_status_condition is Required when the target type is DEVICE_LINKAGE_STATUS")
+		}
+
+		f := trigger[0].(map[string]interface{})
+		d := model.RuleCondition{
+			Type: triggerType,
+			DeviceLinkageStatusCondition: &model.DeviceLinkageStatusCondition{
+				DeviceId:   utils.StringIgnoreEmpty(f["device_id"].(string)),
+				ProductId:  utils.StringIgnoreEmpty(f["product_id"].(string)),
+				StatusList: utils.ExpandToStringListPointer(f["status_list"].([]interface{})),
+				//nolint:gosec
+				Duration: utils.Int32IgnoreEmpty(int32(f["duration"].(int))),
+			},
+		}
+		return &d, nil
+
 	default:
 		return nil, fmt.Errorf("the trigger type= %q is not support", triggerType)
 	}
@@ -761,6 +807,20 @@ func flattenLinkageTriggers(conditionGroup *model.ConditionGroup) []interface{} 
 						map[string]interface{}{
 							"start_time":   v.DailyTimerCondition.Time,
 							"days_of_week": v.DailyTimerCondition.DaysOfWeek,
+						},
+					},
+				})
+			}
+		case "DEVICE_LINKAGE_STATUS":
+			if v.DeviceLinkageStatusCondition != nil {
+				rst = append(rst, map[string]interface{}{
+					"type": v.Type,
+					"device_linkage_status_condition": []interface{}{
+						map[string]interface{}{
+							"device_id":   v.DeviceLinkageStatusCondition.DeviceId,
+							"product_id":  v.DeviceLinkageStatusCondition.ProductId,
+							"status_list": v.DeviceLinkageStatusCondition.StatusList,
+							"duration":    v.DeviceLinkageStatusCondition.Duration,
 						},
 					},
 				})
