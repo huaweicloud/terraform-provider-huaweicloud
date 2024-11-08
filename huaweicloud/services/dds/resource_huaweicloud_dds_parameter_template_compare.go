@@ -135,7 +135,7 @@ func resourceParameterTemplateCompareRead(_ context.Context, _ *schema.ResourceD
 
 func resourceParameterTemplateCompareDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := "Deleting parameter template compare resource is not supported. The resource is only removed from the" +
-		"state, the DDS instance remains in the cloud."
+		"state, the DDS parameter template remains in the cloud."
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
