@@ -137,6 +137,11 @@ func ruleConditionSchema() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"in_values": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 						"trigger_strategy": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -238,6 +243,18 @@ func ruleActionSchema() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"buffer_timeout": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"response_timeout": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"mode": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"service_id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -274,6 +291,10 @@ func ruleActionSchema() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"message_template_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -291,6 +312,10 @@ func ruleActionSchema() *schema.Resource {
 							Computed: true,
 						},
 						"severity": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"dimension": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},

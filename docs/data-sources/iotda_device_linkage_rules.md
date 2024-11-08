@@ -127,9 +127,14 @@ The `device_data_condition` block supports:
   The format is **service_id/DataProperty**. e.g. **DoorWindow/status**
 
 * `operator` - The data comparison operator. The valid values are: **>**, **<**,
-  **>=**, **<=**, **=**, **in**, or **between**.
+  **>=**, **<=**, **=**, **in**, and **between**.
 
-* `value` - The rigth value of a data comparison expression.
+* `value` - The Rvalue of a data comparison expression. When the `operator` is **between**, the Rvalue represents the
+  minimum and maximum values, separated by commas, such as **20,30**, which means greater than or equal to `20` and less
+  than `30`.
+
+* `in_values` - The Rvalue of a data comparison expression. Only when the `operator` is **in**, this field is valid,
+  with a maximum of `20` characters, represents matching within the specified values, e.g. **20,30,40**,
 
 * `trigger_strategy` - The judgment strategy triggered by rule conditions. The valid values are:
   + **pulse**: When the data reported by the device meets the conditions, the rule can be triggered.
@@ -196,6 +201,13 @@ The `device_command` block supports:
 
 * `command_body` - The command parameters.
 
+* `buffer_timeout` - The cache time of device commands, in seconds.
+
+* `response_timeout` - The effective time of the command response, in seconds.
+
+* `mode` - The issuance mode of device commands, which is only valid when the value of `buffer_timeout` is greater than
+  `0`. The valid values are **ACTIVE** and **PASSIVE**.
+
 * `service_id` - The ID of the service to which the command belongs.
 
 <a name="action_smn_forwarding"></a>
@@ -211,6 +223,8 @@ The `smn_forwarding` block supports:
 
 * `message_content` - The message content.
 
+* `message_template_name` - The template name corresponding to the SMN service.
+
 * `project_id` - The project ID to which the SMN belongs.
 
 <a name="action_device_alarm"></a>
@@ -224,6 +238,9 @@ The `device_alarm` block supports:
 
 * `severity` - The severity level of the alarm.
   The valid values can be **warning**, **minor**, **major**, or **critical**.
+
+* `dimension` - The dimension of the alarm. Combine the alarm name and alarm level to jointly identify an alarm.
+  The valid values are **device** and **app**. Defaults to user dimension.
 
 * `description` - The description of the alarm.
 
