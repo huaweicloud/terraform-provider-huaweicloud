@@ -9,6 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
 func TestAccDataSourceRulesAntiCrawler_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_waf_rules_anti_crawler.test"
@@ -34,6 +35,7 @@ func TestAccDataSourceRulesAntiCrawler_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -77,11 +79,12 @@ func testDataSourceRulesAntiCrawler_basic(name string) string {
 %[1]s
 
 data "huaweicloud_waf_rules_anti_crawler" "test" {
+  policy_id             = huaweicloud_waf_policy.test.id
+  enterprise_project_id = "%[2]s"
+
   depends_on = [
     huaweicloud_waf_rule_anti_crawler.test
   ]
-
-  policy_id = huaweicloud_waf_policy.test.id
 }
 
 locals {
@@ -89,8 +92,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_anti_crawler" "filter_by_rule_id" {
-  policy_id = huaweicloud_waf_policy.test.id
-  rule_id   = local.rule_id
+  policy_id             = huaweicloud_waf_policy.test.id
+  rule_id               = local.rule_id
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -108,8 +112,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_anti_crawler" "filter_by_name" {
-  policy_id = huaweicloud_waf_policy.test.id
-  name      = local.name
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = local.name
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -123,8 +128,9 @@ output "name_filter_is_useful" {
 }
 
 data "huaweicloud_waf_rules_anti_crawler" "not_found" {
-  policy_id = huaweicloud_waf_policy.test.id
-  name      = "not_found"
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = "not_found"
+  enterprise_project_id = "%[2]s"
 }
 
 output "is_not_found" {
@@ -136,8 +142,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_anti_crawler" "filter_by_protection_mode" {
-  policy_id       = huaweicloud_waf_policy.test.id
-  protection_mode = local.protection_mode
+  policy_id             = huaweicloud_waf_policy.test.id
+  protection_mode       = local.protection_mode
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -156,8 +163,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_anti_crawler" "filter_by_status" {
-  policy_id = huaweicloud_waf_policy.test.id
-  status    = local.status
+  policy_id             = huaweicloud_waf_policy.test.id
+  status                = local.status
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -169,5 +177,5 @@ locals {
 output "status_filter_is_useful" {
   value = alltrue(local.status_filter_result) && length(local.status_filter_result) > 0
 }
-`, testRuleAntiCrawler_excepProtectionMode(name))
+`, testDataSourceRuleAntiCrawler_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

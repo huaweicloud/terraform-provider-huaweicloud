@@ -23,7 +23,7 @@ func getRuleKnownAttackResourceFunc(cfg *config.Config, state *terraform.Resourc
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating WAF Client: %s", err)
+		return nil, fmt.Errorf("error creating WAF client: %s", err)
 	}
 
 	getPath := client.Endpoint + httpUrl
@@ -52,56 +52,8 @@ func getRuleKnownAttackResourceFunc(cfg *config.Config, state *terraform.Resourc
 	return utils.FlattenResponse(getResp)
 }
 
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
 func TestAccRuleKnownAttack_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_waf_rule_known_attack_source.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getRuleKnownAttackResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testRuleKnownAttack_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "policy_id",
-						"huaweicloud_waf_policy.policy_1", "id"),
-					resource.TestCheckResourceAttr(rName, "block_type", "long_ip_block"),
-					resource.TestCheckResourceAttr(rName, "block_time", "500"),
-					resource.TestCheckResourceAttr(rName, "description", "test description"),
-				),
-			},
-			{
-				Config: testRuleKnownAttack_basic_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "block_time", "600"),
-					resource.TestCheckResourceAttr(rName, "description", ""),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testWAFRuleImportState(rName),
-			},
-		},
-	})
-}
-
-func TestAccRuleKnownAttack_withEpsID(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
@@ -123,16 +75,22 @@ func TestAccRuleKnownAttack_withEpsID(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRuleKnownAttack_withEpsID(name),
+				Config: testDataSourceRuleKnownAttack_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "policy_id",
-						"huaweicloud_waf_policy.policy_1", "id"),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+						"huaweicloud_waf_policy.test", "id"),
 					resource.TestCheckResourceAttr(rName, "block_type", "long_ip_block"),
 					resource.TestCheckResourceAttr(rName, "block_time", "500"),
 					resource.TestCheckResourceAttr(rName, "description", "test description"),
+				),
+			},
+			{
+				Config: testDataSourceRuleKnownAttack_basic_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "block_time", "600"),
+					resource.TestCheckResourceAttr(rName, "description", ""),
 				),
 			},
 			{
@@ -145,42 +103,29 @@ func TestAccRuleKnownAttack_withEpsID(t *testing.T) {
 	})
 }
 
-func testRuleKnownAttack_basic(name string) string {
+func testDataSourceRuleKnownAttack_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_waf_rule_known_attack_source" "test" {
-  policy_id   = huaweicloud_waf_policy.policy_1.id
-  block_type  = "long_ip_block"
-  block_time  = 500
-  description = "test description"
-}
-`, testAccWafPolicyV1_basic(name))
-}
-
-func testRuleKnownAttack_basic_update(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_known_attack_source" "test" {
-  policy_id   = huaweicloud_waf_policy.policy_1.id
-  block_type  = "long_ip_block"
-  block_time  = 600
-}
-`, testAccWafPolicyV1_basic(name))
-}
-
-func testRuleKnownAttack_withEpsID(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_known_attack_source" "test" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
-  enterprise_project_id = "%s"
+  policy_id             = huaweicloud_waf_policy.test.id
   block_type            = "long_ip_block"
   block_time            = 500
   description           = "test description"
+  enterprise_project_id = "%[2]s"
 }
-`, testAccWafPolicyV1_basic_withEpsID(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-		acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccWafPolicy_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testDataSourceRuleKnownAttack_basic_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_waf_rule_known_attack_source" "test" {
+  policy_id             = huaweicloud_waf_policy.test.id
+  block_type            = "long_ip_block"
+  block_time            = 600
+  enterprise_project_id = "%[2]s"
+}
+`, testAccWafPolicy_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

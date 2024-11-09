@@ -9,6 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
 func TestAccDataSourceRulesBlacklist_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_waf_rules_blacklist.test"
@@ -35,6 +36,7 @@ func TestAccDataSourceRulesBlacklist_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -69,29 +71,18 @@ func TestAccDataSourceRulesBlacklist_basic(t *testing.T) {
 		},
 	})
 }
-func testDataSourceRulesBlacklist_base(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_waf_rule_blacklist" "test" {
-  policy_id   = huaweicloud_waf_policy.policy_1.id
-  ip_address  = "192.160.0.0/24"
-  name        = "%[2]s"
-  description = "test description"
-}
-`, testAccWafPolicyV1_basic(name), name)
-}
 
 func testDataSourceRulesBlacklist_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 data "huaweicloud_waf_rules_blacklist" "test" {
+  policy_id             = huaweicloud_waf_policy.test.id
+  enterprise_project_id = "%[2]s"
+
   depends_on = [
     huaweicloud_waf_rule_blacklist.test
   ]
-
-  policy_id = huaweicloud_waf_policy.policy_1.id
 }
 
 locals {
@@ -99,8 +90,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_blacklist" "filter_by_rule_id" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  rule_id   = local.rule_id
+  policy_id             = huaweicloud_waf_policy.test.id
+  rule_id               = local.rule_id
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -118,8 +110,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_blacklist" "filter_by_name" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  name      = local.name
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = local.name
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -133,8 +126,9 @@ output "name_filter_is_useful" {
 }
 
 data "huaweicloud_waf_rules_blacklist" "not_found" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  name      = "not_found"
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = "not_found"
+  enterprise_project_id = "%[2]s"
 }
   
 output "is_not_found" {
@@ -146,8 +140,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_blacklist" "filter_by_status" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  status    = local.status
+  policy_id             = huaweicloud_waf_policy.test.id
+  status                = local.status
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -165,8 +160,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_blacklist" "filter_by_action" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  action    = local.action
+  policy_id             = huaweicloud_waf_policy.test.id
+  action                = local.action
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -178,5 +174,5 @@ locals {
 output "action_filter_is_useful" {
   value = alltrue(local.action_filter_result) && length(local.action_filter_result) > 0
 }
-`, testDataSourceRulesBlacklist_base(name))
+`, testAccDataSourceWafRuleBlackList_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

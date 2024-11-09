@@ -23,7 +23,7 @@ func getRuleGeolocationResourceFunc(cfg *config.Config, state *terraform.Resourc
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating WAF Client: %s", err)
+		return nil, fmt.Errorf("error creating WAF client: %s", err)
 	}
 
 	getPath := client.Endpoint + httpUrl
@@ -51,61 +51,8 @@ func getRuleGeolocationResourceFunc(cfg *config.Config, state *terraform.Resourc
 	return utils.FlattenResponse(getResp)
 }
 
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
 func TestAccRuleGeolocation_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_waf_rule_geolocation_access_control.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getRuleGeolocationResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testRuleGeolocation_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "policy_id",
-						"huaweicloud_waf_policy.policy_1", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "geolocation", "FJ|JL|LN|GZ"),
-					resource.TestCheckResourceAttr(rName, "action", "1"),
-					resource.TestCheckResourceAttr(rName, "status", "1"),
-					resource.TestCheckResourceAttr(rName, "description", "test description"),
-				),
-			},
-			{
-				Config: testRuleGeolocation_basic_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "geolocation", "FJ|JL|LN|HN"),
-					resource.TestCheckResourceAttr(rName, "action", "0"),
-					resource.TestCheckResourceAttr(rName, "status", "0"),
-					resource.TestCheckResourceAttr(rName, "description", ""),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testWAFRuleImportState(rName),
-			},
-		},
-	})
-}
-
-func TestAccRuleGeolocation_withEpsID(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
@@ -127,18 +74,27 @@ func TestAccRuleGeolocation_withEpsID(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRuleGeolocation_withEpsID(name),
+				Config: testDataSourceRuleGeolocation_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "policy_id",
-						"huaweicloud_waf_policy.policy_1", "id"),
+						"huaweicloud_waf_policy.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(rName, "geolocation", "FJ|JL|LN|GZ"),
 					resource.TestCheckResourceAttr(rName, "action", "1"),
 					resource.TestCheckResourceAttr(rName, "status", "1"),
 					resource.TestCheckResourceAttr(rName, "description", "test description"),
+				),
+			},
+			{
+				Config: testDataSourceRuleGeolocation_basic_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
+					resource.TestCheckResourceAttr(rName, "geolocation", "FJ|JL|LN|HN"),
+					resource.TestCheckResourceAttr(rName, "action", "0"),
+					resource.TestCheckResourceAttr(rName, "status", "0"),
+					resource.TestCheckResourceAttr(rName, "description", ""),
 				),
 			},
 			{
@@ -151,46 +107,32 @@ func TestAccRuleGeolocation_withEpsID(t *testing.T) {
 	})
 }
 
-func testRuleGeolocation_basic(name string) string {
+func testDataSourceRuleGeolocation_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_waf_rule_geolocation_access_control" "test" {
-  policy_id   = huaweicloud_waf_policy.policy_1.id
-  name        = "%s"
-  geolocation = "FJ|JL|LN|GZ"
-  action      = 1
-  description = "test description"
-}
-`, testAccWafPolicyV1_basic(name), name)
-}
-
-func testRuleGeolocation_basic_update(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_geolocation_access_control" "test" {
-  policy_id   = huaweicloud_waf_policy.policy_1.id
-  name        = "%s_update"
-  geolocation = "FJ|JL|LN|HN"
-  action      = 0
-  status      = 0
-}
-`, testAccWafPolicyV1_basic(name), name)
-}
-
-func testRuleGeolocation_withEpsID(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_geolocation_access_control" "test" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
-  name                  = "%s"
-  enterprise_project_id = "%s"
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = "%[2]s"
   geolocation           = "FJ|JL|LN|GZ"
   action                = 1
   description           = "test description"
+  enterprise_project_id = "%[3]s"
 }
-`, testAccWafPolicyV1_basic_withEpsID(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-		name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccWafPolicy_basic(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testDataSourceRuleGeolocation_basic_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_waf_rule_geolocation_access_control" "test" {
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = "%[2]s_update"
+  geolocation           = "FJ|JL|LN|HN"
+  action                = 0
+  status                = 0
+  enterprise_project_id = "%[3]s"
+}
+`, testAccWafPolicy_basic(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
