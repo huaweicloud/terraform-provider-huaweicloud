@@ -16,11 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// DataSourceWafPoliciesV1 the function is used for data source 'huaweicloud_waf_policies'.
 // @API WAF GET /v1/{project_id}/waf/policy
-func DataSourceWafPoliciesV1() *schema.Resource {
+func DataSourceWafPolicies() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceWafPoliciesV1Read,
+		ReadContext: dataSourceWafPoliciesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -179,7 +178,7 @@ func dataSourcePolicyOptionSchema() *schema.Resource {
 	return &sc
 }
 
-func dataSourceWafPoliciesV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceWafPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	wafClient, err := cfg.WafV1Client(region)

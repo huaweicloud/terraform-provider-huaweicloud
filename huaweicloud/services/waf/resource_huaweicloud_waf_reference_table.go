@@ -7,22 +7,19 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-// ResourceWafReferenceTableV1 the resource of managing a reference table within HuaweiCloud.
 // @API WAF DELETE /v1/{project_id}/waf/valuelist/{valuelistid}
 // @API WAF GET /v1/{project_id}/waf/valuelist/{valuelistid}
 // @API WAF PUT /v1/{project_id}/waf/valuelist/{valuelistid}
 // @API WAF POST /v1/{project_id}/waf/valuelist
-func ResourceWafReferenceTableV1() *schema.Resource {
+func ResourceWafReferenceTable() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafReferenceTableCreate,
 		ReadContext:   resourceWafReferenceTableRead,
@@ -47,9 +44,6 @@ func ResourceWafReferenceTableV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"url", "user-agent", "ip", "params", "cookie", "referer", "header",
-				}, false),
 			},
 			"conditions": {
 				Type:     schema.TypeList,
@@ -77,7 +71,6 @@ func ResourceWafReferenceTableV1() *schema.Resource {
 	}
 }
 
-// resourceWafReferenceTableCreate create a record of reference table.
 func resourceWafReferenceTableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
@@ -92,19 +85,16 @@ func resourceWafReferenceTableCreate(ctx context.Context, d *schema.ResourceData
 		Description:         d.Get("description").(string),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
-	logp.Printf("[DEBUG] Create WAF reference table options: %#v", opt)
 
 	r, err := valuelists.Create(client, opt)
 	if err != nil {
 		return diag.Errorf("error creating WAF reference table: %s", err)
 	}
-	logp.Printf("[DEBUG] Waf reference table created: %#v", r)
 	d.SetId(r.Id)
 
 	return resourceWafReferenceTableRead(ctx, d, meta)
 }
 
-// resourceWafReferenceTableRead read a record of reference table by id.
 func resourceWafReferenceTableRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -131,7 +121,6 @@ func resourceWafReferenceTableRead(_ context.Context, d *schema.ResourceData, me
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-// resourceWafReferenceTableUpdate update record of reference table by id.
 func resourceWafReferenceTableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))
@@ -148,7 +137,6 @@ func resourceWafReferenceTableUpdate(ctx context.Context, d *schema.ResourceData
 		Description:         &desc,
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
-	logp.Printf("[DEBUG] Update WAF reference table options: %#v", opt)
 
 	_, err = valuelists.Update(client, d.Id(), opt)
 	if err != nil {
@@ -158,7 +146,6 @@ func resourceWafReferenceTableUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceWafReferenceTableRead(ctx, d, meta)
 }
 
-// resourceWafReferenceTableDelete delete the reference table record by id.
 func resourceWafReferenceTableDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.WafV1Client(cfg.GetRegion(d))

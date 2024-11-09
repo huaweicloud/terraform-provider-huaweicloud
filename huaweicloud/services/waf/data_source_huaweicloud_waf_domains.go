@@ -122,42 +122,39 @@ func wafDomainSchema() *schema.Resource {
 }
 
 func datasourceDomainsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
 	var (
-		getWAFDomainsHttpUrl = "v1/{project_id}/waf/instance"
-		getWAFDomainsProduct = "waf"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/{project_id}/waf/instance"
+		product = "waf"
 	)
-	getWAFDomainsClient, err := cfg.NewServiceClient(getWAFDomainsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	getWAFDomainsPath := getWAFDomainsClient.Endpoint + getWAFDomainsHttpUrl
-	getWAFDomainsPath = strings.ReplaceAll(getWAFDomainsPath, "{project_id}",
-		getWAFDomainsClient.ProjectID)
-	getWAFDomainsPath += buildWAFDomainsQueryParams(d, cfg)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildWAFDomainsQueryParams(d, cfg)
 
-	getWAFDomainsResp, err := pagination.ListAllItems(
-		getWAFDomainsClient,
+	resp, err := pagination.ListAllItems(
+		client,
 		"page",
-		getWAFDomainsPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
 		return diag.Errorf("error retrieving WAF domains, %s", err)
 	}
 
-	listWAFDomainsRespJson, err := json.Marshal(getWAFDomainsResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listWAFDomainsRespBody interface{}
-	err = json.Unmarshal(listWAFDomainsRespJson, &listWAFDomainsRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -170,7 +167,7 @@ func datasourceDomainsRead(_ context.Context, d *schema.ResourceData, meta inter
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("domains", flattenListDomainsBody(listWAFDomainsRespBody)),
+		d.Set("domains", flattenListDomainsBody(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -184,7 +181,7 @@ func flattenListDomainsBody(resp interface{}) []interface{} {
 	curArray := curJson.([]interface{})
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
-		createTime := utils.PathSearch("create_time", v, 0)
+		createTime := utils.PathSearch("create_time", v, float64(0))
 		rst = append(rst, map[string]interface{}{
 			"id":                    utils.PathSearch("id", v, nil),
 			"description":           utils.PathSearch("description", v, nil),
