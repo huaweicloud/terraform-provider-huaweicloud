@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_global_protection_whitelist"
-description: |
+description: |-
   Manages a WAF global protection whitelist rule resource within HuaweiCloud.
 ---
 

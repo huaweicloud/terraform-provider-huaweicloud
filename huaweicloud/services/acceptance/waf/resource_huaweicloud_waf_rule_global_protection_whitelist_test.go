@@ -49,7 +49,7 @@ func getRuleGlobalProtectionWhitelistResourceFunc(cfg *config.Config, state *ter
 	return utils.FlattenResponse(getResp)
 }
 
-// Before running the test case, please ensure that there is at least one WAF instance in the current region.
+// Before running the test case, please ensure that there is at least one WAF dedicated instance in the current region.
 func TestAccRuleGlobalProtectionWhitelist_basic(t *testing.T) {
 	var obj interface{}
 

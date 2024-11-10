@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_address_group"
-description: |
+description: |-
   Manages a WAF address group resource within HuaweiCloud.
 ---
 

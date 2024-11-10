@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_dedicated_domain"
-description: |
+description: |-
   Manages a dedicated mode domain resource within HuaweiCloud.
 ---
 

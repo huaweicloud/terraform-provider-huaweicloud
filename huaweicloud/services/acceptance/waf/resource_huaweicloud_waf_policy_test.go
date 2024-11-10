@@ -22,7 +22,7 @@ func getPolicyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (
 }
 
 // Before running the test case, please ensure that there is at least one WAF instance in the current region.
-func TestAccWafPolicy_basic(t *testing.T) {
+func TestAccPolicy_basic(t *testing.T) {
 	var obj interface{}
 
 	randName := acceptance.RandomAccResourceName()
@@ -210,37 +210,4 @@ resource "huaweicloud_waf_policy" "test" {
   }
 }
 `, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-// This test case has dependencies and will be deleted later.
-func testAccWafPolicyV1_basic(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_policy" "policy_1" {
-  name  = "%s"
-  level = 1
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
-}
-`, testAccWafDedicatedInstanceV1_conf(name), name)
-}
-
-// This test case has dependencies and will be deleted later.
-func testAccWafPolicyV1_basic_withEpsID(name, epsID string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_policy" "policy_1" {
-  name                  = "%s"
-  level                 = 1
-  enterprise_project_id = "%s"
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
-}
-`, testAccWafDedicatedInstance_epsId(name, epsID), name, epsID)
 }

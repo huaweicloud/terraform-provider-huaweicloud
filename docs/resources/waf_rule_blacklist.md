@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_blacklist"
-description: |
+description: |-
   Manages a WAF blacklist and whitelist rule resource within HuaweiCloud.
 ---
 

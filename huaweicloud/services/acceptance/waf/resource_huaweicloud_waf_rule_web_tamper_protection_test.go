@@ -29,7 +29,7 @@ func getRuleWebTamperProtectionResourceFunc(cfg *config.Config, state *terraform
 }
 
 // Before running the test case, please ensure that there is at least one WAF instance in the current region.
-func TestAccWafRuleWebTamperProtection_basic(t *testing.T) {
+func TestAccRuleWebTamperProtection_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()

@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_precise_protection"
-description: |
+description: |-
   Manages a WAF precise protection rule resource within HuaweiCloud.
 ---
 

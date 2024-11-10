@@ -10,7 +10,7 @@ import (
 )
 
 // Before running the test case, please ensure that there is at least one WAF dedicated instance in the current region.
-func TestAccDataSourceWafDedicatedInstances_basic(t *testing.T) {
+func TestAccDataSourceDedicatedInstances_basic(t *testing.T) {
 	var (
 		datasourceName = "data.huaweicloud_waf_dedicated_instances.test"
 		dc             = acceptance.InitDataSourceCheck(datasourceName)

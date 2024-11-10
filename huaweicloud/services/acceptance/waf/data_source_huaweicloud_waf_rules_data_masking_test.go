@@ -93,7 +93,7 @@ locals {
 }
 
 data "huaweicloud_waf_rules_data_masking" "filter_by_status" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
+  policy_id             = huaweicloud_waf_policy.test.id
   status                = local.status
   enterprise_project_id = "%[2]s"
 }

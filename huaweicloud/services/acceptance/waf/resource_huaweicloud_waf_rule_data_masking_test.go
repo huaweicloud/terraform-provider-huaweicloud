@@ -29,11 +29,11 @@ func getRuleDataMaskingResourceFunc(cfg *config.Config, state *terraform.Resourc
 }
 
 // Before running the test case, please ensure that there is at least one WAF instance in the current region.
-func TestAccWafRuleDataMasking_basic(t *testing.T) {
+func TestAccRuleDataMasking_basic(t *testing.T) {
 	var obj interface{}
 
 	policyName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_waf_rule_data_masking.rule_1"
+	resourceName := "huaweicloud_waf_rule_data_masking.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,

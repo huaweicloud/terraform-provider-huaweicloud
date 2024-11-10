@@ -25,6 +25,7 @@ func getCloudInstanceFunc(conf *config.Config, state *terraform.ResourceState) (
 	return instance, err
 }
 
+// Only one WAF cloud mode instance can be created in each region.
 func TestAccCloudInstance_prepaid_basic(t *testing.T) {
 	var instance clouds.Instance
 	rName := "huaweicloud_waf_cloud_instance.test"
@@ -38,7 +39,9 @@ func TestAccCloudInstance_prepaid_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
+			// The conditions for creating a cloud mode WAF are a bit strict, with a separate environment variable
+			// configured to control whether to skip test cases
+			acceptance.TestAccPreCheckWafCloudInstance(t)
 			// Configure two enterprise projects to test enterprise project migration.
 			acceptance.TestAccPreCheckMigrateEpsID(t)
 		},
@@ -126,6 +129,7 @@ resource "huaweicloud_waf_cloud_instance" "test" {
 }
 
 // Currently, this test case only supported on HuaweiCloud International Station.
+// Only one WAF cloud mode instance can be created in each region.
 func TestAccCloudInstance_postpaid_basic(t *testing.T) {
 	var instance clouds.Instance
 	rName := "huaweicloud_waf_cloud_instance.test"
@@ -139,7 +143,11 @@ func TestAccCloudInstance_postpaid_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
+			// The conditions for creating a cloud mode WAF are a bit strict, with a separate environment variable
+			// configured to control whether to skip test cases
+			acceptance.TestAccPreCheckWafCloudInstance(t)
+			// This test case can only be tested at international state, so a separate switch is configured.
+			acceptance.TestAccPreCheckWafInternationalInstance(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

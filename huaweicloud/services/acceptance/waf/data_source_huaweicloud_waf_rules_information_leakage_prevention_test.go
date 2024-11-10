@@ -80,7 +80,7 @@ locals {
 }
 
 data "huaweicloud_waf_rules_information_leakage_prevention" "filter_by_rule_id" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
+  policy_id             = huaweicloud_waf_policy.test.id
   rule_id               = local.rule_id
   enterprise_project_id = "%[2]s"
 }
@@ -100,7 +100,7 @@ locals {
 }
 
 data "huaweicloud_waf_rules_information_leakage_prevention" "filter_by_status" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
+  policy_id             = huaweicloud_waf_policy.test.id
   status                = local.status
   enterprise_project_id = "%[2]s"
 }
@@ -120,7 +120,7 @@ locals {
 }
 
 data "huaweicloud_waf_rules_information_leakage_prevention" "filter_by_type" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
+  policy_id             = huaweicloud_waf_policy.test.id
   type                  = local.type
   enterprise_project_id = "%[2]s"
 }

@@ -10,7 +10,7 @@ import (
 )
 
 // Before running the test case, please ensure that there is at least one WAF instance in the current region.
-func TestAccDataSourceWafRulesGeolocationAccessControl_basic(t *testing.T) {
+func TestAccDataSourceRulesGeolocationAccessControl_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_waf_rules_geolocation_access_control.test"
 		rName          = acceptance.RandomAccResourceName()

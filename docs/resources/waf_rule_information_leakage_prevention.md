@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_information_leakage_prevention"
-description: |
+description: |-
   Manages a WAF rule information leakage prevention resource within HuaweiCloud.
 ---
 

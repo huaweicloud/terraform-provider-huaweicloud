@@ -10,7 +10,7 @@ import (
 )
 
 // Before running the test case, please ensure that there is at least one WAF instance in the current region.
-func TestAccDatasourceWAFAddressGroups_basic(t *testing.T) {
+func TestAccDataSourceAddressGroups_basic(t *testing.T) {
 	var (
 		name  = acceptance.RandomAccResourceName()
 		rName = "data.huaweicloud_waf_address_groups.test"

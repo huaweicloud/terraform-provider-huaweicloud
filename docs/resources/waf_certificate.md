@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_certificate"
-description: |
+description: |-
   Manages a WAF certificate resource within HuaweiCloud.
 ---
 

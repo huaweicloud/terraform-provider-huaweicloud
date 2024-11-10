@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_geolocation_access_control"
-description: |
+description: |-
   Manages a WAF rule geolocation access control resource within HuaweiCloud.
 ---
 

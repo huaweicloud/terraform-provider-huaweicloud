@@ -104,7 +104,7 @@ func TestAccRuleAntiCrawler_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "conditions.0.field", "user-agent"),
 					resource.TestCheckResourceAttr(rName, "conditions.0.logic", "suffix_any"),
 					resource.TestCheckResourceAttrPair(rName, "conditions.0.reference_table_id",
-						"huaweicloud_waf_reference_table.ref_table", "id"),
+						"huaweicloud_waf_reference_table.test", "id"),
 					resource.TestCheckResourceAttr(rName, "conditions.1.field", "user-agent"),
 					resource.TestCheckResourceAttr(rName, "conditions.1.logic", "prefix"),
 					resource.TestCheckResourceAttr(rName, "conditions.1.content", "RF"),

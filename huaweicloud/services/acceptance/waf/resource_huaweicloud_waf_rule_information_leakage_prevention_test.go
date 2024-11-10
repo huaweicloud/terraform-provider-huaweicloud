@@ -78,7 +78,7 @@ func TestAccRuleLeakagePrevention_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "policy_id",
-						"huaweicloud_waf_policy.policy_1", "id"),
+						"huaweicloud_waf_policy.test", "id"),
 					resource.TestCheckResourceAttr(rName, "path", "/test/path"),
 					resource.TestCheckResourceAttr(rName, "type", "sensitive"),
 					resource.TestCheckResourceAttr(rName, "protective_action", "block"),
@@ -137,7 +137,7 @@ func testDataSourceRuleLeakagePrevention_basic_update1(name string) string {
 %[1]s
 
 resource "huaweicloud_waf_rule_information_leakage_prevention" "test" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
+  policy_id             = huaweicloud_waf_policy.test.id
   path                  = "/test/val*"
   type                  = "sensitive"
   contents              = ["phone"]

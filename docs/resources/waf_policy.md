@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_policy"
-description: |
+description: |-
   Manages a WAF policy resource within HuaweiCloud.
 ---
 

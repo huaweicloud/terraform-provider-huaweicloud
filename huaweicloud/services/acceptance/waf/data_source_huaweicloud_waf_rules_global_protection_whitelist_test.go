@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-// Before running the test case, please ensure that there is at least one WAF instance in the current region.
+// Before running the test case, please ensure that there is at least one WAF dedicated instance in the current region.
 func TestAccDataSourceRulesGlobalProtectionWhitelist_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_waf_rules_global_protection_whitelist.test"

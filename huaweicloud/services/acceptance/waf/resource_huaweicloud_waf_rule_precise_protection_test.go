@@ -197,12 +197,13 @@ resource "huaweicloud_waf_rule_precise_protection" "test" {
 `, testAccWafPolicy_basic(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-// Before running the test case, please ensure that there is at least one WAF instance in the current region.
+// Before running the test case, please ensure that there is at least one WAF dedicated instance in the current region.
 func TestAccRulePreciseProtection_knownAttackSourceId(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_waf_rule_precise_protection.test"
+	certificateBody := generateCertificateBody()
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -220,7 +221,7 @@ func TestAccRulePreciseProtection_knownAttackSourceId(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceRulePreciseProtection_knownAttackSourceId(name),
+				Config: testDataSourceRulePreciseProtection_knownAttackSourceId(name, certificateBody),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "policy_id",
@@ -234,7 +235,7 @@ func TestAccRulePreciseProtection_knownAttackSourceId(t *testing.T) {
 				),
 			},
 			{
-				Config: testDataSourceRulePreciseProtection_updateKnownAttackSourceId(name),
+				Config: testDataSourceRulePreciseProtection_updateKnownAttackSourceId(name, certificateBody),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "policy_id",
@@ -256,7 +257,7 @@ func TestAccRulePreciseProtection_knownAttackSourceId(t *testing.T) {
 	})
 }
 
-func testDataSourceRulePreciseProtection_knownAttackSourceId(name string) string {
+func testDataSourceRulePreciseProtection_knownAttackSourceId(name, certificateBody string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -269,6 +270,11 @@ resource "huaweicloud_waf_rule_known_attack_source" "test" {
 }
 
 resource "huaweicloud_waf_rule_precise_protection" "test" {
+  # Waiting for the policy is bound a domain.
+  depends_on = [
+    huaweicloud_waf_dedicated_domain.test
+  ]
+
   policy_id              = huaweicloud_waf_policy.test.id
   name                   = "%[2]s"
   priority               = 20
@@ -283,10 +289,10 @@ resource "huaweicloud_waf_rule_precise_protection" "test" {
     content = "GET"
   }
 }
-`, testAccWafPolicy_basic(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccWafDedicatedDomain_policy(name, certificateBody), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testDataSourceRulePreciseProtection_updateKnownAttackSourceId(name string) string {
+func testDataSourceRulePreciseProtection_updateKnownAttackSourceId(name, certificateBody string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -312,7 +318,7 @@ resource "huaweicloud_waf_rule_precise_protection" "test" {
     content = "GET"
   }
 }
-`, testAccWafPolicy_basic(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccWafDedicatedDomain_policy(name, certificateBody), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 // testWAFRuleImportState use to return an id with format <policy_id>/<id> or <policy_id>/<id>/<enterprise_project_id>

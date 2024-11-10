@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_cloud_instance"
-description: |
+description: |-
   Using this resource to manage a cloud WAF in HuaweiCloud.
 ---
 

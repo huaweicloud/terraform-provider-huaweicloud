@@ -10,7 +10,7 @@ import (
 )
 
 // Before running the test case, please ensure that there is at least one WAF cloud instance in the current region.
-func TestAccDatasourceWAFDomains_basic(t *testing.T) {
+func TestAccDataSourceDomains_basic(t *testing.T) {
 	var (
 		name            = acceptance.RandomAccResourceName()
 		domainName      = fmt.Sprintf("%s.huawei.com", name)
@@ -30,6 +30,7 @@ func TestAccDatasourceWAFDomains_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -95,6 +96,10 @@ func testAccDatasourceDomains_basic(certificateBody, name, domainName string) st
 
 data "huaweicloud_waf_domains" "test" {
   enterprise_project_id = "%[2]s"
+
+  depends_on = [
+    huaweicloud_waf_domain.test
+  ]
 }
 
 # Filter by domain
@@ -125,6 +130,10 @@ locals {
 data "huaweicloud_waf_domains" "policy_name_filter" {
   policy_name           = local.policy_name
   enterprise_project_id = "%[2]s"
+
+  depends_on = [
+    huaweicloud_waf_domain.test
+  ]
 }
 
 output "policy_name_filter_is_useful" {

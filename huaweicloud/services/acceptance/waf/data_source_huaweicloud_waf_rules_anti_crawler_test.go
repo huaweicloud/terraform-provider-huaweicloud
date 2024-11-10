@@ -24,9 +24,6 @@ func TestAccDataSourceRulesAntiCrawler_basic(t *testing.T) {
 		byNameNotFound   = "data.huaweicloud_waf_rules_anti_crawler.not_found"
 		dcByNameNotFound = acceptance.InitDataSourceCheck(byNameNotFound)
 
-		byProtectionMode   = "data.huaweicloud_waf_rules_anti_crawler.filter_by_protection_mode"
-		dcByProtectionMode = acceptance.InitDataSourceCheck(byProtectionMode)
-
 		byStatus   = "data.huaweicloud_waf_rules_anti_crawler.filter_by_status"
 		dcByStatus = acceptance.InitDataSourceCheck(byStatus)
 	)
@@ -63,9 +60,6 @@ func TestAccDataSourceRulesAntiCrawler_basic(t *testing.T) {
 					dcByNameNotFound.CheckResourceExists(),
 					resource.TestCheckOutput("is_not_found", "true"),
 
-					dcByProtectionMode.CheckResourceExists(),
-					resource.TestCheckOutput("protection_mode_filter_is_useful", "true"),
-
 					dcByStatus.CheckResourceExists(),
 					resource.TestCheckOutput("status_filter_is_useful", "true"),
 				),
@@ -81,6 +75,7 @@ func testDataSourceRulesAntiCrawler_basic(name string) string {
 data "huaweicloud_waf_rules_anti_crawler" "test" {
   policy_id             = huaweicloud_waf_policy.test.id
   enterprise_project_id = "%[2]s"
+  protection_mode       = "anticrawler_specific_url"
 
   depends_on = [
     huaweicloud_waf_rule_anti_crawler.test
@@ -95,6 +90,7 @@ data "huaweicloud_waf_rules_anti_crawler" "filter_by_rule_id" {
   policy_id             = huaweicloud_waf_policy.test.id
   rule_id               = local.rule_id
   enterprise_project_id = "%[2]s"
+  protection_mode       = "anticrawler_specific_url"
 }
 
 locals {
@@ -115,6 +111,7 @@ data "huaweicloud_waf_rules_anti_crawler" "filter_by_name" {
   policy_id             = huaweicloud_waf_policy.test.id
   name                  = local.name
   enterprise_project_id = "%[2]s"
+  protection_mode       = "anticrawler_specific_url"
 }
 
 locals {
@@ -131,31 +128,11 @@ data "huaweicloud_waf_rules_anti_crawler" "not_found" {
   policy_id             = huaweicloud_waf_policy.test.id
   name                  = "not_found"
   enterprise_project_id = "%[2]s"
+  protection_mode       = "anticrawler_specific_url"
 }
 
 output "is_not_found" {
   value = length(data.huaweicloud_waf_rules_anti_crawler.not_found.rules) == 0
-}
-
-locals {
-  protection_mode = data.huaweicloud_waf_rules_anti_crawler.test.rules[0].protection_mode
-}
-
-data "huaweicloud_waf_rules_anti_crawler" "filter_by_protection_mode" {
-  policy_id             = huaweicloud_waf_policy.test.id
-  protection_mode       = local.protection_mode
-  enterprise_project_id = "%[2]s"
-}
-
-locals {
-  protection_mode_filter_result = [
-    for v in data.huaweicloud_waf_rules_anti_crawler.filter_by_protection_mode.rules[*].protection_mode : 
-    v == local.protection_mode
-  ]
-}
-
-output "protection_mode_filter_is_useful" {
-  value = alltrue(local.protection_mode_filter_result) && length(local.protection_mode_filter_result) > 0
 }
 
 locals {
@@ -166,6 +143,7 @@ data "huaweicloud_waf_rules_anti_crawler" "filter_by_status" {
   policy_id             = huaweicloud_waf_policy.test.id
   status                = local.status
   enterprise_project_id = "%[2]s"
+  protection_mode       = "anticrawler_specific_url"
 }
 
 locals {

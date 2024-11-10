@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_reference_tables"
-description: |
+description: |-
   Use this data source to get a list of WAF reference tables.
 ---
 

@@ -9,7 +9,7 @@ import (
 )
 
 // Before running the test case, please ensure that there is at least one WAF instance in the current region.
-func TestAccDataSourceWafPolicies_basic(t *testing.T) {
+func TestAccDataSourcePolicies_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceName()
 
@@ -114,7 +114,7 @@ locals {
 }
 
 output "non_exist_filter_is_useful" {
-  value = length(local.non_exist_filter_result) > 0 && alltrue(local.non_exist_filter_result)  
+  value = length(local.non_exist_filter_result) == 0
 }
 `, testAccWafPolicy_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

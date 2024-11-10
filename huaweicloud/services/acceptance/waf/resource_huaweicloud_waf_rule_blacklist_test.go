@@ -25,11 +25,11 @@ func getRuleBlackListResourceFunc(cfg *config.Config, state *terraform.ResourceS
 }
 
 // Before running the test case, please ensure that there is at least one WAF instance in the current region.
-func TestAccWafRuleBlackList_basic(t *testing.T) {
+func TestAccRuleBlackList_basic(t *testing.T) {
 	var obj interface{}
 
 	randName := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_waf_rule_blacklist.rule_1"
+	rName := "huaweicloud_waf_rule_blacklist.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,

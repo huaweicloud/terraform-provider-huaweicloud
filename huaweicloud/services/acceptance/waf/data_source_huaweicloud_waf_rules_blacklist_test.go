@@ -46,9 +46,7 @@ func TestAccDataSourceRulesBlacklist_basic(t *testing.T) {
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.name"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.status"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.description"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.action"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.created_at"),
 

@@ -23,7 +23,7 @@ func getWafDedicatedInstanceFunc(c *config.Config, state *terraform.ResourceStat
 	return instances.GetWithEpsId(client, state.Primary.ID, state.Primary.Attributes["enterprise_project_id"])
 }
 
-func TestAccWafDedicatedInstance_basic(t *testing.T) {
+func TestAccDedicatedInstance_basic(t *testing.T) {
 	var (
 		instance     instances.DedicatedInstance
 		resourceName = "huaweicloud_waf_dedicated_instance.test"
@@ -143,45 +143,4 @@ resource "huaweicloud_waf_dedicated_instance" "test" {
   ]
 }
 `, common.TestBaseComputeResources(name), name, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
-}
-
-// This use case has dependencies and will be deleted later.
-func testAccWafDedicatedInstanceV1_conf(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_dedicated_instance" "instance_1" {
-  name               = "%s"
-  available_zone     = data.huaweicloud_availability_zones.test.names[1]
-  specification_code = "waf.instance.professional"
-  ecs_flavor         = data.huaweicloud_compute_flavors.test.ids[0]
-  vpc_id             = huaweicloud_vpc.test.id
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  
-  security_group = [
-    huaweicloud_networking_secgroup.test.id
-  ]
-}
-`, common.TestBaseComputeResources(name), name)
-}
-
-// This use case has dependencies and will be deleted later.
-func testAccWafDedicatedInstance_epsId(name, epsId string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_dedicated_instance" "instance_1" {
-  name                  = "%s"
-  available_zone        = data.huaweicloud_availability_zones.test.names[1]
-  specification_code    = "waf.instance.professional"
-  ecs_flavor            = data.huaweicloud_compute_flavors.test.ids[0]
-  enterprise_project_id = "%s"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  
-  security_group = [
-    huaweicloud_networking_secgroup.test.id
-  ]
-}
-`, common.TestBaseComputeResources(name), name, epsId)
 }

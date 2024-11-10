@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_known_attack_source"
-description: |
+description: |-
   Manages a WAF rule known attack source resource within HuaweiCloud.
 ---
 

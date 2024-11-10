@@ -23,7 +23,7 @@ func getResourceObj(conf *config.Config, state *terraform.ResourceState) (interf
 }
 
 // Before running the test case, please ensure that there is at least one WAF cloud instance in the current region.
-func TestAccWafDomain_basic(t *testing.T) {
+func TestAccDomain_basic(t *testing.T) {
 	var (
 		domain domains.Domain
 
@@ -72,7 +72,7 @@ func TestAccWafDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key1", "$time_local"),
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$tenant_id"),
 					resource.TestCheckResourceAttr(resourceName, "website_name", "websiteName"),
-					resource.TestCheckResourceAttr(resourceName, "protect_status", "-1"),
+					resource.TestCheckResourceAttr(resourceName, "protect_status", "0"),
 					resource.TestCheckResourceAttrSet(resourceName, "access_status"),
 					resource.TestCheckResourceAttrSet(resourceName, "access_code"),
 				),
@@ -158,7 +158,7 @@ resource "huaweicloud_waf_domain" "test" {
   description           = "web_description_1"
   website_name          = "websiteName"
   lb_algorithm          = "ip_hash"
-  protect_status        = -1
+  protect_status        = 0
   enterprise_project_id = "%[3]s"
 
   custom_page {
@@ -339,7 +339,7 @@ resource "huaweicloud_waf_domain" "test" {
 
 // This test case can only be run on the international site. China site does not support postPaid.
 // Before running the test case, please ensure that there is at least one WAF cloud instance in the current region.
-func TestAccWafDomain_postPaid(t *testing.T) {
+func TestAccDomain_postPaid(t *testing.T) {
 	var (
 		domain domains.Domain
 
@@ -358,7 +358,8 @@ func TestAccWafDomain_postPaid(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
+			// This test case can only be tested at international state, so a separate switch is configured.
+			acceptance.TestAccPreCheckWafInternationalInstance(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

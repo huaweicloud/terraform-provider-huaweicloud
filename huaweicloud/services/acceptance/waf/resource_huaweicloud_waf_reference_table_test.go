@@ -22,7 +22,7 @@ func getReferenceTableResourceFunc(cfg *config.Config, state *terraform.Resource
 }
 
 // Before running the test case, please ensure that there is at least one WAF instance in the current region.
-func TestAccWafReferenceTable_basic(t *testing.T) {
+func TestAccReferenceTable_basic(t *testing.T) {
 	var (
 		obj          interface{}
 		resourceName = "huaweicloud_waf_reference_table.test"

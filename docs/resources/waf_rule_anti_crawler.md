@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_anti_crawler"
-description: |
+description: |-
   Manages a WAF rule anti crawler resource within HuaweiCloud.
 ---
 
