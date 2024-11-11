@@ -1,27 +1,25 @@
 ---
 subcategory: "Distributed Database Middleware (DDM)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_ddm_instance_upgrade"
+page_title: "HuaweiCloud: huaweicloud_ddm_instance_rollback"
 description: |-
-  Manages a DDM instance upgrade resource within HuaweiCloud.
+  Manages a DDM instance rollback resource within HuaweiCloud.
 ---
 
-# huaweicloud_ddm_instance_upgrade
+# huaweicloud_ddm_instance_rollback
 
-Manages a DDM instance upgrade resource within HuaweiCloud.
+Manages a DDM instance rollback resource within HuaweiCloud.
 
--> **NOTE:** Deleting instance upgrade is not supported. If you destroy a resource of instance upgrade, the resource is
-only removed from the state, but it remains in the cloud. And the instance doesn't return to the state before upgrade.
+-> **NOTE:** Deleting instance rollback is not supported. If you destroy a resource of instance rollback, the resource is
+only removed from the state, but it remains in the cloud. And the instance doesn't return to the state before rollback.
 
 ## Example Usage
 
 ```hcl
 variable instance_id {}
-variable target_version {}
 
-resource "huaweicloud_ddm_instance_upgrade" "test" {
-  instance_id    = var.instance_id
-  target_version = var.target_version
+resource "huaweicloud_ddm_instance_rollback" "test" {
+  instance_id = var.instance_id
 }
 ```
 
@@ -34,8 +32,6 @@ The following arguments are supported:
 
 * `instance_id` - (Required, String, ForceNew) Specifies the ID of a DDM instance.
   Changing this creates a new resource.
-
-* `target_version` - (Required, String, ForceNew) Specifies the target version.
 
 ## Attribute Reference
 
