@@ -30,6 +30,7 @@ const (
 // @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/action
 // @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/freeze
 // @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/reset-fingerprint
+// @API IoTDA PUT /v5/iot/{project_id}/devices/{device_id}/shadow
 func ResourceDevice() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceDeviceCreate,
@@ -48,37 +49,31 @@ func ResourceDevice() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"node_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"space_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"product_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"device_id": { // keep same with console
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"secret": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -114,36 +109,51 @@ func ResourceDevice() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-
 			"gateway_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
+			"extension_info": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"shadow": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"service_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"desired": {
+							Type:     schema.TypeMap,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 			"tags": common.TagsSchema(),
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"frozen": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"auth_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"node_type": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -202,6 +212,16 @@ func ResourceDeviceCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
+	// Set device shadow data
+	shadowInfo := d.Get("shadow").([]interface{})
+	if len(shadowInfo) > 0 {
+		createShadowOpts := buildDeviceShadowParams(d, shadowInfo)
+		_, err = client.UpdateDeviceShadowDesiredData(createShadowOpts)
+		if err != nil {
+			return diag.Errorf("error setting device shadow data for the device: %s", err)
+		}
+	}
+
 	return ResourceDeviceRead(ctx, d, meta)
 }
 
@@ -258,7 +278,7 @@ func ResourceDeviceUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	// Update name,desc,secure_access
-	if d.HasChanges("name", "description", "secure_access") {
+	if d.HasChanges("name", "description", "secure_access", "extension_info") {
 		updateOpts := buildDeviceUpdateParams(d)
 		_, err = client.UpdateDevice(updateOpts)
 		if err != nil {
@@ -329,6 +349,15 @@ func ResourceDeviceUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		err = bindDeviceTags(client, d.Id(), o.(map[string]interface{}), n.(map[string]interface{}))
 		if err != nil {
 			return diag.Errorf("error updating the tags of IoTDA device: %s", err)
+		}
+	}
+
+	// Update device shadow data
+	if d.HasChange("shadow") {
+		updateShadowOpts := buildDeviceShadowParams(d, d.Get("shadow").([]interface{}))
+		_, err = client.UpdateDeviceShadowDesiredData(updateShadowOpts)
+		if err != nil {
+			return diag.Errorf("error updating device shadow data for the device: %s", err)
 		}
 	}
 
@@ -442,6 +471,7 @@ func ExpandKeyOfTags(tagmap map[string]interface{}) []string {
 }
 
 func buildDeviceCreateParams(d *schema.ResourceData) *model.AddDeviceRequest {
+	extensionInfo := utils.ValueIgnoreEmpty(d.Get("extension_info"))
 	req := model.AddDeviceRequest{
 		Body: &model.AddDevice{
 			DeviceId:    utils.StringIgnoreEmpty(d.Get("device_id").(string)),
@@ -454,10 +484,37 @@ func buildDeviceCreateParams(d *schema.ResourceData) *model.AddDeviceRequest {
 			AuthInfo:    buildAuthInfo(d.Get("secret").(string), d.Get("fingerprint").(string), d.Get("secure_access").(bool)),
 		},
 	}
+	if extensionInfo != nil {
+		req.Body.ExtensionInfo = &extensionInfo
+	}
+	return &req
+}
+
+func buildDeviceShadowParams(d *schema.ResourceData, desiredRaw []interface{}) *model.UpdateDeviceShadowDesiredDataRequest {
+	rst := make([]model.UpdateDesired, len(desiredRaw))
+	for i, v := range desiredRaw {
+		desireds := v.(map[string]interface{})
+		desiredInfo := desireds["desired"]
+		rst[i] = model.UpdateDesired{
+			ServiceId: desireds["service_id"].(string),
+		}
+		if desiredInfo != nil {
+			rst[i].Desired = &desiredInfo
+		}
+	}
+
+	req := model.UpdateDeviceShadowDesiredDataRequest{
+		DeviceId: d.Id(),
+		Body: &model.UpdateDesireds{
+			Shadow: &rst,
+		},
+	}
+
 	return &req
 }
 
 func buildDeviceUpdateParams(d *schema.ResourceData) *model.UpdateDeviceRequest {
+	extensionInfo := utils.ValueIgnoreEmpty(d.Get("extension_info"))
 	req := model.UpdateDeviceRequest{
 		DeviceId: d.Id(),
 		Body: &model.UpdateDevice{
@@ -468,6 +525,10 @@ func buildDeviceUpdateParams(d *schema.ResourceData) *model.UpdateDeviceRequest 
 			},
 		},
 	}
+	if extensionInfo != nil {
+		req.Body.ExtensionInfo = &extensionInfo
+	}
+
 	return &req
 }
 

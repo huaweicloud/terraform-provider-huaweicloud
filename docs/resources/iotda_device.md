@@ -120,6 +120,30 @@ are allowed: `?'#().,&%@!`.
 
 * `frozen` - (Optional, Bool) Specifies whether to freeze the device. Defaults to **false**.
 
+* `extension_info` - (Optional, Map) Specifies the extended information of the device.
+  The users can be customized the content. The maximum size of the value is `1` KB.
+
+* `shadow` - (Optional, List) Specifies the initial configuration of the device.
+  The [shadow](#device_shadow) structure is documented below.
+
+  -> 1.You can use this parameter to specify the initial configuration for the device. The system compares the property
+  values specified by `service_id` and the `desired` section with the default values of the corresponding properties
+  in the product. If they are different, the property values specified by the `shadow` parameter are written to the
+  device shadow.
+  <br>2.The value of `service_id` and the properties in the `desired` section must be defined in the product model.
+  <br>3.If you want to config `shadow` data, the `method` value of the properties in the product model must
+  contain **W**.
+
+<a name="device_shadow"></a>
+The `shadow` block supports:
+
+* `service_id` - (Required, String) Specifies the service ID of the device.
+  Which is defined in the product model associated with the device.
+
+* `desired` - (Required, Map) Specifies the initial properties data of the device.
+  The each key is a parameter name of a property in the product model.
+  If you want to delete the entire `desired`, please enter an empty Map. e.g. **desired = {}**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -146,7 +170,8 @@ $ terraform import huaweicloud_iotda_device.test 10022532f4f94f26b01daa1e424853e
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `force_disconnect`.
+API response, security or some other reason.
+The missing attributes include: `force_disconnect`, `extension_info`, `shadow`.
 It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition
 should be updated to align with the resource. Also you can ignore changes as below.
@@ -157,7 +182,7 @@ resource "huaweicloud_iotda_device" "test" {
   
   lifecycle {
     ignore_changes = [
-      force_disconnect,
+      force_disconnect, extension_info, shadow,
     ]
   }
 }

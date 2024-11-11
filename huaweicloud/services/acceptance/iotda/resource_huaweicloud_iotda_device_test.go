@@ -26,7 +26,7 @@ func TestAccDevice_basic(t *testing.T) {
 	var obj model.ShowDeviceResponse
 
 	nodeId := acceptance.RandomAccResourceName()
-	updateName := acceptance.RandomAccResourceName()
+	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_iotda_device.test"
 	childDeviceName := "huaweicloud_iotda_device.test2"
 
@@ -42,10 +42,10 @@ func TestAccDevice_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDevice_basic(nodeId, nodeId),
+				Config: testDevice_basic(name, nodeId),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", nodeId),
+					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "node_id", nodeId),
 					resource.TestCheckResourceAttr(rName, "secret", "1234567890"),
 					resource.TestCheckResourceAttr(rName, "secondary_secret", "test123456"),
@@ -56,7 +56,9 @@ func TestAccDevice_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "auth_type", "SECRET"),
 					resource.TestCheckResourceAttr(rName, "node_type", "GATEWAY"),
 					resource.TestCheckResourceAttr(rName, "frozen", "false"),
-					resource.TestCheckResourceAttr(childDeviceName, "name", nodeId+"_2"),
+					resource.TestCheckResourceAttr(rName, "extension_info.tf", "terraform"),
+					resource.TestCheckResourceAttr(rName, "shadow.#", "2"),
+					resource.TestCheckResourceAttr(childDeviceName, "name", name+"_2"),
 					resource.TestCheckResourceAttr(childDeviceName, "node_id", nodeId+"_2"),
 					resource.TestCheckResourceAttr(childDeviceName, "status", "INACTIVE"),
 					resource.TestCheckResourceAttr(childDeviceName, "node_type", "ENDPOINT"),
@@ -64,9 +66,9 @@ func TestAccDevice_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testDevice_basic_update(updateName, nodeId),
+				Config: testDevice_basic_update(name, nodeId),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "name", name+"_update"),
 					resource.TestCheckResourceAttr(rName, "node_id", nodeId),
 					resource.TestCheckResourceAttr(rName, "fingerprint", "1234567890123456789012345678901234567890"),
 					resource.TestCheckResourceAttr(rName, "secondary_fingerprint", "dc0f1016f495157344ac5f1296335cff725ef22f"),
@@ -77,7 +79,9 @@ func TestAccDevice_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "frozen", "true"),
 					resource.TestCheckResourceAttr(rName, "auth_type", "CERTIFICATES"),
 					resource.TestCheckResourceAttr(rName, "node_type", "GATEWAY"),
-					resource.TestCheckResourceAttr(childDeviceName, "name", updateName+"_2"),
+					resource.TestCheckResourceAttr(rName, "extension_info.tf", "update"),
+					resource.TestCheckResourceAttr(rName, "extension_info.test", "acc"),
+					resource.TestCheckResourceAttr(childDeviceName, "name", name+"_2_update"),
 					resource.TestCheckResourceAttr(childDeviceName, "node_id", nodeId+"_2"),
 					resource.TestCheckResourceAttr(childDeviceName, "status", "INACTIVE"),
 					resource.TestCheckResourceAttr(childDeviceName, "node_type", "ENDPOINT"),
@@ -89,7 +93,7 @@ func TestAccDevice_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"force_disconnect",
+					"force_disconnect", "extension_info", "shadow",
 				},
 			},
 		},
@@ -100,7 +104,7 @@ func TestAccDevice_derived(t *testing.T) {
 	var obj model.ShowDeviceResponse
 
 	nodeId := acceptance.RandomAccResourceName()
-	updateName := acceptance.RandomAccResourceName()
+	name := acceptance.RandomAccResourceName()
 	rName := "huaweicloud_iotda_device.test"
 	childDeviceName := "huaweicloud_iotda_device.test2"
 
@@ -119,10 +123,10 @@ func TestAccDevice_derived(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDevice_basic(nodeId, nodeId),
+				Config: testDevice_basic(name, nodeId),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", nodeId),
+					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "node_id", nodeId),
 					resource.TestCheckResourceAttr(rName, "secret", "1234567890"),
 					resource.TestCheckResourceAttr(rName, "secondary_secret", "test123456"),
@@ -133,7 +137,9 @@ func TestAccDevice_derived(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "auth_type", "SECRET"),
 					resource.TestCheckResourceAttr(rName, "node_type", "GATEWAY"),
 					resource.TestCheckResourceAttr(rName, "frozen", "false"),
-					resource.TestCheckResourceAttr(childDeviceName, "name", nodeId+"_2"),
+					resource.TestCheckResourceAttr(rName, "extension_info.tf", "terraform"),
+					resource.TestCheckResourceAttr(rName, "shadow.#", "2"),
+					resource.TestCheckResourceAttr(childDeviceName, "name", name+"_2"),
 					resource.TestCheckResourceAttr(childDeviceName, "node_id", nodeId+"_2"),
 					resource.TestCheckResourceAttr(childDeviceName, "status", "INACTIVE"),
 					resource.TestCheckResourceAttr(childDeviceName, "node_type", "ENDPOINT"),
@@ -141,9 +147,9 @@ func TestAccDevice_derived(t *testing.T) {
 				),
 			},
 			{
-				Config: testDevice_basic_update(updateName, nodeId),
+				Config: testDevice_basic_update(name, nodeId),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "name", name+"_update"),
 					resource.TestCheckResourceAttr(rName, "node_id", nodeId),
 					resource.TestCheckResourceAttr(rName, "fingerprint", "1234567890123456789012345678901234567890"),
 					resource.TestCheckResourceAttr(rName, "secondary_fingerprint", "dc0f1016f495157344ac5f1296335cff725ef22f"),
@@ -154,7 +160,9 @@ func TestAccDevice_derived(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "frozen", "true"),
 					resource.TestCheckResourceAttr(rName, "auth_type", "CERTIFICATES"),
 					resource.TestCheckResourceAttr(rName, "node_type", "GATEWAY"),
-					resource.TestCheckResourceAttr(childDeviceName, "name", updateName+"_2"),
+					resource.TestCheckResourceAttr(rName, "extension_info.tf", "update"),
+					resource.TestCheckResourceAttr(rName, "extension_info.test", "acc"),
+					resource.TestCheckResourceAttr(childDeviceName, "name", name+"_2_update"),
 					resource.TestCheckResourceAttr(childDeviceName, "node_id", nodeId+"_2"),
 					resource.TestCheckResourceAttr(childDeviceName, "status", "INACTIVE"),
 					resource.TestCheckResourceAttr(childDeviceName, "node_type", "ENDPOINT"),
@@ -166,17 +174,62 @@ func TestAccDevice_derived(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"force_disconnect",
+					"force_disconnect", "extension_info", "shadow",
 				},
 			},
 		},
 	})
 }
 
-func testDevice_basic(name, nodeId string) string {
-	productbasic := testProduct_basic(name)
+func testAccDevice_base(name string) string {
 	return fmt.Sprintf(`
-%s
+resource "huaweicloud_iotda_space" "test" {
+  name = "%[1]s"
+}
+
+resource "huaweicloud_iotda_product" "test" {
+  name        = "%[1]s-pro"
+  device_type = "Thermometer"
+  protocol    = "MQTT"
+  space_id    = huaweicloud_iotda_space.test.id
+  data_type   = "json"
+
+  services {
+    id   = "temp_1"
+    type = "temperature_a"
+
+    properties {
+      name       = "demo_1"
+      type       = "string"
+      max_length = 256
+      method     = "RW"
+    }
+  }
+
+  services {
+    id   = "temp_2"
+    type = "temperature_b"
+
+    properties {
+      name        = "demo_2"
+      type        = "int"
+      method      = "RW"
+    }
+
+    properties {
+      name        = "demo_3"
+      type        = "string"
+      max_length  = 256
+      method      = "RW"
+    }
+  }
+}
+`, name)
+}
+
+func testDevice_basic(name, nodeId string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_iotda_device" "test" {
   node_id          = "%[3]s"
@@ -188,6 +241,26 @@ resource "huaweicloud_iotda_device" "test" {
   secure_access    = true
   force_disconnect = true
   description      = "demo"
+
+  extension_info = {
+    tf = "terraform"
+  }
+
+  shadow {
+    service_id = huaweicloud_iotda_product.test.services[0].id
+
+    desired = {
+      (huaweicloud_iotda_product.test.services[0].properties[0].name) = "test"
+    }
+  }
+
+  shadow {
+    service_id = huaweicloud_iotda_product.test.services[1].id
+
+    desired = {
+      (huaweicloud_iotda_product.test.services[1].properties[0].name) = "acc"
+    }
+  }
 
   tags = {
     foo = "bar"
@@ -202,17 +275,16 @@ resource "huaweicloud_iotda_device" "test2" {
   product_id = huaweicloud_iotda_product.test.id
   gateway_id = huaweicloud_iotda_device.test.id
 }
-`, productbasic, name, nodeId)
+`, testAccDevice_base(name), name, nodeId)
 }
 
 func testDevice_basic_update(name, nodeId string) string {
-	productbasic := testProduct_basic(name)
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_iotda_device" "test" {
   node_id               = "%[3]s"
-  name                  = "%[2]s"
+  name                  = "%[2]s_update"
   space_id              = huaweicloud_iotda_space.test.id
   product_id            = huaweicloud_iotda_product.test.id
   fingerprint           = "1234567890123456789012345678901234567890"
@@ -220,6 +292,26 @@ resource "huaweicloud_iotda_device" "test" {
   secure_access         = false
   description           = "demo_update"
   frozen                = true
+
+  extension_info = {
+    tf   = "update"
+    test = "acc"
+  }
+
+  shadow {
+    service_id = huaweicloud_iotda_product.test.services[0].id
+
+    desired = {}
+  }
+
+  shadow {
+    service_id = huaweicloud_iotda_product.test.services[1].id
+
+    desired = {
+      (huaweicloud_iotda_product.test.services[1].properties[0].name) = "update"
+      (huaweicloud_iotda_product.test.services[1].properties[1].name) = "retest"
+    }
+  }
 
   tags = {
     foo = "bar_update"
@@ -229,10 +321,10 @@ resource "huaweicloud_iotda_device" "test" {
 
 resource "huaweicloud_iotda_device" "test2" {
   node_id    = "%[3]s_2"
-  name       = "%[2]s_2"
+  name       = "%[2]s_2_update"
   space_id   = huaweicloud_iotda_space.test.id
   product_id = huaweicloud_iotda_product.test.id
   gateway_id = huaweicloud_iotda_device.test.id
 }
-`, productbasic, name, nodeId)
+`, testAccDevice_base(name), name, nodeId)
 }
