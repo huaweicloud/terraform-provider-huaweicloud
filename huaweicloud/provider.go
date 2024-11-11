@@ -1475,6 +1475,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_instance_parameters_modify":  dds.ResourceDDSInstanceParametersModify(),
 			"huaweicloud_dds_primary_standby_switch":      dds.ResourceDDSPrimaryStandbySwitch(),
 			"huaweicloud_dds_recycle_policy":              dds.ResourceDDSRecyclePolicy(),
+			"huaweicloud_dds_parameter_template_reset":    dds.ResourceDDSParameterTemplateReset(),
+			"huaweicloud_dds_parameter_template_copy":     dds.ResourceDDSParameterTemplateCopy(),
 			"huaweicloud_dds_parameter_template_compare":  dds.ResourceDDSParameterTemplateCompare(),
 			"huaweicloud_dds_parameter_template_apply":    dds.ResourceDDSParameterTemplateApply(),
 
