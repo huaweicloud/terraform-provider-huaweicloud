@@ -1471,6 +1471,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_instance_internal_ip_modify": dds.ResourceDDSInstanceModifyIP(),
 			"huaweicloud_dds_instance_eip_associate":      dds.ResourceDDSInstanceBindEIP(),
 			"huaweicloud_dds_instance_restore":            dds.ResourceDDSInstanceRestore(),
+			"huaweicloud_dds_collection_restore":          dds.ResourceDDSCollectionRestore(),
 			"huaweicloud_dds_instance_parameters_modify":  dds.ResourceDDSInstanceParametersModify(),
 			"huaweicloud_dds_primary_standby_switch":      dds.ResourceDDSPrimaryStandbySwitch(),
 			"huaweicloud_dds_recycle_policy":              dds.ResourceDDSRecyclePolicy(),
