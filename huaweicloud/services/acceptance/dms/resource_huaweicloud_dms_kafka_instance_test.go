@@ -70,6 +70,7 @@ func TestAccKafkaInstance_prePaid(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"password",
+					"manager_user",
 					"manager_password",
 					"used_storage_space",
 					"cross_vpc_accesses",
@@ -223,8 +224,6 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   ssl_enable         = true
   access_user        = "user"
   password           = "Kafkatest@123"
-  manager_user       = "kafka-user"
-  manager_password   = "Kafkatest@123"
   security_protocol  = "SASL_PLAINTEXT"
   enabled_mechanisms = ["SCRAM-SHA-512"]
 
@@ -281,8 +280,6 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   ssl_enable         = true
   access_user        = "user"
   password           = "Kafkatest@123"
-  manager_user       = "kafka-user"
-  manager_password   = "Kafkatest@123"
   security_protocol  = "SASL_PLAINTEXT"
   enabled_mechanisms = ["SCRAM-SHA-512"]
 

@@ -110,18 +110,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"manager_user": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"manager_password": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
-				ForceNew:  true,
-			},
 			"availability_zones": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -302,10 +290,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"management_connect_address": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"extend_times": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -362,6 +346,24 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			"ssl_two_way_enable": {
 				Type:     schema.TypeBool,
 				Computed: true,
+			},
+			"manager_user": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "Deprecated",
+			},
+			"manager_password": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				Sensitive:  true,
+				ForceNew:   true,
+				Deprecated: "Deprecated",
+			},
+			"management_connect_address": {
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "Deprecated",
 			},
 			// Typo, it is only kept in the code, will not be shown in the docs.
 			"manegement_connect_address": {
@@ -1033,7 +1035,6 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		d.Set("available_zones", availableZoneIDs),
 		d.Set("availability_zones", availableZoneCodes),
 		d.Set("broker_num", v.BrokerNum),
-		d.Set("manager_user", v.KafkaManagerUser),
 		d.Set("maintain_begin", v.MaintainBegin),
 		d.Set("maintain_end", v.MaintainEnd),
 		d.Set("enable_public_ip", v.EnablePublicIP),
