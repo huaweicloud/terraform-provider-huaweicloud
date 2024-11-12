@@ -2,17 +2,18 @@ package rfs
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/rf/v1/stacks"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -67,18 +68,27 @@ func ResourceStack() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"provider_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: utils.SchemaDesc(
+								"The name of the provider corresponding to the IAM agency.",
+								utils.SchemaDescInput{
+									Required: true,
+								},
+							),
+						},
 						"name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: "schema: Required; The name of IAM agency authorized to IAC account for " +
-								"resources modification.",
-						},
-						"provider_name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							ForceNew:    true,
-							Description: "schema: Required; The name of the provider corresponding to the IAM agency.",
+							Description: utils.SchemaDesc(
+								"The name of IAM agency authorized to IAC account for resources modification.",
+								utils.SchemaDescInput{
+									Required: true,
+								},
+							),
 						},
 					},
 				},
@@ -142,52 +152,66 @@ func ResourceStack() *schema.Resource {
 	}
 }
 
-func buildStackAgencies(agencies []interface{}) []stacks.Agency {
-	if len(agencies) < 1 {
+func buildStackAgencies(agencies []interface{}) []interface{} {
+	if len(agencies) < 1 || agencies[0] == nil {
 		return nil
 	}
 
-	result := make([]stacks.Agency, len(agencies))
-	for i, val := range agencies {
-		agency := val.(map[string]interface{})
-		result[i] = stacks.Agency{
-			AgencyName:   agency["name"].(string),
-			ProviderName: agency["provider_name"].(string),
-		}
+	result := make([]interface{}, 0, len(agencies))
+	for _, agency := range agencies {
+		result = append(result, utils.RemoveNil(map[string]interface{}{
+			"provider_name": utils.ValueIgnoreEmpty(utils.PathSearch("provider_name", agency, nil)),
+			"agency_name":   utils.ValueIgnoreEmpty(utils.PathSearch("name", agency, nil)),
+		}))
 	}
 
 	return result
 }
 
-func buildStackCreateOpts(d *schema.ResourceData) stacks.CreateOpts {
-	return stacks.CreateOpts{
-		Name:                     d.Get("name").(string),
-		Agencies:                 buildStackAgencies(d.Get("agency").([]interface{})),
-		Description:              d.Get("description").(string),
-		EnableAutoRollback:       utils.Bool(d.Get("enable_auto_rollback").(bool)),
-		EnableDeletionProtection: utils.Bool(d.Get("enable_deletion_protection").(bool)),
-	}
-}
-
 func resourceStackCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.AosV1Client(config.GetRegion(d))
+	var (
+		cfg          = meta.(*config.Config)
+		region       = cfg.GetRegion(d)
+		httpUrl      = "v1/{project_id}/stacks"
+		requestId, _ = uuid.GenerateUUID()
+	)
+
+	client, err := cfg.NewServiceClient("aos", region)
 	if err != nil {
-		return diag.Errorf("error creating AOS v1 client: %s", err)
+		return diag.Errorf("error creating AOS client: %s", err)
 	}
 
-	resp, err := stacks.Create(client, buildStackCreateOpts(d))
-	if err != nil {
-		return diag.Errorf("error creating stack: %s", err)
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createtOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateStackBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type":      "application/json",
+			"X-Language":        "en-us",
+			"Client-Request-Id": requestId,
+		},
 	}
-	d.SetId(resp.StackId)
+	requestResp, err := client.Request("POST", createPath, &createtOpt)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
+	stackId := utils.PathSearch("stack_id", respBody, "").(string)
+	if stackId == "" {
+		return diag.Errorf("unable to find the stack ID from the API response")
+	}
+	d.SetId(stackId)
+
+	// When creates a stack using the template_body parameter, it is automatically deployed without calling the deployment API.
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: stackStatusRefreshFunc(client, d.Id(), []string{
-			string(stacks.StackStatusCreationComplete),
-		}),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      stackStatusRefreshFunc(client, stackId, []string{"CREATION_COMPLETE", "DEPLOYMENT_COMPLETE"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -197,98 +221,110 @@ func resourceStackCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.FromErr(err)
 	}
 
-	if d.Get("template_body") != "" || d.Get("template_uri") != "" {
-		if err = deployStack(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
 	return resourceStackRead(ctx, d, meta)
 }
 
-func deployStack(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+func buildCreateStackBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"stack_name":                 d.Get("name"),
+		"agencies":                   utils.ValueIgnoreEmpty(buildStackAgencies(d.Get("agency").([]interface{}))),
+		"description":                utils.ValueIgnoreEmpty(d.Get("description")),
+		"template_body":              utils.ValueIgnoreEmpty(d.Get("template_body")),
+		"template_uri":               utils.ValueIgnoreEmpty(d.Get("template_uri")),
+		"vars_body":                  utils.ValueIgnoreEmpty(d.Get("vars_body")),
+		"vars_uri":                   utils.ValueIgnoreEmpty(d.Get("vars_uri")),
+		"enable_auto_rollback":       d.Get("enable_auto_rollback"),
+		"enable_deletion_protection": d.Get("enable_deletion_protection"),
+	}
+}
+
+func deployStack(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, stackId string,
 	timeout time.Duration) error {
 	var (
-		stackId   = d.Id()
-		stackName = d.Get("name").(string)
-
-		opts = stacks.DeployOpts{
-			TemplateBody: d.Get("template_body").(string),
-			TemplateUri:  d.Get("template_uri").(string),
-			VarsBody:     d.Get("vars_body").(string),
-			VarsUri:      d.Get("vars_uri").(string),
-			StackId:      stackId,
-		}
+		// Stack name is a required parameter.
+		stackName    = d.Get("name").(string)
+		httpUrl      = "v1/{project_id}/stacks/{stack_name}/deployments"
+		requestId, _ = uuid.GenerateUUID()
 	)
+	deployPath := client.Endpoint + httpUrl
+	deployPath = strings.ReplaceAll(deployPath, "{project_id}", client.ProjectID)
+	deployPath = strings.ReplaceAll(deployPath, "{stack_name}", stackName)
 
-	deploymentId, err := stacks.Deploy(client, stackName, opts)
-	if err != nil {
-		return fmt.Errorf("error deploying stack resources: %s", err)
+	deployOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"template_body": utils.ValueIgnoreEmpty(d.Get("template_body")),
+			"template_uri":  utils.ValueIgnoreEmpty(d.Get("template_uri")),
+			"vars_body":     utils.ValueIgnoreEmpty(d.Get("vars_body")),
+			"vars_uri":      utils.ValueIgnoreEmpty(d.Get("vars_uri")),
+			"stack_id":      stackId,
+		},
+		MoreHeaders: map[string]string{
+			"Content-Type":      "application/json",
+			"X-Language":        "en-us",
+			"Client-Request-Id": requestId,
+		},
 	}
+	requestResp, err := client.Request("POST", deployPath, &deployOpt)
+	if err != nil {
+		return err
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return err
+	}
+
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: stackStatusRefreshFunc(client, d.Id(), []string{
-			string(stacks.StackStatusDeploymentComplete),
-		}),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      stackStatusRefreshFunc(client, stackId, []string{"DEPLOYMENT_COMPLETE"}),
 		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 15 * time.Second,
 	}
 	resp, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		if stack, ok := resp.(stacks.Stack); ok && stack.Status == string(stacks.StackStatusDeploymentFailed) {
+		if status := utils.PathSearch("status", resp, "").(string); status == "DEPLOYMENT_FAILED" {
+			deploymentId := utils.PathSearch("deployment_id", respBody, "").(string)
+			if deploymentId == "" {
+				return fmt.Errorf("unable to find the deployment ID from the API response after request send")
+			}
 			return queryAllFailedEvents(client, stackId, stackName, deploymentId)
 		}
 	}
 	return err
 }
 
-func queryAllFailedEvents(client *golangsdk.ServiceClient, stackId, stackName,
-	deploymentId string) error {
-	opts := stacks.ListEventsOpts{
-		StackId:      stackId,
-		DeploymentId: deploymentId,
-	}
-	events, err := stacks.ListAllEvents(client, stackName, opts)
-	if err != nil {
-		return err
-	}
-
-	var mErr *multierror.Error
-	for _, event := range events {
-		if event.EventType == string(stacks.EventTypeError) {
-			mErr = multierror.Append(mErr, fmt.Errorf(event.EventMessage))
-		}
-	}
-	return mErr.ErrorOrNil()
-}
-
 // QueryStackById is a method to query stack details using its ID.
-func QueryStackById(client *golangsdk.ServiceClient, stackId string) (*stacks.Stack, error) {
-	resp, err := stacks.ListAll(client)
-	if err != nil {
-		return nil, err
-	}
+func QueryStackById(client *golangsdk.ServiceClient, stackId string) (interface{}, error) {
+	var (
+		httpUrl      = "v1/{project_id}/stacks"
+		requestId, _ = uuid.GenerateUUID()
+	)
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 
-	filter := map[string]interface{}{
-		"ID": stackId,
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type":      "application/json",
+			"X-Language":        "en-us",
+			"Client-Request-Id": requestId,
+		},
 	}
-	result, err := utils.FilterSliceWithField(resp, filter)
+	requestResp, err := client.Request("GET", listPath, &opt)
 	if err != nil {
 		return nil, err
 	}
-	if len(result) < 1 {
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return nil, err
+	}
+	stackDetail := utils.PathSearch(fmt.Sprintf("stacks[?stack_id=='%s']|[0]", stackId), respBody, nil)
+	if stackDetail == nil {
 		return nil, golangsdk.ErrDefault404{}
 	}
-
-	stack, ok := result[0].(stacks.Stack)
-	if !ok {
-		return nil, fmt.Errorf("invaid object type, want 'stack.Stack', but '%T'", result[0])
-	}
-	log.Printf("[DEBUG] The details of the stack (%s) is: %#v", stackId, stack)
-
-	return &stack, nil
+	return stackDetail, nil
 }
 
 func stackStatusRefreshFunc(client *golangsdk.ServiceClient, stackId string, targets []string) resource.StateRefreshFunc {
@@ -296,22 +332,21 @@ func stackStatusRefreshFunc(client *golangsdk.ServiceClient, stackId string, tar
 		resp, err := QueryStackById(client, stackId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
-				return resp, "COMPLETED", nil
+				return "Resource Not Found", "COMPLETED", nil
 			}
+			return nil, "ERROR", err
+		}
 
-			return nil, "", err
+		failedErrors := []string{
+			"DEPLOYMENT_FAILED",
+			"ROLLBACK_FAILED",
+			"DELETION_FAILED",
 		}
-		log.Printf("[DEBUG] The details of the resource stack (%s) is: %#v", stackId, resp)
-
-		errorStatus := []string{
-			string(stacks.StackStatusDeploymentFailed),
-			string(stacks.StackStatusRollbackFailed),
-			string(stacks.StackStatusDeletionFailed),
+		status := utils.PathSearch("status", resp, "").(string)
+		if utils.StrSliceContains(failedErrors, status) {
+			return resp, "ERROR", fmt.Errorf("unexpected status '%s'", status)
 		}
-		if utils.StrSliceContains(errorStatus, resp.Status) {
-			return resp, "", fmt.Errorf("unexpected status '%s'", resp.Status)
-		}
-		if utils.StrSliceContains(targets, resp.Status) {
+		if utils.StrSliceContains(targets, status) {
 			return resp, "COMPLETED", nil
 		}
 
@@ -319,15 +354,59 @@ func stackStatusRefreshFunc(client *golangsdk.ServiceClient, stackId string, tar
 	}
 }
 
-func resourceStackRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.AosV1Client(region)
+func queryAllFailedEvents(client *golangsdk.ServiceClient, stackId, stackName, deploymentId string) error {
+	var (
+		mErr         *multierror.Error
+		httpUrl      = "v1/{project_id}/stacks/{stack_name}/events"
+		requestId, _ = uuid.GenerateUUID()
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{stack_name}", stackName)
+
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"stack_id":      stackId,
+			"deployment_id": deploymentId,
+		},
+		MoreHeaders: map[string]string{
+			"Content-Type":      "application/json",
+			"X-Language":        "en-us",
+			"Client-Request-Id": requestId,
+		},
+	}
+	requestResp, err := client.Request("GET", listPath, &listOpt)
 	if err != nil {
-		return diag.Errorf("error creating AOS v1 client: %s", err)
+		return err
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return err
 	}
 
-	stackId := d.Id()
+	events := utils.PathSearch("stack_events", respBody, make([]interface{}, 0)).([]interface{})
+	for _, event := range events {
+		if utils.PathSearch("event_type", event, "").(string) == "ERROR" {
+			mErr = multierror.Append(mErr, errors.New(utils.PathSearch("event_message", event, "").(string)))
+		}
+	}
+	return mErr.ErrorOrNil()
+}
+
+func resourceStackRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		stackId = d.Id()
+	)
+
+	client, err := cfg.NewServiceClient("aos", region)
+	if err != nil {
+		return diag.Errorf("error creating AOS client: %s", err)
+	}
+
 	resp, err := QueryStackById(client, stackId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "RFS resource stack")
@@ -335,11 +414,11 @@ func resourceStackRead(_ context.Context, d *schema.ResourceData, meta interface
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("name", resp.Name),
-		d.Set("description", resp.Description),
-		d.Set("status", resp.Status),
-		d.Set("created_at", resp.CreatedAt),
-		d.Set("updated_at", resp.UpdatedAt),
+		d.Set("name", utils.PathSearch("stack_name", resp, nil)),
+		d.Set("description", utils.PathSearch("description", resp, nil)),
+		d.Set("status", utils.PathSearch("status", resp, nil)),
+		d.Set("created_at", utils.PathSearch("create_time", resp, nil)),
+		d.Set("updated_at", utils.PathSearch("update_time", resp, nil)),
 	)
 
 	if mErr.ErrorOrNil() != nil {
@@ -349,35 +428,49 @@ func resourceStackRead(_ context.Context, d *schema.ResourceData, meta interface
 }
 
 func resourceStackUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.AosV1Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("aos", region)
 	if err != nil {
-		return diag.Errorf("error creating AOS v1 client: %s", err)
+		return diag.Errorf("error creating AOS client: %s", err)
 	}
 
-	if err = deployStack(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
+	if err = deployStack(ctx, client, d, d.Id(), d.Timeout(schema.TimeoutUpdate)); err != nil {
 		return diag.FromErr(err)
 	}
 	return resourceStackRead(ctx, d, meta)
 }
 
 func resourceStackDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.AosV1Client(config.GetRegion(d))
+	var (
+		cfg          = meta.(*config.Config)
+		region       = cfg.GetRegion(d)
+		httpUrl      = "v1/{project_id}/stacks/{stack_name}"
+		stackName    = d.Get("name").(string)
+		stackId      = d.Id()
+		requestId, _ = uuid.GenerateUUID()
+	)
+	client, err := cfg.NewServiceClient("aos", region)
 	if err != nil {
-		return diag.Errorf("error creating AOS v1 client: %s", err)
+		return diag.Errorf("error creating AOS client: %s", err)
 	}
 
-	var (
-		stackName = d.Get("name").(string)
-		stackId   = d.Id()
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{stack_name}", stackName)
 
-		opts = stacks.DeleteOpts{
-			StackId: stackId,
-		}
-	)
-
-	err = stacks.Delete(client, stackName, opts)
+	deletetOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"stack_id": stackId,
+		},
+		MoreHeaders: map[string]string{
+			"Content-Type":      "application/json",
+			"X-Language":        "en-us",
+			"Client-Request-Id": requestId,
+		},
+	}
+	_, err = client.Request("DELETE", deletePath, &deletetOpt)
 	if err != nil {
 		return diag.Errorf("error deleting stack (%s): %s", stackId, err)
 	}

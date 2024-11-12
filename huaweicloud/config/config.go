@@ -12,7 +12,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -702,23 +701,6 @@ func (c *Config) SwrV2Client(region string) (*golangsdk.ServiceClient, error) {
 
 func (c *Config) BmsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("bms", region)
-}
-
-func (c *Config) AosV1Client(region string) (*golangsdk.ServiceClient, error) {
-	client, err := c.NewServiceClient("aos", region)
-	if err != nil {
-		return nil, err
-	}
-	u, err := uuid.GenerateUUID()
-	if err != nil {
-		return nil, err
-	}
-	client.MoreHeaders = map[string]string{
-		"Content-Type":      "application/json",
-		"X-Language":        "en-us",
-		"Client-Request-Id": u,
-	}
-	return client, nil
 }
 
 // ********** client for Storage **********

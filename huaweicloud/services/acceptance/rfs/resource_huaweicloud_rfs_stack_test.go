@@ -12,10 +12,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
 )
 
-func getStackesourceFunc(config *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := config.AosV1Client(acceptance.HW_REGION_NAME)
+func getStackesourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("aos", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating AOS v3 client: %s", err)
+		return nil, fmt.Errorf("error creating AOS client: %s", err)
 	}
 
 	return rfs.QueryStackById(client, state.Primary.ID)
