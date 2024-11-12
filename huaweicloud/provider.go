@@ -1466,6 +1466,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_backup":                      dds.ResourceDdsBackup(),
 			"huaweicloud_dds_parameter_template":          dds.ResourceDdsParameterTemplate(),
 			"huaweicloud_dds_audit_log_policy":            dds.ResourceDdsAuditLogPolicy(),
+			"huaweicloud_dds_audit_log_delete":            dds.ResourceDDSAuditLogDelete(),
 			"huaweicloud_dds_lts_log":                     dds.ResourceDdsLtsLog(),
 			"huaweicloud_dds_instance_restart":            dds.ResourceDDSInstanceRestart(),
 			"huaweicloud_dds_instance_internal_ip_modify": dds.ResourceDDSInstanceModifyIP(),
