@@ -114,10 +114,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `keypair_name` - (Optional, String, ForceNew) The key pair name, which is used for logging in to
-  the cloud phone through ADB.  
-
-  Changing this parameter will create a new resource.
+* `keypair_name` - (Optional, String) Specifies the key pair name, which is used for logging in to
+  the cloud phone through ADB.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID.
 

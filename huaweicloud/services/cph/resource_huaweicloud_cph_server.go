@@ -27,6 +27,7 @@ import (
 
 // @API CPH PUT /v1/{project_id}/cloud-phone/servers/{server_id}
 // @API CPH GET /v1/{project_id}/cloud-phone/servers/{server_id}
+// @API CPH PUT /v1/{project_id}/cloud-phone/servers/open-access
 // @API CPH POST /v2/{project_id}/cloud-phone/servers
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceCphServer() *schema.Resource {
@@ -146,7 +147,6 @@ func ResourceCphServer() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `The key pair name, which is used for logging in to the cloud phone through ADB.`,
 			},
 			"enterprise_project_id": {
@@ -601,42 +601,25 @@ func resourceCphServerUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	updateCphServerNameChanges := []string{
-		"name",
+	client, err := cfg.NewServiceClient("cph", region)
+	if err != nil {
+		return diag.Errorf("error creating CPH client: %s", err)
 	}
 
-	if d.HasChanges(updateCphServerNameChanges...) {
-		// updateCphServerName: update CPH server name
-		var (
-			updateCphServerNameHttpUrl = "v1/{project_id}/cloud-phone/servers/{server_id}"
-			updateCphServerNameProduct = "cph"
-		)
-		updateCphServerNameClient, err := cfg.NewServiceClient(updateCphServerNameProduct, region)
+	if d.HasChange("name") {
+		err := updateServerName(client, d)
 		if err != nil {
-			return diag.Errorf("error creating CPH client: %s", err)
+			return diag.FromErr(err)
 		}
+	}
 
-		updateCphServerNamePath := updateCphServerNameClient.Endpoint + updateCphServerNameHttpUrl
-		updateCphServerNamePath = strings.ReplaceAll(updateCphServerNamePath, "{project_id}", updateCphServerNameClient.ProjectID)
-		updateCphServerNamePath = strings.ReplaceAll(updateCphServerNamePath, "{server_id}", d.Id())
-
-		updateCphServerNameOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-		updateCphServerNameOpt.JSONBody = utils.RemoveNil(buildUpdateCphServerNameBodyParams(d, cfg))
-		_, err = updateCphServerNameClient.Request("PUT", updateCphServerNamePath, &updateCphServerNameOpt)
+	if d.HasChange("keypair_name") {
+		err := updateKeypair(ctx, client, d)
 		if err != nil {
-			return diag.Errorf("error updating CPH server: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 	return resourceCphServerRead(ctx, d, meta)
-}
-
-func buildUpdateCphServerNameBodyParams(d *schema.ResourceData, _ *config.Config) map[string]interface{} {
-	bodyParams := map[string]interface{}{
-		"server_name": utils.ValueIgnoreEmpty(d.Get("name")),
-	}
-	return bodyParams
 }
 
 func resourceCphServerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -711,4 +694,84 @@ func deleteCphServerWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
+}
+
+func updateKeypair(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	// updateKeypair: update CPH server keypair
+	updateKeypairHttpUrl := "v1/{project_id}/cloud-phone/servers/open-access"
+
+	updateKeypairPath := client.Endpoint + updateKeypairHttpUrl
+	updateKeypairPath = strings.ReplaceAll(updateKeypairPath, "{project_id}", client.ProjectID)
+
+	updateKeypairOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateKeypairOpt.JSONBody = map[string]interface{}{
+		"servers": []map[string]interface{}{
+			{
+				"server_id":    d.Id(),
+				"keypair_name": d.Get("keypair_name").(string),
+			},
+		},
+	}
+	updateServerKeypairResp, err := client.Request("PUT", updateKeypairPath, &updateKeypairOpt)
+	if err != nil {
+		return fmt.Errorf("error updating CPH server keypair: %s", err)
+	}
+
+	updateServerKeypairRespBody, err := utils.FlattenResponse(updateServerKeypairResp)
+	if err != nil {
+		return fmt.Errorf("error flattening CPH server keypair: %s", err)
+	}
+
+	jobId := utils.PathSearch("jobs|[0].job_id", updateServerKeypairRespBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("unable to find the job ID from the API response")
+	}
+
+	err = checkCphJobStatus(ctx, client, jobId, d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return fmt.Errorf("error waiting for updating CPH server keypair to be completed: %s", err)
+	}
+
+	return nil
+}
+
+func updateServerName(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	// updateCphServerName: update CPH server name
+	updateCphServerNameHttpUrl := "v1/{project_id}/cloud-phone/servers/{server_id}"
+
+	updateCphServerNamePath := client.Endpoint + updateCphServerNameHttpUrl
+	updateCphServerNamePath = strings.ReplaceAll(updateCphServerNamePath, "{project_id}", client.ProjectID)
+	updateCphServerNamePath = strings.ReplaceAll(updateCphServerNamePath, "{server_id}", d.Id())
+
+	updateCphServerNameOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateCphServerNameOpt.JSONBody = utils.RemoveNil(map[string]interface{}{
+		"server_name": utils.ValueIgnoreEmpty(d.Get("name")),
+	})
+
+	_, err := client.Request("PUT", updateCphServerNamePath, &updateCphServerNameOpt)
+	if err != nil {
+		return fmt.Errorf("error updating CPH server: %s", err)
+	}
+
+	return nil
+}
+
+func checkCphJobStatus(ctx context.Context, client *golangsdk.ServiceClient, id string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      jobStatusRefreshFunc(client, id),
+		Timeout:      timeout,
+		PollInterval: 10 * timeout,
+		Delay:        10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }

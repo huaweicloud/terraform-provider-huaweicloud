@@ -90,6 +90,7 @@ func TestAccCphServer_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"update"),
+					resource.TestCheckResourceAttrPair(rName, "keypair_name", "huaweicloud_kps_keypair.test1", "name"),
 				),
 			},
 			{
@@ -105,26 +106,31 @@ func TestAccCphServer_basic(t *testing.T) {
 func testCphServerBase(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
-  name = "%s"
+  name = "%[1]s"
   cidr = "192.168.0.0/16"
 }
 
 resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%s"
+  name       = "%[1]s"
   cidr       = "192.168.0.0/24"
   vpc_id     = huaweicloud_vpc.test.id
   gateway_ip = "192.168.0.1"
 }
 
 resource "huaweicloud_kps_keypair" "test" {
-  name        = "%s"
-  description = "%s"
+  name        = "%[1]s"
+  description = "keypair test"
+}
+
+resource "huaweicloud_kps_keypair" "test1" {
+  name        = "%[1]s_1"
+  description = "keypair test1"
 }
 
 data "huaweicloud_cph_phone_images" "test" {
   image_label = "cloud_phone"
 }
-`, name, name, name, name)
+`, name)
 }
 
 func testCphServer_basic(name string) string {
@@ -170,7 +176,7 @@ resource "huaweicloud_cph_server" "test" {
   server_flavor = "physical.rx1.xlarge"
   phone_flavor  = "rx1.cp.c15.d46.e1v1"
   image_id      = data.huaweicloud_cph_phone_images.test.images[0].id
-  keypair_name  = huaweicloud_kps_keypair.test.name
+  keypair_name  = huaweicloud_kps_keypair.test1.name
 
   vpc_id    = huaweicloud_vpc.test.id
   subnet_id = huaweicloud_vpc_subnet.test.id
