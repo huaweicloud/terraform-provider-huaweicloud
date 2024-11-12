@@ -122,15 +122,6 @@ The following arguments are supported:
 * `arch_type` - (Optional, String, ForceNew) Specifies the CPU architecture. Valid value is **X86**.
   Changing this creates a new instance resource.
 
-* `manager_user` - (Optional, String, ForceNew) Specifies the username for logging in to the Kafka Manager. The username
-  consists of 4 to 64 characters and can contain letters, digits, hyphens (-), and underscores (_). Changing this
-  creates a new instance resource.
-
-* `manager_password` - (Optional, String, ForceNew) Specifies the password for logging in to the Kafka Manager. The
-  password must meet the following complexity requirements: Must be 8 to 32 characters long. Must contain at least 2 of
-  the following character types: lowercase letters, uppercase letters, digits, and special characters (`~!@#$%^&*()-_
-  =+\\|[{}]:'",<.>/?). Changing this creates a new instance resource.
-
 * `storage_space` - (Optional, Int) Specifies the message storage capacity, the unit is GB.
   The storage spaces corresponding to the product IDs are as follows:
   + **c6.2u4g.cluster** (100MB bandwidth): `300` to `300,000` GB
@@ -274,7 +265,6 @@ In addition to all arguments above, the following attributes are exported:
 * `user_id` - Indicates the ID of the user who created the DMS Kafka instance
 * `user_name` - Indicates the name of the user who created the DMS Kafka instance
 * `connect_address` - Indicates the IP address of the DMS Kafka instance.
-* `management_connect_address` - Indicates the Kafka Manager connection address of a Kafka instance.
 * `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
 * `charging_mode` - Indicates the charging mode of the instance.
 * `public_ip_address` - Indicates the public IP addresses list of the instance.
@@ -317,7 +307,7 @@ DMS Kafka instance can be imported using the instance id, e.g.
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `manager_password`, `public_ip_ids`, `security_protocol`, `enabled_mechanisms` and `arch_type`.
+`password`, `public_ip_ids`, `security_protocol`, `enabled_mechanisms` and `arch_type`.
 It is generally recommended running `terraform plan` after importing
 a DMS Kafka instance. You can then decide if changes should be applied to the instance, or the resource definition
 should be updated to align with the instance. Also you can ignore changes as below.
@@ -328,7 +318,7 @@ resource "huaweicloud_dms_kafka_instance" "instance_1" {
 
   lifecycle {
     ignore_changes = [
-      password, manager_password,
+      password,
     ]
   }
 }
