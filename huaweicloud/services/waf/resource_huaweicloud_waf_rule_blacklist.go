@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/whiteblackip_rules"
 
@@ -16,21 +15,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-const (
-	// block the request
-	protectionActionBlock = 0
-	// allow the request
-	protectionActionAllow = 1
-	// log the request only
-	protectionActionLog = 2
-)
-
 // @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}/whiteblackip/{rule_id}
 // @API WAF GET /v1/{project_id}/waf/policy/{policy_id}/whiteblackip/{rule_id}
 // @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/whiteblackip/{rule_id}
 // @API WAF POST /v1/{project_id}/waf/policy/{policy_id}/whiteblackip
 // @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status
-func ResourceWafRuleBlackListV1() *schema.Resource {
+func ResourceWafRuleBlackList() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafRuleBlackListCreate,
 		ReadContext:   resourceWafRuleBlackListRead,
@@ -84,10 +74,6 @@ func ResourceWafRuleBlackListV1() *schema.Resource {
 			"action": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  protectionActionBlock,
-				ValidateFunc: validation.IntInSlice([]int{
-					protectionActionBlock, protectionActionAllow, protectionActionLog,
-				}),
 			},
 			"status": {
 				Type:     schema.TypeInt,

@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_dedicated_domains"
-description: |
+description: |-
   Use this data source to get a list of WAF dedicated domains.
 ---
 

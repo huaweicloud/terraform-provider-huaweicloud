@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_address_group"
-description: |
+description: |-
   Manages a WAF address group resource within HuaweiCloud.
 ---
 
@@ -11,7 +11,7 @@ description: |
 Manages a WAF address group resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The address group resource can be used in Cloud Mode, Dedicated Mode.
+used. The address group resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -39,7 +39,7 @@ The following arguments are supported:
 
 * `ip_addresses` - (Required, List) Specifies the IP addresses or IP address ranges.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of WAF address group.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF address group.
   Changing this parameter will create a new resource.
   For enterprise users, if omitted, default enterprise project will be used.
 

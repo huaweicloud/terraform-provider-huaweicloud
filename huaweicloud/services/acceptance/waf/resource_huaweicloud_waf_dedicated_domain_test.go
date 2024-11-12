@@ -24,7 +24,7 @@ func getWafDedicateDomainResourceFunc(cfg *config.Config, state *terraform.Resou
 }
 
 // Before running the test case, please ensure that there is at least one WAF dedicated instance in the current region.
-func TestAccWafDedicateDomain_basic(t *testing.T) {
+func TestAccDedicateDomain_basic(t *testing.T) {
 	var (
 		obj             interface{}
 		certificateBody = generateCertificateBody()
@@ -488,78 +488,4 @@ resource "huaweicloud_waf_dedicated_domain" "test" {
   }
 }
 `, testAccWafDedicatedDomain_base(name, certificateBody), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-// This use case has dependencies and will be deleted later.
-func testAccWafDedicatedDomainV1_policy(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_policy" "policy_1" {
-  name = "%s"
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
-}
-
-resource "huaweicloud_waf_dedicated_domain" "domain_1" {
-  domain         = "www.%s.com"
-  certificate_id = huaweicloud_waf_certificate.certificate_1.id
-  policy_id      = huaweicloud_waf_policy.policy_1.id
-  keep_policy    = true
-  proxy          = true
-  tls            = "TLS v1.2"
-  protect_status = 0
-
-  server {
-    client_protocol = "HTTPS"
-    server_protocol = "HTTP"
-    address         = "119.8.0.14"
-    port            = 8080
-    type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
-  }
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
-}
-`, testAccWafCertificateV1_conf(name), name, name)
-}
-
-// This use case has dependencies and will be deleted later.
-func testAccWafDedicatedDomainV1_policy_withEpsID(name, epsID string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_waf_policy" "policy_1" {
-  name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
-
-  depends_on = [
-    huaweicloud_waf_certificate.certificate_1
-  ]
-}
-
-resource "huaweicloud_waf_dedicated_domain" "domain_1" {
-  domain                = "www.%[2]s.com"
-  certificate_id        = huaweicloud_waf_certificate.certificate_1.id
-  policy_id             = huaweicloud_waf_policy.policy_1.id
-  keep_policy           = true
-  proxy                 = true
-  tls                   = "TLS v1.2"
-  protect_status        = 0
-  enterprise_project_id = "%[3]s"
-
-  server {
-    client_protocol = "HTTPS"
-    server_protocol = "HTTP"
-    address         = "119.8.0.14"
-    port            = 8080
-    type            = "ipv4"
-    vpc_id          = huaweicloud_vpc.test.id
-  }
-}
-`, testAccWafCertificateV1_conf_withEpsID(name, epsID), name, epsID)
 }

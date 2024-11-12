@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_domain"
-description: ""
+description: |-
+  Manages a WAF domain resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_domain
@@ -16,34 +17,13 @@ used. The domain name resource can be used in Cloud Mode.
 
 ```hcl
 variable "enterprise_project_id" {}
+variable "certificate_id" {}
+variable "certificate_name" {}
 
-resource "huaweicloud_waf_certificate" "certificate_1" {
-  name                  = "cert_1"
-  enterprise_project_id = var.enterprise_project_id
-  
-  certificate = <<EOT
------BEGIN CERTIFICATE-----
-MIIFmQl5dh2QUAeo39TIKtadgAgh4zHx09kSgayS9Wph9LEqq7MA+2042L3J9aOa
-DAYDVR0TAQH/BAIwADAdBgNVHQ4EFgQUR+SosWwALt6PkP0J9iOIxA6RW8gVsLwq
-...
-+HhDvD/VeOHytX3RAs2GeTOtxyAV5XpKY5r+PkyUqPJj04t3d0Fopi0gNtLpMF=
------END CERTIFICATE-----
-EOT
-  private_key = <<EOT
------BEGIN PRIVATE KEY-----
-MIIJwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAM
-ATAwMC4GCCsGAQUFBwIBFiJodHRwOi8vY3BzLnJvb3QteDEubGV0c2VuY3J5cHQu
-...
-he8Y4IWS6wY7bCkjCWDcRQJMEhg76fsO3txE+FiYruq9RUWhiF1myv4Q6W+CyBFC
-1qoJFlcDyqSMo5iHq3HLjs
------END PRIVATE KEY-----
-EOT
-}
-
-resource "huaweicloud_waf_domain" "domain_1" {
+resource "huaweicloud_waf_domain" "test" {
   domain                = "www.example.com"
-  certificate_id        = huaweicloud_waf_certificate.certificate_1.id
-  certificate_name      = huaweicloud_waf_certificate.certificate_1.name
+  certificate_id        = var.certificate_id
+  certificate_name      = var.certificate_name
   proxy                 = true
   enterprise_project_id = var.enterprise_project_id
   description           = "test description"
@@ -92,8 +72,8 @@ EOF
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the WAF domain resource. If omitted, the
-  provider-level region will be used. Changing this setting will push a new certificate.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the WAF domain resource.
+  If omitted, the provider-level region will be used. Changing this setting will push a new certificate.
 
 * `domain` - (Required, String, ForceNew) Specifies the domain name to be protected. For example, `www.example.com` or
   `*.example.com`. Changing this creates a new domain.
@@ -119,6 +99,7 @@ The following arguments are supported:
   and **postPaid**, defaults to **prePaid**. Changing this creates a new instance.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF domain.
+  For enterprise users, if omitted, default enterprise project will be used.
   Changing this parameter will create a new resource.
 
 * `custom_page` - (Optional, List) Specifies the custom page. Only supports one custom alarm page.
@@ -150,15 +131,15 @@ The following arguments are supported:
 * `website_name` - (Optional, String) Specifies the website name.
   This website name must start with a letter and only letters, digits, underscores (_),
   hyphens (-), colons (:) and periods (.) are allowed.
-  The value contains 1 to 128 characters.
+  The value contains `1` to `128` characters.
   The website name must be unique within this account.
 
 * `description` - (Optional, String) Specifies the description of the WAF domain.
 
 * `protect_status` - (Optional, Int) The protection status of domain. Valid values are:
-  + **0**: The WAF protection is suspended. WAF only forwards requests destined for the domain name and does not detect attacks.
-  + **1**: The WAF protection is enabled. WAF detects attacks based on the policy you configure.
-  + **-1**: The WAF protection is bypassed. Requests of the domain name are directly sent to the backend server and do
+  + `0`: The WAF protection is suspended. WAF only forwards requests destined for the domain name and does not detect attacks.
+  + `1`: The WAF protection is enabled. WAF detects attacks based on the policy you configure.
+  + `-1`: The WAF protection is bypassed. Requests of the domain name are directly sent to the backend server and do
   not pass through WAF.
 
   Default value is `0`.
@@ -227,20 +208,21 @@ The following arguments are supported:
 <a name="Domain_server"></a>
 The `server` block supports:
 
-* `client_protocol` - (Required, String) Protocol type of the client. The options include **HTTP** and **HTTPS**.
+* `client_protocol` - (Required, String) Specifies the protocol type of the client. The options include **HTTP** and **HTTPS**.
 
-* `server_protocol` - (Required, String) Protocol used by WAF to forward client requests to the server.
+* `server_protocol` - (Required, String) Specifies the protocol used by WAF to forward client requests to the server.
   The options include **HTTP** and **HTTPS**.
 
-* `address` - (Required, String) IP address or domain name of the web server that the client accesses.
+* `address` - (Required, String) Specifies the IP address or domain name of the web server that the client accesses.
 
-* `port` - (Required, Int) Port number used by the web server. The value ranges from `0` to `65,535`, for example, `8,080`.
+* `port` - (Required, Int) Specifies the port number used by the web server. The value ranges from `0` to `65,535`,
+  for example, `8,080`.
 
 * `type` - (Required, String) Specifies the server network type. Valid values are: **ipv4** and **ipv6**.
   + When this field is set to **ipv4**, `address` must be set to an IPv4 address.
   + When this field is set to **ipv6**, `address` must be set to an IPv6 address.
 
-* `weight` - (Optional, Int) The load balancing algorithm will assign requests to the origin
+* `weight` - (Optional, Int) Specifies the load balancing algorithm will assign requests to the origin
   site according to this weight.
   Defaults to `1`.
 

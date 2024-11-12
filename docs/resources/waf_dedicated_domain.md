@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_dedicated_domain"
-description: |
+description: |-
   Manages a dedicated mode domain resource within HuaweiCloud.
 ---
 
@@ -166,7 +166,7 @@ The following arguments are supported:
   + **$ssl_session_reused**
 
 * `connection_protection` - (Optional, List) Specifies the connection protection configuration to let WAF protect your
-  origin servers from being crashed when WAF detects a large number of 502/504 error codes or pending requests.
+  origin servers from being crashed when WAF detects a large number of `502`/`504` error codes or pending requests.
   Only supports one protection configuration.
   The [connection_protection](#DedicatedDomain_connection_protection) structure is documented below.
 

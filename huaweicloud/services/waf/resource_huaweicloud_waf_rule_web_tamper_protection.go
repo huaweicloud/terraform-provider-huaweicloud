@@ -21,7 +21,7 @@ import (
 // @API WAF GET /v1/{project_id}/waf/policy/{policy_id}/antitamper/{rule_id}
 // @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}/antitamper/{rule_id}
 // @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status
-func ResourceWafRuleWebTamperProtectionV1() *schema.Resource {
+func ResourceWafRuleWebTamperProtection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafRuleWebTamperProtectionCreate,
 		UpdateContext: resourceWafRuleWebTamperProtectionUpdate,

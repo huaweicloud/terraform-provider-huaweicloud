@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains"
@@ -16,13 +15,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-var PaidType = "prePaid"
-
-const (
-	protocolHTTP  = "HTTP"
-	protocolHTTPS = "HTTPS"
 )
 
 // @API WAF GET /v1/{project_id}/waf/instance/{instance_id}
@@ -87,10 +79,7 @@ func ResourceWafDomain() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  PaidType,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid", "postPaid",
-				}, false),
+				Default:  "prePaid",
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -206,16 +195,10 @@ func domainServerSchema() *schema.Resource {
 			"client_protocol": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					protocolHTTP, protocolHTTPS,
-				}, false),
 			},
 			"server_protocol": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					protocolHTTP, protocolHTTPS,
-				}, false),
 			},
 			"address": {
 				Type:     schema.TypeString,

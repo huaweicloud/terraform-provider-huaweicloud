@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_cloud_instance"
-description: ""
+description: |-
+  Using this resource to manage a cloud WAF in HuaweiCloud.
 ---
 
 # huaweicloud_waf_cloud_instance
@@ -37,7 +38,7 @@ resource "huaweicloud_waf_cloud_instance" "test" {
 }
 ```
 
-### Postpaid cloud WAF
+### Postpaid cloud WAF (Currently only applicable to HuaweiCloud International website)
 
 ```hcl
 variable "enterprise_project_id" {}
@@ -95,30 +96,30 @@ The following arguments are supported:
 
   This parameter is required when `charging_mode` is set to **prePaid**.
 
-* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
+* `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled.
   Valid values are **true** and **false**.
 
   This parameter takes effect only when `charging_mode` is set to **prePaid**.
 
 * `bandwidth_expack_product` - (Optional, List) Specifies the configuration of the bandwidth extended packages.
-  The [object](#extended_packages) structure is documented below.
+  The [bandwidth_expack_product](#extended_packages) structure is documented below.
 
   This parameter takes effect only when `charging_mode` is set to **prePaid**.
 
 * `domain_expack_product` - (Optional, List) Specifies the configuration of the domain extended packages.
-  The [object](#extended_packages) structure is documented below.
+  The [domain_expack_product](#extended_packages) structure is documented below.
 
   This parameter takes effect only when `charging_mode` is set to **prePaid**.
 
 * `rule_expack_product` - (Optional, List) Specifies the configuration of the rule extended packages.
-  The [object](#extended_packages) structure is documented below.
+  The [rule_expack_product](#extended_packages) structure is documented below.
 
   This parameter takes effect only when `charging_mode` is set to **prePaid**.
 
 -> The specification code '**detection**' does not support extended packages.
 
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the cloud
-  WAF belongs.
+  WAF belongs. For enterprise users, if omitted, default enterprise project will be used.
 
 <a name="extended_packages"></a>
 The `bandwidth_expack_product`, `domain_expack_product` or `rule_expack_product` block supports:
@@ -129,7 +130,7 @@ The `bandwidth_expack_product`, `domain_expack_product` or `rule_expack_product`
   + For domain extended packages, each package will support `10` domain names (only one level-1 domain is supported).
   + For rule extended packages, each package will support `10` protection rules (only IP black/white list is supported).
 
--> The `resource_size` cannot be reduced below `1`.
+  -> The `resource_size` cannot be reduced below `1`.
 
 ## Attribute Reference
 
@@ -138,9 +139,9 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The ID of the cloud WAF.
 
 * `status` - The current status of the cloud WAF.
-  + **0**: Normal.
-  + **1**: Frozen.
-  + **2**: Deleted.
+  + `0`: Normal.
+  + `1`: Frozen.
+  + `2`: Deleted.
 
 ## Timeouts
 

@@ -10,7 +10,7 @@ import (
 )
 
 // Before running the test case, please ensure that there is at least one WAF dedicated instance in the current region.
-func TestAccDatasourceWAFDedicatedDomains_basic(t *testing.T) {
+func TestAccDataSourceDedicatedDomains_basic(t *testing.T) {
 	var (
 		name            = acceptance.RandomAccResourceName()
 		certificateBody = generateCertificateBody()

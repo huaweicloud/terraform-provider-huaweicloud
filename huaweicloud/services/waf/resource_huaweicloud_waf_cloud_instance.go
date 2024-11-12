@@ -2,6 +2,7 @@ package waf
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -299,7 +300,7 @@ func analysisSpecCode(specCode string) (string, error) {
 	// The right length of the string match is two, first is the match result of the regex string,
 	// second is the match result of the regex group.
 	if len(result) < 2 {
-		return "", fmt.Errorf("invalid specification code, want 'waf.xxx' or 'waf.xxx.xxx', but '%s'.", specCode)
+		return "", fmt.Errorf("invalid specification code, want 'waf.xxx' or 'waf.xxx.xxx', but '%s'", specCode)
 	}
 	return result[1], nil
 }
@@ -381,7 +382,7 @@ func resourceCloudInstanceRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving cluod WAF fields: %s", err)
+		return diag.Errorf("error saving cloud WAF fields: %s", err)
 	}
 	return nil
 }
@@ -545,10 +546,10 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 
 func cloudInstanceDeleteRefreshFunc(client *golangsdk.ServiceClient, instanceId, epsId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var unprotectedHostId string = ""
 		resp, _, err := QueryCloudInstance(client, instanceId, epsId)
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			return unprotectedHostId, "DELETED", nil
+		var errDefault404 golangsdk.ErrDefault404
+		if errors.As(err, &errDefault404) {
+			return "success_deleted", "DELETED", nil
 		}
 		return resp, "PENDING", nil
 	}
@@ -597,7 +598,7 @@ func resourceCloudInstanceDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting to delete the postpaid cloud WAF (%s): %s", instanceId, err)
+		return diag.Errorf("error waiting to delete the prepaid cloud WAF (%s): %s", instanceId, err)
 	}
 	return nil
 }

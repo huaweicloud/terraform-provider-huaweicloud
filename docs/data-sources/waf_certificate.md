@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_certificate"
-description: |
+description: |-
   Use this data source to get the certificate of WAF within HuaweiCloud.
 ---
 
@@ -17,8 +17,8 @@ Use this data source to get the certificate of WAF within HuaweiCloud.
 ```hcl
 variable enterprise_project_id {}
 
-data "huaweicloud_waf_certificate" "certificate_1" {
-  name                  = "certificate name"
+data "huaweicloud_waf_certificate" "test" {
+  name                  = "test-name"
   enterprise_project_id = var.enterprise_project_id
 }
 ```

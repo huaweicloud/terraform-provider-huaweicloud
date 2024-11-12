@@ -9,6 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+// Before running the test case, please ensure that there is at least one WAF dedicated instance in the current region.
 func TestAccDataSourceRulesGlobalProtectionWhitelist_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_waf_rules_global_protection_whitelist.test"
@@ -26,6 +27,7 @@ func TestAccDataSourceRulesGlobalProtectionWhitelist_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -59,11 +61,12 @@ func testDataSourceRulesGlobalProtectionWhitelist_basic(name string) string {
 %[1]s
 
 data "huaweicloud_waf_rules_global_protection_whitelist" "test" {
+  policy_id             = huaweicloud_waf_policy.test.id
+  enterprise_project_id = "%[2]s"
+
   depends_on = [
     huaweicloud_waf_rule_global_protection_whitelist.test
   ]
-
-  policy_id = huaweicloud_waf_policy.policy_1.id
 }
 
 locals {
@@ -71,8 +74,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_global_protection_whitelist" "filter_by_rule_id" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  rule_id   = local.rule_id
+  policy_id             = huaweicloud_waf_policy.test.id
+  rule_id               = local.rule_id
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -90,8 +94,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_global_protection_whitelist" "filter_by_status" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  status    = local.status
+  policy_id             = huaweicloud_waf_policy.test.id
+  status                = local.status
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -103,5 +108,5 @@ locals {
 output "status_filter_is_useful" {
   value = alltrue(local.status_filter_result) && length(local.status_filter_result) > 0
 }
-`, testRuleGlobalProtectionWhitelist_basic(name))
+`, testDataSourceRuleGlobalProtectionWhitelist_basic(name, generateCertificateBody()), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

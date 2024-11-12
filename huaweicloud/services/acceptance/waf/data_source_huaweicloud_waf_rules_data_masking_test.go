@@ -9,6 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
 func TestAccDataSourceRulesDataMasking_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_waf_rules_data_masking.test"
@@ -26,6 +27,7 @@ func TestAccDataSourceRulesDataMasking_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -53,31 +55,17 @@ func TestAccDataSourceRulesDataMasking_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceRulesDataMasking_base(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_data_masking" "test" {
-  policy_id   = huaweicloud_waf_policy.policy_1.id
-  path        = "/login"
-  field       = "params"
-  subfield    = "password"
-  description = "test description"
-  status      = 0
-}
-`, testAccWafPolicyV1_basic(name))
-}
-
 func testDataSourceRulesDataMasking_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_waf_rules_data_masking" "test" {
+  policy_id             = huaweicloud_waf_policy.test.id
+  enterprise_project_id = "%[2]s"
+
   depends_on = [
     huaweicloud_waf_rule_data_masking.test
   ]
-
-  policy_id = huaweicloud_waf_policy.policy_1.id
 }
 
 locals {
@@ -85,8 +73,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_data_masking" "filter_by_rule_id" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  rule_id   = local.rule_id
+  policy_id             = huaweicloud_waf_policy.test.id
+  rule_id               = local.rule_id
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -104,8 +93,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_data_masking" "filter_by_status" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  status    = local.status
+  policy_id             = huaweicloud_waf_policy.test.id
+  status                = local.status
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -117,5 +107,5 @@ locals {
 output "status_filter_is_useful" {
   value = alltrue(local.status_filter_result) && length(local.status_filter_result) > 0
 }
-`, testDataSourceRulesDataMasking_base(name))
+`, testAccWafRuleDataSourceMasking_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

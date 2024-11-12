@@ -11,7 +11,7 @@ description: |-
 Manages a WAF reference table resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The reference table resource can be used in Cloud Mode (professional version), Dedicated Mode and ELB Mode.
+used. The reference table resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -35,7 +35,7 @@ resource "huaweicloud_waf_reference_table" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the WAF reference table resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the WAF reference table resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the reference table. Only letters, digits, hyphens (-),
@@ -51,7 +51,7 @@ The following arguments are supported:
   The maximum length is `128` characters.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the reference
-  table belongs.
+  table belongs. For enterprise users, if omitted, default enterprise project will be used.
   Changing this parameter will create a new resource.
 
 ## Attribute Reference

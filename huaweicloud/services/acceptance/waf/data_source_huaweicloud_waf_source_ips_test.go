@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceWafSourceIps_basic(t *testing.T) {
+func TestAccDataSourceSourceIps_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_waf_source_ips.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
@@ -32,7 +32,7 @@ func TestAccDataSourceWafSourceIps_basic(t *testing.T) {
 	})
 }
 
-var testDataSourceDataSourceWafSourceIps_basic = `
+const testDataSourceDataSourceWafSourceIps_basic = `
 data "huaweicloud_waf_source_ips" "test" {
 }
 `

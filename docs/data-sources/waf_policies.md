@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_policies"
-description: ""
+description: |-
+  Use this data source to get a list of WAF policies.
 ---
 
 # huaweicloud_waf_policies
@@ -15,7 +16,7 @@ Use this data source to get a list of WAF policies.
 variable "policy_name" {}
 variable "enterprise_project_id" {}
 
-data "huaweicloud_waf_policies" "policies" {
+data "huaweicloud_waf_policies" "test" {
   name                  = var.policy_name
   enterprise_project_id = var.enterprise_project_id
 }
@@ -25,16 +26,20 @@ data "huaweicloud_waf_policies" "policies" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to obtain the WAF policies. If omitted, the provider-level region
-  will be used.
+* `region` - (Optional, String) Specifies the region in which to obtain the WAF policies. If omitted,
+  the provider-level region will be used.
 
-* `name` - (Optional, String) Policy name used for matching. The value is case-sensitive and supports fuzzy matching.
+* `name` - (Optional, String) Specifies the policy name used for matching. The value is case-sensitive and supports
+  fuzzy matching.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of WAF policies.
+  For enterprise users, if omitted, default enterprise project will be used.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
+
+* `id` - The data source ID.
 
 * `policies` - A list of WAF policies.
 
@@ -63,7 +68,7 @@ The `policies` block supports:
     false alarms have been reported, this value is recommended.
   + **2**: Medium. This protection level meets web protection requirements in most scenarios.
   + **3**: High. At this protection level, WAF provides the finest granular protection and can intercept attacks with
-    complex bypass features, such as Jolokia cyber attacks, common gateway interface (CGI) vulnerability detection,
+    complex bypass features, such as Jolokia cyberattacks, common gateway interface (CGI) vulnerability detection,
     and Druid SQL injection attacks.
 
 * `options` - The protection switches. The options object structure is documented below.
@@ -82,7 +87,7 @@ The `options` block supports:
 
 * `general_check` - Indicates whether General Check in Basic Web Protection is enabled.
 
-* `webshell` - Indicates whether the webshell detection in basic web protection is enabled.
+* `webshell` - Indicates whether the web shell detection in basic web protection is enabled.
 
 * `crawler_engine` - Indicates whether the search engine is enabled.
 

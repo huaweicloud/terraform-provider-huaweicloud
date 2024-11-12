@@ -10,7 +10,7 @@ import (
 )
 
 // Before running the test case, please ensure that there is at least one WAF instance in the current region.
-func TestAccDataSourceWafCertificate_basic(t *testing.T) {
+func TestAccDataSourceCertificate_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceName()
 
