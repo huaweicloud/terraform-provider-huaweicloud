@@ -576,11 +576,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdm_clusters": cdm.DataSourceCdmClusters(),
 			"huaweicloud_cdm_flavors":  cdm.DataSourceCdmFlavors(),
 
-			"huaweicloud_cph_server_flavors": cph.DataSourceServerFlavors(),
-			"huaweicloud_cph_phone_flavors":  cph.DataSourcePhoneFlavors(),
-			"huaweicloud_cph_phone_images":   cph.DataSourcePhoneImages(),
-			"huaweicloud_cph_servers":        cph.DataSourceCphServers(),
-			"huaweicloud_cph_phones":         cph.DataSourceCphPhones(),
+			"huaweicloud_cph_server_flavors":      cph.DataSourceServerFlavors(),
+			"huaweicloud_cph_phone_flavors":       cph.DataSourcePhoneFlavors(),
+			"huaweicloud_cph_phone_images":        cph.DataSourcePhoneImages(),
+			"huaweicloud_cph_servers":             cph.DataSourceCphServers(),
+			"huaweicloud_cph_phones":              cph.DataSourceCphPhones(),
+			"huaweicloud_cph_phone_custom_images": cph.DataSourceCphPhoneCustomImages(),
 
 			"huaweicloud_cse_microservice_engines": cse.DataSourceMicroserviceEngines(),
 
