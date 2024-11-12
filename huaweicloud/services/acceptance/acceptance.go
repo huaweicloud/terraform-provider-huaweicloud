@@ -203,8 +203,12 @@ var (
 	HW_WORKSPACE_AD_VPC_ID      = os.Getenv("HW_WORKSPACE_AD_VPC_ID")      // The VPC ID to which the AD server and desktops belongs.
 	HW_WORKSPACE_AD_NETWORK_ID  = os.Getenv("HW_WORKSPACE_AD_NETWORK_ID")  // The network ID to which the AD server belongs.
 	// The internet access port to which the Workspace service.
-	HW_WORKSPACE_INTERNET_ACCESS_PORT = os.Getenv("HW_WORKSPACE_INTERNET_ACCESS_PORT")
-	HW_WORKSPACE_APP_SERVER_GROUP_ID  = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_ID")
+	HW_WORKSPACE_INTERNET_ACCESS_PORT              = os.Getenv("HW_WORKSPACE_INTERNET_ACCESS_PORT")
+	HW_WORKSPACE_APP_SERVER_GROUP_ID               = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_ID")
+	HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID        = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID")
+	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID         = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID")
+	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID")
+	HW_WORKSPACE_OU_NAME                           = os.Getenv("HW_WORKSPACE_OU_NAME")
 
 	HW_FGS_AGENCY_NAME         = os.Getenv("HW_FGS_AGENCY_NAME")
 	HW_FGS_TEMPLATE_ID         = os.Getenv("HW_FGS_TEMPLATE_ID")
@@ -1480,6 +1484,22 @@ func TestAccPreCheckWorkspaceInternetAccessPort(t *testing.T) {
 func TestAccPreCheckWorkspaceAppServerGroupId(t *testing.T) {
 	if HW_WORKSPACE_APP_SERVER_GROUP_ID == "" {
 		t.Skip("HW_WORKSPACE_APP_SERVER_GROUP_ID must be set for Workspace service acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkspaceAppServerGroup(t *testing.T) {
+	if HW_WORKSPACE_AD_VPC_ID == "" || HW_WORKSPACE_AD_NETWORK_ID == "" ||
+		HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID == "" || HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID == "" ||
+		HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID == "" {
+		t.Skip("Workspace APP server group acceptance test missing configuration parameters.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkspaceOUName(t *testing.T) {
+	if HW_WORKSPACE_OU_NAME == "" {
+		t.Skip("HW_WORKSPACE_OU_NAME must be set for Workspace service acceptance tests.")
 	}
 }
 
