@@ -608,10 +608,10 @@ func resourceFirewallRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 	getFirewallsResp, err := getFirewallClient.Request("GET", getFirewallPath, &getFirewallOpt)
 	if err != nil {
-		if hasErrorCode(err, FirewallNotExistsCode) {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving firewalls")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", FirewallNotExistsCode),
+			"error retrieving firewalls",
+		)
 	}
 
 	getFirewallRespBody, err := utils.FlattenResponse(getFirewallsResp)
@@ -882,10 +882,10 @@ func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		getFirewallsResp, err := getFirewallClient.Request("GET", getFirewallPath, &getFirewallOpt)
 		if err != nil {
-			if hasErrorCode(err, FirewallNotExistsCode) {
-				err = golangsdk.ErrDefault404{}
-			}
-			return common.CheckDeletedDiag(d, err, "error retrieving firewalls")
+			return common.CheckDeletedDiag(d,
+				common.ConvertExpected400ErrInto404Err(err, "error_code", FirewallNotExistsCode),
+				"error retrieving firewalls",
+			)
 		}
 
 		getFirewallRespBody, err := utils.FlattenResponse(getFirewallsResp)
@@ -1133,7 +1133,10 @@ func resourceFirewallDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.Get("charging_mode") == "prePaid" {
 		if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
-			return diag.Errorf("error unsubscribing CFW firewall: %s", err)
+			return common.CheckDeletedDiag(d,
+				common.ConvertExpected400ErrInto404Err(err, "error_code", "CBC.30000067"),
+				"error unsubscribing CFW firewall",
+			)
 		}
 	} else {
 		// deleteFirewall: Delete an existing CFW firewall
@@ -1156,7 +1159,10 @@ func resourceFirewallDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 		_, err = deleteFirewallClient.Request("DELETE", deleteFirewallPath, &deleteFirewallOpt)
 		if err != nil {
-			return diag.Errorf("error deleting Firewall: %s", err)
+			return common.CheckDeletedDiag(d,
+				common.ConvertExpected400ErrInto404Err(err, "error_code", FirewallNotExistsCode),
+				"error deleting CFW firewall",
+			)
 		}
 	}
 

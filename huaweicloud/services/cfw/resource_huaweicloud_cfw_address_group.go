@@ -156,7 +156,10 @@ func resourceAddressGroupRead(_ context.Context, d *schema.ResourceData, meta in
 		&getAddressGroupOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving AddressGroup")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error retrieving AddressGroup",
+		)
 	}
 
 	getAddressGroupRespBody, err := utils.FlattenResponse(getAddressGroupResp)
@@ -250,7 +253,10 @@ func resourceAddressGroupDelete(_ context.Context, d *schema.ResourceData, meta 
 	}
 	_, err = deleteAddressGroupClient.Request("DELETE", deleteAddressGroupPath, &deleteAddressGroupOpt)
 	if err != nil {
-		return diag.Errorf("error deleting AddressGroup: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting AddressGroup",
+		)
 	}
 
 	return nil

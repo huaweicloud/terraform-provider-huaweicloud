@@ -147,10 +147,7 @@ func resourceDomainNameGroupCreate(ctx context.Context, d *schema.ResourceData, 
 
 	createDomainNameGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	// domain_names is required in API but can be an empty list, so RemoveNil is not used here
@@ -204,49 +201,19 @@ func buildCreateDomainNameGroupRequestBodyDomainNames(rawParams interface{}) []m
 func resourceDomainNameGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	id := d.Id()
 
 	var mErr *multierror.Error
 
 	// getDomainNameGroup: Query the CFW domain name group detail
-	var (
-		getDomainNameGroupHttpUrl = "v1/{project_id}/domain-sets"
-		getDomainNameGroupProduct = "cfw"
-	)
+	getDomainNameGroupProduct := "cfw"
 	client, err := cfg.NewServiceClient(getDomainNameGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CFW client: %s", err)
 	}
 
-	getDomainNameGroupPath := client.Endpoint + getDomainNameGroupHttpUrl
-	getDomainNameGroupPath = strings.ReplaceAll(getDomainNameGroupPath, "{project_id}", client.ProjectID)
-
-	getDomainNameGroupQueryParams := buildGetDomainNameGroupQueryParams(d)
-	getDomainNameGroupPath += getDomainNameGroupQueryParams
-
-	getDomainNameGroupOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
-	}
-
-	getDomainNameGroupResp, err := client.Request("GET", getDomainNameGroupPath, &getDomainNameGroupOpt)
-
+	getDomainNameGroupRespBody, err := getDomainNameGroup(client, d)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DomainNameGroup")
-	}
-
-	getDomainNameGroupRespBody, err := utils.FlattenResponse(getDomainNameGroupResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	jsonPath := fmt.Sprintf("data.records[?set_id=='%s']|[0]", id)
-	getDomainNameGroupRespBody = utils.PathSearch(jsonPath, getDomainNameGroupRespBody, nil)
-	if getDomainNameGroupRespBody == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "no data found")
 	}
 
 	mErr = multierror.Append(
@@ -272,6 +239,38 @@ func resourceDomainNameGroupRead(_ context.Context, d *schema.ResourceData, meta
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getDomainNameGroup(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	getDomainNameGroupHttpUrl := "v1/{project_id}/domain-sets"
+	getDomainNameGroupPath := client.Endpoint + getDomainNameGroupHttpUrl
+	getDomainNameGroupPath = strings.ReplaceAll(getDomainNameGroupPath, "{project_id}", client.ProjectID)
+
+	getDomainNameGroupQueryParams := buildGetDomainNameGroupQueryParams(d)
+	getDomainNameGroupPath += getDomainNameGroupQueryParams
+
+	getDomainNameGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getDomainNameGroupResp, err := client.Request("GET", getDomainNameGroupPath, &getDomainNameGroupOpt)
+	if err != nil {
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005")
+	}
+
+	getDomainNameGroupRespBody, err := utils.FlattenResponse(getDomainNameGroupResp)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonPath := fmt.Sprintf("data.records[?set_id=='%s']|[0]", d.Id())
+	getDomainNameGroupRespBody = utils.PathSearch(jsonPath, getDomainNameGroupRespBody, nil)
+	if getDomainNameGroupRespBody == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return getDomainNameGroupRespBody, nil
 }
 
 func getDomainNames(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
@@ -359,10 +358,7 @@ func resourceDomainNameGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 
 		updateDomainNameGroupOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: map[string]string{"Content-Type": "application/json"},
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 		}
 
 		updateDomainNameGroupOpt.JSONBody = utils.RemoveNil(buildUpdateDomainNameGroupBodyParams(d))
@@ -451,10 +447,7 @@ func removeDomainNames(client *golangsdk.ServiceClient, d *schema.ResourceData, 
 
 	updateDomainNameGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	updateDomainNameGroupOpt.JSONBody = utils.RemoveNil(buildDemoveDomainNamesBodyParams(d, domainNameList))
@@ -480,10 +473,7 @@ func addDomainNames(client *golangsdk.ServiceClient, d *schema.ResourceData, dom
 
 	updateDomainNameGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	updateDomainNameGroupOpt.JSONBody = utils.RemoveNil(buildAddDomainNamesBodyParams(d, domainNameList))
@@ -577,18 +567,25 @@ func resourceDomainNameGroupDelete(_ context.Context, d *schema.ResourceData, me
 
 	deleteDomainNameGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	_, err = deleteDomainNameGroupClient.Request("DELETE", deleteDomainNameGroupPath, &deleteDomainNameGroupOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DomainNameGroup: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting CFW domain name group",
+		)
 	}
 
-	return nil
+	// Successful deletion API call does not guarantee that the resource is successfully deleted.
+	// Call the details API to confirm that the resource has been successfully deleted.
+	_, err = getDomainNameGroup(deleteDomainNameGroupClient, d)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving CFW domain name group")
+	}
+
+	return diag.Errorf("error deleting CFW domain name group")
 }
 
 func resourceDomainNameGroupImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
