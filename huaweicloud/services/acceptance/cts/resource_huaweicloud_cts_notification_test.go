@@ -66,6 +66,7 @@ func TestAccCTSNotification_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "filter.0.condition", "AND"),
 					resource.TestCheckResourceAttr(resourceName, "filter.0.rule.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "agency_name", "cts_admin_trust"),
 					resource.TestCheckResourceAttrPair(resourceName, "smn_topic",
 						"huaweicloud_smn_topic.topic_1", "id"),
 				),
@@ -113,6 +114,7 @@ resource "huaweicloud_cts_notification" "notify" {
   name           = "%[1]s"
   operation_type = "complete"
   smn_topic      = huaweicloud_smn_topic.topic_1.id
+  agency_name    = "cts_admin_trust"
 
   filter {
     condition = "AND"
@@ -132,6 +134,7 @@ resource "huaweicloud_cts_notification" "notify" {
   name           = "%[1]s"
   operation_type = "customized"
   smn_topic      = huaweicloud_smn_topic.topic_1.id
+  agency_name    = "cts_admin_trust"
 
   filter {
     condition = "OR"
@@ -162,6 +165,7 @@ resource "huaweicloud_cts_notification" "notify" {
   name           = "%[1]s"
   operation_type = "customized"
   smn_topic      = huaweicloud_smn_topic.topic_1.id
+  agency_name    = "cts_admin_trust"
   enabled        = false
 
   operations {
