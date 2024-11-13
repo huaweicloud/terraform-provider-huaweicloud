@@ -1490,6 +1490,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_ddm_instance":               ddm.ResourceDdmInstance(),
 			"huaweicloud_ddm_instance_restart":       ddm.ResourceDdmInstanceRestart(),
+			"huaweicloud_ddm_instance_upgrade":       ddm.ResourceDdmInstanceUpgrade(),
 			"huaweicloud_ddm_schema":                 ddm.ResourceDdmSchema(),
 			"huaweicloud_ddm_account":                ddm.ResourceDdmAccount(),
 			"huaweicloud_ddm_instance_read_strategy": ddm.ResourceDdmInstanceReadStrategy(),
