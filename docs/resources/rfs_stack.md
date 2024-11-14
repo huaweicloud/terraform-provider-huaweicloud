@@ -29,6 +29,9 @@ resource "huaweicloud_rfs_stack" "test" {
 
   template_uri = var.template_obs_uri
   vars_uri     = var.variable_obs_uri
+
+  retain_all_resources = true
+}
 ```
 
 ### Create an RFS resource stack with VPC deployment (using template and variable files)
@@ -151,6 +154,9 @@ The following arguments are supported:
   The default value is **false**.
   Change this parameter will create a new resource.
 
+* `retain_all_resources` - (Optional, Bool) Specifies whether to reserve resources when deleting the resource stack.  
+  The default value is **false**.
+
 <a name="stack_agency"></a>
 The `agency` block supports:
 
@@ -204,8 +210,9 @@ $ terraform import huaweicloud_rfs_stack.test edd2f099-e1ac-4bd0-be32-8b2185620a
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response. The missing attributes include: `agency`, `template_body`, `vars_body`, `template_uri`, `vars_uri`,
-`enable_auto_rollback` and `enable_deletion_protection`. It is generally recommended running `terraform plan` after
-importing a stack. You can keep the resource the same with its definition bo choosing any of them to update.
+`enable_auto_rollback`, `enable_deletion_protection` and `retain_all_resources`.
+It is generally recommended running `terraform plan` after importing a stack.
+You can keep the resource the same with its definition bo choosing any of them to update.
 Also you can ignore changes as below.
 
 ```hcl

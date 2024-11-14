@@ -24,7 +24,7 @@ import (
 // @API RFS GET /v1/{project_id}/stacks
 // @API RFS POST /v1/{project_id}/stacks/{stack_name}/deployments
 // @API RFS GET /v1/{project_id}/stacks/{stack_name}/events
-// @API RFS DELETE /v1/{project_id}/stacks/{stack_name}
+// @API RFS POST /v1/{project_id}/stacks/{stack_name}/deletion
 func ResourceStack() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceStackCreate,
@@ -132,6 +132,11 @@ func ResourceStack() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: "Whether to enable delete protection.",
+			},
+			"retain_all_resources": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Whether to reserve resources when deleting the resource stack.",
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -435,9 +440,12 @@ func resourceStackUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
-	if err = deployStack(ctx, client, d, d.Id(), d.Timeout(schema.TimeoutUpdate)); err != nil {
-		return diag.FromErr(err)
+	if d.HasChanges("template_body", "vars_body", "template_uri", "vars_uri") {
+		if err = deployStack(ctx, client, d, d.Id(), d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.FromErr(err)
+		}
 	}
+
 	return resourceStackRead(ctx, d, meta)
 }
 
@@ -445,7 +453,7 @@ func resourceStackDelete(ctx context.Context, d *schema.ResourceData, meta inter
 	var (
 		cfg          = meta.(*config.Config)
 		region       = cfg.GetRegion(d)
-		httpUrl      = "v1/{project_id}/stacks/{stack_name}"
+		httpUrl      = "v1/{project_id}/stacks/{stack_name}/deletion"
 		stackName    = d.Get("name").(string)
 		stackId      = d.Id()
 		requestId, _ = uuid.GenerateUUID()
@@ -462,7 +470,8 @@ func resourceStackDelete(ctx context.Context, d *schema.ResourceData, meta inter
 	deletetOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody: map[string]interface{}{
-			"stack_id": stackId,
+			"stack_id":             stackId,
+			"retain_all_resources": d.Get("retain_all_resources"),
 		},
 		MoreHeaders: map[string]string{
 			"Content-Type":      "application/json",
@@ -470,7 +479,7 @@ func resourceStackDelete(ctx context.Context, d *schema.ResourceData, meta inter
 			"Client-Request-Id": requestId,
 		},
 	}
-	_, err = client.Request("DELETE", deletePath, &deletetOpt)
+	_, err = client.Request("POST", deletePath, &deletetOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting stack (%s)", stackId))
 	}
