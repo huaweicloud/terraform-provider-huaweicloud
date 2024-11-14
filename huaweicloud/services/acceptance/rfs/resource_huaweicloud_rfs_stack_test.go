@@ -13,9 +13,9 @@ import (
 )
 
 func getStackesourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.NewServiceClient("aos", acceptance.HW_REGION_NAME)
+	client, err := cfg.NewServiceClient("rfs", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating AOS client: %s", err)
+		return nil, fmt.Errorf("error creating RFS client: %s", err)
 	}
 
 	return rfs.QueryStackById(client, state.Primary.ID)

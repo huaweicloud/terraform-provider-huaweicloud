@@ -176,9 +176,9 @@ func resourceStackCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		requestId, _ = uuid.GenerateUUID()
 	)
 
-	client, err := cfg.NewServiceClient("aos", region)
+	client, err := cfg.NewServiceClient("rfs", region)
 	if err != nil {
-		return diag.Errorf("error creating AOS client: %s", err)
+		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
 	createPath := client.Endpoint + httpUrl
@@ -402,9 +402,9 @@ func resourceStackRead(_ context.Context, d *schema.ResourceData, meta interface
 		stackId = d.Id()
 	)
 
-	client, err := cfg.NewServiceClient("aos", region)
+	client, err := cfg.NewServiceClient("rfs", region)
 	if err != nil {
-		return diag.Errorf("error creating AOS client: %s", err)
+		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
 	resp, err := QueryStackById(client, stackId)
@@ -430,9 +430,9 @@ func resourceStackRead(_ context.Context, d *schema.ResourceData, meta interface
 func resourceStackUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("aos", region)
+	client, err := cfg.NewServiceClient("rfs", region)
 	if err != nil {
-		return diag.Errorf("error creating AOS client: %s", err)
+		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
 	if err = deployStack(ctx, client, d, d.Id(), d.Timeout(schema.TimeoutUpdate)); err != nil {
@@ -450,9 +450,9 @@ func resourceStackDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		stackId      = d.Id()
 		requestId, _ = uuid.GenerateUUID()
 	)
-	client, err := cfg.NewServiceClient("aos", region)
+	client, err := cfg.NewServiceClient("rfs", region)
 	if err != nil {
-		return diag.Errorf("error creating AOS client: %s", err)
+		return diag.Errorf("error creating RFS client: %s", err)
 	}
 
 	deletePath := client.Endpoint + httpUrl
