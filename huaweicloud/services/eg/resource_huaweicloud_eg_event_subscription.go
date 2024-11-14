@@ -84,6 +84,17 @@ func ResourceEventSubscription() *schema.Resource {
 									Required: true,
 								}),
 						},
+						"detail_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The name (key) of the source configuration detail.",
+						},
+						"detail": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringIsJSON,
+							Description:  "The configuration source of the event target, in JSON format.",
+						},
 						"created_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -208,9 +219,10 @@ func buildEventSourcesOpts(newSources *schema.Set) []interface{} {
 			continue
 		}
 		element := map[string]interface{}{
-			"provider_type": newSource["provider_type"],
-			"name":          newSource["name"],
-			"filter":        unmarshalEventSubscriptionParamsters("filter rule of event source", newSource["filter_rule"].(string)),
+			"provider_type":                   newSource["provider_type"],
+			"name":                            newSource["name"],
+			"filter":                          unmarshalEventSubscriptionParamsters("filter rule of event source", newSource["filter_rule"].(string)),
+			newSource["detail_name"].(string): unmarshalEventSubscriptionParamsters("event source detail", newSource["detail"].(string)),
 		}
 		if sourceId, ok := newSource["id"].(string); ok && sourceId != "" {
 			// The ID can be omitted, a new source will be created in this scenario.
@@ -284,6 +296,19 @@ func flattenEventSources(sourcesResp []map[string]interface{}) []interface{} {
 			"created_at":    source["created_time"],
 			"updated_at":    source["updated_time"],
 		}
+		// find the key name of the target details
+		for key, value := range source {
+			if strings.Contains(key, "detail") {
+				jsonDetail, err := json.Marshal(value)
+				if err != nil {
+					log.Printf("[ERROR] unable to convert the detail of the event source, not json format")
+				} else {
+					element["detail_name"] = key
+					element["detail"] = string(jsonDetail)
+				}
+				break
+			}
+		}
 
 		jsonFilter, err := json.Marshal(source["filter"])
 		if err != nil {
@@ -310,8 +335,7 @@ func flattenEventTargets(targetsResp []map[string]interface{}) []interface{} {
 		}
 		// find the key name of the target details
 		for key, value := range target {
-			if target["provider_type"] == "OFFICIAL" && strings.Contains(key, "_detail") ||
-				target["provider_type"] == "CUSTOM" && strings.Contains(key, "detail") {
+			if strings.Contains(key, "detail") {
 				jsonDetail, err := json.Marshal(value)
 				if err != nil {
 					log.Printf("[ERROR] unable to convert the detail of the event target, not json format")
