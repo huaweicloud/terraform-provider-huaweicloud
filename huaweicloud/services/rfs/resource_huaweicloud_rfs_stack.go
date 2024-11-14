@@ -472,7 +472,7 @@ func resourceStackDelete(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 	_, err = client.Request("DELETE", deletePath, &deletetOpt)
 	if err != nil {
-		return diag.Errorf("error deleting stack (%s): %s", stackId, err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting stack (%s)", stackId))
 	}
 
 	stateConf := &resource.StateChangeConf{
