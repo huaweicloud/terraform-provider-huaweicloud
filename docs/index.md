@@ -5,6 +5,9 @@ configured with the proper credentials before it can be used.
 
 Use the navigation to the left to read about the available resources.
 
+-> **NOTE:** You can also use this provider to interact with resources supported by HCSO if the API is compatible
+with HuaweiCloud.
+
 ## Example Usage
 
 Terraform 0.13 and later:
@@ -108,7 +111,7 @@ to specify your credentials. You need to specify a location in the Terraform con
 `shared_config_file` argument or using the `HW_SHARED_CONFIG_FILE` environment variable.
 This method also supports a `profile` configuration and matching `HW_PROFILE` environment variable:
 
-!> **NOTE:** The CLI configuration file can not be used directly by terraform, you need to skip encrypting
+-> **NOTE:** The CLI configuration file can not be used directly by terraform, you need to skip encrypting
 authentication information in the configuration file by running the following command:
 
 ```sh
