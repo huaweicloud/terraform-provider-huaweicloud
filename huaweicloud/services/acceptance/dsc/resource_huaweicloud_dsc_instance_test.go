@@ -16,42 +16,36 @@ import (
 )
 
 func getDscInstanceResourceFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getDscInstance: Query the DSC instance
 	var (
-		getDscInstanceHttpUrl = "v1/{project_id}/period/product/specification"
-		getDscInstanceProduct = "dsc"
+		region  = acceptance.HW_REGION_NAME
+		httpUrl = "v1/{project_id}/period/product/specification"
+		product = "dsc"
 	)
-	getDscInstanceClient, err := cfg.NewServiceClient(getDscInstanceProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DscInstance Client: %s", err)
 	}
 
-	getDscInstancePath := getDscInstanceClient.Endpoint + getDscInstanceHttpUrl
-	getDscInstancePath = strings.ReplaceAll(getDscInstancePath, "{project_id}", getDscInstanceClient.ProjectID)
-
-	getDscInstanceOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getDscInstanceResp, err := getDscInstanceClient.Request("GET", getDscInstancePath, &getDscInstanceOpt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving DscInstance: %s", err)
+		return nil, fmt.Errorf("error retrieving DSC instance: %s", err)
 	}
 
-	getDscInstanceRespBody, err := utils.FlattenResponse(getDscInstanceResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving DscInstance: %s", err)
+		return nil, err
 	}
 
-	orderInfo := utils.PathSearch("orderInfo", getDscInstanceRespBody, []interface{}{})
-	orders := orderInfo.([]interface{})
+	orders := utils.PathSearch("orderInfo", respBody, make([]interface{}, 0)).([]interface{})
 	if len(orders) == 0 {
-		return nil, fmt.Errorf("error retrieving DscInstance: %s", err)
+		return nil, fmt.Errorf("error retrieving DSC instance: %s", err)
 	}
-	return orderInfo, nil
+	return orders, nil
 }
 
 func TestAccDscInstance_basic(t *testing.T) {
