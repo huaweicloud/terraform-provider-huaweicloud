@@ -304,7 +304,6 @@ github.com/chnsz/golangsdk/openstack/rds/v3/configurations
 github.com/chnsz/golangsdk/openstack/rds/v3/flavors
 github.com/chnsz/golangsdk/openstack/rds/v3/instances
 github.com/chnsz/golangsdk/openstack/rds/v3/securities
-github.com/chnsz/golangsdk/openstack/rf/v1/stacks
 github.com/chnsz/golangsdk/openstack/rms/v1/policyassignments
 github.com/chnsz/golangsdk/openstack/scm/v3/certificates
 github.com/chnsz/golangsdk/openstack/sdrs/v1/attachreplication
