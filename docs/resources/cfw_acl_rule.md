@@ -193,8 +193,8 @@ The following arguments are supported:
 
 * `destination_domain_group_type` - (Optional, Int) The destination domain group type.
   The options are as follows:
-  + **4**: domain name group using URL filtering;
-  + **6**: domain name group using DNS resolution;
+  + **4**: application domain name group;
+  + **6**: network domain name group;
 
 * `destination_address_groups` - (Optional, List) The destination address group list.
 
