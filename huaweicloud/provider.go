@@ -696,6 +696,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_topic_partitions":        dms.DataSourceDmsKafkaTopicPartitions(),
 			"huaweicloud_dms_kafka_users":                   dms.DataSourceDmsKafkaUsers(),
 			"huaweicloud_dms_kafka_message_diagnosis_tasks": dms.DataSourceDmsKafkaMessageDiagnosisTasks(),
+			"huaweicloud_dms_kafka_messages":                dms.DataSourceDmsKafkaMessages(),
 
 			"huaweicloud_dms_rabbitmq_flavors":        dms.DataSourceRabbitMQFlavors(),
 			"huaweicloud_dms_rabbitmq_plugins":        dms.DataSourceDmsRabbitmqPlugins(),
