@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_instant_tasks": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time. The format of the end time is **yyyy-mm-ddThh:mm:ssZ**",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "ended_at": "string",
+                      "fail_reason": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "name": "string",
+                      "progress": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the tasks list.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the task name. The value can be:",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time. The format of the start time is **yyyy-mm-ddThh:mm:ssZ**.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the task status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

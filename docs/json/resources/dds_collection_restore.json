@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dds_collection_restore": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "restore_collections": {
+                "block": {
+                  "attributes": {
+                    "database": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "restore_database_time": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "collections": {
+                      "block": {
+                        "attributes": {
+                          "new_name": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "old_name": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "restore_collection_time": {
+                            "type": "string",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_pt_modification_records": {
+          "block": {
+            "attributes": {
+              "configuration_id": {
+                "type": "string",
+                "description": "Specifies the ID of the parameter template.",
+                "required": true
+              },
+              "histories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "new_value": "string",
+                      "old_value": "string",
+                      "parameter_name": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the modification records.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

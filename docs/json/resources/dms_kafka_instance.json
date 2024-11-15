@@ -138,22 +138,6 @@
                 "optional": true,
                 "computed": true
               },
-              "management_connect_address": {
-                "type": "string",
-                "computed": true
-              },
-              "manager_password": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true,
-                "sensitive": true
-              },
-              "manager_user": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
               "message_query_inst_enable": {
                 "type": "bool",
                 "computed": true

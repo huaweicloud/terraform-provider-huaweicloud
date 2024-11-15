@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_policy_group": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the policy group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the policy group.",
+                "required": true
+              },
+              "policies": {
+                "type": "string",
+                "description": "The policies of the policy group, in JSON format.",
+                "optional": true
+              },
+              "priority": {
+                "type": "number",
+                "description": "The priority of the policy group.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "targets": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The object ID.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The object name.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The object type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of target objects."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

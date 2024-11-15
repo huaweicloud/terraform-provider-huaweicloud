@@ -7,8 +7,7 @@
             "attributes": {
               "action": {
                 "type": "number",
-                "optional": true,
-                "default": 0
+                "optional": true
               },
               "address_group_id": {
                 "type": "string",

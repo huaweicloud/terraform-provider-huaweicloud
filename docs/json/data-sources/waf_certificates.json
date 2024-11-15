@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_certificates": {
+          "block": {
+            "attributes": {
+              "certificates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bind_host": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "domain": "string",
+                            "id": "string",
+                            "mode": "string",
+                            "waf_type": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "expiration_status": "string",
+                      "expired_at": "string",
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The certificate list.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID of WAF certificate.",
+                "optional": true
+              },
+              "expiration_status": {
+                "type": "string",
+                "description": "Specifies the certificate expiration status.",
+                "optional": true
+              },
+              "host": {
+                "type": "bool",
+                "description": "Specifies whether to obtain the domain name for which the certificate is used.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of certificate.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the data source. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

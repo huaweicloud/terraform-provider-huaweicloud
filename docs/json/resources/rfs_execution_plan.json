@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rfs_execution_plan": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the execution plan.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the execution plan.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "stack_id": {
+                "type": "string",
+                "description": "The ID of the resource stack to which the execution plan belongs.",
+                "optional": true,
+                "forcenew": true
+              },
+              "stack_name": {
+                "type": "string",
+                "description": "The name of the resource stack to which the execution plan belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "template_body": {
+                "type": "string",
+                "description": "The HCL/JSON template content for deployment resources.",
+                "optional": true,
+                "forcenew": true
+              },
+              "template_uri": {
+                "type": "string",
+                "description": "The OBS address where the HCL/JSON template archive (**.zip** file, which contains all resource **.tf.json** script files to be deployed) or **.tf.json** file is located, which describes the target status of the deployment resources.",
+                "optional": true,
+                "forcenew": true
+              },
+              "vars_body": {
+                "type": "string",
+                "description": "The variable content for deployment resources.",
+                "optional": true,
+                "forcenew": true
+              },
+              "vars_uri": {
+                "type": "string",
+                "description": "The OBS address where the variable (**.tfvars**) file corresponding to the HCL/JSON template located, which describes the target status of the deployment resources.",
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "RFS",
+            "name": "Resource Formation",
+            "catalog": "Management & Governance",
+            "name_cn": "资源编排服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

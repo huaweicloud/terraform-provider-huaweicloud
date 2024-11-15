@@ -65,8 +65,7 @@
                 "type": "string",
                 "description": "The key pair name, which is used for logging in to the cloud phone through ADB.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "name": {
                 "type": "string",

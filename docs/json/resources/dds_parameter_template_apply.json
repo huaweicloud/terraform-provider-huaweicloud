@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dds_parameter_template_apply": {
+          "block": {
+            "attributes": {
+              "configuration_id": {
+                "type": "string",
+                "description": "Specifies the parameter template ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "entity_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the entity IDs.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

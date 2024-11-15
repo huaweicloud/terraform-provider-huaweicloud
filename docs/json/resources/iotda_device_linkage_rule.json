@@ -248,6 +248,36 @@
                       "nesting_mode": "list",
                       "max_items": 1
                     },
+                    "device_linkage_status_condition": {
+                      "block": {
+                        "attributes": {
+                          "device_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "duration": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "product_id": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "status_list": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
                     "simple_timer_condition": {
                       "block": {
                         "attributes": {

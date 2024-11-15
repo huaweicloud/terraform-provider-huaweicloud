@@ -43,6 +43,11 @@
                 "description": "The region where the RFS resource stack is located.",
                 "computed": true
               },
+              "retain_all_resources": {
+                "type": "bool",
+                "description": "Whether to reserve resources when deleting the resource stack.",
+                "optional": true
+              },
               "status": {
                 "type": "string",
                 "description": "The current status of the resource stack.",

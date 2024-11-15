@@ -28,7 +28,7 @@
                           },
                           "username": {
                             "type": "string",
-                            "required": true
+                            "optional": true
                           }
                         }
                       },
