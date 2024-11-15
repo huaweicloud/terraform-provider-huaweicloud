@@ -682,6 +682,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_sql_jobs":               dli.DataSourceDliSqlJobs(),
 			"huaweicloud_dli_sql_templates":          dli.DataSourceDliSqlTemplates(),
 
+			"huaweicloud_dms_kafka_background_tasks":        dms.DataSourceDmsKafkaBackgroundTasks(),
 			"huaweicloud_dms_kafka_flavors":                 dms.DataSourceKafkaFlavors(),
 			"huaweicloud_dms_kafka_extend_flavors":          dms.DataSourceDmsKafkaExtendFlavors(),
 			"huaweicloud_dms_kafka_instances":               dms.DataSourceDmsKafkaInstances(),
@@ -1523,6 +1524,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_spark_template":                  dli.ResourceSparkTemplate(),
 			"huaweicloud_dli_agency":                          dli.ResourceDliAgency(),
 
+			"huaweicloud_dms_kafka_background_task_delete":    dms.ResourceDmsKafkaBackgroundTaskDelete(),
 			"huaweicloud_dms_kafka_user":                      dms.ResourceDmsKafkaUser(),
 			"huaweicloud_dms_kafka_permissions":               dms.ResourceDmsKafkaPermissions(),
 			"huaweicloud_dms_kafka_instance":                  dms.ResourceDmsKafkaInstance(),
