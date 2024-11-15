@@ -494,6 +494,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_central_network_policies":                     cc.DataSourceCcCentralNetworkPolicies(),
 			"huaweicloud_cc_central_network_attachments":                  cc.DataSourceCcCentralNetworkAttachments(),
 			"huaweicloud_cc_central_network_policies_change_set":          cc.DataSourceCcCentralNetworkPoliciesChangeSet(),
+			"huaweicloud_cc_central_network_quotas":                       cc.DataSourceCcCentralNetworkQuotas(),
 			"huaweicloud_cc_connections":                                  cc.DataSourceCloudConnections(),
 			"huaweicloud_cc_connection_routes":                            cc.DataSourceCcConnectionRoutes(),
 			"huaweicloud_cc_connection_tags":                              cc.DataSourceCcConnectionTags(),
