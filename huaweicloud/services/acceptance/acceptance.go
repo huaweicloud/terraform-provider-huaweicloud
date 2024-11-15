@@ -254,7 +254,8 @@ var (
 	HW_DC_VIRTUAL_INTERFACE_ID = os.Getenv("HW_DC_VIRTUAL_INTERFACE_ID")
 	HW_DC_ENABLE_FLAG          = os.Getenv("HW_DC_ENABLE_FLAG")
 
-	HW_DSC_INSTANCE_ID = os.Getenv("HW_DSC_INSTANCE_ID")
+	HW_DSC_INSTANCE_ID    = os.Getenv("HW_DSC_INSTANCE_ID")
+	HW_DSC_ALARM_TOPIC_ID = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
 
 	HW_CES_START_TIME = os.Getenv("HW_CES_START_TIME")
 	HW_CES_END_TIME   = os.Getenv("HW_CES_END_TIME")
@@ -2560,6 +2561,13 @@ func TestAccPrecheckDcFlag(t *testing.T) {
 func TestAccPrecheckDscInstance(t *testing.T) {
 	if HW_DSC_INSTANCE_ID == "" {
 		t.Skip("HW_DSC_INSTANCE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckDscAlarmTopicID(t *testing.T) {
+	if HW_DSC_ALARM_TOPIC_ID == "" {
+		t.Skip("HW_DSC_ALARM_TOPIC_ID must be set for the acceptance test")
 	}
 }
 
