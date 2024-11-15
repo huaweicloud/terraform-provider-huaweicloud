@@ -311,7 +311,7 @@ func createProtocol(client *golangsdk.ServiceClient, d *schema.ResourceData) err
 func getDefaultConversionOpts() *mappings.MappingOption {
 	localRules := []mappings.LocalRule{
 		{
-			User: mappings.LocalRuleVal{
+			User: &mappings.LocalRuleVal{
 				Name: "FederationUser",
 			},
 		},
@@ -412,10 +412,11 @@ func flattenConversionRulesAttr(conversions *mappings.IdentityMapping) []interfa
 	for _, v := range conversions.Rules {
 		localRules := make([]map[string]interface{}, 0, len(v.Local))
 		for _, localRule := range v.Local {
-			username := localRule.User.Name
-			r := map[string]interface{}{
-				"username": username,
+			r := map[string]interface{}{}
+			if localRule.User != nil {
+				r["username"] = localRule.User.Name
 			}
+
 			if localRule.Group != nil {
 				r["group"] = localRule.Group.Name
 			}
