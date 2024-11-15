@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_iotda_data_flow_control_policy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IoTDA
+paths:
+    /v5/iot/{project_id}/routing-rule/flowcontrol-policy:
+        POST:
+            tag: IoTDA
+    /v5/iot/{project_id}/routing-rule/flowcontrol-policy/{policy_id}:
+        DELETE:
+            tag: IoTDA
+        GET:
+            tag: IoTDA
+        PUT:
+            tag: IoTDA

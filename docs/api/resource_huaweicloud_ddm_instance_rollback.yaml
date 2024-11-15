@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ddm_instance_rollback
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDM
+paths:
+    /v1/{project_id}/instances/{instance_id}:
+        GET:
+            tag: DDM
+    /v3/{project_id}/instances/{instance_id}/database-version/rollback-version:
+        POST:
+            tag: DDM

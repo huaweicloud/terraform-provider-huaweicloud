@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rfs_execution_plan
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RFS
+paths:
+    /v1/{project_id}/stacks/{stack_name}/execution-plans:
+        POST:
+            tag: RFS
+    /v1/{project_id}/stacks/{stack_name}/execution-plans/{execution_plan_name}:
+        DELETE:
+            tag: RFS

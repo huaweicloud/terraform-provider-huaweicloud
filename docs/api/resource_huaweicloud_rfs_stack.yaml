@@ -13,8 +13,8 @@ paths:
             tag: RFS
         POST:
             tag: RFS
-    /v1/{project_id}/stacks/{stack_name}:
-        DELETE:
+    /v1/{project_id}/stacks/{stack_name}/deletion:
+        POST:
             tag: RFS
     /v1/{project_id}/stacks/{stack_name}/deployments:
         POST:

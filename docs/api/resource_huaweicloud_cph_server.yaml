@@ -13,6 +13,9 @@ paths:
             tag: CPH
         PUT:
             tag: CPH
+    /v1/{project_id}/cloud-phone/servers/open-access:
+        PUT:
+            tag: CPH
     /v2/{project_id}/cloud-phone/servers:
         POST:
             tag: CPH

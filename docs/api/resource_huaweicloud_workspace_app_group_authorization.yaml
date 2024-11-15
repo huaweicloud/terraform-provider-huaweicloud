@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_group_authorization
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WORKSPACEAPP
+paths:
+    /v1/{project_id}/app-groups/actions/batch-delete-authorization:
+        POST:
+            tag: WORKSPACEAPP
+    /v1/{project_id}/app-groups/actions/list-authorizations:
+        GET:
+            tag: WORKSPACEAPP
+    /v1/{project_id}/app-groups/authorizations:
+        POST:
+            tag: WORKSPACEAPP
