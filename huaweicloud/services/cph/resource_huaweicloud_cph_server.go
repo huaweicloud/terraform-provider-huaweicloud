@@ -164,6 +164,22 @@ func ResourceCphServer() *schema.Resource {
 				ForceNew:    true,
 				Description: `The application port enabled by the cloud phone.`,
 			},
+			"phone_data_volume": {
+				Type:        schema.TypeList,
+				Elem:        cphPhoneDataVolumeSchema(),
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `The phone data volume.`,
+			},
+			"server_share_data_volume": {
+				Type:        schema.TypeList,
+				Elem:        cphShareDataVolumeSchema(),
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `The server share data volume.`,
+			},
 			"order_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -271,6 +287,71 @@ func cphServerAddressSchema() *schema.Resource {
 	return &sc
 }
 
+func cphPhoneDataVolumeSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"volume_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies the volume type.`,
+			},
+			"volume_size": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies the volume size, the unit is GB.`,
+			},
+			"volume_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The volume name.`,
+			},
+			"volume_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The volume ID.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The update time.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func cphShareDataVolumeSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"volume_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies the share volume type.`,
+			},
+			"size": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies the share volume size, the unit is GB.`,
+			},
+			"version": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The share volume type.`,
+			},
+		},
+	}
+	return &sc
+}
+
 func resourceCphServerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -347,11 +428,13 @@ func buildCreateCphServerBodyParams(d *schema.ResourceData, cfg *config.Config) 
 				"subnet_id": utils.ValueIgnoreEmpty(d.Get("subnet_id")),
 			},
 		},
-		"public_ip":         buildCreateCphServerRequestBodyPublicIp(d),
-		"band_width":        buildCreateCphServerRequestBodyBandWidth(d.Get("bandwidth")),
-		"keypair_name":      utils.ValueIgnoreEmpty(d.Get("keypair_name")),
-		"availability_zone": utils.ValueIgnoreEmpty(d.Get("availability_zone")),
-		"ports":             buildCreateCphServerRequestBodyApplicationPort(d.Get("ports")),
+		"public_ip":                buildCreateCphServerRequestBodyPublicIp(d),
+		"band_width":               buildCreateCphServerRequestBodyBandWidth(d.Get("bandwidth")),
+		"keypair_name":             utils.ValueIgnoreEmpty(d.Get("keypair_name")),
+		"availability_zone":        utils.ValueIgnoreEmpty(d.Get("availability_zone")),
+		"ports":                    buildCreateCphServerRequestBodyApplicationPort(d.Get("ports")),
+		"phone_data_volume":        buildCreateCphServerRequestBodyPhoneDataVolume(d.Get("phone_data_volume")),
+		"server_share_data_volume": buildCreateCphServerRequestBodyShareDataVolume(d.Get("server_share_data_volume")),
 	}
 
 	extendParam := map[string]interface{}{
@@ -435,6 +518,40 @@ func buildCreateCphServerRequestBodyApplicationPort(rawParams interface{}) []map
 		}
 		return rst
 	}
+	return nil
+}
+
+func buildCreateCphServerRequestBodyPhoneDataVolume(rawParams interface{}) map[string]interface{} {
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		if len(rawArray) == 0 {
+			return nil
+		}
+
+		raw := rawArray[0].(map[string]interface{})
+		params := map[string]interface{}{
+			"volume_type": utils.ValueIgnoreEmpty(raw["volume_type"]),
+			"size":        utils.ValueIgnoreEmpty(raw["volume_size"]),
+		}
+		return params
+	}
+
+	return nil
+}
+
+func buildCreateCphServerRequestBodyShareDataVolume(rawParams interface{}) map[string]interface{} {
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		if len(rawArray) == 0 {
+			return nil
+		}
+
+		raw := rawArray[0].(map[string]interface{})
+		params := map[string]interface{}{
+			"volume_type": utils.ValueIgnoreEmpty(raw["volume_type"]),
+			"size":        utils.ValueIgnoreEmpty(raw["size"]),
+		}
+		return params
+	}
+
 	return nil
 }
 
@@ -558,9 +675,45 @@ func resourceCphServerRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", getCphServerRespBody, nil)),
 		d.Set("status", utils.PathSearch("status", getCphServerRespBody, nil)),
 		d.Set("security_groups", utils.PathSearch("security_groups", getCphServerRespBody, nil)),
+		d.Set("phone_data_volume", flattenPhoneDataVolume(getCphServerRespBody)),
+		d.Set("server_share_data_volume", flattenShareDataVolume(getCphServerRespBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenPhoneDataVolume(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
+	}
+	curJson := utils.PathSearch("volumes", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"volume_type": utils.PathSearch("volume_type", v, nil),
+			"volume_size": utils.PathSearch("volume_size", v, nil),
+			"volume_name": utils.PathSearch("volume_name", v, nil),
+			"volume_id":   utils.PathSearch("volume_id", v, nil),
+			"created_at":  utils.PathSearch("create_time", v, nil),
+			"updated_at":  utils.PathSearch("update_time", v, nil),
+		})
+	}
+	return rst
+}
+
+func flattenShareDataVolume(resp interface{}) []map[string]interface{} {
+	shareVolume := utils.PathSearch("share_volume_info", resp, nil)
+	if shareVolume == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"volume_type": utils.PathSearch("volume_type", shareVolume, nil),
+			"size":        utils.PathSearch("size", shareVolume, nil),
+			"version":     utils.PathSearch("version", shareVolume, nil),
+		},
+	}
 }
 
 func flattenGetCphServerResponseBodyAddress(resp interface{}) []interface{} {

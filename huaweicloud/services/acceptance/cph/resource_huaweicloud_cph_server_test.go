@@ -83,6 +83,17 @@ func TestAccCphServer_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "order_id"),
 					resource.TestCheckResourceAttrSet(rName, "addresses.#"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttrSet(rName, "phone_data_volume.#"),
+					resource.TestCheckResourceAttrSet(rName, "phone_data_volume.0.volume_type"),
+					resource.TestCheckResourceAttrSet(rName, "phone_data_volume.0.volume_size"),
+					resource.TestCheckResourceAttrSet(rName, "phone_data_volume.0.volume_id"),
+					resource.TestCheckResourceAttrSet(rName, "phone_data_volume.0.volume_name"),
+					resource.TestCheckResourceAttrSet(rName, "phone_data_volume.0.created_at"),
+					resource.TestCheckResourceAttrSet(rName, "phone_data_volume.0.updated_at"),
+					resource.TestCheckResourceAttrSet(rName, "server_share_data_volume.#"),
+					resource.TestCheckResourceAttrSet(rName, "server_share_data_volume.0.volume_type"),
+					resource.TestCheckResourceAttrSet(rName, "server_share_data_volume.0.size"),
+					resource.TestCheckResourceAttrSet(rName, "server_share_data_volume.0.version"),
 				),
 			},
 			{
@@ -139,8 +150,8 @@ func testCphServer_basic(name string) string {
 
 resource "huaweicloud_cph_server" "test" {
   name          = "%s"
-  server_flavor = "physical.rx1.xlarge"
-  phone_flavor  = "rx1.cp.c15.d46.e1v1"
+  server_flavor = "physical.kg1.4xlarge.cp"
+  phone_flavor  = "rs2.plus"
   image_id      = data.huaweicloud_cph_phone_images.test.images[0].id
   keypair_name  = huaweicloud_kps_keypair.test.name
 
@@ -152,6 +163,16 @@ resource "huaweicloud_cph_server" "test" {
     share_type  = "0"
     charge_mode = "1"
     size        = 300
+  }
+
+  phone_data_volume {
+    volume_type = "GPSSD"
+    volume_size = 100
+  }
+
+  server_share_data_volume {
+    volume_type = "GPSSD"
+    size = 100
   }
 
   period_unit = "month"
@@ -173,8 +194,8 @@ func testCphServer_basic_update(name, cphServerName string) string {
 
 resource "huaweicloud_cph_server" "test" {
   name          = "%s"
-  server_flavor = "physical.rx1.xlarge"
-  phone_flavor  = "rx1.cp.c15.d46.e1v1"
+  server_flavor = "physical.kg1.4xlarge.cp"
+  phone_flavor  = "rs2.plus"
   image_id      = data.huaweicloud_cph_phone_images.test.images[0].id
   keypair_name  = huaweicloud_kps_keypair.test1.name
 
@@ -186,6 +207,16 @@ resource "huaweicloud_cph_server" "test" {
     share_type  = "0"
     charge_mode = "1"
     size        = 300
+  }
+
+  phone_data_volume {
+    volume_type = "GPSSD"
+    volume_size = 100
+  }
+
+  server_share_data_volume {
+    volume_type = "GPSSD"
+    size        = 100
   }
 
   period_unit = "month"
