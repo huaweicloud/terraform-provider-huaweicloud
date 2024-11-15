@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.70.3 (November 15, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_eg_event_subscription: add source.detail support [GH-5843]
+
 ## 1.70.2 (November 8, 2024)
 
 BUG FIXES:
