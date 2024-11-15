@@ -1257,8 +1257,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_alarm_rules_template":           aom.ResourceAlarmRulesTemplate(),
 			"huaweicloud_aom_alarm_group_rule":               aom.ResourceAlarmGroupRule(),
 
-			"huaweicloud_rfs_private_hook": rfs.ResourcePrivateHook(),
-			"huaweicloud_rfs_stack":        rfs.ResourceStack(),
+			"huaweicloud_rfs_execution_plan": rfs.ResourceExecutionPlan(),
+			"huaweicloud_rfs_private_hook":   rfs.ResourcePrivateHook(),
+			"huaweicloud_rfs_stack":          rfs.ResourceStack(),
 
 			"huaweicloud_api_gateway_api":         apigateway.ResourceAPI(),
 			"huaweicloud_api_gateway_environment": apigateway.ResourceEnvironment(),
