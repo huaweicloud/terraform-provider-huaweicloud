@@ -80,6 +80,14 @@ func TestAccAutopilotCluster_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccCluster_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "alias", rName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -96,6 +104,154 @@ resource "huaweicloud_cce_autopilot_cluster" "test" {
   name        = "%[2]s"
   flavor      = "cce.autopilot.cluster"
   description = "created by terraform"
+
+  host_network {
+    vpc    = huaweicloud_vpc.test.id
+    subnet = huaweicloud_vpc_subnet.test.id
+  }
+
+  container_network {
+    mode = "eni"
+  }
+
+  eni_network {
+    subnets {
+      subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+    }
+  }
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccCluster_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_autopilot_cluster" "test" {
+  name        = "%[2]s"
+  alias       = "%[2]s-update"
+  flavor      = "cce.autopilot.cluster"
+  description = ""
+
+  host_network {
+    vpc    = huaweicloud_vpc.test.id
+    subnet = huaweicloud_vpc_subnet.test.id
+  }
+
+  container_network {
+    mode = "eni"
+  }
+
+  eni_network {
+    subnets {
+      subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+    }
+  }
+}
+`, common.TestVpc(rName), rName)
+}
+
+func TestAccAutopilotCluster_withEip(t *testing.T) {
+	var (
+		cluster      interface{}
+		resourceName = "huaweicloud_cce_autopilot_cluster.test"
+		rName        = acceptance.RandomAccResourceNameWithDash()
+
+		rc = acceptance.InitResourceCheck(
+			resourceName,
+			&cluster,
+			getAutopilotClusterFunc,
+		)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCluster_withEip(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					// if the length of endpoints is 3, there is an external endpoint
+					// which means the EIP is bind to the cluster
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status.0.phase", "Available"),
+					resource.TestCheckResourceAttr(resourceName, "status.0.endpoints.#", "3"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+				),
+			},
+			{
+				Config: testAccCluster_withEipUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "status.0.endpoints.#", "2"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCluster_withEip(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_cce_autopilot_cluster" "test" {
+  name   = "%[2]s"
+  flavor = "cce.autopilot.cluster"
+  eip_id = huaweicloud_vpc_eip.test.id
+
+  host_network {
+    vpc    = huaweicloud_vpc.test.id
+    subnet = huaweicloud_vpc_subnet.test.id
+  }
+
+  container_network {
+    mode = "eni"
+  }
+
+  eni_network {
+    subnets {
+      subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+    }
+  }
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccCluster_withEipUpdate(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_cce_autopilot_cluster" "test" {
+  name   = "%[2]s"
+  flavor = "cce.autopilot.cluster"
+  eip_id = ""
 
   host_network {
     vpc    = huaweicloud_vpc.test.id

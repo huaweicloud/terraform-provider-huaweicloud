@@ -22,9 +22,8 @@ var autopilotClusterNonUpdatableParams = []string{
 	"name", "flavor",
 	"host_network", "host_network.*.vpc", "host_network.*.subnet",
 	"container_network", "container_network.*.mode",
-	"alias", "annotations", "category", "type", "version", "description", "custom_san", "enable_snat",
+	"annotations", "category", "type", "version", "custom_san", "enable_snat",
 	"enable_swr_image_access", "enable_autopilot", "ipv6_enable",
-	"eni_network", "eni_network.*.subnets", "eni_network.*.subnets.*.subnet_id",
 	"service_network", "service_network.*.ipv4_cidr",
 	"authentication", "authentication.*.mode",
 	"tags", "kube_proxy_mode",
@@ -37,6 +36,8 @@ var autopilotClusterNonUpdatableParams = []string{
 // @API CCE POST /autopilot/v3/projects/{project_id}/clusters
 // @API CCE GET /autopilot/v3/projects/{project_id}/jobs/{job_id}
 // @API CCE GET /autopilot/v3/projects/{project_id}/clusters/{cluster_id}
+// @API CCE PUT /autopilot/v3/projects/{project_id}/clusters/{cluster_id}
+// @API CCE PUT /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/mastereip
 // @API CCE DELETE /autopilot/v3/projects/{project_id}/clusters/{cluster_id}
 func ResourceAutopilotCluster() *schema.Resource {
 	return &schema.Resource{
@@ -99,6 +100,10 @@ func ResourceAutopilotCluster() *schema.Resource {
 						},
 					},
 				},
+			},
+			"eip_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"alias": {
 				Type:     schema.TypeString,
@@ -558,6 +563,13 @@ func resourceAutopilotClusterCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error waiting for creating CCE autopilot cluster (%s) to complete: %s", id, err)
 	}
 
+	if v, ok := d.GetOk("eip_id"); ok {
+		err = clusterEipAction(createClusterClient, id, v.(string))
+		if err != nil {
+			return diag.Errorf("error binding EIP to CCE autopilot cluster (%s): %s", id, err)
+		}
+	}
+
 	return resourceAutopilotClusterRead(ctx, d, meta)
 }
 
@@ -785,8 +797,135 @@ func flattenStatus(getClusterRespBody interface{}) []map[string]interface{} {
 	return res
 }
 
-func resourceAutopilotClusterUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func buildUpdateClusterBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{}
+
+	if d.HasChange("alias") {
+		bodyParams["metadata"] = buildUpdateMetadataBodyParams(d)
+	}
+
+	if d.HasChanges("description", "custom_san", "eni_network") {
+		bodyParams["spec"] = buildUpdateSpecBodyParams(d)
+	}
+
+	return bodyParams
+}
+
+func buildUpdateMetadataBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"alias": utils.ValueIgnoreEmpty(d.Get("alias")),
+	}
+
+	return bodyParams
+}
+
+func buildUpdateSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{}
+
+	if d.HasChange("description") {
+		bodyParams["description"] = d.Get("description")
+	}
+
+	if d.HasChange("custom_san") {
+		bodyParams["customSan"] = d.Get("custom_san")
+	}
+
+	if d.HasChange("eni_network") {
+		bodyParams["eniNetwork"] = buildEniNetworkBodyParams(d)
+	}
+
+	return bodyParams
+}
+
+func buildUpdateClusterEipBodyParams(eipID string) map[string]interface{} {
+	if eipID != "" {
+		return map[string]interface{}{
+			"spec": map[string]interface{}{
+				"action": "bind",
+				"spec": map[string]interface{}{
+					"id": eipID,
+				},
+			},
+		}
+	}
+
+	return map[string]interface{}{
+		"spec": map[string]interface{}{
+			"action": "unbind",
+		},
+	}
+}
+
+func clusterEipAction(updateClusterClient *golangsdk.ServiceClient, clusterID, eipID string) error {
+	var updateClusterEipHttpUrl = "autopilot/v3/projects/{project_id}/clusters/{cluster_id}/mastereip"
+
+	updateClusterEipPath := updateClusterClient.Endpoint + updateClusterEipHttpUrl
+	updateClusterEipPath = strings.ReplaceAll(updateClusterEipPath, "{project_id}", updateClusterClient.ProjectID)
+	updateClusterEipPath = strings.ReplaceAll(updateClusterEipPath, "{cluster_id}", clusterID)
+
+	updateOpts := buildUpdateClusterEipBodyParams(eipID)
+	updateClusterOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(updateOpts),
+	}
+
+	_, err := updateClusterClient.Request("PUT", updateClusterEipPath, &updateClusterOpt)
+	if err != nil {
+		return err
+	}
 	return nil
+}
+
+func resourceAutopilotClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	id := d.Id()
+
+	var updateClusterProduct = "cce"
+
+	updateClusterClient, err := cfg.NewServiceClient(updateClusterProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating CCE Client: %s", err)
+	}
+
+	if d.HasChanges("alias", "description", "custom_san", "eni_network") {
+		var updateClusterHttpUrl = "autopilot/v3/projects/{project_id}/clusters/{cluster_id}"
+
+		updateClusterPath := updateClusterClient.Endpoint + updateClusterHttpUrl
+		updateClusterPath = strings.ReplaceAll(updateClusterPath, "{project_id}", updateClusterClient.ProjectID)
+		updateClusterPath = strings.ReplaceAll(updateClusterPath, "{cluster_id}", id)
+
+		updateOpts := buildUpdateClusterBodyParams(d)
+		updateClusterOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         utils.RemoveNil(updateOpts),
+		}
+
+		_, err := updateClusterClient.Request("PUT", updateClusterPath, &updateClusterOpt)
+		if err != nil {
+			return diag.Errorf("error updating CCE autopolit cluster: %s", err)
+		}
+	}
+
+	if d.HasChange("eip_id") {
+		oldEip, newEip := d.GetChange("eip_id")
+
+		if oldEip.(string) != "" {
+			err = clusterEipAction(updateClusterClient, id, "")
+			if err != nil {
+				return diag.Errorf("error unbinding EIP from CCE autopilot cluster (%s): %s", id, err)
+			}
+		}
+
+		if newEip.(string) != "" {
+			err = clusterEipAction(updateClusterClient, id, newEip.(string))
+			if err != nil {
+				return diag.Errorf("error binding EIP to CCE autopilot cluster (%s): %s", id, err)
+			}
+		}
+	}
+
+	return resourceAutopilotClusterRead(ctx, d, meta)
 }
 
 func resourceAutopilotClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
