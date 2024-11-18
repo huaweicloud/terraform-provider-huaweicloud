@@ -54,6 +54,11 @@ func DataSourceLtsGroups() *schema.Resource {
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: `The key/value pairs to associate with the log group.`,
 						},
+						"enterprise_project_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The enterprise project ID to which the log group belongs.`,
+						},
 						"created_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -124,8 +129,11 @@ func (w *GroupsDSWrapper) listLogGroupsToSchema(body *gjson.Result) error {
 					"id":          groups.Get("log_group_id").Value(),
 					"name":        groups.Get("log_group_name").Value(),
 					"ttl_in_days": groups.Get("ttl_in_days").Value(),
-					"tags":        w.setLogGroupsTag(groups),
-					"created_at":  w.setLogGroCreTime(groups),
+					// Using the `delete` method in the `ignoreSysEpsTag` method will change the original value,
+					// so assign a value to `enterprise_project_id` parmater before assigning a value to `tags` parmater.
+					"enterprise_project_id": groups.Get("tag._sys_enterprise_project_id").Value(),
+					"tags":                  w.setLogGroupsTag(groups),
+					"created_at":            w.setLogGroCreTime(groups),
 				}
 			},
 		)),

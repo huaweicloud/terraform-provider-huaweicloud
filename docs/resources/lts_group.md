@@ -24,15 +24,19 @@ resource "huaweicloud_lts_group" "test" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the log group resource. If omitted, the
-  provider-level region will be used. Changing this creates a new log group resource.
+  provider-level region will be used. Changing this parameter will create a new resource.
 
-* `group_name` - (Required, String, ForceNew) Specifies the log group name. Changing this parameter will create a new
-  resource.
+* `group_name` - (Required, String, ForceNew) Specifies the log group name. Changing this parameter will create a new resource.
 
 * `ttl_in_days` - (Required, Int) Specifies the log expiration time(days).  
   The value is range from `1` to `365`.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the log group.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the log group belongs.
+  Changing this parameter will create a new resource.  
+  This parameter is valid only when the enterprise project function is enabled, if omitted, default enterprise project
+  will be used.
 
 ## Attribute Reference
 
