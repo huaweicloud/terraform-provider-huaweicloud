@@ -28,9 +28,10 @@ func getInstanceResourceFunc(cfg *config.Config, state *terraform.ResourceState)
 
 func TestAccInstance_basic(t *testing.T) {
 	var (
-		obj   interface{}
-		name  = acceptance.RandomAccResourceName()
-		rName = "huaweicloud_dbss_instance.test"
+		obj        interface{}
+		name       = acceptance.RandomAccResourceName()
+		updataName = acceptance.RandomAccResourceName()
+		rName      = "huaweicloud_dbss_instance.test"
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -64,11 +65,12 @@ func TestAccInstance_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testInstance_update(name),
+				Config: testInstance_update(updataName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "name", updataName),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(rName, "description", "test desc"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "test"),
 					resource.TestCheckResourceAttr(rName, "tags.acc", "value"),
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
@@ -170,7 +172,7 @@ resource "huaweicloud_networking_secgroup" "test" {
 
 resource "huaweicloud_dbss_instance" "test" {
   name               = "%[2]s"
-  description        = "terraform test"
+  description        = "test desc"
   flavor             = data.huaweicloud_dbss_flavors.test.flavors[0].id
   resource_spec_code = "dbss.bypassaudit.low"
   product_spec_desc  = local.product_spec_desc
