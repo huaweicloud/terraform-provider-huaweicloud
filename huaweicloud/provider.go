@@ -645,6 +645,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_accounts":        dcs.DataSourceDcsAccounts(),
 			"huaweicloud_dcs_diagnosis_tasks": dcs.DataSourceDcsDiagnosisTasks(),
 
+			"huaweicloud_dds_quotas":                     dds.DataSourceDdsQuotas(),
 			"huaweicloud_dds_audit_logs":                 dds.DataSourceDdsAuditLogs(),
 			"huaweicloud_dds_audit_log_links":            dds.DataSourceDdsAuditLogLinks(),
 			"huaweicloud_dds_database_versions":          dds.DataSourceDdsDatabaseVersions(),
