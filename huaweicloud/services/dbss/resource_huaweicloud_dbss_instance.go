@@ -35,6 +35,7 @@ import (
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API DBSS POST /v1/{project_id}/{resource_type}/{resource_id}/tags/create
 // @API DBSS DELETE /v1/{project_id}/{resource_type}/{resource_id}/tags/delete
+// @API DBSS PUT /v1/{project_id}/dbss/audit/instances/{instance_id}
 func ResourceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,
@@ -59,7 +60,6 @@ func ResourceInstance() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The instance name.`,
 			},
 			"availability_zone": {
@@ -143,12 +143,10 @@ func ResourceInstance() *schema.Resource {
 					"true", "false",
 				}, false),
 			},
-
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `The description of the instance.`,
 			},
 			"ip_address": {
@@ -558,6 +556,17 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		instanceId = d.Id()
 	)
 
+	client, err := cfg.NewServiceClient("dbss", region)
+	if err != nil {
+		return diag.Errorf("error creating DBSS client: %s", err)
+	}
+
+	if d.HasChanges("name", "description") {
+		if err := updateNameAndDescription(client, d); err != nil {
+			return diag.Errorf("error updating the DBSS instance: %s", err)
+		}
+	}
+
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
@@ -572,11 +581,6 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	// update tags
 	if d.HasChange("tags") {
-		client, err := cfg.NewServiceClient("dbss", region)
-		if err != nil {
-			return diag.Errorf("error creating DBSS client: %s", err)
-		}
-
 		oldRaw, newRaw := d.GetChange("tags")
 		oldMap := oldRaw.(map[string]interface{})
 		newMap := newRaw.(map[string]interface{})
@@ -597,17 +601,44 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	if d.HasChange("security_group_id") {
-		client, err := cfg.NewServiceClient("dbss", region)
-		if err != nil {
-			return diag.Errorf("error creating DBSS client: %s", err)
-		}
-
 		if err := updateSecurityGroupID(client, d); err != nil {
 			return diag.Errorf("error updating DBSS security group: %s", err)
 		}
 	}
 
 	return resourceInstanceRead(ctx, d, meta)
+}
+
+func updateNameAndDescription(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateHttpUrl := "v1/{project_id}/dbss/audit/instances/{instance_id}"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+
+	updateOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"name":    utils.ValueIgnoreEmpty(d.Get("name")),
+			"comment": utils.ValueIgnoreEmpty(d.Get("description")),
+		},
+	}
+
+	resp, err := client.Request("PUT", updatePath, &updateOpts)
+	if err != nil {
+		return err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	result := utils.PathSearch("result", respBody, "").(string)
+	if result != "success" {
+		return fmt.Errorf("the update response value is not success")
+	}
+
+	return nil
 }
 
 func updateSecurityGroupID(client *golangsdk.ServiceClient, d *schema.ResourceData) error {

@@ -42,10 +42,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the instance name. The name can contain `1` to `64` characters.
+* `name` - (Required, String) Specifies the instance name. The name can contain `1` to `64` characters.
   Only letters, digits, underscores (_), and hyphens (-) are allowed.
-
-  Changing this parameter will create a new resource.
 
 * `availability_zone` - (Required, String, ForceNew) Specifies the availability zone to which the instance belongs.
   Primary and secondary AZs are separated by commas. Example: **cn-north-4a,cn-north-4b**.
@@ -111,9 +109,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `description` - (Optional, String, ForceNew) Specifies the description of the instance.
-
-  Changing this parameter will create a new resource.
+* `description` - (Optional, String) Specifies the description of the instance.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
