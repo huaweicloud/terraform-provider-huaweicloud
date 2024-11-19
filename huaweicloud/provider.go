@@ -1461,6 +1461,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dbss_audit_risk_rule_action": dbss.ResourceRiskRuleAction(),
 			"huaweicloud_dbss_instance":               dbss.ResourceInstance(),
+			"huaweicloud_dbss_rds_database":           dbss.ResourceAddRdsDatabase(),
 
 			"huaweicloud_dc_virtual_gateway":            dc.ResourceVirtualGateway(),
 			"huaweicloud_dc_virtual_interface":          dc.ResourceVirtualInterface(),
