@@ -1505,6 +1505,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ddm_schema":                 ddm.ResourceDdmSchema(),
 			"huaweicloud_ddm_account":                ddm.ResourceDdmAccount(),
 			"huaweicloud_ddm_instance_read_strategy": ddm.ResourceDdmInstanceReadStrategy(),
+			"huaweicloud_ddm_physical_sessions_kill": ddm.ResourceDdmPhysicalSessionsKill(),
 
 			"huaweicloud_dis_stream": dis.ResourceDisStream(),
 
