@@ -1552,11 +1552,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rabbitmq_exchange_associate":  dms.ResourceDmsRabbitmqExchangeAssociate(),
 			"huaweicloud_dms_rabbitmq_user":                dms.ResourceDmsRabbitmqUser(),
 
-			"huaweicloud_dms_rocketmq_instance":       dms.ResourceDmsRocketMQInstance(),
-			"huaweicloud_dms_rocketmq_consumer_group": dms.ResourceDmsRocketMQConsumerGroup(),
-			"huaweicloud_dms_rocketmq_topic":          dms.ResourceDmsRocketMQTopic(),
-			"huaweicloud_dms_rocketmq_user":           dms.ResourceDmsRocketMQUser(),
-			"huaweicloud_dms_rocketmq_migration_task": dms.ResourceDmsRocketmqMigrationTask(),
+			"huaweicloud_dms_rocketmq_instance":             dms.ResourceDmsRocketMQInstance(),
+			"huaweicloud_dms_rocketmq_consumer_group":       dms.ResourceDmsRocketMQConsumerGroup(),
+			"huaweicloud_dms_rocketmq_message_offset_reset": dms.ResourceDmsRocketMQMessageOffsetReset(),
+			"huaweicloud_dms_rocketmq_topic":                dms.ResourceDmsRocketMQTopic(),
+			"huaweicloud_dms_rocketmq_user":                 dms.ResourceDmsRocketMQUser(),
+			"huaweicloud_dms_rocketmq_migration_task":       dms.ResourceDmsRocketmqMigrationTask(),
 
 			"huaweicloud_dns_custom_line":             dns.ResourceDNSCustomLine(),
 			"huaweicloud_dns_ptrrecord":               dns.ResourceDNSPtrRecord(),
