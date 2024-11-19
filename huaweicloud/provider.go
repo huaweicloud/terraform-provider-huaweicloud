@@ -959,6 +959,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_mysql_database_privileges":       rds.DataSourceRdsMysqlDatabasePrivileges(),
 			"huaweicloud_rds_mysql_accounts":                  rds.DataSourceRdsMysqlAccounts(),
 			"huaweicloud_rds_mysql_binlog":                    rds.DataSourceRdsMysqlBinlog(),
+			"huaweicloud_rds_mysql_proxy_flavors":             rds.DataSourceRdsMysqlProxyFlavors(),
 			"huaweicloud_rds_parametergroups":                 rds.DataSourceParametergroups(),
 			"huaweicloud_rds_sql_audit_operations":            rds.DataSourceRdsSqlAuditTypes(),
 			"huaweicloud_rds_cross_region_backups":            rds.DataSourceRdsCrossRegionBackups(),
