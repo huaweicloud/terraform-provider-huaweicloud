@@ -67,7 +67,9 @@ The following arguments are supported:
 * `container_network` - (Required, List, NonUpdatable) Specifies the container network of the cluster.
   The [container_network](#autopilot_cluster_container_network) structure is documented below.
 
-* `alias` - (Optional, String, NonUpdatable) Specifies the alias of the cluster. Enter 4 to 128 characters starting
+* `eip_id` - (Optional, String) Specifies the EIP ID of the cluster.
+
+* `alias` - (Optional, String) Specifies the alias of the cluster. Enter 4 to 128 characters starting
   with a lowercase letter and not ending with a hyphen (-). Only lowercase letters, digits, and hyphens (-) are allowed.
   If not specified, the alias is the same as the cluster name.
 
@@ -78,12 +80,12 @@ The following arguments are supported:
 * `type` - (Optional, String, NonUpdatable) Specifies the master node architecture. The value can be:
   + **VirtualMachine**: Indicates the master node is an x86 server.
 
-* `description` - (Optional, String, NonUpdatable) Specifies the description of the cluster.
+* `description` - (Optional, String) Specifies the description of the cluster.
 
 * `version` - (Optional, String, NonUpdatable) Specifies the version of the cluster.
   If not specified, a cluster of the latest version will be created.
 
-* `custom_san` - (Optional, List, NonUpdatable) Specifies the custom SAN field in the API server certificate of the cluster.
+* `custom_san` - (Optional, List) Specifies the custom SAN field in the API server certificate of the cluster.
 
 * `enable_snat` - (Optional, Bool, NonUpdatable) Specifies whether SNAT is configured for the cluster.
   After this function is enabled, the cluster can access the Internet through a NAT gateway.
@@ -100,7 +102,7 @@ The following arguments are supported:
 
 * `ipv6_enable` - (Optional, Bool, NonUpdatable) Specifies whether the cluster uses the IPv6 mode.
 
-* `eni_network` - (Optional, List, NonUpdatable) Specifies the ENI network of the cluster.
+* `eni_network` - (Optional, List) Specifies the ENI network of the cluster.
   The [eni_network](#autopilot_cluster_eni_network) structure is documented below.
 
 * `service_network` - (Optional, List, NonUpdatable) Specifies the service network of the cluster.
@@ -195,13 +197,13 @@ The `container_network` block supports:
 <a name="autopilot_cluster_eni_network"></a>
 The `eni_network` block supports:
 
-* `subnets` - (Required, List, NonUpdatable) Specifies the list of ENI subnets.
+* `subnets` - (Required, List) Specifies the list of ENI subnets.
   The [subnets](#autopilot_cluster_eni_network_subnets) structure is documented below.
 
 <a name="autopilot_cluster_eni_network_subnets"></a>
 The `subnets` block supports:
 
-* `subnet_id` - (Required, String, NonUpdatable) Specifies the IPv4 subnet ID of the subnet used to create control
+* `subnet_id` - (Required, String) Specifies the IPv4 subnet ID of the subnet used to create control
   nodes and containers.
 
 <a name="autopilot_cluster_service_network"></a>
@@ -286,7 +288,7 @@ The autopilot cluster can be imported using the cluster ID, e.g.
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`delete_efs`, `delete_eni`, `delete_net`, `delete_obs`, `delete_sfs30` and `lts_reclaim_policy`. It is generally
+`eip_id`, `delete_efs`, `delete_eni`, `delete_net`, `delete_obs`, `delete_sfs30` and `lts_reclaim_policy`. It is generally
 recommended running `terraform plan` after importing a cluster. You can then decide if changes should be applied to
 the cluster, or the resource definition should be updated to align with the cluster. Also you can ignore changes as
 below.
