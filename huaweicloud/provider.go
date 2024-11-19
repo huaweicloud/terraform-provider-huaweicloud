@@ -1743,6 +1743,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_batchtask":                iotda.ResourceBatchTask(),
 			"huaweicloud_iotda_dataforwarding_rule":      iotda.ResourceDataForwardingRule(),
 			"huaweicloud_iotda_data_flow_control_policy": iotda.ResourceDataFlowControlPolicy(),
+			"huaweicloud_iotda_data_backlog_policy":      iotda.ResourceDataBacklogPolicy(),
 			"huaweicloud_iotda_device":                   iotda.ResourceDevice(),
 			"huaweicloud_iotda_device_async_command":     iotda.ResourceDeviceAsyncCommand(),
 			"huaweicloud_iotda_device_certificate":       iotda.ResourceDeviceCertificate(),
