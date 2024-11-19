@@ -126,6 +126,12 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
   The [ApplicationPort](#cphServer_ApplicationPort) structure is documented below.
 
+* `phone_data_volume` - (Optional, List) The phone data volume.
+  The [phone_data_volume](#phone_data_volume) structure is documented below.
+
+* `server_share_data_volume` - (Optional, List) The server share data volume.
+  The [server_share_data_volume](#server_share_data_volume) structure is documented below.
+
 <a name="cphServer_BandWidth"></a>
 The `BandWidth` block supports:
 
@@ -161,6 +167,24 @@ The `ApplicationPort` block supports:
     + **true**: public network access is mapped.
     + **false**: no mapping is performed.
 
+<a name="phone_data_volume"></a>
+The `phone_data_volume` block supports:
+
+* `volume_size` - (Optional, Int, ForceNew) Specifies the volume size, the unit is GB.
+  Changing this parameter will create a new resource.
+
+* `volume_type` - (Optional, String, ForceNew) Specifies the volume type.
+  Changing this parameter will create a new resource.
+
+<a name="server_share_data_volume"></a>
+The `server_share_data_volume` block supports:
+
+* `volume_type` - (Optional, String, ForceNew) Specifies the share volume type.
+  Changing this parameter will create a new resource.
+
+* `size` - (Optional, Int, ForceNew) Specifies the share volume size, the unit is GB.
+  Changing this parameter will create a new resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -191,6 +215,28 @@ The `Address` block supports:
 * `server_ip` - The internal IP address of the CPH server.  
 
 * `public_ip` - The public IP address of the CPH server.  
+
+* `phone_data_volume` - The phone data volume.
+  The [phone_data_volume](#attr_phone_data_volume) structure is documented below.
+
+* `server_share_data_volume` - The server share data volume.
+  The [server_share_data_volume](#attr_server_share_data_volume) structure is documented below.
+
+<a name="attr_phone_data_volume"></a>
+The `phone_data_volume` block supports:
+
+* `volume_id` - The volume ID.
+
+* `volume_name` - The volume name.
+
+* `created_at` - The creation time.
+
+* `updated_at` - The update time.
+
+<a name="attr_server_share_data_volume"></a>
+The `server_share_data_volume` block supports:
+
+* `version` - The share volume type.
 
 ## Import
 
