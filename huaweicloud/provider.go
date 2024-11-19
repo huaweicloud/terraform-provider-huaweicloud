@@ -718,6 +718,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_migration_tasks":       dms.DataSourceDmsRocketmqMigrationTasks(),
 			"huaweicloud_dms_rocketmq_topic_consumer_groups": dms.DataSourceDmsRocketmqTopicConsumerGroups(),
 			"huaweicloud_dms_rocketmq_extend_flavors":        dms.DataSourceDmsRocketmqExtendFlavors(),
+			"huaweicloud_dms_rocketmq_messages":              dms.DataSourceDmsRocketMQMessages(),
 
 			"huaweicloud_dns_custom_lines":        dns.DataSourceDNSCustomLines(),
 			"huaweicloud_dns_floating_ptrrecords": dns.DataSourceFloatingPtrrecords(),
