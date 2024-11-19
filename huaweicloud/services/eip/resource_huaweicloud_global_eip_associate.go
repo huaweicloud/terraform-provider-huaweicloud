@@ -397,11 +397,8 @@ func resourceGlobalEIPAssociateRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("associate_instance", flattenAssociateInstance(utils.PathSearch("associate_instance_info", geip, nil))),
 		d.Set("gc_bandwidth", gcbInfo),
 	)
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting global EIP association fields: %s", err)
-	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func getGCBInfo(client *golangsdk.ServiceClient, domainID, gcbID string) (interface{}, error) {
