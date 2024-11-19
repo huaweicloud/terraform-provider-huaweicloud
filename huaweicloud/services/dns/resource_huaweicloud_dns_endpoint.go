@@ -17,6 +17,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API DNS DELETE /v2.1/endpoints/{endpoint_id}/ipaddresses/{ipaddress_id}
@@ -59,6 +60,7 @@ func ResourceDNSEndpoint() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			// Multiple IP addresses can be assigned to a subnet, so the Set type cannot be used.
 			"ip_addresses": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -147,12 +149,13 @@ func resourceDNSEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("err creating DNS endpoint: %s", err)
 	}
-	d.SetId(endpoint.ID)
-	log.Printf("[DEBUG] Waiting for DNS endpoint (%s) to become available", endpoint.ID)
+	endpointId := endpoint.ID
+	d.SetId(endpointId)
+	log.Printf("[DEBUG] Waiting for DNS endpoint (%s) to become available", endpointId)
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"ACTIVE"},
 		Pending:      []string{"PENDING"},
-		Refresh:      waitForDNSEndpoint(dnsClient, endpoint.ID),
+		Refresh:      refreshEndpointStatus(dnsClient, endpointId),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -162,15 +165,15 @@ func resourceDNSEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf(
 			"error waiting for DNS endpoint (%s) to become ACTIVE for creation: %s",
-			endpoint.ID, err)
+			endpointId, err)
 	}
 
 	return resourceDNSEndpointRead(ctx, d, meta)
 }
 
-func waitForDNSEndpoint(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func refreshEndpointStatus(client *golangsdk.ServiceClient, endpointId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		endpoint, err := endpoints.Get(client, id).Extract()
+		endpoint, err := endpoints.Get(client, endpointId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return endpoint, "DELETED", nil
@@ -212,7 +215,7 @@ func resourceDNSEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"ACTIVE"},
 		Pending:      []string{"PENDING"},
-		Refresh:      waitForDNSEndpoint(dnsClient, d.Id()),
+		Refresh:      refreshEndpointStatus(dnsClient, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -232,27 +235,31 @@ func updateIpAddresses(client *golangsdk.ServiceClient, d *schema.ResourceData) 
 	var (
 		oldRaws, newRaws = d.GetChange("ip_addresses")
 		num              = len(oldRaws.([]interface{}))
-		endpointID       = d.Id()
+		endpointId       = d.Id()
 	)
 	log.Printf("[DEBUG] update IP Address oldRaws (%s), newRaws (%s)", oldRaws, newRaws)
-	addRaws := getDisjointPart(newRaws.([]interface{}), oldRaws.([]interface{}))
+	addRaws := getDiffIpAddresses(newRaws.([]interface{}), oldRaws.([]interface{}))
 	log.Printf("[DEBUG] update IP Address addRaws (%s)", addRaws)
-	removeRaws := getDisjointPart(oldRaws.([]interface{}), newRaws.([]interface{}))
+	removeRaws := getDiffIpAddresses(oldRaws.([]interface{}), newRaws.([]interface{}))
 	log.Printf("[DEBUG] update IP Address removeRaws (%s)", removeRaws)
+
+	// The `ip_addresses` parameter length limit range form `2` to `6`.
+	// The following logic is to handle the critical value scenario.
+	// For example, the original number is `3` IP addresses, `4` IP addresses are added, and `1` IP address is deleted.
 	var err error
 	for {
 		if len(addRaws) == 0 && len(removeRaws) == 0 {
 			return nil
 		}
 		if num < 6 && len(addRaws) > 0 {
-			addRaws, err = addIpAddress(client, addRaws, endpointID)
+			addRaws, err = addIpAddress(client, addRaws, endpointId)
 			if err != nil {
 				return err
 			}
 			num++
 			continue
 		}
-		removeRaws, err = removeIpAddress(client, removeRaws, endpointID)
+		removeRaws, err = removeIpAddress(client, removeRaws, endpointId)
 		if err != nil {
 			return err
 		}
@@ -260,75 +267,47 @@ func updateIpAddresses(client *golangsdk.ServiceClient, d *schema.ResourceData) 
 	}
 }
 
-// getDisjointPart get the part in "from" array but not in "to" array
-func getDisjointPart(from []interface{}, to []interface{}) []ipaddress.ListObject {
-	type IPMsg struct {
-		IPAddressID string
-		SubnetID    string
-		IP          string
-		IsMatched   bool
-	}
-
-	var fIPList = make([]IPMsg, len(from))
-	for i, f := range from {
-		fMap := f.(map[string]interface{})
-		fIPList[i] = IPMsg{
-			IPAddressID: fMap["ip_address_id"].(string),
-			SubnetID:    fMap["subnet_id"].(string),
-			IP:          fMap["ip"].(string),
-		}
-	}
-
-	var tIPList = make([]IPMsg, len(to))
-	for i, t := range to {
-		tMap := t.(map[string]interface{})
-		tIPList[i] = IPMsg{
-			IPAddressID: tMap["ip_address_id"].(string),
-			SubnetID:    tMap["subnet_id"].(string),
-			IP:          tMap["ip"].(string),
-		}
-	}
-
-	for i, fIP := range fIPList {
-		for j, tIP := range tIPList {
-			if !tIP.IsMatched && fIP.IP == tIP.IP {
-				if fIP.SubnetID == tIP.SubnetID {
-					fIPList[i].IsMatched = true
-					tIPList[j].IsMatched = true
+// The getDiffIpAddresses method is used to get the part in "from" array but not in "to" array.
+func getDiffIpAddresses(from, to []interface{}) []interface{} {
+	rest := make([]interface{}, 0)
+	for i, fRaw := range from {
+		for j, tRaw := range to {
+			isMatched := utils.PathSearch("is_matched", tRaw, false).(bool)
+			if !isMatched && utils.PathSearch("ip", fRaw, "").(string) == utils.PathSearch("ip", tRaw, "").(string) {
+				if utils.PathSearch("subnet_id", fRaw, "").(string) == utils.PathSearch("subnet_id", tRaw, "").(string) {
+					from[i].(map[string]interface{})["is_matched"] = true
+					to[j].(map[string]interface{})["is_matched"] = true
 				} else {
-					fIPList[i].IP = ""
+					// When the IP is not specified in the new value, the IP of the old value will be obtained,
+					// which will cause the IP to not correspond to the subnet, so special processing to set the IP to empty.
+					from[i].(map[string]interface{})["ip"] = ""
 				}
 			}
 		}
-	}
 
-	var res []ipaddress.ListObject
-	for _, ip := range fIPList {
-		if !ip.IsMatched {
-			res = append(res, ipaddress.ListObject{
-				ID:       ip.IPAddressID,
-				SubnetID: ip.SubnetID,
-				IP:       ip.IP,
-			})
+		if !utils.PathSearch("is_matched", fRaw, false).(bool) {
+			rest = append(rest, fRaw)
 		}
 	}
-	return res
+
+	return rest
 }
 
-func addIpAddress(client *golangsdk.ServiceClient, list []ipaddress.ListObject, endpointID string) ([]ipaddress.ListObject, error) {
+func addIpAddress(client *golangsdk.ServiceClient, list []interface{}, endpointId string) ([]interface{}, error) {
 	opts := ipaddress.CreateOpts{IPAddress: ipaddress.IPAddress{
-		SubnetID: list[0].SubnetID,
-		IP:       list[0].IP,
+		SubnetID: utils.PathSearch("subnet_id", list[0], "").(string),
+		IP:       utils.PathSearch("ip", list[0], "").(string),
 	}}
-	_, err := ipaddress.Create(client, opts, endpointID).Extract()
+	_, err := ipaddress.Create(client, opts, endpointId).Extract()
 	if err != nil {
 		return nil, err
 	}
 	return list[1:], nil
 }
 
-func removeIpAddress(client *golangsdk.ServiceClient, list []ipaddress.ListObject, endpointID string) ([]ipaddress.ListObject, error) {
-	err := ipaddress.Delete(client, endpointID, list[0].ID).ExtractErr()
+func removeIpAddress(client *golangsdk.ServiceClient, list []interface{}, endpointId string) ([]interface{}, error) {
+	ipAddressId := utils.PathSearch("ip_address_id", list[0], "").(string)
+	err := ipaddress.Delete(client, endpointId, ipAddressId).ExtractErr()
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			return list[1:], nil
@@ -355,9 +334,9 @@ func resourceDNSEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 
 	ipAddress, err := ipaddress.List(dnsClient, id).Extract()
 	if err != nil {
-		return diag.Errorf("error retrieving ip addresses: %s", err)
+		return diag.Errorf("error retrieving IP addresses: %s", err)
 	}
-	log.Printf("[DEBUG] Retrieved ip address %s: %#v", id, ipAddress)
+	log.Printf("[DEBUG] Retrieved IP addresses %s: %#v", id, ipAddress)
 
 	subnetClient, err := conf.NetworkingV1Client(region)
 	if err != nil {
@@ -369,26 +348,11 @@ func resourceDNSEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	if len(subnetList) == 0 {
-		return diag.Errorf("no subnet found")
+		return diag.Errorf("unable to find subnet from API response")
 	}
 
 	log.Printf("[DEBUG] Retrieved ip address %s: %#v", id, ipAddress)
-	var ipAddresses []interface{}
-	for _, ipObject := range ipAddress {
-		ipAddress := make(map[string]interface{}, 6)
-		ipAddress["ip_address_id"] = ipObject.ID
-		ipAddress["ip"] = ipObject.IP
-		ipAddress["status"] = ipObject.Status
-		ipAddress["created_at"] = ipObject.CreateTime
-		ipAddress["updated_at"] = ipObject.UpdateTime
-		for _, subnet := range subnetList {
-			if subnet.SubnetId == ipObject.SubnetID {
-				ipAddress["subnet_id"] = subnet.ID
-				break
-			}
-		}
-		ipAddresses = append(ipAddresses, ipAddress)
-	}
+
 	mErr := multierror.Append(nil,
 		d.Set("name", endpointInfo.Name),
 		d.Set("direction", endpointInfo.Direction),
@@ -397,13 +361,34 @@ func resourceDNSEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("resolver_rule_count", endpointInfo.ResolverRuleCount),
 		d.Set("created_at", endpointInfo.CreateTime),
 		d.Set("updated_at", endpointInfo.UpdateTime),
-		d.Set("ip_addresses", ipAddresses),
+		d.Set("ip_addresses", flattenIpAddresses(ipAddress, subnetList)),
 	)
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error setting resource: %s", mErr)
 	}
 
 	return nil
+}
+
+func flattenIpAddresses(ipAddresses []ipaddress.ListObject, subnetList []subnets.Subnet) []interface{} {
+	var rest []interface{}
+	for _, ipObject := range ipAddresses {
+		ipAddress := map[string]interface{}{
+			"ip_address_id": ipObject.ID,
+			"ip":            ipObject.IP,
+			"status":        ipObject.Status,
+			"created_at":    ipObject.CreateTime,
+			"updated_at":    ipObject.UpdateTime,
+		}
+		for _, subnet := range subnetList {
+			if subnet.SubnetId == ipObject.SubnetID {
+				ipAddress["subnet_id"] = subnet.ID
+				break
+			}
+		}
+		rest = append(rest, ipAddress)
+	}
+	return rest
 }
 
 func resourceDNSEndpointDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -424,7 +409,7 @@ func resourceDNSEndpointDelete(ctx context.Context, d *schema.ResourceData, meta
 		Target: []string{"DELETED"},
 		// we allow to try to delete ERROR endpoint
 		Pending:      []string{"ACTIVE", "PENDING", "ERROR"},
-		Refresh:      waitForDNSEndpoint(dnsClient, d.Id()),
+		Refresh:      refreshEndpointStatus(dnsClient, d.Id()),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
