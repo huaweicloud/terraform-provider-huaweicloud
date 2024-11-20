@@ -2,7 +2,8 @@
 subcategory: "Content Delivery Network (CDN)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cdn_domain"
-description: ""
+description: |-
+  Manages a CDN domain resource within HuaweiCloud.
 ---
 
 # huaweicloud_cdn_domain
@@ -17,7 +18,7 @@ Manages a CDN domain resource within HuaweiCloud.
 variable "domain_name" {}
 variable "origin_server" {}
 
-resource "huaweicloud_cdn_domain" "domain_1" {
+resource "huaweicloud_cdn_domain" "test" {
   name         = var.domain_name
   type         = "web"
   service_area = "mainland_china"
@@ -41,7 +42,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 variable "domain_name" {}
 variable "origin_server" {}
 
-resource "huaweicloud_cdn_domain" "domain_1" {
+resource "huaweicloud_cdn_domain" "test" {
   name         = var.domain_name
   type         = "web"
   service_area = "mainland_china"
@@ -71,7 +72,7 @@ variable "domain_name" {}
 variable "origin_server" {}
 variable "ip_or_domain" {}
 
-resource "huaweicloud_cdn_domain" "domain_1" {
+resource "huaweicloud_cdn_domain" "test" {
   name         = var.domain_name
   type         = "web"
   service_area = "mainland_china"
@@ -204,6 +205,38 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       type          = "white"
       value         = "*.common.com,192.187.2.43,www.test.top:4990"
       include_empty = false
+    }
+  }
+}
+```
+
+### Create a CDN domain with SCM certificate HTTPS configs
+
+```hcl
+variable "domain_name" {}
+variable "origin_server" {}
+variable "certificate_name" {}
+variable "scm_certificate_id" {}
+
+resource "huaweicloud_cdn_domain" "test" {
+  name         = var.domain_name
+  type         = "web"
+  service_area = "mainland_china"
+
+  sources {
+    origin      = var.origin_server
+    origin_type = "ipaddr"
+    active      = 1
+  }
+
+  configs {
+    https_settings {
+      certificate_source = 2
+      certificate_name   = var.certificate_name
+      scm_certificate_id = var.scm_certificate_id
+      certificate_type   = "server"
+      http2_enabled      = true
+      https_enabled      = true
     }
   }
 }
@@ -435,14 +468,22 @@ The `https_settings` block support:
 * `certificate_name` - (Optional, String) Specifies the certificate name. The value contains `3` to `32` characters.
   This parameter is mandatory when a certificate is configured.
 
+* `certificate_source` - (Optional, Int) Specifies the certificate source. Valid values are:
+  + `0`: Your own certificate.
+  + `2`: SCM certificate. Please enable SCM delegation authorization to access SCM service.
+
+  Defaults to `0`.
+
 * `certificate_body` - (Optional, String) Specifies the content of the certificate used by the HTTPS protocol.
   This parameter is mandatory when a certificate is configured. The value is in PEM format.
+  This field is required when `certificate_source` is set to `0`.
 
 * `private_key` - (Optional, String) Specifies the private key used by the HTTPS protocol. This parameter is mandatory
   when a certificate is configured. The value is in PEM format.
+  This field is required when `certificate_source` is set to `0`.
 
-* `certificate_source` - (Optional, Int) Specifies the certificate source. Currently, only **0** is supported, which means
-  your own certificate. Defaults to **0**.
+* `scm_certificate_id` - (Optional, String) Specifies the SCM certificate ID.
+  This field is required when `certificate_source` is set to `2`.
 
 * `certificate_type` - (Optional, String) Specifies the certificate type. Currently, only **server** is supported, which
   means international certificate. Defaults to **server**.

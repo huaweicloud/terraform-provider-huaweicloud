@@ -258,8 +258,11 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
+			// Note: The domain name, certificate and SCM ID configured in the environment variables need to match,
+			// otherwise the test case will fail.
 			acceptance.TestAccPreCheckCertCDN(t)
 			acceptance.TestAccPreCheckCERT(t)
+			acceptance.TestAccPreCheckCCMSSLCertificateId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -295,10 +298,12 @@ func TestAccCdnDomain_configHttpSettings(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_CERT_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.certificate_source", "2"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.certificate_name", "terraform-update"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.scm_certificate_id",
+						acceptance.HW_CCM_SSL_CERTIFICATE_ID),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.http2_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.certificate_source", "0"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.certificate_type", "server"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.ocsp_stapling_status", "off"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.https_settings.0.https_status", "on"),
@@ -408,7 +413,7 @@ resource "huaweicloud_cdn_domain" "test" {
 
 var testAccCdnDomain_configHttpSettings_update1 = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {
-  name                  = "%s"
+  name                  = "%[1]s"
   type                  = "web"
   service_area          = "outside_mainland_china"
   enterprise_project_id = 0
@@ -425,13 +430,13 @@ resource "huaweicloud_cdn_domain" "test" {
     range_based_retrieval_enabled = "true"
 
     https_settings {
+      certificate_source   = 2
       certificate_name     = "terraform-update"
-      certificate_body     = file("%s")
+      scm_certificate_id   = "%[2]s"
+      certificate_type     = "server"
       http2_enabled        = true
       https_enabled        = true
-      private_key          = file("%s")
       tls_version          = "TLSv1.1,TLSv1.2,TLSv1.3"
-      certificate_source   = 0
       ocsp_stapling_status = "off"
     }
 
@@ -446,7 +451,7 @@ resource "huaweicloud_cdn_domain" "test" {
     }
   }
 }
-`, acceptance.HW_CDN_CERT_DOMAIN_NAME, acceptance.HW_CDN_CERT_PATH, acceptance.HW_CDN_PRIVATE_KEY_PATH)
+`, acceptance.HW_CDN_CERT_DOMAIN_NAME, acceptance.HW_CCM_SSL_CERTIFICATE_ID)
 
 var testAccCdnDomain_configHttpSettings_update2 = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain" "test" {

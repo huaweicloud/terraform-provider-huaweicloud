@@ -54,6 +54,11 @@ var httpsConfig = schema.Schema{
 				Optional: true,
 				Computed: true,
 			},
+			"scm_certificate_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"certificate_type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1314,6 +1319,7 @@ func flattenHTTPSAttributes(configResp interface{}, privateKey, certificateBody 
 		"certificate_body":     certificateBody,
 		"private_key":          privateKey,
 		"certificate_source":   httpsMap["certificate_source"],
+		"scm_certificate_id":   httpsMap["scm_certificate_id"],
 		"certificate_type":     httpsMap["certificate_type"],
 		"http2_status":         httpsMap["http2_status"],
 		"tls_version":          httpsMap["tls_version"],
@@ -1991,6 +1997,7 @@ func buildCdnDomainHTTPSOpts(rawHTTPS []interface{}) map[string]interface{} {
 		"certificate_value":    utils.ValueIgnoreEmpty(https["certificate_body"]),
 		"private_key":          utils.ValueIgnoreEmpty(https["private_key"]),
 		"certificate_source":   https["certificate_source"],
+		"scm_certificate_id":   utils.ValueIgnoreEmpty(https["scm_certificate_id"]),
 		"certificate_type":     utils.ValueIgnoreEmpty(https["certificate_type"]),
 		"http2_status":         utils.ValueIgnoreEmpty(buildCdnDomainHTTP2StatusOpts(https["http2_enabled"].(bool))),
 		"tls_version":          utils.ValueIgnoreEmpty(https["tls_version"]),
