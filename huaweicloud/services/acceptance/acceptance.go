@@ -480,7 +480,8 @@ var (
 	HW_HSS_HOST_PROTECTION_HOST_ID  = os.Getenv("HW_HSS_HOST_PROTECTION_HOST_ID")
 	HW_HSS_HOST_PROTECTION_QUOTA_ID = os.Getenv("HW_HSS_HOST_PROTECTION_QUOTA_ID")
 
-	HW_DDM_PROCESS_ID = os.Getenv("HW_DDM_PROCESS_ID")
+	HW_DDM_INSTANCE_ID = os.Getenv("HW_DDM_INSTANCE_ID")
+	HW_DDM_PROCESS_ID  = os.Getenv("HW_DDM_PROCESS_ID")
 
 	HW_DDS_SECOND_LEVEL_MONITORING_ENABLED = os.Getenv("HW_DDS_SECOND_LEVEL_MONITORING_ENABLED")
 	HW_DDS_INSTANCE_ID                     = os.Getenv("HW_DDS_INSTANCE_ID")
@@ -2362,6 +2363,13 @@ func TestAccPreCheckHSSHostProtectionHostId(t *testing.T) {
 func TestAccPreCheckHSSHostProtectionQuotaId(t *testing.T) {
 	if HW_HSS_HOST_PROTECTION_QUOTA_ID == "" {
 		t.Skip("HW_HSS_HOST_PROTECTION_QUOTA_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDDMInstanceID(t *testing.T) {
+	if HW_DDM_INSTANCE_ID == "" {
+		t.Skip("HW_DDM_INSTANCE_ID must be set for the acceptance test")
 	}
 }
 
