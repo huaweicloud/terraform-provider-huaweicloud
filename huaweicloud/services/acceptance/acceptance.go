@@ -504,6 +504,7 @@ var (
 
 	HW_DMS_ROCKETMQ_INSTANCE_ID = os.Getenv("HW_DMS_ROCKETMQ_INSTANCE_ID")
 	HW_DMS_ROCKETMQ_TOPIC_NAME  = os.Getenv("HW_DMS_ROCKETMQ_TOPIC_NAME")
+	HW_DMS_ROCKETMQ_GROUP_NAME  = os.Getenv("HW_DMS_ROCKETMQ_GROUP_NAME")
 
 	HW_SFS_TURBO_BACKUP_ID  = os.Getenv("HW_SFS_TURBO_BACKUP_ID")
 	HW_SFS_FILE_SYSTEM_NAME = os.Getenv("HW_SFS_FILE_SYSTEM_NAME")
@@ -2510,6 +2511,13 @@ func TestAccPreCheckDMSKafkaConsumerGroupName(t *testing.T) {
 func TestAccPreCheckDMSRocketMQInstanceID(t *testing.T) {
 	if HW_DMS_ROCKETMQ_INSTANCE_ID == "" {
 		t.Skip("HW_DMS_ROCKETMQ_INSTANCE_ID must be set for DMS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDMSRocketMQGroupName(t *testing.T) {
+	if HW_DMS_ROCKETMQ_GROUP_NAME == "" {
+		t.Skip("HW_DMS_ROCKETMQ_GROUP_NAME must be set for DMS acceptance tests")
 	}
 }
 
