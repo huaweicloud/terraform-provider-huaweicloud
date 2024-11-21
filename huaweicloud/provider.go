@@ -1563,6 +1563,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_instance":             dms.ResourceDmsRocketMQInstance(),
 			"huaweicloud_dms_rocketmq_consumer_group":       dms.ResourceDmsRocketMQConsumerGroup(),
 			"huaweicloud_dms_rocketmq_message_offset_reset": dms.ResourceDmsRocketMQMessageOffsetReset(),
+			"huaweicloud_dms_rocketmq_dead_letter_resend":   dms.ResourceDmsRocketMQDeadLetterResend(),
 			"huaweicloud_dms_rocketmq_topic":                dms.ResourceDmsRocketMQTopic(),
 			"huaweicloud_dms_rocketmq_user":                 dms.ResourceDmsRocketMQUser(),
 			"huaweicloud_dms_rocketmq_migration_task":       dms.ResourceDmsRocketmqMigrationTask(),
