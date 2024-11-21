@@ -49,7 +49,13 @@ func ResourceLTSGroup() *schema.Resource {
 				Required: true,
 			},
 			"tags": common.TagsSchema(),
-
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The enterprise project ID to which the log group belongs.",
+			},
 			// Attributes
 			"created_at": {
 				Type:     schema.TypeString,
@@ -72,6 +78,11 @@ func resourceGroupCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	epsId := cfg.GetEnterpriseProjectID(d)
+	if epsId != "" {
+		createPath = fmt.Sprintf("%s?enterprise_project_id=%s", createPath, epsId)
+	}
 
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -155,6 +166,9 @@ func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("group_name", utils.PathSearch("log_group_name", groupResult, nil)),
+		// Using the `delete` method in the `ignoreSysEpsTag` method will change the original value,
+		// so assign a value to `enterprise_project_id` parmater before assigning a value to `tags` parmater.
+		d.Set("enterprise_project_id", utils.PathSearch("tag._sys_enterprise_project_id", groupResult, "")),
 		d.Set("tags", ignoreSysEpsTag(utils.PathSearch("tag", groupResult, make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("ttl_in_days", utils.PathSearch("ttl_in_days", groupResult, nil)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("creation_time", groupResult, 0).(float64))/1000, false)),

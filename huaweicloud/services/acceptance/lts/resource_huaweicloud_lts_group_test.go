@@ -46,6 +46,13 @@ func getLtsGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState)
 	return groupResult, nil
 }
 
+func getAcceptanceEpsId() string {
+	if acceptance.HW_ENTERPRISE_PROJECT_ID_TEST == "" {
+		return "0"
+	}
+	return acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+}
+
 func TestAccLtsGroup_basic(t *testing.T) {
 	var (
 		group        interface{}
@@ -68,7 +75,9 @@ func TestAccLtsGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "30"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform")),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", getAcceptanceEpsId()),
+				),
 			},
 			{
 				ResourceName:      resourceName,
@@ -105,15 +114,21 @@ func TestAccLtsGroup_basic(t *testing.T) {
 
 func testAccLtsGroup_basic(name string, ttl int) string {
 	return fmt.Sprintf(`
+variable "enterprise_project_id" {
+  default = "%[1]s"
+}
+
 resource "huaweicloud_lts_group" "test" {
-  group_name  = "%s"
+  group_name  = "%[2]s"
   ttl_in_days = %d
 
   tags = {
     owner = "terraform"
   }
+
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 }
-`, name, ttl)
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, name, ttl)
 }
 
 func testAccLtsGroup_step3(name string, ttl int) string {
