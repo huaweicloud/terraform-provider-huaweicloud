@@ -53,11 +53,11 @@ func DataSourceRdsMysqlProxyFlavors() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
-									"cpu": {
+									"vcpus": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
-									"mem": {
+									"memory": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
@@ -103,7 +103,7 @@ func dataSourceRdsMysqlProxyFlavorsRead(_ context.Context, d *schema.ResourceDat
 
 	limit := 100
 	offset := 0
-	flavorGroups := make(map[string][]map[string]interface{}, 0)
+	res := make([]map[string]interface{}, 0)
 	for {
 		listPath := listBasePath + buildListMysqlProxyFlavorsQueryParams(limit, offset)
 		listResp, err := client.Request("GET", listPath, &listOpt)
@@ -116,9 +116,27 @@ func dataSourceRdsMysqlProxyFlavorsRead(_ context.Context, d *schema.ResourceDat
 			return diag.FromErr(err)
 		}
 
-		flavorGroupsMap, maxCount := flattenMysqlProxyFlavorGroupsResp(listRespBody)
-		for groupType, flavors := range flavorGroupsMap {
-			flavorGroups[groupType] = append(flavorGroups[groupType], flavors...)
+		flavorGroups, maxCount := flattenMysqlProxyFlavorGroupsResp(listRespBody)
+		// in order to keep the res order same with the order of the API res, the map structure can not be used
+		// if the group_type can be found it the res, it should be appended to the already exist of res
+		// otherwise, it should be added to res directly
+		for _, flavorGroup := range flavorGroups {
+			groupType := flavorGroup["group_type"].(string)
+			flavors := flavorGroup["flavors"].([]interface{})
+			find := false
+			for _, r := range res {
+				if r["group_type"] == groupType {
+					r["flavors"] = append(r["flavors"].([]interface{}), flavors...)
+					find = true
+					break
+				}
+			}
+			if !find {
+				res = append(res, map[string]interface{}{
+					"group_type": groupType,
+					"flavors":    flavors,
+				})
+			}
 		}
 		if maxCount < limit {
 			break
@@ -132,13 +150,6 @@ func dataSourceRdsMysqlProxyFlavorsRead(_ context.Context, d *schema.ResourceDat
 	}
 	d.SetId(dataSourceId)
 
-	res := make([]map[string]interface{}, 0, len(flavorGroups))
-	for groupType, flavors := range flavorGroups {
-		res = append(res, map[string]interface{}{
-			"group_type": groupType,
-			"flavors":    flavors,
-		})
-	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("flavor_groups", res),
@@ -151,40 +162,43 @@ func buildListMysqlProxyFlavorsQueryParams(limit, offset int) string {
 	return fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
 }
 
-func flattenMysqlProxyFlavorGroupsResp(listRespBody interface{}) (map[string][]map[string]interface{}, int) {
+func flattenMysqlProxyFlavorGroupsResp(listRespBody interface{}) ([]map[string]interface{}, int) {
 	flavorGroupsJson := utils.PathSearch("compute_flavor_groups", listRespBody, nil)
 	if flavorGroupsJson == nil {
 		return nil, 0
 	}
 
-	result := make(map[string][]map[string]interface{})
 	maxCount := 0
 	flavorGroupsArray := flavorGroupsJson.([]interface{})
+	res := make([]map[string]interface{}, 0, len(flavorGroupsArray))
 	for _, flavorGroup := range flavorGroupsArray {
 		groupType := utils.PathSearch("group_type", flavorGroup, "").(string)
 		flavors := flattenMysqlProxyFlavorGroupFlavorsResp(flavorGroup)
-		result[groupType] = flavors
+		res = append(res, map[string]interface{}{
+			"group_type": groupType,
+			"flavors":    flavors,
+		})
 		if len(flavors) > maxCount {
 			maxCount = len(flavors)
 		}
 	}
-	return result, maxCount
+	return res, maxCount
 }
 
-func flattenMysqlProxyFlavorGroupFlavorsResp(flavors interface{}) []map[string]interface{} {
+func flattenMysqlProxyFlavorGroupFlavorsResp(flavors interface{}) []interface{} {
 	flavorsJson := utils.PathSearch("compute_flavors", flavors, nil)
 	if flavorsJson == nil {
 		return nil
 	}
 
 	flavorsArray := flavorsJson.([]interface{})
-	result := make([]map[string]interface{}, 0, len(flavorsArray))
+	result := make([]interface{}, 0, len(flavorsArray))
 	for _, flavor := range flavorsArray {
 		result = append(result, map[string]interface{}{
 			"id":        utils.PathSearch("id", flavor, nil),
 			"code":      utils.PathSearch("code", flavor, nil),
-			"cpu":       utils.PathSearch("cpu", flavor, nil),
-			"mem":       utils.PathSearch("mem", flavor, nil),
+			"vcpus":     utils.PathSearch("cpu", flavor, nil),
+			"memory":    utils.PathSearch("mem", flavor, nil),
 			"db_type":   utils.PathSearch("db_type", flavor, nil),
 			"az_status": utils.PathSearch("az_status", flavor, nil),
 		})

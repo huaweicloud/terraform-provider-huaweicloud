@@ -52,9 +52,9 @@ The `flavors` block supports:
 
 * `code` - Indicates the specification code of the database proxy.
 
-* `cpu` - Indicates the number of vCPUs.
+* `vcpus` - Indicates the number of vCPUs.
 
-* `mem` - Indicates the memory size in GB.
+* `memory` - Indicates the memory size in GB.
 
 * `db_type` - Indicates the database type.
 
