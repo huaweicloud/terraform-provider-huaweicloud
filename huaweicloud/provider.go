@@ -1172,6 +1172,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_workload_queues":                 dws.DataSourceWorkloadQueues(),
 
 			"huaweicloud_workspace_app_groups":           workspace.DataSourceWorkspaceAppGroups(),
+			"huaweicloud_workspace_app_image_servers":    workspace.DataSourceWorkspaceAppImageServers(),
 			"huaweicloud_workspace_app_nas_storages":     workspace.DataSourceAppNasStorages(),
 			"huaweicloud_workspace_app_storage_policies": workspace.DataSourceAppStoragePolicies(),
 			"huaweicloud_workspace_desktops":             workspace.DataSourceDesktops(),
