@@ -123,7 +123,7 @@ resource "huaweicloud_workspace_app_image_server" "test" {
   authorize_accounts {
     account = split(",", "%[8]s")[0]
     type    = "USER"
-    domain  = element(split("%[9]s", ","), 0)
+    domain  = element(split(",", "%[9]s"), 0)
   }
 
   root_volume {
