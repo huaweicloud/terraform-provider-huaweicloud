@@ -208,8 +208,10 @@ var (
 	HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID        = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID")
 	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID         = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID")
 	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID")
+	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE  = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE")
 	HW_WORKSPACE_OU_NAME                           = os.Getenv("HW_WORKSPACE_OU_NAME")
 	HW_WORKSPACE_APP_FILE_STRORE_OBS_PATH          = os.Getenv("HW_WORKSPACE_APP_FILE_STRORE_OBS_PATH")
+	HW_WORKSPACE_USER_NAMES                        = os.Getenv("HW_WORKSPACE_USER_NAMES")
 
 	HW_FGS_AGENCY_NAME         = os.Getenv("HW_FGS_AGENCY_NAME")
 	HW_FGS_TEMPLATE_ID         = os.Getenv("HW_FGS_TEMPLATE_ID")
@@ -1504,6 +1506,20 @@ func TestAccPreCheckWorkspaceAppServerGroup(t *testing.T) {
 		HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID == "" || HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID == "" ||
 		HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID == "" {
 		t.Skip("Workspace APP server group acceptance test missing configuration parameters.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkspaceAppImageSpecCode(t *testing.T) {
+	if HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE == "" {
+		t.Skip("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE must be set for Workspace APP acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckWorkspaceUserNames(t *testing.T) {
+	if len(strings.Split(HW_WORKSPACE_USER_NAMES, ",")) < 1 {
+		t.Skip("At least one of user must be configured in the HW_WORKSPACE_USER_NAMES, and separated by commas")
 	}
 }
 
