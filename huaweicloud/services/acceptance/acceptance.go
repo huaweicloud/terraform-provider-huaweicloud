@@ -482,6 +482,8 @@ var (
 
 	HW_DDM_INSTANCE_ID = os.Getenv("HW_DDM_INSTANCE_ID")
 	HW_DDM_PROCESS_ID  = os.Getenv("HW_DDM_PROCESS_ID")
+	HW_DDM_START_TIME  = os.Getenv("HW_DDM_START_TIME")
+	HW_DDM_END_TIME    = os.Getenv("HW_DDM_END_TIME")
 
 	HW_DDS_SECOND_LEVEL_MONITORING_ENABLED = os.Getenv("HW_DDS_SECOND_LEVEL_MONITORING_ENABLED")
 	HW_DDS_INSTANCE_ID                     = os.Getenv("HW_DDS_INSTANCE_ID")
@@ -2378,6 +2380,13 @@ func TestAccPreCheckDDMInstanceID(t *testing.T) {
 func TestAccPreCheckDDMProcessId(t *testing.T) {
 	if HW_DDM_PROCESS_ID == "" {
 		t.Skip("HW_DDM_PROCESS_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDDMTimeRange(t *testing.T) {
+	if HW_DDM_START_TIME == "" || HW_DDM_END_TIME == "" {
+		t.Skip("HW_DDM_START_TIME and HW_DDM_END_TIME must be set for acceptance test")
 	}
 }
 
