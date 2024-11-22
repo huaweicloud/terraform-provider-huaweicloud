@@ -111,6 +111,8 @@ var (
 	HW_RAM_SHARE_INVITATION_ID       = os.Getenv("HW_RAM_SHARE_INVITATION_ID")
 	HW_RAM_SHARE_ID                  = os.Getenv("HW_RAM_SHARE_ID")
 
+	HW_RMS_TARGET_ID = os.Getenv("HW_RMS_TARGET_ID")
+
 	HW_CDN_DOMAIN_NAME = os.Getenv("HW_CDN_DOMAIN_NAME")
 	// `HW_CDN_CERT_DOMAIN_NAME` Configure the domain name environment variable of the certificate type.
 	HW_CDN_CERT_DOMAIN_NAME = os.Getenv("HW_CDN_CERT_DOMAIN_NAME")
@@ -1092,6 +1094,13 @@ func TestAccPreCheckRAMSharedPrincipalsQueryFields(t *testing.T) {
 	if HW_RAM_SHARE_ACCOUNT_ID == "" || HW_RAM_SHARE_RESOURCE_URN == "" {
 		t.Skip("HW_RAM_SHARE_ACCOUNT_ID and HW_RAM_SHARE_RESOURCE_URN " +
 			"must be set for RAM shared principals tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRMSTargetID(t *testing.T) {
+	if HW_RMS_TARGET_ID == "" {
+		t.Skip("HW_RMS_TARGET_ID must be set for the acceptance tests.")
 	}
 }
 
