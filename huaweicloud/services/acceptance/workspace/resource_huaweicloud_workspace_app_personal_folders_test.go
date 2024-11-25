@@ -45,7 +45,7 @@ func TestAccAppPersonalFolders_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckSfsFileSystemName(t)
+			acceptance.TestAccPrecheckSfsFileSystemNames(t)
 			acceptance.TestAccPrecheckWorkspaceUserNames(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -84,7 +84,7 @@ resource "huaweicloud_workspace_app_nas_storage" "test" {
   name = "%[1]s"
 
   storage_metadata {
-    storage_handle = "%[2]s"
+    storage_handle = element(split(",", "%[2]s"), 0)
     storage_class  = "sfs"
   }
 }
@@ -107,5 +107,5 @@ resource "huaweicloud_workspace_app_personal_folders" "test" {
     }
   }
 }
-`, name, acceptance.HW_SFS_FILE_SYSTEM_NAME, acceptance.HW_WORKSPACE_USER_NAMES)
+`, name, acceptance.HW_SFS_FILE_SYSTEM_NAMES, acceptance.HW_WORKSPACE_USER_NAMES)
 }

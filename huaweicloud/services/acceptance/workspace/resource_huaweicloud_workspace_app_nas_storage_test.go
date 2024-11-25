@@ -3,6 +3,7 @@ package workspace
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -21,10 +22,18 @@ func getAppNasStorageFunc(cfg *config.Config, state *terraform.ResourceState) (i
 	return workspace.GetAppNasStorageById(client, state.Primary.ID)
 }
 
+func getFirstSfsFileSystemName(names []string) string {
+	if len(names) < 1 {
+		return ""
+	}
+	return names[0]
+}
+
 func TestAccAppNasStorage_basic(t *testing.T) {
 	var (
-		resourceName = "huaweicloud_workspace_app_nas_storage.test"
-		name         = acceptance.RandomAccResourceName()
+		resourceName      = "huaweicloud_workspace_app_nas_storage.test"
+		name              = acceptance.RandomAccResourceName()
+		sfsFileSystemName = getFirstSfsFileSystemName(strings.Split(acceptance.HW_SFS_FILE_SYSTEM_NAMES, ","))
 
 		appGroup interface{}
 		rc       = acceptance.InitResourceCheck(resourceName, &appGroup, getAppNasStorageFunc)
@@ -33,18 +42,18 @@ func TestAccAppNasStorage_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckSfsFileSystemName(t)
+			acceptance.TestAccPrecheckSfsFileSystemNames(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppNasStorage_basic(name),
+				Config: testAccAppNasStorage_basic(name, sfsFileSystemName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "storage_metadata.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "storage_metadata.0.storage_handle", acceptance.HW_SFS_FILE_SYSTEM_NAME),
+					resource.TestCheckResourceAttr(resourceName, "storage_metadata.0.storage_handle", sfsFileSystemName),
 					resource.TestCheckResourceAttr(resourceName, "storage_metadata.0.storage_class", "sfs"),
 					resource.TestCheckResourceAttrSet(resourceName, "storage_metadata.0.export_location"),
 					resource.TestMatchResourceAttr(resourceName, "created_at",
@@ -83,7 +92,7 @@ func testAccAppNasStorageImportStateIdFunc(resourceName string) resource.ImportS
 	}
 }
 
-func testAccAppNasStorage_basic(name string) string {
+func testAccAppNasStorage_basic(name, sfsFileSystemName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_workspace_app_nas_storage" "test" {
   name = "%[1]s"
@@ -93,5 +102,5 @@ resource "huaweicloud_workspace_app_nas_storage" "test" {
     storage_class  = "sfs"
   }
 }
-`, name, acceptance.HW_SFS_FILE_SYSTEM_NAME)
+`, name, sfsFileSystemName)
 }
