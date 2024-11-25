@@ -123,16 +123,16 @@ type DomainResp struct {
 	AcitveDomainName string `json:"active_domain_name"`
 	// The IP address of the standby domain controller.
 	// It needs to be configured when the domain type is LOCAL_AD and the standby node is configured.
-	StandyDomainIp string `json:"standy_domain_ip"`
+	StandyDomainIp string `json:"standby_domain_ip"`
 	// The name of the standby domain controller.
 	// It needs to be configured when the domain type is LOCAL_AD and the standby node is configured.
-	StandyDomainName string `json:"standy_domain_name"`
+	StandyDomainName string `json:"standby_domain_name"`
 	// Primary DNS IP address.
 	// It needs to be configured when the domain type is LOCAL_AD.
 	ActiveDnsIp string `json:"active_dns_ip"`
 	// Backup DNS IP address.
 	// It needs to be configured when the domain type is LOCAL_AD and the standby node is configured.
-	StandyDnsIp string `json:"standy_dns_ip"`
+	StandyDnsIp string `json:"standby_dns_ip"`
 	// Whether to delete the corresponding computer object on AD while deleting the desktop.
 	// + 0 means not delete
 	// + 1 means delete.

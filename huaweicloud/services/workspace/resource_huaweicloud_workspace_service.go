@@ -654,7 +654,7 @@ func resourceServiceUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating Workspace v2 client: %s", err)
 	}
 
-	if d.HasChanges("ad_domains", "access_mode", "dedicated_subnets") {
+	if d.HasChanges("ad_domain", "access_mode", "dedicated_subnets") {
 		if err = updateServiceConnection(ctx, client, d); err != nil {
 			return diag.Errorf("error updating connection parameters of service: %s", err)
 		}
