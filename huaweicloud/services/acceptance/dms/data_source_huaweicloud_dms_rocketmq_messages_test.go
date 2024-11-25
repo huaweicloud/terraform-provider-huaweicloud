@@ -17,6 +17,8 @@ func TestAccDataSourceDmsRocketMQMessages_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSRocketMQInstanceID(t)
+			acceptance.TestAccPreCheckDMSRocketMQTopicName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
