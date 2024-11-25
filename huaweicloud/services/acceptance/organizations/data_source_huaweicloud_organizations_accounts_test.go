@@ -29,6 +29,8 @@ func TestAccDatasourceAccounts_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "accounts.0.id"),
 					resource.TestCheckResourceAttrSet(rName, "accounts.0.name"),
 					resource.TestCheckResourceAttrSet(rName, "accounts.0.urn"),
+					resource.TestCheckResourceAttrSet(rName, "accounts.0.description"),
+					resource.TestCheckResourceAttrSet(rName, "accounts.0.status"),
 					resource.TestCheckResourceAttrSet(rName, "accounts.0.join_method"),
 					resource.TestCheckResourceAttrSet(rName, "accounts.0.joined_at"),
 					resource.TestCheckOutput("parent_id_filter_is_useful", "true"),

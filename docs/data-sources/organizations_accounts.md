@@ -2,7 +2,8 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_accounts"
-description: ""
+description: |-
+  Use this data source to get the list of accounts in an organization.
 ---
 
 # huaweicloud_organizations_accounts
@@ -44,6 +45,10 @@ The `accounts` block supports:
 * `name` - The name of the account.
 
 * `urn` - The uniform resource name of the account.
+
+* `description` - The description of the account.
+
+* `status` - The status of the account.
 
 * `join_method` - How the account joined an organization.
 

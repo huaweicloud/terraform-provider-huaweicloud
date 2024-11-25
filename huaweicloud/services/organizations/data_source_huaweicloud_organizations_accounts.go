@@ -52,27 +52,37 @@ func organizationsAccountSchema() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Unique ID of an account`,
+				Description: `Unique ID of an account.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Name of the account`,
+				Description: `Name of the account.`,
 			},
 			"urn": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Uniform resource name of the account`,
+				Description: `Uniform resource name of the account.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Description of the account.`,
+			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Status of the account.`,
 			},
 			"join_method": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `How an account joined an organization`,
+				Description: `How an account joined an organization.`,
 			},
 			"joined_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Time when an account joined an organization`,
+				Description: `Time when an account joined an organization.`,
 			},
 		},
 	}
@@ -150,6 +160,8 @@ func flattenAccountsResp(resp interface{}, name string) []interface{} {
 			"id":          utils.PathSearch("id", v, nil),
 			"name":        utils.PathSearch("name", v, nil),
 			"urn":         utils.PathSearch("urn", v, nil),
+			"description": utils.PathSearch("description", v, nil),
+			"status":      utils.PathSearch("status", v, nil),
 			"join_method": utils.PathSearch("join_method", v, nil),
 			"joined_at":   utils.PathSearch("joined_at", v, nil),
 		})
