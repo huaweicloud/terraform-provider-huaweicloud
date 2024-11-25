@@ -159,7 +159,7 @@ func ResourceService() *schema.Resource {
 		},
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceServiceImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -726,4 +726,24 @@ func resourceServiceDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	return nil
+}
+
+func resourceServiceImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	if !utils.IsUUID(d.Id()) {
+		conf := meta.(*config.Config)
+		client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
+		if err != nil {
+			return nil, fmt.Errorf("error creating Workspace v2 client: %s", err)
+		}
+
+		resp, err := services.Get(client)
+		if err != nil {
+			return nil, fmt.Errorf("error retrieving Workspace service detail: %s", err)
+		}
+
+		// Refresh the service ID.
+		d.SetId(resp.ID)
+	}
+
+	return []*schema.ResourceData{d}, nil
 }

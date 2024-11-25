@@ -93,8 +93,24 @@ func TestAccService_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccCustomImportStateIdFunc(resourceName, "NA"),
+			},
 		},
 	})
+}
+
+func testAccCustomImportStateIdFunc(resourceName, customId string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		_, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("the resource (%s) is not found in the tfstate", resourceName)
+		}
+		return customId, nil
+	}
 }
 
 func TestAccService_internetAccessPort(t *testing.T) {
