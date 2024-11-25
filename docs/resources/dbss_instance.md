@@ -111,6 +111,17 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the instance.
 
+* `action` - (Optional, String) Specifies operation the DBSS instance status.
+  The valid values are as follows:
+  + **start**: Indicates enable the DBSS instance.
+  + **stop**: Indicates disable the DBSS instance.
+  + **reboot**: Indicates restart the DBSS instance.
+
+  -> 1.After a DBSS instance created, the default status is **start**.
+  <br/>2.The same operation cannot be performed repeatedly.
+  <br/>3.The **stop** or **reboot** operation can only be performed when the DBSS instance has no tasks
+  and is in **start** status.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
 ## Attribute Reference
@@ -147,6 +158,7 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 20 minutes.
+* `update` - Default is 10 minutes.
 * `delete` - Default is 20 minutes.
 
 ## Import
@@ -159,7 +171,8 @@ $ terraform import huaweicloud_dbss_instance.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response. The missing attributes include: `charging_mode`, `enterprise_project_id`, `flavor`, `period`,
-`period_unit`, `product_spec_desc` and `tags`. It is generally recommended running `terraform plan` after importing an instance.
+`period_unit`, `product_spec_desc`, `tags` and `action`.
+It is generally recommended running `terraform plan` after importing an instance.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to align
 with the instance. Also, you can ignore changes as below.
 
@@ -169,7 +182,7 @@ resource "huaweicloud_dbss_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      charging_mode, enterprise_project_id, flavor, period, period_unit, product_spec_desc, tags
+      charging_mode, enterprise_project_id, flavor, period, period_unit, product_spec_desc, tags, action,
     ]
   }
 }

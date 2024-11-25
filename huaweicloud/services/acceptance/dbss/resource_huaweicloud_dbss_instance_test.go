@@ -62,19 +62,29 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
 						"data.huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(rName, "action", "reboot"),
 				),
 			},
 			{
-				Config: testInstance_update(updataName),
+				Config: testInstance_update_1(updataName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updataName),
-					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(rName, "status", "SHUTOFF"),
 					resource.TestCheckResourceAttr(rName, "description", "test desc"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "test"),
 					resource.TestCheckResourceAttr(rName, "tags.acc", "value"),
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
 						"huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttr(rName, "action", "stop"),
+				),
+			},
+			{
+				Config: testInstance_update_2(updataName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(rName, "action", "start"),
 				),
 			},
 			{
@@ -82,7 +92,8 @@ func TestAccInstance_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"charging_mode", "enterprise_project_id", "flavor", "period", "period_unit", "product_spec_desc", "tags",
+					"charging_mode", "enterprise_project_id", "flavor", "period", "period_unit",
+					"product_spec_desc", "tags", "action",
 				},
 			},
 		},
@@ -152,6 +163,7 @@ resource "huaweicloud_dbss_instance" "test" {
   charging_mode      = "prePaid"
   period_unit        = "month"
   period             = 1
+  action             = "reboot"
 
   tags = {
     foo = "bar"
@@ -161,7 +173,7 @@ resource "huaweicloud_dbss_instance" "test" {
 `, testInstance_base(name), name)
 }
 
-func testInstance_update(name string) string {
+func testInstance_update_1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -183,6 +195,39 @@ resource "huaweicloud_dbss_instance" "test" {
   charging_mode      = "prePaid"
   period_unit        = "month"
   period             = 1
+  action             = "stop"
+
+  tags = {
+    foo = "test"
+    acc = "value"
+  }
+}
+`, testInstance_base(name), name)
+}
+
+func testInstance_update_2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name        = "%[2]s"
+  description = "security group acceptance test"
+}
+
+resource "huaweicloud_dbss_instance" "test" {
+  name               = "%[2]s"
+  description        = "test desc"
+  flavor             = data.huaweicloud_dbss_flavors.test.flavors[0].id
+  resource_spec_code = "dbss.bypassaudit.low"
+  product_spec_desc  = local.product_spec_desc
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
+  charging_mode      = "prePaid"
+  period_unit        = "month"
+  period             = 1
+  action             = "start"
 
   tags = {
     foo = "test"
