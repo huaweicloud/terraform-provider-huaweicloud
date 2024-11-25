@@ -1695,6 +1695,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ges_backup":   ges.ResourceGesBackup(),
 
 			"huaweicloud_hss_host_group":           hss.ResourceHostGroup(),
+			"huaweicloud_hss_cce_protection":       hss.ResourceCCEProtection(),
 			"huaweicloud_hss_host_protection":      hss.ResourceHostProtection(),
 			"huaweicloud_hss_webtamper_protection": hss.ResourceWebTamperProtection(),
 			"huaweicloud_hss_quota":                hss.ResourceQuota(),
