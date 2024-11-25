@@ -13,6 +13,9 @@ func TestAccRocketMQMessageOffsetReset_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSRocketMQInstanceID(t)
+			acceptance.TestAccPreCheckDMSKafkaConsumerGroupName(t)
+			acceptance.TestAccPreCheckDMSRocketMQTopicName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
