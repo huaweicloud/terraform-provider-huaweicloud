@@ -61,7 +61,7 @@ func ResourceDataBacklogPolicy() *schema.Resource {
 	}
 }
 
-func convertBacklogValueToInt32(value string) *int32 {
+func convertStringValueToInt32(value string) *int32 {
 	if value == "0" {
 		return utils.Int32(0)
 	}
@@ -79,8 +79,8 @@ func buildDataBacklogPolicyCreateParams(d *schema.ResourceData) *model.CreateRou
 	createOptsBody := model.AddBacklogPolicy{
 		PolicyName:  utils.StringIgnoreEmpty(d.Get("name").(string)),
 		Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-		BacklogSize: convertBacklogValueToInt32(d.Get("backlog_size").(string)),
-		BacklogTime: convertBacklogValueToInt32(d.Get("backlog_time").(string)),
+		BacklogSize: convertStringValueToInt32(d.Get("backlog_size").(string)),
+		BacklogTime: convertStringValueToInt32(d.Get("backlog_time").(string)),
 	}
 
 	return &model.CreateRoutingBacklogPolicyRequest{
@@ -159,8 +159,8 @@ func buildDataBacklogPolicyUpdateParams(d *schema.ResourceData) *model.UpdateRou
 	updateOptsBody := model.UpdateBacklogPolicy{
 		PolicyName:  utils.StringIgnoreEmpty(d.Get("name").(string)),
 		Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-		BacklogSize: convertBacklogValueToInt32(d.Get("backlog_size").(string)),
-		BacklogTime: convertBacklogValueToInt32(d.Get("backlog_time").(string)),
+		BacklogSize: convertStringValueToInt32(d.Get("backlog_size").(string)),
+		BacklogTime: convertStringValueToInt32(d.Get("backlog_time").(string)),
 	}
 
 	return &model.UpdateRoutingBacklogPolicyRequest{
