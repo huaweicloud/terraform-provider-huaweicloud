@@ -3,12 +3,12 @@ subcategory: "Distributed Message Service (DMS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dms_kafka_message_diagnosis_task"
 description: |-
-  Manage DMS kafka smart message diagnosis task resource within HuaweiCloud.
+  Manage DMS kafka message diagnosis task resource within HuaweiCloud.
 ---
 
 # huaweicloud_dms_kafka_message_diagnosis_task
 
-Manage DMS kafka smart message diagnosis task resource within HuaweiCloud.
+Manage DMS kafka message diagnosis task resource within HuaweiCloud.
 
 ## Example Usage
 
