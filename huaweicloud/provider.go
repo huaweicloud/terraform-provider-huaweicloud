@@ -1048,6 +1048,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_smn_topics":            smn.DataSourceTopics(),
 			"huaweicloud_smn_message_templates": smn.DataSourceSmnMessageTemplates(),
 			"huaweicloud_smn_subscriptions":     smn.DataSourceSmnSubscriptions(),
+			"huaweicloud_smn_logtanks":          smn.DataSourceSmnLogtanks(),
 
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
