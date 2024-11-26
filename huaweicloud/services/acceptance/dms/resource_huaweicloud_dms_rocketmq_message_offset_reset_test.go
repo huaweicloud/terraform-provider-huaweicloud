@@ -14,7 +14,7 @@ func TestAccRocketMQMessageOffsetReset_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckDMSRocketMQInstanceID(t)
-			acceptance.TestAccPreCheckDMSKafkaConsumerGroupName(t)
+			acceptance.TestAccPreCheckDMSRocketMQGroupName(t)
 			acceptance.TestAccPreCheckDMSRocketMQTopicName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

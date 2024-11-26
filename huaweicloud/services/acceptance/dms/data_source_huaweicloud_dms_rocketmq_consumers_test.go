@@ -17,7 +17,7 @@ func TestAccDataSourceDmsRocketmqConsumers_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckDMSRocketMQInstanceID(t)
-			acceptance.TestAccPreCheckDMSKafkaConsumerGroupName(t)
+			acceptance.TestAccPreCheckDMSRocketMQGroupName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
