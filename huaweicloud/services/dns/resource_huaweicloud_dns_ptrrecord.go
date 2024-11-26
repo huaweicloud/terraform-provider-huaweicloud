@@ -50,6 +50,9 @@ func ResourceDNSPtrRecord() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+					return strings.TrimSuffix(oldVal, ".") == strings.TrimSuffix(newVal, ".")
+				},
 			},
 			"floatingip_id": {
 				Type:     schema.TypeString,

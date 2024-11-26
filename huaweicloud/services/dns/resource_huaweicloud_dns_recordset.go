@@ -63,6 +63,9 @@ func ResourceDNSRecordset() *schema.Resource {
 				Required: true,
 				Description: `Specifies the name of the record set. The name suffixed with a zone name, which is a
 complete host name ended with a dot.`,
+				DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+					return strings.TrimSuffix(oldVal, ".") == strings.TrimSuffix(newVal, ".")
+				},
 			},
 			"type": {
 				Type:     schema.TypeString,
