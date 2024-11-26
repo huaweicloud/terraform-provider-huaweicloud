@@ -627,6 +627,12 @@ resource "huaweicloud_css_cluster" "test" {
     foo = "%[6]s"
     key = "value"
   }
+
+  lifecycle {
+    ignore_changes = [
+      backup_strategy, ess_node_config.0.shrink_node_ids,
+    ]
+  }
 }
 `, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName, pwd, keepDays, tag)
 }
