@@ -51,6 +51,13 @@ func TestAccAppNasStorage_basic(t *testing.T) {
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
+			// Import by ID.
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Import by name.
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
