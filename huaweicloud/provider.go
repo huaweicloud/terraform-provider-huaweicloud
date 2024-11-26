@@ -1213,6 +1213,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_trusted_services":     organizations.DataSourceOrganizationsTrustedServices(),
 			"huaweicloud_organizations_effective_policies":   organizations.DataSourceOrganizationsEffectivePolicies(),
 			"huaweicloud_organizations_tag_policy_services":  organizations.DataSourceOrganizationsTagPolicyServices(),
+			"huaweicloud_organizations_resource_tags":        organizations.DataSourceOrganizationsTags(),
 
 			// Deprecated ongoing (without DeprecationMessage), used by other providers
 			"huaweicloud_vpc_route":                  vpc.DataSourceVpcRouteV2(),
