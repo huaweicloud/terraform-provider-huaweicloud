@@ -175,6 +175,7 @@ func (w *AppGroupRSWrapper) CreateAppGroup() (*gjson.Result, error) {
 		"app_server_group_id": w.Get("server_group_id", true),
 		"description":         w.Get("description", true),
 		"name":                w.Get("name"),
+		"app_type":            w.Get("type"),
 	}
 	params = utils.RemoveNil(params)
 	return httphelper.New(client).
