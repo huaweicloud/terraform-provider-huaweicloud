@@ -52,7 +52,6 @@ func TestAccPublicGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "spec", string(nat.PublicSpecTypeSmall)),
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttr(rName, "ngport_ip_address", "192.168.0.101"),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 				),
@@ -65,7 +64,6 @@ func TestAccPublicGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "spec", string(nat.PublicSpecTypeMedium)),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "ngport_ip_address", "192.168.0.101"),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "baaar"),
 					resource.TestCheckResourceAttr(rName, "tags.newkey", "value"),
 				),
@@ -84,13 +82,12 @@ func testAccPublicGateway_basic_step_1(name, relatedConfig string) string {
 %[1]s
 
 resource "huaweicloud_nat_gateway" "test" {
-  name                  = "%[2]s"
-  spec                  = "1"
-  description           = "Created by acc test"
-  ngport_ip_address     = "192.168.0.101"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  enterprise_project_id = "0"
+  name              = "%[2]s"
+  spec              = "1"
+  description       = "Created by acc test"
+  ngport_ip_address = "192.168.0.101"
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
 
   tags = {
     foo = "bar"
@@ -105,12 +102,11 @@ func testAccPublicGateway_basic_step_2(name, relatedConfig string) string {
 %[1]s
 
 resource "huaweicloud_nat_gateway" "test" {
-  name                  = "%[2]s"
-  spec                  = "2"
-  ngport_ip_address     = "192.168.0.101"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  enterprise_project_id = "0"
+  name              = "%[2]s"
+  spec              = "2"
+  ngport_ip_address = "192.168.0.101"
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
 
   tags = {
     foo    = "baaar"

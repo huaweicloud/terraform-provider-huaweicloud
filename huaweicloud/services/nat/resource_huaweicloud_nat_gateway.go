@@ -225,7 +225,7 @@ func resourcePublicGatewayCreate(ctx context.Context, d *schema.ResourceData, me
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildCreatePublicGatewayBodyParams(d, cfg),
+		JSONBody:         utils.RemoveNil(buildCreatePublicGatewayBodyParams(d, cfg)),
 	}
 	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
