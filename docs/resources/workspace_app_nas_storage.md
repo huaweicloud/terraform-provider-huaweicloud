@@ -72,7 +72,13 @@ The `storage_metadata` block supports:
 
 ## Import
 
-NAS storages can be imported using their `name`, e.g.
+NAS storages can be imported using their `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_workspace_app_nas_storage.test <id>
+```
+
+If the NAS storage ID is unknow, the NAS storage name can be used as an alternative to ID.  
 
 ```bash
 $ terraform import huaweicloud_workspace_app_nas_storage.test <name>

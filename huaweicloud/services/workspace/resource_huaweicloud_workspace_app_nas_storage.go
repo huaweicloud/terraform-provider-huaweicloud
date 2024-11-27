@@ -3,6 +3,7 @@ package workspace
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -272,21 +273,34 @@ func listAppNasStorages(client *golangsdk.ServiceClient) ([]interface{}, error) 
 
 func resourceAppNasStorageImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	var (
-		cfg         = meta.(*config.Config)
-		region      = cfg.GetRegion(d)
-		storageName = d.Id()
+		storageId string
+		importId  = d.Id()
+		re        = regexp.MustCompile(`^\d{18}$`)
 	)
 
-	client, err := cfg.NewServiceClient("appstream", region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating Workspace APP client: %s", err)
+	if re.MatchString(d.Id()) {
+		// The imported ID is NAS storage ID.
+		storageId = importId
+	} else {
+		// The imported ID is NAS storage name or other meaningless characters, which are all queried as names.
+		cfg := meta.(*config.Config)
+		region := cfg.GetRegion(d)
+
+		client, err := cfg.NewServiceClient("appstream", region)
+		if err != nil {
+			return nil, fmt.Errorf("error creating Workspace APP client: %s", err)
+		}
+
+		storages, err := listAppNasStorages(client)
+		if err != nil {
+			return nil, err
+		}
+		storageId = utils.PathSearch(fmt.Sprintf("[?name=='%s']|[0].id", importId), storages, "").(string)
+		if storageId == "" {
+			return nil, fmt.Errorf("unable to find the NAS storage using its name (%s): %s", importId, err)
+		}
 	}
 
-	storages, err := listAppNasStorages(client)
-	if err != nil {
-		return nil, err
-	}
-
-	d.SetId(utils.PathSearch(fmt.Sprintf("[?name=='%s']|[0].id", storageName), storages, "").(string))
+	d.SetId(storageId)
 	return []*schema.ResourceData{d}, nil
 }
