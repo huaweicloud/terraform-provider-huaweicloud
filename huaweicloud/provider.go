@@ -630,6 +630,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dbss_flavors":                   dbss.DataSourceDbssFlavors(),
 			"huaweicloud_dbss_instances":                 dbss.DataSourceDbssInstances(),
 			"huaweicloud_dbss_operation_logs":            dbss.DataSourceOperationLogs(),
+			"huaweicloud_dbss_rds_databases":             dbss.DataSourceDbssRdsDatabases(),
 
 			"huaweicloud_dc_connections":        dc.DataSourceDcConnections(),
 			"huaweicloud_dc_quotas":             dc.DataSourceDcQuotas(),
