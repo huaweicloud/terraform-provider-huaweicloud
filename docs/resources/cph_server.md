@@ -122,9 +122,10 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `ports` - (Optional, List, ForceNew) The application port enabled by the cloud phone.
-
   Changing this parameter will create a new resource.
   The [ApplicationPort](#cphServer_ApplicationPort) structure is documented below.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CPH server.
 
 * `phone_data_volume` - (Optional, List) The phone data volume.
   The [phone_data_volume](#phone_data_volume) structure is documented below.

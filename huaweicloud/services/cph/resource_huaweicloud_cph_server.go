@@ -29,6 +29,8 @@ import (
 // @API CPH GET /v1/{project_id}/cloud-phone/servers/{server_id}
 // @API CPH PUT /v1/{project_id}/cloud-phone/servers/open-access
 // @API CPH POST /v2/{project_id}/cloud-phone/servers
+// @API CPH POST /v1/{project_id}/{resource_type}/{resource_id}/tags/action
+// @API CPH GET /v1/{project_id}/{resource_type}/{resource_id}/tags
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourceCphServer() *schema.Resource {
 	return &schema.Resource{
@@ -180,6 +182,7 @@ func ResourceCphServer() *schema.Resource {
 				MaxItems:    1,
 				Description: `The server share data volume.`,
 			},
+			"tags": common.TagsSchema(),
 			"order_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -410,6 +413,12 @@ func resourceCphServerCreate(ctx context.Context, d *schema.ResourceData, meta i
 	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the Create of CPH server (%s) to complete: %s", d.Id(), err)
+	}
+
+	if _, ok := d.GetOk("tags"); ok {
+		if err := updateTags(createCphServerClient, d, "cph-server", d.Id()); err != nil {
+			return diag.Errorf("error creating tags of CPH server %s: %s", d.Id(), err)
+		}
 	}
 
 	return resourceCphServerRead(ctx, d, meta)
@@ -679,6 +688,16 @@ func resourceCphServerRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("server_share_data_volume", flattenShareDataVolume(getCphServerRespBody)),
 	)
 
+	tags, err := getServerTags(getCphServerClient, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	mErr = multierror.Append(
+		mErr,
+		d.Set("tags", tags),
+	)
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -772,6 +791,13 @@ func resourceCphServerUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.FromErr(err)
 		}
 	}
+
+	if d.HasChange("tags") {
+		if err := updateTags(client, d, "cph-server", d.Id()); err != nil {
+			return diag.Errorf("error updating tags of CPH server %s: %s", d.Id(), err)
+		}
+	}
+
 	return resourceCphServerRead(ctx, d, meta)
 }
 
@@ -927,4 +953,79 @@ func checkCphJobStatus(ctx context.Context, client *golangsdk.ServiceClient, id 
 		return err
 	}
 	return nil
+}
+
+func updateTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tagsType string, id string) error {
+	oRaw, nRaw := d.GetChange("tags")
+	oMap := oRaw.(map[string]interface{})
+	nMap := nRaw.(map[string]interface{})
+
+	manageTagsHttpUrl := "v1/{project_id}/{resource_type}/{resource_id}/tags/action"
+	manageTagsPath := client.Endpoint + manageTagsHttpUrl
+	manageTagsPath = strings.ReplaceAll(manageTagsPath, "{project_id}", client.ProjectID)
+	manageTagsPath = strings.ReplaceAll(manageTagsPath, "{resource_type}", tagsType)
+	manageTagsPath = strings.ReplaceAll(manageTagsPath, "{resource_id}", id)
+	manageTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+
+	// remove old tags
+	if len(oMap) > 0 {
+		manageTagsOpt.JSONBody = map[string]interface{}{
+			"action": "delete",
+			"tags":   utils.ExpandResourceTags(oMap),
+		}
+		_, err := client.Request("POST", manageTagsPath, &manageTagsOpt)
+		if err != nil {
+			return err
+		}
+	}
+
+	// set new tags
+	if len(nMap) > 0 {
+		manageTagsOpt.JSONBody = map[string]interface{}{
+			"action": "create",
+			"tags":   utils.ExpandResourceTags(nMap),
+		}
+		_, err := client.Request("POST", manageTagsPath, &manageTagsOpt)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func getServerTags(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+	getServerTagsHttpUrl := "v1/{project_id}/{resource_type}/{resource_id}/tags"
+	getServerTagsPath := client.Endpoint + getServerTagsHttpUrl
+	getServerTagsPath = strings.ReplaceAll(getServerTagsPath, "{project_id}", client.ProjectID)
+	getServerTagsPath = strings.ReplaceAll(getServerTagsPath, "{resource_type}", "cph-server")
+	getServerTagsPath = strings.ReplaceAll(getServerTagsPath, "{resource_id}", id)
+
+	getServerTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getServerTagsResp, err := client.Request("GET", getServerTagsPath, &getServerTagsOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	getServerTagsRespBody, err := utils.FlattenResponse(getServerTagsResp)
+	if err != nil {
+		return nil, err
+	}
+
+	tags := utils.PathSearch("tags", getServerTagsRespBody, make([]interface{}, 0)).([]interface{})
+	result := make(map[string]interface{})
+	for _, val := range tags {
+		valMap := val.(map[string]interface{})
+		result[valMap["key"].(string)] = valMap["value"]
+	}
+
+	return result, nil
 }
