@@ -274,8 +274,12 @@ func resourceNodeRootVolume() *schema.Schema {
 func resourceNodeDataVolume() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
-		Required: true,
+		Optional: true,
+		Computed: true,
 		ForceNew: true,
+		Description: utils.SchemaDesc("", utils.SchemaDescInput{
+			Required: true,
+		}),
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"size": {

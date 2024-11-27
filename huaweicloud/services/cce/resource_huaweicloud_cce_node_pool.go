@@ -147,7 +147,12 @@ func ResourceNodePool() *schema.Resource {
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
+			},
+			"subnet_list": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"scall_enable": {
 				Type:     schema.TypeBool,
@@ -450,6 +455,17 @@ func buildAutoscaling(autoscaling interface{}) *nodepools.Autoscaling {
 	return &res
 }
 
+func buildResourceNodePoolNicSpec(d *schema.ResourceData) nodes.NodeNicSpec {
+	res := nodes.NodeNicSpec{
+		PrimaryNic: nodes.PrimaryNic{
+			SubnetId:   d.Get("subnet_id").(string),
+			SubnetList: utils.ExpandToStringList(d.Get("subnet_list").([]interface{})),
+		},
+	}
+
+	return res
+}
+
 func buildNodePoolCreateOpts(d *schema.ResourceData, cfg *config.Config) (*nodepools.CreateOpts, error) {
 	// Validate whether prepaid parameters are configured.
 	billingMode := 0
@@ -469,20 +485,16 @@ func buildNodePoolCreateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 		Spec: nodepools.CreateSpec{
 			Type: d.Get("type").(string),
 			NodeTemplate: nodes.Spec{
-				Flavor:      d.Get("flavor_id").(string),
-				Az:          d.Get("availability_zone").(string),
-				Os:          d.Get("os").(string),
-				RootVolume:  buildResourceNodeRootVolume(d),
-				DataVolumes: buildResourceNodeDataVolume(d),
-				Storage:     buildResourceNodeStorage(d),
-				K8sTags:     buildResourceNodeK8sTags(d),
-				BillingMode: billingMode,
-				Count:       1,
-				NodeNicSpec: nodes.NodeNicSpec{
-					PrimaryNic: nodes.PrimaryNic{
-						SubnetId: d.Get("subnet_id").(string),
-					},
-				},
+				Flavor:                    d.Get("flavor_id").(string),
+				Az:                        d.Get("availability_zone").(string),
+				Os:                        d.Get("os").(string),
+				RootVolume:                buildResourceNodeRootVolume(d),
+				DataVolumes:               buildResourceNodeDataVolume(d),
+				Storage:                   buildResourceNodeStorage(d),
+				K8sTags:                   buildResourceNodeK8sTags(d),
+				BillingMode:               billingMode,
+				Count:                     1,
+				NodeNicSpec:               buildResourceNodePoolNicSpec(d),
 				ExtendParam:               buildExtendParams(d),
 				Taints:                    buildResourceNodeTaint(d),
 				UserTags:                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
@@ -594,7 +606,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	// The following parameters are not returned:
-	// password, subnet_id, extend_params, taints, initial_node_count, pod_security_groups
+	// password, extend_params, taints, initial_node_count, pod_security_groups
 	// extension_scale_groups not save, because the order of groups will change and computed not working in TypeSet
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -624,6 +636,8 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("taint_policy_on_existing_nodes", s.Spec.TaintPolicyOnExistingNodes),
 		d.Set("hostname_config", flattenResourceNodeHostnameConfig(s.Spec.NodeTemplate.HostnameConfig)),
 		d.Set("enterprise_project_id", s.Spec.NodeTemplate.ServerEnterpriseProjectID),
+		d.Set("subnet_id", s.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetId),
+		d.Set("subnet_list", s.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetList),
 	)
 
 	if s.Spec.NodeTemplate.BillingMode != 0 {
@@ -669,6 +683,7 @@ func buildNodePoolUpdateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 				InitializedConditions:     utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
 				ServerEnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 				Os:                        d.Get("os").(string),
+				NodeNicSpecUpdate:         buildResourceNodePoolNicSpec(d),
 			},
 			LabelPolicyOnExistingNodes:   d.Get("label_policy_on_existing_nodes").(string),
 			UserTagPolicyOnExistingNodes: d.Get("tag_policy_on_existing_nodes").(string),

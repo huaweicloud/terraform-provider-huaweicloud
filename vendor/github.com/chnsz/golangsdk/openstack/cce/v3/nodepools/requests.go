@@ -249,7 +249,7 @@ type UpdateNodeTemplate struct {
 	// Number of nodes when creating in batch
 	Count int `json:"count,omitempty"`
 	// The node nic spec
-	NodeNicSpec *nodes.NodeNicSpec `json:"nodeNicSpec,omitempty"`
+	NodeNicSpecUpdate nodes.NodeNicSpec `json:"nodeNicSpecUpdate,omitempty"`
 	// Extended parameter
 	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
 	// UUID of an ECS group

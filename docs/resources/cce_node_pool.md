@@ -290,8 +290,9 @@ The following arguments are supported:
   This parameter can be plain or salted and is alternative to `key_pair`.
   Changing this parameter will create a new resource.
 
-* `subnet_id` - (Optional, String, ForceNew) Specifies the ID of the subnet to which the NIC belongs.
-  Changing this parameter will create a new resource.
+* `subnet_id` - (Optional, String) Specifies the ID of the subnet to which the NIC belongs.
+
+* `subnet_list` - (Optional, List) Specifies the ID list of the subnet to which the NIC belongs.
 
 * `ecs_group_id` - (Optional, String, ForceNew) Specifies the ECS group ID. If specified, the node will be created under
   the cloud server group. Changing this parameter will create a new resource.
@@ -607,7 +608,7 @@ $ terraform import huaweicloud_cce_node_pool.my_node_pool <cluster_id>/<id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `subnet_id`, `extend_params`, `taints`, `initial_node_count`, `pod_security_groups` and `extension_scale_groups`.
+`password`, `extend_params`, `taints`, `initial_node_count`, `pod_security_groups` and `extension_scale_groups`.
 It is generally recommended running `terraform plan` after importing a node pool.
 You can then decide if changes should be applied to the node pool, or the resource
 definition should be updated to align with the node pool. Also you can ignore changes as below.
@@ -618,7 +619,7 @@ resource "huaweicloud_cce_node_pool" "my_node_pool" {
 
   lifecycle {
     ignore_changes = [
-      password, subnet_id,
+      password, extend_params,
     ]
   }
 }
