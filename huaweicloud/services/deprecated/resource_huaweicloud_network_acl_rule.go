@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -7,8 +7,8 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
-	"github.com/chnsz/golangsdk/pagination"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -92,7 +92,7 @@ func ResourceNetworkACLRule() *schema.Resource {
 
 func resourceNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -128,14 +128,14 @@ func resourceNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	rule, err := rules.Get(fwClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "Network ACL rule")
+		return common.CheckDeleted(d, err, "Network ACL rule")
 	}
 
 	logp.Printf("[DEBUG] Retrieve HuaweiCloud Network ACL rule %s: %#v", d.Id(), rule)
@@ -161,7 +161,7 @@ func resourceNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -219,7 +219,7 @@ func resourceNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceNetworkACLRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -271,28 +271,4 @@ func normalizeNetworkACLRuleProtocol(p string) rules.Protocol {
 	}
 
 	return protocol
-}
-
-func assignedPolicyID(fwClient *golangsdk.ServiceClient, ruleID string) (string, error) {
-	pager := policies.List(fwClient, policies.ListOpts{})
-	policyID := ""
-	err := pager.EachPage(func(page pagination.Page) (b bool, err error) {
-		policyList, err := policies.ExtractPolicies(page)
-		if err != nil {
-			return false, err
-		}
-		for _, policy := range policyList {
-			for _, rule := range policy.Rules {
-				if rule == ruleID {
-					policyID = policy.ID
-					return false, nil
-				}
-			}
-		}
-		return true, nil
-	})
-	if err != nil {
-		return "", err
-	}
-	return policyID, nil
 }

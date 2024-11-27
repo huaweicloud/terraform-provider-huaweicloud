@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"time"
@@ -13,16 +13,11 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/routerinsertion"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
-
-// FirewallGroup is an HuaweiCloud firewall group.
-type FirewallGroup struct {
-	firewall_groups.FirewallGroup
-	routerinsertion.FirewallGroupExt
-}
 
 // @API VPC GET /v2.0/ports
 // @API VPC GET /v1/{project_id}/subnets/{id}
@@ -103,7 +98,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 	var inboundPolicyID, outboundPolicyID string
 
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -233,7 +228,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -241,7 +236,7 @@ func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 	var fwGroup FirewallGroup
 	err = firewall_groups.Get(fwClient, d.Id()).ExtractInto(&fwGroup)
 	if err != nil {
-		return CheckDeleted(d, err, "firewall")
+		return common.CheckDeleted(d, err, "firewall")
 	}
 
 	logp.Printf("[DEBUG] Read HuaweiCloud Firewall group %s: %#v", d.Id(), fwGroup)
@@ -260,7 +255,7 @@ func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -343,7 +338,7 @@ func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Destroy firewall group: %s", d.Id())
 
 	config := meta.(*config.Config)
-	fwClient, err := config.FwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -503,34 +498,4 @@ func updateNetworkACLPolicyRules(d *schema.ResourceData, client *golangsdk.Servi
 	}
 
 	return nil
-}
-
-func waitForFirewallGroupActive(fwClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		var fw FirewallGroup
-
-		err := firewall_groups.Get(fwClient, id).ExtractInto(&fw)
-		if err != nil {
-			return nil, "", err
-		}
-		return fw, fw.Status, nil
-	}
-}
-
-func waitForFirewallGroupDeletion(fwClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		fw, err := firewall_groups.Get(fwClient, id).Extract()
-		logp.Printf("[DEBUG] Got firewall group %s => %#v", id, fw)
-
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Firewall group %s is actually deleted", id)
-				return "", "DELETED", nil
-			}
-			return nil, "", fmtp.Errorf("Unexpected error: %s", err)
-		}
-
-		logp.Printf("[DEBUG] Firewall group %s deletion is pending", id)
-		return fw, "DELETING", nil
-	}
 }
