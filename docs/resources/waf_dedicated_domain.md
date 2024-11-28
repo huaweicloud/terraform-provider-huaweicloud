@@ -116,7 +116,7 @@ The following arguments are supported:
   **TLS v1.1** and **TLS v1.2**.
 
 * `cipher` - (Optional, String) Specifies the cipher suite of domain. The valid values are: **cipher_1**, **cipher_2**,
-  **cipher_3**, **cipher_4** and **cipher_default**.
+  **cipher_3**, **cipher_4**, **cipher_5**, **cipher_6**, and **cipher_default**.
 
 * `pci_3ds` - (Optional, Bool) Specifies the status of the PCI 3DS compliance certification check. The options
   include **true** and **false**. This parameter must be used together with `tls` and `cipher`.
