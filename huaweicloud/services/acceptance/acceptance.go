@@ -2395,6 +2395,13 @@ func TestAccPreCheckHSSHostProtectionQuotaId(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckHSSCCEProtection(t *testing.T) {
+	if HW_CCE_CLUSTER_ID == "" || HW_CCE_CLUSTER_NAME == "" {
+		t.Skip("HW_CCE_CLUSTER_ID and HW_CCE_CLUSTER_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckDDMInstanceID(t *testing.T) {
 	if HW_DDM_INSTANCE_ID == "" {
 		t.Skip("HW_DDM_INSTANCE_ID must be set for the acceptance test")
