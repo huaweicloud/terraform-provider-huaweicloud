@@ -56,7 +56,7 @@ type Spec struct {
 	// System disk parameter of the node
 	RootVolume VolumeSpec `json:"rootVolume" required:"true"`
 	// The data disk parameter of the node must currently be a disk
-	DataVolumes []VolumeSpec `json:"dataVolumes" required:"true"`
+	DataVolumes []VolumeSpec `json:"dataVolumes,omitempty"`
 	// Disk initialization configuration management parameters
 	// If omit, disk management is performed according to the DockerLVMConfigOverride parameter in extendParam
 	Storage *StorageSpec `json:"storage,omitempty"`
@@ -104,6 +104,8 @@ type PrimaryNic struct {
 	SubnetId string `json:"subnetId,omitempty"`
 	// Fixed ips of the primary Nic
 	FixedIps []string `json:"fixedIps,omitempty"`
+	// Subnet list of the primary Nic
+	SubnetList []string `json:"subnetList,omitempty"`
 }
 
 type ExtNic struct {
