@@ -1,11 +1,13 @@
 ---
-subcategory: "Network ACL"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_network_acl"
 description: ""
 ---
 
 # huaweicloud_network_acl
+
+!> **WARNING:** It has been deprecated, use `huaweicloud_vpc_network_acl` instead.
 
 Manages a network ACL resource within HuaweiCloud.
 

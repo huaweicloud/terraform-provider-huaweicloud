@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"fmt"
@@ -12,6 +12,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/fwaas_v2/firewall_groups"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -21,9 +22,9 @@ func TestAccNetworkACL_basic(t *testing.T) {
 	var fwGroup FirewallGroup
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkACLDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkACLDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkACL_basic(rName),
@@ -56,9 +57,9 @@ func TestAccNetworkACL_no_subnets(t *testing.T) {
 	var fwGroup FirewallGroup
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkACLDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkACLDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkACL_no_subnets(rName),
@@ -80,9 +81,9 @@ func TestAccNetworkACL_remove(t *testing.T) {
 	var fwGroup FirewallGroup
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkACLDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckDeprecated(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckNetworkACLDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkACL_basic_update(rName),
@@ -113,8 +114,8 @@ func TestAccNetworkACL_remove(t *testing.T) {
 }
 
 func testAccCheckNetworkACLDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	fwClient, err := config.FwV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -145,8 +146,8 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 			return fmtp.Errorf("No ID is set in %s", n)
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		fwClient, err := config.FwV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		fwClient, err := config.FwV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}
@@ -162,16 +163,6 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 		}
 
 		*fwGroup = found
-
-		return nil
-	}
-}
-
-func testAccCheckFWFirewallPortCount(firewall_group *FirewallGroup, expected int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if len(firewall_group.PortIDs) != expected {
-			return fmtp.Errorf("Expected %d Ports, got %d", expected, len(firewall_group.PortIDs))
-		}
 
 		return nil
 	}
