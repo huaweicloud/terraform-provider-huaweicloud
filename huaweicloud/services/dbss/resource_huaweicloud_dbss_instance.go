@@ -36,6 +36,10 @@ import (
 // @API DBSS POST /v1/{project_id}/{resource_type}/{resource_id}/tags/create
 // @API DBSS DELETE /v1/{project_id}/{resource_type}/{resource_id}/tags/delete
 // @API DBSS PUT /v1/{project_id}/dbss/audit/instances/{instance_id}
+// @API DBSS POST /v1/{project_id}/dbss/audit/security-group
+// @API DBSS POST /v1/{project_id}/dbss/audit/instance/start
+// @API DBSS POST /v1/{project_id}/dbss/audit/instance/stop
+// @API DBSS POST /v1/{project_id}/dbss/audit/instance/reboot
 func ResourceInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceInstanceCreate,
@@ -47,6 +51,7 @@ func ResourceInstance() *schema.Resource {
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -156,6 +161,13 @@ func ResourceInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the IP address.`,
 			},
+			"action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"start", "stop", "reboot",
+				}, false),
+			},
 			"tags": common.TagsSchema(),
 			"connect_ip": {
 				Type:        schema.TypeString,
@@ -256,6 +268,25 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 	if err != nil {
 		return diag.Errorf("error waiting for the instance (%s) creation to complete: %s", d.Id(), err)
 	}
+
+	action := d.Get("action").(string)
+	if action == "stop" || action == "reboot" {
+		resp, err := QueryTargetDBSSInstance(client, d.Id())
+		if err != nil {
+			return diag.Errorf("error retrieving DBSS instance")
+		}
+
+		instanceId := utils.PathSearch("id", resp, "").(string)
+		if instanceId == "" {
+			return diag.Errorf("failed to operation the DBSS instance: 'instance_id' is not found in API response")
+		}
+
+		err = operateDbssInstance(ctx, d, client, action, instanceId)
+		if err != nil {
+			return diag.Errorf("error '%s' the DBSS instance in creation: %s", action, err)
+		}
+	}
+
 	return resourceInstanceRead(ctx, d, meta)
 }
 
@@ -551,9 +582,8 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 
 func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg        = meta.(*config.Config)
-		region     = cfg.GetRegion(d)
-		instanceId = d.Id()
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
 	)
 
 	client, err := cfg.NewServiceClient("dbss", region)
@@ -569,7 +599,7 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := config.MigrateResourceOpts{
-			ResourceId:   instanceId,
+			ResourceId:   d.Id(),
 			ResourceType: "auditInstance",
 			RegionId:     region,
 			ProjectId:    cfg.GetProjectID(region),
@@ -603,6 +633,20 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	if d.HasChange("security_group_id") {
 		if err := updateSecurityGroupID(client, d); err != nil {
 			return diag.Errorf("error updating DBSS security group: %s", err)
+		}
+	}
+
+	if d.HasChange("action") {
+		action := d.Get("action").(string)
+		instanceId := d.Get("instance_id").(string)
+		if instanceId == "" {
+			return diag.Errorf("editing action is currently not supported because of a failure in getting instance_id")
+		}
+		if action != "" {
+			err = operateDbssInstance(ctx, d, client, action, instanceId)
+			if err != nil {
+				return diag.Errorf("error '%s' the DBSS instance in update: %s", action, err)
+			}
 		}
 	}
 
@@ -758,4 +802,62 @@ func resourceInstanceDelete(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	return nil
+}
+
+func operateDbssInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	action, instanceId string) error {
+	httpUrl := "v1/{project_id}/dbss/audit/instance/{action}"
+	actionPath := client.Endpoint + httpUrl
+	actionPath = strings.ReplaceAll(actionPath, "{project_id}", client.ProjectID)
+	actionPath = strings.ReplaceAll(actionPath, "{action}", action)
+
+	actionOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"instance_id": instanceId,
+		},
+	}
+
+	_, err := client.Request("POST", actionPath, &actionOpts)
+	if err != nil {
+		return err
+	}
+
+	err = waitingForOperationInstanceCompleted(ctx, d, client, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("error waiting for the instance '%s' to complete: %s", action, err)
+	}
+
+	return nil
+}
+
+func waitingForOperationInstanceCompleted(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	t time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			respBody, err := QueryTargetDBSSInstance(client, d.Id())
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			task := utils.PathSearch("task", respBody, "").(string)
+			if task == "" {
+				return nil, "ERROR", fmt.Errorf("the 'task' is not found in API response")
+			}
+
+			if task == "NO_TASK" {
+				return respBody, "COMPLETED", nil
+			}
+
+			return respBody, "PENDING", nil
+		},
+		Timeout:      t,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+
+	return err
 }
