@@ -24,6 +24,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var notFoundErrCode = []string{
+	"DRS.M00289", // non exist
+	"DRS.M05004", // deleted
+}
+
 // @API DRS POST /v3/{project_id}/jobs/batch-status
 // @API DRS POST /v3/{project_id}/jobs
 // @API DRS POST /v3/{project_id}/jobs/batch-connection
@@ -942,7 +947,8 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 
 	detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "results[0].error_code", notFoundErrCode...),
+			"error retrieving DRS job")
 	}
 	if len(detailResp.Results) == 0 || detailResp.Results[0].Status == "DELETED" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving DRS job")
@@ -1134,7 +1140,8 @@ func resourceJobUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	if d.HasChanges("name", "description") {
 		detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
 		if err != nil {
-			return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
+			return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "results[0].error_code", notFoundErrCode...),
+				"error retrieving DRS job")
 		}
 		if len(detailResp.Results) == 0 || detailResp.Results[0].Status == "DELETED" {
 			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving DRS job")
@@ -1424,11 +1431,11 @@ func resourceJobDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 
 	detailResp, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{d.Id()}})
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDrsJobErrorToError404(err), "error retrieving DRS job")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "results[0].error_code", notFoundErrCode...),
+			"error retrieving DRS job")
 	}
-
 	if len(detailResp.Results) == 0 || detailResp.Results[0].Status == "DELETED" {
-		return diag.Errorf("error retrieving DRS job, results is empty")
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving DRS job")
 	}
 	orderId := detailResp.Results[0].PeriodOrder.OrderId
 
@@ -1711,19 +1718,6 @@ func buildKafkaSecurityConfigParamter(kafkaSecurityConfig []interface{}) *jobs.K
 		SetPrivateKeyPassword: params["set_private_key_password"].(bool),
 		KeyPassword:           params["key_password"].(string),
 	}
-}
-
-func parseDrsJobErrorToError404(respErr error) error {
-	var apiError jobs.JobDetailResp
-
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiError)
-		if pErr == nil &&
-			(apiError.Results[0].ErrorCode == "DRS.M00289" || apiError.Results[0].ErrorCode == "DRS.M05004") {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return respErr
 }
 
 func setDbInfoToState(d *schema.ResourceData, endpoint jobs.Endpoint, fieldName string) error {
