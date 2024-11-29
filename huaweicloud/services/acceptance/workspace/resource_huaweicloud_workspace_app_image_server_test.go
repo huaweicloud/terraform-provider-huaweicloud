@@ -2,7 +2,6 @@ package workspace
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -49,7 +48,6 @@ func TestAccResourceAppImageServer_basic(t *testing.T) {
 			acceptance.TestAccPreCheckWorkspaceAppImageSpecCode(t)
 			acceptance.TestAccPrecheckWorkspaceUserNames(t)
 			acceptance.TestAccPreCheckWorkspaceOUName(t)
-			acceptance.TestAccPreCheckWorkspaceADDomainNames(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -61,8 +59,7 @@ func TestAccResourceAppImageServer_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "authorize_accounts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "authorize_accounts.0.type", "USER"),
-					resource.TestCheckResourceAttr(resourceName, "authorize_accounts.0.domain",
-						retrieveActiveDomainName(strings.Split(acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES, ","))),
+					resource.TestCheckResourceAttr(resourceName, "authorize_accounts.0.domain", acceptance.HW_WORKSPACE_AD_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "image_id", acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID),
 					resource.TestCheckResourceAttr(resourceName, "image_type", "gold"),
 					resource.TestCheckResourceAttr(resourceName, "spec_code",
@@ -123,7 +120,7 @@ resource "huaweicloud_workspace_app_image_server" "test" {
   authorize_accounts {
     account = split(",", "%[8]s")[0]
     type    = "USER"
-    domain  = element(split("%[9]s", ","), 0)
+    domain  = "%[9]s"
   }
 
   root_volume {
@@ -158,7 +155,7 @@ resource "huaweicloud_workspace_app_image_server" "test" {
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE,
 		acceptance.HW_WORKSPACE_USER_NAMES,
-		acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES,
+		acceptance.HW_WORKSPACE_AD_DOMAIN_NAME,
 		description,
 		acceptance.HW_WORKSPACE_OU_NAME,
 		acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
