@@ -1245,7 +1245,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		stateConf := &resource.StateChangeConf{
 			Pending:      []string{"CREATED"},
 			Target:       []string{"SUCCESS"},
-			Refresh:      autoTopicTaskRefreshFunc(client, d.Id(), "kafkaConfigModify"),
+			Refresh:      filterTaskRefreshFunc(client, d.Id(), "kafkaConfigModify"),
 			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			Delay:        1 * time.Second,
 			PollInterval: 5 * time.Second,
@@ -1661,33 +1661,29 @@ func handleMultiOperationsError(err error) (bool, error) {
 	return false, err
 }
 
-func autoTopicTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID string, taskName string) resource.StateRefreshFunc {
+func filterTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID string, taskName string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		// getAutoTopicTask: query automatic topic task
-		getAutoTopicTaskHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks"
-		getAutoTopicTaskPath := client.Endpoint + getAutoTopicTaskHttpUrl
-		getAutoTopicTaskPath = strings.ReplaceAll(getAutoTopicTaskPath, "{project_id}",
+		getTasksHttpUrl := "v2/{project_id}/instances/{instance_id}/tasks"
+		getTasksPath := client.Endpoint + getTasksHttpUrl
+		getTasksPath = strings.ReplaceAll(getTasksPath, "{project_id}",
 			client.ProjectID)
-		getAutoTopicTaskPath = strings.ReplaceAll(getAutoTopicTaskPath, "{instance_id}", instanceID)
-
-		getAutoTopicTaskPathOpt := golangsdk.RequestOpts{
+		getTasksPath = strings.ReplaceAll(getTasksPath, "{instance_id}", instanceID)
+		getTasksPathOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 		}
-		getAutoTopicTaskPathResp, err := client.Request("GET", getAutoTopicTaskPath,
-			&getAutoTopicTaskPathOpt)
-
+		getAutoTopicTaskPathResp, err := client.Request("GET", getTasksPath, &getTasksPathOpt)
 		if err != nil {
 			return nil, "QUERY ERROR", err
 		}
-
-		getAutoTopicTaskRespBody, err := utils.FlattenResponse(getAutoTopicTaskPathResp)
+		getTasksRespBody, err := utils.FlattenResponse(getAutoTopicTaskPathResp)
 		if err != nil {
 			return nil, "PARSE ERROR", err
 		}
 
-		task := utils.PathSearch(fmt.Sprintf("tasks|[?name=='%s']|[0]", taskName), getAutoTopicTaskRespBody, nil)
+		task := utils.PathSearch(fmt.Sprintf("tasks|[?name=='%s']|[0]", taskName), getTasksRespBody, nil)
 		if task == nil {
-			return nil, "NIL ERROR", fmt.Errorf("failed to find the task of the automatic topic")
+			return nil, "NIL ERROR", fmt.Errorf("failed to find the task of the name(%s)", taskName)
 		}
 
 		status := utils.PathSearch("status", task, nil)
