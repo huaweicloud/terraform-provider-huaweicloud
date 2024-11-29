@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -154,9 +156,21 @@ func resourceIdentityPolicyRead(_ context.Context, d *schema.ResourceData, meta 
 		KeepResponseBody: true,
 	}
 
-	getPolicyResp, err := client.Request("GET", getPolicyPath, &getPolicyOpt)
+	var getPolicyResp *http.Response
+
+	getPolicyResp, err = client.Request("GET", getPolicyPath, &getPolicyOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving IAM identity policy")
+		if _, ok := err.(golangsdk.ErrDefault404); !ok || !d.IsNewResource() {
+			return common.CheckDeletedDiag(d, err, "error retrieving IAM identity policy")
+		}
+
+		// if got 404 error in new resource, wait 10 seconds and try again
+		// lintignore:R018
+		time.Sleep(10 * time.Second)
+		getPolicyResp, err = client.Request("GET", getPolicyPath, &getPolicyOpt)
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "error retrieving IAM identity policy")
+		}
 	}
 	getPolicyRespBody, err := utils.FlattenResponse(getPolicyResp)
 	if err != nil {
