@@ -455,7 +455,7 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd, false),
+				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd, false, 1),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -491,10 +491,11 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "period", "1"),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "order_id"),
+					waitForJobStatus(resourceName),
 				),
 			},
 			{
-				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd, true),
+				Config: testAccDrsJob_synchronize_mysql(name, dbName, pwd, true, 2),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
@@ -512,21 +513,22 @@ func TestAccResourceDrsJob_sync(t *testing.T) {
 	})
 }
 
-func testAccRdsMysqlDatabse(dbname string) string {
+func testAccRdsMysqlDatabse(dbname string, index int) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_rds_mysql_database" "test" {
+resource "huaweicloud_rds_mysql_database" "test%[2]v" {
   instance_id   = huaweicloud_rds_instance.test1.id
-  name          = "%[1]s"
+  name          = "%[1]s-%[2]v"
   character_set = "utf8"
 }
-`, dbname)
+`, dbname, index)
 }
 
-func testAccDrsJob_synchronize_mysql(name, dbName, pwd string, autoRenew bool) string {
+func testAccDrsJob_synchronize_mysql(name, dbName, pwd string, autoRenew bool, index int) string {
 	netConfig := common.TestBaseNetwork(name)
 	sourceDb := testAccDrsJob_mysql(1, dbName, pwd, "192.168.0.58")
 	destDb := testAccDrsJob_mysql(2, dbName, pwd, "192.168.0.59")
-	database := testAccRdsMysqlDatabse(dbName)
+	database1 := testAccRdsMysqlDatabse(dbName, 1)
+	database2 := testAccRdsMysqlDatabse(dbName, 2)
 
 	return fmt.Sprintf(`
 %[1]s
@@ -547,15 +549,17 @@ data "huaweicloud_drs_node_types" "test" {
 
 %[5]s
 
+%[6]s
+
 resource "huaweicloud_drs_job" "test" {
-  name           = "%[6]s"
+  name           = "%[7]s"
   type           = "sync"
   engine_type    = "mysql"
   direction      = "up"
   node_type      = data.huaweicloud_drs_node_types.test.node_types[0]
   net_type       = "vpc"
   migration_type = "FULL_INCR_TRANS"
-  description    = "%[6]s"
+  description    = "%[7]s"
   force_destroy  = true
 
   source_db {
@@ -563,7 +567,7 @@ resource "huaweicloud_drs_job" "test" {
     ip          = huaweicloud_rds_instance.test1.fixed_ip
     port        = 3306
     user        = "root"
-    password    = "%[7]s"
+    password    = "%[8]s"
     vpc_id      = huaweicloud_rds_instance.test1.vpc_id
     subnet_id   = huaweicloud_rds_instance.test1.subnet_id
   }
@@ -574,12 +578,12 @@ resource "huaweicloud_drs_job" "test" {
     port        = 3306
     engine_type = "mysql"
     user        = "root"
-    password    = "%[7]s"
+    password    = "%[8]s"
     instance_id = huaweicloud_rds_instance.test2.id
     subnet_id   = huaweicloud_rds_instance.test2.subnet_id
   }
 
-  databases = [huaweicloud_rds_mysql_database.test.name]
+  databases = [huaweicloud_rds_mysql_database.test%[9]v.name]
 
   policy_config {
     filter_ddl_policy = "drop_database"
@@ -590,7 +594,7 @@ resource "huaweicloud_drs_job" "test" {
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = 1
-  auto_renew    = "%[8]v"
+  auto_renew    = "%[10]v"
 
   limit_speed {
     speed      = "15"
@@ -604,7 +608,7 @@ resource "huaweicloud_drs_job" "test" {
     ]
   }
 }
-`, netConfig, testAccSecgroupRule, sourceDb, destDb, database, name, pwd, autoRenew)
+`, netConfig, testAccSecgroupRule, sourceDb, destDb, database1, database2, name, pwd, index, autoRenew)
 }
 
 func TestAccResourceDrsJob_dualAZ(t *testing.T) {
@@ -732,7 +736,7 @@ resource "huaweicloud_drs_job" "test" {
     subnet_id   = huaweicloud_rds_instance.test2.subnet_id
   }
 
-  databases = [huaweicloud_rds_mysql_database.test.name]
+  databases = [huaweicloud_rds_mysql_database.test1.name]
 
   lifecycle {
     ignore_changes = [
@@ -740,7 +744,7 @@ resource "huaweicloud_drs_job" "test" {
     ]
   }
 }
-`, netConfig, testAccSecgroupRule, sourceDb, destDb, testAccRdsMysqlDatabse(dbName), name, pwd)
+`, netConfig, testAccSecgroupRule, sourceDb, destDb, testAccRdsMysqlDatabse(dbName, 1), name, pwd)
 }
 
 func TestAccResourceDrsJob_mysql_to_kafka(t *testing.T) {
@@ -861,7 +865,7 @@ resource "huaweicloud_drs_job" "test" {
     partition_policy = "1"
   }
 
-  databases = [huaweicloud_rds_mysql_database.test.name]
+  databases = [huaweicloud_rds_mysql_database.test1.name]
 
   lifecycle {
     ignore_changes = [
@@ -869,5 +873,45 @@ resource "huaweicloud_drs_job" "test" {
     ]
   }
 }
-`, netConfig, testAccSecgroupRule, sourceDb, destDb, testAccRdsMysqlDatabse(dbName), name, pwd)
+`, netConfig, testAccSecgroupRule, sourceDb, destDb, testAccRdsMysqlDatabse(dbName, 1), name, pwd)
+}
+
+// when resource complete, job status can be one of FULL_TRANSFER_STARTED, FULL_TRANSFER_COMPLETE, INCRE_TRANSFER_STARTED
+// synchronization object can only be updated when job status is INCRE_TRANSFER_STARTED or INCRE_TRANSFER_FAILED
+// wait for job status to be INCRE_TRANSFER_STARTED
+func waitForJobStatus(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource (%s) not found", resourceName)
+		}
+
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := cfg.DrsV3Client(acceptance.HW_REGION_NAME)
+		if err != nil {
+			return fmt.Errorf("error creating DRS client, err: %s", err)
+		}
+
+		// record the start time
+		startTime := time.Now()
+		for {
+			respBody, err := jobs.Get(client, jobs.QueryJobReq{Jobs: []string{rs.Primary.ID}})
+			if err != nil {
+				return fmt.Errorf("error querying job (%s): %s", rs.Primary.ID, err)
+			}
+			if len(respBody.Results) == 0 {
+				return fmt.Errorf("error querying job (%s): results not found", rs.Primary.ID)
+			}
+			status := respBody.Results[0].Status
+			if status == "INCRE_TRANSFER_STARTED" {
+				return nil
+			}
+
+			if time.Since(startTime) > 30*time.Minute {
+				return fmt.Errorf("error waiting for job status becoming INCRE_TRANSFER_STARTED, time out")
+			}
+			// lintignore:R018
+			time.Sleep(30 * time.Second)
+		}
+	}
 }
