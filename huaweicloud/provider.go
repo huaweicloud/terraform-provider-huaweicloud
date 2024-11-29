@@ -1366,6 +1366,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_global_connection_bandwidth_associate":          cc.ResourceGlobalConnectionBandwidthAssociate(),
 
 			"huaweicloud_cce_autopilot_cluster": cceautopilot.ResourceAutopilotCluster(),
+			"huaweicloud_cce_autopilot_addon":   cceautopilot.ResourceAutopilotAddon(),
 
 			"huaweicloud_cce_cluster":             cce.ResourceCluster(),
 			"huaweicloud_cce_cluster_log_config":  cce.ResourceClusterLogConfig(),
