@@ -199,11 +199,11 @@ var (
 	HW_AAD_INSTANCE_ID = os.Getenv("HW_AAD_INSTANCE_ID")
 	HW_AAD_IP_ADDRESS  = os.Getenv("HW_AAD_IP_ADDRESS")
 
-	HW_WORKSPACE_AD_DOMAIN_NAME = os.Getenv("HW_WORKSPACE_AD_DOMAIN_NAME") // Domain name, e.g. "example.com".
-	HW_WORKSPACE_AD_SERVER_PWD  = os.Getenv("HW_WORKSPACE_AD_SERVER_PWD")  // The password of AD server.
-	HW_WORKSPACE_AD_DOMAIN_IP   = os.Getenv("HW_WORKSPACE_AD_DOMAIN_IP")   // Active domain IP, e.g. "192.168.196.3".
-	HW_WORKSPACE_AD_VPC_ID      = os.Getenv("HW_WORKSPACE_AD_VPC_ID")      // The VPC ID to which the AD server and desktops belongs.
-	HW_WORKSPACE_AD_NETWORK_ID  = os.Getenv("HW_WORKSPACE_AD_NETWORK_ID")  // The network ID to which the AD server belongs.
+	HW_WORKSPACE_AD_DOMAIN_NAMES = os.Getenv("HW_WORKSPACE_AD_DOMAIN_NAMES") // Domain name, e.g. "example.com".
+	HW_WORKSPACE_AD_SERVER_PWD   = os.Getenv("HW_WORKSPACE_AD_SERVER_PWD")   // The password of AD server.
+	HW_WORKSPACE_AD_DOMAIN_IPS   = os.Getenv("HW_WORKSPACE_AD_DOMAIN_IPS")   // Active domain IP, e.g. "192.168.196.3".
+	HW_WORKSPACE_AD_VPC_ID       = os.Getenv("HW_WORKSPACE_AD_VPC_ID")       // The VPC ID to which the AD server and desktops belongs.
+	HW_WORKSPACE_AD_NETWORK_ID   = os.Getenv("HW_WORKSPACE_AD_NETWORK_ID")   // The network ID to which the AD server belongs.
 	// The internet access port to which the Workspace service.
 	HW_WORKSPACE_INTERNET_ACCESS_PORT              = os.Getenv("HW_WORKSPACE_INTERNET_ACCESS_PORT")
 	HW_WORKSPACE_APP_SERVER_GROUP_ID               = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_ID")
@@ -1488,10 +1488,24 @@ func TestAccPreCheckCtsTimeRange(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckWorkspaceADDomainNames(t *testing.T) {
+	if len(strings.Split(HW_WORKSPACE_AD_DOMAIN_NAMES, ",")) != 2 {
+		t.Skip(`The Workspace AD service need domain name configurations for both master and standby servers, plesse config them in the
+HW_WORKSPACE_AD_DOMAIN_NAMES environment variable, separated by a comma (,).`)
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckWorkspaceAD(t *testing.T) {
-	if HW_WORKSPACE_AD_DOMAIN_NAME == "" || HW_WORKSPACE_AD_SERVER_PWD == "" || HW_WORKSPACE_AD_DOMAIN_IP == "" ||
-		HW_WORKSPACE_AD_VPC_ID == "" || HW_WORKSPACE_AD_NETWORK_ID == "" {
-		t.Skip("The configuration of AD server is not completed for Workspace service acceptance test.")
+	TestAccPreCheckWorkspaceADDomainNames(t)
+
+	if len(strings.Split(HW_WORKSPACE_AD_DOMAIN_IPS, ",")) != 2 {
+		t.Skip(`The Workspace AD service need IP address configurations for both master and standby servers, plesse config them in the
+HW_WORKSPACE_AD_DOMAIN_IPS environment variable, separated by a comma (,).`)
+	}
+	if HW_WORKSPACE_AD_SERVER_PWD == "" || HW_WORKSPACE_AD_VPC_ID == "" || HW_WORKSPACE_AD_NETWORK_ID == "" {
+		t.Skip(`The configuration of AD server is not completed for Workspace service acceptance test, please check your inputs for
+HW_WORKSPACE_AD_SERVER_PWD, HW_WORKSPACE_AD_VPC_ID and HW_WORKSPACE_AD_NETWORK_ID.`)
 	}
 }
 
