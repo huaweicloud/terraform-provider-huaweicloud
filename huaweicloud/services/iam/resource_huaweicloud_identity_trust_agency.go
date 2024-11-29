@@ -3,7 +3,9 @@ package iam
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -160,9 +162,21 @@ func resourceIAMTrustAgencyRead(_ context.Context, d *schema.ResourceData, meta 
 		KeepResponseBody: true,
 	}
 
-	getAgencyResp, err := client.Request("GET", getAgencyPath, &getAgencyOpt)
+	var getAgencyResp *http.Response
+
+	getAgencyResp, err = client.Request("GET", getAgencyPath, &getAgencyOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving IAM trust agency")
+		if _, ok := err.(golangsdk.ErrDefault404); !ok || !d.IsNewResource() {
+			return common.CheckDeletedDiag(d, err, "error retrieving IAM trust agency")
+		}
+
+		// if got 404 error in new resource, wait 10 seconds and try again
+		// lintignore:R018
+		time.Sleep(10 * time.Second)
+		getAgencyResp, err = client.Request("GET", getAgencyPath, &getAgencyOpt)
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "error retrieving IAM trust agency")
+		}
 	}
 	getAgencyRespBody, err := utils.FlattenResponse(getAgencyResp)
 	if err != nil {
