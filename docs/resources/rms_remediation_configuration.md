@@ -49,7 +49,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this will create new resource.
 
-* `policy_assignment_id` - (Required, String) Specifies the policy assignment ID.
+* `policy_assignment_id` - (Required, String, NonUpdatable) Specifies the policy assignment ID.
 
 * `target_type` - (Required, String) Specifies the execution method of remediation.
   The valid value can be **fgs** or **rfs**.
