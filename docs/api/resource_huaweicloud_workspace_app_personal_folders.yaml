@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_personal_folders
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/persistent-storages/{storage_id}/actions/assign-folder:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/persistent-storages/{storage_id}/actions/delete-user-attachment:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/persistent-storages/actions/list-attachments:
+        GET:
+            tag: Workspace

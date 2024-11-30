@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_cce_protection
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/container/kubernetes/clusters/{cluster_id}/daemonsets:
+        DELETE:
+            tag: HSS
+        PUT:
+            tag: HSS
+    /v5/{project_id}/container/kubernetes/clusters/configs/batch-query:
+        POST:
+            tag: HSS
+    /v5/{project_id}/container/kubernetes/clusters/protection-enable:
+        POST:
+            tag: HSS

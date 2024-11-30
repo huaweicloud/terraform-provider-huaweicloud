@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_rms_resource_relations_details
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CONFIG
+paths:
+    /v1/resource-manager/domains/{domain_id}/all-resources/{resource_id}/relations:
+        GET:
+            tag: CONFIG

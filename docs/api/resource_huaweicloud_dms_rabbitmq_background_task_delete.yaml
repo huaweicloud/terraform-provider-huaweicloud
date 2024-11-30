@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_rabbitmq_background_task_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RabbitMQ
+paths:
+    /v2/{project_id}/instances/{instance_id}/tasks/{task_id}:
+        DELETE:
+            tag: RabbitMQ

@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dbss_rds_database
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DBSS
+paths:
+    /v1/{project_id}/{instance_id}/dbss/audit/databases:
+        GET:
+            tag: DBSS
+    /v2/{project_id}/{instance_id}/audit/databases/{db_id}:
+        DELETE:
+            tag: DBSS
+    /v2/{project_id}/{instance_id}/audit/databases/rds:
+        POST:
+            tag: DBSS
+    /v2/{project_id}/{instance_id}/audit/databases/switch:
+        POST:
+            tag: DBSS

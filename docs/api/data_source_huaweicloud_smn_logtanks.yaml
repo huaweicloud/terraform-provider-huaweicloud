@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_smn_logtanks
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SMN
+paths:
+    /v2/{project_id}/notifications/topics/{topic_urn}/logtanks:
+        GET:
+            tag: SMN
