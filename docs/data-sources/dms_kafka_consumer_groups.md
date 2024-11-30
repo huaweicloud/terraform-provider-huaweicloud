@@ -69,3 +69,43 @@ The `groups` block supports:
 * `state` - Indicates the consumer group status.
 
 * `created_at` - Indicates the create time.
+
+* `group_message_offsets` - Indicates the group message offsets.
+  The [group_message_offsets](#attrblock--groups--group_message_offsets) structure is documented below.
+
+* `members` - Indicates the consumer group members.
+  The [members](#attrblock--groups--members) structure is documented below.
+
+* `assignment_strategy` - Indicates the partition assignment strategy.
+
+<a name="attrblock--groups--group_message_offsets"></a>
+The `group_message_offsets` block supports:
+
+* `lag` - Indicates the number of accumulated messages.
+
+* `message_current_offset` - Indicates the message current offset.
+
+* `message_log_end_offset` - Indicates the message log end offset.
+
+* `partition` - Indicates the partition.
+
+* `topic` - Indicates the topic name.
+
+<a name="attrblock--groups--members"></a>
+The `members` block supports:
+
+* `assignment` - Indicates the details about the partition assigned to the consumer.
+  The [assignment](#attrblock--groups--members--assignment) structure is documented below.
+
+* `client_id` - Indicates the client ID.
+
+* `host` - Indicates the consumer address.
+
+* `member_id` - Indicates the member ID.
+
+<a name="attrblock--groups--members--assignment"></a>
+The `assignment` block supports:
+
+* `partitions` - Indicates the partitions.
+
+* `topic` - Indicates the topic name.

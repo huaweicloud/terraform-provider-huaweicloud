@@ -81,3 +81,35 @@ output "state_validation" {
 }
 `, testDmsKafkaConsumerGroup_basic(name))
 }
+
+func TestAccDataSourceDmsKafkaConsumerGroups_consumers(t *testing.T) {
+	dataSource := "data.huaweicloud_dms_kafka_consumer_groups.test"
+	dc := acceptance.InitDataSourceCheck(dataSource)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDMSKafkaInstanceID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testDataSourceDmsKafkaConsumerGroups_consumers(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSource, "groups.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "groups.0.members.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "groups.0.group_message_offsets.#"),
+				),
+			},
+		},
+	})
+}
+
+func testDataSourceDmsKafkaConsumerGroups_consumers() string {
+	return fmt.Sprintf(`
+data "huaweicloud_dms_kafka_consumer_groups" "test" {
+  instance_id = "%[1]s"
+}
+`, acceptance.HW_DMS_KAFKA_INSTANCE_ID)
+}
