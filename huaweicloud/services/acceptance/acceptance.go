@@ -1804,13 +1804,6 @@ func TestAccPreCheckCcePartitionAz(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckCnEast3(t *testing.T) {
-	if HW_REGION_NAME != "cn-east-3" {
-		t.Skip("HW_REGION_NAME must be cn-east-3 for this test.")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckUpdateCertificateContent(t *testing.T) {
 	if HW_CERTIFICATE_CONTENT == "" || HW_CERTIFICATE_CONTENT_UPDATE == "" {
 		t.Skip("HW_CERTIFICATE_CONTENT, HW_CERTIFICATE_CONTENT_UPDATE must be set for this test")
