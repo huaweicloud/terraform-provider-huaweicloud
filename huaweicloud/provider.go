@@ -574,8 +574,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_cts_traces":        cts.DataSourceCtsTraces(),
 			"huaweicloud_cts_trackers":      cts.DataSourceCtsTrackers(),
 
-			"huaweicloud_cdm_clusters": cdm.DataSourceCdmClusters(),
-			"huaweicloud_cdm_flavors":  cdm.DataSourceCdmFlavors(),
+			"huaweicloud_cdm_clusters":              cdm.DataSourceCdmClusters(),
+			"huaweicloud_cdm_flavors":               cdm.DataSourceCdmFlavors(),
+			"huaweicloud_cdm_job_execution_records": cdm.DataSourceCdmJobExecutionRecords(),
 
 			"huaweicloud_cph_server_flavors":      cph.DataSourceServerFlavors(),
 			"huaweicloud_cph_phone_flavors":       cph.DataSourcePhoneFlavors(),
