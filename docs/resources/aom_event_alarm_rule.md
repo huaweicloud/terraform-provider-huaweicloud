@@ -9,8 +9,6 @@ description: ""
 
 Manages an AOM event alarm rule resource within HuaweiCloud.
 
-~> This resource can only be used in region **cn-east-3** for now.
-
 ## Example Usage
 
 variable "action_rule_name" {}
