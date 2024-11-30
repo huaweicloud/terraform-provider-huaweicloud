@@ -2,46 +2,47 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_lts_groups": {
+        "huaweicloud_smn_logtanks": {
           "block": {
             "attributes": {
-              "groups": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "logtanks": {
                 "type": [
                   "list",
                   [
                     "object",
                     {
                       "created_at": "string",
-                      "enterprise_project_id": "string",
                       "id": "string",
-                      "name": "string",
-                      "tags": [
-                        "map",
-                        "string"
-                      ],
-                      "ttl_in_days": "number"
+                      "log_group_id": "string",
+                      "log_stream_id": "string",
+                      "updated_at": "string"
                     }
                   ]
                 ],
-                "description": "All log groups that match the filter parameters.",
-                "computed": true
-              },
-              "id": {
-                "type": "string",
+                "description": "The cloud logs.",
                 "computed": true
               },
               "region": {
                 "type": "string",
                 "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
                 "computed": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "description": "Specifies the topic URN.",
+                "required": true
               }
             }
           },
           "product": {
-            "short": "LTS",
-            "name": "Log Tank Service",
+            "short": "SMN",
+            "name": "Simple Message Notification",
             "catalog": "Management & Governance",
-            "name_cn": "云日志服务",
+            "name_cn": "消息通知服务",
             "catalog_cn": "管理与监管"
           }
         }

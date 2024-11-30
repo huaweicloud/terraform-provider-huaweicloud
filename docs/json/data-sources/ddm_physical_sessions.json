@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ddm_physical_sessions": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the associated RDS instance.",
+                "required": true
+              },
+              "keyword": {
+                "type": "string",
+                "description": "Specifies the Keyword filtered by the sessions result. It can contain a maximum of 255 characters.",
+                "optional": true
+              },
+              "physical_processes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "command": "string",
+                      "db": "string",
+                      "host": "string",
+                      "id": "number",
+                      "info": "string",
+                      "state": "string",
+                      "time": "number",
+                      "trx_executed_time": "number",
+                      "user": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the physical session information list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

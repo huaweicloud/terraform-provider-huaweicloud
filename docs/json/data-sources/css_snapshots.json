@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_snapshots": {
+          "block": {
+            "attributes": {
+              "backups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_expected_start_time": "string",
+                      "backup_keep_day": "number",
+                      "backup_method": "string",
+                      "backup_period": "string",
+                      "backup_type": "string",
+                      "bucket_name": "string",
+                      "cluster_id": "string",
+                      "cluster_name": "string",
+                      "created_at": "string",
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "end_time": "string",
+                      "failed_shards": "number",
+                      "id": "string",
+                      "indices": "string",
+                      "name": "string",
+                      "restore_status": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "total_shards": "number",
+                      "updated_at": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The snapshot list.",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the cluster.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

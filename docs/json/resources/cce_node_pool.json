@@ -162,7 +162,14 @@
               "subnet_id": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "computed": true
+              },
+              "subnet_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
               },
               "tag_policy_on_existing_nodes": {
                 "type": "string",
@@ -223,11 +230,11 @@
                       "required": true,
                       "forcenew": true
                     }
-                  }
+                  },
+                  "description": "schema:{\"Required\":true};"
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
-                "min_items": 1
+                "forcenew": true
               },
               "extend_params": {
                 "block": {

@@ -1,0 +1,166 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_server": {
+          "block": {
+            "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "description": "The availability zone of the server.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the server.",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "The flavor ID of the server.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "maintain_status": {
+                "type": "bool",
+                "description": "Whether to enable maintenance mode.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the server.",
+                "optional": true,
+                "computed": true
+              },
+              "os_type": {
+                "type": "string",
+                "description": "The operating system type of the server.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "ou_name": {
+                "type": "string",
+                "description": "The OU name corresponding to the AD server.",
+                "optional": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "The server group ID to which the server belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The subnet ID to which the server belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the server.",
+                "required": true,
+                "forcenew": true
+              },
+              "update_access_agent": {
+                "type": "bool",
+                "description": "Whether to automatically upgrade protocol component.",
+                "optional": true,
+                "default": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The VPC ID to which the server belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "root_volume": {
+                "block": {
+                  "attributes": {
+                    "size": {
+                      "type": "number",
+                      "description": "The disk size of the server, in GB.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The disk type of the server.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The system disk configuration of the server."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "scheduler_hints": {
+                "block": {
+                  "attributes": {
+                    "dedicated_host_id": {
+                      "type": "string",
+                      "description": "The ID of the dedicate host.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "tenancy": {
+                      "type": "string",
+                      "description": "The type of the dedicate host.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The configuration of the dedicate host."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

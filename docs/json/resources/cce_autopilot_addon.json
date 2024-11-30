@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cce_autopilot_addon": {
+          "block": {
+            "attributes": {
+              "addon_template_name": {
+                "type": "string",
+                "required": true
+              },
+              "alias": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "values": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,28 +2,29 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_lts_groups": {
+        "huaweicloud_dbss_rds_databases": {
           "block": {
             "attributes": {
-              "groups": {
+              "databases": {
                 "type": [
                   "list",
                   [
                     "object",
                     {
-                      "created_at": "string",
                       "enterprise_project_id": "string",
                       "id": "string",
+                      "instance_name": "string",
+                      "ip": "string",
+                      "is_supported": "bool",
                       "name": "string",
-                      "tags": [
-                        "map",
-                        "string"
-                      ],
-                      "ttl_in_days": "number"
+                      "port": "string",
+                      "status": "string",
+                      "type": "string",
+                      "version": "string"
                     }
                   ]
                 ],
-                "description": "All log groups that match the filter parameters.",
+                "description": "The RDS database list.",
                 "computed": true
               },
               "id": {
@@ -34,15 +35,20 @@
                 "type": "string",
                 "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
                 "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the RDS database type.",
+                "required": true
               }
             }
           },
           "product": {
-            "short": "LTS",
-            "name": "Log Tank Service",
-            "catalog": "Management & Governance",
-            "name_cn": "云日志服务",
-            "catalog_cn": "管理与监管"
+            "short": "DBSS",
+            "name": "Database Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据库安全服务",
+            "catalog_cn": "安全与合规"
           }
         }
       }

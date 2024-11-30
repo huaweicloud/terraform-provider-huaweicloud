@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_smn_subscriptions": {
+          "block": {
+            "attributes": {
+              "endpoint": {
+                "type": "string",
+                "description": "Specifies the subscription endpoint.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "protocol": {
+                "type": "string",
+                "description": "Specifies the protocol name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the subscription status.",
+                "optional": true
+              },
+              "subscriptions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "endpoint": "string",
+                      "filter_polices": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "string_equals": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "owner": "string",
+                      "protocol": "string",
+                      "remark": "string",
+                      "status": "number",
+                      "subscription_urn": "string",
+                      "topic_urn": "string"
+                    }
+                  ]
+                ],
+                "description": "The subscription list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMN",
+            "name": "Simple Message Notification",
+            "catalog": "Management & Governance",
+            "name_cn": "消息通知服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

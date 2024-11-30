@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_kafka_message_offset_reset": {
+          "block": {
+            "attributes": {
+              "group": {
+                "type": "string",
+                "description": "Specifies the consumer group.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "message_offset": {
+                "type": "string",
+                "description": "Specifies the message offset.",
+                "optional": true,
+                "forcenew": true
+              },
+              "partition": {
+                "type": "number",
+                "description": "Specifies the partition number.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "timestamp": {
+                "type": "string",
+                "description": "Specifies the message offset. The value is a Unix timestamp, in millisecond",
+                "optional": true,
+                "forcenew": true
+              },
+              "topic": {
+                "type": "string",
+                "description": "Specifies the topic name.",
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

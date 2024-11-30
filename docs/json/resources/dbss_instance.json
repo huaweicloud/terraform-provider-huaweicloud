@@ -5,6 +5,10 @@
         "huaweicloud_dbss_instance": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true
+              },
               "auto_renew": {
                 "type": "string",
                 "description": "Whether auto renew is enabled. Valid values are \"true\" and \"false\".",
@@ -42,8 +46,7 @@
                 "type": "string",
                 "description": "The description of the instance.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -81,8 +84,7 @@
               "name": {
                 "type": "string",
                 "description": "The instance name.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "period": {
                 "type": "number",

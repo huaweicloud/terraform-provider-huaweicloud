@@ -1,0 +1,139 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_mysql_proxies": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of RDS MySQL instance.",
+                "required": true
+              },
+              "max_proxy_node_num": {
+                "type": "number",
+                "description": "Indicates the maximum number of proxy nodes that can be selected for a database proxy.",
+                "computed": true
+              },
+              "max_proxy_num": {
+                "type": "number",
+                "description": "Indicates the maximum number of database proxies that can be enabled at the same time.",
+                "computed": true
+              },
+              "proxy_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "master_instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "weight": "number"
+                          }
+                        ]
+                      ],
+                      "proxy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "address": "string",
+                            "alt_flag": "bool",
+                            "connection_pool_type": "string",
+                            "delay_threshold_in_seconds": "number",
+                            "dns_name": "string",
+                            "flavor_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "code": "string",
+                                  "group_type": "string"
+                                }
+                              ]
+                            ],
+                            "force_read_only": "bool",
+                            "id": "string",
+                            "memory": "string",
+                            "mode": "string",
+                            "name": "string",
+                            "node_num": "number",
+                            "nodes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "az_code": "string",
+                                  "frozen_flag": "number",
+                                  "id": "string",
+                                  "role": "string",
+                                  "status": "string"
+                                }
+                              ]
+                            ],
+                            "pay_mode": "string",
+                            "port": "number",
+                            "proxy_mode": "string",
+                            "route_mode": "number",
+                            "seconds_level_monitor_fun_status": "string",
+                            "ssl_option": "bool",
+                            "status": "string",
+                            "subnet_id": "string",
+                            "support_balance_route_mode": "bool",
+                            "support_proxy_ssl": "bool",
+                            "support_switch_connection_pool_type": "bool",
+                            "support_transaction_split": "bool",
+                            "transaction_split": "string",
+                            "vcpus": "string"
+                          }
+                        ]
+                      ],
+                      "proxy_security_group_check_result": "bool",
+                      "readonly_instances": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "weight": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the proxy information list of a RDS MySQL instance.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "support_balance_route_mode_for_favored_version": {
+                "type": "bool",
+                "description": "Indicates whether the load balancing routing mode can be set when",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

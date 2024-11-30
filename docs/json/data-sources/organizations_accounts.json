@@ -11,10 +11,12 @@
                   [
                     "object",
                     {
+                      "description": "string",
                       "id": "string",
                       "join_method": "string",
                       "joined_at": "string",
                       "name": "string",
+                      "status": "string",
                       "urn": "string"
                     }
                   ]

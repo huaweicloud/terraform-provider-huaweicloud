@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_resource_histories": {
+          "block": {
+            "attributes": {
+              "earlier_time": {
+                "type": "string",
+                "description": "Specifies the start time of the query.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "capture_time": "string",
+                      "domain_id": "string",
+                      "relations": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "from_resource_id": "string",
+                            "from_resource_type": "string",
+                            "relation_type": "string",
+                            "to_resource_id": "string",
+                            "to_resource_type": "string"
+                          }
+                        ]
+                      ],
+                      "resource": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "checksum": "string",
+                            "created": "string",
+                            "ep_id": "string",
+                            "ep_name": "string",
+                            "id": "string",
+                            "name": "string",
+                            "project_id": "string",
+                            "project_name": "string",
+                            "properties": "string",
+                            "provider": "string",
+                            "provisioning_state": "string",
+                            "region_id": "string",
+                            "tags": [
+                              "map",
+                              "string"
+                            ],
+                            "type": "string",
+                            "updated": "string"
+                          }
+                        ]
+                      ],
+                      "resource_id": "string",
+                      "resource_type": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The resource history list.",
+                "computed": true
+              },
+              "later_time": {
+                "type": "string",
+                "description": "Specifies the end time of the query.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the resource ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -68,6 +68,10 @@
                 "type": "string",
                 "optional": true
               },
+              "eip_id": {
+                "type": "string",
+                "optional": true
+              },
               "enable_autopilot": {
                 "type": "bool",
                 "optional": true,

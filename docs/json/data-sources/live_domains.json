@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_live_domains": {
+          "block": {
+            "attributes": {
+              "domains": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cname": "string",
+                      "created_at": "string",
+                      "enterprise_project_id": "string",
+                      "ingest_domain_name": "string",
+                      "is_ipv6": "bool",
+                      "name": "string",
+                      "region": "string",
+                      "service_area": "string",
+                      "status": "string",
+                      "status_describe": "string",
+                      "type": "string",
+                      "vendor": "string"
+                    }
+                  ]
+                ],
+                "description": "The domain name list.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the domain name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

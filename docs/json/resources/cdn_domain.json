@@ -413,6 +413,11 @@
                             "computed": true,
                             "sensitive": true
                           },
+                          "scm_certificate_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
                           "tls_version": {
                             "type": "string",
                             "optional": true,

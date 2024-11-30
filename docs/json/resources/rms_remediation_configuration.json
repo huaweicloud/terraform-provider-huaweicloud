@@ -1,0 +1,122 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rms_remediation_configuration": {
+          "block": {
+            "attributes": {
+              "auth_type": {
+                "type": "string",
+                "description": "The authorization type for remediation configurations.",
+                "optional": true
+              },
+              "auth_value": {
+                "type": "string",
+                "description": "The information of dependent service authorization.",
+                "optional": true
+              },
+              "automatic": {
+                "type": "bool",
+                "description": "Whether remediation is automatic.",
+                "optional": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The time when the remediation configuration was created.",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "The user who created the remediation configuration.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "maximum_attempts": {
+                "type": "number",
+                "description": "The maximum number of retries allowed within a specified period.",
+                "optional": true,
+                "computed": true
+              },
+              "policy_assignment_id": {
+                "type": "string",
+                "description": "The policy assignment ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "retry_attempt_seconds": {
+                "type": "number",
+                "description": "The time period during which the number of attempts specified in the maximum_attempts can be tried.",
+                "optional": true,
+                "computed": true
+              },
+              "target_id": {
+                "type": "string",
+                "description": "The ID of a remediation object.",
+                "required": true
+              },
+              "target_type": {
+                "type": "string",
+                "description": "The execution method of remediation.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The time when the remediation configuration was updated.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "resource_parameter": {
+                "block": {
+                  "attributes": {
+                    "resource_id": {
+                      "type": "string",
+                      "description": "The parameter name for passing the resource ID.",
+                      "required": true
+                    }
+                  },
+                  "description": "The dynamic parameter of remediation."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "static_parameter": {
+                "block": {
+                  "attributes": {
+                    "var_key": {
+                      "type": "string",
+                      "description": "The static parameter name.",
+                      "optional": true
+                    },
+                    "var_value": {
+                      "type": "string",
+                      "description": "The static parameter value.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The static parameters for the remediation execution."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

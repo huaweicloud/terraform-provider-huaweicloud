@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rabbitmq_background_tasks": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "description": "Specifies the time of task where the query starts. The format is YYYYMMDDHHmmss.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the time of task where the query ends. The format is YYYYMMDDHHmmss.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "name": "string",
+                      "params": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "user_id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the task list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RabbitMQ",
+            "name": "Distributed Message Service for RabbitMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RabbitMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}
