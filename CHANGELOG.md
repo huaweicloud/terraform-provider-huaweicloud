@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## 1.71.0 (November 30, 2024)
+
+* **New Resource:**
+  + `huaweicloud_cce_autopilot_addon` [GH-5949]
+  + `huaweicloud_hss_cce_protection` [GH-5939]
+  + `huaweicloud_rds_mysql_proxy_restart` [GH-5914]
+  + `huaweicloud_workspace_app_image_server` [GH-5908]
+  + `huaweicloud_workspace_app_personal_folders` [GH-5906]
+  + `huaweicloud_rds_mysql_proxy` [GH-5893]
+
+* **New Data Source:**
+  + `huaweicloud_live_domains` [GH-5950]
+  + `huaweicloud_smn_topic_subscriptions` [GH-5947]
+  + `huaweicloud_css_snapshots` [GH-5944]
+  + `huaweicloud_smn_logtanks` [GH-5912]
+  + `huaweicloud_smn_subscriptions` [GH-5901]
+  + `huaweicloud_rds_mysql_proxies` [GH-5900]
+  + `huaweicloud_cph_server_bandwidths` [GH-5883]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node_pool: change data_volumes to be optional [GH-5934]
+* resource/huaweicloud_cce_node_pool: add subnet_list support [GH-5934]
+* resource/huaweicloud_cce_autopilot_cluster: add cluster update support [GH-5872]
+
 ## 1.70.3 (November 15, 2024)
 
 ENHANCEMENTS:
