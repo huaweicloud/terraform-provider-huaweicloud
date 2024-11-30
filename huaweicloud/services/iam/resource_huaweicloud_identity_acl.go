@@ -41,7 +41,6 @@ func ResourceIdentityACL() *schema.Resource {
 			"ip_cidrs": {
 				Type:         schema.TypeSet,
 				Optional:     true,
-				MaxItems:     200,
 				AtLeastOneOf: []string{"ip_ranges"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -61,7 +60,6 @@ func ResourceIdentityACL() *schema.Resource {
 			"ip_ranges": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				MaxItems: 200,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"range": {

@@ -121,7 +121,6 @@ func ResourceIdentityProvider() *schema.Resource {
 						"scopes": {
 							Type:     schema.TypeList,
 							Optional: true,
-							MaxItems: 10,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},

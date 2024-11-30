@@ -93,7 +93,6 @@ func ResourceIAMAgencyV3() *schema.Resource {
 						"roles": {
 							Type:     schema.TypeSet,
 							Required: true,
-							MaxItems: 25,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 						},
@@ -104,14 +103,12 @@ func ResourceIAMAgencyV3() *schema.Resource {
 			"domain_roles": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				MaxItems: 25,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 			"all_resources_roles": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				MaxItems: 25,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},

@@ -43,7 +43,6 @@ func ResourceIAMProviderConversion() *schema.Resource {
 			"conversion_rules": {
 				Type:     schema.TypeList,
 				Required: true,
-				MaxItems: 10,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"local": {
@@ -65,7 +64,6 @@ func ResourceIAMProviderConversion() *schema.Resource {
 						"remote": {
 							Type:     schema.TypeList,
 							Required: true,
-							MaxItems: 10,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"attribute": {
