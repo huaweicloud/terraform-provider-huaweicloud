@@ -40,6 +40,7 @@ type CreateJobReq struct {
 	ChargingMode     string             `json:"charging_mode,omitempty"`
 	PeriodOrder      *PeriodOrder       `json:"period_order,omitempty"`
 	PublciIpList     []PublciIpList     `json:"public_ip_list,omitempty"`
+	IsOpenFastClean  bool               `json:"is_open_fast_clean,omitempty"`
 }
 
 type Endpoint struct {

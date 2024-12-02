@@ -458,14 +458,21 @@ The following arguments are supported:
   The [public_ip_list](#block--public_ip_list) structure is documented below.
 
 * `master_az` - (Optional, String, ForceNew) Specifies the AZ where the primary task is located.
+  Changing this parameter will create a new resource.
 
 * `slave_az` - (Optional, String, ForceNew) Specifies the AZ where the standby task is located.
+  Changing this parameter will create a new resource.
   
   -> It takes effect when both `master_az` and `slave_az` are specified. Only MySQL and gaussdbv5ha-to-kafka scenarios
   are supported.
 
 * `alarm_notify` - (Optional, List, ForceNew)  Specifies the information body for setting task exception notification.
+  Changing this parameter will create a new resource.
   The [alarm_notify](#block--alarm_notify) structure is documented below.
+
+* `is_open_fast_clean` - (Optional, Bool, ForceNew) Specifies whether to enable binlog clearing for RDS for MySQL or RDS
+  for MariaDB. Defaults to **false**.
+  Changing this parameter will create a new resource.
 
 <a name="block--db_info"></a>
 The `db_info` block supports:

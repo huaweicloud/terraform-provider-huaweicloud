@@ -87,6 +87,7 @@ type JobDetail struct {
 	IncreStartPosition       string             `json:"incre_start_position"`
 	Tags                     []tags.ResourceTag `json:"tags"`
 	PeriodOrder              OrderInfo          `json:"period_order"`
+	IsOpenFastClean          bool               `json:"is_open_fast_clean"`
 }
 
 type InstInfo struct {
