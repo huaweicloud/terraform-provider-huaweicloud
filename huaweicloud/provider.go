@@ -866,6 +866,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_kps_running_tasks": dew.DataSourceDewKpsRunningTasks(),
 			"huaweicloud_kps_keypairs":      dew.DataSourceKeypairs(),
 
+			"huaweicloud_iotda_device_messages":            iotda.DataSourceDeviceMessages(),
 			"huaweicloud_iotda_device_proxies":             iotda.DataSourceDeviceProxies(),
 			"huaweicloud_iotda_device_binding_groups":      iotda.DataSourceDeviceBindingGroups(),
 			"huaweicloud_iotda_amqps":                      iotda.DataSourceAMQPQueues(),
