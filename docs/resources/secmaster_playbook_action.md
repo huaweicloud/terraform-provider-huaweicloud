@@ -2,14 +2,13 @@
 subcategory: "SecMaster"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_secmaster_playbook_action"
-description: ""
+description: |-
+  Manages a SecMaster playbook action resource within HuaweiCloud.
 ---
 
 # huaweicloud_secmaster_playbook_action
 
 Manages a SecMaster playbook action resource within HuaweiCloud.
-
-~> This resource can only be used in region **cn-east-3** for now.
 
 ## Example Usage
 
