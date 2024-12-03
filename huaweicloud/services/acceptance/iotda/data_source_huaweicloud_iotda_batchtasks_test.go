@@ -18,38 +18,6 @@ func TestAccDataSourceBatchTasks_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceBatchTasks_basic(),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "batchtasks.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "batchtasks.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "batchtasks.0.name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "batchtasks.0.type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "batchtasks.0.status"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "batchtasks.0.task_progress.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "batchtasks.0.created_at"),
-
-					resource.TestCheckOutput("is_space_id_filter_useful", "true"),
-					resource.TestCheckOutput("is_status_filter_useful", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceBatchTasks_derived(t *testing.T) {
-	var (
-		dataSourceName = "data.huaweicloud_iotda_batchtasks.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

@@ -35,39 +35,6 @@ func TestAccDeviceAsyncCommand_basic(t *testing.T) {
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDeviceAsyncCommand_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "device_id", "huaweicloud_iotda_device.test", "id"),
-					resource.TestCheckResourceAttrPair(rName, "service_id", "huaweicloud_iotda_product.test", "services.0.id"),
-					resource.TestCheckResourceAttrPair(rName, "name", "huaweicloud_iotda_product.test", "services.0.commands.0.name"),
-					resource.TestCheckResourceAttr(rName, "send_strategy", "delay"),
-					resource.TestCheckResourceAttr(rName, "expire_time", "80000"),
-					resource.TestCheckResourceAttrSet(rName, "status"),
-					resource.TestCheckResourceAttrSet(rName, "created_at"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDeviceAsyncCommand_derived(t *testing.T) {
-	var obj model.ShowDeviceResponse
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_iotda_device_async_command.test"
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDeviceAsyncCommandFunc,
-	)
-
-	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
@@ -94,12 +61,14 @@ func TestAccDeviceAsyncCommand_derived(t *testing.T) {
 
 func testAccDeviceAsyncCommand_base(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_iotda_space" "test" {
-  name = "%[1]s"
+  name = "%[2]s"
 }
 
 resource "huaweicloud_iotda_product" "test" {
-  name        = "%[1]s"
+  name        = "%[2]s"
   device_type = "AI"
   protocol    = "CoAP"
   space_id    = huaweicloud_iotda_space.test.id
@@ -130,12 +99,12 @@ resource "huaweicloud_iotda_product" "test" {
 
 resource "huaweicloud_iotda_device" "test" {
   node_id     = "101112026"
-  name        = "%[1]s"
+  name        = "%[2]s"
   space_id    = huaweicloud_iotda_space.test.id
   product_id  = huaweicloud_iotda_product.test.id
   description = "demo"
 }
-`, name)
+`, buildIoTDAEndpoint(), name)
 }
 
 func testAccDeviceAsyncCommand_basic(name string) string {

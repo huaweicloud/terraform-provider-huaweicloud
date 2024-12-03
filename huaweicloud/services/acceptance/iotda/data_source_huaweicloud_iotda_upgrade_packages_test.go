@@ -19,43 +19,6 @@ func TestAccDataSourceUpgradePackages_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testDataSourceUpgradePackages_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "packages.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "packages.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "packages.0.space_id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "packages.0.product_id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "packages.0.type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "packages.0.version"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "packages.0.description"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "packages.0.support_source_versions.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "packages.0.custom_info"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "packages.0.created_at"),
-
-					resource.TestCheckOutput("space_id_filter_is_useful", "true"),
-					resource.TestCheckOutput("product_id_filter_is_useful", "true"),
-					resource.TestCheckOutput("version_filter_is_useful", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceUpgradePackages_derived(t *testing.T) {
-	var (
-		dataSourceName = "data.huaweicloud_iotda_upgrade_packages.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-		name           = acceptance.RandomAccResourceName()
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
