@@ -764,6 +764,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `security_group_id` - The security group ID to which the DRS instance belongs.
 
+* `original_job_direction` - The original job direction.
+
 * `source_db` - The source database configuration.
   The [db_info](#attrblock--db_info) structure of the `source_db` is documented below.
 

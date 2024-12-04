@@ -1609,7 +1609,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_resolver_rule_associate": dns.ResourceDNSResolverRuleAssociate(),
 			"huaweicloud_dns_line_group":              dns.ResourceDNSLineGroup(),
 
-			"huaweicloud_drs_job": drs.ResourceDrsJob(),
+			"huaweicloud_drs_job":                        drs.ResourceDrsJob(),
+			"huaweicloud_drs_job_primary_standby_switch": drs.ResourceDRSPrimaryStandbySwitch(),
 
 			"huaweicloud_dws_alarm_subscription":            dws.ResourceDwsAlarmSubs(),
 			"huaweicloud_dws_cluster_restart":               dws.ResourceClusterRestart(),
