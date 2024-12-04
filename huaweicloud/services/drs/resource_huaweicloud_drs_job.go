@@ -1738,7 +1738,7 @@ func setDbInfoToState(d *schema.ResourceData, endpoint jobs.Endpoint, fieldName 
 		"password":              endpoint.DbPassword,
 		"user":                  endpoint.DbUser,
 		"instance_id":           endpoint.InstanceId,
-		"name":                  endpoint.InstanceName,
+		"name":                  endpoint.DbName,
 		"region":                endpoint.Region,
 		"vpc_id":                endpoint.VpcId,
 		"subnet_id":             endpoint.SubnetId,
