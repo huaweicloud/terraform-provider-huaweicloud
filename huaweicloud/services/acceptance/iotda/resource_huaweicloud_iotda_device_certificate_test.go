@@ -32,42 +32,6 @@ func TestAccDeviceCertificate_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testDeviceCertificate_basic(),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "cn", "huaweiIoT"),
-					resource.TestCheckResourceAttr(rName, "status", "Unverified"),
-					resource.TestCheckResourceAttrSet(rName, "verify_code"),
-					resource.TestCheckResourceAttrSet(rName, "effective_date"),
-					resource.TestCheckResourceAttrSet(rName, "expiry_date"),
-					resource.TestCheckResourceAttrSet(rName, "owner"),
-				),
-			},
-			{
-				ResourceName:            rName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"content"},
-			},
-		},
-	})
-}
-
-func TestAccDeviceCertificate_derived(t *testing.T) {
-	var obj model.CertificatesRspDto
-	rName := "huaweicloud_iotda_device_certificate.test"
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDeviceCertificateResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
@@ -91,17 +55,20 @@ func TestAccDeviceCertificate_derived(t *testing.T) {
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"content"},
+				ImportStateVerifyIgnore: []string{"content", "space_id"},
 			},
 		},
 	})
 }
 
 func testDeviceCertificate_basic() string {
+	name := acceptance.RandomAccResourceName()
+
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_iotda_device_certificate" "test" {
+  space_id = huaweicloud_iotda_space.test.id
   content  = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIDlTCCAn0CFDksqsC4D2sWd5aIJ/3kveD9bi1VMA0GCSqGSIb3DQEBCwUAMIGF
@@ -127,5 +94,5 @@ RQocSUkUw0EW
 -----END CERTIFICATE-----
 EOT
 }
-`, buildIoTDAEndpoint())
+`, testSpace_basic(name))
 }

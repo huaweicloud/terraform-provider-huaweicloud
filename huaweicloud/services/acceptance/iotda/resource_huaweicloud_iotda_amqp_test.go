@@ -20,7 +20,7 @@ func getAmqpResourceFunc(conf *config.Config, state *terraform.ResourceState) (i
 	}
 
 	detail, err := client.ShowQueue(&model.ShowQueueRequest{QueueId: state.Primary.ID})
-	// When the queue does not exist, it still returns a empty struct
+	// When the queue does not exist, it still returns an empty struct
 	if detail == nil || detail.QueueId == nil {
 		return nil, fmt.Errorf("error retrieving IoTDA AMQP queue")
 	}
@@ -29,39 +29,6 @@ func getAmqpResourceFunc(conf *config.Config, state *terraform.ResourceState) (i
 }
 
 func TestAccAmqp_basic(t *testing.T) {
-	var obj model.ShowQueueResponse
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_iotda_amqp.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getAmqpResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAmqp_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccAmqp_derived(t *testing.T) {
 	var obj model.ShowQueueResponse
 
 	name := acceptance.RandomAccResourceName()

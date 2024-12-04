@@ -42,53 +42,6 @@ func TestAccDeviceMessage_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testDeviceMessage_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "device_id", "huaweicloud_iotda_device.test", "id"),
-					resource.TestCheckResourceAttr(rName, "message", "message_content"),
-					resource.TestCheckResourceAttr(rName, "message_id", name),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "encoding", "none"),
-					resource.TestCheckResourceAttr(rName, "payload_format", "standard"),
-					resource.TestCheckResourceAttr(rName, "topic_full_name", "topic_test"),
-					resource.TestCheckResourceAttr(rName, "properties.#", "1"),
-					resource.TestCheckResourceAttr(rName, "properties.0.correlation_data", "data_test"),
-					resource.TestCheckResourceAttr(rName, "properties.0.response_topic", "resp_test"),
-					resource.TestCheckResourceAttr(rName, "properties.0.user_properties.#", "2"),
-					resource.TestCheckResourceAttr(rName, "properties.0.user_properties.0.prop_key", "test_key1"),
-					resource.TestCheckResourceAttr(rName, "properties.0.user_properties.0.prop_value", "test_val1"),
-					resource.TestCheckResourceAttr(rName, "properties.0.user_properties.1.prop_key", "test_key2"),
-					resource.TestCheckResourceAttr(rName, "properties.0.user_properties.1.prop_value", "test_val2"),
-					resource.TestCheckResourceAttrSet(rName, "created_time"),
-					resource.TestCheckResourceAttrSet(rName, "status"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDeviceMessage_derived(t *testing.T) {
-	var (
-		obj   model.ShowDeviceMessageResponse
-		name  = acceptance.RandomAccResourceName()
-		rName = "huaweicloud_iotda_device_message.test"
-	)
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDeviceMessageResourceFunc,
-	)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -124,16 +77,15 @@ func TestAccDeviceMessage_derived(t *testing.T) {
 func testDeviceMessage_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
-%[2]s
 
 resource "huaweicloud_iotda_device" "test" {
-  node_id    = "%[3]s"
-  name       = "%[3]s"
+  node_id    = "%[2]s"
+  name       = "%[2]s"
   space_id   = huaweicloud_iotda_space.test.id
   product_id = huaweicloud_iotda_product.test.id
   secret     = "1234567890"
 }
-`, buildIoTDAEndpoint(), testAccDevice_base(name), name)
+`, testAccDevice_base(name), name)
 }
 
 func testDeviceMessage_basic(name string) string {

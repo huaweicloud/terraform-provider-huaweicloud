@@ -48,55 +48,6 @@ func TestAccUpgradePackage_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testUpgradePackage_basic(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "space_id", "huaweicloud_iotda_space.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "product_id", "huaweicloud_iotda_product.test", "id"),
-					resource.TestCheckResourceAttr(resourceName, "type", "softwarePackage"),
-					resource.TestCheckResourceAttr(resourceName, "version", "v1.0"),
-					resource.TestCheckResourceAttr(resourceName, "file_location.0.obs_location.0.region", acceptance.HW_REGION_NAME),
-					resource.TestCheckResourceAttrPair(resourceName, "file_location.0.obs_location.0.bucket_name",
-						"huaweicloud_obs_bucket_object.test", "bucket"),
-					resource.TestCheckResourceAttrPair(resourceName, "file_location.0.obs_location.0.object_key",
-						"huaweicloud_obs_bucket_object.test", "key"),
-					resource.TestCheckResourceAttr(resourceName, "file_location.0.obs_location.0.sign",
-						"0d6afb7e939f0936f40afdc759b5a354ea5427ec250a47e7b904ab1ea800a01d"),
-					resource.TestCheckResourceAttr(resourceName, "support_source_versions.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "description", "description test"),
-					resource.TestCheckResourceAttr(resourceName, "custom_info", "custom_info test"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccUpgradePackage_derived(t *testing.T) {
-	var (
-		obj          interface{}
-		resourceName = "huaweicloud_iotda_upgrade_package.test"
-		rName        = acceptance.RandomAccResourceName()
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getUpgradePackageResourceFunc,
-	)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -149,7 +100,7 @@ resource "huaweicloud_obs_bucket_object" "test" {
 
 func testUpgradePackage_basic(name string) string {
 	obsBucketBasic := testUpgradePackageWithObsBucket_base()
-	productbasic := testProduct_basic(name)
+	productBasic := testProduct_basic(name)
 
 	return fmt.Sprintf(`
 %[1]s
@@ -179,5 +130,5 @@ resource "huaweicloud_iotda_upgrade_package" "test" {
   description = "description test"
   custom_info = "custom_info test"
 }
-`, productbasic, obsBucketBasic, acceptance.HW_REGION_NAME)
+`, productBasic, obsBucketBasic, acceptance.HW_REGION_NAME)
 }

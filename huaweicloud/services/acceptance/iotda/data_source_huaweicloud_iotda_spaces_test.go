@@ -18,40 +18,6 @@ func TestAccDataSourceSpaces_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceSpaces_basic(),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "spaces.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "spaces.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "spaces.0.name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "spaces.0.created_at"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "spaces.0.is_default"),
-
-					resource.TestCheckOutput("is_space_id_filter_useful", "true"),
-					resource.TestCheckOutput("is_space_name_filter_useful", "true"),
-					resource.TestCheckOutput("is_default_true_filter_useful", "true"),
-					resource.TestCheckOutput("is_default_false_filter_useful", "true"),
-					resource.TestCheckOutput("is_default_empty_filter_useful", "true"),
-					resource.TestCheckOutput("not_found_validation_pass", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceSpaces_derived(t *testing.T) {
-	var (
-		dataSourceName = "data.huaweicloud_iotda_spaces.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
