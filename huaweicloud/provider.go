@@ -1821,6 +1821,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_live_transcoding":          live.ResourceTranscoding(),
 			"huaweicloud_live_snapshot":             live.ResourceLiveSnapshot(),
 			"huaweicloud_live_bucket_authorization": live.ResourceLiveBucketAuthorization(),
+			"huaweicloud_live_channel":              live.ResourceChannel(),
 
 			"huaweicloud_lts_aom_access":                       lts.ResourceAOMAccess(),
 			"huaweicloud_lts_group":                            lts.ResourceLTSGroup(),
