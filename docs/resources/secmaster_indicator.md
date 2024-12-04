@@ -2,14 +2,13 @@
 subcategory: "SecMaster"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_secmaster_indicator"
-description: ""
+description: |-
+  Manages a SecMaster indicator resource within HuaweiCloud.
 ---
 
 # huaweicloud_secmaster_indicator
 
 Manages a SecMaster indicator resource within HuaweiCloud.
-
-~> This resource can only be used in region **cn-east-3** for now.
 
 ## Example Usage
 

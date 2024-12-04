@@ -19,9 +19,9 @@ variable "workspace_id" {}
 variable "instance_id" {}
 variable "operation" {}
 
-resource "huaweicloud_secmaster_playbook_approval" "test" {
+resource "huaweicloud_secmaster_playbook_instance_operation" "test" {
   workspace_id = var.workspace_id
-  version_id   = var.instance_id
+  instance_id  = var.instance_id
   operation    = var.operation
 }
 ```
