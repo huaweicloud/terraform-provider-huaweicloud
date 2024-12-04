@@ -765,7 +765,7 @@ func buildApiBackendConfigBodyParams(params []interface{}) map[string]interface{
 		"timeout":  utils.ValueIgnoreEmpty(utils.PathSearch("timeout", params[0], 0).(int)),
 		"backend_paras": buildApiBackendConfigBackendParamsBodyParams(utils.PathSearch("backend_params",
 			params[0], schema.NewSet(schema.HashString, nil)).(*schema.Set)),
-		"constant_paras": buildApiBackendConfigConstantParamsBodyParams(utils.PathSearch("backend_params",
+		"constant_paras": buildApiBackendConfigConstantParamsBodyParams(utils.PathSearch("constant_params",
 			params[0], schema.NewSet(schema.HashString, nil)).(*schema.Set)),
 	}
 }
