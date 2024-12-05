@@ -67,6 +67,10 @@ The following arguments are supported:
   The [parameters](#block--parameters) structure is documented below.
 
 * `entity_id` - (Optional, String, ForceNew) Specifies the ID of a DDS instance entity.
+  + If the DB instance type is cluster and the shard or config parameter template is to be changed, the value is the
+  group ID. If the parameter template of the mongos node is to be changed, the value is the node ID.
+  + If the DB instance to be changed is a replica set instance, the value should be empty.
+
   Changing this creates a new resource.
 
 <a name="block--parameters"></a>
