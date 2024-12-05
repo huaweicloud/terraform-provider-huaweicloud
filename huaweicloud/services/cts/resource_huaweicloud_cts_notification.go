@@ -61,6 +61,10 @@ func ResourceCTSNotification() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"agency_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"operations": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -154,6 +158,13 @@ func buildNotificationCreateRequestBody(d *schema.ResourceData) (*cts.CreateNoti
 		return nil, err
 	}
 	reqBody.Filter = filter
+
+	if agencyName, ok := d.GetOk("agency_name"); ok {
+		reqBody.AgencyName, err = formatCreateAgencyName(agencyName.(string))
+		if err != nil {
+			return nil, err
+		}
+	}
 	log.Printf("[DEBUG] creating CTS key events notification options: %#v", reqBody)
 	return &reqBody, nil
 }
@@ -313,6 +324,10 @@ func resourceCTSNotificationRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("filter", flattenNotificationFilter(ctsNotification.Filter)),
 	)
 
+	if ctsNotification.AgencyName != nil {
+		mErr = multierror.Append(mErr, d.Set("agency_name", formatValue(ctsNotification.AgencyName)))
+	}
+
 	if ctsNotification.Operations != nil {
 		keyOperations := flattenNotificationOperations(*ctsNotification.Operations)
 		mErr = multierror.Append(mErr, d.Set("operations", keyOperations))
@@ -370,6 +385,14 @@ func resourceCTSNotificationUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 	updateReq.Filter = filter
 
+	if rawAgencyName, ok := d.GetOk("agency_name"); ok {
+		agencyName, err := formatUpdateAgencyName(rawAgencyName.(string))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		updateReq.AgencyName = agencyName
+	}
+
 	log.Printf("[DEBUG] updating CTS key events notification options: %#v", updateReq)
 	updateOpts := cts.UpdateNotificationRequest{
 		Body: &updateReq,
@@ -420,6 +443,22 @@ func formatUpdateNotificationType(operationType string) cts.UpdateNotificationRe
 		return allTypes.COMPLETE
 	}
 	return allTypes.CUSTOMIZED
+}
+
+func formatCreateAgencyName(v string) (*cts.CreateNotificationRequestBodyAgencyName, error) {
+	agencyName := new(cts.CreateNotificationRequestBodyAgencyName)
+	if err := agencyName.UnmarshalJSON([]byte(v)); err != nil {
+		return nil, fmt.Errorf("failed to parse agency_name %s: %s", v, err)
+	}
+	return agencyName, nil
+}
+
+func formatUpdateAgencyName(v string) (*cts.UpdateNotificationRequestBodyAgencyName, error) {
+	agencyName := new(cts.UpdateNotificationRequestBodyAgencyName)
+	if err := agencyName.UnmarshalJSON([]byte(v)); err != nil {
+		return nil, fmt.Errorf("failed to parse agency_name %s: %s", v, err)
+	}
+	return agencyName, nil
 }
 
 func convertNotificationStatus(enabled bool) string {
