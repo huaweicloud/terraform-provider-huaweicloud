@@ -38,6 +38,9 @@ const (
 // @API Config POST /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/enable
 // @API Config PUT /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}
 // @API Config DELETE /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}
+// @API Config POST /v1/resource-manager/{resource_type}/{resource_id}/tags/create
+// @API Config POST /v1/resource-manager/{resource_type}/{resource_id}/tags/delete
+// @API Config GET /v1/resource-manager/{resource_type}/{resource_id}/tags
 func ResourcePolicyAssignment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceePolicyAssignmentCreate,
@@ -161,6 +164,7 @@ func ResourcePolicyAssignment() *schema.Resource {
 				Computed:    true,
 				Description: "The expect status of the policy.",
 			},
+			"tags": common.TagsSchema(),
 			"type": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -285,6 +289,26 @@ func policyAssignmentRefreshFunc(client *golangsdk.ServiceClient, domainId,
 	}
 }
 
+func createResourceTags(client *golangsdk.ServiceClient, id string, tags map[string]interface{}) error {
+	createTagsHttpUrl := "v1/resource-manager/{resource_type}/{resource_id}/tags/create"
+	createTagsPath := client.Endpoint + createTagsHttpUrl
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{resource_type}", "config:policyAssignments")
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{resource_id}", id)
+
+	tagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+
+	tagsOpt.JSONBody = map[string]interface{}{
+		"tags": utils.ExpandResourceTags(tags),
+	}
+	_, err := client.Request("POST", createTagsPath, &tagsOpt)
+	return err
+}
+
 func resourceePolicyAssignmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.RmsV1Client(cfg.GetRegion(d))
@@ -328,6 +352,13 @@ func resourceePolicyAssignmentCreate(ctx context.Context, d *schema.ResourceData
 			return diag.Errorf("error disabling the status of the policy assignment: %s", err)
 		}
 	}
+	if rawTags := d.Get("tags").(map[string]interface{}); len(rawTags) > 0 {
+		err = createResourceTags(client, assignmentId, rawTags)
+		if err != nil {
+			return diag.Errorf("error creating the policy assignment tags: %s", err)
+		}
+	}
+
 	return resourceePolicyAssignmentRead(ctx, d, meta)
 }
 
@@ -387,6 +418,28 @@ func flattenPolicyParameters(parameters map[string]policyassignments.PolicyParam
 	return result, nil
 }
 
+func getTags(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+	getTagsHttpUrl := "v1/resource-manager/{resource_type}/{resource_id}/tags"
+	getTagsPath := client.Endpoint + getTagsHttpUrl
+	getTagsPath = strings.ReplaceAll(getTagsPath, "{resource_type}", "config:policyAssignments")
+	getTagsPath = strings.ReplaceAll(getTagsPath, "{resource_id}", id)
+
+	tagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	tagsResp, err := client.Request("GET", getTagsPath, &tagsOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	tagsRespBody, err := utils.FlattenResponse(tagsResp)
+	if err != nil {
+		return nil, err
+	}
+	return tagsRespBody, nil
+}
+
 func resourceePolicyAssignmentRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.RmsV1Client(cfg.GetRegion(d))
@@ -408,6 +461,11 @@ func resourceePolicyAssignmentRead(_ context.Context, d *schema.ResourceData, me
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	tagsRespBody, err := getTags(client, assignmentId)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("type", resp.Type),
 		d.Set("name", resp.Name),
@@ -420,6 +478,7 @@ func resourceePolicyAssignmentRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("status", resp.Status),
 		d.Set("created_at", resp.CreatedAt),
 		d.Set("updated_at", resp.UpdatedAt),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", tagsRespBody, nil))),
 	)
 
 	if mErr.ErrorOrNil() != nil {
@@ -453,6 +512,48 @@ func buildPolicyAssignmentUpdateOpts(d *schema.ResourceData) (policyassignments.
 	result.Parameters = parameters
 
 	return result, nil
+}
+
+func deleteResourceTags(client *golangsdk.ServiceClient, id string, tags map[string]interface{}) error {
+	deleteTagsHttpUrl := "v1/resource-manager/{resource_type}/{resource_id}/tags/delete"
+	deleteTagsPath := client.Endpoint + deleteTagsHttpUrl
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{resource_type}", "config:policyAssignments")
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{resource_id}", id)
+
+	tagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+
+	tagsOpt.JSONBody = map[string]interface{}{
+		"tags": utils.ExpandResourceTags(tags),
+	}
+	_, err := client.Request("POST", deleteTagsPath, &tagsOpt)
+	return err
+}
+
+func updateResourceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	oldTags, newTags := d.GetChange("tags")
+
+	// remove old tags
+	if oMap := oldTags.(map[string]interface{}); len(oMap) > 0 {
+		err := deleteResourceTags(client, d.Id(), oMap)
+		if err != nil {
+			return err
+		}
+	}
+
+	// set new tags
+	if nMap := newTags.(map[string]interface{}); len(nMap) > 0 {
+		err := createResourceTags(client, d.Id(), nMap)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func resourceePolicyAssignmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -491,7 +592,7 @@ func resourceePolicyAssignmentUpdate(ctx context.Context, d *schema.ResourceData
 			}
 		}
 	}
-	if d.HasChangeExcept("status") {
+	if d.HasChangesExcept("status", "tags") {
 		opts, err := buildPolicyAssignmentUpdateOpts(d)
 		if err != nil {
 			return diag.Errorf("error creating the update option structure of the RMS policy assignment: %s", err)
@@ -516,6 +617,12 @@ func resourceePolicyAssignmentUpdate(ctx context.Context, d *schema.ResourceData
 		if err != nil {
 			return diag.Errorf("error waiting for the policy assignment (%s) status to become %s: %s",
 				assignmentId, strings.ToLower(currentStatus), err)
+		}
+	}
+	if d.HasChange("tags") {
+		err := updateResourceTags(client, d)
+		if err != nil {
+			return diag.Errorf("error updating the policy assignment tags: %s", err)
 		}
 	}
 
