@@ -680,6 +680,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_backup_download_links":      dds.DataSourceDdsBackupDownloadLinks(),
 			"huaweicloud_dds_ssl_cert_download_links":    dds.DataSourceDdsSslCertDownloadLinks(),
 			"huaweicloud_dds_instant_tasks":              dds.DataSourceDdsInstantTasks(),
+			"huaweicloud_dds_scheduled_tasks":            dds.DataSourceDdsScheduledTasks(),
 
 			"huaweicloud_dli_datasource_auths":       dli.DataSourceAuths(),
 			"huaweicloud_dli_datasource_connections": dli.DataSourceConnections(),
@@ -1531,6 +1532,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_parameter_template_copy":     dds.ResourceDDSParameterTemplateCopy(),
 			"huaweicloud_dds_parameter_template_compare":  dds.ResourceDDSParameterTemplateCompare(),
 			"huaweicloud_dds_parameter_template_apply":    dds.ResourceDDSParameterTemplateApply(),
+			"huaweicloud_dds_scheduled_task_cancel":       dds.ResourceDDSScheduledTaskCancel(),
 
 			"huaweicloud_ddm_instance":               ddm.ResourceDdmInstance(),
 			"huaweicloud_ddm_instance_restart":       ddm.ResourceDdmInstanceRestart(),
