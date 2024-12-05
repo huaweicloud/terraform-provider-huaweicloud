@@ -1985,6 +1985,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rms_organizational_policy_assignment":   rms.ResourceOrganizationalPolicyAssignment(),
 			"huaweicloud_rms_remediation_configuration":          rms.ResourceRemediationConfiguration(),
 			"huaweicloud_rms_remediation_exception":              rms.ResourceRemediationException(),
+			"huaweicloud_rms_remediation_execution":              rms.ResourceRemediationExecution(),
 
 			"huaweicloud_sdrs_drill":              sdrs.ResourceDrill(),
 			"huaweicloud_sdrs_replication_pair":   sdrs.ResourceReplicationPair(),
