@@ -512,8 +512,8 @@ var (
 	HW_DMS_ROCKETMQ_TOPIC_NAME  = os.Getenv("HW_DMS_ROCKETMQ_TOPIC_NAME")
 	HW_DMS_ROCKETMQ_GROUP_NAME  = os.Getenv("HW_DMS_ROCKETMQ_GROUP_NAME")
 
-	HW_SFS_TURBO_BACKUP_ID  = os.Getenv("HW_SFS_TURBO_BACKUP_ID")
-	HW_SFS_FILE_SYSTEM_NAME = os.Getenv("HW_SFS_FILE_SYSTEM_NAME")
+	HW_SFS_TURBO_BACKUP_ID   = os.Getenv("HW_SFS_TURBO_BACKUP_ID")
+	HW_SFS_FILE_SYSTEM_NAMES = os.Getenv("HW_SFS_FILE_SYSTEM_NAMES")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -2675,9 +2675,9 @@ func TestAccPrecheckSFSTurboBackupId(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPrecheckSfsFileSystemName(t *testing.T) {
-	if HW_SFS_FILE_SYSTEM_NAME == "" {
-		t.Skip("HW_SFS_FILE_SYSTEM_NAME must be set for the acceptance test")
+func TestAccPrecheckSfsFileSystemNames(t *testing.T) {
+	if len(strings.Split(HW_SFS_FILE_SYSTEM_NAMES, ",")) < 1 {
+		t.Skip("At least one of user must be configured in the HW_SFS_FILE_SYSTEM_NAMES, and separated by commas")
 	}
 }
 
