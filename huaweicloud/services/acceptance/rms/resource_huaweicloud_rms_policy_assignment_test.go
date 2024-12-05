@@ -68,6 +68,7 @@ func TestAccPolicyAssignment_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "policy_filter.0.resource_type", "cloudservers"),
 					resource.TestCheckResourceAttrPair(rName, "policy_filter.0.resource_id",
 						"huaweicloud_compute_instance.test", "id"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "status", "Disabled"),
 					resource.TestCheckResourceAttrSet(rName, "parameters.listOfAllowedFlavors"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
@@ -89,6 +90,8 @@ func TestAccPolicyAssignment_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "description", "An ECS is noncompliant if its flavor is "+
 						"not in the specified flavor list (filter by resource tag)."),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "tags.f1", "k1"),
+					resource.TestCheckResourceAttr(rName, "tags.f2", "k2"),
 					resource.TestCheckResourceAttrPair(rName, "policy_definition_id",
 						"data.huaweicloud_rms_policy_definitions.test", "definitions.0.id"),
 					resource.TestCheckResourceAttr(rName, "policy_filter.0.region", acceptance.HW_REGION_NAME),
@@ -193,6 +196,10 @@ resource "huaweicloud_rms_policy_assignment" "test" {
   parameters = {
     listOfAllowedFlavors = "[\"${data.huaweicloud_compute_flavors.test.ids[0]}\"]"
   }
+
+  tags = {
+    foo = "bar"
+  }
 }
 `, basicConfig, name, status, acceptance.HW_REGION_NAME)
 }
@@ -221,6 +228,11 @@ resource "huaweicloud_rms_policy_assignment" "test" {
 
   parameters = {
     listOfAllowedFlavors = "[\"${data.huaweicloud_compute_flavors.test.ids[0]}\"]"
+  }
+
+  tags = {
+    f1 = "k1"
+    f2 = "k2"
   }
 }
 `, basicConfig, name, status, acceptance.HW_REGION_NAME)
