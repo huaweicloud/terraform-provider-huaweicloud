@@ -94,6 +94,7 @@ func TestAccCphServer_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "server_share_data_volume.0.volume_type"),
 					resource.TestCheckResourceAttrSet(rName, "server_share_data_volume.0.size"),
 					resource.TestCheckResourceAttrSet(rName, "server_share_data_volume.0.version"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 				),
 			},
 			{
@@ -102,6 +103,7 @@ func TestAccCphServer_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name+"update"),
 					resource.TestCheckResourceAttrPair(rName, "keypair_name", "huaweicloud_kps_keypair.test1", "name"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar_update"),
 				),
 			},
 			{
@@ -179,6 +181,10 @@ resource "huaweicloud_cph_server" "test" {
   period      = 1
   auto_renew  = "true"
 
+  tags = {
+    foo = "bar"
+  }
+
   lifecycle {
     ignore_changes = [
       image_id, auto_renew, period, period_unit,
@@ -222,6 +228,10 @@ resource "huaweicloud_cph_server" "test" {
   period_unit = "month"
   period      = 1
   auto_renew  = "true"
+
+  tags = {
+    foo = "bar_update"
+  }
 
   lifecycle {
     ignore_changes = [
