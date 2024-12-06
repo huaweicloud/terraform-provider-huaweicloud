@@ -84,7 +84,6 @@ func ResourceOpenGaussDatabase() *schema.Resource {
 			"lc_ctype": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				ForceNew:    true,
 				Description: `Specifies the database classification.`,
 			},
@@ -133,7 +132,7 @@ func resourceOpenGaussDatabaseCreate(ctx context.Context, d *schema.ResourceData
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     OpenGaussInstanceStateRefreshFunc(client, instanceID),
+		WaitFunc:     instanceStateRefreshFunc(client, instanceID),
 		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		DelayTimeout: 10 * time.Second,
@@ -222,7 +221,6 @@ func resourceOpenGaussDatabaseRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("owner", utils.PathSearch("owner", database, nil)),
 		d.Set("character_set", utils.PathSearch("character_set", database, nil)),
 		d.Set("lc_collate", utils.PathSearch("collate_set", database, nil)),
-		d.Set("lc_ctype", utils.PathSearch("datctype", database, nil)),
 		d.Set("size", utils.PathSearch("size", database, nil)),
 		d.Set("compatibility_type", utils.PathSearch("compatibility_type", database, nil)),
 	)
@@ -265,7 +263,7 @@ func resourceOpenGaussDatabaseDelete(ctx context.Context, d *schema.ResourceData
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     OpenGaussInstanceStateRefreshFunc(client, instanceID),
+		WaitFunc:     instanceStateRefreshFunc(client, instanceID),
 		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		DelayTimeout: 10 * time.Second,
