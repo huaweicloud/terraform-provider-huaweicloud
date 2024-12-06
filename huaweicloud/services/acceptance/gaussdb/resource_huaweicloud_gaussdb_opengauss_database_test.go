@@ -83,7 +83,11 @@ func TestAccOpenGaussDatabase_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckHighCostAllow(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -97,7 +101,6 @@ func TestAccOpenGaussDatabase_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "character_set", "UTF8"),
 					resource.TestCheckResourceAttr(rName, "owner", "root"),
 					resource.TestCheckResourceAttr(rName, "lc_collate", "C"),
-					resource.TestCheckResourceAttr(rName, "lc_ctype", "C"),
 					resource.TestCheckResourceAttrSet(rName, "size"),
 					resource.TestCheckResourceAttrSet(rName, "compatibility_type"),
 				),
@@ -106,7 +109,7 @@ func TestAccOpenGaussDatabase_basic(t *testing.T) {
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"template"},
+				ImportStateVerifyIgnore: []string{"template", "lc_ctype"},
 				ImportStateIdFunc:       testAccOpenGaussDatabaseImportStateFunc(rName),
 			},
 		},
@@ -135,11 +138,6 @@ resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss_egress" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
-resource "huaweicloud_enterprise_project" "test" {
-  name        = "%[2]s"
-  description = "terraform test update"
-}
-
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   depends_on = [
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
@@ -155,11 +153,11 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   sharding_num          = 1
   coordinator_num       = 2
   replica_num           = 3
-  enterprise_project_id = huaweicloud_enterprise_project.test.id
+  enterprise_project_id = "%[3]s"
 
   availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
-                      data.huaweicloud_availability_zones.test.names[0], 
-                      data.huaweicloud_availability_zones.test.names[0]])
+                      data.huaweicloud_availability_zones.test.names[1], 
+                      data.huaweicloud_availability_zones.test.names[2]])
 
   ha {
     mode             = "enterprise"
@@ -169,7 +167,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 
   datastore {
     engine  = "GaussDB(for openGauss)"
-    version = "8.103"
+    version = "8.201"
   }
 
   volume {
@@ -177,7 +175,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
     size = 40
   }
 }
-`, common.TestBaseNetwork(rName), rName)
+`, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testOpenGaussDatabase_basic(rName string) string {

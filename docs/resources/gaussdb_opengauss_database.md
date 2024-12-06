@@ -87,10 +87,10 @@ $ terraform import huaweicloud_gaussdb_opengauss_database.test <instance_id>/<na
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `template`. It is generally recommended
-running `terraform plan` after importing a GaussDB database. You can then decide if changes should be applied to the
-GaussDB database, or the resource definition should be updated to align with the GaussDB database. Also, you can ignore
-changes as below.
+API response, security or some other reason. The missing attributes include: `template` and `lc_ctype`. It is generally
+recommended running `terraform plan` after importing a GaussDB database. You can then decide if changes should be applied
+to the GaussDB database, or the resource definition should be updated to align with the GaussDB database. Also, you can
+ignore changes as below.
 
 ```hcl
 resource "huaweicloud_gaussdb_opengauss_database" "test" {
@@ -98,7 +98,7 @@ resource "huaweicloud_gaussdb_opengauss_database" "test" {
   
   lifecycle {
     ignore_changes = [
-      template,
+      template, lc_ctype,
     ]
   }
 }
