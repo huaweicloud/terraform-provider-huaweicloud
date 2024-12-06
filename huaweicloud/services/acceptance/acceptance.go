@@ -504,6 +504,7 @@ var (
 	HW_RDS_BACKUP_ID                       = os.Getenv("HW_RDS_BACKUP_ID")
 	HW_RDS_START_TIME                      = os.Getenv("HW_RDS_START_TIME")
 	HW_RDS_END_TIME                        = os.Getenv("HW_RDS_END_TIME")
+	HW_RDS_FIXED_IP                        = os.Getenv("HW_RDS_FIXED_IP")
 
 	HW_DMS_KAFKA_INSTANCE_ID         = os.Getenv("HW_DMS_KAFKA_INSTANCE_ID")
 	HW_DMS_KAFKA_TOPIC_NAME          = os.Getenv("HW_DMS_KAFKA_TOPIC_NAME")
@@ -515,6 +516,8 @@ var (
 
 	HW_SFS_TURBO_BACKUP_ID   = os.Getenv("HW_SFS_TURBO_BACKUP_ID")
 	HW_SFS_FILE_SYSTEM_NAMES = os.Getenv("HW_SFS_FILE_SYSTEM_NAMES")
+
+	HW_SMN_SUBSCRIBED_TOPIC_URN = os.Getenv("HW_SMN_SUBSCRIBED_TOPIC_URN")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -2515,6 +2518,13 @@ func TestAccPreCheckRdsTimeRange(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckRdsFixedIp(t *testing.T) {
+	if HW_RDS_FIXED_IP == "" {
+		t.Skip("HW_RDS_FIXED_IP must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckCssLowEngineVersion(t *testing.T) {
 	if HW_CSS_LOW_ENGINE_VERSION == "" {
 		t.Skip("HW_CSS_LOW_ENGINE_VERSION must be set for CSS acceptance tests")
@@ -2723,5 +2733,12 @@ func TestAccPrecheckCphAdbObjectPath(t *testing.T) {
 func TestAccPrecheckCphObsBucketName(t *testing.T) {
 	if HW_CPH_OBS_BUCKET_NAME == "" {
 		t.Skip("HW_CPH_OBS_BUCKET_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckSmnSubscribedTopicUrn(t *testing.T) {
+	if HW_SMN_SUBSCRIBED_TOPIC_URN == "" {
+		t.Skip("HW_SMN_SUBSCRIBED_TOPIC_URN must be set for the acceptance test")
 	}
 }
