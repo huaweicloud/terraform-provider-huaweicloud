@@ -45,7 +45,7 @@ func TestAccAppPersonalFolders_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckSfsFileSystemNames(t)
+			acceptance.TestAccPrecheckSfsFileSystemNames(t, 1)
 			acceptance.TestAccPrecheckWorkspaceUserNames(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

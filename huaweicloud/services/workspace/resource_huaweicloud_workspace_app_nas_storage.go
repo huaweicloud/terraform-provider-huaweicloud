@@ -237,7 +237,7 @@ func resourceAppNasStorageDelete(_ context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func listAppNasStorages(client *golangsdk.ServiceClient) ([]interface{}, error) {
+func listAppNasStorages(client *golangsdk.ServiceClient, queryPath ...string) ([]interface{}, error) {
 	var (
 		httpUrl = "v1/{project_id}/persistent-storages?limit=100"
 		listOpt = golangsdk.RequestOpts{
@@ -249,6 +249,10 @@ func listAppNasStorages(client *golangsdk.ServiceClient) ([]interface{}, error) 
 
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+
+	if len(queryPath) > 0 {
+		listPath += queryPath[0]
+	}
 
 	for {
 		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
