@@ -2,7 +2,8 @@
 subcategory: "GaussDB"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_gaussdb_opengauss_instance"
-description: ""
+description: |-
+  GaussDB OpenGauss instance management within HuaweiCould.
 ---
 
 # huaweicloud_gaussdb_opengauss_instance
@@ -11,7 +12,7 @@ GaussDB OpenGauss instance management within HuaweiCould.
 
 ## Example Usage
 
-### Create a instance for distributed HA mode
+### Create an instance for distributed HA mode
 
 ```hcl
 variable "vpc_id" {}
@@ -47,7 +48,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 }
 ```
 
-### Create a instance for centralized HA mode
+### Create an instance for centralized HA mode
 
 ```hcl
 variable "instance_name" {}
@@ -154,6 +155,21 @@ The following arguments are supported:
 * `time_zone` - (Optional, String, ForceNew) Specifies the time zone. Defaults to **UTC+08:00**.
   Changing this parameter will create a new resource.
 
+* `disk_encryption_id` - (Optional, String, ForceNew) Specifies the key ID for disk encryption.
+  Changing this parameter will create a new resource.
+
+* `enable_force_switch` - (Optional, Bool, ForceNew) Specifies whether to forcibly promote a standby node to primary.
+  Defaults to **false**. Changing this parameter will create a new resource.
+
+* `enable_single_float_ip` - (Optional, Bool, ForceNew) Specifies whether to enable single floating IP address policy,
+  which is only suitable for primary/standby instances. Value options:
+  + **true**: This function is enabled. Only one floating IP address is bound to the primary node of a DB instance. If a
+    primary/standby fail over occurs, the floating IP address does not change.
+  + **false (default value)**: The function is disabled. Each node is bound to a floating IP address. If a primary/standby
+    fail over occurs, the floating IP addresses change.
+
+  Changing this parameter will create a new resource.
+
 * `force_import` - (Optional, Bool) Specifies whether to import the instance with the given configuration instead of
   creation. If specified, try to import the instance instead of creation if the instance already existed.
 
@@ -187,7 +203,7 @@ The following arguments are supported:
 <a name="opengauss_ha"></a>
 The `ha` block supports:
 
-* `mode` - (Required, String, ForceNew) Specifies the database mode.
+* `mode` - (Required, String, ForceNew) Specifies the deployment model.
   The valid values are **enterprise** and **centralization_standard**.
   Changing this parameter will create a new resource.
 
@@ -195,7 +211,14 @@ The `ha` block supports:
   Only **sync** is supported now. Changing this parameter will create a new resource.
 
 * `consistency` - (Optional, String, ForceNew) Specifies the database consistency mode.
-  The valid values are **strong** and **eventual**, not case sensitive.
+  The valid values are **strong** and **eventual**, not case-sensitive.
+  Changing this parameter will create a new resource.
+
+* `instance_mode` - (Optional, String, ForceNew) Specifies the product type of the instance. Value options:
+  + **enterprise**: The instance of the enterprise edition will be created.
+  + **basic**: The instance of the basic edition will be created.
+  + **ecology**: The instance of the ecosystem edition will be created.
+
   Changing this parameter will create a new resource.
 
 <a name="opengauss_volume"></a>
@@ -278,5 +301,25 @@ This resource provides the following timeouts configuration options:
 OpenGaussDB instance can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_gaussdb_opengauss_instance.test 1f2c4f48adea4ae684c8edd8818fa349in14
+$ terraform import huaweicloud_gaussdb_opengauss_instance.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
+API response. The missing attributes include: `password`, `ha.0.mode`, `ha.0.instance_mode`, `configuration_id`,
+`disk_encryption_id`, `enable_force_switch`, `enable_single_float_ip`, `period_unit`, `period` and `auto_renew`. It is
+generally recommended running `terraform plan` after importing a GaussDB OpenGauss instance. You can then decide if
+changes should be applied to the GaussDB OpenGauss instance, or the resource definition should be updated to align with
+the GaussDB OpenGauss instance. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      password, ha.0.mode, ha.0.instance_mode, configuration_id, disk_encryption_id, enable_force_switch,
+      enable_single_float_ip, period_unit, period, auto_renew,
+    ]
+  }
+}
 ```
