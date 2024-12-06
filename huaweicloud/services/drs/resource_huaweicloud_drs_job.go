@@ -486,6 +486,10 @@ func ResourceDrsJob() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"original_job_direction": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -1018,6 +1022,7 @@ func resourceJobRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		setDbInfoToState(d, detail.SourceEndpoint, "source_db"),
 		setDbInfoToState(d, detail.TargetEndpoint, "destination_db"),
 		d.Set("is_open_fast_clean", detail.IsOpenFastClean),
+		d.Set("original_job_direction", detail.OriginalJobDirection),
 	)
 
 	// set objects
