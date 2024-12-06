@@ -7,6 +7,7 @@ package rms
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"strings"
 	"time"
@@ -149,7 +150,12 @@ func resourceAssignmentPackageCreate(ctx context.Context, d *schema.ResourceData
 		KeepResponseBody: true,
 	}
 
-	createAssignmentPackageOpt.JSONBody = utils.RemoveNil(buildCreateAssignmentPackageBodyParams(d))
+	createOpts, err := buildCreateAssignmentPackageBodyParams(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	createAssignmentPackageOpt.JSONBody = utils.RemoveNil(createOpts)
 	log.Printf("[DEBUG] Create RMS assignment package options: %#v", createAssignmentPackageOpt)
 	createAssignmentPackageResp, err := createAssignmentPackageClient.Request("POST",
 		createAssignmentPackagePath, &createAssignmentPackageOpt)
@@ -184,34 +190,44 @@ func resourceAssignmentPackageCreate(ctx context.Context, d *schema.ResourceData
 	return resourceAssignmentPackageRead(ctx, d, meta)
 }
 
-func buildCreateAssignmentPackageBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateAssignmentPackageBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	varsStructure, err := buildCreateAssignmentPackageRequestBodyParameter(d.Get("vars_structure"))
+	if err != nil {
+		return nil, err
+	}
+
 	bodyParams := map[string]interface{}{
 		"name":           d.Get("name"),
 		"agency_name":    utils.ValueIgnoreEmpty(d.Get("agency_name")),
 		"template_key":   utils.ValueIgnoreEmpty(d.Get("template_key")),
 		"template_body":  utils.ValueIgnoreEmpty(d.Get("template_body")),
 		"template_uri":   utils.ValueIgnoreEmpty(d.Get("template_uri")),
-		"vars_structure": buildCreateAssignmentPackageRequestBodyParameter(d.Get("vars_structure")),
+		"vars_structure": varsStructure,
 	}
-	return bodyParams
+	return bodyParams, err
 }
 
-func buildCreateAssignmentPackageRequestBodyParameter(rawParams interface{}) []map[string]interface{} {
+func buildCreateAssignmentPackageRequestBodyParameter(rawParams interface{}) ([]map[string]interface{}, error) {
 	rawArray := rawParams.(*schema.Set).List()
 	if len(rawArray) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	rst := make([]map[string]interface{}, len(rawArray))
 	for i, v := range rawArray {
 		if raw, ok := v.(map[string]interface{}); ok {
+			var value interface{}
+			err := json.Unmarshal([]byte(raw["var_value"].(string)), &value)
+			if err != nil {
+				return nil, err
+			}
 			rst[i] = map[string]interface{}{
 				"var_key":   utils.ValueIgnoreEmpty(raw["var_key"]),
-				"var_value": utils.ValueIgnoreEmpty(raw["var_value"]),
+				"var_value": value,
 			}
 		}
 	}
-	return rst
+	return rst, nil
 }
 
 func resourceAssignmentPackageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -257,7 +273,7 @@ func flattenGetAssignmentPackageResponseBodyParameter(resp interface{}) []interf
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
 			"var_key":   utils.PathSearch("var_key", v, nil),
-			"var_value": utils.PathSearch("var_value", v, nil),
+			"var_value": utils.JsonToString(utils.PathSearch("var_value", v, nil)),
 		})
 	}
 	return rst

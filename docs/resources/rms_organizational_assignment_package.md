@@ -25,7 +25,7 @@ resource "huaweicloud_rms_organizational_assignment_package" "test" {
     for_each = data.huaweicloud_rms_assignment_package_templates.test.templates.0.parameters
     content {
       var_key   = vars_structure.value["name"]
-      var_value = jsondecode(vars_structure.value["default_value"])
+      var_value = vars_structure.value["default_value"]
     }
   }
 }
@@ -72,7 +72,7 @@ The `vars_structure` block supports:
 
 * `var_key` - (Optional, String) Specifies the name of a parameter. It contains 1 to 64 characters.
 
-* `var_value` - (Optional, String) Specifies the value of a parameter.
+* `var_value` - (Optional, String) Specifies the value of a parameter. It's a json string.
 
 ## Attribute Reference
 
