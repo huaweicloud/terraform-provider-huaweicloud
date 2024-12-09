@@ -797,8 +797,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_redis_flavors":                geminidb.DataSourceGaussDBRedisFlavors(),
 			"huaweicloud_gaussdb_influx_instances":             geminidb.DataSourceGaussDBInfluxInstances(),
 
-			"huaweicloud_gaussdb_opengauss_instance":  gaussdb.DataSourceOpenGaussInstance(),
-			"huaweicloud_gaussdb_opengauss_instances": gaussdb.DataSourceOpenGaussInstances(),
+			"huaweicloud_gaussdb_opengauss_instance":       gaussdb.DataSourceOpenGaussInstance(),
+			"huaweicloud_gaussdb_opengauss_instances":      gaussdb.DataSourceOpenGaussInstances(),
+			"huaweicloud_gaussdb_opengauss_instance_nodes": gaussdb.DataSourceGaussdbOpengaussInstanceNodes(),
 
 			"huaweicloud_gaussdb_mysql_engine_versions":          taurusdb.DataSourceGaussdbMysqlEngineVersions(),
 			"huaweicloud_gaussdb_mysql_configuration":            taurusdb.DataSourceGaussdbMysqlConfiguration(),
