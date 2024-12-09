@@ -48,7 +48,8 @@ func TestAccMicroserviceEngine_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform test"),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "cse.s1.small2"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_cse_microservice_engine_flavors.test", "flavors.0.id"),
 					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "RBAC"),
 					resource.TestCheckResourceAttrSet(resourceName, "admin_pass"),
@@ -76,6 +77,10 @@ func TestAccMicroserviceEngine_basic(t *testing.T) {
 func testAccMicroserviceEngine_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_cse_microservice_engine_flavors" "test" {
+  version = "CSE2"
+}
 
 resource "huaweicloud_vpc" "test" {
   name = "%[1]s"
@@ -111,7 +116,7 @@ func testAccMicroserviceEngine_basic(rName string) string {
 resource "huaweicloud_cse_microservice_engine" "test" {
   name                  = "%[2]s"
   description           = "Created by terraform test"
-  flavor                = "cse.s1.small2"
+  flavor                = data.huaweicloud_cse_microservice_engine_flavors.test.flavors[0].id
   network_id            = huaweicloud_vpc_subnet.test.id
   eip_id                = huaweicloud_vpc_eip.test.id
   enterprise_project_id = "0"
@@ -151,7 +156,8 @@ func TestAccMicroserviceEngine_withEpsId(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform test"),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "cse.s1.small2"),
+					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+						"data.huaweicloud_cse_microservice_engine_flavors.test", "flavors.0.id"),
 					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "RBAC"),
 					resource.TestCheckResourceAttrSet(resourceName, "admin_pass"),
@@ -200,7 +206,7 @@ func testAccMicroserviceEngine_withEpsId(name string) string {
 resource "huaweicloud_cse_microservice_engine" "test" {
   name                  = "%[2]s"
   description           = "Created by terraform test"
-  flavor                = "cse.s1.small2"
+  flavor                = data.huaweicloud_cse_microservice_engine_flavors.test.flavors[0].id
   network_id            = huaweicloud_vpc_subnet.test.id
   eip_id                = huaweicloud_vpc_eip.test.id
   enterprise_project_id = "%[3]s"
@@ -238,7 +244,7 @@ func TestAccMicroserviceEngine_nacos(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "cse.nacos2.c1.large.10"),
+					resource.TestCheckResourceAttrSet(resourceName, "flavor"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttrPair(resourceName, "network_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "NONE"),
@@ -255,11 +261,16 @@ func TestAccMicroserviceEngine_nacos(t *testing.T) {
 
 func testAccMicroserviceEngine_nacos_step1(rName string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_cse_microservice_engine_flavors" "test" {
+  version = "Nacos2"
+}
+
 %[1]s
 
 resource "huaweicloud_cse_microservice_engine" "test" {
   name       = "%[2]s"
-  flavor     = "cse.nacos2.c1.large.10"
+  # 10 capacity units (500 microservice instances)
+  flavor     = format("%%s.10", data.huaweicloud_cse_microservice_engine_flavors.test.flavors[0].id)
   network_id = huaweicloud_vpc_subnet.test.id
   auth_type  = "NONE"
   version    = "Nacos2"
