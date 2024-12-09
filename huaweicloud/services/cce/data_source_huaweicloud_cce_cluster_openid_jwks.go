@@ -90,6 +90,9 @@ func dataSourceCCEClusterOpenIDJWKSRead(_ context.Context, d *schema.ResourceDat
 
 	getOpenIDJWKSOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Accept": "application/jwk-set+json",
+		},
 	}
 
 	getOpenIDJWKSResp, err := getOpenIDJWKSClient.Request("GET", getOpenIDJWKSPath, &getOpenIDJWKSOpt)
