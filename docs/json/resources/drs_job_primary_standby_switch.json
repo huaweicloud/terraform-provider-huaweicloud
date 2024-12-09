@@ -2,14 +2,14 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_sfs_turbo_perm_rule": {
+        "huaweicloud_drs_job_primary_standby_switch": {
           "block": {
             "attributes": {
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "ip_cidr": {
+              "job_id": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
@@ -17,21 +17,15 @@
               "region": {
                 "type": "string",
                 "computed": true
-              },
-              "rw_type": {
-                "type": "string",
-                "required": true
-              },
-              "share_id": {
-                "type": "string",
-                "required": true,
-                "forcenew": true
-              },
-              "user_type": {
-                "type": "string",
-                "required": true
               }
             }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
           }
         }
       }

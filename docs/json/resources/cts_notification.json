@@ -5,6 +5,10 @@
         "huaweicloud_cts_notification": {
           "block": {
             "attributes": {
+              "agency_name": {
+                "type": "string",
+                "optional": true
+              },
               "enabled": {
                 "type": "bool",
                 "optional": true,

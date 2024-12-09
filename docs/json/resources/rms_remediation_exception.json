@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rms_remediation_exception": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_assignment_id": {
+                "type": "string",
+                "description": "Specifies the policy assignment ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "exceptions": {
+                "block": {
+                  "attributes": {
+                    "created_by": {
+                      "type": "string",
+                      "description": "The creator of a remediation exception.",
+                      "computed": true
+                    },
+                    "joined_at": {
+                      "type": "string",
+                      "description": "The time when a remediation exception is added.",
+                      "computed": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Specifies the reason for adding an exception.",
+                      "optional": true
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "description": "Specifies the resource ID.",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

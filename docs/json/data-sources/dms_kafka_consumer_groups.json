@@ -21,10 +21,48 @@
                   [
                     "object",
                     {
+                      "assignment_strategy": "string",
                       "coordinator_id": "number",
                       "created_at": "string",
                       "description": "string",
+                      "group_message_offsets": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "lag": "number",
+                            "message_current_offset": "number",
+                            "message_log_end_offset": "number",
+                            "partition": "number",
+                            "topic": "string"
+                          }
+                        ]
+                      ],
                       "lag": "number",
+                      "members": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "assignment": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "partitions": [
+                                    "list",
+                                    "number"
+                                  ],
+                                  "topic": "string"
+                                }
+                              ]
+                            ],
+                            "client_id": "string",
+                            "host": "string",
+                            "member_id": "string"
+                          }
+                        ]
+                      ],
                       "name": "string",
                       "state": "string"
                     }

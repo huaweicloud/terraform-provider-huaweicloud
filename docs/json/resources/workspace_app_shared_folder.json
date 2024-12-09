@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_shared_folder": {
+          "block": {
+            "attributes": {
+              "delimiter": {
+                "type": "string",
+                "description": "The delimiter that the shared folder path used.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the shared folder.",
+                "required": true,
+                "forcenew": true
+              },
+              "path": {
+                "type": "string",
+                "description": "The path of the shared folder.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the shared folder is located.",
+                "computed": true
+              },
+              "storage_id": {
+                "type": "string",
+                "description": "The NAS storage ID to which the shared folder belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

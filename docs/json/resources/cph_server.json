@@ -124,6 +124,13 @@
                 "required": true,
                 "forcenew": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "vpc_id": {
                 "type": "string",
                 "description": "The ID of VPC which the cloud server belongs to",

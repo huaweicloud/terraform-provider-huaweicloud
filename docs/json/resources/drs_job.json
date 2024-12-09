@@ -60,6 +60,12 @@
                 "type": "string",
                 "computed": true
               },
+              "is_open_fast_clean": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "is_sync_re_edit": {
                 "type": "bool",
                 "optional": true
@@ -108,6 +114,10 @@
                 "default": "high"
               },
               "order_id": {
+                "type": "string",
+                "computed": true
+              },
+              "original_job_direction": {
                 "type": "string",
                 "computed": true
               },

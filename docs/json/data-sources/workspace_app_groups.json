@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_groups": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the application group.",
+                "optional": true
+              },
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_count": "number",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "server_group_id": "string",
+                      "server_group_name": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "All application groups that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the application group.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "Specifies the server group ID associated with the application group.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the application group.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

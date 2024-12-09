@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_nas_storages": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the NAS storage to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the NAS storages are located.",
+                "computed": true
+              },
+              "storage_id": {
+                "type": "string",
+                "description": "The ID of the NAS storage to be queried.",
+                "optional": true
+              },
+              "storages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "name": "string",
+                      "personal_folder_count": "number",
+                      "shared_folder_count": "number",
+                      "storage_metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "export_location": "string",
+                            "storage_class": "string",
+                            "storage_handle": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "All NAS storages that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

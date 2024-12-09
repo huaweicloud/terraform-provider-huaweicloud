@@ -49,6 +49,13 @@
                 "optional": true,
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "type": {
                 "type": "string",
                 "description": "The type of the policy assignment.",
