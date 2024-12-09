@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.71.1 (December 9, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_cluster_openid_jwks: add header for jwks [GH-5988]
+
 ## 1.71.0 (November 30, 2024)
 
 * **New Resource:**
