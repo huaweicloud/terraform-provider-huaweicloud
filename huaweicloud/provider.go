@@ -1576,6 +1576,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_user":                      dms.ResourceDmsKafkaUser(),
 			"huaweicloud_dms_kafka_permissions":               dms.ResourceDmsKafkaPermissions(),
 			"huaweicloud_dms_kafka_instance":                  dms.ResourceDmsKafkaInstance(),
+			"huaweicloud_dms_kafka_instance_restart":          dms.ResourceDmsKafkaInstanceRestart(),
 			"huaweicloud_dms_kafka_topic":                     dms.ResourceDmsKafkaTopic(),
 			"huaweicloud_dms_kafka_message_produce":           dms.ResourceDmsKafkaMessageProduce(),
 			"huaweicloud_dms_kafka_partition_reassign":        dms.ResourceDmsKafkaPartitionReassign(),

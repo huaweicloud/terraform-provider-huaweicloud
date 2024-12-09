@@ -1672,11 +1672,11 @@ func filterTaskRefreshFunc(client *golangsdk.ServiceClient, instanceID string, t
 		getTasksPathOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 		}
-		getAutoTopicTaskPathResp, err := client.Request("GET", getTasksPath, &getTasksPathOpt)
+		getTasksPathResp, err := client.Request("GET", getTasksPath, &getTasksPathOpt)
 		if err != nil {
 			return nil, "QUERY ERROR", err
 		}
-		getTasksRespBody, err := utils.FlattenResponse(getAutoTopicTaskPathResp)
+		getTasksRespBody, err := utils.FlattenResponse(getTasksPathResp)
 		if err != nil {
 			return nil, "PARSE ERROR", err
 		}
@@ -1762,7 +1762,6 @@ func modifyParameters(ctx context.Context, client *golangsdk.ServiceClient, time
 
 func restartKafkaInstance(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient,
 	instanceID string) error {
-	// If static parameter is changed, reboot the instance.
 	restartInstanceOpts := instances.RestartInstanceOpts{
 		Action:    "restart",
 		Instances: []string{instanceID},
@@ -1788,6 +1787,7 @@ func restartKafkaInstance(ctx context.Context, timeout time.Duration, client *go
 
 	// wait for the instance state to be 'RUNNING'.
 	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"RESTARTING"},
 		Target:       []string{"RUNNING"},
 		Refresh:      KafkaInstanceStateRefreshFunc(client, instanceID),
 		Timeout:      timeout,
@@ -1842,7 +1842,7 @@ func kafkaInstanceTaskStatusRefreshFunc(client *golangsdk.ServiceClient, instanc
 			return nil, "QUERY ERROR", err
 		}
 		if len(taskResp.Tasks) == 0 {
-			return nil, "NIL ERROR", fmt.Errorf("failed to find updating parameters task(%s)", taskID)
+			return nil, "NIL ERROR", fmt.Errorf("failed to find task(%s)", taskID)
 		}
 		return taskResp.Tasks[0], taskResp.Tasks[0].Status, nil
 	}
