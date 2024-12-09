@@ -134,6 +134,8 @@ The following arguments are supported:
 * `status` - (Optional, String) Specifies the expect status of the policy.
   The valid values are **Enabled** and **Disabled**.
 
+* `tags` - (Optional, Map)  Specifies the key/value pairs to associate with the policy assignment.
+
 <a name="rms_policy_filter"></a>
 The `policy_filter` block supports:
 
