@@ -8,6 +8,15 @@ host: huaweicloud.com
 tags:
     - name: Config
 paths:
+    /v1/resource-manager/{resource_type}/{resource_id}/tags:
+        GET:
+            tag: Config
+    /v1/resource-manager/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: Config
+    /v1/resource-manager/{resource_type}/{resource_id}/tags/delete:
+        POST:
+            tag: Config
     /v1/resource-manager/domains/{domain_id}/policy-assignments:
         PUT:
             tag: Config

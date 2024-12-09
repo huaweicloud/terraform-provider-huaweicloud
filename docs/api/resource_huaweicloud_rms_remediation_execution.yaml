@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rms_remediation_execution
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CONFIG
+paths:
+    /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/remediation-execution:
+        POST:
+            tag: CONFIG
+    /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/remediation-execution-statuses:
+        GET:
+            tag: CONFIG

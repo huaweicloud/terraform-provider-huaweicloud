@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_shared_folder
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/persistent-storages/{storage_id}/actions/create-share-folder:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/persistent-storages/{storage_id}/actions/delete-storage-claim:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/persistent-storages/actions/list-share-folders:
+        GET:
+            tag: Workspace

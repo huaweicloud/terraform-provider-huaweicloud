@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dds_scheduled_tasks
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDS
+paths:
+    /v3/{project_id}/scheduled-jobs:
+        GET:
+            tag: DDS

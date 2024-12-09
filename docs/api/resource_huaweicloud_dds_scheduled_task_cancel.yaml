@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dds_scheduled_task_cancel
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDS
+paths:
+    /v3/{project_id}/scheduled-jobs:
+        GET:
+            tag: DDS
+    /v3/{project_id}/scheduled-jobs/{job_id}:
+        DELETE:
+            tag: DDS

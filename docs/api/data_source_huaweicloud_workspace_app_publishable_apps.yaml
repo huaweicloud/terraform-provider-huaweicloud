@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_workspace_app_publishable_apps
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WORKSPACEAPP
+paths:
+    /v1/{project_id}/app-groups/{app_group_id}/publishable-app:
+        GET:
+            tag: WORKSPACEAPP
