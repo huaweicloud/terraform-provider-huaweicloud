@@ -42,7 +42,7 @@ func TestAccAppNasStorage_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckSfsFileSystemNames(t)
+			acceptance.TestAccPrecheckSfsFileSystemNames(t, 1)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

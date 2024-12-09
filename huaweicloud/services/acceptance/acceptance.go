@@ -2683,9 +2683,10 @@ func TestAccPrecheckSFSTurboBackupId(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPrecheckSfsFileSystemNames(t *testing.T) {
-	if len(strings.Split(HW_SFS_FILE_SYSTEM_NAMES, ",")) < 1 {
-		t.Skip("At least one of user must be configured in the HW_SFS_FILE_SYSTEM_NAMES, and separated by commas")
+func TestAccPrecheckSfsFileSystemNames(t *testing.T, min int) {
+	// For this acceptance test, you should prepare three SFS file systems.
+	if len(strings.Split(HW_SFS_FILE_SYSTEM_NAMES, ",")) < min {
+		t.Skip("At least three file system name must be supported during the HW_SFS_FILE_SYSTEM_NAMES, and separated by commas")
 	}
 }
 
