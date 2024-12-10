@@ -69,7 +69,15 @@ func TestAccDevice_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testDevice_basic_update(name, nodeId),
+				Config: testDevice_updateSecret(name, nodeId),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "secret", "1234567890123"),
+					resource.TestCheckResourceAttr(rName, "secondary_secret", "test123456123"),
+				),
+			},
+			{
+				Config: testDevice_update(name, nodeId),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(rName, "name", name+"_update"),
 					resource.TestCheckResourceAttr(rName, "node_id", nodeId),
@@ -89,6 +97,14 @@ func TestAccDevice_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(childDeviceName, "status", "INACTIVE"),
 					resource.TestCheckResourceAttr(childDeviceName, "node_type", "ENDPOINT"),
 					resource.TestCheckResourceAttrPair(rName, "id", childDeviceName, "gateway_id"),
+				),
+			},
+			{
+				Config: testDevice_unfreeze(name, nodeId),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rName, "fingerprint", "1234567890123456789012345678901234567123"),
+					resource.TestCheckResourceAttr(rName, "secondary_fingerprint", "dc0f1016f495157344ac5f1296335cff725ef123"),
+					resource.TestCheckResourceAttr(rName, "frozen", "false"),
 				),
 			},
 			{
@@ -219,7 +235,58 @@ resource "huaweicloud_iotda_device" "test2" {
 `, testAccDevice_base(name), name, nodeId)
 }
 
-func testDevice_basic_update(name, nodeId string) string {
+func testDevice_updateSecret(name, nodeId string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_iotda_device" "test" {
+  node_id          = "%[3]s"
+  name             = "%[2]s"
+  space_id         = huaweicloud_iotda_space.test.id
+  product_id       = huaweicloud_iotda_product.test.id
+  secret           = "1234567890123"
+  secondary_secret = "test123456123"
+  secure_access    = true
+  force_disconnect = true
+  description      = "demo"
+
+  extension_info = {
+    tf = "terraform"
+  }
+
+  shadow {
+    service_id = huaweicloud_iotda_product.test.services[0].id
+
+    desired = {
+      (huaweicloud_iotda_product.test.services[0].properties[0].name) = "test"
+    }
+  }
+
+  shadow {
+    service_id = huaweicloud_iotda_product.test.services[1].id
+
+    desired = {
+      (huaweicloud_iotda_product.test.services[1].properties[0].name) = "acc"
+    }
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+
+resource "huaweicloud_iotda_device" "test2" {
+  node_id    = "%[3]s_2"
+  name       = "%[2]s_2"
+  space_id   = huaweicloud_iotda_space.test.id
+  product_id = huaweicloud_iotda_product.test.id
+  gateway_id = huaweicloud_iotda_device.test.id
+}
+`, testAccDevice_base(name), name, nodeId)
+}
+
+func testDevice_update(name, nodeId string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -233,6 +300,57 @@ resource "huaweicloud_iotda_device" "test" {
   secure_access         = false
   description           = "demo_update"
   frozen                = true
+
+  extension_info = {
+    tf   = "update"
+    test = "acc"
+  }
+
+  shadow {
+    service_id = huaweicloud_iotda_product.test.services[0].id
+
+    desired = {}
+  }
+
+  shadow {
+    service_id = huaweicloud_iotda_product.test.services[1].id
+
+    desired = {
+      (huaweicloud_iotda_product.test.services[1].properties[0].name) = "update"
+      (huaweicloud_iotda_product.test.services[1].properties[1].name) = "retest"
+    }
+  }
+
+  tags = {
+    foo = "bar_update"
+    key = "value"
+  }
+}
+
+resource "huaweicloud_iotda_device" "test2" {
+  node_id    = "%[3]s_2"
+  name       = "%[2]s_2_update"
+  space_id   = huaweicloud_iotda_space.test.id
+  product_id = huaweicloud_iotda_product.test.id
+  gateway_id = huaweicloud_iotda_device.test.id
+}
+`, testAccDevice_base(name), name, nodeId)
+}
+
+func testDevice_unfreeze(name, nodeId string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_iotda_device" "test" {
+  node_id               = "%[3]s"
+  name                  = "%[2]s_update"
+  space_id              = huaweicloud_iotda_space.test.id
+  product_id            = huaweicloud_iotda_product.test.id
+  fingerprint           = "1234567890123456789012345678901234567123"
+  secondary_fingerprint = "dc0f1016f495157344ac5f1296335cff725ef123"
+  secure_access         = false
+  description           = "demo_update"
+  frozen                = false
 
   extension_info = {
     tf   = "update"
