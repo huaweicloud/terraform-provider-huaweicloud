@@ -45,20 +45,20 @@ The following arguments are supported:
 
   Changing this creates a new resource.
 
-* `indices` - (Optional, Int, ForceNew) Name of an index to be restored. Multiple indexes are separated by commas (,).
+* `indices` - (Optional, String, ForceNew) Name of an index to be restored. Multiple indexes are separated by commas (,).
   By default, all indexes are restored.You can use \ * to match multiple indexes. For example, if you specify 2018-06*,
   then the data of the indexes with the prefix 2018-06 will be restored.The value can contain 0 to 1,024 characters.
   Uppercase letters, spaces, and the following special characters are not allowed: "\<|>/?.
 
   Changing this creates a new resource.
 
-* `rename_pattern` - (Optional, Int, ForceNew) Rule for defining the indexes to be restored.The value can contain 0 to
+* `rename_pattern` - (Optional, String, ForceNew) Rule for defining the indexes to be restored.The value can contain 0 to
   1,024 characters. Uppercase letters, spaces, and the following special characters are not allowed: "\<|>/?. Indexes
   that match this rule will be restored. The filtering condition must be a regular expression.
 
   Changing this creates a new resource.
 
-* `rename_replacement` - (Optional, Int, ForceNew) Rule for renaming an index. The value can contain 0 to 1,024
+* `rename_replacement` - (Optional, String, ForceNew) Rule for renaming an index. The value can contain 0 to 1,024
   characters. Uppercase letters, spaces, and the following special characters are not allowed: "\<|>/? For example,
   restored_index_$1 indicates adding the restored_ prefix to the names of all the restored indexes.The
   rename_replacement
