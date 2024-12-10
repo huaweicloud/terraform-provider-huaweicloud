@@ -80,7 +80,7 @@ func resourceCloudServiceAccessCreate(ctx context.Context, d *schema.ResourceDat
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      buildHeaders(cfg, d),
-		JSONBody:         utils.RemoveNil(buildCloudServiceAccessBodyParams(d)),
+		JSONBody:         utils.RemoveNil(buildCloudServiceAccessBodyParams(cfg, client, d, "")),
 	}
 
 	_, err = client.Request("POST", createPath, &createOpt)
@@ -93,11 +93,17 @@ func resourceCloudServiceAccessCreate(ctx context.Context, d *schema.ResourceDat
 	return resourceCloudServiceAccessRead(ctx, d, meta)
 }
 
-func buildCloudServiceAccessBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCloudServiceAccessBodyParams(cfg *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	id string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"provider": d.Get("service"),
-		"tag_sync": d.Get("tag_sync"),
-		"tags":     []interface{}{},
+		// id is only used for update
+		"id":            utils.ValueIgnoreEmpty(id),
+		"provider":      d.Get("service"),
+		"tag_sync":      d.Get("tag_sync"),
+		"tags":          []interface{}{},
+		"prometheus_id": d.Get("instance_id"),
+		"ep_id":         utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"project_id":    client.ProjectID,
 	}
 
 	return bodyParams
@@ -179,6 +185,16 @@ func resourceCloudServiceAccessUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
+	access, err := getCloudServiceAccesss(client, d, cfg.GetEnterpriseProjectID(d))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	id := utils.PathSearch("id", access, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find ID from API response")
+	}
+
 	updateChanges := []string{
 		"tag_sync",
 	}
@@ -192,7 +208,7 @@ func resourceCloudServiceAccessUpdate(ctx context.Context, d *schema.ResourceDat
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			MoreHeaders:      buildHeaders(cfg, d),
-			JSONBody:         utils.RemoveNil(buildCloudServiceAccessBodyParams(d)),
+			JSONBody:         utils.RemoveNil(buildCloudServiceAccessBodyParams(cfg, client, d, id)),
 		}
 
 		_, err = client.Request("PUT", updatePath, &updateOpt)
