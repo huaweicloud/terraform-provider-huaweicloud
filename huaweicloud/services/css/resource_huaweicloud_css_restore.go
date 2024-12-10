@@ -102,7 +102,7 @@ func resourceCssRestoreCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error restore CSS cluster snapshot extend, cluster_id: %s, error: %s", d.Id(), err)
 	}
 
-	err = checkClusterOperationCompleted(ctx, hcCssV1Client, targetClusterID, d.Timeout(schema.TimeoutUpdate))
+	err = checkClusterOperationCompleted(ctx, hcCssV1Client, targetClusterID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
