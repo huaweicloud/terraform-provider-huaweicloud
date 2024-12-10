@@ -30,7 +30,7 @@ resource "huaweicloud_css_restore" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the css instance resource. If omitted, the
+* `region` - (Optional, String, ForceNew) The region in which to create the resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
 * `target_cluster_id` - (Required, String, ForceNew) Specifies the target cluster ID.
