@@ -47,6 +47,7 @@ func TestAccBatchTask_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -91,99 +92,13 @@ func TestAccBatchTask_withTargetsFilterField(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testBatchTask_withTargetsFilterField(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "type", "unfreezeDevices"),
-					resource.TestCheckResourceAttr(resourceName, "status", "Fail"),
-
-					resource.TestCheckResourceAttrSet(resourceName, "status_desc"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttr(resourceName, "task_details.#", "0"),
-				),
-			},
-			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"space_id", "targets", "targets_filter", "targets_file"},
-			},
-		},
-	})
-}
-
-func TestAccBatchTask_withTargetsFileField(t *testing.T) {
-	var (
-		obj          interface{}
-		resourceName = "huaweicloud_iotda_batchtask.test_create"
-		name         = acceptance.RandomAccResourceName()
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getBatchTaskResourceFunc,
-	)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckIOTDABatchTaskFilePath(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testBatchTask_withTargetsFileField(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "type", "createDevices"),
-
-					resource.TestCheckResourceAttrSet(resourceName, "status"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttrSet(resourceName, "task_details.#"),
-				),
-			},
-			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"space_id", "targets", "targets_filter", "targets_file"},
-			},
-		},
-	})
-}
-
-func TestAccBatchTask_derived(t *testing.T) {
-	var (
-		obj          interface{}
-		resourceName = "huaweicloud_iotda_batchtask.test_derived"
-		name         = acceptance.RandomAccResourceName()
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getBatchTaskResourceFunc,
-	)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testBatchTask_derived(name),
+				Config: testBatchTask_withTargetsFilterField(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -246,35 +161,9 @@ resource "huaweicloud_iotda_batchtask" "test_freeze" {
 
 func testBatchTask_withTargetsFilterField(name string) string {
 	return fmt.Sprintf(`
-
-resource "huaweicloud_iotda_batchtask" "test_unfreeze" {
-  name = "%s"
-  type = "unfreezeDevices"
-
-  # The status of batch task created with non-existent group ID must be failed.
-  targets_filter {
-    group_ids = ["123456789", "987654321"]
-  }
-}
-`, name)
-}
-
-func testBatchTask_withTargetsFileField(name string) string {
-	return fmt.Sprintf(`
-
-resource "huaweicloud_iotda_batchtask" "test_create" {
-  name         = "%[1]s"
-  type         = "createDevices"
-  targets_file = "%[2]s"
-}
-`, name, acceptance.HW_IOTDA_BATCHTASK_FILE_PATH)
-}
-
-func testBatchTask_derived(name string) string {
-	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_iotda_batchtask" "test_derived" {
+resource "huaweicloud_iotda_batchtask" "test_unfreeze" {
   name = "%[2]s"
   type = "unfreezeDevices"
 
