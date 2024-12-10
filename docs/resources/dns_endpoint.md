@@ -2,27 +2,33 @@
 subcategory: "Domain Name Service (DNS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dns_endpoint"
-description: ""
+description: |-
+  Manages a DNS endpoint resource within HuaweiCloud.
 ---
 
 # huaweicloud_dns_endpoint
 
-Manages a DNS Endpoint in the HuaweiCloud DNS Service.
+Manages a DNS endpoint resource within HuaweiCloud.
+
+-> For the same subnet, only one of the `huaweicloud_dns_endpoint` and `huaweicloud_dns_endpoint_assignment` resources
+   is allowed to manage an endpoint. We recommend you use the `huaweicloud_dns_endpoint_assignment` resource.
 
 ## Example Usage
 
+### Create an endpoint in the same subnet and associate two IPs
+
 ```hcl
-variable subnet_id {}
-variable ip {}
+variable "endpoint_name" {}
+variable "subnet_id" {}
 
 resource "huaweicloud_dns_endpoint" "test" {
-  name      = "test"
+  name      = var.endpoint_name
   direction = "inbound"
 
   ip_addresses {
     subnet_id = var.subnet_id
-    ip        = var.ip
   }
+
   ip_addresses {
     subnet_id = var.subnet_id
   }
@@ -38,20 +44,17 @@ The following arguments are supported:
 
 * `name` - (Required, String) Specifies the name of the DNS endpoint resource.
 
-* `direction` - (Required, String, ForceNew) Specifies the direction of the endpoint. The value can be *inbound* or *outbound*.
+* `direction` - (Required, String, ForceNew) Specifies the direction of the endpoint. The value can be **inbound** or **outbound**.
   Changing this creates a new DNS endpoint.
 
 * `ip_addresses` - (Required, List) Specifies the IP address list of the DNS endpoint.
-  The List length limit range form 2 to 6.
+  The valid length of the IP address list ranges form `2` to `6`.  
   The [ip_address](#Address) structure is documented below.
 
 <a name="Address"></a>
 The `ip_address` block supports:
 
-* `subnet_id` - (Required, String) Specifies the subnet id of the IP address.
-
-* `ip` - (Optional, String) Specifies the unique IP of the IP address. If `ip` is not declare, it will be distributed by
-  cloud service.
+* `subnet_id` - (Required, String) Specifies the subnet ID of the IP address.
 
 ## Attribute Reference
 
@@ -96,5 +99,5 @@ This resource provides the following timeouts configuration options:
 Endpoint can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dns_endpoint.test ff8080828a94313a018bdc88d3f3447d
+$ terraform import huaweicloud_dns_endpoint.test <id>
 ```
