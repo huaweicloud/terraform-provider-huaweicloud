@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -32,6 +33,7 @@ const (
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/password
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/action
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy
+// @API GaussDB PUT /v3/{project_id}/instance/{instance_id}/flavor
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
@@ -51,7 +53,7 @@ func ResourceOpenGaussInstance() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(120 * time.Minute),
-			Update: schema.DefaultTimeout(90 * time.Minute),
+			Update: schema.DefaultTimeout(150 * time.Minute),
 			Delete: schema.DefaultTimeout(45 * time.Minute),
 		},
 		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, v interface{}) error {
@@ -75,7 +77,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"availability_zone": {
 				Type:     schema.TypeString,
@@ -619,7 +620,7 @@ func resourceOpenGaussInstanceRead(_ context.Context, d *schema.ResourceData, me
 func flattenGaussDBOpenGaussResponseBodyHa(instance interface{}) []interface{} {
 	rst := []interface{}{
 		map[string]interface{}{
-			"mode":             utils.PathSearch("type", instance, nil),
+			"mode":             strings.ToLower(utils.PathSearch("type", instance, "").(string)),
 			"replication_mode": utils.PathSearch("ha.replication_mode", instance, nil),
 			"consistency":      utils.PathSearch("ha.consistency", instance, nil),
 			"instance_mode":    utils.PathSearch("instance_mode", instance, nil),
@@ -771,6 +772,12 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 
 	if d.HasChange("backup_strategy") {
 		if err = updateInstanceBackupStrategy(d, client); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("flavor") {
+		if err = updateInstanceFlavor(ctx, d, client, bssClient); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1042,6 +1049,87 @@ func buildUpdateInstanceBackupStrategyBodyParams(d *schema.ResourceData) map[str
 	}
 	bodyParams := map[string]interface{}{
 		"backup_policy": params,
+	}
+	return bodyParams
+}
+
+func updateInstanceFlavor(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instance/{instance_id}/flavor"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateInstanceFlavorBodyParams(d))
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("PUT", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     instanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB OpenGauss instance (%s) flavor: %s", d.Id(), err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		orderId := utils.PathSearch("order_id", updateRespBody, nil)
+		if orderId == nil {
+			return fmt.Errorf("error updating GaussDB OpenGauss instance flavor: order_id is not found in API response")
+		}
+		// wait for order success
+		err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	} else {
+		jobId := utils.PathSearch("job_id", updateRespBody, nil)
+		if jobId == nil {
+			return fmt.Errorf("error updating GaussDB OpenGauss instance flavor: job_id is not found in API response")
+		}
+		err = checkGaussDBOpenGaussJobFinish(ctx, client, jobId.(string), 180, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"MODIFYING", "BACKING UP"},
+		Target:       []string{"ACTIVE"},
+		Refresh:      instanceStateRefreshFunc(client, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for instance (%s) to become ready: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func buildUpdateInstanceFlavorBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"flavor_ref":  d.Get("flavor"),
+		"is_auto_pay": true,
 	}
 	return bodyParams
 }

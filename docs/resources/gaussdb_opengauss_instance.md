@@ -93,8 +93,7 @@ The following arguments are supported:
   The value must be `4` to `64` characters in length and start with a letter. It is case-sensitive and can contain only
   letters, digits, hyphens (-), and underscores (_).
 
-* `flavor` - (Required, String, ForceNew) Specifies the instance specifications. Please reference the API docs for valid
-  options. Changing this parameter will create a new resource.
+* `flavor` - (Required, String) Specifies the instance specifications.
 
 * `password` - (Required, String) Specifies the database password. The value must be `8` to `32` characters in length,
   including uppercase and lowercase letters, digits, and special characters, such as **~!@#%^*-_=+?**. You are advised
@@ -293,7 +292,7 @@ The `nodes` block contains:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 120 minutes.
-* `update` - Default is 90 minutes.
+* `update` - Default is 150 minutes.
 * `delete` - Default is 45 minutes.
 
 ## Import
@@ -317,8 +316,8 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      password, ha.0.mode, ha.0.instance_mode, configuration_id, disk_encryption_id, enable_force_switch,
-      enable_single_float_ip, period_unit, period, auto_renew,
+      password, configuration_id, disk_encryption_id, enable_force_switch, enable_single_float_ip, period_unit, period,
+      auto_renew,
     ]
   }
 }
