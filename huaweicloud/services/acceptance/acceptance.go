@@ -187,6 +187,12 @@ var (
 	HW_LTS_STRUCT_CONFIG_TEMPLATE_ID   = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID")
 	HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME")
 
+	HW_LIVE_STREAMING_DOMAIN_NAME          = os.Getenv("HW_LIVE_STREAMING_DOMAIN_NAME")
+	HW_LIVE_INGEST_RTMP_DOMAIN_NAME        = os.Getenv("HW_LIVE_INGEST_RTMP_DOMAIN_NAME")
+	HW_LIVE_INGEST_SRT_DOMAIN_NAME         = os.Getenv("HW_LIVE_INGEST_SRT_DOMAIN_NAME")
+	HW_LIVE_TRANSCODING_TEPLATE_ID         = os.Getenv("HW_LIVE_TRANSCODING_TEPLATE_ID")
+	HW_LIVE_TRANSCODING_TEPLATE_ANOTHER_ID = os.Getenv("HW_LIVE_TRANSCODING_TEPLATE_ANOTHER_ID")
+
 	HW_CHAIR_EMAIL              = os.Getenv("HW_CHAIR_EMAIL")
 	HW_GUEST_EMAIL              = os.Getenv("HW_GUEST_EMAIL")
 	HW_MEETING_ACCOUNT_NAME     = os.Getenv("HW_MEETING_ACCOUNT_NAME")
@@ -1920,6 +1926,41 @@ func TestAccPreCheckLtsStructConfigCustom(t *testing.T) {
 	if HW_LTS_STRUCT_CONFIG_TEMPLATE_ID == "" || HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME == "" {
 		t.Skip("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID and HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME must be" +
 			" set for LTS struct config custom acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLiveStreamingDomainName(t *testing.T) {
+	if HW_LIVE_STREAMING_DOMAIN_NAME == "" {
+		t.Skip("HW_LIVE_STREAMING_DOMAIN_NAME must be set for Live acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLiveIngestRTMPDomainName(t *testing.T) {
+	if HW_LIVE_INGEST_RTMP_DOMAIN_NAME == "" {
+		t.Skip("HW_LIVE_INGEST_RTMP_DOMAIN_NAME must be set for Live acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLiveIngestSRTDomainName(t *testing.T) {
+	if HW_LIVE_INGEST_SRT_DOMAIN_NAME == "" {
+		t.Skip("HW_LIVE_INGEST_SRT_DOMAIN_NAME must be set for Live acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLiveTranscodingTemplateID(t *testing.T) {
+	if HW_LIVE_TRANSCODING_TEPLATE_ID == "" {
+		t.Skip("HW_LIVE_TRANSCODING_TEPLATE_ID must be set for Live acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLiveTranscodingTemplateAnotherID(t *testing.T) {
+	if HW_LIVE_TRANSCODING_TEPLATE_ANOTHER_ID == "" {
+		t.Skip("HW_LIVE_TRANSCODING_TEPLATE_ANOTHER_ID must be set for Live acceptance tests")
 	}
 }
 
