@@ -100,6 +100,8 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "20:00-21:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "6"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
@@ -114,6 +116,8 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "80"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
 			},
 		},
@@ -295,6 +299,11 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
     start_time = "20:00-21:00"
     keep_days  = 6
   }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testAccOpenGaussInstance_base(rName), rName, password, replicaNum, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -345,6 +354,11 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = 8
+  }
+
+  tags = {
+    foo_update = "bar"
+    key        = "value_update"
   }
 }
 `, testAccOpenGaussInstance_base(rName), rName, password, replicaNum, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)

@@ -169,6 +169,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the GaussDB OpenGauss instance.
+
 * `force_import` - (Optional, Bool) Specifies whether to import the instance with the given configuration instead of
   creation. If specified, try to import the instance instead of creation if the instance already existed.
 
