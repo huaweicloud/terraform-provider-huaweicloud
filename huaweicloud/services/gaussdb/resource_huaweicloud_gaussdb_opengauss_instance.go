@@ -27,6 +27,7 @@ const (
 
 // @API GaussDB GET /v3/{project_id}/instances
 // @API GaussDB POST /v3/{project_id}/instances
+// @API GaussDB GET /v3/{project_id}/jobs
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/name
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/password
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/action
@@ -666,7 +667,7 @@ func setOpenGaussNodesAndRelatedNumbers(d *schema.ResourceData, instance interfa
 	for _, v := range nodesArray {
 		name := utils.PathSearch("name", v, "").(string)
 		node := map[string]interface{}{
-			"id":                utils.PathSearch("weight", v, nil),
+			"id":                utils.PathSearch("id", v, nil),
 			"name":              name,
 			"status":            utils.PathSearch("status", v, nil),
 			"role":              utils.PathSearch("role", v, nil),
