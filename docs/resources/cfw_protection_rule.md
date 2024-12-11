@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Firewall (CFW)"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cfw_protection_rule"
 description: |-
@@ -7,6 +7,8 @@ description: |-
 ---
 
 # huaweicloud_cfw_protection_rule
+
+!> **WARNING:** It has been deprecated, use `huaweicloud_cfw_acl_rule` instead.
 
 Manages a CFW protection rule resource within HuaweiCloud.
 

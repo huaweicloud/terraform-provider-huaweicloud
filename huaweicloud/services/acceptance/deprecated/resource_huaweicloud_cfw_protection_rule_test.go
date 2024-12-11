@@ -1,4 +1,4 @@
-package cfw
+package deprecated
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cfw"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 )
 
 func getProtectionRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -19,7 +19,7 @@ func getProtectionRuleResourceFunc(conf *config.Config, state *terraform.Resourc
 		return nil, fmt.Errorf("error creating CFW client: %s", err)
 	}
 
-	return cfw.GetProtectionRule(client, state.Primary.ID, state.Primary.Attributes["object_id"])
+	return deprecated.GetProtectionRule(client, state.Primary.ID, state.Primary.Attributes["object_id"])
 }
 
 func TestAccProtectionRule_basic(t *testing.T) {
@@ -894,4 +894,12 @@ resource "huaweicloud_cfw_domain_name_group" "dg2" {
   }
 }
 `, name)
+}
+
+func testAccDatasourceFirewalls_basic() string {
+	return fmt.Sprintf(`
+data "huaweicloud_cfw_firewalls" "test" {
+  fw_instance_id = "%s"
+}
+`, acceptance.HW_CFW_INSTANCE_ID)
 }
