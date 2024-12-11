@@ -3,12 +3,12 @@ subcategory: "Database Security Service (DBSS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dbss_rds_database"
 description: |-
-  Manage the resource of adding RDS database to DBS instance within HuaweiCloud.
+  Manage the resource of adding RDS database to DBSS instance within HuaweiCloud.
 ---
 
 # huaweicloud_dbss_rds_database
 
-Manage the resource of adding RDS database to DBS instance within HuaweiCloud.
+Manage the resource of adding RDS database to DBSS instance within HuaweiCloud.
 
 -> Before adding the RDS database to the DBSS instance, the DBSS instance `status` must be **ACTIVE**.
 

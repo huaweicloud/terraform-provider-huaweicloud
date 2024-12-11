@@ -2,7 +2,7 @@
 subcategory: "Database Security Service (DBSS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dbss_audit_risk_rule_action"
-description: |
+description: |-
   Manages a risk rule action resource within HuaweiCloud.
 ---
 
