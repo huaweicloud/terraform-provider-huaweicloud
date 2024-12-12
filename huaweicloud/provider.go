@@ -1069,6 +1069,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
 			// Querying by Ver.3 APIs
 			"huaweicloud_servicestagev3_applications":   servicestage.DataSourceV3Applications(),
+			"huaweicloud_servicestagev3_components":     servicestage.DataSourceV3Components(),
 			"huaweicloud_servicestagev3_environments":   servicestage.DataSourceV3Environments(),
 			"huaweicloud_servicestagev3_runtime_stacks": servicestage.DataSourceV3RuntimeStacks(),
 
