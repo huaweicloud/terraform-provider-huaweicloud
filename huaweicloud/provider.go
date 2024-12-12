@@ -1437,7 +1437,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_address_group_member": cfw.ResourceAddressGroupMember(),
 			"huaweicloud_cfw_black_white_list":     cfw.ResourceBlackWhiteList(),
 			"huaweicloud_cfw_eip_protection":       cfw.ResourceEipProtection(),
-			"huaweicloud_cfw_protection_rule":      cfw.ResourceProtectionRule(),
 			"huaweicloud_cfw_service_group":        cfw.ResourceServiceGroup(),
 			"huaweicloud_cfw_service_group_member": cfw.ResourceServiceGroupMember(),
 			"huaweicloud_cfw_firewall":             cfw.ResourceFirewall(),
@@ -2294,6 +2293,7 @@ func Provider() *schema.Provider {
 			// Deprecated
 			"huaweicloud_apig_vpc_channel":               deprecated.ResourceApigVpcChannelV2(),
 			"huaweicloud_blockstorage_volume_v2":         deprecated.ResourceBlockStorageVolumeV2(),
+			"huaweicloud_cfw_protection_rule":            deprecated.ResourceProtectionRule(),
 			"huaweicloud_csbs_backup":                    deprecated.ResourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":             deprecated.ResourceCSBSBackupPolicyV1(),
 			"huaweicloud_csbs_backup_policy_v1":          deprecated.ResourceCSBSBackupPolicyV1(),

@@ -3,7 +3,7 @@
 // @Product CFW
 // ---------------------------------------------------------------
 
-package cfw
+package deprecated
 
 import (
 	"context"
@@ -558,7 +558,10 @@ func resourceProtectionRuleRead(_ context.Context, d *schema.ResourceData, meta 
 	objectID := d.Get("object_id").(string)
 	rule, err := GetProtectionRule(client, d.Id(), objectID)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseError(err), "error retrieving protection rule")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error retrieving protection rule",
+		)
 	}
 
 	count, err := getRuleHitCount(client, d.Id())
@@ -1004,11 +1007,17 @@ func resourceProtectionRuleDelete(ctx context.Context, d *schema.ResourceData, m
 	}
 	_, err = client.Request("DELETE", deleteProtectionRulePath, &deleteProtectionRuleOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseError(err), "error deleting protection rule")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting protection rule",
+		)
 	}
 
 	err = deleteProtectionRuleWaitingForCompleted(ctx, client, d.Id(), d.Get("object_id").(string), d.Timeout(schema.TimeoutDelete))
-	return common.CheckDeletedDiag(d, parseError(err), "error deleting protection rule")
+	return common.CheckDeletedDiag(d,
+		common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+		"error deleting protection rule",
+	)
 }
 
 func deleteProtectionRuleWaitingForCompleted(ctx context.Context, client *golangsdk.ServiceClient, id, objectID string, timeout time.Duration) error {
