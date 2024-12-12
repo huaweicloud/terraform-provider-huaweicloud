@@ -78,8 +78,6 @@ The `ip_address` block supports:
 
 * `ip_address_id` - The ID of the IP address.
 
-* `ip` - The IP which is associated to the endpoint.
-
 * `status` - The status of IP address.
 
 * `created_at` - The created time of the IP address.

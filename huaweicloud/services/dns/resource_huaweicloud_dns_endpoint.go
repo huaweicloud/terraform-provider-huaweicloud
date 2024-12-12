@@ -17,6 +17,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API DNS DELETE /v2.1/endpoints/{endpoint_id}/ipaddresses/{ipaddress_id}
@@ -74,6 +75,12 @@ func ResourceDNSEndpoint() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+							Description: utils.SchemaDesc(
+								"The IP address associated with the endpoint.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 						"ip_address_id": {
 							Type:     schema.TypeString,
