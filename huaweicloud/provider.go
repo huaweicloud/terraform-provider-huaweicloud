@@ -591,6 +591,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cse_microservice_engine_flavors": cse.DataSourceMicroserviceEngineFlavors(),
 			"huaweicloud_cse_microservice_engines":        cse.DataSourceMicroserviceEngines(),
+			"huaweicloud_cse_nacos_namespaces":            cse.DataSourceNacosNamespaces(),
 
 			"huaweicloud_csms_events":                   dew.DataSourceDewCsmsEvents(),
 			"huaweicloud_csms_secrets":                  dew.DataSourceDewCsmsSecrets(),
@@ -1477,6 +1478,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cse_microservice_engine":               cse.ResourceMicroserviceEngine(),
 			"huaweicloud_cse_microservice_engine_configuration": cse.ResourceMicroserviceEngineConfiguration(),
 			"huaweicloud_cse_microservice_instance":             cse.ResourceMicroserviceInstance(),
+			"huaweicloud_cse_nacos_namespace":                   cse.ResourceNacosNamespace(),
 
 			"huaweicloud_csms_event":                dew.ResourceCsmsEvent(),
 			"huaweicloud_csms_secret":               dew.ResourceSecret(),
