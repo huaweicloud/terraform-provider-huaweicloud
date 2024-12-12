@@ -192,6 +192,8 @@ var (
 	HW_LIVE_INGEST_SRT_DOMAIN_NAME         = os.Getenv("HW_LIVE_INGEST_SRT_DOMAIN_NAME")
 	HW_LIVE_TRANSCODING_TEPLATE_ID         = os.Getenv("HW_LIVE_TRANSCODING_TEPLATE_ID")
 	HW_LIVE_TRANSCODING_TEPLATE_ANOTHER_ID = os.Getenv("HW_LIVE_TRANSCODING_TEPLATE_ANOTHER_ID")
+	HW_LIVE_HTTPS_TLS_CERT_BODY_PATH       = os.Getenv("HW_LIVE_HTTPS_TLS_CERT_BODY_PATH")
+	HW_LIVE_HTTPS_TLS_CERT_KEY_PATH        = os.Getenv("HW_LIVE_HTTPS_TLS_CERT_KEY_PATH")
 
 	HW_CHAIR_EMAIL              = os.Getenv("HW_CHAIR_EMAIL")
 	HW_GUEST_EMAIL              = os.Getenv("HW_GUEST_EMAIL")
@@ -1964,6 +1966,13 @@ func TestAccPreCheckLiveTranscodingTemplateID(t *testing.T) {
 func TestAccPreCheckLiveTranscodingTemplateAnotherID(t *testing.T) {
 	if HW_LIVE_TRANSCODING_TEPLATE_ANOTHER_ID == "" {
 		t.Skip("HW_LIVE_TRANSCODING_TEPLATE_ANOTHER_ID must be set for Live acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLiveTLSCert(t *testing.T) {
+	if HW_LIVE_HTTPS_TLS_CERT_BODY_PATH == "" || HW_LIVE_HTTPS_TLS_CERT_KEY_PATH == "" {
+		t.Skip("HW_LIVE_HTTPS_TLS_CERT_BODY_PATH and HW_LIVE_HTTPS_TLS_CERT_KEY_PATH must be set for Live acceptance tests")
 	}
 }
 
