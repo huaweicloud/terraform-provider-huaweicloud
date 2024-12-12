@@ -27,7 +27,7 @@ var autopilotClusterNonUpdatableParams = []string{
 	"enable_swr_image_access", "enable_autopilot", "ipv6_enable",
 	"service_network", "service_network.*.ipv4_cidr",
 	"authentication", "authentication.*.mode",
-	"tags", "kube_proxy_mode",
+	"kube_proxy_mode",
 	"extend_param", "extend_param.*.enterprise_project_id",
 	"configurations_override", "configurations_override.*.name", "configurations_override.*.configurations",
 	"configurations_override.*.configurations.*.name", "configurations_override.*.configurations.*.value",
@@ -40,6 +40,8 @@ var autopilotClusterNonUpdatableParams = []string{
 // @API CCE PUT /autopilot/v3/projects/{project_id}/clusters/{cluster_id}
 // @API CCE PUT /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/mastereip
 // @API CCE DELETE /autopilot/v3/projects/{project_id}/clusters/{cluster_id}
+// @API CCE POST /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/tags/create
+// @API CCE POST /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/tags/delete
 func ResourceAutopilotCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAutopilotClusterCreate,
@@ -883,6 +885,52 @@ func clusterEipAction(updateClusterClient *golangsdk.ServiceClient, clusterID, e
 	return nil
 }
 
+func buildUpdateClusterTagsBodyParams(action string, tags map[string]interface{}) map[string]interface{} {
+	taglist := make([]map[string]interface{}, 0, len(tags))
+	if action == "create" {
+		for k, v := range tags {
+			tag := map[string]interface{}{
+				"key":   k,
+				"value": v,
+			}
+			taglist = append(taglist, tag)
+		}
+	} else {
+		for k := range tags {
+			tag := map[string]interface{}{
+				"key": k,
+			}
+			taglist = append(taglist, tag)
+		}
+	}
+
+	return map[string]interface{}{
+		"tags": taglist,
+	}
+}
+
+func clusterTagsAction(updateClusterClient *golangsdk.ServiceClient, clusterID, action string, tags map[string]interface{}) error {
+	var updateClusterTagsHttpUrl = "autopilot/v3/projects/{project_id}/clusters/{cluster_id}/tags/{action}"
+
+	updateClusterTagsPath := updateClusterClient.Endpoint + updateClusterTagsHttpUrl
+	updateClusterTagsPath = strings.ReplaceAll(updateClusterTagsPath, "{project_id}", updateClusterClient.ProjectID)
+	updateClusterTagsPath = strings.ReplaceAll(updateClusterTagsPath, "{cluster_id}", clusterID)
+	updateClusterTagsPath = strings.ReplaceAll(updateClusterTagsPath, "{action}", action)
+
+	updateOpts := buildUpdateClusterTagsBodyParams(action, tags)
+	updateClusterOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(updateOpts),
+		OkCodes:          []int{204},
+	}
+
+	_, err := updateClusterClient.Request("POST", updateClusterTagsPath, &updateClusterOpt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func resourceAutopilotClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -928,6 +976,23 @@ func resourceAutopilotClusterUpdate(ctx context.Context, d *schema.ResourceData,
 			err = clusterEipAction(updateClusterClient, id, newEip.(string))
 			if err != nil {
 				return diag.Errorf("error binding EIP to CCE autopilot cluster (%s): %s", id, err)
+			}
+		}
+	}
+
+	if d.HasChange("tags") {
+		oldTags, newTags := d.GetChange("tags")
+		if len(oldTags.(map[string]interface{})) > 0 {
+			err = clusterTagsAction(updateClusterClient, id, "delete", oldTags.(map[string]interface{}))
+			if err != nil {
+				return diag.Errorf("error removing tags from CCE autopilot cluster (%s): %s", id, err)
+			}
+		}
+
+		if len(newTags.(map[string]interface{})) > 0 {
+			err = clusterTagsAction(updateClusterClient, id, "create", newTags.(map[string]interface{}))
+			if err != nil {
+				return diag.Errorf("error adding tags to CCE autopilot cluster (%s): %s", id, err)
 			}
 		}
 	}

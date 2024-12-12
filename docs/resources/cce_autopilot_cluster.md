@@ -46,6 +46,11 @@ resource "huaweicloud_cce_autopilot_cluster" "mycluster" {
       subnet_id = huaweicloud_vpc_subnet.mysubnet.ipv4_subnet_id
     }
   }
+
+  tags = {
+    "foo" = "bar"
+    "key" = "value"
+  }
 }
 ```
 
@@ -111,7 +116,7 @@ The following arguments are supported:
 * `authentication` - (Optional, List, NonUpdatable) Specifies the configurations of the cluster authentication mode.
   The [authentication](#autopilot_cluster_authentication) structure is documented below.
 
-* `tags` - (Optional, Map, NonUpdatable) Specifies the cluster tags in the format of key-value pairs.
+* `tags` - (Optional, Map) Specifies the cluster tags in the format of key-value pairs.
 
 * `kube_proxy_mode` - (Optional, String, NonUpdatable) Specifies the kube proxy mode of the cluster.
   The value can be: **iptables**.
