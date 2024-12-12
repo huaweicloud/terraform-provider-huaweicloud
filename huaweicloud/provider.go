@@ -1733,9 +1733,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_scheduled_task_delete":      taurusdb.ResourceGaussDBScheduledTaskDelete(),
 			"huaweicloud_gaussdb_mysql_instant_task_delete":        taurusdb.ResourceGaussDBInstantTaskDelete(),
 
-			"huaweicloud_gaussdb_opengauss_instance":      gaussdb.ResourceOpenGaussInstance(),
-			"huaweicloud_gaussdb_opengauss_database":      gaussdb.ResourceOpenGaussDatabase(),
-			"huaweicloud_gaussdb_opengauss_eip_associate": gaussdb.ResourceOpenGaussEipAssociate(),
+			"huaweicloud_gaussdb_opengauss_instance":               gaussdb.ResourceOpenGaussInstance(),
+			"huaweicloud_gaussdb_opengauss_database":               gaussdb.ResourceOpenGaussDatabase(),
+			"huaweicloud_gaussdb_opengauss_eip_associate":          gaussdb.ResourceOpenGaussEipAssociate(),
+			"huaweicloud_gaussdb_opengauss_primary_standby_switch": gaussdb.ResourceOpenGaussPrimaryStandbySwitch(),
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
 			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
