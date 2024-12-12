@@ -70,6 +70,8 @@ func TestAccAutopilotCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "flavor", "cce.autopilot.cluster"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "container_network.0.mode", "eni"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrPair(resourceName, "host_network.0.vpc", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "host_network.0.subnet", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "eni_network.0.subnets.0.subnet_id",
@@ -85,6 +87,8 @@ func TestAccAutopilotCluster_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "alias", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value_update"),
 				),
 			},
 			{
@@ -119,6 +123,11 @@ resource "huaweicloud_cce_autopilot_cluster" "test" {
       subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
     }
   }
+
+  tags = {
+    "foo" = "bar"
+    "key" = "value"
+  }
 }
 `, common.TestVpc(rName), rName)
 }
@@ -146,6 +155,11 @@ resource "huaweicloud_cce_autopilot_cluster" "test" {
     subnets {
       subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
     }
+  }
+
+  tags = {
+    "foo"        = "bar_update"
+    "key_update" = "value_update"
   }
 }
 `, common.TestVpc(rName), rName)
