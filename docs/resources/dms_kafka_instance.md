@@ -265,7 +265,8 @@ In addition to all arguments above, the following attributes are exported:
 * `user_id` - Indicates the ID of the user who created the DMS Kafka instance
 * `user_name` - Indicates the name of the user who created the DMS Kafka instance
 * `connect_address` - Indicates the IP address of the DMS Kafka instance.
-* `cross_vpc_accesses` - Indicates the Access information of cross-VPC. The structure is documented below.
+* `cross_vpc_accesses` - Indicates the Access information of cross-VPC.
+  The [cross_vpc_accesses](#attr_cross_vpc_accesses) structure is documented below.
 * `charging_mode` - Indicates the charging mode of the instance.
 * `public_ip_address` - Indicates the public IP addresses list of the instance.
 * `extend_times` - Indicates the extend times. If the value exceeds `20`, disk expansion is no longer allowed.
@@ -282,12 +283,37 @@ In addition to all arguments above, the following attributes are exported:
 * `pod_connect_address` - Indicates the connection address on the tenant side.
 * `public_bandwidth` - Indicates the public network access bandwidth.
 * `ssl_two_way_enable` - Indicates whether to enable two-way authentication.
+* `port_protocols` - Indicates instance connection address. The structure is documented below.
+  The [port_protocols](#attr_port_protocols) structure is documented below.
 
+<a name="attr_cross_vpc_accesses"></a>
 The `cross_vpc_accesses` block supports:
 
 * `listener_ip` - The listener IP address.
 * `port` - The port number.
 * `port_id` - The port ID associated with the address.
+
+<a name="attr_port_protocols"></a>
+The `port_protocols` block supports:
+
+* `private_plain_enable` - Whether the private plain enabled.
+* `private_plain_address` - The private plain address.
+* `private_plain_domain_name` - The private plain domain name.
+* `private_sasl_ssl_enable` - Whether the private sasl ssl enabled.
+* `private_sasl_ssl_address` - The private sasl ssl address.
+* `private_sasl_ssl_domain_name` - The private sasl ssl domain name.
+* `private_sasl_plaintext_enable` - Whether the private sasl plaintext enabled.
+* `private_sasl_plaintext_address` - The private sasl plaintext address.
+* `private_sasl_plaintext_domain_name` - The private sasl plaintext domain name.
+* `public_plain_enable` - Whether the public plain enabled.
+* `public_plain_address` - The public plain address.
+* `public_plain_domain_name` - The public plain domain name.
+* `public_sasl_ssl_enable` - Whether the public sasl ssl enabled.
+* `public_sasl_ssl_address` - The public sasl ssl address.
+* `public_sasl_ssl_domain_name` - The public sasl ssl domain name.
+* `public_sasl_plaintext_enable` - Whether the public sasl plaintext enabled.
+* `public_sasl_plaintext_address` - The public sasl plaintext address.
+* `public_sasl_plaintext_domain_name` - The public sasl plaintext domain name.
 
 ## Timeouts
 
