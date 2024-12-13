@@ -83,16 +83,44 @@ func ResourceTranscoding() *schema.Resource {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
-
 						"frame_rate": {
 							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"protocol": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"i_frame_interval": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"gop": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"bitrate_adaptive": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"i_frame_policy": {
+							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
 					},
 				},
 			},
-
+			// This field is not returned by API, so the Computed attribute is not added.
+			"trans_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"low_bitrate_hd": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -262,6 +290,39 @@ func buildTranscodingParams(d *schema.ResourceData) (*model.StreamTranscodingTem
 			VideoFrameRate: utils.Int32(int32(template["frame_rate"].(int))),
 			Codec:          &codec,
 			Hdlb:           &hdlb,
+			IFrameInterval: convertStringValueToInt32(template["i_frame_interval"].(string)),
+			Gop:            convertStringValueToInt32(template["gop"].(string)),
+		}
+
+		if protocol := template["protocol"].(string); protocol == "RTMP" {
+			rtmpValue := model.GetQualityInfoProtocolEnum().RTMP
+			qualityInfo[i].Protocol = &rtmpValue
+		}
+
+		if bitrateAdaptive := template["bitrate_adaptive"].(string); bitrateAdaptive != "" {
+			minimumValue := model.GetQualityInfoBitrateAdaptiveEnum().MINIMUM
+			adaptiveValue := model.GetQualityInfoBitrateAdaptiveEnum().ADAPTIVE
+			switch bitrateAdaptive {
+			case "off":
+				// There is no enumeration value for **off** in the HuaweiCloud SDK, but the default value for the API
+				// is **off**, so this processing is done here.
+				qualityInfo[i].BitrateAdaptive = nil
+			case "minimum":
+				qualityInfo[i].BitrateAdaptive = &minimumValue
+			case "adaptive":
+				qualityInfo[i].BitrateAdaptive = &adaptiveValue
+			}
+		}
+
+		if iFramePolicy := template["i_frame_policy"].(string); iFramePolicy != "" {
+			autoValue := model.GetQualityInfoIFramePolicyEnum().AUTO
+			strictSyncValue := model.GetQualityInfoIFramePolicyEnum().STRICT_SYNC
+			switch iFramePolicy {
+			case "auto":
+				qualityInfo[i].IFramePolicy = &autoValue
+			case "strictSync":
+				qualityInfo[i].IFramePolicy = &strictSyncValue
+			}
 		}
 	}
 
@@ -270,6 +331,17 @@ func buildTranscodingParams(d *schema.ResourceData) (*model.StreamTranscodingTem
 		AppName:     d.Get("app_name").(string),
 		QualityInfo: qualityInfo,
 	}
+	if transType := d.Get("trans_type").(string); transType != "" {
+		playValue := model.GetStreamTranscodingTemplateTransTypeEnum().PLAY
+		publishValue := model.GetStreamTranscodingTemplateTransTypeEnum().PUBLISH
+		switch transType {
+		case "play":
+			req.TransType = &playValue
+		case "publish":
+			req.TransType = &publishValue
+		}
+	}
+
 	return &req, nil
 }
 
@@ -279,11 +351,16 @@ func setTemplatesToState(d *schema.ResourceData, qualityInfo *[]model.QualityInf
 		rst := make([]map[string]interface{}, len(qualitys))
 		for i, v := range qualitys {
 			rst[i] = map[string]interface{}{
-				"name":       v.TemplateName,
-				"width":      v.Width,
-				"height":     v.Height,
-				"bitrate":    v.Bitrate,
-				"frame_rate": v.VideoFrameRate,
+				"name":             v.TemplateName,
+				"width":            v.Width,
+				"height":           v.Height,
+				"bitrate":          v.Bitrate,
+				"frame_rate":       v.VideoFrameRate,
+				"protocol":         v.Protocol.Value(),
+				"i_frame_interval": parseInt32ValueToString(v.IFrameInterval),
+				"gop":              parseInt32ValueToString(v.Gop),
+				"bitrate_adaptive": v.BitrateAdaptive.Value(),
+				"i_frame_policy":   v.IFramePolicy.Value(),
 			}
 		}
 
@@ -310,4 +387,26 @@ func parseTranscodingId(id string) (domainName string, appName string, err error
 		return "", "", fmt.Errorf("invalid format specified for import ID. Format must be <domain_name>/<app_name>")
 	}
 	return idArrays[0], idArrays[1], nil
+}
+
+func convertStringValueToInt32(value string) *int32 {
+	if value == "0" {
+		return utils.Int32(0)
+	}
+
+	parsedValue := utils.StringToInt(&value)
+	if parsedValue != nil {
+		//nolint:gosec
+		return utils.Int32IgnoreEmpty(int32(*parsedValue))
+	}
+
+	return nil
+}
+
+func parseInt32ValueToString(value *int32) string {
+	if value != nil {
+		return fmt.Sprintf("%v", *value)
+	}
+
+	return ""
 }
