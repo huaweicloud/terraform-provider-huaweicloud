@@ -190,6 +190,7 @@ var (
 	HW_LIVE_STREAMING_DOMAIN_NAME          = os.Getenv("HW_LIVE_STREAMING_DOMAIN_NAME")
 	HW_LIVE_INGEST_RTMP_DOMAIN_NAME        = os.Getenv("HW_LIVE_INGEST_RTMP_DOMAIN_NAME")
 	HW_LIVE_INGEST_SRT_DOMAIN_NAME         = os.Getenv("HW_LIVE_INGEST_SRT_DOMAIN_NAME")
+	HW_LIVE_INGEST_DOMAIN_NAME             = os.Getenv("HW_LIVE_INGEST_DOMAIN_NAME")
 	HW_LIVE_TRANSCODING_TEPLATE_ID         = os.Getenv("HW_LIVE_TRANSCODING_TEPLATE_ID")
 	HW_LIVE_TRANSCODING_TEPLATE_ANOTHER_ID = os.Getenv("HW_LIVE_TRANSCODING_TEPLATE_ANOTHER_ID")
 	HW_LIVE_HTTPS_TLS_CERT_BODY_PATH       = os.Getenv("HW_LIVE_HTTPS_TLS_CERT_BODY_PATH")
@@ -1962,6 +1963,13 @@ func TestAccPreCheckLiveIngestRTMPDomainName(t *testing.T) {
 func TestAccPreCheckLiveIngestSRTDomainName(t *testing.T) {
 	if HW_LIVE_INGEST_SRT_DOMAIN_NAME == "" {
 		t.Skip("HW_LIVE_INGEST_SRT_DOMAIN_NAME must be set for Live acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLiveIngestDomainName(t *testing.T) {
+	if HW_LIVE_INGEST_DOMAIN_NAME == "" {
+		t.Skip("HW_LIVE_INGEST_DOMAIN_NAME must be set for Live acceptance tests")
 	}
 }
 
