@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_apig_orchestration_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v2/{project_id}/apigw/instances/{instance_id}/orchestrations:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/orchestrations/{orchestration_id}:
+        DELETE:
+            tag: APIG
+        GET:
+            tag: APIG
+        PUT:
+            tag: APIG

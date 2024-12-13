@@ -21,6 +21,12 @@ paths:
     /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/mastereip:
         PUT:
             tag: CCE
+    /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/tags/create:
+        POST:
+            tag: CCE
+    /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/tags/delete:
+        POST:
+            tag: CCE
     /autopilot/v3/projects/{project_id}/jobs/{job_id}:
         GET:
             tag: CCE

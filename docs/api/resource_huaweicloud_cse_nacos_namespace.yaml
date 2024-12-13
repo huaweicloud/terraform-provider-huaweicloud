@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cse_nacos_namespace
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSE
+paths:
+    /v1/{project_id}/nacos/v1/console/namespaces:
+        DELETE:
+            tag: CSE
+        GET:
+            tag: CSE
+        POST:
+            tag: CSE
+        PUT:
+            tag: CSE

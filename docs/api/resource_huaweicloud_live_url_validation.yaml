@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_live_url_validation
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Live
+paths:
+    /v1/{project_id}/guard/key-chain:
+        DELETE:
+            tag: Live
+        GET:
+            tag: Live
+        PUT:
+            tag: Live
