@@ -159,32 +159,32 @@ func testAccDatasourceDNSZones_public(name string) string {
 %s
 
 data "huaweicloud_dns_zones" "test" {
-  zone_type = huaweicloud_dns_zone.zone_1.zone_type
+  zone_type = huaweicloud_dns_zone.test.zone_type
 }
 
 data "huaweicloud_dns_zones" "tags_filter" {
-  zone_type = huaweicloud_dns_zone.zone_1.zone_type
+  zone_type = huaweicloud_dns_zone.test.zone_type
   tags      = "zone_type,public"
 }
 data "huaweicloud_dns_zones" "name_filter" {
-  zone_type = huaweicloud_dns_zone.zone_1.zone_type
-  name      = huaweicloud_dns_zone.zone_1.name
+  zone_type = huaweicloud_dns_zone.test.zone_type
+  name      = huaweicloud_dns_zone.test.name
 }
 data "huaweicloud_dns_zones" "status_filter" {
-  zone_type = huaweicloud_dns_zone.zone_1.zone_type
+  zone_type = huaweicloud_dns_zone.test.zone_type
   status    = data.huaweicloud_dns_zones.test.zones.0.status
 }
 data "huaweicloud_dns_zones" "enterprise_project_id_filter" {
-  zone_type             = huaweicloud_dns_zone.zone_1.zone_type
-  enterprise_project_id = huaweicloud_dns_zone.zone_1.enterprise_project_id
+  zone_type             = huaweicloud_dns_zone.test.zone_type
+  enterprise_project_id = huaweicloud_dns_zone.test.enterprise_project_id
 }
 
 locals {
   tags_filter_result = [for v in data.huaweicloud_dns_zones.tags_filter.zones[*].tags : v.zone_type == "public"]
-  name_filter_result = [for v in data.huaweicloud_dns_zones.name_filter.zones[*].name : v == huaweicloud_dns_zone.zone_1.name]
+  name_filter_result = [for v in data.huaweicloud_dns_zones.name_filter.zones[*].name : v == huaweicloud_dns_zone.test.name]
   status_filter_result = [for v in data.huaweicloud_dns_zones.status_filter.zones[*].status : v == data.huaweicloud_dns_zones.test.zones.0.status]
   enterprise_project_id_filter_result = [for v in data.huaweicloud_dns_zones.enterprise_project_id_filter.zones[*].enterprise_project_id :
-v == huaweicloud_dns_zone.zone_1.enterprise_project_id]
+v == huaweicloud_dns_zone.test.enterprise_project_id]
 }
 
 output "tags_filter_is_useful" {

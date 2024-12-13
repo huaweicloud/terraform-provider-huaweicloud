@@ -57,7 +57,7 @@ locals {
 resource "huaweicloud_dns_ptrrecord" "test" {
   name          = "%s"
   description   = "Created by terraform"
-  floatingip_id = huaweicloud_vpc_eip.eip_1.id
+  floatingip_id = huaweicloud_vpc_eip.test.id
   ttl           = 300
   tags          = local.tags
 }
@@ -77,7 +77,7 @@ output "is_record_id_filter_useful" {
 }
 
 locals {
-  public_ip = huaweicloud_vpc_eip.eip_1.address
+  public_ip = huaweicloud_vpc_eip.test.address
 }
 
 data "huaweicloud_dns_floating_ptrrecords" "filter_by_public_id" {
