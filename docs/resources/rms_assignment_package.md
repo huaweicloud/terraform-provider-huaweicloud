@@ -32,9 +32,7 @@ resource "huaweicloud_rms_assignment_package" "test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String, ForceNew) Specifies the assignment package name. It contains 1 to 64 characters.
-
-  Changing this parameter will create a new resource.
+* `name` - (Required, String) Specifies the assignment package name. It contains 1 to 64 characters.
 
 * `agency_name` - (Optional, String, ForceNew) Specifies the agency name. The agency needs to authorize RFS to invoke
   the Config APIs for creating, updating, deleting an assignment. It contains 1 to 64 characters.
@@ -58,10 +56,9 @@ The following arguments are supported:
 
   -> **NOTE:** Exactly one of `template_key`, `template_body`, `template_uri` should be specified.
 
-* `vars_structure` - (Optional, List, ForceNew) Specifies the parameters of an assignment package.
+* `vars_structure` - (Optional, List) Specifies the parameters of an assignment package.
 
-  Changing this parameter will create a new resource.
-The [vars_structure](#AssignmentPackage_VarStructure) structure is documented below.
+  The [vars_structure](#AssignmentPackage_VarStructure) structure is documented below.
 
 <a name="AssignmentPackage_VarStructure"></a>
 The `vars_structure` block supports:
