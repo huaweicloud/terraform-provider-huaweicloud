@@ -1848,6 +1848,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_live_url_validation":       live.ResourceUrlValidation(),
 			"huaweicloud_live_channel":              live.ResourceChannel(),
 			"huaweicloud_live_https_certificate":    live.ResourceHTTPSCertificate(),
+			"huaweicloud_live_geo_blocking":         live.ResourceGeoBlocking(),
 
 			"huaweicloud_lts_aom_access":                       lts.ResourceAOMAccess(),
 			"huaweicloud_lts_group":                            lts.ResourceLTSGroup(),
