@@ -91,6 +91,12 @@ func ResourceAclRule() *schema.Resource {
 				Description:  `Whether to support persistent connections.`,
 				ValidateFunc: validation.IntInSlice([]int{0, 1}),
 			},
+			"applications": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The application list.`,
+			},
 			"custom_services": {
 				Type:          schema.TypeList,
 				Optional:      true,
@@ -432,9 +438,11 @@ func buildCreateACLRuleBodyParams(d *schema.ResourceData) map[string]interface{}
 }
 
 func buildACLRulesOpts(d *schema.ResourceData, isUpdate bool) map[string]interface{} {
+	applicationList := utils.ExpandToStringList(d.Get("applications").(*schema.Set).List())
 	params := map[string]interface{}{
 		"action_type":              d.Get("action_type"),
 		"address_type":             d.Get("address_type"),
+		"applications":             utils.ValueIgnoreEmpty(applicationList),
 		"description":              utils.ValueIgnoreEmpty(d.Get("description")),
 		"direction":                d.Get("direction"),
 		"long_connect_enable":      d.Get("long_connect_enable"),
@@ -714,6 +722,7 @@ func resourceACLRuleRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("region", region),
 		d.Set("action_type", utils.PathSearch("action_type", rule, nil)),
 		d.Set("address_type", utils.PathSearch("address_type", rule, nil)),
+		d.Set("applications", utils.PathSearch("applications", rule, nil)),
 		d.Set("description", utils.PathSearch("description", rule, nil)),
 		d.Set("direction", utils.PathSearch("direction", rule, nil)),
 		d.Set("long_connect_enable", utils.PathSearch("long_connect_enable", rule, nil)),
@@ -923,6 +932,7 @@ func resourceACLRuleUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	updateACLRulehasChanges := []string{
 		"action_type",
 		"address_type",
+		"applications",
 		"description",
 		"direction",
 		"long_connect_enable",

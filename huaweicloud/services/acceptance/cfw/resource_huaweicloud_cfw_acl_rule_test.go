@@ -51,6 +51,7 @@ func TestAccACLRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "type", "0"),
 					resource.TestCheckResourceAttr(rName, "address_type", "0"),
 					resource.TestCheckResourceAttr(rName, "action_type", "0"),
+					resource.TestCheckResourceAttr(rName, "applications.#", "1"),
 					resource.TestCheckResourceAttr(rName, "long_connect_enable", "0"),
 					resource.TestCheckResourceAttr(rName, "status", "1"),
 					resource.TestCheckResourceAttr(rName, "direction", "0"),
@@ -68,6 +69,7 @@ func TestAccACLRule_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "applications.#", "2"),
 					resource.TestCheckResourceAttr(rName, "source_addresses.#", "2"),
 					resource.TestCheckResourceAttr(rName, "destination_addresses.#", "2"),
 					resource.TestCheckResourceAttr(rName, "source_addresses.0", "1.1.1.2"),
@@ -392,6 +394,7 @@ resource "huaweicloud_cfw_acl_rule" "r1" {
   type                = 0
   address_type        = 0
   action_type         = 0
+  applications        = ["HTTPS"]
   long_connect_enable = 0
   status              = 1
 
@@ -458,6 +461,7 @@ resource "huaweicloud_cfw_acl_rule" "r1" {
   type                = 0
   address_type        = 0
   action_type         = 0
+  applications        = ["HTTPS", "HTTP"]
   long_connect_enable = 0
   status              = 1
 

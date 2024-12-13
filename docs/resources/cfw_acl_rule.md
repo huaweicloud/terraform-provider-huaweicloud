@@ -150,6 +150,10 @@ The following arguments are supported:
 * `address_type` - (Required, Int) The address type.
   The value can be `0` (IPv4), `1` (IPv6).
 
+* `applications` - (Optional, List) The application list.
+  The valid value can be **HTTP**, **HTTPS**, **TLS1**, **DNS**, **SSH**, **MYSQL**, **SMTP**, **RDP**, **RDPS**,
+  **VNC**, **POP3**, **IMAP4**, **SMTPS**, **POP3S**, **FTPS**, **ANY**, **BGP** and so on.
+
 * `sequence` - (Required, List) The sequence configuration.
   The [sequence](#Sequence) structure is documented below.
 
