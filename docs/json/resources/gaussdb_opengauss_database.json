@@ -38,7 +38,6 @@
                 "type": "string",
                 "description": "Specifies the database classification.",
                 "optional": true,
-                "computed": true,
                 "forcenew": true
               },
               "name": {

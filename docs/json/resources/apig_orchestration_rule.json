@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_orchestration_rule": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the orchestration rule, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the orchestration rule belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "is_preprocessing": {
+                "type": "bool",
+                "description": "Whether rule is a preprocessing rule.",
+                "optional": true,
+                "forcenew": true
+              },
+              "map": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of orchestration mapping rules, each item should be in JSON format.",
+                "optional": true
+              },
+              "mapped_param": {
+                "type": "string",
+                "description": "The parameter configuration after orchestration, in JSON format.",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the orchestration rule.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the orchestration rule is located.",
+                "computed": true
+              },
+              "strategy": {
+                "type": "string",
+                "description": "The type of the orchestration rule.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the orchestration rule, in RFC3339 format.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

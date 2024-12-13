@@ -1,0 +1,1057 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_channel": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the group name or application name.",
+                "required": true,
+                "forcenew": true
+              },
+              "channel_id": {
+                "type": "string",
+                "description": "Specifies the unique channel ID.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the channel streaming domain name.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the channel name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "description": "Specifies the channel status.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "encoder_settings": {
+                "block": {
+                  "attributes": {
+                    "template_id": {
+                      "type": "string",
+                      "description": "Specifies the transcoding template ID.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the transcoding template configuration."
+                },
+                "nesting_mode": "list"
+              },
+              "encoder_settings_expand": {
+                "block": {
+                  "block_types": {
+                    "audio_descriptions": {
+                      "block": {
+                        "attributes": {
+                          "audio_selector_name": {
+                            "type": "string",
+                            "description": "Specifies the audio selector name.",
+                            "required": true
+                          },
+                          "language_code": {
+                            "type": "string",
+                            "description": "Specifies the language code.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "language_code_control": {
+                            "type": "string",
+                            "description": "Specifies the language code control configuration.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the name of the audio output configuration.",
+                            "required": true
+                          },
+                          "stream_name": {
+                            "type": "string",
+                            "description": "Specifies the stream name.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Specifies the description of the audio output configuration."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "Specifies the audio output configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "endpoints": {
+                "block": {
+                  "block_types": {
+                    "dash_package": {
+                      "block": {
+                        "attributes": {
+                          "ad_marker": {
+                            "type": "string",
+                            "description": "Specifies the advertising marker.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "playlist_window_seconds": {
+                            "type": "number",
+                            "description": "Specifies the window length of the channel live broadcast return shard.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "segment_duration_seconds": {
+                            "type": "number",
+                            "description": "Specifies the duration of the channel output segment.",
+                            "required": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Specifies the customer-defined streaming address.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "encryption": {
+                            "block": {
+                              "attributes": {
+                                "level": {
+                                  "type": "string",
+                                  "description": "Specifies the level.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "request_mode": {
+                                  "type": "string",
+                                  "description": "Specifies the request mode.",
+                                  "required": true
+                                },
+                                "resource_id": {
+                                  "type": "string",
+                                  "description": "Specifies the customer-generated DRM content ID.",
+                                  "required": true
+                                },
+                                "speke_version": {
+                                  "type": "string",
+                                  "description": "Specifies the DRM spec version number.",
+                                  "required": true
+                                },
+                                "system_ids": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the system ID enumeration values.",
+                                  "required": true
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "Specifies the DRM address of the key.",
+                                  "required": true
+                                },
+                                "urn": {
+                                  "type": "string",
+                                  "description": "Specifies the URN of the function graph.",
+                                  "optional": true
+                                }
+                              },
+                              "block_types": {
+                                "http_headers": {
+                                  "block": {
+                                    "attributes": {
+                                      "key": {
+                                        "type": "string",
+                                        "description": "Specifies the key field name in the request header.",
+                                        "required": true
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "description": "Specifies the value corresponding to the key in the request header.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "Specifies the authentication information that needs to be added to the DRM request header."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "Specifies the encrypted information."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "request_args": {
+                            "block": {
+                              "block_types": {
+                                "live": {
+                                  "block": {
+                                    "attributes": {
+                                      "delay": {
+                                        "type": "string",
+                                        "description": "Specifies the delay field.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "unit": {
+                                        "type": "string",
+                                        "description": "Specifies the unit.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the live broadcast configuration."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "record": {
+                                  "block": {
+                                    "attributes": {
+                                      "end_time": {
+                                        "type": "string",
+                                        "description": "Specifies the end time.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "format": {
+                                        "type": "string",
+                                        "description": "Specifies the format.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "start_time": {
+                                        "type": "string",
+                                        "description": "Specifies the start time.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "unit": {
+                                        "type": "string",
+                                        "description": "Specifies the unit.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the recording and playback related configuration."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "timeshift": {
+                                  "block": {
+                                    "attributes": {
+                                      "back_time": {
+                                        "type": "string",
+                                        "description": "Specifies the time shift duration field name.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "unit": {
+                                        "type": "string",
+                                        "description": "Specifies the unit.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the time-shift playback configuration."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "Specifies the play related configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "stream_selection": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "description": "Specifies the key used for bitrate filtering in streaming URLs.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "max_bandwidth": {
+                                  "type": "number",
+                                  "description": "Specifies the maximum code rate.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "min_bandwidth": {
+                                  "type": "number",
+                                  "description": "Specifies the minimum code rate.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "Specifies the stream selection."
+                            },
+                            "nesting_mode": "list"
+                          }
+                        },
+                        "description": "Specifies the DASH packaging information."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "hls_package": {
+                      "block": {
+                        "attributes": {
+                          "ad_marker": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the advertising marker.",
+                            "optional": true
+                          },
+                          "hls_version": {
+                            "type": "string",
+                            "description": "Specifies the HLS version number.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "playlist_window_seconds": {
+                            "type": "number",
+                            "description": "Specifies the window length of the channel live broadcast return shard.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "segment_duration_seconds": {
+                            "type": "number",
+                            "description": "Specifies the duration of the channel output segment.",
+                            "required": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Specifies the customer-defined streaming address.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "encryption": {
+                            "block": {
+                              "attributes": {
+                                "level": {
+                                  "type": "string",
+                                  "description": "Specifies the level.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "request_mode": {
+                                  "type": "string",
+                                  "description": "Specifies the request mode.",
+                                  "required": true
+                                },
+                                "resource_id": {
+                                  "type": "string",
+                                  "description": "Specifies the customer-generated DRM content ID.",
+                                  "required": true
+                                },
+                                "speke_version": {
+                                  "type": "string",
+                                  "description": "Specifies the DRM spec version number.",
+                                  "required": true
+                                },
+                                "system_ids": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the system ID enumeration values.",
+                                  "required": true
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "Specifies the DRM address of the key.",
+                                  "required": true
+                                },
+                                "urn": {
+                                  "type": "string",
+                                  "description": "Specifies the URN of the function graph.",
+                                  "optional": true
+                                }
+                              },
+                              "block_types": {
+                                "http_headers": {
+                                  "block": {
+                                    "attributes": {
+                                      "key": {
+                                        "type": "string",
+                                        "description": "Specifies the key field name in the request header.",
+                                        "required": true
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "description": "Specifies the value corresponding to the key in the request header.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "Specifies the authentication information that needs to be added to the DRM request header."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "Specifies the encrypted information."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "request_args": {
+                            "block": {
+                              "block_types": {
+                                "live": {
+                                  "block": {
+                                    "attributes": {
+                                      "delay": {
+                                        "type": "string",
+                                        "description": "Specifies the delay field.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "unit": {
+                                        "type": "string",
+                                        "description": "Specifies the unit.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the live broadcast configuration."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "record": {
+                                  "block": {
+                                    "attributes": {
+                                      "end_time": {
+                                        "type": "string",
+                                        "description": "Specifies the end time.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "format": {
+                                        "type": "string",
+                                        "description": "Specifies the format.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "start_time": {
+                                        "type": "string",
+                                        "description": "Specifies the start time.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "unit": {
+                                        "type": "string",
+                                        "description": "Specifies the unit.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the recording and playback related configuration."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "timeshift": {
+                                  "block": {
+                                    "attributes": {
+                                      "back_time": {
+                                        "type": "string",
+                                        "description": "Specifies the time shift duration field name.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "unit": {
+                                        "type": "string",
+                                        "description": "Specifies the unit.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the time-shift playback configuration."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "Specifies the play related configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "stream_selection": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "description": "Specifies the key used for bitrate filtering in streaming URLs.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "max_bandwidth": {
+                                  "type": "number",
+                                  "description": "Specifies the maximum code rate.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "min_bandwidth": {
+                                  "type": "number",
+                                  "description": "Specifies the minimum code rate.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "Specifies the stream selection."
+                            },
+                            "nesting_mode": "list"
+                          }
+                        },
+                        "description": "Specifies the HLS packaging information."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "mss_package": {
+                      "block": {
+                        "attributes": {
+                          "delay_segment": {
+                            "type": "number",
+                            "description": "Specifies the delayed playback time.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "playlist_window_seconds": {
+                            "type": "number",
+                            "description": "Specifies the window length of the channel live broadcast return shard.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "segment_duration_seconds": {
+                            "type": "number",
+                            "description": "Specifies the duration of the channel output segment.",
+                            "required": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Specifies the customer-defined streaming address.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "encryption": {
+                            "block": {
+                              "attributes": {
+                                "level": {
+                                  "type": "string",
+                                  "description": "Specifies the level.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "request_mode": {
+                                  "type": "string",
+                                  "description": "Specifies the request mode.",
+                                  "required": true
+                                },
+                                "resource_id": {
+                                  "type": "string",
+                                  "description": "Specifies the customer-generated DRM content ID.",
+                                  "required": true
+                                },
+                                "speke_version": {
+                                  "type": "string",
+                                  "description": "Specifies the DRM spec version number.",
+                                  "required": true
+                                },
+                                "system_ids": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the system ID enumeration values.",
+                                  "required": true
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "Specifies the DRM address of the key.",
+                                  "required": true
+                                },
+                                "urn": {
+                                  "type": "string",
+                                  "description": "Specifies the URN of the function graph.",
+                                  "optional": true
+                                }
+                              },
+                              "block_types": {
+                                "http_headers": {
+                                  "block": {
+                                    "attributes": {
+                                      "key": {
+                                        "type": "string",
+                                        "description": "Specifies the key field name in the request header.",
+                                        "required": true
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "description": "Specifies the value corresponding to the key in the request header.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "Specifies the authentication information that needs to be added to the DRM request header."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "Specifies the encrypted information."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "request_args": {
+                            "block": {
+                              "block_types": {
+                                "live": {
+                                  "block": {
+                                    "attributes": {
+                                      "delay": {
+                                        "type": "string",
+                                        "description": "Specifies the delay field.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "unit": {
+                                        "type": "string",
+                                        "description": "Specifies the unit.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the live broadcast configuration."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "record": {
+                                  "block": {
+                                    "attributes": {
+                                      "end_time": {
+                                        "type": "string",
+                                        "description": "Specifies the end time.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "format": {
+                                        "type": "string",
+                                        "description": "Specifies the format.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "start_time": {
+                                        "type": "string",
+                                        "description": "Specifies the start time.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "unit": {
+                                        "type": "string",
+                                        "description": "Specifies the unit.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the recording and playback related configuration."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "timeshift": {
+                                  "block": {
+                                    "attributes": {
+                                      "back_time": {
+                                        "type": "string",
+                                        "description": "Specifies the time shift duration field name.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "unit": {
+                                        "type": "string",
+                                        "description": "Specifies the unit.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the time-shift playback configuration."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "Specifies the play related configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "stream_selection": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "description": "Specifies the key used for bitrate filtering in streaming URLs.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "max_bandwidth": {
+                                  "type": "number",
+                                  "description": "Specifies the maximum code rate.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "min_bandwidth": {
+                                  "type": "number",
+                                  "description": "Specifies the minimum code rate.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "Specifies the stream selection."
+                            },
+                            "nesting_mode": "list"
+                          }
+                        },
+                        "description": "Specifies the MSS packaging information."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "Specifies the channel outflow information."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "input": {
+                "block": {
+                  "attributes": {
+                    "ad_triggers": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the ad trigger configuration.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "input_protocol": {
+                      "type": "string",
+                      "description": "Specifies the channel input protocol.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "ip_port_mode": {
+                      "type": "bool",
+                      "description": "Specifies the IP port mode.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ip_whitelist": {
+                      "type": "string",
+                      "description": "Specifies the IP whitelist when protocol is **SRT_PUSH**.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "max_bandwidth_limit": {
+                      "type": "number",
+                      "description": "Specifies the maximum bandwidth that needs to be configured when the inbound protocol is\n**HLS_PULL**.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "scte35_source": {
+                      "type": "string",
+                      "description": "Specifies the advertisement scte35 signal source.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "audio_selectors": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the name of the audio selector.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "selector_settings": {
+                            "block": {
+                              "block_types": {
+                                "audio_hls_selection": {
+                                  "block": {
+                                    "attributes": {
+                                      "group_id": {
+                                        "type": "string",
+                                        "description": "Specifies the HLS audio selector gid.",
+                                        "required": true
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "description": "Specifies the HLS audio selector name.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "Specifies the HLS selector configuration."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "audio_language_selection": {
+                                  "block": {
+                                    "attributes": {
+                                      "language_code": {
+                                        "type": "string",
+                                        "description": "Specifies the language abbreviation.",
+                                        "required": true
+                                      },
+                                      "language_selection_policy": {
+                                        "type": "string",
+                                        "description": "Specifies the language output strategy.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the language selector configuration."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "audio_pid_selection": {
+                                  "block": {
+                                    "attributes": {
+                                      "pid": {
+                                        "type": "number",
+                                        "description": "Specifies the value of PID.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "Specifies the PID selector configuration."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              },
+                              "description": "Specifies the audio selector configuration."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "Specifies the audio selector configuration."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "failover_conditions": {
+                      "block": {
+                        "attributes": {
+                          "input_loss_threshold_msec": {
+                            "type": "number",
+                            "description": "Specifies the duration threshold of inflow stop.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "input_preference": {
+                            "type": "string",
+                            "description": "Specifies the input preference type.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Specifies the configuration of switching between primary and backup audio and video\nstream URLs."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "secondary_sources": {
+                      "block": {
+                        "attributes": {
+                          "backup_urls": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the list of backup stream addresses.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bitrate": {
+                            "type": "number",
+                            "description": "Specifies the bitrate.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bitrate_for3u8": {
+                            "type": "bool",
+                            "description": "Specifies whether to use bitrate to fix the bitrate.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "height": {
+                            "type": "number",
+                            "description": "Specifies the resolution corresponds to the high value.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "latency": {
+                            "type": "number",
+                            "description": "Specifies the streaming delay when the channel type is **SRT_PULL**.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "passphrase": {
+                            "type": "string",
+                            "description": "Specifies the encrypted information when the protocol is **SRT_PUSH**.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "stream_id": {
+                            "type": "string",
+                            "description": "Specifies the stream ID of the stream pull address when the channel type is **SRT_PULL**.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Specifies the channel source stream URL.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "width": {
+                            "type": "number",
+                            "description": "Specifies the resolution corresponds to the width value.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Specifies the prepared stream array."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "sources": {
+                      "block": {
+                        "attributes": {
+                          "backup_urls": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the list of backup stream addresses.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bitrate": {
+                            "type": "number",
+                            "description": "Specifies the bitrate.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bitrate_for3u8": {
+                            "type": "bool",
+                            "description": "Specifies whether to use bitrate to fix the bitrate.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "enable_snapshot": {
+                            "type": "bool",
+                            "description": "Specifies whether to use this stream to take screenshots.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "height": {
+                            "type": "number",
+                            "description": "Specifies the resolution corresponds to the high value.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "latency": {
+                            "type": "number",
+                            "description": "Specifies the streaming delay when the channel type is **SRT_PULL**.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "passphrase": {
+                            "type": "string",
+                            "description": "Specifies the encrypted information when the protocol is **SRT_PUSH**.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "stream_id": {
+                            "type": "string",
+                            "description": "Specifies the stream ID of the stream pull address when the channel type is **SRT_PULL**.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Specifies the channel source stream URL, used for external streaming.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "width": {
+                            "type": "number",
+                            "description": "Specifies the resolution corresponds to the width value.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Specifies the channel main source stream information."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "Specifies the channel input information."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "record_settings": {
+                "block": {
+                  "attributes": {
+                    "rollingbuffer_duration": {
+                      "type": "number",
+                      "description": "Specifies the maximum playback recording time.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the configuration for replaying a recording."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

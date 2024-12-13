@@ -1,0 +1,127 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_live_recordings": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the application name of the recording rule.",
+                "optional": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the ingest domain name to which the recording rules belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_name": "string",
+                      "created_at": "string",
+                      "default_record_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "flv": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "file_naming": "string",
+                                  "max_stream_pause_length": "number",
+                                  "recording_length": "number"
+                                }
+                              ]
+                            ],
+                            "hls": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "file_naming": "string",
+                                  "max_stream_pause_length": "number",
+                                  "record_slice_duration": "number",
+                                  "recording_length": "number",
+                                  "ts_file_naming": "string"
+                                }
+                              ]
+                            ],
+                            "mp4": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "file_naming": "string",
+                                  "max_stream_pause_length": "number",
+                                  "recording_length": "number"
+                                }
+                              ]
+                            ],
+                            "obs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "bucket": "string",
+                                  "object": "string",
+                                  "region": "string"
+                                }
+                              ]
+                            ],
+                            "record_format": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "domain_name": "string",
+                      "id": "string",
+                      "stream_name": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the recording rules.",
+                "computed": true
+              },
+              "stream_name": {
+                "type": "string",
+                "description": "Specifies the stream name of the recording rule.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the recording type of the recording rule.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

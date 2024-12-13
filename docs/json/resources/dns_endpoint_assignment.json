@@ -2,15 +2,17 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_dns_endpoint": {
+        "huaweicloud_dns_endpoint_assignment": {
           "block": {
             "attributes": {
               "created_at": {
                 "type": "string",
+                "description": "The creation time of the endpoint, in RFC3339 format.",
                 "computed": true
               },
               "direction": {
                 "type": "string",
+                "description": "The direction of the endpoint.",
                 "required": true,
                 "forcenew": true
               },
@@ -20,56 +22,47 @@
               },
               "name": {
                 "type": "string",
+                "description": "The name of the endpoint.",
                 "required": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "resolver_rule_count": {
-                "type": "number",
-                "computed": true
-              },
               "status": {
                 "type": "string",
-                "computed": true
-              },
-              "updated_at": {
-                "type": "string",
+                "description": "The current status of the endpoint.",
                 "computed": true
               },
               "vpc_id": {
                 "type": "string",
+                "description": "The VPC ID associated with the endpoint.",
                 "computed": true
               }
             },
             "block_types": {
-              "ip_addresses": {
+              "assignments": {
                 "block": {
                   "attributes": {
-                    "created_at": {
+                    "ip_address": {
                       "type": "string",
-                      "computed": true
+                      "description": "The IP address associated with the endpoint.",
+                      "required": true
                     },
                     "ip_address_id": {
                       "type": "string",
-                      "computed": true
-                    },
-                    "status": {
-                      "type": "string",
+                      "description": "The ID of the IP address associated with the endpoint.",
                       "computed": true
                     },
                     "subnet_id": {
                       "type": "string",
+                      "description": "The subnet ID to which the IP address belongs.",
                       "required": true
-                    },
-                    "updated_at": {
-                      "type": "string",
-                      "computed": true
                     }
-                  }
+                  },
+                  "description": "The list of the IP addresses of the endpoint."
                 },
-                "nesting_mode": "list",
+                "nesting_mode": "set",
                 "min_items": 2,
                 "max_items": 6
               }

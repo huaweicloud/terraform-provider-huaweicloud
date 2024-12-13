@@ -34,6 +34,18 @@
                 "type": "string",
                 "computed": true
               },
+              "disk_encryption_id": {
+                "type": "string",
+                "optional": true
+              },
+              "enable_force_switch": {
+                "type": "bool",
+                "optional": true
+              },
+              "enable_single_float_ip": {
+                "type": "bool",
+                "optional": true
+              },
               "endpoints": {
                 "type": [
                   "list",
@@ -43,7 +55,8 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "flavor": {
                 "type": "string",
@@ -130,6 +143,7 @@
               "security_group_id": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "sharding_num": {
@@ -209,6 +223,13 @@
                     "consistency": {
                       "type": "string",
                       "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "instance_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "mode": {

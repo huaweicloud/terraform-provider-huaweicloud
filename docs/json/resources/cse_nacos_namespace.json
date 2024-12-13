@@ -1,0 +1,40 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cse_nacos_namespace": {
+          "block": {
+            "attributes": {
+              "engine_id": {
+                "type": "string",
+                "description": "The ID of the Nacos microservice engine to which the namespace belongs.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the Nacos namespace.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the Nacos namespace is located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSE",
+            "name": "Cloud Service Engine",
+            "catalog": "Middleware",
+            "name_cn": "微服务引擎",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_https_certificate": {
+          "block": {
+            "attributes": {
+              "certificate": {
+                "type": "string",
+                "description": "Specifies the certificate body.",
+                "optional": true,
+                "forcenew": true
+              },
+              "certificate_format": {
+                "type": "string",
+                "description": "Specifies the certificate format.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "certificate_key": {
+                "type": "string",
+                "description": "Specifies the private key",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the streaming domain name",
+                "required": true,
+                "forcenew": true
+              },
+              "force_redirect": {
+                "type": "bool",
+                "description": "Specifies whether to enable redirection.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "gm_certificate": {
+                "block": {
+                  "attributes": {
+                    "cert_id": {
+                      "type": "string",
+                      "description": "Specifies the SCM certificate ID.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "cert_name": {
+                      "type": "string",
+                      "description": "Specifies the SCM certificate name.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "enc_certificate": {
+                      "type": "string",
+                      "description": "Specifies the Chinese (SM) encryption certificate body",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "enc_certificate_key": {
+                      "type": "string",
+                      "description": "Specifies the Chinese (SM) encryption private key",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "sign_certificate": {
+                      "type": "string",
+                      "description": "Specifies the Chinese (SM) signature certificate body",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "sign_certificate_key": {
+                      "type": "string",
+                      "description": "Specifies the Chinese (SM) signature private key",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "source": {
+                      "type": "string",
+                      "description": "Specifies the certificate source.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the GM certificate configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "tls_certificate": {
+                "block": {
+                  "attributes": {
+                    "cert_id": {
+                      "type": "string",
+                      "description": "Specifies the SCM certificate ID.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "cert_name": {
+                      "type": "string",
+                      "description": "Specifies the SCM certificate name.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "certificate": {
+                      "type": "string",
+                      "description": "Specifies the certificate body.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "certificate_key": {
+                      "type": "string",
+                      "description": "Specifies the private key.",
+                      "optional": true,
+                      "forcenew": true,
+                      "sensitive": true
+                    },
+                    "source": {
+                      "type": "string",
+                      "description": "Specifies the certificate source.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the TLS certificate configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

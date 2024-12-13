@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_url_validation": {
+          "block": {
+            "attributes": {
+              "auth_type": {
+                "type": "string",
+                "description": "Specifies the signing method of the URL validation.",
+                "required": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name to which the URL validation belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key": {
+                "type": "string",
+                "description": "Specifies the URL validation key value.",
+                "required": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "timeout": {
+                "type": "number",
+                "description": "Specifies the timeout interval of URL validation.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}
