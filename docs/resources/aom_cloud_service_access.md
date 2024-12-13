@@ -17,9 +17,10 @@ variable "instance_id" {}
 variable "service" {}
 
 resource "huaweicloud_aom_cloud_service_access" "test" {
-  instance_id = var.instance_id
-  service     = var.service
-  tag_sync    = "auto"
+  instance_id           = var.instance_id
+  service               = var.service
+  tag_sync              = "auto"
+  enterprise_project_id = "0"
 }
 ```
 
