@@ -1108,6 +1108,23 @@ func flattenV3ComponentMesher(mesher map[string]interface{}) []map[string]interf
 	}
 }
 
+func flattenV3ComponentLogs(logList []interface{}) []interface{} {
+	if len(logList) < 1 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(logList))
+	for _, val := range logList {
+		result = append(result, map[string]interface{}{
+			"log_path":         utils.PathSearch("log_path", val, nil),
+			"rotate":           utils.PathSearch("rotate", val, nil),
+			"host_path":        utils.PathSearch("host_path", val, nil),
+			"host_extend_path": utils.PathSearch("host_extend_path", val, nil),
+		})
+	}
+	return result
+}
+
 func flattenV3ComponentCustomMetric(customMetric map[string]interface{}) []map[string]interface{} {
 	if len(customMetric) < 1 {
 		return nil
@@ -1255,7 +1272,7 @@ func resourceV3ComponentRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("timezone", utils.PathSearch("timezone", respBody, nil)),
 		d.Set("jvm_opts", utils.PathSearch("jvm_opts", respBody, nil)),
 		d.Set("tomcat_opts", utils.JsonToString(utils.PathSearch("tomcat_opts", respBody, nil))),
-		d.Set("logs", utils.PathSearch("logs", respBody, nil)),
+		d.Set("logs", flattenV3ComponentLogs(utils.PathSearch("logs", respBody, make([]interface{}, 0)).([]interface{}))),
 		d.Set("custom_metric", flattenV3ComponentCustomMetric(utils.PathSearch("custom_metric", respBody,
 			make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("affinity", flattenV3ComponentAffinity(utils.PathSearch("affinity", respBody,
