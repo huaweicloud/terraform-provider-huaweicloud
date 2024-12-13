@@ -1,4 +1,4 @@
-package codearts
+package codeartsdeploy
 
 import (
 	"fmt"

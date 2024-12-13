@@ -1,4 +1,4 @@
-package codearts
+package codeartsdeploy
 
 import (
 	"fmt"
@@ -189,6 +189,15 @@ func TestAccDeployGroup_errorCheck(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testProject_basic(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_codearts_project" "test" {
+  name = "%s"
+  type = "scrum"
+}
+`, name)
 }
 
 func testDeployGroup_basic(name string) string {
