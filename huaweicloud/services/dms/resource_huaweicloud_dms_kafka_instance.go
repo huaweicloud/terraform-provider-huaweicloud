@@ -347,6 +347,86 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"port_protocols": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"private_plain_enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"private_plain_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"private_plain_domain_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"private_sasl_ssl_enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"private_sasl_ssl_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"private_sasl_ssl_domain_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"private_sasl_plaintext_enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"private_sasl_plaintext_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"private_sasl_plaintext_domain_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public_plain_enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"public_plain_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public_plain_domain_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public_sasl_ssl_enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"public_sasl_ssl_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public_sasl_ssl_domain_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public_sasl_plaintext_enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"public_sasl_plaintext_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public_sasl_plaintext_domain_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"manager_user": {
 				Type:       schema.TypeString,
 				Optional:   true,
@@ -1074,6 +1154,7 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		d.Set("pod_connect_address", v.PodConnectAddress),
 		d.Set("public_bandwidth", v.PublicBandWidth),
 		d.Set("ssl_two_way_enable", v.SslTwoWayEnable),
+		d.Set("port_protocols", flattenKafkaSecurityConfig(v.PortProtocols)),
 	)
 
 	// set tags
@@ -1142,6 +1223,31 @@ func setKafkaInstanceParameters(ctx context.Context, d *schema.ResourceData, cli
 		}
 	}
 	return nil
+}
+
+func flattenKafkaSecurityConfig(kafkaSecurityConfig instances.PortProtocols) interface{} {
+	return []map[string]interface{}{
+		{
+			"private_plain_enable":               kafkaSecurityConfig.PrivatePlainEnable,
+			"private_plain_address":              kafkaSecurityConfig.PrivatePlainAddress,
+			"private_plain_domain_name":          kafkaSecurityConfig.PrivatePlainDomainName,
+			"private_sasl_ssl_enable":            kafkaSecurityConfig.PrivateSaslSslEnable,
+			"private_sasl_ssl_address":           kafkaSecurityConfig.PrivateSaslSslAddress,
+			"private_sasl_ssl_domain_name":       kafkaSecurityConfig.PrivateSaslSslDomainName,
+			"private_sasl_plaintext_enable":      kafkaSecurityConfig.PrivateSaslPlaintextEnable,
+			"private_sasl_plaintext_address":     kafkaSecurityConfig.PrivateSaslPlaintextAddress,
+			"private_sasl_plaintext_domain_name": kafkaSecurityConfig.PrivateSaslPlaintextDomainName,
+			"public_plain_enable":                kafkaSecurityConfig.PublicPlainEnable,
+			"public_plain_address":               kafkaSecurityConfig.PublicPlainAddress,
+			"public_plain_domain_name":           kafkaSecurityConfig.PublicPlainDomainName,
+			"public_sasl_ssl_enable":             kafkaSecurityConfig.PublicSaslSslEnable,
+			"public_sasl_ssl_address":            kafkaSecurityConfig.PublicSaslSslAddress,
+			"public_sasl_ssl_domain_name":        kafkaSecurityConfig.PublicSaslSslDomainName,
+			"public_sasl_plaintext_enable":       kafkaSecurityConfig.PublicSaslPlaintextEnable,
+			"public_sasl_plaintext_address":      kafkaSecurityConfig.PublicSaslPlaintextAddress,
+			"public_sasl_plaintext_domain_name":  kafkaSecurityConfig.PublicSaslPlaintextDomainName,
+		},
+	}
 }
 
 func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
