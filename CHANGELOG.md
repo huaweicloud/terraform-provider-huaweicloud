@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.71.2 (December 13, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dms_kafka_instance: add port protocols support [GH-6016]
+
 ## 1.71.1 (December 9, 2024)
 
 ENHANCEMENTS:
