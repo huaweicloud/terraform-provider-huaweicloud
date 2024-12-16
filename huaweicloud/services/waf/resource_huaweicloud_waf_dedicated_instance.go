@@ -99,6 +99,9 @@ func ResourceWafDedicatedInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			// This field has no response return value.
+			"tags": common.TagsForceNewSchema(),
+
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -158,6 +161,7 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 		Count:         1,
 		PoolId:        d.Get("group_id").(string),
 		ResTenant:     utils.Bool(d.Get("res_tenant").(bool)),
+		Tags:          utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	if d.Get("res_tenant").(bool) {
 		// `anti_affinity` is valid only when `res_tenant` is true

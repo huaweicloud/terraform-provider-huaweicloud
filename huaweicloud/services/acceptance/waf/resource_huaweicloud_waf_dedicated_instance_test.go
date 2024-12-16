@@ -60,6 +60,8 @@ func TestAccDedicatedInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "upgradable", "0"),
 					resource.TestCheckResourceAttr(resourceName, "res_tenant", "true"),
 					resource.TestCheckResourceAttr(resourceName, "anti_affinity", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "server_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "subnet_id"),
@@ -82,6 +84,8 @@ func TestAccDedicatedInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "upgradable", "0"),
 					resource.TestCheckResourceAttr(resourceName, "res_tenant", "true"),
 					resource.TestCheckResourceAttr(resourceName, "anti_affinity", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "server_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "subnet_id"),
@@ -95,7 +99,7 @@ func TestAccDedicatedInstance_basic(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateIdFunc:       testWAFResourceImportState(resourceName),
-				ImportStateVerifyIgnore: []string{"res_tenant", "anti_affinity"},
+				ImportStateVerifyIgnore: []string{"res_tenant", "anti_affinity", "tags"},
 			},
 		},
 	})
@@ -116,6 +120,11 @@ resource "huaweicloud_waf_dedicated_instance" "test" {
   anti_affinity         = true
   enterprise_project_id = "%[3]s"
   
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+
   security_group = [
     huaweicloud_networking_secgroup.test.id
   ]
@@ -138,6 +147,11 @@ resource "huaweicloud_waf_dedicated_instance" "test" {
   anti_affinity         = true
   enterprise_project_id = "%[3]s"
   
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+
   security_group = [
     huaweicloud_networking_secgroup.test.id
   ]

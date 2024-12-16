@@ -31,6 +31,11 @@ resource "huaweicloud_waf_dedicated_instance" "test" {
   subnet_id             = var.subnet_id
   enterprise_project_id = var.enterprise_project_id
 
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+  
   security_group = [
     var.security_group_id
   ]
@@ -55,6 +60,11 @@ resource "huaweicloud_waf_dedicated_instance" "test" {
   enterprise_project_id = var.enterprise_project_id
   res_tenant            = true
 
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+  
   security_group = [
     var.security_group_id
   ]
@@ -113,6 +123,10 @@ The following arguments are supported:
 * `anti_affinity` - (Optional, Bool, ForceNew) Specifies whether to enable anti-affinity. This field is valid only
   when `res_tenant` is set to **true**. Changing this will create a new instance.
 
+* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the WAF dedicated instance.
+
+  Changing this will create a new instance.
+
 ## Attribute Reference
 
 The following attributes are exported:
@@ -162,8 +176,8 @@ $ terraform import huaweicloud_waf_dedicated_instance.test <id>/<enterprise_proj
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include: `res_tenant`, `anti_affinity`. It is generally recommended running
-`terraform plan` after importing the resource. You can then decide if changes should be applied to the resource,
+API response. The missing attributes include: `res_tenant`, `anti_affinity`, and `tags`. It is generally recommended
+running `terraform plan` after importing the resource. You can then decide if changes should be applied to the resource,
 or the resource definition should be updated to align with the resource. Also, you can ignore changes as below.
 
 ```hcl
@@ -172,7 +186,7 @@ resource "huaweicloud_waf_dedicated_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      res_tenant, anti_affinity,
+      res_tenant, anti_affinity, tags,
     ]
   }
 }
