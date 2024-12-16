@@ -1,9 +1,4 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product CodeArts
-// ---------------------------------------------------------------
-
-package codearts
+package codeartsdeploy
 
 import (
 	"context"
