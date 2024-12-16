@@ -1128,8 +1128,10 @@ func updateInstanceFlavor(ctx context.Context, d *schema.ResourceData, client, b
 
 func buildUpdateInstanceFlavorBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"flavor_ref":  d.Get("flavor"),
-		"is_auto_pay": true,
+		"flavor_ref": d.Get("flavor"),
+	}
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		bodyParams["is_auto_pay"] = true
 	}
 	return bodyParams
 }
