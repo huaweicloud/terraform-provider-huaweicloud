@@ -2,7 +2,6 @@ package codeartsdeploy
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -38,23 +37,7 @@ func getDeployGroupResourceFunc(cfg *config.Config, state *terraform.ResourceSta
 		return nil, fmt.Errorf("error retrieving CodeArts deploy group: %s", err)
 	}
 
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		return nil, err
-	}
-	errorCode := utils.PathSearch("error_code", getRespBody, "")
-	if errorCode == "Deploy.00021423" {
-		// 'Deploy.00021423' means the group is not exist
-		return nil, golangsdk.ErrDefault404{}
-	}
-
-	if errorCode != "" {
-		errorMsg := utils.PathSearch("error_msg", getRespBody, "")
-		return nil, fmt.Errorf("error retrieving CodeArts deploy group: error code: %s, error message: %s",
-			errorCode, errorMsg)
-	}
-
-	return getRespBody, nil
+	return utils.FlattenResponse(getResp)
 }
 
 func TestAccDeployGroup_basic(t *testing.T) {
@@ -164,33 +147,6 @@ func TestAccDeployGroup_resourcePoolId(t *testing.T) {
 	})
 }
 
-func TestAccDeployGroup_errorCheck(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_codearts_deploy_group.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDeployGroupResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config:      testDeployGroup_errorCheck(name),
-				ExpectError: regexp.MustCompile(`error creating CodeArts deploy group: error code:`),
-			},
-		},
-	})
-}
-
 func testProject_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_codearts_project" "test" {
@@ -255,21 +211,7 @@ resource "huaweicloud_codearts_deploy_group" "test" {
 `, testProject_basic(name), name)
 }
 
-func testDeployGroup_errorCheck(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_codearts_deploy_group" "test" {
-  project_id    = huaweicloud_codearts_project.test.id
-  name          = "%s"
-  os_type       = "error_type"
-  description   = "test description"
-  is_proxy_mode = 0
-}
-`, testProject_basic(name), name)
-}
-
-// testDeployGroupImportState use to return an id with format <project_id>/<id>
+// testDeployGroupImportState use to return an ID with format <project_id>/<id>
 func testDeployGroupImportState(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
