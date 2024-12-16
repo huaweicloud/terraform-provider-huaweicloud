@@ -908,6 +908,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_live_domains":      live.DataSourceLiveDomains(),
 			"huaweicloud_live_recordings":   live.DataSourceLiveRecordings(),
 			"huaweicloud_live_transcodings": live.DataSourceLiveTranscodings(),
+			"huaweicloud_live_snapshots":    live.DataSourceLiveSnapshots(),
 
 			"huaweicloud_lts_aom_accesses":                 lts.DataSourceAOMAccesses(),
 			"huaweicloud_lts_cce_accesses":                 lts.DataSourceCceAccesses(),
