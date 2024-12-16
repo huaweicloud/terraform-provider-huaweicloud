@@ -3,23 +3,15 @@ package live
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-const (
-	recordingTypeAuto   = "CONTINUOUS_RECORD"
-	recordingTypeManual = "COMMAND_RECORD"
 )
 
 // @API Live DELETE /v1/{project_id}/record/rules/{id}
@@ -43,22 +35,18 @@ func ResourceRecording() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"domain_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"app_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"stream_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"obs": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -69,12 +57,10 @@ func ResourceRecording() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-
 						"bucket": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-
 						"object": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -83,79 +69,78 @@ func ResourceRecording() *schema.Resource {
 					},
 				},
 			},
-
 			"hls": {
 				Type:         schema.TypeList,
 				Optional:     true,
 				MaxItems:     1,
 				AtLeastOneOf: []string{"hls", "flv", "mp4"},
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"recording_length": {
-							Type:     schema.TypeInt,
-							Required: true,
-						},
-
-						"file_naming": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-
-						"ts_file_naming": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-
-						"max_stream_pause_length": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-						},
-					},
-				},
+				Elem:         formatHlsSchema(),
 			},
-
 			"flv": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem:     formatSchema(),
+				Elem:     formatFlvAndMp4Schema(),
 			},
-
 			"mp4": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem:     formatSchema(),
+				Elem:     formatFlvAndMp4Schema(),
 			},
-
 			"type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringInSlice([]string{recordingTypeAuto, recordingTypeManual}, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 		},
 	}
 }
 
-func formatSchema() *schema.Resource {
+func formatHlsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"recording_length": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-
 			"file_naming": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
+			"ts_file_naming": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"record_slice_duration": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"max_stream_pause_length": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+}
 
+func formatFlvAndMp4Schema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"recording_length": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"file_naming": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"max_stream_pause_length": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -180,8 +165,6 @@ func resourceRecordingCreate(ctx context.Context, d *schema.ResourceData, meta i
 	createOpts := &model.CreateRecordRuleRequest{
 		Body: createBody,
 	}
-
-	log.Printf("[DEBUG] Create Live recording params: %#v", createOpts)
 
 	resp, err := client.CreateRecordRule(createOpts)
 	if err != nil {
@@ -288,7 +271,7 @@ func buildRecordingParams(d *schema.ResourceData) (*model.RecordRuleRequest, err
 		Object:   d.Get("obs.0.object").(string),
 	}
 
-	recordFormat := []model.VideoFormatVar{}
+	var recordFormat []model.VideoFormatVar
 	var hlsConfig *model.HlsRecordConfig
 	if _, ok := d.GetOk("hls"); ok {
 		recordFormat = append(recordFormat, model.GetVideoFormatVarEnum().HLS)
@@ -296,6 +279,7 @@ func buildRecordingParams(d *schema.ResourceData) (*model.RecordRuleRequest, err
 			RecordCycle:                  int32(d.Get("hls.0.recording_length").(int) * 60),
 			RecordPrefix:                 utils.String(d.Get("hls.0.file_naming").(string)),
 			RecordTsPrefix:               utils.String(d.Get("hls.0.ts_file_naming").(string)),
+			RecordSliceDuration:          utils.Int32IgnoreEmpty(int32(d.Get("hls.0.record_slice_duration").(int))), //nolint:gosec
 			RecordMaxDurationToMergeFile: utils.Int32(int32(d.Get("hls.0.max_stream_pause_length").(int))),
 		}
 	}
@@ -354,6 +338,7 @@ func flattenHls(r *model.DefaultRecordConfig) []interface{} {
 			"recording_length":        r.HlsConfig.RecordCycle / 60,
 			"file_naming":             r.HlsConfig.RecordPrefix,
 			"ts_file_naming":          r.HlsConfig.RecordTsPrefix,
+			"record_slice_duration":   r.HlsConfig.RecordSliceDuration,
 			"max_stream_pause_length": r.HlsConfig.RecordMaxDurationToMergeFile,
 		}
 		return []interface{}{m}
