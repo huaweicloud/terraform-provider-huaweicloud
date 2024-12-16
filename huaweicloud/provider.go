@@ -1829,6 +1829,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_whitelist":    lb.ResourceWhitelistV2(),
 
 			"huaweicloud_live_bucket_authorization": live.ResourceLiveBucketAuthorization(),
+			"huaweicloud_live_disable_push_stream":  live.ResourceDisablePushStream(),
 			"huaweicloud_live_domain":               live.ResourceDomain(),
 			"huaweicloud_live_record_callback":      live.ResourceRecordCallback(),
 			"huaweicloud_live_recording":            live.ResourceRecording(),
