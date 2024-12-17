@@ -42,6 +42,7 @@ func TestAccVault_backupServer(t *testing.T) {
 				Config: testAccVault_backupServer_step1(basicConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "cloud_type", "public"),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeServer),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
@@ -1039,10 +1040,8 @@ func TestAccVault_backupVMware(t *testing.T) {
 	var (
 		vault interface{}
 
-		resourceName  = "huaweicloud_cbr_vault.test"
-		resourceName1 = "huaweicloud_cbr_vault.test.0"
-		resourceName2 = "huaweicloud_cbr_vault.test.1"
-		name          = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_cbr_vault.test"
+		name         = acceptance.RandomAccResourceName()
 
 		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
@@ -1057,20 +1056,14 @@ func TestAccVault_backupVMware(t *testing.T) {
 			{
 				Config: testAccVault_backupVMware_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckMultiResourcesExists(2),
-					resource.TestCheckResourceAttr(resourceName1, "name", name+"_0"),
-					resource.TestCheckResourceAttr(resourceName1, "consistent_level", "app_consistent"),
-					resource.TestCheckResourceAttr(resourceName1, "type", cbr.VaultTypeVMware),
-					resource.TestCheckResourceAttr(resourceName1, "protection_type", "backup"),
-					resource.TestCheckResourceAttr(resourceName1, "size", "100"),
-					resource.TestCheckResourceAttr(resourceName1, "enterprise_project_id", "0"),
-
-					resource.TestCheckResourceAttr(resourceName2, "name", name+"_1"),
-					resource.TestCheckResourceAttr(resourceName2, "consistent_level", "crash_consistent"),
-					resource.TestCheckResourceAttr(resourceName2, "type", cbr.VaultTypeVMware),
-					resource.TestCheckResourceAttr(resourceName2, "protection_type", "backup"),
-					resource.TestCheckResourceAttr(resourceName2, "size", "200"),
-					resource.TestCheckResourceAttr(resourceName2, "enterprise_project_id", "0"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "cloud_type", "hybrid"),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
+					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeVMware),
+					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
+					resource.TestCheckResourceAttr(resourceName, "size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 				),
 			},
 		},
@@ -1079,32 +1072,13 @@ func TestAccVault_backupVMware(t *testing.T) {
 
 func testAccVault_backupVMware_step1(name string) string {
 	return fmt.Sprintf(`
-variable "file_backup_configuration" {
-  type = list(object({
-    consistent_level = string
-    size             = number
-  }))
-
-  default = [
-    {
-      consistent_level = "app_consistent"
-      size             = 100
-    },
-    {
-      consistent_level = "crash_consistent"
-      size             = 200
-    }
-  ]
-}
-
 resource "huaweicloud_cbr_vault" "test" {
-  count = 2
-
-  name              = format("%[1]s_%%d", count.index)
-  type              = "vmware"
-  consistent_level  = var.file_backup_configuration[count.index]["consistent_level"]
-  protection_type   = "backup"
-  size              = var.file_backup_configuration[count.index]["size"]
+  cloud_type       = "hybrid"
+  name             = "%[1]s"
+  type             = "vmware"
+  consistent_level = "crash_consistent"
+  protection_type  = "backup"
+  size             = 100
 }
 `, name)
 }
@@ -1113,10 +1087,8 @@ func TestAccVault_backupFile(t *testing.T) {
 	var (
 		vault interface{}
 
-		resourceName  = "huaweicloud_cbr_vault.test"
-		resourceName1 = "huaweicloud_cbr_vault.test.0"
-		resourceName2 = "huaweicloud_cbr_vault.test.1"
-		name          = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_cbr_vault.test"
+		name         = acceptance.RandomAccResourceName()
 
 		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
 	)
@@ -1130,20 +1102,14 @@ func TestAccVault_backupFile(t *testing.T) {
 			{
 				Config: testAccVault_backupFile_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckMultiResourcesExists(2),
-					resource.TestCheckResourceAttr(resourceName1, "name", name+"_0"),
-					resource.TestCheckResourceAttr(resourceName1, "consistent_level", "app_consistent"),
-					resource.TestCheckResourceAttr(resourceName1, "type", cbr.VaultTypeFile),
-					resource.TestCheckResourceAttr(resourceName1, "protection_type", "backup"),
-					resource.TestCheckResourceAttr(resourceName1, "size", "100"),
-					resource.TestCheckResourceAttr(resourceName1, "enterprise_project_id", "0"),
-
-					resource.TestCheckResourceAttr(resourceName2, "name", name+"_1"),
-					resource.TestCheckResourceAttr(resourceName2, "consistent_level", "crash_consistent"),
-					resource.TestCheckResourceAttr(resourceName2, "type", cbr.VaultTypeFile),
-					resource.TestCheckResourceAttr(resourceName2, "protection_type", "backup"),
-					resource.TestCheckResourceAttr(resourceName2, "size", "200"),
-					resource.TestCheckResourceAttr(resourceName2, "enterprise_project_id", "0"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "cloud_type", "hybrid"),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "type", cbr.VaultTypeFile),
+					resource.TestCheckResourceAttr(resourceName, "consistent_level", "crash_consistent"),
+					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
+					resource.TestCheckResourceAttr(resourceName, "size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 				),
 			},
 		},
@@ -1152,32 +1118,13 @@ func TestAccVault_backupFile(t *testing.T) {
 
 func testAccVault_backupFile_step1(name string) string {
 	return fmt.Sprintf(`
-variable "file_backup_configuration" {
-  type = list(object({
-    consistent_level = string
-    size             = number
-  }))
-
-  default = [
-    {
-      consistent_level = "app_consistent"
-      size             = 100
-    },
-    {
-      consistent_level = "crash_consistent"
-      size             = 200
-    }
-  ]
-}
-
 resource "huaweicloud_cbr_vault" "test" {
-  count = 2
-
-  name              = format("%[1]s_%%d", count.index)
-  type              = "file"
-  consistent_level  = var.file_backup_configuration[count.index]["consistent_level"]
-  protection_type   = "backup"
-  size              = var.file_backup_configuration[count.index]["size"]
+  cloud_type       = "hybrid"
+  name             = "%[1]s"
+  type             = "file"
+  consistent_level = "crash_consistent"
+  protection_type  = "backup"
+  size             = 100
 }
 `, name)
 }

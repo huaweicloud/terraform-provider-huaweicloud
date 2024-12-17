@@ -91,22 +91,34 @@ func ResourceVault() *schema.Resource {
 				ForceNew:    true,
 				Description: "The region where the vault is located.",
 			},
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The vault name.",
+			"cloud_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Description: utils.SchemaDesc(
+					"The cloud type of the vault.",
+					utils.SchemaDescInput{
+						Required: true,
+					},
+				),
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "The vault type.",
+				Description: "The type of the vault.",
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of the vault.",
 			},
 			"protection_type": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "The protection type.",
+				Description: "The protection type of the vault.",
 			},
 			"size": {
 				Type:        schema.TypeInt,
@@ -325,6 +337,7 @@ func isPrePaid(d *schema.ResourceData) bool {
 
 func buildBillingStructure(d *schema.ResourceData) map[string]interface{} {
 	billing := map[string]interface{}{
+		"cloud_type":       utils.ValueIgnoreEmpty(d.Get("cloud_type").(string)),
 		"object_type":      d.Get("type").(string),
 		"consistent_level": d.Get("consistent_level").(string),
 		"protect_type":     d.Get("protection_type").(string),
@@ -340,7 +353,7 @@ func buildBillingStructure(d *schema.ResourceData) map[string]interface{} {
 		billing["is_auto_pay"], _ = strconv.ParseBool(common.GetAutoPay(d))
 	}
 
-	return billing
+	return utils.RemoveNil(billing)
 }
 
 func buildBindRules(rules map[string]interface{}) []map[string]interface{} {
@@ -377,12 +390,13 @@ func buildVaultCreateOpts(cfg *config.Config, d *schema.ResourceData) (map[strin
 	result := map[string]interface{}{
 		"name":                  d.Get("name").(string),
 		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-		"resources":             resources,
-		"backup_policy_id":      utils.ValueIgnoreEmpty(d.Get("policy_id")), // The deprecated parameter (can only bind backup policy).
-		"billing":               buildBillingStructure(d),
-		"auto_expand":           isAutoExpand.(bool),
-		"auto_bind":             d.Get("auto_bind").(bool),
-		"backup_name_prefix":    utils.ValueIgnoreEmpty(d.Get("backup_name_prefix")),
+		// If no resources are bound when creating, enter an empty list.
+		"resources":          resources,
+		"backup_policy_id":   utils.ValueIgnoreEmpty(d.Get("policy_id")), // The deprecated parameter (can only bind backup policy).
+		"billing":            buildBillingStructure(d),
+		"auto_expand":        isAutoExpand.(bool),
+		"auto_bind":          d.Get("auto_bind").(bool),
+		"backup_name_prefix": utils.ValueIgnoreEmpty(d.Get("backup_name_prefix")),
 	}
 
 	bindRulesRaw, ok := d.Get("bind_rules").(map[string]interface{})
@@ -612,8 +626,9 @@ func resourceVaultRead(_ context.Context, d *schema.ResourceData, meta interface
 	mErr := multierror.Append(
 		// Required && Optional
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("cloud_type", utils.PathSearch("billing.cloud_type", respBody, nil)),
 		d.Set("type", objectType),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
 		d.Set("protection_type", utils.PathSearch("billing.protect_type", respBody, nil)),
 		d.Set("size", utils.PathSearch("billing.size", respBody, nil)),
 		d.Set("consistent_level", utils.PathSearch("billing.consistent_level", respBody, nil)),
