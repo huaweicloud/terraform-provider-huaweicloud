@@ -279,6 +279,9 @@ The `eip1` or `eip2` block supports:
 
 * `tags` - (Optional, Map) Specifies the tags of the VPN gateway.
 
+* `delete_eip_on_termination` - (Optional, Bool) Whether to delete the EIP when the VPN gateway is deleted.
+  Defaults to **true**.
+
 <a name="Gateway_certificate_attr"></a>
 The `certificate` block supports:
 
@@ -377,4 +380,22 @@ The gateway can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_vpn_gateway.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attribute is `delete_eip_on_termination`. It is generally
+recommended running `terraform plan` after importing the resource. You can then decide if changes should be applied
+to the gateway, or the resource definition should be updated to align with the gateway.
+Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_vpn_gateway" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      delete_eip_on_termination
+    ]
+  }
+}
 ```
