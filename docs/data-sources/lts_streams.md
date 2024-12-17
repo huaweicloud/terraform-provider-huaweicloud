@@ -44,6 +44,8 @@ The `streams` block supports:
 
 * `name` - The name of the log stream.
 
+* `ttl_in_days` - The log expiration time (days).
+
 * `tags` - The key/value pairs to associate with the log stream.
 
 * `created_at` - The creation time of the log stream, in RFC3339 format.

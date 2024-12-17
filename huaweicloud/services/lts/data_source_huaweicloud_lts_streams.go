@@ -53,6 +53,11 @@ func DataSourceLtsStreams() *schema.Resource {
 							Computed:    true,
 							Description: `The name of the log stream.`,
 						},
+						"ttl_in_days": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `the log expiration time (days).`,
+						},
 						"tags": {
 							Type:        schema.TypeMap,
 							Computed:    true,
@@ -132,10 +137,11 @@ func (w *StreamsDSWrapper) listLogStreamsToSchema(body *gjson.Result) error {
 		d.Set("streams", schemas.SliceToList(body.Get("log_streams"),
 			func(streams gjson.Result) any {
 				return map[string]any{
-					"id":         streams.Get("log_stream_id").Value(),
-					"name":       streams.Get("log_stream_name").Value(),
-					"tags":       schemas.MapToStrMap(streams.Get("tag")),
-					"created_at": w.setLogStrCreTime(streams),
+					"id":          streams.Get("log_stream_id").Value(),
+					"name":        streams.Get("log_stream_name").Value(),
+					"ttl_in_days": streams.Get("ttl_in_days").Value(),
+					"tags":        schemas.MapToStrMap(streams.Get("tag")),
+					"created_at":  w.setLogStrCreTime(streams),
 				}
 			},
 		)),

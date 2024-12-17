@@ -68,6 +68,7 @@ func TestAccLtsStream_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "stream_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "-1"),
 					resource.TestCheckResourceAttr(resourceName, "filter_count", "0"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
@@ -81,16 +82,16 @@ func TestAccLtsStream_basic(t *testing.T) {
 				Config: testAccLtsStream_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "60"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl_in_days"},
-				ImportStateIdFunc:       testLtsStreamImportState(resourceName),
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testLtsStreamImportState(resourceName),
 			},
 		},
 	})
@@ -124,7 +125,6 @@ resource "huaweicloud_lts_group" "test" {
 resource "huaweicloud_lts_stream" "test" {
   group_id    = huaweicloud_lts_group.test.id
   stream_name = "%[1]s"
-  ttl_in_days = 60
 
   tags = {
     foo       = "bar"

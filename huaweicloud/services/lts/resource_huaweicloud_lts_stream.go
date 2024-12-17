@@ -21,6 +21,7 @@ const EPSTagKey string = "_sys_enterprise_project_id"
 
 // @API LTS POST /v2/{project_id}/groups/{log_group_id}/streams
 // @API LTS GET /v2/{project_id}/groups/{log_group_id}/streams
+// @API LTS PUT /v2/{project_id}/groups/{log_group_id}/streams-ttl/{log_stream_id}
 // @API LTS DELETE /v2/{project_id}/groups/{log_group_id}/streams/{log_stream_id}
 // @API LTS POST /v1/{project_id}/{resource_type}/{resource_id}/tags/action
 func ResourceLTSStream() *schema.Resource {
@@ -52,8 +53,8 @@ func ResourceLTSStream() *schema.Resource {
 			},
 			"ttl_in_days": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -212,6 +213,7 @@ func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interfac
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("stream_name", utils.PathSearch("log_stream_name", streamResult, nil)),
+		d.Set("ttl_in_days", utils.PathSearch("ttl_in_days", streamResult, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("tag._sys_enterprise_project_id", streamResult, nil)),
 		d.Set("tags", ignoreSysEpsTag(utils.PathSearch("tag", streamResult, make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("filter_count", utils.PathSearch("filter_count", streamResult, nil)),
@@ -238,7 +240,34 @@ func resourceStreamUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
+	if d.HasChange("ttl_in_days") {
+		if err = updateStreamTTL(client, d.Get("group_id").(string), streamId, d.Get("ttl_in_days")); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceStreamRead(ctx, d, meta)
+}
+
+func updateStreamTTL(client *golangsdk.ServiceClient, logGroupId, logStreamId string, ttlInDays interface{}) error {
+	httpUrl := "v2/{project_id}/groups/{log_group_id}/streams-ttl/{log_stream_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{log_group_id}", logGroupId)
+	updatePath = strings.ReplaceAll(updatePath, "{log_stream_id}", logStreamId)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"ttl_in_days": ttlInDays,
+		},
+	}
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating ttl_in_days of the log stream (%s): %s", logStreamId, err)
+	}
+	return nil
 }
 
 func resourceStreamDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
