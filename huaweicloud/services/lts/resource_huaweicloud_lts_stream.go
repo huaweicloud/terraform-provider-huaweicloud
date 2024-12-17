@@ -217,7 +217,7 @@ func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("enterprise_project_id", utils.PathSearch("tag._sys_enterprise_project_id", streamResult, nil)),
 		d.Set("tags", ignoreSysEpsTag(utils.PathSearch("tag", streamResult, make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("filter_count", utils.PathSearch("filter_count", streamResult, nil)),
-		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("creation_time", streamResult, 0).(float64))/1000, false)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("creation_time", streamResult, float64(0)).(float64))/1000, false)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }

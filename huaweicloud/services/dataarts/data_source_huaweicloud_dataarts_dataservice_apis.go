@@ -575,8 +575,8 @@ func GetDataServiceApis(client *golangsdk.ServiceClient, d *schema.ResourceData)
 			"request_params": flattenApiRequestParams(utils.PathSearch("request_paras", apiDetail, make([]interface{}, 0)).([]interface{})),
 			"backend_config": flattenApiBackendConfig(utils.PathSearch("backend_config", apiDetail, make([]interface{}, 0)).([]interface{})),
 			"create_user":    utils.PathSearch("create_user", apiRecord, nil),
-			"created_at":     utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", apiDetail, 0).(float64))/1000, false),
-			"updated_at":     utils.FormatTimeStampRFC3339(int64(utils.PathSearch("update_time", apiDetail, 0).(float64))/1000, false),
+			"created_at":     utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", apiDetail, float64(0)).(float64))/1000, false),
+			"updated_at":     utils.FormatTimeStampRFC3339(int64(utils.PathSearch("update_time", apiDetail, float64(0)).(float64))/1000, false),
 			// Attribute for shared API.
 			"group_id": utils.PathSearch("group_id", apiDetail, nil),
 			"status":   utils.PathSearch("status", apiDetail, nil),
