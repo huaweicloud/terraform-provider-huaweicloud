@@ -243,13 +243,13 @@ func flattenThrottlingPolicies(client *golangsdk.ServiceClient, instanceId strin
 			"max_app_requests":  utils.PathSearch("app_call_limits", policy, nil),
 			"max_ip_requests":   utils.PathSearch("ip_call_limits", policy, 0),
 			"max_user_requests": utils.PathSearch("user_call_limits", policy, 0),
-			"type":              *analyseThrottlingPolicyType(int(utils.PathSearch("type", policy, 0).(float64))),
+			"type":              *analyseThrottlingPolicyType(int(utils.PathSearch("type", policy, float64(0)).(float64))),
 			"description":       utils.PathSearch("remark", policy, nil),
 			"bind_num":          utils.PathSearch("bind_num", policy, nil),
 			"created_at":        utils.PathSearch("create_time", policy, nil), // Already in RFC3339 format.
 		}
 
-		if int(utils.PathSearch("is_inclu_special_throttle", policy, 0).(float64)) == includeSpecialThrottle {
+		if int(utils.PathSearch("is_inclu_special_throttle", policy, float64(0)).(float64)) == includeSpecialThrottle {
 			// Get related special throttling policies.
 			specResp, err := querySpecialThrottlingPolicies(client, instanceId, policyId)
 			if err != nil {

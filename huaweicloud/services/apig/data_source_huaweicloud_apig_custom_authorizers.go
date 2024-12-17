@@ -243,7 +243,7 @@ func flattenCustomAuthorizers(authorizers []interface{}) []interface{} {
 			"function_version":   utils.PathSearch("authorizer_version", authorizer, nil),
 			"function_alias_uri": utils.PathSearch("authorizeralias_uri", authorizer, nil),
 			"identity":           flattenCustomAuthorizersIdentity(utils.PathSearch("identities", authorizer, make([]interface{}, 0))),
-			"cache_age":          int(utils.PathSearch("ttl", authorizer, 0).(float64)),
+			"cache_age":          int(utils.PathSearch("ttl", authorizer, float64(0)).(float64)),
 			"user_data":          utils.PathSearch("user_data", authorizer, nil),
 			"is_body_send":       utils.PathSearch("need_body", authorizer, false).(bool),
 			"created_at":         utils.PathSearch("create_time", authorizer, nil),

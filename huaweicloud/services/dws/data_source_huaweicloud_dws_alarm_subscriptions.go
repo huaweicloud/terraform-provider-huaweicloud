@@ -144,7 +144,7 @@ func queryAlarmSubscriptions(client *golangsdk.ServiceClient) ([]interface{}, er
 
 		subscriptions := utils.PathSearch("alarm_subscriptions", respBody, make([]interface{}, 0)).([]interface{})
 		result = append(result, subscriptions...)
-		if len(result) == int(utils.PathSearch("count", respBody, 0).(float64)) {
+		if len(result) == int(utils.PathSearch("count", respBody, float64(0)).(float64)) {
 			break
 		}
 		offset++

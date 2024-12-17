@@ -184,7 +184,7 @@ func getAppAuthorizations(client *golangsdk.ServiceClient, appGroupId string) ([
 
 		authorizations := utils.PathSearch("authorizations", respBody, make([]interface{}, 0)).([]interface{})
 		authorizedAccounts = append(authorizedAccounts, authorizations...)
-		if len(authorizedAccounts) == int(utils.PathSearch("count", respBody, 0).(float64)) {
+		if len(authorizedAccounts) == int(utils.PathSearch("count", respBody, float64(0)).(float64)) {
 			break
 		}
 		offset += len(authorizedAccounts)

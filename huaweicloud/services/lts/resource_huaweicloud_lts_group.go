@@ -171,7 +171,7 @@ func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("enterprise_project_id", utils.PathSearch("tag._sys_enterprise_project_id", groupResult, "")),
 		d.Set("tags", ignoreSysEpsTag(utils.PathSearch("tag", groupResult, make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("ttl_in_days", utils.PathSearch("ttl_in_days", groupResult, nil)),
-		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("creation_time", groupResult, 0).(float64))/1000, false)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("creation_time", groupResult, float64(0)).(float64))/1000, false)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
