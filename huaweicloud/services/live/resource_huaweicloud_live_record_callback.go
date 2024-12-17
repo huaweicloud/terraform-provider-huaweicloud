@@ -3,13 +3,10 @@ package live
 import (
 	"context"
 	"fmt"
-	"log"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	livev1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model"
@@ -17,15 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-const (
-	eventRecordNewFileStart = "RECORD_NEW_FILE_START"
-	eventRecordFileComplete = "RECORD_FILE_COMPLETE"
-	eventRecordOver         = "RECORD_OVER"
-	eventRecordFailed       = "RECORD_FAILED"
-
-	allAppName = "*"
 )
 
 // @API Live DELETE /v1/{project_id}/record/callbacks/{id}
@@ -50,35 +38,103 @@ func ResourceRecordCallback() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"domain_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"url": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^http://|^https://`),
-						"The URL must start with http:// or https://."),
-					validation.StringDoesNotMatch(regexp.MustCompile(`\?{1}`), "The URL cannot contain parameters."),
-				),
 			},
-
 			"types": {
 				Type:     schema.TypeList,
 				Required: true,
 				MaxItems: 4,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-					ValidateFunc: validation.StringInSlice([]string{eventRecordNewFileStart, eventRecordFileComplete,
-						eventRecordOver, eventRecordFailed}, false),
-				},
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"sign_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"key": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
+				Computed:  true,
 			},
 		},
 	}
+}
+
+func buildEventSubscriptionParams(d *schema.ResourceData) (*[]model.RecordCallbackConfigRequestNotifyEventSubscription, error) {
+	v := d.Get("types").([]interface{})
+	events := make([]model.RecordCallbackConfigRequestNotifyEventSubscription, len(v))
+	for i, v := range v {
+		var event model.RecordCallbackConfigRequestNotifyEventSubscription
+		err := event.UnmarshalJSON([]byte(v.(string)))
+		if err != nil {
+			return nil, fmt.Errorf("error getting the argument types: %s", err)
+		}
+		events[i] = event
+	}
+	return &events, nil
+}
+
+func buildSignTypeParams(d *schema.ResourceData) (*model.RecordCallbackConfigRequestSignType, error) {
+	if v, ok := d.GetOk("sign_type"); ok {
+		var signType model.RecordCallbackConfigRequestSignType
+		err := signType.UnmarshalJSON([]byte(v.(string)))
+		if err != nil {
+			return nil, fmt.Errorf("error getting the argument sign_type: %s", err)
+		}
+
+		return &signType, nil
+	}
+
+	return nil, nil
+}
+
+func buildCallbackConfigParams(d *schema.ResourceData) (*model.RecordCallbackConfigRequest, error) {
+	events, err := buildEventSubscriptionParams(d)
+	if err != nil {
+		return nil, err
+	}
+
+	signType, err := buildSignTypeParams(d)
+	if err != nil {
+		return nil, err
+	}
+
+	req := model.RecordCallbackConfigRequest{
+		PublishDomain:           d.Get("domain_name").(string),
+		App:                     "*",
+		NotifyEventSubscription: events,
+		NotifyCallbackUrl:       utils.String(d.Get("url").(string)),
+		SignType:                signType,
+		Key:                     utils.StringIgnoreEmpty(d.Get("key").(string)),
+	}
+
+	return &req, nil
+}
+
+func getRecordCallBackId(client *livev1.LiveClient, publishDomain, appName string) (string, error) {
+	resp, err := client.ListRecordCallbackConfigs(&model.ListRecordCallbackConfigsRequest{
+		PublishDomain: &publishDomain,
+		App:           &appName,
+	})
+	if err != nil {
+		return "", fmt.Errorf("error retrieving Live callback configuration: %s", err)
+	}
+
+	if resp == nil || resp.CallbackConfig == nil || len(*resp.CallbackConfig) < 1 {
+		return "", fmt.Errorf("error retrieving Live callback configuration: no data")
+	}
+
+	callbacks := *resp.CallbackConfig
+
+	return *callbacks[0].Id, nil
 }
 
 func resourceRecordCallbackCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -97,8 +153,6 @@ func resourceRecordCallbackCreate(ctx context.Context, d *schema.ResourceData, m
 		Body: createBody,
 	}
 
-	log.Printf("[DEBUG] Create Live callback configuration params : %#v", createOpts)
-
 	_, err = client.CreateRecordCallbackConfig(createOpts)
 	if err != nil {
 		return diag.Errorf("error creating Live callback configuration: %s", err)
@@ -112,6 +166,27 @@ func resourceRecordCallbackCreate(ctx context.Context, d *schema.ResourceData, m
 	d.SetId(id)
 
 	return resourceRecordCallbackRead(ctx, d, meta)
+}
+
+func flattenEventSubscriptionAttribute(events *[]model.ShowRecordCallbackConfigResponseNotifyEventSubscription) []string {
+	if events == nil {
+		return nil
+	}
+
+	rst := make([]string, len(*events))
+	for i, v := range *events {
+		rst[i] = v.Value()
+	}
+
+	return rst
+}
+
+func flattenSignTypeAttribute(signType *model.ShowRecordCallbackConfigResponseSignType) string {
+	if signType == nil {
+		return ""
+	}
+
+	return signType.Value()
 }
 
 func resourceRecordCallbackRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -130,8 +205,9 @@ func resourceRecordCallbackRead(_ context.Context, d *schema.ResourceData, meta 
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("domain_name", response.PublishDomain),
-		setTypeToState(d, response.NotifyEventSubscription),
+		d.Set("types", flattenEventSubscriptionAttribute(response.NotifyEventSubscription)),
 		d.Set("url", response.NotifyCallbackUrl),
+		d.Set("sign_type", flattenSignTypeAttribute(response.SignType)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -178,57 +254,5 @@ func resourceRecordCallbackDelete(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error deleting Live callback configuration: %s", err)
 	}
 
-	return nil
-}
-
-func buildCallbackConfigParams(d *schema.ResourceData) (*model.RecordCallbackConfigRequest, error) {
-	v := d.Get("types").([]interface{})
-	events := make([]model.RecordCallbackConfigRequestNotifyEventSubscription, len(v))
-	for i, v := range v {
-		var event model.RecordCallbackConfigRequestNotifyEventSubscription
-		err := event.UnmarshalJSON([]byte(v.(string)))
-		if err != nil {
-			return nil, fmt.Errorf("error getting the argument %q: %s", "types", err)
-		}
-		events[i] = event
-	}
-
-	req := model.RecordCallbackConfigRequest{
-		PublishDomain:           d.Get("domain_name").(string),
-		App:                     allAppName,
-		NotifyEventSubscription: &events,
-		NotifyCallbackUrl:       utils.String(d.Get("url").(string)),
-	}
-
-	return &req, nil
-}
-
-func getRecordCallBackId(client *livev1.LiveClient, publishDomain, appName string) (string, error) {
-	resp, err := client.ListRecordCallbackConfigs(&model.ListRecordCallbackConfigsRequest{
-		PublishDomain: &publishDomain,
-		App:           &appName,
-	})
-	if err != nil {
-		return "", fmt.Errorf("error retrieving Live callback configuration: %s", err)
-	}
-
-	if resp == nil || resp.CallbackConfig == nil || len(*resp.CallbackConfig) < 1 {
-		return "", fmt.Errorf("error retrieving Live callback configuration: no data")
-	}
-
-	callbacks := *resp.CallbackConfig
-
-	return *callbacks[0].Id, nil
-}
-
-func setTypeToState(d *schema.ResourceData, event *[]model.ShowRecordCallbackConfigResponseNotifyEventSubscription) error {
-	if event != nil {
-		types := make([]string, len(*event))
-		for i, v := range *event {
-			event := utils.MarshalValue(v)
-			types[i] = event
-		}
-		return d.Set("types", types)
-	}
 	return nil
 }
