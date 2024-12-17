@@ -78,15 +78,12 @@ The following arguments are supported:
 * `secret_text` - (Optional, String) Specifies the plaintext of a text secret. CSMS encrypts the plaintext and stores
   it in the initial version of the secret. The maximum size is 32 KB.
 
-  Changing this parameter will create a new secret version.
-
 * `secret_binary` - (Optional, String) Specifies the plaintext of a binary secret encoded using Base64. CSMS encrypts
   the plaintext and stores it in the initial version of the secret. The maximum size is 32 KB.
 
-  Changing this parameter will create a new secret version.
-
--> One of the fields `secret_text` and `secret_binary` must be configured, and can not be specified both together. The
-`secret_text` and `secret_binary` are sensitive, and we store their hashes in the state file.
+-> 1. One of the fields `secret_text` and `secret_binary` must be configured, and can not be specified both together. The
+  `secret_text` and `secret_binary` are sensitive, and we store their hashes in the state file.
+  <br/>2. Whenever the `secret_text` or `secret_binary` parameters are changed, the latest version is incremented.
 
 * `expire_time` - (Optional, Int) Specifies the expiration time of a secret, `expire_time` can only be edited
   when `status` is **ENABLED**. The time is in the format of timestamp, that is, the offset milliseconds
@@ -99,7 +96,7 @@ The following arguments are supported:
   If this parameter is not specified when creating the secret, the default master key **csms/default** will be used.
   The default key is automatically created by the CSMS.
   Use this data source
-  [huaweicloud_kms_key](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/resources/kms_key)
+  [huaweicloud_kms_keys](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/kms_keys)
   to get the KMS key.
 
 * `description` - (Optional, String) Specifies the description of a secret.
