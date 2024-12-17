@@ -66,11 +66,6 @@ resource "huaweicloud_networking_secgroup_rule" "in_v4_tcp_opengauss_egress" {
   remote_ip_prefix  = "0.0.0.0/0"
 }
 
-resource "huaweicloud_enterprise_project" "test" {
-  name        = "%[2]s"
-  description = "terraform test update"
-}
-
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   depends_on = [
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
