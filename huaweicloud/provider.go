@@ -1865,6 +1865,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_host_access":                      lts.ResourceHostAccessConfig(),
 			"huaweicloud_lts_log_converge":                     lts.ResourceLogConverge(),
 			"huaweicloud_lts_log_converge_switch":              lts.ResourceLogConvergeSwitch(),
+			"huaweicloud_lts_metric_rule":                      lts.ResourceMetricRule(),
 			"huaweicloud_lts_stream":                           lts.ResourceLTSStream(),
 			"huaweicloud_lts_structing_template":               lts.ResourceStructConfig(),
 			"huaweicloud_lts_structuring_custom_configuration": lts.ResourceStructCustomConfig(),
