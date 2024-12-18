@@ -72,7 +72,6 @@ func adDomainSchemaResource() *schema.Resource {
 			},
 			"delete_computer_object": {
 				Type:     schema.TypeBool,
-				Optional: true,
 				Computed: true,
 			},
 		},
