@@ -175,11 +175,14 @@ The following arguments are supported:
   creation. If specified, try to import the instance instead of creation if the instance already existed.
 
 * `datastore` - (Optional, List, ForceNew) Specifies the datastore information.
-  The [object](#opengauss_datastore) structure is documented below.
+  The [datastore](#opengauss_datastore) structure is documented below.
   Changing this parameter will create a new resource.
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy.
-  The [object](#opengauss_backup_strategy) structure is documented below.
+  The [backup_strategy](#opengauss_backup_strategy) structure is documented below.
+
+* `parameters` - (Optional, List) Specifies an array of one or more parameters to be set to the instance after launched.
+  The [parameters](#parameters_struct) structure is documented below.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of opengauss instance.
   The valid values are as follows:
@@ -251,6 +254,13 @@ The `backup_strategy` block supports:
   `0` to `732`. If this parameter is set to `0`, the automated backup policy is not set.
   If this parameter is not transferred, the automated backup policy is enabled by default.
 
+<a name="parameters_struct"></a>
+The `parameters` block supports:
+
+* `name` - (Required, String) Specifies the name of the parameter.
+
+* `value` - (Required, String) Specifies the value of the parameter.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -307,10 +317,10 @@ $ terraform import huaweicloud_gaussdb_opengauss_instance.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
 API response. The missing attributes include: `password`, `ha.0.mode`, `ha.0.instance_mode`, `configuration_id`,
-`disk_encryption_id`, `enable_force_switch`, `enable_single_float_ip`, `period_unit`, `period` and `auto_renew`. It is
-generally recommended running `terraform plan` after importing a GaussDB OpenGauss instance. You can then decide if
-changes should be applied to the GaussDB OpenGauss instance, or the resource definition should be updated to align with
-the GaussDB OpenGauss instance. Also you can ignore changes as below.
+`disk_encryption_id`, `enable_force_switch`, `enable_single_float_ip`, `parameters`, `period_unit`, `period` and
+`auto_renew`. It is generally recommended running `terraform plan` after importing a GaussDB OpenGauss instance. You can
+then decide if changes should be applied to the GaussDB OpenGauss instance, or the resource definition should be updated
+to align with the GaussDB OpenGauss instance. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
@@ -318,8 +328,8 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 
   lifecycle {
     ignore_changes = [
-      password, configuration_id, disk_encryption_id, enable_force_switch, enable_single_float_ip, period_unit, period,
-      auto_renew,
+      password, configuration_id, disk_encryption_id, enable_force_switch, enable_single_float_ip, parameters, period_unit,
+      period, auto_renew,
     ]
   }
 }
