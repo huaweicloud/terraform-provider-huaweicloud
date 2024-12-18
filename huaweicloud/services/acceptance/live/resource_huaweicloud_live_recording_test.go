@@ -24,8 +24,6 @@ func getRecordingResourceFunc(conf *config.Config, state *terraform.ResourceStat
 func TestAccRecording_basic(t *testing.T) {
 	var obj model.ShowRecordRuleRequest
 
-	name := acceptance.RandomAccResourceNameWithDash()
-	pushDomainName := fmt.Sprintf("%s.huaweicloud.com", name)
 	rName := "huaweicloud_live_recording.test"
 
 	rc := acceptance.InitResourceCheck(
@@ -35,15 +33,18 @@ func TestAccRecording_basic(t *testing.T) {
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckLiveIngestDomainName(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRecording_basic(pushDomainName, name),
+				Config: testRecording_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "domain_name", pushDomainName),
+					resource.TestCheckResourceAttr(rName, "domain_name", acceptance.HW_LIVE_INGEST_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(rName, "app_name", "live"),
 					resource.TestCheckResourceAttr(rName, "stream_name", "streamname"),
 					resource.TestCheckResourceAttr(rName, "type", "CONTINUOUS_RECORD"),
@@ -53,14 +54,16 @@ func TestAccRecording_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testRecording_basic_update(pushDomainName, name),
+				Config: testRecording_basic_update(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(rName, "domain_name", pushDomainName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "domain_name", acceptance.HW_LIVE_INGEST_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(rName, "app_name", "live"),
 					resource.TestCheckResourceAttr(rName, "stream_name", "streamname"),
 					resource.TestCheckResourceAttr(rName, "type", "CONTINUOUS_RECORD"),
 					resource.TestCheckResourceAttr(rName, "obs.0.region", acceptance.HW_REGION_NAME),
 					resource.TestCheckResourceAttr(rName, "hls.0.recording_length", "120"),
+					resource.TestCheckResourceAttr(rName, "hls.0.record_slice_duration", "5"),
 					resource.TestCheckResourceAttrSet(rName, "hls.0.file_naming"),
 				),
 			},
@@ -73,10 +76,10 @@ func TestAccRecording_basic(t *testing.T) {
 	})
 }
 
-func testAccLiveObs(obsName string) string {
+func testRecording_base() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-  bucket        = "%s"
+  bucket        = "%[1]s"
   acl           = "private"
   force_destroy = true
 
@@ -86,21 +89,23 @@ resource "huaweicloud_obs_bucket" "bucket" {
     ]
   }
 }
-`, obsName)
+
+resource "huaweicloud_live_bucket_authorization" "test" {
+  depends_on = [huaweicloud_obs_bucket.bucket]
+
+  bucket = "%[1]s"
+}
+`, acceptance.RandomAccResourceNameWithDash())
 }
 
-func testRecording_basic(pushDomainName, obsName string) string {
-	obsConfig := testAccLiveObs(obsName)
+func testRecording_basic() string {
 	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_live_domain" "ingestDomain" {
-  name = "%s"
-  type = "push"
-}
+%[1]s
 
 resource "huaweicloud_live_recording" "test" {
-  domain_name = huaweicloud_live_domain.ingestDomain.name
+  depends_on = [huaweicloud_live_bucket_authorization.test]
+
+  domain_name = "%[2]s"
   app_name    = "live"
   stream_name = "streamname"
   type        = "CONTINUOUS_RECORD"
@@ -114,21 +119,17 @@ resource "huaweicloud_live_recording" "test" {
     recording_length = 120
   }
 }
-`, obsConfig, pushDomainName)
+`, testRecording_base(), acceptance.HW_LIVE_INGEST_DOMAIN_NAME)
 }
 
-func testRecording_basic_update(pushDomainName, obsName string) string {
-	obsConfig := testAccLiveObs(obsName)
+func testRecording_basic_update() string {
 	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_live_domain" "ingestDomain" {
-  name = "%s"
-  type = "push"
-}
+%[1]s
 
 resource "huaweicloud_live_recording" "test" {
-  domain_name = huaweicloud_live_domain.ingestDomain.name
+  depends_on = [huaweicloud_live_bucket_authorization.test]
+
+  domain_name = "%[2]s"
   app_name    = "live"
   stream_name = "streamname"
   type        = "CONTINUOUS_RECORD"
@@ -139,8 +140,9 @@ resource "huaweicloud_live_recording" "test" {
   }
 
   hls {
-    recording_length = 120
+    recording_length      = 120
+    record_slice_duration = 5
   }
 }
-`, obsConfig, pushDomainName)
+`, testRecording_base(), acceptance.HW_LIVE_INGEST_DOMAIN_NAME)
 }
