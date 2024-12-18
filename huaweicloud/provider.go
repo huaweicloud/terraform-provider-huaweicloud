@@ -1195,6 +1195,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_storage_policies":     workspace.DataSourceAppStoragePolicies(),
 			"huaweicloud_workspace_desktops":                 workspace.DataSourceDesktops(),
 			"huaweicloud_workspace_flavors":                  workspace.DataSourceWorkspaceFlavors(),
+			"huaweicloud_workspace_service":                  workspace.DataSourceService(),
 
 			// Legacy
 			"huaweicloud_images_image_v2":        ims.DataSourceImagesImageV2(),
