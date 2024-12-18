@@ -113,6 +113,8 @@ The `permission` block supports:
 
 * `can_manage` - Indicates whether the user has the management permission.
 
+* `can_copy` - Indicates whether the user has the permission to copy.
+
 ## Import
 
 The CodeArts deploy group resource can be imported using the `project_id` and `id`, separated by a slash, e.g.

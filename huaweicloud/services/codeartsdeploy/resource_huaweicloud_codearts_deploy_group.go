@@ -17,14 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-const (
-	groupNotFound = "Deploy.00021423"
-)
-
 // @API CodeArtsDeploy POST /v1/resources/host-groups
-// @API CodeArtsDeploy PUT /v2/host-groups/{group_id}
+// @API CodeArtsDeploy PUT /v1/resources/host-groups/{group_id}
 // @API CodeArtsDeploy GET /v1/resources/host-groups/{group_id}
-// @API CodeArtsDeploy DELETE /v2/host-groups/{group_id}
+// @API CodeArtsDeploy DELETE /v1/resources/host-groups/{group_id}
 func ResourceDeployGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDeployGroupCreate,
@@ -146,6 +142,11 @@ func deployGroupPermissionSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates whether the user has the management permission.`,
 			},
+			"can_copy": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the user has the permission to copy.`,
+			},
 		},
 	}
 	return &sc
@@ -176,14 +177,9 @@ func resourceDeployGroupCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("error creating CodeArts deploy group: %s", err)
 	}
-
 	createRespBody, err := utils.FlattenResponse(createResp)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	if err := checkResponseError(createRespBody, groupNotFound); err != nil {
-		return diag.Errorf("error creating CodeArts deploy group: %s", err)
 	}
 
 	groupId := utils.PathSearch("id", createRespBody, "").(string)
@@ -228,15 +224,11 @@ func resourceDeployGroupRead(_ context.Context, d *schema.ResourceData, meta int
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return diag.Errorf("error retrieving CodeArts deploy group: %s", err)
+		return common.CheckDeletedDiag(d, err, "error retrieving CodeArts deploy group")
 	}
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	if err := checkResponseError(getRespBody, groupNotFound); err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CodeArts deploy group")
 	}
 
 	resultRespBody := utils.PathSearch("result", getRespBody, nil)
@@ -290,6 +282,7 @@ func flattenDeployGroupPermission(resp interface{}) []interface{} {
 			"can_delete":   utils.PathSearch("can_delete", curJson, nil),
 			"can_add_host": utils.PathSearch("can_add_host", curJson, nil),
 			"can_manage":   utils.PathSearch("can_manage", curJson, nil),
+			"can_copy":     utils.PathSearch("can_copy", curJson, nil),
 		},
 	}
 }
@@ -298,7 +291,7 @@ func resourceDeployGroupUpdate(ctx context.Context, d *schema.ResourceData, meta
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v2/host-groups/{group_id}"
+		httpUrl = "v1/resources/host-groups/{group_id}"
 		product = "codearts_deploy"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -315,17 +308,8 @@ func resourceDeployGroupUpdate(ctx context.Context, d *schema.ResourceData, meta
 		},
 		JSONBody: buildUpdateDeployGroupBodyParams(d),
 	}
-	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("error updating CodeArts deploy group: %s", err)
-	}
-
-	updateRespBody, err := utils.FlattenResponse(updateResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if err := checkResponseError(updateRespBody, groupNotFound); err != nil {
 		return diag.Errorf("error updating CodeArts deploy group: %s", err)
 	}
 
@@ -344,7 +328,7 @@ func resourceDeployGroupDelete(_ context.Context, d *schema.ResourceData, meta i
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v2/host-groups/{group_id}"
+		httpUrl = "v1/resources/host-groups/{group_id}"
 		product = "codearts_deploy"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -361,17 +345,8 @@ func resourceDeployGroupDelete(_ context.Context, d *schema.ResourceData, meta i
 		},
 	}
 
-	deleteResp, err := client.Request("DELETE", deletePath, &deleteOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CodeArts deploy group: %s", err)
-	}
-
-	deleteRespBody, err := utils.FlattenResponse(deleteResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if err := checkResponseError(deleteRespBody, groupNotFound); err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting CodeArts deploy group")
 	}
 
