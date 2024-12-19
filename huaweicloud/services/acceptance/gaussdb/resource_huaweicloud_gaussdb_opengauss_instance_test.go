@@ -100,6 +100,8 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "20:00-21:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "6"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "dn:check_disconnect_query"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "off"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -116,6 +118,8 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "80"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "cn:auto_increment_increment"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "1000"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
@@ -300,6 +304,11 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
     keep_days  = 6
   }
 
+  parameters {
+    name  = "dn:check_disconnect_query"
+    value = "off"
+  }
+
   tags = {
     foo = "bar"
     key = "value"
@@ -354,6 +363,11 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = 8
+  }
+
+  parameters {
+    name  = "cn:auto_increment_increment"
+    value = "1000"
   }
 
   tags = {
