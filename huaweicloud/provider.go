@@ -1881,6 +1881,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_live_referer_validation":        live.ResourceRefererValidation(),
 			"huaweicloud_live_snapshot":                  live.ResourceLiveSnapshot(),
 			"huaweicloud_live_transcoding":               live.ResourceTranscoding(),
+			"huaweicloud_live_url_authentication":        live.ResourceUrlAuthentication(),
 			"huaweicloud_live_url_validation":            live.ResourceUrlValidation(),
 
 			"huaweicloud_lts_aom_access":                       lts.ResourceAOMAccess(),
