@@ -810,6 +810,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_databases":           gaussdb.DataSourceOpenGaussDatabases(),
 			"huaweicloud_gaussdb_opengauss_parameter_templates": gaussdb.DataSourceGaussdbOpengaussParameterTemplates(),
 			"huaweicloud_gaussdb_opengauss_restore_time_ranges": gaussdb.DataSourceGaussdbOpengaussRestoreTimeRanges(),
+			"huaweicloud_gaussdb_opengauss_backups":             gaussdb.DataSourceGaussdbOpengaussBackups(),
 
 			"huaweicloud_gaussdb_mysql_engine_versions":          taurusdb.DataSourceGaussdbMysqlEngineVersions(),
 			"huaweicloud_gaussdb_mysql_configuration":            taurusdb.DataSourceGaussdbMysqlConfiguration(),
