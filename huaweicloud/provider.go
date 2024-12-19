@@ -1752,6 +1752,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_backup_stop":            gaussdb.ResourceOpenGaussBackupStop(),
 			"huaweicloud_gaussdb_opengauss_eip_associate":          gaussdb.ResourceOpenGaussEipAssociate(),
 			"huaweicloud_gaussdb_opengauss_primary_standby_switch": gaussdb.ResourceOpenGaussPrimaryStandbySwitch(),
+			"huaweicloud_gaussdb_opengauss_parameter_template":     gaussdb.ResourceOpenGaussParameterTemplate(),
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
 			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
