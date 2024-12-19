@@ -2200,6 +2200,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_deploy_application": codeartsdeploy.ResourceDeployApplication(),
 			"huaweicloud_codearts_deploy_group":       codeartsdeploy.ResourceDeployGroup(),
 			"huaweicloud_codearts_deploy_host":        codeartsdeploy.ResourceDeployHost(),
+			"huaweicloud_codearts_deploy_hosts_copy":  codeartsdeploy.ResourceCodeArtsDeployHostsCopy(),
 
 			"huaweicloud_codearts_inspector_website":      codeartsinspector.ResourceInspectorWebsite(),
 			"huaweicloud_codearts_inspector_website_scan": codeartsinspector.ResourceInspectorWebsiteScan(),
