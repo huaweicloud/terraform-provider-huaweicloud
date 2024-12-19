@@ -350,7 +350,7 @@ func refreshServiceStatusFunc(client *golangsdk.ServiceClient) resource.StateRef
 func waitForServiceCreateCompleted(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration) (string,
 	error) {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"SUBSCRIBING"},
+		Pending:      []string{"PREPARING", "SUBSCRIBING"},
 		Target:       []string{"SUBSCRIBED"},
 		Refresh:      refreshServiceStatusFunc(client),
 		Timeout:      timeout,
