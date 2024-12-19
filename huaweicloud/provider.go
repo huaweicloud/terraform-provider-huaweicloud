@@ -907,11 +907,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_certificate":  lb.DataSourceLBCertificateV2(),
 			"huaweicloud_lb_pools":        lb.DataSourcePools(),
 
-			"huaweicloud_live_domains":       live.DataSourceLiveDomains(),
-			"huaweicloud_live_recordings":    live.DataSourceLiveRecordings(),
-			"huaweicloud_live_transcodings":  live.DataSourceLiveTranscodings(),
-			"huaweicloud_live_snapshots":     live.DataSourceLiveSnapshots(),
-			"huaweicloud_live_geo_blockings": live.DataSourceGeoBlockings(),
+			"huaweicloud_live_domains":          live.DataSourceLiveDomains(),
+			"huaweicloud_live_recordings":       live.DataSourceLiveRecordings(),
+			"huaweicloud_live_transcodings":     live.DataSourceLiveTranscodings(),
+			"huaweicloud_live_snapshots":        live.DataSourceLiveSnapshots(),
+			"huaweicloud_live_geo_blockings":    live.DataSourceGeoBlockings(),
+			"huaweicloud_live_record_callbacks": live.DataSourceLiveRecordCallbacks(),
 
 			"huaweicloud_lts_aom_accesses":                 lts.DataSourceAOMAccesses(),
 			"huaweicloud_lts_cce_accesses":                 lts.DataSourceCceAccesses(),
