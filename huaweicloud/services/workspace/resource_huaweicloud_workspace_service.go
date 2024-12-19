@@ -350,7 +350,7 @@ func refreshServiceStatusFunc(client *golangsdk.ServiceClient) resource.StateRef
 func waitForServiceCreateCompleted(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration) (string,
 	error) {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"SUBSCRIBING"},
+		Pending:      []string{"PREPARING", "SUBSCRIBING"},
 		Target:       []string{"SUBSCRIBED"},
 		Refresh:      refreshServiceStatusFunc(client),
 		Timeout:      timeout,
@@ -695,6 +695,34 @@ func resourceServiceUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceServiceRead(ctx, d, meta)
 }
 
+func refreshServiceClosableStatusFunc(client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resp, err := services.Get(client)
+		if err != nil {
+			return resp, "ERROR", err
+		}
+
+		if !resp.Closable {
+			return resp, "PENDING", nil
+		}
+		return resp, "COMPLETE", nil
+	}
+}
+
+func waitForServiceClosableReady(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETE"},
+		Refresh:      refreshServiceClosableStatusFunc(client),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
 func waitForServiceDeleteCompleted(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"DEREGISTERING"},
@@ -714,6 +742,11 @@ func resourceServiceDelete(ctx context.Context, d *schema.ResourceData, meta int
 	client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Workspace v2 client: %s", err)
+	}
+
+	err = waitForServiceClosableReady(ctx, client, d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return diag.Errorf("The current service is not allowed to be deleted (the value of the closable attribute is false): %s", err)
 	}
 
 	_, err = services.Delete(client)
