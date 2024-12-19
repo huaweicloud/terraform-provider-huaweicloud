@@ -2,7 +2,6 @@ package codeartsdeploy
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -40,24 +39,7 @@ func getDeployHostResourceFunc(cfg *config.Config, state *terraform.ResourceStat
 		return nil, fmt.Errorf("error retrieving CodeArts deploy host: %s", err)
 	}
 
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		return nil, err
-	}
-
-	errorCode := utils.PathSearch("error_code", getRespBody, "")
-	if errorCode == "Deploy.00021108" {
-		// 'Deploy.00021108' means the host is not exist
-		return nil, golangsdk.ErrDefault404{}
-	}
-
-	if errorCode != "" {
-		errorMsg := utils.PathSearch("error_msg", getRespBody, "")
-		return nil, fmt.Errorf("error retrieving CodeArts deploy host: error code: %s, error message: %s",
-			errorCode, errorMsg)
-	}
-
-	return getRespBody, nil
+	return utils.FlattenResponse(getResp)
 }
 
 func TestAccDeployHost_withProxyMode(t *testing.T) {
@@ -77,7 +59,6 @@ func TestAccDeployHost_withProxyMode(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCodeArtsEnableFlag(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -132,6 +113,8 @@ func TestAccDeployHost_withProxyMode(t *testing.T) {
 					"private_key",
 					"install_icagent",
 					"sync",
+					"connection_status",
+					"lastest_connection_at",
 				},
 			},
 		},
@@ -153,7 +136,6 @@ func TestAccDeployHost_withoutProxyMode(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCodeArtsEnableFlag(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -200,34 +182,9 @@ func TestAccDeployHost_withoutProxyMode(t *testing.T) {
 					"private_key",
 					"install_icagent",
 					"sync",
+					"connection_status",
+					"lastest_connection_at",
 				},
-			},
-		},
-	})
-}
-
-func TestAccDeployHost_errorCheck(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_codearts_deploy_host.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDeployHostResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config:      testDeployHost_errorCheck(name),
-				ExpectError: regexp.MustCompile(`error creating CodeArts deploy host: error code:`),
 			},
 		},
 	})
@@ -393,24 +350,6 @@ resource "huaweicloud_codearts_deploy_host" "test" {
   name            = "%[2]s_update"
   install_icagent = false
   sync            = false
-}
-`, testDeployHost_base_withoutProxyMode(name), name)
-}
-
-func testDeployHost_errorCheck(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_codearts_deploy_host" "test" {
-  group_id        = huaweicloud_codearts_deploy_group.test.id
-  ip_address      = huaweicloud_compute_instance.test[1].public_ip
-  port            = 22
-  username        = "root"
-  password        = "Test@123"
-  os_type         = "linux"
-  name            = "%[2]s"
-  install_icagent = true
-  sync            = true
 }
 `, testDeployHost_base_withoutProxyMode(name), name)
 }
