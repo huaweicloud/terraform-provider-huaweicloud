@@ -35,6 +35,7 @@ import (
 // @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/create
 // @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/delete
 // @API VPN POST /v5/{project_id}/vpn-gateways/{vgw_id}/update-specification
+// @API EIP POST /v3/{project_id}/eip/publicips/{publicip_id}/disassociate-instance
 func ResourceGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGatewayCreate,
@@ -218,6 +219,12 @@ func ResourceGateway() *schema.Resource {
 				Elem:     gatewayCertificateSchema(),
 			},
 			"tags": common.TagsSchema(),
+			"delete_eip_on_termination": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether to delete the EIP when the VPN gateway is deleted.`,
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1043,6 +1050,7 @@ func updateGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 func resourceGatewayDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	gatewayId := d.Id()
 
 	// deleteGateway: Delete an existing VPN Gateway
 	var (
@@ -1054,9 +1062,18 @@ func resourceGatewayDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating VPN client: %s", err)
 	}
 
+	deleteEipOnTermination := d.Get("delete_eip_on_termination").(bool)
+	if !deleteEipOnTermination {
+		eipIDs := getEipsToPreserve(d)
+		err := disassociateEip(cfg, region, eipIDs)
+		if err != nil {
+			return diag.Errorf("error deleting VPN gateway (%s): %s", gatewayId, err)
+		}
+	}
+
 	deleteGatewayPath := deleteGatewayClient.Endpoint + deleteGatewayHttpUrl
 	deleteGatewayPath = strings.ReplaceAll(deleteGatewayPath, "{project_id}", deleteGatewayClient.ProjectID)
-	deleteGatewayPath = strings.ReplaceAll(deleteGatewayPath, "{id}", d.Id())
+	deleteGatewayPath = strings.ReplaceAll(deleteGatewayPath, "{id}", gatewayId)
 
 	deleteGatewayOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -1068,8 +1085,53 @@ func resourceGatewayDelete(ctx context.Context, d *schema.ResourceData, meta int
 
 	err = deleteGatewayWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.Errorf("error waiting for deleting VPN gateway (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for deleting VPN gateway (%s) to complete: %s", gatewayId, err)
 	}
+	return nil
+}
+
+func getEipsToPreserve(d *schema.ResourceData) map[string]struct{} {
+	eipKeys := []string{"eip1.0.id", "eip2.0.id", "master_eip.0.id", "slave_eip.0.id"}
+	eipIDs := make(map[string]struct{})
+
+	for _, key := range eipKeys {
+		if eipID := d.Get(key).(string); eipID != "" {
+			eipIDs[eipID] = struct{}{}
+		}
+	}
+	return eipIDs
+}
+
+func disassociateEip(cfg *config.Config, region string, eipIDs map[string]struct{}) error {
+	if len(eipIDs) == 0 {
+		return nil
+	}
+
+	var (
+		disassociateEipHttpUrl = "v3/{project_id}/eip/publicips/{publicip_id}/disassociate-instance"
+		disassociateEipProduct = "vpc"
+	)
+
+	disassociateEipClient, err := cfg.NewServiceClient(disassociateEipProduct, region)
+	if err != nil {
+		return fmt.Errorf("error creating VPC client: %s", err)
+	}
+
+	disassociateEipPath := disassociateEipClient.Endpoint + disassociateEipHttpUrl
+	disassociateEipPath = strings.ReplaceAll(disassociateEipPath, "{project_id}", disassociateEipClient.ProjectID)
+
+	disassociateEipOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	for eipID := range eipIDs {
+		path := strings.ReplaceAll(disassociateEipPath, "{publicip_id}", eipID)
+		_, err = disassociateEipClient.Request("POST", path, &disassociateEipOpt)
+		if err != nil {
+			return fmt.Errorf("error disassociating EIP (%s) from VPN gateway: %s", eipID, err)
+		}
+	}
+
 	return nil
 }
 
