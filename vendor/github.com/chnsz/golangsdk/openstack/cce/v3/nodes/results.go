@@ -137,12 +137,6 @@ type Status struct {
 	PrivateIP string `json:"privateIP"`
 	// The ID of the Job that is operating asynchronously in the Node
 	JobID string `json:"jobID"`
-	// Reasons for the Node to become current
-	Reason string `json:"reason"`
-	// Details of the node transitioning to the current state
-	Message string `json:"message"`
-	//The status of each component in the Node
-	Conditions Conditions `json:"conditions"`
 }
 
 type LoginSpec struct {
