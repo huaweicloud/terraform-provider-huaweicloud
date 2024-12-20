@@ -580,6 +580,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cts_trackers":      cts.DataSourceCtsTrackers(),
 			"huaweicloud_cts_operations":    cts.DataSourceCtsOperations(),
 			"huaweicloud_cts_quotas":        cts.DataSourceCtsQuotas(),
+			"huaweicloud_cts_resources":     cts.DataSourceCtsResources(),
 
 			"huaweicloud_cdm_clusters":              cdm.DataSourceCdmClusters(),
 			"huaweicloud_cdm_flavors":               cdm.DataSourceCdmFlavors(),
