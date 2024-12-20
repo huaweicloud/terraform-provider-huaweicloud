@@ -83,11 +83,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
-					"xrole",
-					"agency",
 					"tags",
 				},
 			},
@@ -127,8 +123,6 @@ func TestAccFgsV2Function_withEpsId(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -163,8 +157,6 @@ func TestAccFgsV2Function_text(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -245,23 +237,11 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 				ResourceName:      rName1,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
-					"xrole",
-					"agency",
-				},
 			},
 			{
 				ResourceName:      rName2,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
-					"xrole",
-					"agency",
-				},
 			},
 		},
 	})
@@ -615,8 +595,6 @@ func TestAccFgsV2Function_strategy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -702,8 +680,6 @@ func TestAccFgsV2Function_versions(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -819,10 +795,6 @@ func TestAccFgsV2Function_domain(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"xrole",
-					"agency",
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -1018,8 +990,6 @@ func TestAccFgsV2Function_reservedInstance_version(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 					"tags",
 				},
@@ -1070,8 +1040,6 @@ func TestAccFgsV2Function_reservedInstance_alias(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 					"tags",
 				},
@@ -1199,8 +1167,6 @@ func TestAccFgsV2Function_concurrencyNum(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -1277,8 +1243,6 @@ func TestAccFgsV2Function_gpuMemory(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},
