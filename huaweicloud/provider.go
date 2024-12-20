@@ -578,6 +578,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cts_notifications": cts.DataSourceNotifications(),
 			"huaweicloud_cts_traces":        cts.DataSourceCtsTraces(),
 			"huaweicloud_cts_trackers":      cts.DataSourceCtsTrackers(),
+			"huaweicloud_cts_operations":    cts.DataSourceCtsOperations(),
 			"huaweicloud_cts_quotas":        cts.DataSourceCtsQuotas(),
 
 			"huaweicloud_cdm_clusters":              cdm.DataSourceCdmClusters(),
