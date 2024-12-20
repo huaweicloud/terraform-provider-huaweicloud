@@ -209,10 +209,14 @@ var (
 	HW_AAD_IP_ADDRESS  = os.Getenv("HW_AAD_IP_ADDRESS")
 
 	HW_WORKSPACE_AD_DOMAIN_NAMES = os.Getenv("HW_WORKSPACE_AD_DOMAIN_NAMES") // Domain name, e.g. "example.com".
-	HW_WORKSPACE_AD_SERVER_PWD   = os.Getenv("HW_WORKSPACE_AD_SERVER_PWD")   // The password of AD server.
-	HW_WORKSPACE_AD_DOMAIN_IPS   = os.Getenv("HW_WORKSPACE_AD_DOMAIN_IPS")   // Active domain IP, e.g. "192.168.196.3".
-	HW_WORKSPACE_AD_VPC_ID       = os.Getenv("HW_WORKSPACE_AD_VPC_ID")       // The VPC ID to which the AD server and desktops belongs.
-	HW_WORKSPACE_AD_NETWORK_ID   = os.Getenv("HW_WORKSPACE_AD_NETWORK_ID")   // The network ID to which the AD server belongs.
+	// Please make sure all AD servers (master and standby) have the same account configuration (with same name and password).
+	HW_WORKSPACE_AD_SERVER_ACCOUNT = os.Getenv("HW_WORKSPACE_AD_SERVER_ACCOUNT") // The admin user name of the AD servers.
+	HW_WORKSPACE_AD_SERVER_PWD     = os.Getenv("HW_WORKSPACE_AD_SERVER_PWD")     // The password of the admin user for the AD servers.
+	// The IP addresses of the AD servers.
+	// The format is '{master IP address},{standby IP address}' (with the standby AD server) or '{master IP address}'.
+	HW_WORKSPACE_AD_DOMAIN_IPS = os.Getenv("HW_WORKSPACE_AD_DOMAIN_IPS")
+	HW_WORKSPACE_AD_VPC_ID     = os.Getenv("HW_WORKSPACE_AD_VPC_ID")     // The VPC ID to which the AD servers and desktops belong.
+	HW_WORKSPACE_AD_NETWORK_ID = os.Getenv("HW_WORKSPACE_AD_NETWORK_ID") // The network ID to which the AD servers belong.
 	// The internet access port to which the Workspace service.
 	HW_WORKSPACE_INTERNET_ACCESS_PORT              = os.Getenv("HW_WORKSPACE_INTERNET_ACCESS_PORT")
 	HW_WORKSPACE_APP_SERVER_GROUP_ID               = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_ID")
@@ -1526,9 +1530,9 @@ func TestAccPreCheckWorkspaceAD(t *testing.T) {
 		t.Skip(`The Workspace AD service need IP address configurations for both master and standby servers, plesse config them in the
 HW_WORKSPACE_AD_DOMAIN_IPS environment variable, separated by a comma (,).`)
 	}
-	if HW_WORKSPACE_AD_SERVER_PWD == "" || HW_WORKSPACE_AD_VPC_ID == "" || HW_WORKSPACE_AD_NETWORK_ID == "" {
+	if HW_WORKSPACE_AD_SERVER_ACCOUNT == "" || HW_WORKSPACE_AD_SERVER_PWD == "" || HW_WORKSPACE_AD_VPC_ID == "" || HW_WORKSPACE_AD_NETWORK_ID == "" {
 		t.Skip(`The configuration of AD server is not completed for Workspace service acceptance test, please check your inputs for
-HW_WORKSPACE_AD_SERVER_PWD, HW_WORKSPACE_AD_VPC_ID and HW_WORKSPACE_AD_NETWORK_ID.`)
+HW_WORKSPACE_AD_SERVER_ACCOUNT, HW_WORKSPACE_AD_SERVER_PWD, HW_WORKSPACE_AD_VPC_ID and HW_WORKSPACE_AD_NETWORK_ID.`)
 	}
 }
 

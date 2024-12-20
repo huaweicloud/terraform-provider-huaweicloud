@@ -227,7 +227,7 @@ func TestAccService_localAD(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "LOCAL_AD"),
 					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.name",
 						retrieveAdDomain(strings.Split(acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES, ","))),
-					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.admin_account", "Administrator"),
+					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.admin_account", acceptance.HW_WORKSPACE_AD_SERVER_ACCOUNT),
 					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.password", acceptance.HW_WORKSPACE_AD_SERVER_PWD),
 					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.active_domain_name",
 						retrieveActiveDomainName(strings.Split(acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES, ","))),
@@ -411,21 +411,22 @@ func testAccService_localAD_step1() string {
 resource "huaweicloud_workspace_service" "test" {
   ad_domain {
     name               = try(element(regexall("\\w+\\.(.*)", element(split(",", "%[1]s"), 0))[0], 0), "")
-    admin_account      = "Administrator"
-    password           = "%[2]s"
     active_domain_name = element(split(",", "%[1]s"), 0)
-    active_domain_ip   = element(split(",", "%[3]s"), 0)
-    active_dns_ip      = element(split(",", "%[3]s"), 0)
+    active_domain_ip   = element(split(",", "%[2]s"), 0)
+    active_dns_ip      = element(split(",", "%[2]s"), 0)
+    admin_account      = "%[3]s"
+    password           = "%[4]s"
   }
 
   auth_type   = "LOCAL_AD"
   access_mode = "INTERNET"
-  vpc_id      = "%[4]s"
-  network_ids = ["%[5]s"]
+  vpc_id      = "%[5]s"
+  network_ids = ["%[6]s"]
 }
 `, acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES,
-		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
 		acceptance.HW_WORKSPACE_AD_DOMAIN_IPS,
+		acceptance.HW_WORKSPACE_AD_SERVER_ACCOUNT,
+		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
 		acceptance.HW_WORKSPACE_AD_VPC_ID,
 		acceptance.HW_WORKSPACE_AD_NETWORK_ID)
 }
@@ -435,20 +436,20 @@ func testAccService_localAD_step2() string {
 resource "huaweicloud_workspace_service" "test" {
   ad_domain {
     name                = try(element(regexall("\\w+\\.(.*)", element(split(",", "%[1]s"), 0))[0], 0), "")
-    admin_account       = "Administrator"
-    password            = "%[2]s"
     active_domain_name  = element(split(",", "%[1]s"), 0)
-    active_domain_ip    = element(split(",", "%[3]s"), 0)
-    active_dns_ip       = element(split(",", "%[3]s"), 0)
+    active_domain_ip    = element(split(",", "%[2]s"), 0)
+    active_dns_ip       = element(split(",", "%[2]s"), 0)
     standby_domain_name = element(split(",", "%[1]s"), 1)
-    standby_domain_ip   = element(split(",", "%[3]s"), 1)
-    standby_dns_ip      = element(split(",", "%[3]s"), 1)
+    standby_domain_ip   = element(split(",", "%[2]s"), 1)
+    standby_dns_ip      = element(split(",", "%[2]s"), 1)
+    admin_account       = "%[3]s"
+    password            = "%[4]s"
   }
 
   auth_type   = "LOCAL_AD"
   access_mode = "INTERNET"
-  vpc_id      = "%[4]s"
-  network_ids = ["%[5]s"]
+  vpc_id      = "%[5]s"
+  network_ids = ["%[6]s"]
 
   enterprise_id = "custom-workspace-service"
 
@@ -458,8 +459,9 @@ resource "huaweicloud_workspace_service" "test" {
   }
 }
 `, acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES,
-		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
 		acceptance.HW_WORKSPACE_AD_DOMAIN_IPS,
+		acceptance.HW_WORKSPACE_AD_SERVER_ACCOUNT,
+		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
 		acceptance.HW_WORKSPACE_AD_VPC_ID,
 		acceptance.HW_WORKSPACE_AD_NETWORK_ID)
 }
@@ -469,20 +471,20 @@ func testAccService_localAD_step3() string {
 resource "huaweicloud_workspace_service" "test" {
   ad_domain {
     name                = try(element(regexall("\\w+\\.(.*)", element(split(",", "%[1]s"), 0))[0], 0), "")
-    admin_account       = "Administrator"
-    password            = "%[2]s"
     active_domain_name  = element(split(",", "%[1]s"), 0)
-    active_domain_ip    = element(split(",", "%[3]s"), 0)
-    active_dns_ip       = element(split(",", "%[3]s"), 0)
+    active_domain_ip    = element(split(",", "%[2]s"), 0)
+    active_dns_ip       = element(split(",", "%[2]s"), 0)
     standby_domain_name = element(split(",", "%[1]s"), 1)
-    standby_domain_ip   = element(split(",", "%[3]s"), 1)
-    standby_dns_ip      = element(split(",", "%[3]s"), 1)
+    standby_domain_ip   = element(split(",", "%[2]s"), 1)
+    standby_dns_ip      = element(split(",", "%[2]s"), 1)
+    admin_account       = "%[3]s"
+    password            = "%[4]s"
   }
 
   auth_type   = "LOCAL_AD"
   access_mode = "INTERNET"
-  vpc_id      = "%[4]s"
-  network_ids = ["%[5]s"]
+  vpc_id      = "%[5]s"
+  network_ids = ["%[6]s"]
 
   enterprise_id = "custom-workspace-service"
 
@@ -494,8 +496,9 @@ resource "huaweicloud_workspace_service" "test" {
   }
 }
 `, acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES,
-		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
 		acceptance.HW_WORKSPACE_AD_DOMAIN_IPS,
+		acceptance.HW_WORKSPACE_AD_SERVER_ACCOUNT,
+		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
 		acceptance.HW_WORKSPACE_AD_VPC_ID,
 		acceptance.HW_WORKSPACE_AD_NETWORK_ID)
 }
@@ -523,24 +526,25 @@ func testAccService_localAD_internetAccessPort_update() string {
 resource "huaweicloud_workspace_service" "test" {
   ad_domain {
     name               = try(element(regexall("\\w+\\.(.*)", element(split(",", "%[1]s"), 0))[0], 0), "")
-    admin_account      = "Administrator"
-    password           = "%[2]s"
     active_domain_name = element(split(",", "%[1]s"), 0)
-    active_domain_ip   = element(split(",", "%[3]s"), 0)
-    active_dns_ip      = element(split(",", "%[3]s"), 0)
+    active_domain_ip   = element(split(",", "%[2]s"), 0)
+    active_dns_ip      = element(split(",", "%[2]s"), 0)
+    admin_account      = "%[3]s"
+    password           = "%[4]s"
   }
 
   auth_type   = "LOCAL_AD"
   access_mode = "INTERNET"
-  vpc_id      = "%[4]s"
-  network_ids = ["%[5]s"]
+  vpc_id      = "%[5]s"
+  network_ids = ["%[6]s"]
 
-  internet_access_port = "%[6]s"
+  internet_access_port = "%[7]s"
   enterprise_id        = "custom-workspace-service"
 }
 `, acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES,
-		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
 		acceptance.HW_WORKSPACE_AD_DOMAIN_IPS,
+		acceptance.HW_WORKSPACE_AD_SERVER_ACCOUNT,
+		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
 		acceptance.HW_WORKSPACE_AD_VPC_ID,
 		acceptance.HW_WORKSPACE_AD_NETWORK_ID,
 		acceptance.HW_WORKSPACE_INTERNET_ACCESS_PORT)
