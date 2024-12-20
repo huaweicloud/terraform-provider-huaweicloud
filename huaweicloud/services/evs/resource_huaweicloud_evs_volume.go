@@ -326,12 +326,12 @@ func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	log.Printf("[DEBUG] Waiting for the EVS volume to become available or in-use, the volume ID is %s.", d.Id())
 	stateConf := &resource.StateChangeConf{
-		Pending:                   []string{"creating"},
-		Target:                    []string{"available", "in-use"},
-		Refresh:                   CloudVolumeRefreshFunc(evsV2Client, d.Id()),
+		Pending:                   []string{"PENDING"},
+		Target:                    []string{"COMPLETED"},
+		Refresh:                   refreshVolumeStatusFunc(evsV2Client, d.Id()),
 		Timeout:                   d.Timeout(schema.TimeoutCreate),
 		Delay:                     3 * time.Second,
-		MinTimeout:                5 * time.Second,
+		PollInterval:              5 * time.Second,
 		ContinuousTargetOccurence: 2,
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
@@ -585,12 +585,12 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"extending"},
-			Target:     []string{"available", "in-use"},
-			Refresh:    CloudVolumeRefreshFunc(evsV2Client, d.Id()),
-			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			Delay:      10 * time.Second,
-			MinTimeout: 3 * time.Second,
+			Pending:      []string{"PENDING"},
+			Target:       []string{"COMPLETED"},
+			Refresh:      refreshVolumeStatusFunc(evsV2Client, d.Id()),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			Delay:        10 * time.Second,
+			PollInterval: 5 * time.Second,
 		}
 
 		_, err = stateConf.WaitForStateContext(ctx)
@@ -600,8 +600,9 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if d.HasChanges("iops", "throughput") {
-		err := modifyQoS(ctx, evsV2Client, d, *cfg)
-		return diag.FromErr(err)
+		if err := modifyQoS(ctx, evsV2Client, d, *cfg); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	if d.HasChange("auto_renew") {
@@ -694,12 +695,12 @@ func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta i
 	// Wait for the volume to delete before moving on.
 	log.Printf("[DEBUG] Waiting for the EVS volume (%s) to delete", d.Id())
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"deleting", "downloading", "available"},
-		Target:     []string{"deleted"},
-		Refresh:    CloudVolumeRefreshFunc(evsV2Client, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      10 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshVolumeDeleteFunc(evsV2Client, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        10 * time.Second,
+		PollInterval: 5 * time.Second,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
@@ -741,6 +742,20 @@ func CloudVolumeRefreshFunc(c *golangsdk.ServiceClient, volumeId string) resourc
 	}
 }
 
+func refreshVolumeDeleteFunc(c *golangsdk.ServiceClient, volumeId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		response, err := cloudvolumes.Get(c, volumeId).Extract()
+		if err != nil {
+			var errDefault404 golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) {
+				return "deleted", "COMPLETED", nil
+			}
+			return response, "ERROR", err
+		}
+		return response, "PENDING", nil
+	}
+}
+
 func refreshVolumeStatusFunc(c *golangsdk.ServiceClient, volumeId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		response, err := cloudvolumes.Get(c, volumeId).Extract()
@@ -761,7 +776,7 @@ func refreshVolumeStatusFunc(c *golangsdk.ServiceClient, volumeId string) resour
 			return response, status, fmt.Errorf("unexpect status (%s)", status)
 		}
 
-		if utils.StrSliceContains([]string{"available", "in_use"}, status) {
+		if utils.StrSliceContains([]string{"available", "in-use"}, status) {
 			return response, "COMPLETED", nil
 		}
 		return response, "PENDING", nil
