@@ -121,6 +121,12 @@ func ResourceChannel() *schema.Resource {
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: "The microservice tags of the backend server group.",
 						},
+						"reference_vpc_channel_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The ID of the reference load balance channel.",
+						},
 					},
 				},
 				Description: "The backend server groups of the channel.",
@@ -397,12 +403,13 @@ func buildChannelMemberGroups(groups []interface{}) []channels.MemberGroup {
 	for i, val := range groups {
 		group := val.(map[string]interface{})
 		result[i] = channels.MemberGroup{
-			Name:                group["name"].(string),
-			Description:         group["description"].(string),
-			Weight:              group["weight"].(int),
-			MicroserviceVersion: group["microservice_version"].(string),
-			MicroservicePort:    group["microservice_port"].(int),
-			MicroserviceLabels:  buildMicroserviceLabels(group["microservice_labels"].(map[string]interface{})),
+			Name:                  group["name"].(string),
+			Description:           group["description"].(string),
+			Weight:                group["weight"].(int),
+			MicroserviceVersion:   group["microservice_version"].(string),
+			MicroservicePort:      group["microservice_port"].(int),
+			MicroserviceLabels:    buildMicroserviceLabels(group["microservice_labels"].(map[string]interface{})),
+			ReferenceVpcChannelId: group["reference_vpc_channel_id"].(string),
 		}
 	}
 
@@ -549,12 +556,13 @@ func flattenChannelMemberGroups(groups []channels.MemberGroup) []map[string]inte
 	result := make([]map[string]interface{}, len(groups))
 	for i, v := range groups {
 		result[i] = map[string]interface{}{
-			"name":                 v.Name,
-			"description":          v.Description,
-			"weight":               v.Weight,
-			"microservice_version": v.MicroserviceVersion,
-			"microservice_port":    v.MicroservicePort,
-			"microservice_labels":  flattenMicroserviceLabels(v.MicroserviceLabels),
+			"name":                     v.Name,
+			"description":              v.Description,
+			"weight":                   v.Weight,
+			"microservice_version":     v.MicroserviceVersion,
+			"microservice_port":        v.MicroservicePort,
+			"microservice_labels":      flattenMicroserviceLabels(v.MicroserviceLabels),
+			"reference_vpc_channel_id": v.ReferenceVpcChannelId,
 		}
 	}
 	return result

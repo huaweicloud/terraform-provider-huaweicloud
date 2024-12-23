@@ -151,6 +151,43 @@ resource "huaweicloud_apig_channel" "test" {
 }
 ```
 
+### Create a channel of type reference
+
+```hcl
+variable "instance_id" {}
+variable "channel_name" {}
+variable "member_group_name" {}
+variable "reference_channel_id" {}
+
+resource "huaweicloud_apig_channel" "test" {
+  instance_id      = var.instance_id
+  name             = var.channel_name
+  port             = 82
+  balance_strategy = 2
+  member_type      = "ecs"
+  type             = "reference"
+
+  member_group {
+    name                     = var.member_group_name
+    description              = "Created by terraform script"
+    weight                   = 2
+    reference_vpc_channel_id = var.reference_channel_id
+  }
+
+  health_check {
+    protocol           = "HTTPS"
+    threshold_normal   = 2
+    threshold_abnormal = 5
+    interval           = 10
+    timeout            = 5
+    path               = "/terraform/"
+    method             = "GET"
+    port               = "50"
+    http_codes         = "500"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -186,6 +223,7 @@ The following arguments are supported:
   The valid values are as follows:
   + **builtin**: Server type.
   + **microservice**: Microservice type.
+  + **reference**: Reference load balance channel type.
 
   Defaults to `builtin` (server type).
 
@@ -221,6 +259,9 @@ The `member_group` block supports:
   The valid value ranges from `0` to `65,535`.
 
 * `microservice_labels` - (Optional, Map) Specifies the microservice tags of the backend server group.
+
+* `reference_vpc_channel_id` - (Optional, String) Specifies the ID of the reference load balance channel.
+  This parameter is only available if the `type` is **reference**.
 
 <a name="channel_members"></a>
 The `member` block supports:
