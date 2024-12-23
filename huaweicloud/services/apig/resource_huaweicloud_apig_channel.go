@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -70,10 +71,13 @@ func ResourceChannel() *schema.Resource {
 				Description: "The member type of the channel.",
 			},
 			"type": {
-				Type:        schema.TypeInt,
+				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: "The type of the channel.",
+				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
+					return n == "2" && o == "builtin" || n == "3" && o == "microservice"
+				},
 			},
 			"member_group": {
 				Type:     schema.TypeList,
@@ -491,18 +495,30 @@ func buildChannelMicroserviceConfig(microserviceConfigs []interface{}) *channels
 }
 
 func buildChannelCreateOpts(d *schema.ResourceData) channels.ChannelOpts {
-	return channels.ChannelOpts{
+	result := channels.ChannelOpts{
 		InstanceId:         d.Get("instance_id").(string),
 		Name:               d.Get("name").(string),
 		Port:               d.Get("port").(int),
 		BalanceStrategy:    d.Get("balance_strategy").(int),
 		MemberType:         d.Get("member_type").(string),
-		Type:               d.Get("type").(int),
 		MemberGroups:       buildChannelMemberGroups(d.Get("member_group").([]interface{})),
 		Members:            buildChannelMembers(d.Get("member").(*schema.Set)),
 		VpcHealthConfig:    buildChannelHealthCheckConfig(d.Get("health_check").([]interface{})),
 		MicroserviceConfig: buildChannelMicroserviceConfig(d.Get("microservice").([]interface{})),
 	}
+
+	cType := d.Get("type").(string)
+	switch cType {
+	// Due the type conversion of the terraform provider, the number can be convert to the string without errors.
+	case "2":
+		result.Type = 2
+	case "3":
+		result.Type = 3
+	default:
+		result.VpcChannelType = cType
+	}
+
+	return result
 }
 
 func resourceChannelCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -634,6 +650,13 @@ func flattenChannelMembers(members []channels.MemberInfo) []map[string]interface
 	return result
 }
 
+func parseChannelType(resp *channels.Channel) string {
+	if resp.VpcChannelType != "" {
+		return resp.VpcChannelType
+	}
+	return strconv.Itoa(resp.Type)
+}
+
 func resourceChannelRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -655,7 +678,7 @@ func resourceChannelRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("port", resp.Port),
 		d.Set("balance_strategy", resp.BalanceStrategy),
 		d.Set("member_type", resp.MemberType),
-		d.Set("type", resp.Type),
+		d.Set("type", parseChannelType(resp)),
 		d.Set("member_group", flattenChannelMemberGroups(resp.MemberGroups)),
 		d.Set("member", flattenChannelMembers(resp.Members)),
 		d.Set("health_check", flattenHealthCheckConfig(resp.VpcHealthConfig)),

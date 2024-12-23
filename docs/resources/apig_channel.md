@@ -112,7 +112,7 @@ resource "huaweicloud_apig_channel" "test" {
   port             = 80
   balance_strategy = 1
   member_type      = "ip"
-  type             = 3
+  type             = "microservice"
 
   dynamic "member_group" {
     for_each = var.member_groups_config
@@ -182,18 +182,18 @@ The following arguments are supported:
   + **ip**.
   + **ecs**.
 
-* `type` - (Optional, Int) Specifies the type of the channel.  
+* `type` - (Optional, String) Specifies the type of the channel.  
   The valid values are as follows:
-  + **2**: Server type.
-  + **3**: Microservice type.
+  + **builtin**: Server type.
+  + **microservice**: Microservice type.
 
-  Defaults to `2` (server type).
+  Defaults to `builtin` (server type).
 
 * `member_group` - (Optional, List) Specifies the backend (server) groups of the channel.  
   The [object](#channel_member_group) structure is documented below.
 
 * `member` - (Optional, List) Specifies the backend servers of the channel.  
-  This parameter is required and only available if the `type` is `2`.  
+  This parameter is required and only available if the `type` is `builtin`.  
   The [object](#channel_members) structure is documented below.
 
 * `health_check` - (Optional, List) Specifies the health configuration of cloud servers associated with the load balance
