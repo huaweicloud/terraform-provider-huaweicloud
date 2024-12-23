@@ -75,12 +75,6 @@ const (
 	EffectiveModeAll EffectiveMode = "ALL"
 	EffectiveModeAny EffectiveMode = "ANY"
 
-	ConditionSourceParam              ConditionSource = "param"
-	ConditionSourceSource             ConditionSource = "source"
-	ConditionSourceSystem             ConditionSource = "system"
-	ConditionSourceCookie             ConditionSource = "cookie"
-	ConditionSourceFrontendAuthorizer ConditionSource = "frontend_authorizer"
-
 	ConditionTypeEqual      ConditionType = "Equal"
 	ConditionTypeEnumerated ConditionType = "Enumerated"
 	ConditionTypeMatching   ConditionType = "Matching"
@@ -317,6 +311,12 @@ func ResourceApigAPIV2() *schema.Resource {
 							Optional:    true,
 							Computed:    true,
 							Description: "Whether to enable the parameter validation.",
+						},
+						"orchestrations": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The list of orchestration rules that parameter used.",
 						},
 					},
 				},
@@ -863,28 +863,26 @@ func policyConditionSchemaResource() *schema.Resource {
 				Description: "The frontend authentication parameter name.",
 			},
 			"source": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  string(ConditionSourceParam),
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ConditionSourceParam),
-					string(ConditionSourceSource),
-					string(ConditionSourceSystem),
-					string(ConditionSourceCookie),
-					string(ConditionSourceFrontendAuthorizer),
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "param",
 				Description: "The type of the backend policy.",
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  string(ConditionTypeEqual),
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ConditionTypeEqual),
-					string(ConditionTypeEnumerated),
-					string(ConditionTypeMatching),
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     string(ConditionTypeEqual),
 				Description: "The condition type.",
+			},
+			"mapped_param_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of a parameter generated after orchestration.",
+			},
+			"mapped_param_location": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The location of a parameter generated after orchestration.",
 			},
 		},
 	}
@@ -1030,16 +1028,17 @@ func buildRequestParameters(requests *schema.Set) []apis.ReqParamBase {
 		paramMap := v.(map[string]interface{})
 		paramType := paramMap["type"].(string)
 		param := apis.ReqParamBase{
-			Type:         paramType,
-			Name:         paramMap["name"].(string),
-			Required:     isObjectEnabled(paramMap["required"].(bool)),
-			Location:     paramMap["location"].(string),
-			Description:  utils.String(paramMap["description"].(string)),
-			Enumerations: utils.String(paramMap["enumeration"].(string)),
-			PassThrough:  isObjectEnabled(paramMap["passthrough"].(bool)),
-			DefaultValue: utils.String(paramMap["default"].(string)),
-			SampleValue:  paramMap["example"].(string),
-			ValidEnable:  paramMap["valid_enable"].(int),
+			Type:           paramType,
+			Name:           paramMap["name"].(string),
+			Required:       isObjectEnabled(paramMap["required"].(bool)),
+			Location:       paramMap["location"].(string),
+			Description:    utils.String(paramMap["description"].(string)),
+			Enumerations:   utils.String(paramMap["enumeration"].(string)),
+			PassThrough:    isObjectEnabled(paramMap["passthrough"].(bool)),
+			DefaultValue:   utils.String(paramMap["default"].(string)),
+			SampleValue:    paramMap["example"].(string),
+			ValidEnable:    paramMap["valid_enable"].(int),
+			Orchestrations: utils.ExpandToStringList(paramMap["orchestrations"].([]interface{})),
 		}
 		switch paramType {
 		case string(ParamTypeNumber):
@@ -1105,21 +1104,26 @@ func buildPolicyConditions(conditions *schema.Set) []apis.APIConditionBase {
 
 	result := make([]apis.APIConditionBase, conditions.Len())
 	for i, v := range conditions.List() {
-		cm := v.(map[string]interface{})
+		source := utils.PathSearch("source", v, "param").(string)
+
 		condition := apis.APIConditionBase{
-			ReqParamName:                cm["param_name"].(string),
-			SysParamName:                cm["sys_name"].(string),
-			CookieParamName:             cm["cookie_name"].(string),
-			FrontendAuthorizerParamName: cm["frontend_authorizer_name"].(string),
-			ConditionOrigin:             cm["source"].(string),
-			ConditionValue:              cm["value"].(string),
+			ConditionValue:              utils.PathSearch("value", v, "").(string),
+			ReqParamName:                utils.PathSearch("param_name", v, "").(string),
+			SysParamName:                utils.PathSearch("sys_name", v, "").(string),
+			CookieParamName:             utils.PathSearch("cookie_name", v, "").(string),
+			FrontendAuthorizerParamName: utils.PathSearch("frontend_authorizer_name", v, "").(string),
+			ConditionOrigin:             source,
+			MappedParamName:             utils.PathSearch("mapped_param_name", v, "").(string),
+			MappedParamLocation:         utils.PathSearch("mapped_param_location", v, "").(string),
 		}
-		conType := cm["type"].(string)
+
+		conType := utils.PathSearch("type", v, string(ConditionTypeEqual)).(string)
 		// If the input of the condition type is invalid, keep the condition parameter omitted and the API will throw an
 		// error.
-		if v, ok := conditionType[conType]; ok {
-			condition.ConditionType = v
+		if vt, ok := conditionType[conType]; ok {
+			condition.ConditionType = vt
 		}
+
 		result[i] = condition
 	}
 	return result
@@ -1447,16 +1451,17 @@ func flattenApiRequestParams(reqParams []apis.ReqParamResp) []map[string]interfa
 	result := make([]map[string]interface{}, len(reqParams))
 	for i, v := range reqParams {
 		param := map[string]interface{}{
-			"name":         v.Name,
-			"location":     v.Location,
-			"type":         v.Type,
-			"required":     parseObjectEnabled(v.Required),
-			"passthrough":  parseObjectEnabled(v.PassThrough),
-			"enumeration":  v.Enumerations,
-			"example":      v.SampleValue,
-			"default":      v.DefaultValue,
-			"description":  v.Description,
-			"valid_enable": v.ValidEnable,
+			"name":           v.Name,
+			"location":       v.Location,
+			"type":           v.Type,
+			"required":       parseObjectEnabled(v.Required),
+			"passthrough":    parseObjectEnabled(v.PassThrough),
+			"enumeration":    v.Enumerations,
+			"example":        v.SampleValue,
+			"default":        v.DefaultValue,
+			"description":    v.Description,
+			"valid_enable":   v.ValidEnable,
+			"orchestrations": v.Orchestrations,
 		}
 		switch v.Type {
 		case string(ParamTypeNumber):
@@ -1545,6 +1550,8 @@ func flattenPolicyConditions(conditions []apis.APIConditionBase) []map[string]in
 			"frontend_authorizer_name": v.FrontendAuthorizerParamName,
 			"type":                     analyseConditionType(v.ConditionType),
 			"value":                    v.ConditionValue,
+			"mapped_param_name":        v.MappedParamName,
+			"mapped_param_location":    v.MappedParamLocation,
 		}
 	}
 	return result
