@@ -442,6 +442,7 @@ var (
 	HW_EVS_AVAILABILITY_ZONE_ESSD2  = os.Getenv("HW_EVS_AVAILABILITY_ZONE_ESSD2")
 	HW_EVS_TRANSFER_ID              = os.Getenv("HW_EVS_TRANSFER_ID")
 	HW_EVS_TRANSFER_AUTH_KEY        = os.Getenv("HW_EVS_TRANSFER_AUTH_KEY")
+	HW_EVS_ENABLE_FLAG              = os.Getenv("HW_EVS_ENABLE_FLAG")
 
 	HW_ECS_LAUNCH_TEMPLATE_ID = os.Getenv("HW_ECS_LAUNCH_TEMPLATE_ID")
 
@@ -2782,6 +2783,13 @@ func TestAccPrecheckSfsFileSystemNames(t *testing.T, min int) {
 func TestAccPrecheckEVSTransferAccepter(t *testing.T) {
 	if HW_EVS_TRANSFER_ID == "" || HW_EVS_TRANSFER_AUTH_KEY == "" {
 		t.Skip("HW_EVS_TRANSFER_ID and HW_EVS_TRANSFER_AUTH_KEY must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckEVSFlag(t *testing.T) {
+	if HW_EVS_ENABLE_FLAG == "" {
+		t.Skip("Skip the EVS acceptance tests.")
 	}
 }
 
