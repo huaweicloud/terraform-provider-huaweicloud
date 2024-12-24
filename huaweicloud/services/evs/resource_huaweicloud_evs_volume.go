@@ -56,7 +56,7 @@ func ResourceEvsVolume() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(3 * time.Minute),
+			Update: schema.DefaultTimeout(180 * time.Minute),
 			Delete: schema.DefaultTimeout(3 * time.Minute),
 		},
 
@@ -75,7 +75,6 @@ func ResourceEvsVolume() *schema.Resource {
 			"volume_type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"server_id": {
 				Type:     schema.TypeString,
@@ -156,6 +155,11 @@ func ResourceEvsVolume() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"cascade": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"attachment": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -185,10 +189,9 @@ func ResourceEvsVolume() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cascade": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -438,6 +441,7 @@ func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("tags", resp.Tags),
 		d.Set("dedicated_storage_id", resp.DedicatedStorageID),
 		d.Set("dedicated_storage_name", resp.DedicatedStorageName),
+		d.Set("status", resp.Status),
 		setEvsVolumeChargingInfo(d, resp),
 		setEvsVolumeDeviceType(d, resp),
 		setEvsVolumeImageId(d, resp),
@@ -508,6 +512,99 @@ func modifyQoS(ctx context.Context, client *golangsdk.ServiceClient, d *schema.R
 	if err != nil {
 		return fmt.Errorf("error waiting for modifying QoS of EVS volume (%s) to complete: %s", d.Id(), err)
 	}
+	return nil
+}
+
+func buildUpdateVolumeTypeParams(d *schema.ResourceData) cloudvolumes.RetypeOpts {
+	retryOpts := cloudvolumes.RetypeOpts{
+		OSRetype: cloudvolumes.OSRetypeOpts{
+			NewType: d.Get("volume_type").(string),
+		},
+	}
+
+	if d.Get("volume_type") == "GPSSD2" {
+		retryOpts.OSRetype.Iops = d.Get("iops").(int)
+		retryOpts.OSRetype.Throughput = d.Get("throughput").(int)
+	}
+
+	// Currently, EVS does not support changing the disk type to ESSD2.
+	// However, the documentation does not clearly state this limitation, so keep this code.
+	if d.Get("volume_type") == "ESSD2" {
+		retryOpts.OSRetype.Iops = d.Get("iops").(int)
+	}
+
+	if d.Get("charging_mode").(string) == "prePaid" {
+		retryOpts.BssParam = &cloudvolumes.BssParamOpts{
+			IsAutoPay: common.GetAutoPay(d),
+		}
+	}
+	return retryOpts
+}
+
+func modifyVolumeType(ctx context.Context, cfg *config.Config, d *schema.ResourceData) error {
+	evsV2Client, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return fmt.Errorf("error creating block storage v2 client: %s", err)
+	}
+
+	// Interface constraints: QoS can be updated only when the volume status is available or in-use
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshVolumeStatusFunc(evsV2Client, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        3 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for EVS volume (%s) to become ready: %s", d.Id(), err)
+	}
+
+	retypeOpts := buildUpdateVolumeTypeParams(d)
+	resp, err := cloudvolumes.UpdateVolumeType(evsV2Client, d.Id(), retypeOpts).Extract()
+	if err != nil {
+		return fmt.Errorf("error updating EVS volume (%s) type: %s", d.Id(), err)
+	}
+
+	// The existence of a value in `order_id` proves that the current cloud disk is billed on a per-cycle basis.
+	if orderID := resp.OrderID; orderID != "" {
+		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+		if err != nil {
+			return fmt.Errorf("error creating BSS v2 client: %s", err)
+		}
+		err = common.WaitOrderComplete(ctx, bssClient, orderID, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("the order (%s) is not completed while updating EVS volume (%s) type: %s",
+				orderID, d.Id(), err)
+		}
+	}
+
+	// The existence of a value in `job_id` proves that the current cloud disk is billed on demand.
+	if jobID := resp.JobID; jobID != "" {
+		evsV1Client, err := cfg.BlockStorageV1Client(cfg.GetRegion(d))
+		if err != nil {
+			return fmt.Errorf("error creating EVS v1 client: %s", err)
+		}
+		if err = waitEvsJobSuccess(ctx, evsV1Client, jobID, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return fmt.Errorf("the job (%s) is not SUCCESS while updating EVS volume (%s) type: %s", jobID,
+				d.Id(), err)
+		}
+	}
+
+	stateConf = &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshVolumeStatusFunc(evsV2Client, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        3 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for EVS volume (%s) to become ready after updating volume type: %s", d.Id(), err)
+	}
+
 	return nil
 }
 
@@ -596,6 +693,14 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		_, err = stateConf.WaitForStateContext(ctx)
 		if err != nil {
 			return diag.Errorf("error waiting for EVS volume (%s) to become ready: %s", d.Id(), err)
+		}
+	}
+
+	// Changing this field requires prerequisites, see the documentation for details.
+	// Changing this field may use the fields "iops" and "throughput", so put this change before "iops" and "throughput".
+	if d.HasChange("volume_type") {
+		if err := modifyVolumeType(ctx, cfg, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

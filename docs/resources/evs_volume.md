@@ -98,8 +98,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `volume_type` - (Required, String, ForceNew) Specifies the disk type. Changing this parameter will create a new resource.
-  Valid values are as follows:
+* `volume_type` - (Required, String) Specifies the disk type. Valid values are as follows:
   + **SAS**: High I/O type.
   + **SSD**: Ultra-high I/O type.
   + **GPSSD**: General purpose SSD type.
@@ -110,6 +109,15 @@ The following arguments are supported:
   If the specified disk type is not available in the AZ, the disk will fail to create. The volume type **ESSD2** only
   support in postpaid charging mode. When creating a cloud disk from a snapshot, the `volume_type` field must be
   consistent with the snapshot source cloud disk.
+
+  -> There are some restrictions on changing the cloud disk type:
+  <br/>1. Changing the cloud disk type is currently in the public beta stage. Please submit a work order in advance
+  to apply for the public beta.
+  <br/>2. The cloud disk type can be changed only when the disk status is Available or In-use.
+  <br/>3. Changing the disk type may take several hours or even longer, and cannot be stopped.
+  **It is strongly recommended that users proactively configure a reasonable change timeout before changing the disk type.**
+  <br/>4. Refer to [Changing the EVS Disk Type](https://support.huaweicloud.com/intl/en-us/usermanual-evs/evs_01_0062.html)
+  for more details.
 
 * `iops` - (Optional, Int) Specifies the IOPS(Input/Output Operations Per Second) for the volume.
   The field is valid and required when `volume_type` is set to **GPSSD2** or **ESSD2**.
@@ -243,12 +251,15 @@ The `attachment` block supports:
 
 * `dedicated_storage_name` - The name of the DSS storage pool accommodating the disk.
 
+* `status` - The disk status.
+  Please refer to [EVS Disk Status](https://support.huaweicloud.com/intl/en-us/api-evs/evs_04_0040.html).
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 10 minutes.
-* `update` - Default is 3 minutes.
+* `update` - Default is 180 minutes.
 * `delete` - Default is 3 minutes.
 
 ## Import

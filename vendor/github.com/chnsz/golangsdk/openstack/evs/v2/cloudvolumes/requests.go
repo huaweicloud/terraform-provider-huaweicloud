@@ -161,6 +161,39 @@ func ExtendSize(client *golangsdk.ServiceClient, id string, opts ExtendOptsBuild
 	return
 }
 
+type RetypeOptsBuilder interface {
+	ToVolumeRetypeMap() (map[string]interface{}, error)
+}
+
+type RetypeOpts struct {
+	BssParam *BssParamOpts `json:"bssParam,omitempty"`
+	OSRetype OSRetypeOpts  `json:"os-retype" required:"true"`
+}
+
+type BssParamOpts struct {
+	IsAutoPay string `json:"isAutoPay,omitempty"`
+}
+
+type OSRetypeOpts struct {
+	NewType    string `json:"new_type" required:"true"`
+	Iops       int    `json:"iops,omitempty"`
+	Throughput int    `json:"throughput,omitempty"`
+}
+
+func (opts RetypeOpts) ToVolumeRetypeMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func UpdateVolumeType(client *golangsdk.ServiceClient, id string, opts RetypeOptsBuilder) (r JobResult) {
+	b, err := opts.ToVolumeRetypeMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Post(retypeURL(client, id), b, &r.Body, nil)
+	return
+}
+
 // UpdateOptsBuilder allows extensions to add additional parameters to the
 // Update request.
 type UpdateOptsBuilder interface {
