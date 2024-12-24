@@ -16,14 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-const (
-	hostNotFound = "Deploy.00021108"
-)
-
 // @API CodeArtsDeploy POST /v1/resources/host-groups/{group_id}/hosts
-// @API CodeArtsDeploy PUT /v2/host-groups/{group_id}/hosts/{host_id}
+// @API CodeArtsDeploy PUT /v1/resources/host-groups/{group_id}/hosts/{host_id}
 // @API CodeArtsDeploy GET /v1/resources/host-groups/{group_id}/hosts/{host_id}
-// @API CodeArtsDeploy DELETE /v2/host-groups/{group_id}/hosts/{host_id}
+// @API CodeArtsDeploy DELETE /v1/resources/host-groups/{group_id}/hosts/{host_id}
 func ResourceDeployHost() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDeployHostCreate,
@@ -205,10 +201,6 @@ func resourceDeployHostCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	if err := checkResponseError(createRespBody, hostNotFound); err != nil {
-		return diag.Errorf("error creating CodeArts deploy host: %s", err)
-	}
-
 	hostId := utils.PathSearch("id", createRespBody, "").(string)
 	if hostId == "" {
 		return diag.Errorf("unable to find the CodeArts deploy host ID from the API response")
@@ -281,16 +273,12 @@ func resourceDeployHostRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return diag.Errorf("error retrieving CodeArts deploy host: %s", err)
+		return common.CheckDeletedDiag(d, err, "error retrieving CodeArts deploy host")
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	if err := checkResponseError(getRespBody, hostNotFound); err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CodeArts deploy host")
 	}
 
 	resultRespBody := utils.PathSearch("result", getRespBody, nil)
@@ -352,7 +340,7 @@ func resourceDeployHostUpdate(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func updateDeployHost(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	updatePath := client.Endpoint + "v2/host-groups/{group_id}/hosts/{host_id}"
+	updatePath := client.Endpoint + "v1/resources/host-groups/{group_id}/hosts/{host_id}"
 	updatePath = strings.ReplaceAll(updatePath, "{group_id}", d.Get("group_id").(string))
 	updatePath = strings.ReplaceAll(updatePath, "{host_id}", d.Id())
 	updateOpt := golangsdk.RequestOpts{
@@ -363,19 +351,11 @@ func updateDeployHost(client *golangsdk.ServiceClient, d *schema.ResourceData) e
 		JSONBody: buildUpdateDeployHostBodyParams(d),
 	}
 
-	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	_, err := client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
 		return fmt.Errorf("error updating CodeArts deploy host: %s", err)
 	}
 
-	updateRespBody, err := utils.FlattenResponse(updateResp)
-	if err != nil {
-		return err
-	}
-
-	if err := checkResponseError(updateRespBody, hostNotFound); err != nil {
-		return fmt.Errorf("error updating CodeArts deploy host: %s", err)
-	}
 	return nil
 }
 
@@ -401,7 +381,7 @@ func resourceDeployHostDelete(_ context.Context, d *schema.ResourceData, meta in
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v2/host-groups/{group_id}/hosts/{host_id}"
+		httpUrl = "v1/resources/host-groups/{group_id}/hosts/{host_id}"
 		product = "codearts_deploy"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -419,17 +399,8 @@ func resourceDeployHostDelete(_ context.Context, d *schema.ResourceData, meta in
 		},
 	}
 
-	deleteResp, err := client.Request("DELETE", deletePath, &deleteOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CodeArts deploy host: %s", err)
-	}
-
-	deleteRespBody, err := utils.FlattenResponse(deleteResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if err := checkResponseError(deleteRespBody, hostNotFound); err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting CodeArts deploy host")
 	}
 
