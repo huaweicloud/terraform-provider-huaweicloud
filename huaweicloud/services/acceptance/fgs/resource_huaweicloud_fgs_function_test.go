@@ -83,11 +83,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
-					"xrole",
-					"agency",
 					"tags",
 				},
 			},
@@ -127,8 +123,6 @@ func TestAccFgsV2Function_withEpsId(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -163,8 +157,6 @@ func TestAccFgsV2Function_text(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -213,6 +205,7 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 					resource.TestCheckResourceAttr(rName1, "custom_image.0.command", "/bin/sh"),
 					resource.TestCheckResourceAttr(rName1, "custom_image.0.args", "-args,value"),
 					resource.TestCheckResourceAttr(rName1, "custom_image.0.working_dir", "/"),
+					resource.TestCheckResourceAttr(rName1, "concurrency_num", "1"),
 					rc2.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName2, "name", randName+"_2"),
 					resource.TestCheckResourceAttr(rName2, "agency", "functiongraph_swr_trust"),
@@ -234,6 +227,7 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 					resource.TestCheckResourceAttr(rName1, "custom_image.0.command", ""),
 					resource.TestCheckResourceAttr(rName1, "custom_image.0.args", ""),
 					resource.TestCheckResourceAttr(rName1, "custom_image.0.working_dir", "/"),
+					resource.TestCheckResourceAttr(rName1, "concurrency_num", "1000"),
 					rc2.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName2, "handler", "-"),
 					resource.TestCheckResourceAttrPair(rName2, "vpc_id", "huaweicloud_vpc.test", "id"),
@@ -245,23 +239,11 @@ func TestAccFgsV2Function_createByImage(t *testing.T) {
 				ResourceName:      rName1,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
-					"xrole",
-					"agency",
-				},
 			},
 			{
 				ResourceName:      rName2,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
-					"xrole",
-					"agency",
-				},
 			},
 		},
 	})
@@ -392,7 +374,7 @@ resource "huaweicloud_fgs_function" "test" {
     newkey = "value"
   }
 }
-`, common.TestBaseNetwork(rName), rName)
+`, common.TestVpc(rName), rName)
 }
 
 func testAccFgsV2Function_basic_step3(rName, obsConfig string) string {
@@ -427,7 +409,7 @@ resource "huaweicloud_fgs_function" "test" {
     newkey = "value"
   }
 }
-`, common.TestBaseNetwork(rName), obsConfig, rName)
+`, common.TestVpc(rName), obsConfig, rName)
 }
 
 func testAccFgsV2Function_text(rName string) string {
@@ -482,13 +464,14 @@ func testAccFgsV2Function_createByImage_step_1(rName string) string {
 %[1]s
 
 resource "huaweicloud_fgs_function" "create_with_vpc_access" {
-  name        = "%[2]s_1"
-  app         = "default"
-  handler     = "-"
-  memory_size = 128
-  runtime     = "Custom Image"
-  timeout     = 3
-  agency      = "functiongraph_swr_trust"
+  name                  = "%[2]s_1"
+  app                   = "default"
+  handler               = "-"
+  functiongraph_version = "v2"
+  memory_size           = 128
+  runtime               = "Custom Image"
+  timeout               = 3
+  agency                = "functiongraph_swr_trust"
 
   custom_image {
     url         = "%[3]s"
@@ -514,7 +497,7 @@ resource "huaweicloud_fgs_function" "create_without_vpc_access" {
     url = "%[3]s"
   }
 }
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_BUILD_IMAGE_URL)
+`, common.TestVpc(rName), rName, acceptance.HW_BUILD_IMAGE_URL)
 }
 
 func testAccFgsV2Function_createByImage_step_2(rName string) string {
@@ -523,17 +506,20 @@ func testAccFgsV2Function_createByImage_step_2(rName string) string {
 
 # Closs the VPC access
 resource "huaweicloud_fgs_function" "create_with_vpc_access" {
-  name        = "%[2]s_1"
-  app         = "default"
-  handler     = "-"
-  memory_size = 128
-  runtime     = "Custom Image"
-  timeout     = 3
-  agency      = "functiongraph_swr_trust"
+  name                  = "%[2]s_1"
+  app                   = "default"
+  handler               = "-"
+  functiongraph_version = "v2"
+  memory_size           = 128
+  runtime               = "Custom Image"
+  timeout               = 3
+  agency                = "functiongraph_swr_trust"
 
   custom_image {
     url = "%[3]s"
   }
+
+  concurrency_num = 1000
 }
 
 # Open the VPC access
@@ -553,7 +539,7 @@ resource "huaweicloud_fgs_function" "create_without_vpc_access" {
   vpc_id     = huaweicloud_vpc.test.id
   network_id = huaweicloud_vpc_subnet.test.id
 }
-`, common.TestBaseNetwork(rName), rName, acceptance.HW_BUILD_IMAGE_URL_UPDATED)
+`, common.TestVpc(rName), rName, acceptance.HW_BUILD_IMAGE_URL_UPDATED)
 }
 
 func TestAccFgsV2Function_strategy(t *testing.T) {
@@ -615,8 +601,6 @@ func TestAccFgsV2Function_strategy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -702,8 +686,6 @@ func TestAccFgsV2Function_versions(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -819,10 +801,6 @@ func TestAccFgsV2Function_domain(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"xrole",
-					"agency",
-					"app",
-					"package",
 					"func_code",
 				},
 			},
@@ -844,7 +822,7 @@ resource "huaweicloud_dns_zone" "test" {
     router_id = huaweicloud_vpc.test.id
   }
 }
-`, common.TestBaseNetwork(name))
+`, common.TestVpc(name))
 }
 
 func testAccFunction_domain_step1(name string) string {
@@ -910,15 +888,16 @@ resource "huaweicloud_lts_stream" "test" {
 }
 
 resource "huaweicloud_fgs_function" "test" {
-  name        = "%[1]s"
-  app         = "default"
-  description = "fuction test"
-  handler     = "index.handler"
-  memory_size = 128
-  timeout     = 3
-  runtime     = "Python2.7"
-  code_type   = "inline"
-  func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+  name                  = "%[1]s"
+  app                   = "default"
+  description           = "fuction test"
+  handler               = "index.handler"
+  functiongraph_version = "v1"
+  memory_size           = 128
+  timeout               = 3
+  runtime               = "Python2.7"
+  code_type             = "inline"
+  func_code             = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
 
   log_group_id    = huaweicloud_lts_group.test.id
   log_stream_id   = huaweicloud_lts_stream.test.id
@@ -951,15 +930,16 @@ resource "huaweicloud_lts_stream" "test1" {
 }
 
 resource "huaweicloud_fgs_function" "test" {
-  name        = "%[1]s"
-  app         = "default"
-  description = "fuction test"
-  handler     = "index.handler"
-  memory_size = 128
-  timeout     = 3
-  runtime     = "Python2.7"
-  code_type   = "inline"
-  func_code   = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
+  name                  = "%[1]s"
+  app                   = "default"
+  description           = "fuction test"
+  handler               = "index.handler"
+  functiongraph_version = "v1"
+  memory_size           = 128
+  timeout               = 3
+  runtime               = "Python2.7"
+  code_type             = "inline"
+  func_code             = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
 
   log_group_id    = huaweicloud_lts_group.test1.id
   log_stream_id   = huaweicloud_lts_stream.test1.id
@@ -1018,8 +998,6 @@ func TestAccFgsV2Function_reservedInstance_version(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 					"tags",
 				},
@@ -1070,8 +1048,6 @@ func TestAccFgsV2Function_reservedInstance_alias(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 					"tags",
 				},
@@ -1161,70 +1137,6 @@ resource "huaweicloud_fgs_function" "test" {
 `, rName, aliasName)
 }
 
-func TestAccFgsV2Function_concurrencyNum(t *testing.T) {
-	var (
-		f function.Function
-
-		name         = acceptance.RandomAccResourceName()
-		resourceName = "huaweicloud_fgs_function.test"
-	)
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&f,
-		getResourceObj,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccFunction_strategy_default(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "concurrency_num", "1"),
-				),
-			},
-			{
-				Config: testAccFunction_concurrencyNum(name, 1000),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "concurrency_num", "1000"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
-					"func_code",
-				},
-			},
-		},
-	})
-}
-
-func testAccFunction_concurrencyNum(name string, concurrencyNum int) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_fgs_function" "test" {
-  functiongraph_version = "v2"
-  name                  = "%[1]s"
-  app                   = "default"
-  handler               = "index.handler"
-  memory_size           = 128
-  timeout               = 3
-  runtime               = "Python2.7"
-  code_type             = "inline"
-  func_code             = "dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganN="
-  concurrency_num       = %[2]d
-}
-`, name, concurrencyNum)
-}
-
 func TestAccFgsV2Function_gpuMemory(t *testing.T) {
 	var (
 		f function.Function
@@ -1277,8 +1189,6 @@ func TestAccFgsV2Function_gpuMemory(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"app",
-					"package",
 					"func_code",
 				},
 			},

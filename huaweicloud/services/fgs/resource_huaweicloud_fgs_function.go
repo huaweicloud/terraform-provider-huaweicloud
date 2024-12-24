@@ -665,17 +665,17 @@ func createFunctionVersions(client *golangsdk.ServiceClient, functionUrn string,
 }
 
 func setFgsFunctionApp(d *schema.ResourceData, app string) error {
-	if _, ok := d.GetOk("app"); ok {
-		return d.Set("app", app)
+	if _, ok := d.GetOk("package"); ok {
+		return d.Set("package", app)
 	}
-	return d.Set("package", app)
+	return d.Set("app", app)
 }
 
 func setFgsFunctionAgency(d *schema.ResourceData, agency string) error {
-	if _, ok := d.GetOk("agency"); ok {
-		return d.Set("agency", agency)
+	if _, ok := d.GetOk("xrole"); ok {
+		return d.Set("xrole", agency)
 	}
-	return d.Set("xrole", agency)
+	return d.Set("agency", agency)
 }
 
 func setFgsFunctionVpcAccess(d *schema.ResourceData, funcVpc function.FuncVpc) error {
