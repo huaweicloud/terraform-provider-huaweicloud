@@ -24,19 +24,21 @@ func getChannelFunc(cfg *config.Config, state *terraform.ResourceState) (interfa
 
 func TestAccChannel_basic(t *testing.T) {
 	var (
-		channel channels.Channel
+		channel interface{}
 
 		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
-		rName      = "huaweicloud_apig_channel.test"
 		name       = acceptance.RandomAccResourceName()
 		updateName = acceptance.RandomAccResourceName()
-		baseConfig = testAccChannel_base(name)
-	)
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&channel,
-		getChannelFunc,
+		typeServer       = "huaweicloud_apig_channel.type_server"
+		typeServerLegacy = "huaweicloud_apig_channel.type_server_legacy"
+		typeReference    = "huaweicloud_apig_channel.type_reference"
+
+		rcTypeServer       = acceptance.InitResourceCheck(typeServer, &channel, getChannelFunc)
+		rcTypeServerLegacy = acceptance.InitResourceCheck(typeServerLegacy, &channel, getChannelFunc)
+		rcTypeReference    = acceptance.InitResourceCheck(typeReference, &channel, getChannelFunc)
+
+		baseConfig = testAccChannel_base(name)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -46,66 +48,167 @@ func TestAccChannel_basic(t *testing.T) {
 			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcTypeServer.CheckResourceDestroy(),
+			rcTypeServerLegacy.CheckResourceDestroy(),
+			rcTypeReference.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccChannel_basic_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "port", "80"),
-					resource.TestCheckResourceAttr(rName, "balance_strategy", "1"),
-					resource.TestCheckResourceAttr(rName, "member_type", "ecs"),
-					resource.TestCheckResourceAttr(rName, "type", "2"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.protocol", "TCP"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.threshold_normal", "1"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.threshold_abnormal", "1"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.interval", "1"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.timeout", "1"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.path", ""),
-					resource.TestCheckResourceAttr(rName, "health_check.0.method", ""),
-					resource.TestCheckResourceAttr(rName, "health_check.0.port", "0"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.http_codes", ""),
-					resource.TestCheckResourceAttr(rName, "member.#", "1"),
+					rcTypeServer.CheckResourceExists(),
+					resource.TestCheckResourceAttr(typeServer, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
+					resource.TestCheckResourceAttr(typeServer, "name", name+"_type_server"),
+					resource.TestCheckResourceAttr(typeServer, "port", "80"),
+					resource.TestCheckResourceAttr(typeServer, "balance_strategy", "1"),
+					resource.TestCheckResourceAttr(typeServer, "member_type", "ecs"),
+					resource.TestCheckResourceAttr(typeServer, "type", "builtin"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.#", "1"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.protocol", "TCP"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.threshold_normal", "1"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.threshold_abnormal", "1"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.interval", "1"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.timeout", "1"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.path", ""),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.method", ""),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.port", "0"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.http_codes", ""),
+					resource.TestCheckResourceAttr(typeServer, "member.#", "1"),
+					rcTypeServerLegacy.CheckResourceExists(),
+					resource.TestCheckResourceAttr(typeServerLegacy, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
+					resource.TestCheckResourceAttr(typeServerLegacy, "name", name+"_type_server_legacy"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "port", "81"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "balance_strategy", "1"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "member_type", "ecs"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "type", "builtin"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.#", "1"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.protocol", "TCP"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.threshold_normal", "1"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.threshold_abnormal", "1"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.interval", "1"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.timeout", "1"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.path", ""),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.method", ""),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.port", "0"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.http_codes", ""),
+					resource.TestCheckResourceAttr(typeServerLegacy, "member.#", "1"),
+					rcTypeReference.CheckResourceExists(),
+					resource.TestCheckResourceAttr(typeReference, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
+					resource.TestCheckResourceAttr(typeReference, "name", name+"_type_reference"),
+					resource.TestCheckResourceAttr(typeReference, "port", "82"),
+					resource.TestCheckResourceAttr(typeReference, "balance_strategy", "1"),
+					resource.TestCheckResourceAttr(typeReference, "member_type", "ecs"),
+					resource.TestCheckResourceAttr(typeReference, "type", "reference"),
+					resource.TestCheckResourceAttr(typeReference, "member_group.#", "1"),
+					resource.TestCheckResourceAttr(typeReference, "member_group.0.name", name),
+					resource.TestCheckResourceAttr(typeReference, "member_group.0.description", "Created by terraform script"),
+					resource.TestCheckResourceAttr(typeReference, "member_group.0.weight", "1"),
+					resource.TestCheckResourceAttrPair(typeReference, "member_group.0.reference_vpc_channel_id",
+						"huaweicloud_apig_channel.type_server", "id"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.#", "1"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.protocol", "TCP"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.threshold_normal", "1"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.threshold_abnormal", "1"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.interval", "1"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.timeout", "1"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.path", ""),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.method", ""),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.port", "0"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.http_codes", ""),
+					resource.TestCheckResourceAttr(typeReference, "member.#", "0"),
 				),
 			},
 			{
 				Config: testAccChannel_basic_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "port", "8000"),
-					resource.TestCheckResourceAttr(rName, "balance_strategy", "2"),
-					resource.TestCheckResourceAttr(rName, "member_type", "ecs"),
-					resource.TestCheckResourceAttr(rName, "type", "2"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.protocol", "HTTPS"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.threshold_normal", "10"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.threshold_abnormal", "10"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.interval", "300"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.timeout", "30"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.path", "/terraform/"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.method", "HEAD"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.port", "8080"),
-					resource.TestCheckResourceAttr(rName, "health_check.0.http_codes", "201,202,303-404"),
-					resource.TestCheckResourceAttr(rName, "member.#", "2"),
+					rcTypeServer.CheckResourceExists(),
+					resource.TestCheckResourceAttr(typeServer, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
+					resource.TestCheckResourceAttr(typeServer, "name", updateName+"_type_server"),
+					resource.TestCheckResourceAttr(typeServer, "port", "8000"),
+					resource.TestCheckResourceAttr(typeServer, "balance_strategy", "2"),
+					resource.TestCheckResourceAttr(typeServer, "member_type", "ecs"),
+					resource.TestCheckResourceAttr(typeServer, "type", "builtin"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.protocol", "HTTPS"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.threshold_normal", "10"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.threshold_abnormal", "10"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.interval", "300"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.timeout", "30"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.path", "/terraform/"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.method", "HEAD"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.port", "8080"),
+					resource.TestCheckResourceAttr(typeServer, "health_check.0.http_codes", "201,202,303-404"),
+					resource.TestCheckResourceAttr(typeServer, "member.#", "2"),
+					rcTypeServerLegacy.CheckResourceExists(),
+					resource.TestCheckResourceAttr(typeServerLegacy, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
+					resource.TestCheckResourceAttr(typeServerLegacy, "name", updateName+"_type_server_legacy"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "port", "8001"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "balance_strategy", "2"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "member_type", "ecs"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "type", "builtin"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.protocol", "HTTPS"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.threshold_normal", "10"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.threshold_abnormal", "10"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.interval", "300"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.timeout", "30"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.path", "/terraform/"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.method", "HEAD"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.port", "8080"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.http_codes", "201,202,303-404"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "member.#", "2"),
+					rcTypeReference.CheckResourceExists(),
+					resource.TestCheckResourceAttr(typeReference, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
+					resource.TestCheckResourceAttr(typeReference, "name", updateName+"_type_reference"),
+					resource.TestCheckResourceAttr(typeReference, "port", "8002"),
+					resource.TestCheckResourceAttr(typeReference, "balance_strategy", "2"),
+					resource.TestCheckResourceAttr(typeReference, "member_type", "ecs"),
+					resource.TestCheckResourceAttr(typeReference, "type", "reference"),
+					resource.TestCheckResourceAttr(typeReference, "member_group.#", "1"),
+					resource.TestCheckResourceAttr(typeReference, "member_group.0.name", updateName),
+					resource.TestCheckResourceAttr(typeReference, "member_group.0.description", "Updated by terraform script"),
+					resource.TestCheckResourceAttr(typeReference, "member_group.0.weight", "2"),
+					resource.TestCheckResourceAttrPair(typeReference, "member_group.0.reference_vpc_channel_id",
+						"huaweicloud_apig_channel.type_server_legacy", "id"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.#", "1"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.protocol", "HTTPS"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.threshold_normal", "2"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.threshold_abnormal", "5"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.interval", "10"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.timeout", "5"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.path", "/terraform/"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.method", "GET"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.port", "50"),
+					resource.TestCheckResourceAttr(typeReference, "health_check.0.http_codes", "500"),
+					resource.TestCheckResourceAttr(typeReference, "member.#", "0"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				ResourceName:      typeServer,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccChannelImportStateFunc(),
+				ImportStateIdFunc: testAccChannelImportStateFunc(typeServer),
+			},
+			{
+				ResourceName:      typeServerLegacy,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccChannelImportStateFunc(typeServerLegacy),
+			},
+			{
+				ResourceName:      typeReference,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccChannelImportStateFunc(typeReference),
 			},
 		},
 	})
 }
 
-func testAccChannelImportStateFunc() resource.ImportStateIdFunc {
+func testAccChannelImportStateFunc(rsName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		rName := "huaweicloud_apig_channel.test"
-		rs, ok := s.RootModule().Resources[rName]
+		rs, ok := s.RootModule().Resources[rsName]
 		if !ok {
-			return "", fmt.Errorf("Resource (%s) not found: %s", rName, rs)
+			return "", fmt.Errorf("Resource (%s) not found: %s", rsName, rs)
 		}
 		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.ID == "" {
 			return "", fmt.Errorf("resource not found: %s/%s", rs.Primary.Attributes["instance_id"],
@@ -148,10 +251,37 @@ resource "huaweicloud_compute_instance" "test" {
   }
 }
 
-resource "huaweicloud_apig_channel" "test" {
+resource "huaweicloud_apig_channel" "type_server" {
   instance_id        = local.instance_id
-  name               = "%[2]s"
+  name               = "%[2]s_type_server"
   port               = 80
+  balance_strategy   = 1
+  member_type        = "ecs"
+  type               = "builtin"
+
+  health_check {
+    protocol           = "TCP"
+    threshold_normal   = 1 # minimum value
+    threshold_abnormal = 1 # minimum value
+    interval           = 1 # minimum value
+    timeout            = 1 # minimum value
+  }
+
+  dynamic "member" {
+    for_each = huaweicloud_compute_instance.test[*]
+
+    content {
+      id   = member.value.id
+      name = member.value.name
+    }
+  }
+}
+
+
+resource "huaweicloud_apig_channel" "type_server_legacy" {
+  instance_id        = local.instance_id
+  name               = "%[2]s_type_server_legacy"
+  port               = 81
   balance_strategy   = 1
   member_type        = "ecs"
   type               = 2
@@ -171,6 +301,30 @@ resource "huaweicloud_apig_channel" "test" {
       id   = member.value.id
       name = member.value.name
     }
+  }
+}
+
+resource "huaweicloud_apig_channel" "type_reference" {
+  instance_id      = local.instance_id
+  name             = "%[2]s_type_reference"
+  port             = 82
+  balance_strategy = 1
+  member_type      = "ecs"
+  type             = "reference"
+
+  member_group {
+    name                     = "%[2]s"
+    description              = "Created by terraform script"
+    weight                   = 1
+    reference_vpc_channel_id = huaweicloud_apig_channel.type_server.id
+  }
+
+  health_check {
+    protocol           = "TCP"
+    threshold_normal   = 1 # minimum value
+    threshold_abnormal = 1 # minimum value
+    interval           = 1 # minimum value
+    timeout            = 1 # minimum value
   }
 }
 `, baseConfig, name, acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID)
@@ -195,13 +349,13 @@ resource "huaweicloud_compute_instance" "test" {
   }
 }
 
-resource "huaweicloud_apig_channel" "test" {
+resource "huaweicloud_apig_channel" "type_server" {
   instance_id      = local.instance_id
-  name             = "%[2]s"
+  name             = "%[2]s_type_server"
   port             = 8000
   balance_strategy = 2
-  member_type        = "ecs"
-  type               = 2
+  member_type      = "ecs"
+  type             = "builtin"
 
   health_check {
     protocol           = "HTTPS"
@@ -222,6 +376,64 @@ resource "huaweicloud_apig_channel" "test" {
       id   = member.value.id
       name = member.value.name
     }
+  }
+}
+
+resource "huaweicloud_apig_channel" "type_server_legacy" {
+  instance_id      = local.instance_id
+  name             = "%[2]s_type_server_legacy"
+  port             = 8001
+  balance_strategy = 2
+  member_type      = "ecs"
+  type             = 2
+
+  health_check {
+    protocol           = "HTTPS"
+    threshold_normal   = 10  # maximum value
+    threshold_abnormal = 10  # maximum value
+    interval           = 300 # maximum value
+    timeout            = 30  # maximum value
+    path               = "/terraform/"
+    method             = "HEAD"
+    port               = 8080
+    http_codes         = "201,202,303-404"
+  }
+
+  dynamic "member" {
+    for_each = huaweicloud_compute_instance.test[*]
+
+    content {
+      id   = member.value.id
+      name = member.value.name
+    }
+  }
+}
+
+resource "huaweicloud_apig_channel" "type_reference" {
+  instance_id      = local.instance_id
+  name             = "%[2]s_type_reference"
+  port             = 8002
+  balance_strategy = 2
+  member_type      = "ecs"
+  type             = "reference"
+
+  member_group {
+    name                     = "%[2]s"
+    description              = "Updated by terraform script"
+    weight                   = 2
+    reference_vpc_channel_id = huaweicloud_apig_channel.type_server_legacy.id
+  }
+
+  health_check {
+    protocol           = "HTTPS"
+    threshold_normal   = 2  # default value
+    threshold_abnormal = 5  # default value
+    interval           = 10 # default value
+    timeout            = 5  # default value
+    path               = "/terraform/"
+    method             = "GET"
+    port               = "50"
+    http_codes         = "500"
   }
 }
 `, baseConfig, name, acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID)
@@ -284,7 +496,7 @@ func TestAccChannel_eipMembers(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccChannelImportStateFunc(),
+				ImportStateIdFunc: testAccChannelImportStateFunc(rName),
 			},
 		},
 	})
