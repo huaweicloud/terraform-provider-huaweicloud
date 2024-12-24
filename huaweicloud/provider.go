@@ -1224,10 +1224,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_subnet_ids_v1":          vpc.DataSourceVpcSubnetIdsV1(),
 			"huaweicloud_vpc_traffic_mirror_filters": vpc.DataSourceVpcTrafficMirrorFilters(),
 
-			"huaweicloud_cce_cluster_v3":                cce.DataSourceCCEClusterV3(),
-			"huaweicloud_cce_node_v3":                   cce.DataSourceNode(),
-			"huaweicloud_cce_autopilot_clusters":        cceautopilot.DataSourceCceAutopilotClusters(),
-			"huaweicloud_cce_autopilot_addon_templates": cceautopilot.DataSourceCceAutopilotAddonTemplates(),
+			"huaweicloud_cce_cluster_v3":                    cce.DataSourceCCEClusterV3(),
+			"huaweicloud_cce_node_v3":                       cce.DataSourceNode(),
+			"huaweicloud_cce_autopilot_clusters":            cceautopilot.DataSourceCceAutopilotClusters(),
+			"huaweicloud_cce_autopilot_addon_templates":     cceautopilot.DataSourceCceAutopilotAddonTemplates(),
+			"huaweicloud_cce_autopilot_cluster_certificate": cceautopilot.DataSourceCceAutopilotClusterCertificate(),
 
 			"huaweicloud_dms_product_v1":        dms.DataSourceDmsProduct(),
 			"huaweicloud_dms_maintainwindow_v1": dms.DataSourceDmsMaintainWindow(),
