@@ -20,14 +20,14 @@ import (
 // @API Live PUT /v1/{project_id}/notifications/publish
 // @API Live GET /v1/{project_id}/notifications/publish
 // @API Live DELETE /v1/{project_id}/notifications/publish
-func ResourceNotificationCofiguration() *schema.Resource {
+func ResourceNotificationConfiguration() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceNotificationCofigCreate,
-		ReadContext:   resourceNotificationCofigRead,
-		UpdateContext: resourceNotificationCofigUpdate,
-		DeleteContext: resourceNotificationCofigDelete,
+		CreateContext: resourceNotificationConfigCreate,
+		ReadContext:   resourceNotificationConfigRead,
+		UpdateContext: resourceNotificationConfigUpdate,
+		DeleteContext: resourceNotificationConfigDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceNotificationCofigImportState,
+			StateContext: resourceNotificationConfigImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -41,7 +41,7 @@ func ResourceNotificationCofiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the ingest domain name to which the notification cofiguration belongs.`,
+				Description: `Specifies the ingest domain name to which the notification configuration belongs.`,
 			},
 			"url": {
 				Type:        schema.TypeString,
@@ -59,13 +59,13 @@ func ResourceNotificationCofiguration() *schema.Resource {
 			"call_back_area": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the area where the server for receiving callback notification is located.`,
+				Description: `Specifies the region where the server that receives callback notifications is located.`,
 			},
 		},
 	}
 }
 
-func resourceNotificationCofigCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationConfigCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -76,9 +76,9 @@ func resourceNotificationCofigCreate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	err = createOrUpdateNotificationCofig(client, d)
+	err = createOrUpdateNotificationConfig(client, d)
 	if err != nil {
-		return diag.Errorf("error creating notification cofiguration: %s", err)
+		return diag.Errorf("error creating notification configuration: %s", err)
 	}
 
 	resourceId, err := uuid.GenerateUUID()
@@ -88,10 +88,10 @@ func resourceNotificationCofigCreate(ctx context.Context, d *schema.ResourceData
 
 	d.SetId(resourceId)
 
-	return resourceNotificationCofigRead(ctx, d, meta)
+	return resourceNotificationConfigRead(ctx, d, meta)
 }
 
-func createOrUpdateNotificationCofig(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func createOrUpdateNotificationConfig(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	notificationHttpUrl := "v1/{project_id}/notifications/publish"
 	notificationPath := client.Endpoint + notificationHttpUrl
 	notificationPath = strings.ReplaceAll(notificationPath, "{project_id}", client.ProjectID)
@@ -99,14 +99,14 @@ func createOrUpdateNotificationCofig(client *golangsdk.ServiceClient, d *schema.
 
 	notificationOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildNotificationCofigBodyParams(d),
+		JSONBody:         buildNotificationConfigBodyParams(d),
 	}
 
 	_, err := client.Request("PUT", notificationPath, &notificationOpt)
 	return err
 }
 
-func buildNotificationCofigBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildNotificationConfigBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
 		"url":            d.Get("url"),
 		"auth_sign_key":  d.Get("auth_sign_key"),
@@ -116,7 +116,7 @@ func buildNotificationCofigBodyParams(d *schema.ResourceData) map[string]interfa
 	return params
 }
 
-func resourceNotificationCofigRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationConfigRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
 		region     = cfg.GetRegion(d)
@@ -140,7 +140,7 @@ func resourceNotificationCofigRead(_ context.Context, d *schema.ResourceData, me
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", domainNameNotExistsCode),
-			"error retrieving notification cofiguration")
+			"error retrieving notification configuration")
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -150,7 +150,7 @@ func resourceNotificationCofigRead(_ context.Context, d *schema.ResourceData, me
 
 	callbackUrl := utils.PathSearch("url", getRespBody, "").(string)
 	if callbackUrl == "" {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "notification cofiguration")
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "notification configuration")
 	}
 
 	mErr := multierror.Append(
@@ -164,7 +164,7 @@ func resourceNotificationCofigRead(_ context.Context, d *schema.ResourceData, me
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceNotificationCofigUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationConfigUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -175,15 +175,15 @@ func resourceNotificationCofigUpdate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	err = createOrUpdateNotificationCofig(client, d)
+	err = createOrUpdateNotificationConfig(client, d)
 	if err != nil {
-		return diag.Errorf("error updating notification cofiguration: %s", err)
+		return diag.Errorf("error updating notification configuration: %s", err)
 	}
 
-	return resourceNotificationCofigRead(ctx, d, meta)
+	return resourceNotificationConfigRead(ctx, d, meta)
 }
 
-func resourceNotificationCofigDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNotificationConfigDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg           = meta.(*config.Config)
 		region        = cfg.GetRegion(d)
@@ -205,13 +205,13 @@ func resourceNotificationCofigDelete(_ context.Context, d *schema.ResourceData, 
 	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", domainNameNotExistsCode),
-			"error deleting notification cofiguration")
+			"error deleting notification configuration")
 	}
 
 	return nil
 }
 
-func resourceNotificationCofigImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
+func resourceNotificationConfigImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
 	error) {
 	importedId := d.Id()
 	if importedId == "" {

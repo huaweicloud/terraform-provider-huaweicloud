@@ -32,7 +32,7 @@ func getNotificationConfigFunc(cfg *config.Config, state *terraform.ResourceStat
 	}
 	getResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving notification cofiguration: %s", err)
+		return nil, fmt.Errorf("error retrieving notification configuration: %s", err)
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -51,7 +51,7 @@ func getNotificationConfigFunc(cfg *config.Config, state *terraform.ResourceStat
 func TestAccNotificationConfiguration_basic(t *testing.T) {
 	var (
 		notifyConfigObj interface{}
-		rName           = "huaweicloud_live_notification_cofiguration.test"
+		rName           = "huaweicloud_live_notification_configuration.test"
 		domainName      = fmt.Sprintf("%s.huaweicloud.com", acceptance.RandomAccResourceNameWithDash())
 		authKey1        = "8DDEtfv0ZE3Z3EAUokupq2Zf2NAgyL5vSZAmlgmX5jzBd2fHohrA9u727I9U0RZR8mHsxTnwDBKXNUHw52NmA1iZHHitlXZ"
 		authkey2        = "RHzXPbi4Ll0Sr4IvwEvBKzn6tEP1pIt3vtGUAdlJU0kxOzYbKXkJpTVWd2Z2ZdPDTu2koXalAXRc8o3HVp8K8S5rjAAtFE"
@@ -75,7 +75,7 @@ func TestAccNotificationConfiguration_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "domain_name", "huaweicloud_live_domain.test", "name"),
-					resource.TestCheckResourceAttr(rName, "url", "http://mycallback.com/notify_cofig"),
+					resource.TestCheckResourceAttr(rName, "url", "http://mycallback.com/notify_config"),
 					resource.TestCheckResourceAttr(rName, "auth_sign_key", authKey1),
 					resource.TestCheckResourceAttr(rName, "call_back_area", "mainland_china"),
 				),
@@ -84,7 +84,7 @@ func TestAccNotificationConfiguration_basic(t *testing.T) {
 				Config: testAccNotificationConfig_update(domainName, authkey2),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "url", "https://mycallback.com.cn/notify_cofig"),
+					resource.TestCheckResourceAttr(rName, "url", "https://mycallback.com.cn/notify_config"),
 					resource.TestCheckResourceAttr(rName, "auth_sign_key", authkey2),
 					resource.TestCheckResourceAttr(rName, "call_back_area", "outside_mainland_china"),
 				),
@@ -106,9 +106,9 @@ resource "huaweicloud_live_domain" "test" {
   type = "push"
 }
 
-resource "huaweicloud_live_notification_cofiguration" "test" {
+resource "huaweicloud_live_notification_configuration" "test" {
   domain_name    = huaweicloud_live_domain.test.name
-  url            = "http://mycallback.com/notify_cofig"
+  url            = "http://mycallback.com/notify_config"
   auth_sign_key  = "%[2]s"
   call_back_area = "mainland_china"
 }
@@ -122,9 +122,9 @@ resource "huaweicloud_live_domain" "test" {
   type = "push"
 }
 
-resource "huaweicloud_live_notification_cofiguration" "test" {
+resource "huaweicloud_live_notification_configuration" "test" {
   domain_name    = huaweicloud_live_domain.test.name
-  url            = "https://mycallback.com.cn/notify_cofig"
+  url            = "https://mycallback.com.cn/notify_config"
   auth_sign_key  = "%[2]s"
   call_back_area = "outside_mainland_china"
 }
