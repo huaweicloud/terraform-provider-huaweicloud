@@ -245,6 +245,14 @@ The `request_params` block supports:
   + **1**: enable
   + **2**: disable (by default)
 
+* `orchestrations` - (Optional, List) Specifies the list of orchestration rule IDs which parameter used.  
+  The order of the IDs determines the priority of the rules, and the priority decreases according to the order of the
+  list elements.
+
+  -> 1. The **none_value** rule has the highest priority, a maximum of one **none_value** rule can be bound.<br>2. The
+     **default** rule has the lowest priority, a maximum of one **default** rule can be bound.<br>3. Only one parameter
+     of each API can be bound with unique orchestration rules.
+
 <a name="apig_api_backend_params"></a>
 The `backend_params` block supports:
 
@@ -525,6 +533,14 @@ The `conditions` block supports:
 * `type` - (Optional, String) Specifies the condition type of the backend policy.  
   The valid values are **Equal**, **Enumerated** and **Matching**, defaults to **Equal**.  
   When the `sys_name` is **req_method**, the valid values are **Equal** and **Enumerated**.
+
+* `mapped_param_name` - (Optional, String) Specifies the name of a parameter generated after orchestration.
+  This parameter is required if the policy type is **orchestration**.  
+  The generated parameter name must exist in the orchestration rule bound to the API.
+
+* `mapped_param_location` - (Optional, String) Specifies the location of a parameter generated after orchestration.
+  This parameter is required if the policy type is **orchestration**.  
+  The generated parameter location must exist in the orchestration rule bound to the API.
 
 ## Attribute Reference
 

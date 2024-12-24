@@ -192,6 +192,12 @@ type ReqParamResp struct {
 	// Parameter ID.
 	// Notes: This parameter is used for response.
 	ID string `json:"id"`
+	// Request parameter orchestration rules are prioritized in the same sequence as the list.
+	// The none_value rule in a rule list has the highest priority. A maximum of one none_value rule can be bound.
+	// The default rule in a rule list has the lowest priority. A maximum of one default rule can be bound.
+	// The preprocessing orchestration rule cannot be used as the last orchestration rule except the default rule.
+	// Only one parameter of each API can be bound with unique orchestration rules. The number of orchestration rules that can be bound is limited by quota. For details, see "Notes and Constraints" in APIG Service Overview.
+	Orchestrations []string `json:"orchestrations"`
 }
 
 // BackendParamResp is an object struct that represents the elements of the back-end parameter.

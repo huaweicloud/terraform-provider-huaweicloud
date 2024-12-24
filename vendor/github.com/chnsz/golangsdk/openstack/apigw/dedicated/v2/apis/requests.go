@@ -245,6 +245,12 @@ type ReqParamBase struct {
 	MaxSize *int `json:"max_size,omitempty"`
 	// Indicates whether to transparently transfer the parameter. The valid values are 1 (yes) and 2 (no).
 	PassThrough int `json:"pass_through,omitempty"`
+	// Request parameter orchestration rules are prioritized in the same sequence as the list.
+	// The none_value rule in a rule list has the highest priority. A maximum of one none_value rule can be bound.
+	// The default rule in a rule list has the lowest priority. A maximum of one default rule can be bound.
+	// The preprocessing orchestration rule cannot be used as the last orchestration rule except the default rule.
+	// Only one parameter of each API can be bound with unique orchestration rules. The number of orchestration rules that can be bound is limited by quota. For details, see "Notes and Constraints" in APIG Service Overview.
+	Orchestrations []string `json:"orchestrations,omitempty"`
 }
 
 // PolicyMock is an object which will be build up a backend policy of the mock.
@@ -416,6 +422,14 @@ type APIConditionBase struct {
 	ReqParamId string `json:"req_param_id,omitempty"`
 	// The location of the corresponding request parameter.
 	ReqParamLocation string `json:"req_param_location,omitempty"`
+	// Name of a parameter generated after orchestration.
+	// This parameter is mandatory when condition_origin is set to orchestration.
+	// The generated parameter name must exist in the orchestration rule bound to the API.
+	MappedParamName string `json:"mapped_param_name,omitempty"`
+	// Location of a parameter generated after orchestration.
+	// This parameter is mandatory when condition_origin is set to orchestration.
+	// This location must exist in the orchestration rule bound to the API.
+	MappedParamLocation string `json:"mapped_param_location,omitempty"`
 }
 
 // APIOptsBuilder is an interface which to support request body build of the API creation and updation.
