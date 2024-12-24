@@ -33,10 +33,10 @@ func CreatePwdAuth(c *golangsdk.ServiceClient, rType string, opts PwdAuthOpts) (
 type PersonalAuthOpts struct {
 	// Specified the authorization name.
 	Name string `json:"name" required:"true"`
-	// Specified the repository address.
-	Host string `json:"host" required:"true"`
 	// Specified the repository token.
 	Token string `json:"token" required:"true"`
+	// Specified the repository address.
+	Host string `json:"host,omitempty"`
 }
 
 // CreatePersonalAuth is a method to create the personal access token authorization.

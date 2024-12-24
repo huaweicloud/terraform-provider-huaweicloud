@@ -161,7 +161,6 @@ var (
 	HW_DLI_FLINK_STREAM_GRAPH           = os.Getenv("HW_DLI_FLINK_STREAM_GRAPH")
 	HW_DLI_ELASTIC_RESOURCE_POOL        = os.Getenv("HW_DLI_ELASTIC_RESOURCE_POOL")
 
-	HW_GITHUB_REPO_HOST        = os.Getenv("HW_GITHUB_REPO_HOST")        // Repository host (Github, Gitlab, Gitee)
 	HW_GITHUB_PERSONAL_TOKEN   = os.Getenv("HW_GITHUB_PERSONAL_TOKEN")   // Personal access token (Github, Gitlab, Gitee)
 	HW_GITHUB_REPO_PWD         = os.Getenv("HW_GITHUB_REPO_PWD")         // Repository password (DevCloud, BitBucket)
 	HW_GITHUB_REPO_URL         = os.Getenv("HW_GITHUB_REPO_URL")         // Repository URL (Github, Gitlab, Gitee)
@@ -1254,8 +1253,8 @@ func TestAccPreCheckDliElasticResourcePool(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckRepoTokenAuth(t *testing.T) {
-	if HW_GITHUB_REPO_HOST == "" || HW_GITHUB_PERSONAL_TOKEN == "" {
-		t.Skip("Repository configurations are not completed for acceptance test of personal access token authorization.")
+	if HW_GITHUB_PERSONAL_TOKEN == "" {
+		t.Skip("HW_GITHUB_PERSONAL_TOKEN must be set for token authorization test within ServiceStage.")
 	}
 }
 

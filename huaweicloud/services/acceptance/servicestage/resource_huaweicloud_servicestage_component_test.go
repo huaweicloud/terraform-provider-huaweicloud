@@ -267,10 +267,9 @@ resource "huaweicloud_cce_node" "test" {
 resource "huaweicloud_servicestage_repo_token_authorization" "test" {
   type  = "github"
   name  = "%[1]s"
-  host  = "%[2]s"
-  token = "%[3]s"
+  token = "%[2]s"
 }
-`, rName, acceptance.HW_GITHUB_REPO_HOST, acceptance.HW_GITHUB_PERSONAL_TOKEN)
+`, rName, acceptance.HW_GITHUB_PERSONAL_TOKEN)
 }
 
 func testAccComponent_web(rName string) string {

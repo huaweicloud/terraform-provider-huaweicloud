@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/servicestage/v1/repositories"
@@ -46,20 +45,18 @@ func ResourceRepoTokenAuth() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"github", "gitlab", "gitee",
-				}, false),
-			},
-			"host": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
 			},
 			"token": {
 				Type:      schema.TypeString,
 				Required:  true,
 				ForceNew:  true,
 				Sensitive: true,
+			},
+			"host": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				// Have not setting code, computed is unnecessary.
 			},
 		},
 	}
@@ -75,8 +72,8 @@ func resourceRepoTokenAuthCreate(ctx context.Context, d *schema.ResourceData, me
 
 	opt := repositories.PersonalAuthOpts{
 		Name:  d.Get("name").(string),
-		Host:  d.Get("host").(string),
 		Token: d.Get("token").(string),
+		Host:  d.Get("host").(string),
 	}
 	auth, err := repositories.CreatePersonalAuth(client, d.Get("type").(string), opt)
 	if err != nil {
