@@ -252,7 +252,6 @@ func TestAccPolicy_replication(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "destination_region", acceptance.HW_DEST_REGION),
 					resource.TestCheckResourceAttr(resourceName, "destination_project_id", acceptance.HW_DEST_PROJECT_ID),
 					resource.TestCheckResourceAttr(resourceName, "time_period", "20"),
-					resource.TestCheckResourceAttr(resourceName, "enable_acceleration", "true"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.interval", "5"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.0", "06:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.1", "18:00"),
@@ -278,7 +277,6 @@ resource "huaweicloud_cbr_policy" "test" {
   destination_region     = "%[2]s"
   destination_project_id = "%[3]s"
   time_period            = 20
-  enable_acceleration    = true
 
   backup_cycle {
     interval        = 5
