@@ -38,9 +38,20 @@ type ResponseInfo struct {
 	Body string `json:"body" required:"true"`
 	// HTTP status code of the response. If omitted, the status will be cancelled.
 	Status int `json:"status,omitempty"`
+	// The configuration of the custom response headers.
+	Headers []ResponseInfoHeader `json:"headers,omitempty"`
 	// Indicates whether the response is the default response.
 	// Only the response of the API call is supported.
 	IsDefault bool `json:"default,omitempty"`
+}
+
+type ResponseInfoHeader struct {
+	// The key name of the response header.
+	// The valid length is limited from 1 to 128, only English letters, digits and hyphens (-) are allowed.
+	Key string `json:"key,omitempty"`
+	// The value for the specified response header key.
+	// The valid length is limited from 1 to 1,024.
+	Value string `json:"value,omitempty"`
 }
 
 type ResponseOptsBuilder interface {
