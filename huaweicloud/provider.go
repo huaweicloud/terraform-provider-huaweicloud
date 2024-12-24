@@ -1909,6 +1909,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_modelarts_dataset":                modelarts.ResourceDataset(),
 			"huaweicloud_modelarts_dataset_version":        modelarts.ResourceDatasetVersion(),
+			"huaweicloud_modelarts_devserver":              modelarts.ResourceDevServer(),
 			"huaweicloud_modelarts_notebook":               modelarts.ResourceNotebook(),
 			"huaweicloud_modelarts_notebook_mount_storage": modelarts.ResourceNotebookMountStorage(),
 			"huaweicloud_modelarts_model":                  modelarts.ResourceModelartsModel(),
