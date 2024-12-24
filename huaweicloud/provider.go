@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -2553,12 +2554,13 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 
 	conf.Region = d.Get("region").(string)
 
-	if conf.SharedConfigFile != "" {
+	if conf.SharedConfigFile != "" || conf.Profile != "" {
 		err := readConfig(&conf)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}
 	}
+
 	if conf.Region == "" {
 		return nil, diag.Errorf("region should be provided")
 	}
@@ -2702,6 +2704,13 @@ func getCloudDomain(cloud, region string) string {
 }
 
 func readConfig(c *config.Config) error {
+	if c.SharedConfigFile == "" {
+		c.SharedConfigFile = fmt.Sprintf("%s/.hcloud/config.json", os.Getenv("HOME"))
+		if runtime.GOOS == "windows" {
+			c.SharedConfigFile = fmt.Sprintf("%s/.hcloud/config.json", os.Getenv("USERPROFILE"))
+		}
+	}
+
 	profilePath, err := homedir.Expand(c.SharedConfigFile)
 	if err != nil {
 		return err
