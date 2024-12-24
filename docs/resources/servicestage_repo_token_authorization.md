@@ -13,14 +13,12 @@ token with various types of the Open-Source repository.
 ## Example Usage
 
 ```hcl
-variable "authorization_name"
-variable "repository_host"
-variable "personal_access_token"
+variable "authorization_name" {}
+variable "personal_access_token" {}
 
 resource "huaweicloud_servicestage_repo_token_authorization" "test" {
   type  = "github"
   name  = var.authorization_name
-  host  = var.repository_host
   token = var.personal_access_token
 }
 ```
@@ -43,11 +41,13 @@ The following arguments are supported:
 
   Changing this parameter will create a new authorization.
 
-* `host` - (Required, String, ForceNew) Specified the host name of the repository.
-  Changing this parameter will create a new authorization.
-
 * `token` - (Required, String, ForceNew) Specified the personal access token of the repository.
   Changing this parameter will create a new authorization.
+
+<!-- markdownlint-disable MD034 -->
+* `host` - (Optional, String, ForceNew) Specified the host name of the repository, e.g. **https://api.github.com**.
+  Changing this parameter will create a new authorization.
+<!-- markdownlint-enable MD034 -->
 
 ## Attribute Reference
 
