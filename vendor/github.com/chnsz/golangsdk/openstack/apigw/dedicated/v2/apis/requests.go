@@ -72,6 +72,16 @@ type APIOpts struct {
 	// List of tags. The length of the tags list is range from 1 to 128.
 	// The value can contain only letters, digits, and underscores (_), and must start with a letter.
 	Tags []string `json:"tags,omitempty"`
+	// The content type of the request body.
+	ContentType string `json:"content_type,omitempty"`
+	// Whether to perform base64 encoding on the body for interaction with FunctionGraph.
+	// The body does not need to be encoded using Base64 only when content_type is set to application/json.
+	// The scenario which can be applied:
+	// + Custom authentication
+	// + Bound circuit breaker plug-in with FunctionGraph backend downgrade policy
+	// + APIs with FunctionGraph backend
+	// Defaults to true.
+	IsSendFgBodyBase64 *bool `json:"is_send_fg_body_base64,omitempty"`
 	// Group response ID.
 	ResponseId string `json:"response_id,omitempty"`
 	// Request parameters.
