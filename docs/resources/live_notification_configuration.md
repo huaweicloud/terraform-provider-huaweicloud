@@ -1,14 +1,14 @@
 ---
 subcategory: "Live"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_live_notification_cofiguration"
+page_title: "HuaweiCloud: huaweicloud_live_notification_configuration"
 description: |-
-  Manages a notification cofiguration resource within HuaweiCloud.
+  Manages a notification configuration resource within HuaweiCloud.
 ---
 
-# huaweicloud_live_notification_cofiguration
+# huaweicloud_live_notification_configuration
 
-Manages a notification cofiguration resource within HuaweiCloud.
+Manages a notification configuration resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -16,7 +16,7 @@ Manages a notification cofiguration resource within HuaweiCloud.
 variable "domain_name" {}
 variable "url" {}
 
-resource "huaweicloud_live_notification_cofiguration" "test" {
+resource "huaweicloud_live_notification_configuration" "test" {
   domain_name = var.domain_name
   url         = var.url
 }
@@ -30,7 +30,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
   Changing this parameter will create a new resource.
 
-* `domain_name` - (Required, String, ForceNew) Specifies the ingest domain name to which the notification cofiguration
+* `domain_name` - (Required, String, ForceNew) Specifies the ingest domain name to which the notification configuration
   belongs.
   Changing this parameter will create a new resource.
 
@@ -56,5 +56,5 @@ In addition to all arguments above, the following attributes are exported:
 The resource can be imported using `domain_name`, e.g.
 
 ```bash
-$ terraform import huaweicloud_live_notification_cofiguration.test <domain_name>
+$ terraform import huaweicloud_live_notification_configuration.test <domain_name>
 ```
