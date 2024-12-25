@@ -21,6 +21,7 @@ import (
 // @API CodeArtsDeploy PUT /v1/resources/host-groups/{group_id}
 // @API CodeArtsDeploy GET /v1/resources/host-groups/{group_id}
 // @API CodeArtsDeploy DELETE /v1/resources/host-groups/{group_id}
+// @API CodeArtsDeploy GET /v2/host-groups/{group_id}/permissions
 func ResourceDeployGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDeployGroupCreate,
@@ -92,6 +93,11 @@ func ResourceDeployGroup() *schema.Resource {
 				Elem:     deployGroupPermissionSchema(),
 				Computed: true,
 			},
+			"permission_matrix": {
+				Type:     schema.TypeList,
+				Elem:     deployGroupPermissionMatrixSchema(),
+				Computed: true,
+			},
 		},
 	}
 }
@@ -146,6 +152,69 @@ func deployGroupPermissionSchema() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: `Indicates whether the user has the permission to copy.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func deployGroupPermissionMatrixSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"role_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the role ID.`,
+			},
+			"role_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the role name.`,
+			},
+			"role_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the role type.`,
+			},
+			"can_view": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the view permission.`,
+			},
+			"can_edit": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the edit permission.`,
+			},
+			"can_delete": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the deletion permission.`,
+			},
+			"can_add_host": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the permission to add hosts.`,
+			},
+			"can_manage": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the management permission.`,
+			},
+			"can_copy": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the permission to copy.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The create time.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The update time.`,
 			},
 		},
 	}
@@ -236,6 +305,11 @@ func resourceDeployGroupRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error retrieving CodeArts deploy group: result is not found in API response")
 	}
 
+	permissionMatrix, err := getDeployGroupPermissionMatrix(client, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
@@ -248,9 +322,38 @@ func resourceDeployGroupRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("updated_at", utils.PathSearch("updated_time", resultRespBody, nil)),
 		d.Set("created_by", flattenDeployGroupCreatedBy(resultRespBody)),
 		d.Set("permission", flattenDeployGroupPermission(resultRespBody)),
+		d.Set("permission_matrix", flattenDeployGroupPermissionMatrix(permissionMatrix.([]interface{}))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getDeployGroupPermissionMatrix(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+	httpUrl := "v2/host-groups/{group_id}/permissions"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{group_id}", id)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	permissionMatrix := getRespBody.([]interface{})
+	if len(permissionMatrix) == 0 {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte("error retrieving CodeArts deploy group permission matrix, empty list"),
+			},
+		}
+	}
+	return permissionMatrix, nil
 }
 
 func flattenDeployGroupCreatedBy(resp interface{}) []interface{} {
@@ -285,6 +388,27 @@ func flattenDeployGroupPermission(resp interface{}) []interface{} {
 			"can_copy":     utils.PathSearch("can_copy", curJson, nil),
 		},
 	}
+}
+
+func flattenDeployGroupPermissionMatrix(resp []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
+		rst = append(rst, map[string]interface{}{
+			"role_id":      utils.PathSearch("role_id", v, nil),
+			"role_name":    utils.PathSearch("name", v, nil),
+			"role_type":    utils.PathSearch("role_type", v, nil),
+			"can_view":     utils.PathSearch("can_view", v, nil),
+			"can_edit":     utils.PathSearch("can_edit", v, nil),
+			"can_delete":   utils.PathSearch("can_delete", v, nil),
+			"can_add_host": utils.PathSearch("can_add_host", v, nil),
+			"can_manage":   utils.PathSearch("can_manage", v, nil),
+			"can_copy":     utils.PathSearch("can_copy", v, nil),
+			"created_at":   utils.PathSearch("create_time", v, nil),
+			"updated_at":   utils.PathSearch("update_time", v, nil),
+		})
+	}
+
+	return rst
 }
 
 func resourceDeployGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
