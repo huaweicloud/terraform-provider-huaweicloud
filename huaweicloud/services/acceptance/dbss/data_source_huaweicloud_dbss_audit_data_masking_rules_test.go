@@ -12,18 +12,18 @@ import (
 func TestAccDataSourceAuditDataMaskingRules_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_dbss_audit_data_masking_rules.test"
-		name           = acceptance.RandomAccResourceName()
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckDbssInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceAuditDataMaskingRules_basic(name),
+				Config: testDataSourceAuditDataMaskingRules_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
@@ -40,12 +40,10 @@ func TestAccDataSourceAuditDataMaskingRules_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceAuditDataMaskingRules_basic(name string) string {
+func testDataSourceAuditDataMaskingRules_basic() string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_dbss_audit_data_masking_rules" "test" {
-  instance_id = huaweicloud_dbss_instance.test.instance_id
+  instance_id = "%s"
 }
-`, testInstance_basic(name))
+`, acceptance.HW_DBSS_INSATNCE_ID)
 }

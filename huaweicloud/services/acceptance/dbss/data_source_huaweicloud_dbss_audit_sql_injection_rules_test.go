@@ -12,7 +12,6 @@ import (
 func TestAccDataSourceAuditSqlInjectionRules_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_dbss_audit_sql_injection_rules.test"
-		name           = acceptance.RandomAccResourceName()
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
 
 		byRiskLevels   = "data.huaweicloud_dbss_audit_sql_injection_rules.filter_by_risk_levels"
@@ -22,11 +21,12 @@ func TestAccDataSourceAuditSqlInjectionRules_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckDbssInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceAuditSqlInjectionRules_basic(name),
+				Config: testDataSourceAuditSqlInjectionRules_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
@@ -47,12 +47,10 @@ func TestAccDataSourceAuditSqlInjectionRules_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceAuditSqlInjectionRules_basic(name string) string {
+func testDataSourceAuditSqlInjectionRules_basic() string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_dbss_audit_sql_injection_rules" "test" {
-  instance_id = huaweicloud_dbss_instance.test.instance_id
+  instance_id = "%[1]s"
 }
 
 locals {
@@ -60,7 +58,7 @@ locals {
 }
 
 data "huaweicloud_dbss_audit_sql_injection_rules" "filter_by_risk_levels" {
-  instance_id = huaweicloud_dbss_instance.test.instance_id
+  instance_id = "%[1]s"
   risk_levels = local.risk_levels
 }
 
@@ -70,5 +68,5 @@ output "risk_levels_filter_useful" {
     v == local.risk_levels]
   )
 }
-`, testInstance_basic(name))
+`, acceptance.HW_DBSS_INSATNCE_ID)
 }

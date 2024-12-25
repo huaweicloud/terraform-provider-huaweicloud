@@ -62,7 +62,6 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
 						"data.huaweicloud_networking_secgroup.test", "id"),
-					resource.TestCheckResourceAttr(rName, "action", "reboot"),
 				),
 			},
 			{
@@ -85,6 +84,13 @@ func TestAccInstance_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(rName, "action", "start"),
+				),
+			},
+			{
+				Config: testInstance_update_3(updataName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "action", "reboot"),
 				),
 			},
 			{
@@ -115,9 +121,7 @@ data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
-data "huaweicloud_availability_zones" "test" {
-  region = "%[1]s"
-}
+data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dbss_flavors" "test" {} 
 
@@ -130,12 +134,12 @@ locals {
     {
       "specDesc" : {
         "zh-cn" : {
-          "主机名称" : "%[2]s",
+          "主机名称" : "%[1]s",
           "虚拟私有云" : local.vpc_name,
           "子网" : local.subnet_name
         },
         "en-us" : {
-          "Instance Name" : "%[2]s",
+          "Instance Name" : "%[1]s",
           "VPC" : local.vpc_name,
           "Subnet" : local.subnet_name
         }
@@ -143,7 +147,7 @@ locals {
     }
   )
 }
-`, acceptance.HW_REGION_NAME, name)
+`, name)
 }
 
 func testInstance_basic(name string) string {
@@ -163,7 +167,6 @@ resource "huaweicloud_dbss_instance" "test" {
   charging_mode      = "prePaid"
   period_unit        = "month"
   period             = 1
-  action             = "reboot"
 
   tags = {
     foo = "bar"
@@ -228,6 +231,38 @@ resource "huaweicloud_dbss_instance" "test" {
   period_unit        = "month"
   period             = 1
   action             = "start"
+
+  tags = {
+    foo = "test"
+    acc = "value"
+  }
+}
+`, testInstance_base(name), name)
+}
+
+func testInstance_update_3(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name        = "%[2]s"
+  description = "security group acceptance test"
+}
+
+resource "huaweicloud_dbss_instance" "test" {
+  name               = "%[2]s"
+  description        = "test desc"
+  flavor             = data.huaweicloud_dbss_flavors.test.flavors[0].id
+  resource_spec_code = "dbss.bypassaudit.low"
+  product_spec_desc  = local.product_spec_desc
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id             = data.huaweicloud_vpc.test.id
+  subnet_id          = data.huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
+  charging_mode      = "prePaid"
+  period_unit        = "month"
+  period             = 1
+  action             = "reboot"
 
   tags = {
     foo = "test"

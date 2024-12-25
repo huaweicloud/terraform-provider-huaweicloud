@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceDbssFlavors_basic(t *testing.T) {
+func TestAccDataSourceDbssFlavors_basic(t *testing.T) {
 	rName := "data.huaweicloud_dbss_flavors.test"
 	dc := acceptance.InitDataSourceCheck(rName)
 
