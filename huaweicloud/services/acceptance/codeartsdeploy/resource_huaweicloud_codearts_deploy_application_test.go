@@ -41,23 +41,7 @@ func getDeployApplicationResourceFunc(cfg *config.Config, state *terraform.Resou
 		return nil, fmt.Errorf("error retrieving CodeArts deploy application: %s", err)
 	}
 
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		return nil, err
-	}
-	errorCode := utils.PathSearch("error_code", getRespBody, "")
-	if errorCode == "Deploy.00011021" {
-		// 'Deploy.00011021' means the application is not exist
-		return nil, golangsdk.ErrDefault404{}
-	}
-
-	if errorCode != "" {
-		errorMsg := utils.PathSearch("error_msg", getRespBody, "")
-		return nil, fmt.Errorf("error retrieving CodeArts deploy application: error code: %s, error message: %s",
-			errorCode, errorMsg)
-	}
-
-	return getRespBody, nil
+	return utils.FlattenResponse(getResp)
 }
 
 func TestAccDeployApplication_basic(t *testing.T) {
@@ -211,33 +195,6 @@ func TestAccDeployApplication_errorCheckInvalidArgument(t *testing.T) {
 	})
 }
 
-func TestAccDeployApplication_errorCheckErrorCode(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_codearts_deploy_application.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDeployApplicationResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config:      testDeployApplication_errorCheckErrorCode(name),
-				ExpectError: regexp.MustCompile(`error creating CodeArts deploy application: error code:`),
-			},
-		},
-	})
-}
-
 func testDeployApplication_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -347,21 +304,6 @@ resource "huaweicloud_codearts_deploy_application" "test" {
   description    = "test description"
   is_draft       = false
   create_type    = "template"
-  trigger_source = "0"
-}
-`, testProject_basic(name), name)
-}
-
-func testDeployApplication_errorCheckErrorCode(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_codearts_deploy_application" "test" {
-  project_id     = huaweicloud_codearts_project.test.id
-  name           = "%[2]s"
-  description    = "test description"
-  is_draft       = true
-  create_type    = "error_type"
   trigger_source = "0"
 }
 `, testProject_basic(name), name)

@@ -16,10 +16,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-const (
-	applicationNotFound = "Deploy.00011021"
-)
-
 // @API CodeArtsDeploy POST /v1/applications
 // @API CodeArtsDeploy GET /v1/applications/{app_id}/info
 // @API CodeArtsDeploy DELETE /v1/applications/{app_id}
@@ -274,10 +270,6 @@ func resourceDeployApplicationCreate(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	if err := checkResponseError(createRespBody, applicationNotFound); err != nil {
-		return diag.Errorf("error creating CodeArts deploy application: %s", err)
-	}
-
 	appId := utils.PathSearch("result.id", createRespBody, "").(string)
 	if appId == "" {
 		return diag.Errorf("unable to find the deploy application ID from the API response")
@@ -367,16 +359,12 @@ func resourceDeployApplicationRead(_ context.Context, d *schema.ResourceData, me
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return diag.Errorf("error retrieving CodeArts deploy application: %s", err)
+		return common.CheckDeletedDiag(d, err, "error retrieving CodeArts deploy application")
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	if err := checkResponseError(getRespBody, applicationNotFound); err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CodeArts deploy application")
 	}
 
 	resultRespBody := utils.PathSearch("result", getRespBody, nil)
@@ -447,16 +435,8 @@ func resourceDeployApplicationDelete(_ context.Context, d *schema.ResourceData, 
 		},
 	}
 
-	deleteResp, err := client.Request("DELETE", deletePath, &deleteOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CodeArts deploy application: %s", err)
-	}
-	deleteRespBody, err := utils.FlattenResponse(deleteResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if err := checkResponseError(deleteRespBody, applicationNotFound); err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting CodeArts deploy application")
 	}
 

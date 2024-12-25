@@ -477,28 +477,6 @@ func resourceDeployGroupDelete(_ context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-// checkResponseError use to check whether the CodeArts deploy API response body contains error code.
-// Parameter 'respBody' is the response body and 'notFoundCode' is the error code when the resource is not found.
-// An example of an error response body is as follows: {"error_code": "XXX", "error_msg": "XXX", "status": "XXX"}
-func checkResponseError(respBody interface{}, notFoundCode string) error {
-	errorCode := utils.PathSearch("error_code", respBody, "")
-	if errorCode == "" {
-		return nil
-	}
-
-	errorMsg := utils.PathSearch("error_msg", respBody, "")
-	err := fmt.Errorf("error code: %s, error message: %s", errorCode, errorMsg)
-	if errorCode != notFoundCode {
-		return err
-	}
-
-	return golangsdk.ErrDefault404{
-		ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-			Body: []byte(err.Error()),
-		},
-	}
-}
-
 func resourceDeployGroupImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
