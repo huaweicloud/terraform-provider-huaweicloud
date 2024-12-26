@@ -923,6 +923,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_live_geo_blockings":        live.DataSourceGeoBlockings(),
 			"huaweicloud_live_record_callbacks":     live.DataSourceLiveRecordCallbacks(),
 			"huaweicloud_live_channels":             live.DataSourceLiveChannels(),
+			"huaweicloud_live_cdn_ips":              live.DataSourceLiveCdnIps(),
 
 			"huaweicloud_lts_aom_accesses":                 lts.DataSourceAOMAccesses(),
 			"huaweicloud_lts_cce_accesses":                 lts.DataSourceCceAccesses(),
