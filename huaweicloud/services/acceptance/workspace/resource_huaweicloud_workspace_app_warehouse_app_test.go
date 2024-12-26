@@ -36,10 +36,16 @@ func TestAccAppWarehouseApp_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceFileStorePath(t)
+			acceptance.TestAccPreCheckWorkspaceAppFileName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"null": {
+				Source:            "hashicorp/null",
+				VersionConstraint: "3.2.1",
+			},
+		},
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWarehouseApp_basic_step1(name),
@@ -50,7 +56,7 @@ func TestAccAppWarehouseApp_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "os_type", "Windows"),
 					resource.TestCheckResourceAttr(resourceName, "version", "1.0"),
 					resource.TestCheckResourceAttr(resourceName, "version_name", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "file_store_path", acceptance.HW_WORKSPACE_APP_FILE_STRORE_OBS_PATH),
+					resource.TestCheckResourceAttr(resourceName, "file_store_path", acceptance.HW_WORKSPACE_APP_FILE_NAME),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by script"),
 				),
 			},
@@ -78,30 +84,77 @@ func TestAccAppWarehouseApp_basic(t *testing.T) {
 	})
 }
 
+func executionFileUploadResourcesConfig() string {
+	return fmt.Sprintf(`
+variable "script_content" {
+  type    = string
+  default = <<EOT
+def main():  
+    print("Hello, World!")  
+
+if __name__ == "__main__":  
+    main()
+EOT
+}
+
+data "huaweicloud_identity_projects" "test" {
+  name = "%[1]s"
+}
+
+data "huaweicloud_obs_buckets" "test" {
+  bucket = format("wks-app-%%s", data.huaweicloud_identity_projects.test.projects[0].id)
+}
+
+resource "null_resource" "test" {
+  depends_on = [data.huaweicloud_obs_buckets.test]
+
+  provisioner "local-exec" {
+    command = "echo '${var.script_content}' >> %[2]s"
+  }
+  provisioner "local-exec" {
+    command = "rm %[2]s"
+    when    = destroy
+  }
+}
+
+resource "huaweicloud_obs_bucket_object" "test" {
+  depends_on = [null_resource.test]
+
+  bucket       = data.huaweicloud_obs_buckets.test.buckets[0].bucket
+  key          = "%[2]s"
+  source       = abspath("%[2]s")
+  content_type = "application/x-msdownload"
+}`, acceptance.HW_REGION_NAME, acceptance.HW_WORKSPACE_APP_FILE_NAME)
+}
+
 func testAccWarehouseApp_basic_step1(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_workspace_app_warehouse_app" "test" {
-  name            = "%[1]s"
+  name            = "%[2]s"
   category        = "OTHER"
   os_type         = "Windows"
   version         = "1.0"
   version_name    = "terraform"
-  file_store_path = "%[2]s"
+  file_store_path = "%[3]s"
   description     = "Created by script"
 }
-`, name, acceptance.HW_WORKSPACE_APP_FILE_STRORE_OBS_PATH)
+`, executionFileUploadResourcesConfig(), name, acceptance.HW_WORKSPACE_APP_FILE_NAME)
 }
 
 func testAccWarehouseApp_basic_step2(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_workspace_app_warehouse_app" "test" {
-  name            = "%[1]s"
+  name            = "%[2]s"
   category        = "PRODUCTIVITY_AND_COLLABORATION"
   os_type         = "Linux"
   version         = "2.0"
   version_name    = "terraform_update"
-  file_store_path = "%[2]s"
+  file_store_path = "%[3]s"
   description     = "Updated by script"
 }
-`, name, acceptance.HW_WORKSPACE_APP_FILE_STRORE_OBS_PATH)
+`, executionFileUploadResourcesConfig(), name, acceptance.HW_WORKSPACE_APP_FILE_NAME)
 }
