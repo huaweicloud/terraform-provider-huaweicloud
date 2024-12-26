@@ -153,6 +153,22 @@ The following arguments are supported:
 
 * `tags` - (Optional, List) Specifies the list of tags configuration.
 
+* `content_type` - (Optional, String) Specifies the content type of the request body.  
+  The valid values are as follows:
+  + **application/json**
+  + **application/xml**
+  + **multipart/form-data**
+  + **text/plain**
+
+* `is_send_fg_body_base64` - (Optional, Bool) Specifies whether to perform base64 encoding on the body for interaction
+  with FunctionGraph.  
+  Defaults to **true**.  
+  The body does not need to be encoded using base64 only when `content_type` is set to **application/json**.  
+  These scenarios which can be applied:
+  + Custom authentication.
+  + Bound circuit breaker plug-in with FunctionGraph backend downgrade policy.
+  + APIs with FunctionGraph backend.
+
 * `request_params` - (Optional, List) Specifies the configurations of the front-end parameters.  
   The [object](#apig_api_request_params) structure is documented below.
 

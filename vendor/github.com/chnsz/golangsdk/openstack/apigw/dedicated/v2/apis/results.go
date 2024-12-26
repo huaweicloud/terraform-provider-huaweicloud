@@ -88,6 +88,10 @@ type APIResp struct {
 	AuthorizerId string `json:"authorizer_id"`
 	// Tags.
 	Tags []string `json:"tags"`
+	// The content type of the request body.
+	ContentType string `json:"content_type"`
+	// Whether to perform base64 encoding on the body for interaction with FunctionGraph.
+	IsSendFgBodyBase64 bool `json:"is_send_fg_body_base64"`
 	// Group response ID.
 	ResponseId string `json:"response_id"`
 	// API ID.

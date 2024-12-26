@@ -225,6 +225,18 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The list of tags configuration.",
 			},
+			"content_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The content type of the request body.",
+			},
+			"is_send_fg_body_base64": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Whether to perform Base64 encoding on the body for interaction with FunctionGraph.",
+			},
 			"request_params": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -1253,6 +1265,8 @@ func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
 		ResponseId:          d.Get("response_id").(string),
 		ReqParams:           buildRequestParameters(d.Get("request_params").(*schema.Set)),
 		Tags:                utils.ExpandToStringListBySet(d.Get("tags").((*schema.Set))),
+		ContentType:         d.Get("content_type").(string),
+		IsSendFgBodyBase64:  utils.Bool(d.Get("is_send_fg_body_base64").(bool)),
 	}
 	// build match mode
 	matchMode := d.Get("matching").(string)
@@ -1649,6 +1663,8 @@ func resourceApiRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("name", resp.Name),
 		d.Set("authorizer_id", resp.AuthorizerId),
 		d.Set("tags", resp.Tags),
+		d.Set("content_type", resp.ContentType),
+		d.Set("is_send_fg_body_base64", resp.IsSendFgBodyBase64),
 		d.Set("request_protocol", resp.ReqProtocol),
 		d.Set("request_method", resp.ReqMethod),
 		d.Set("request_path", resp.ReqURI),
