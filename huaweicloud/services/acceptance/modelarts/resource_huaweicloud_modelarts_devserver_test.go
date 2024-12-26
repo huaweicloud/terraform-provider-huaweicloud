@@ -46,7 +46,7 @@ func TestAccDevServer_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDevServer_basic(name, password, true),
+				Config: testAccDevServer_basic(true, name, password),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -64,11 +64,29 @@ func TestAccDevServer_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testDevServer_basic(name, password, false),
+				Config: testAccDevServer_basic(false, name, password),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 				),
+			},
+			// Stopping the DevServer.
+			{
+				Config: testAccDevServer_doAction(name, password, "stop", false),
+			},
+			// Stopping the stopped DevServer.
+			{
+				Config:      testAccDevServer_doAction(name, password, "stop", true),
+				ExpectError: regexp.MustCompile(`Resource.Server '[a-f0-9-]+' is not allowed STOP: STOPPED`),
+			},
+			// Starting the DevServer.
+			{
+				Config: testAccDevServer_doAction(name, password, "start", false),
+			},
+			// Starting the running DevServer.
+			{
+				Config:      testAccDevServer_doAction(name, password, "start", true),
+				ExpectError: regexp.MustCompile(`Resource.Server '[a-f0-9-]+' is not allowed START: RUNNING`),
 			},
 			{
 				ResourceName:      resourceName,
@@ -88,7 +106,7 @@ func TestAccDevServer_basic(t *testing.T) {
 	})
 }
 
-func testDevServer_basic(name, password string, autoRenew bool) string {
+func testAccDevServer_basic(isAutoRenew bool, name, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -112,5 +130,30 @@ resource "huaweicloud_modelarts_devserver" "test" {
   auto_renew    = "%[6]v"
 }
 `, common.TestBaseNetwork(name), name,
-		acceptance.HW_MODELARTS_DEVSERVER_FLAVOR, acceptance.HW_MODELARTS_DEVSERVER_IMAGE_ID, password, autoRenew)
+		acceptance.HW_MODELARTS_DEVSERVER_FLAVOR, acceptance.HW_MODELARTS_DEVSERVER_IMAGE_ID, password, isAutoRenew)
+}
+
+func testAccDevServer_doAction(name, password, actionType string, doRetryAction bool) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_modelarts_devserver_action" "test" {
+  devserver_id = huaweicloud_modelarts_devserver.test.id
+  action       = "%[2]s"
+}
+
+variable "is_retry_devserver_action" {
+  type    = bool
+  default = "%[3]v"
+}
+
+resource "huaweicloud_modelarts_devserver_action" "expect_err" {
+  count = var.is_retry_devserver_action ? 1 : 0
+
+  depends_on = [huaweicloud_modelarts_devserver_action.test]
+
+  devserver_id = huaweicloud_modelarts_devserver.test.id
+  action       = "%[2]s"
+}
+`, testAccDevServer_basic(false, name, password), actionType, doRetryAction)
 }
