@@ -64,6 +64,9 @@ The following arguments are supported:
 * `ingest_domain_name` - (Optional, String) Specifies the ingest domain name, which associates with the streaming
   domain name to push streams to nearby CDN nodes.
 
+* `is_ipv6` - (Optional, Bool) Specifies whether enable IPv6 switch. Defaults to **false**.
+  This field can only be edited when `status` is **on**.
+
 * `status` - (Optional, String) Specifies status of the domain name. The options are as follows:
   + **on**: enable the domain name.
   + **off**: disable the domain name.

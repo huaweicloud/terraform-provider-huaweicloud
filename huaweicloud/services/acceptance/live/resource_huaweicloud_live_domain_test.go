@@ -25,13 +25,13 @@ func getDomainResourceFunc(conf *config.Config, state *terraform.ResourceState) 
 func TestAccDomain_basic(t *testing.T) {
 	var obj model.CreateDomainMappingResponse
 
-	pushDomainName := fmt.Sprintf("%s.huaweicloud.com", acceptance.RandomAccResourceNameWithDash())
-	pullDomainName := fmt.Sprintf("%s.huaweicloud.com", acceptance.RandomAccResourceNameWithDash())
-	pushResourceName := "huaweicloud_live_domain.ingestDomain"
-	pullResourceName := "huaweicloud_live_domain.streamingDomain"
+	ingestDomainName := fmt.Sprintf("%s.huaweicloud.com", acceptance.RandomAccResourceNameWithDash())
+	streamingDomainName := fmt.Sprintf("%s.huaweicloud.com", acceptance.RandomAccResourceNameWithDash())
+	ingestResourceName := "huaweicloud_live_domain.ingestDomain"
+	streamingResourceName := "huaweicloud_live_domain.streamingDomain"
 
 	rc := acceptance.InitResourceCheck(
-		pushResourceName,
+		ingestResourceName,
 		&obj,
 		getDomainResourceFunc,
 	)
@@ -45,42 +45,44 @@ func TestAccDomain_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDomain_basic(pushDomainName, pullDomainName),
+				Config: testDomain_basic(ingestDomainName, streamingDomainName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(pushResourceName, "name", pushDomainName),
-					resource.TestCheckResourceAttr(pushResourceName, "type", "push"),
-					resource.TestCheckResourceAttr(pushResourceName, "status", "on"),
-					resource.TestCheckResourceAttr(pushResourceName, "service_area", "mainland_china"),
-					resource.TestCheckResourceAttr(pushResourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(ingestResourceName, "name", ingestDomainName),
+					resource.TestCheckResourceAttr(ingestResourceName, "type", "push"),
+					resource.TestCheckResourceAttr(ingestResourceName, "status", "on"),
+					resource.TestCheckResourceAttr(ingestResourceName, "service_area", "mainland_china"),
+					resource.TestCheckResourceAttr(ingestResourceName, "is_ipv6", "true"),
+					resource.TestCheckResourceAttr(ingestResourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 
-					resource.TestCheckResourceAttr(pullResourceName, "name", pullDomainName),
-					resource.TestCheckResourceAttr(pullResourceName, "type", "pull"),
-					resource.TestCheckResourceAttr(pullResourceName, "status", "on"),
-					resource.TestCheckResourceAttr(pullResourceName, "ingest_domain_name", pushDomainName),
-					resource.TestCheckResourceAttr(pullResourceName, "service_area", "outside_mainland_china"),
-					resource.TestCheckResourceAttr(pullResourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(streamingResourceName, "name", streamingDomainName),
+					resource.TestCheckResourceAttr(streamingResourceName, "type", "pull"),
+					resource.TestCheckResourceAttr(streamingResourceName, "status", "on"),
+					resource.TestCheckResourceAttr(streamingResourceName, "ingest_domain_name", ingestDomainName),
+					resource.TestCheckResourceAttr(streamingResourceName, "service_area", "outside_mainland_china"),
+					resource.TestCheckResourceAttr(streamingResourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
-				Config: testDomain_basic_update(pushDomainName, pullDomainName),
+				Config: testDomain_basic_update(ingestDomainName, streamingDomainName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(pushResourceName, "name", pushDomainName),
-					resource.TestCheckResourceAttr(pushResourceName, "type", "push"),
-					resource.TestCheckResourceAttr(pushResourceName, "status", "on"),
-					resource.TestCheckResourceAttr(pushResourceName, "service_area", "mainland_china"),
-					resource.TestCheckResourceAttr(pushResourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(ingestResourceName, "name", ingestDomainName),
+					resource.TestCheckResourceAttr(ingestResourceName, "type", "push"),
+					resource.TestCheckResourceAttr(ingestResourceName, "status", "on"),
+					resource.TestCheckResourceAttr(ingestResourceName, "service_area", "mainland_china"),
+					resource.TestCheckResourceAttr(ingestResourceName, "is_ipv6", "false"),
+					resource.TestCheckResourceAttr(ingestResourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 
-					resource.TestCheckResourceAttr(pullResourceName, "name", pullDomainName),
-					resource.TestCheckResourceAttr(pullResourceName, "type", "pull"),
-					resource.TestCheckResourceAttr(pullResourceName, "status", "off"),
-					resource.TestCheckResourceAttr(pullResourceName, "ingest_domain_name", ""),
-					resource.TestCheckResourceAttr(pullResourceName, "service_area", "outside_mainland_china"),
-					resource.TestCheckResourceAttr(pullResourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(streamingResourceName, "name", streamingDomainName),
+					resource.TestCheckResourceAttr(streamingResourceName, "type", "pull"),
+					resource.TestCheckResourceAttr(streamingResourceName, "status", "off"),
+					resource.TestCheckResourceAttr(streamingResourceName, "ingest_domain_name", ""),
+					resource.TestCheckResourceAttr(streamingResourceName, "service_area", "outside_mainland_china"),
+					resource.TestCheckResourceAttr(streamingResourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 			{
-				ResourceName:      pullResourceName,
+				ResourceName:      streamingResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -94,6 +96,7 @@ resource "huaweicloud_live_domain" "ingestDomain" {
   name                  = "%[1]s"
   type                  = "push"
   service_area          = "mainland_china"
+  is_ipv6               = true
   enterprise_project_id = "%[3]s"
 }
 
@@ -113,6 +116,7 @@ resource "huaweicloud_live_domain" "ingestDomain" {
   name                  = "%[1]s"
   type                  = "push"
   service_area          = "mainland_china"
+  is_ipv6               = false
   enterprise_project_id = "%[3]s"
 }
 

@@ -74,6 +74,11 @@ func ResourceDomain() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"is_ipv6": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -127,6 +132,12 @@ func resourceDomainCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
+	if d.Get("is_ipv6").(bool) {
+		if err := updateIPv6Switch(client, d); err != nil {
+			return diag.Errorf("error updating Live domain IPv6 switch in creation operation: %s", err)
+		}
+	}
+
 	return resourceDomainRead(ctx, d, meta)
 }
 
@@ -162,6 +173,7 @@ func resourceDomainRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("cname", detail.DomainCname),
 		d.Set("service_area", flattenServiceAreaAttribute(detail.ServiceArea)),
 		d.Set("enterprise_project_id", detail.EnterpriseProjectId),
+		d.Set("is_ipv6", detail.IsIpv6),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -183,14 +195,12 @@ func resourceDomainUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating Live v1 client: %s", err)
 	}
 
-	domainName := d.Get("name").(string)
-
 	// associate the streaming domain name with an ingest domain Or delete association
 	if d.HasChange("ingest_domain_name") {
 		ingetstDomainNameOld, ingetstDomainName := d.GetChange("ingest_domain_name")
 
 		if ingetstDomainName == "" {
-			err = deleteAssociation(client, domainName, ingetstDomainNameOld.(string))
+			err = deleteAssociation(client, d.Get("name").(string), ingetstDomainNameOld.(string))
 		} else {
 			err = associatingDomain(d, client)
 		}
@@ -204,6 +214,12 @@ func resourceDomainUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		err = updateStatus(ctx, d, client, c)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("is_ipv6") {
+		if err := updateIPv6Switch(client, d); err != nil {
+			return diag.Errorf("error updating Live domain IPv6 switch in update operation: %s", err)
 		}
 	}
 
@@ -370,4 +386,16 @@ func updateStatus(ctx context.Context, d *schema.ResourceData, client *livev1.Li
 	}
 
 	return waitingForDomainStatus(ctx, client, d.Id(), respStatus, d.Timeout(schema.TimeoutUpdate))
+}
+
+func updateIPv6Switch(client *livev1.LiveClient, d *schema.ResourceData) error {
+	switchRequest := model.UpdateDomainIp6SwitchRequest{
+		Body: &model.DomainIpv6SwitchReq{
+			Domain: d.Get("name").(string),
+			IsIpv6: utils.Bool(d.Get("is_ipv6").(bool)),
+		},
+	}
+
+	_, err := client.UpdateDomainIp6Switch(&switchRequest)
+	return err
 }
