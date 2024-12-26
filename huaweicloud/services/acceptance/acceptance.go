@@ -224,7 +224,7 @@ var (
 	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID")
 	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE  = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE")
 	HW_WORKSPACE_OU_NAME                           = os.Getenv("HW_WORKSPACE_OU_NAME")
-	HW_WORKSPACE_APP_FILE_STRORE_OBS_PATH          = os.Getenv("HW_WORKSPACE_APP_FILE_STRORE_OBS_PATH")
+	HW_WORKSPACE_APP_FILE_NAME                     = os.Getenv("HW_WORKSPACE_APP_FILE_NAME")
 	HW_WORKSPACE_USER_NAMES                        = os.Getenv("HW_WORKSPACE_USER_NAMES")
 
 	HW_FGS_AGENCY_NAME         = os.Getenv("HW_FGS_AGENCY_NAME")
@@ -1581,9 +1581,9 @@ func TestAccPreCheckWorkspaceOUName(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckWorkspaceFileStorePath(t *testing.T) {
-	if HW_WORKSPACE_APP_FILE_STRORE_OBS_PATH == "" {
-		t.Skip("HW_WORKSPACE_APP_FILE_STRORE_OBS_PATH must be set for Workspace service acceptance tests.")
+func TestAccPreCheckWorkspaceAppFileName(t *testing.T) {
+	if HW_WORKSPACE_APP_FILE_NAME == "" {
+		t.Skip("HW_WORKSPACE_APP_FILE_NAME must be set for Workspace service acceptance tests.")
 	}
 }
 
