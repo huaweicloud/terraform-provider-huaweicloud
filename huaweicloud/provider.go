@@ -575,8 +575,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_servergroups":            ecs.DataSourceComputeServerGroups(),
 			"huaweicloud_compute_instance_remote_console": ecs.DataSourceComputeInstanceRemoteConsole(),
 
-			"huaweicloud_codearts_deploy_groups": codeartsdeploy.DataSourceCodeartsDeployGroups(),
-			"huaweicloud_codearts_deploy_hosts":  codeartsdeploy.DataSourceCodeartsDeployHosts(),
+			"huaweicloud_codearts_deploy_groups":             codeartsdeploy.DataSourceCodeartsDeployGroups(),
+			"huaweicloud_codearts_deploy_hosts":              codeartsdeploy.DataSourceCodeartsDeployHosts(),
+			"huaweicloud_codearts_deploy_application_groups": codeartsdeploy.DataSourceCodeartsDeployApplicationGroups(),
 
 			"huaweicloud_cts_notifications": cts.DataSourceNotifications(),
 			"huaweicloud_cts_traces":        cts.DataSourceCtsTraces(),
