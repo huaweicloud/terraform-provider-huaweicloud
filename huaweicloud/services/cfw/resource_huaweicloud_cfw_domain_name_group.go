@@ -144,6 +144,7 @@ func resourceDomainNameGroupCreate(ctx context.Context, d *schema.ResourceData, 
 
 	createDomainNameGroupPath := createDomainNameGroupClient.Endpoint + createDomainNameGroupHttpUrl
 	createDomainNameGroupPath = strings.ReplaceAll(createDomainNameGroupPath, "{project_id}", createDomainNameGroupClient.ProjectID)
+	createDomainNameGroupPath += fmt.Sprintf("?fw_instance_id=%v", d.Get("fw_instance_id"))
 
 	createDomainNameGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
