@@ -17,6 +17,8 @@ func TestAccDataSourcePermissionSetProvisioningAccounts_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMultiAccount(t)
+			acceptance.TestAccPreCheckIdentityCenterAccountId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
