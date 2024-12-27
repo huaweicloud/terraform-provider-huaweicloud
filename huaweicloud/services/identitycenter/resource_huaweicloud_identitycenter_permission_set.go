@@ -26,6 +26,9 @@ import (
 // @API IdentityCenter DELETE /v1/instances/{instance_id}/permission-sets/{id}
 // @API IdentityCenter GET /v1/instances/{instance_id}/permission-sets/{id}
 // @API IdentityCenter PUT /v1/instances/{instance_id}/permission-sets/{id}
+// @API IdentityCenter POST /v1/instances/{resource_type}/{resource_id}/tags/create
+// @API IdentityCenter POST /v1/instances/{resource_type}/{resource_id}/tags/delete
+// @API IdentityCenter GET /v1/instances/{resource_type}/{resource_id}/tags
 func ResourcePermissionSet() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePermissionSetCreate,
@@ -62,6 +65,7 @@ func ResourcePermissionSet() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"tags": common.TagsSchema(),
 			"urn": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -115,6 +119,13 @@ func resourcePermissionSetCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	d.SetId(permissionSetId)
+
+	if _, ok := d.GetOk("tags"); ok {
+		if err := updateTags(createPermissionSetClient, d, "identitycenter:permissionset", d.Id()); err != nil {
+			return diag.Errorf("error creating tags of Identity Center permission set %s: %s", d.Id(), err)
+		}
+	}
+
 	return resourcePermissionSetRead(ctx, d, meta)
 }
 
@@ -176,6 +187,16 @@ func resourcePermissionSetRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("account_ids", accountIDs),
 	)
 
+	tags, err := getPermissionSetTags(getPermissionSetClient, d.Id())
+	if err != nil {
+		log.Printf("[WARN] error fetching tags of permission set: %s", err)
+	}
+
+	mErr = multierror.Append(
+		mErr,
+		d.Set("tags", tags),
+	)
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -205,6 +226,10 @@ func getAssignededAccounts(client *golangsdk.ServiceClient, instanceID, psID str
 func resourcePermissionSetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("identitycenter", region)
+	if err != nil {
+		return diag.Errorf("error creating Identity Center client: %s", err)
+	}
 
 	updatePermissionSetChanges := []string{
 		"session_duration",
@@ -213,16 +238,9 @@ func resourcePermissionSetUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if d.HasChanges(updatePermissionSetChanges...) {
-		var (
-			updatePermissionSetHttpUrl = "v1/instances/{instance_id}/permission-sets/{id}"
-			updatePermissionSetProduct = "identitycenter"
-		)
-		updatePermissionSetClient, err := cfg.NewServiceClient(updatePermissionSetProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating Identity Center client: %s", err)
-		}
+		updatePermissionSetHttpUrl := "v1/instances/{instance_id}/permission-sets/{id}"
 
-		updatePermissionSetPath := updatePermissionSetClient.Endpoint + updatePermissionSetHttpUrl
+		updatePermissionSetPath := client.Endpoint + updatePermissionSetHttpUrl
 		updatePermissionSetPath = strings.ReplaceAll(updatePermissionSetPath, "{instance_id}", d.Get("instance_id").(string))
 		updatePermissionSetPath = strings.ReplaceAll(updatePermissionSetPath, "{id}", d.Id())
 
@@ -230,9 +248,15 @@ func resourcePermissionSetUpdate(ctx context.Context, d *schema.ResourceData, me
 			KeepResponseBody: true,
 		}
 		updatePermissionSetOpt.JSONBody = utils.RemoveNil(buildUpdatePermissionSetBodyParams(d))
-		_, err = updatePermissionSetClient.Request("PUT", updatePermissionSetPath, &updatePermissionSetOpt)
+		_, err = client.Request("PUT", updatePermissionSetPath, &updatePermissionSetOpt)
 		if err != nil {
 			return diag.Errorf("error updating permission set: %s", err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		if err := updateTags(client, d, "identitycenter:permissionset", d.Id()); err != nil {
+			return diag.Errorf("error updating tags of Identitycenter permission set %s: %s", d.Id(), err)
 		}
 	}
 
@@ -294,4 +318,84 @@ func resourcePermissionSetImport(_ context.Context, d *schema.ResourceData, _ in
 	d.Set("instance_id", instanceID)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func updateTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tagsType string, id string) error {
+	oRaw, nRaw := d.GetChange("tags")
+	oMap := oRaw.(map[string]interface{})
+	nMap := nRaw.(map[string]interface{})
+
+	manageTagsHttpUrl := "v1/instances/{resource_type}/{resource_id}/tags/{action}"
+	manageTagsPath := client.Endpoint + manageTagsHttpUrl
+	manageTagsPath = strings.ReplaceAll(manageTagsPath, "{resource_type}", tagsType)
+	manageTagsPath = strings.ReplaceAll(manageTagsPath, "{resource_id}", id)
+	manageTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	// remove old tags
+	if len(oMap) > 0 {
+		manageDeleteTagsPath := strings.ReplaceAll(manageTagsPath, "{action}", "delete")
+		manageTagsOpt.JSONBody = map[string]interface{}{
+			"tags": utils.ExpandResourceTags(oMap),
+		}
+		_, err := client.Request("POST", manageDeleteTagsPath, &manageTagsOpt)
+		if err != nil {
+			return err
+		}
+	}
+
+	// set new tags
+	if len(nMap) > 0 {
+		manageCreateTagsPath := strings.ReplaceAll(manageTagsPath, "{action}", "create")
+		manageTagsOpt.JSONBody = map[string]interface{}{
+			"tags": utils.ExpandResourceTags(nMap),
+		}
+		_, err := client.Request("POST", manageCreateTagsPath, &manageTagsOpt)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func getPermissionSetTags(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+	getPermissionSetTagsHttpUrl := "v1/instances/{resource_type}/{resource_id}/tags?limit=10"
+	getPermissionSetTagsPath := client.Endpoint + getPermissionSetTagsHttpUrl
+	getPermissionSetTagsPath = strings.ReplaceAll(getPermissionSetTagsPath, "{resource_type}", "identitycenter:permissionset")
+	getPermissionSetTagsPath = strings.ReplaceAll(getPermissionSetTagsPath, "{resource_id}", id)
+
+	getPermissionSetTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	path := getPermissionSetTagsPath
+	var permissionSetTags []interface{}
+	for {
+		getPermissionSetTagsResp, err := client.Request("GET", path, &getPermissionSetTagsOpt)
+		if err != nil {
+			return nil, err
+		}
+		getPermissionSetTagsRespBody, err := utils.FlattenResponse(getPermissionSetTagsResp)
+		if err != nil {
+			return nil, err
+		}
+		tags := utils.PathSearch("tags", getPermissionSetTagsRespBody, make([]interface{}, 0)).([]interface{})
+		permissionSetTags = append(permissionSetTags, tags...)
+
+		marker := utils.PathSearch("page_info.next_marker", getPermissionSetTagsRespBody, nil)
+		if marker == nil {
+			break
+		}
+		path = fmt.Sprintf("%s&marker=%s", getPermissionSetTagsPath, marker)
+	}
+
+	result := make(map[string]interface{})
+	for _, val := range permissionSetTags {
+		valMap := val.(map[string]interface{})
+		result[valMap["key"].(string)] = valMap["value"]
+	}
+
+	return result, nil
 }
