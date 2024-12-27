@@ -41,7 +41,7 @@ func getResourceWorkspaceAppGroupFunc(cfg *config.Config, state *terraform.Resou
 	return resp, err
 }
 
-func TestAccResourceWorkspaceAppGroup_basic(t *testing.T) {
+func TestAccResourceAppGroup_basic(t *testing.T) {
 	var (
 		resourceName = "huaweicloud_workspace_app_group.test"
 		name         = acceptance.RandomAccResourceName()

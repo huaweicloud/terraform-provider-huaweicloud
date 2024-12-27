@@ -1544,13 +1544,6 @@ func TestAccPreCheckWorkspaceInternetAccessPort(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckWorkspaceAppServerGroupId(t *testing.T) {
-	if HW_WORKSPACE_APP_SERVER_GROUP_ID == "" {
-		t.Skip("HW_WORKSPACE_APP_SERVER_GROUP_ID must be set for Workspace service acceptance tests.")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckWorkspaceAppServerGroup(t *testing.T) {
 	if HW_WORKSPACE_AD_VPC_ID == "" || HW_WORKSPACE_AD_NETWORK_ID == "" ||
 		HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID == "" || HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID == "" ||

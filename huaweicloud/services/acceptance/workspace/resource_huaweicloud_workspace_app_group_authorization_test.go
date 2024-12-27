@@ -74,7 +74,7 @@ func TestAccResourceAppGroupAuthorization_expectErr(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
