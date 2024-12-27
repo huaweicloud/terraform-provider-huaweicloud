@@ -339,6 +339,8 @@ var (
 
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
 	HW_MODELARTS_USER_LOGIN_PASSWORD = os.Getenv("HW_MODELARTS_USER_LOGIN_PASSWORD")
+	HW_MODELARTS_DEVSERVER_FLAVOR    = os.Getenv("HW_MODELARTS_DEVSERVER_FLAVOR")
+	HW_MODELARTS_DEVSERVER_IMAGE_ID  = os.Getenv("HW_MODELARTS_DEVSERVER_IMAGE_ID")
 
 	// The CMDB sub-application ID of AOM service
 	HW_AOM_SUB_APPLICATION_ID                    = os.Getenv("HW_AOM_SUB_APPLICATION_ID")
@@ -1895,6 +1897,13 @@ func TestAccPreCheckModelArtsHasSubscribeModel(t *testing.T) {
 func TestAccPreCheckModelartsUserLoginPassword(t *testing.T) {
 	if HW_MODELARTS_USER_LOGIN_PASSWORD == "" {
 		t.Skip("HW_MODELARTS_USER_LOGIN_PASSWORD must be set for modelarts privilege resource pool acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckModelartsDevServer(t *testing.T) {
+	if HW_MODELARTS_DEVSERVER_FLAVOR == "" || HW_MODELARTS_DEVSERVER_IMAGE_ID == "" {
+		t.Skip("HW_MODELARTS_DEVSERVER_FLAVOR and HW_MODELARTS_DEVSERVER_IMAGE_ID must be set for ModelArts DevServer acceptance test")
 	}
 }
 
