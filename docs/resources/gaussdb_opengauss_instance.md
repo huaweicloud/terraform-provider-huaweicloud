@@ -135,7 +135,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `configuration_id` - (Optional, String, ForceNew) Specifies the parameter template ID.
+* `configuration_id` - (Optional, String) Specifies the parameter template ID.
   Changing this parameter will create a new resource.
 
 * `sharding_num` - (Optional, Int) Specifies the sharding number.  

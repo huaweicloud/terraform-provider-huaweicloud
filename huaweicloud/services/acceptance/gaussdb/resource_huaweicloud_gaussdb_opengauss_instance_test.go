@@ -326,6 +326,22 @@ data "huaweicloud_gaussdb_opengauss_flavors" "test" {
   ha_mode = "enterprise"
 }
 
+resource "huaweicloud_gaussdb_opengauss_parameter_template" "test" {
+  name           = "%[2]s"
+  engine_version = "8.201"
+  instance_mode  = "independent"
+
+  parameters {
+    name  = "cn:auto_explain_log_min_duration"
+    value = "1000"
+  }
+
+  parameters {
+    name  = "dn:a_format_date_timestamp"
+    value = "on"
+  }
+}
+
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   depends_on = [
     huaweicloud_networking_secgroup_rule.in_v4_tcp_opengauss,
@@ -342,6 +358,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   sharding_num      = 2
   coordinator_num   = 3
   replica_num       = %[4]d
+  configuration_id  = huaweicloud_gaussdb_opengauss_parameter_template.test.id
   availability_zone = join(",", [data.huaweicloud_availability_zones.test.names[0], 
                       data.huaweicloud_availability_zones.test.names[1], 
                       data.huaweicloud_availability_zones.test.names[2]])

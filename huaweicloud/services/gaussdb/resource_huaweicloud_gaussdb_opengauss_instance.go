@@ -39,6 +39,7 @@ const (
 // @API GaussDB POST /v3/{project_id}/instances/{instance_id}/action
 // @API GaussDB PUT /v3/{project_id}/instances/{instance_id}/backups/policy
 // @API GaussDB PUT /v3/{project_id}/instance/{instance_id}/flavor
+// @API GaussDB PUT /v3/{project_id}/configurations/{config_id}/apply
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}/tag
 // @API GaussDB DELETE /v3/{project_id}/instances/{instance_id}
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
@@ -181,7 +182,6 @@ func ResourceOpenGaussInstance() *schema.Resource {
 			"configuration_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"port": {
 				Type:     schema.TypeString,
@@ -839,11 +839,6 @@ func setOpenGaussPrivateIpsAndEndpoints(d *schema.ResourceData, instance interfa
 }
 
 func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
-	rawParameters := d.Get("parameters").(*schema.Set)
-	if rawParameters.Len() == 0 {
-		return nil
-	}
-
 	var (
 		httpUrl = "v3.1/{project_id}/instances/{instance_id}/configurations"
 	)
@@ -865,16 +860,21 @@ func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, clie
 		return diag.FromErr(err)
 	}
 
+	rawParameters := d.Get("parameters").(*schema.Set)
 	rawParameterMap := make(map[string]bool)
 	for _, rawParameter := range rawParameters.List() {
 		rawParameterMap[rawParameter.(map[string]interface{})["name"].(string)] = true
 	}
 
+	var configurationRestart bool
 	var params []map[string]interface{}
 	parametersList := utils.PathSearch("configuration_parameters", getRespBody, make([]interface{}, 0)).([]interface{})
 	for _, v := range parametersList {
 		name := utils.PathSearch("name", v, "").(string)
 		value := utils.PathSearch("value", v, nil)
+		if utils.PathSearch("restart_required", v, false).(bool) {
+			configurationRestart = true
+		}
 		if rawParameterMap[name] {
 			p := map[string]interface{}{
 				"name":  name,
@@ -896,6 +896,13 @@ func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, clie
 				Detail:   "Parameters changed which needs reboot.",
 			})
 		}
+	}
+	if configurationRestart && ctx.Value(ctxType("configurationChanged")) == "true" {
+		diagnostics = append(diagnostics, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Configuration Changed",
+			Detail:   "Configuration changed, the instance may needs reboot.",
+		})
 	}
 	if len(diagnostics) > 0 {
 		return diagnostics
@@ -959,7 +966,23 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	if d.HasChange("parameters") {
+	if d.HasChanges("configuration_id") {
+		ctx, err = updateConfiguration(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		// if parameters is set, it should be modified
+		if params, ok := d.GetOk("parameters"); ok {
+			updateOpts := buildGaussDBOpenGaussParameters(params.(*schema.Set).List())
+			_, err = modifyParameters(ctx, client, d, schema.TimeoutUpdate, &updateOpts)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
+	if d.HasChange("parameters") && !d.HasChanges("configuration_id") {
 		ctx, err = updateParameters(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
@@ -1336,6 +1359,63 @@ func buildUpdateInstanceFlavorBodyParams(d *schema.ResourceData) map[string]inte
 	}
 	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
 		bodyParams["is_auto_pay"] = true
+	}
+	return bodyParams
+}
+
+func updateConfiguration(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) (context.Context, error) {
+	var (
+		httpUrl = "v3/{project_id}/configurations/{config_id}/apply"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{config_id}", d.Get("configuration_id").(string))
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateInstanceConfigurationBodyParams(d))
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("PUT", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     instanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return ctx, fmt.Errorf("error updating GaussDB OpenGauss instance (%s) configuration: %s", d.Id(), err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return ctx, err
+	}
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return ctx, fmt.Errorf("error updating GaussDB OpenGauss instance configuration: job_id is not found in API response")
+	}
+	err = checkGaussDBOpenGaussJobFinish(ctx, client, jobId.(string), 2, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return ctx, err
+	}
+
+	// Sending configurationChanged to Read to warn users the instance needs a reboot.
+	ctx = context.WithValue(ctx, ctxType("configurationChanged"), "true")
+
+	return ctx, nil
+}
+
+func buildUpdateInstanceConfigurationBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"instance_ids": []string{d.Id()},
 	}
 	return bodyParams
 }
