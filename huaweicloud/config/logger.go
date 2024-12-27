@@ -110,6 +110,23 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 		retry++
 	}
 
+	// retry connection reset by peer error
+	retry = 1
+	for err != nil && strings.Contains(err.Error(), "connection reset by peer") {
+		if retry > lrt.MaxRetries {
+			log.Printf("[DEBUG] [%s] connection error, retries exhausted. Aborting", logId)
+			err = fmt.Errorf("connection error, retries exhausted. Aborting. Last error was: %s", err)
+			return nil, err
+		}
+
+		log.Printf("[DEBUG] [%s] connection error, retry number %d: %s", logId, retry, err)
+
+		// lintignore:R018
+		time.Sleep(retryTimeout(retry))
+		response, err = lrt.Rt.RoundTrip(request)
+		retry++
+	}
+
 	return response, err
 }
 
