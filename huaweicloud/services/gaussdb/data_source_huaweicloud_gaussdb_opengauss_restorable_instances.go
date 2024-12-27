@@ -33,14 +33,16 @@ func DataSourceGaussdbOpengaussRestorableInstances() *schema.Resource {
 				Description: `Specifies the ID of the GaussDB OpenGauss instance to be restored.`,
 			},
 			"backup_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the instance backup ID.`,
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"backup_id", "restore_time"},
+				Description:  `Specifies the instance backup ID.`,
 			},
 			"restore_time": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the time point of data restoration in the UNIX timestamp format.`,
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"backup_id", "restore_time"},
+				Description:  `Specifies the time point of data restoration in the UNIX timestamp format.`,
 			},
 			"instances": {
 				Type:        schema.TypeList,
