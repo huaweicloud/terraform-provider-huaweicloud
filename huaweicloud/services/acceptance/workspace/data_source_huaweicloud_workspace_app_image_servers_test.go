@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+// Before running this test, please enable a service that connects to LocalAD and the corresponding OU is created.
 func TestAccDataSourceAppImageServers_basic(t *testing.T) {
 	var (
 		dataSource = "data.huaweicloud_workspace_app_image_servers.test"
@@ -31,9 +32,8 @@ func TestAccDataSourceAppImageServers_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckWorkspaceAppServerGroup(t)
 			acceptance.TestAccPreCheckWorkspaceAppImageSpecCode(t)
-			acceptance.TestAccPrecheckWorkspaceUserNames(t)
 			acceptance.TestAccPreCheckWorkspaceOUName(t)
-			acceptance.TestAccPreCheckWorkspaceADDomainNames(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

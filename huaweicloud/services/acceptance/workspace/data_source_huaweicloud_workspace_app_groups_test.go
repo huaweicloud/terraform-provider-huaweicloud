@@ -130,5 +130,5 @@ locals {
 output "is_type_filter_useful" {
   value = length(local.type_result) > 0 && alltrue(local.type_result)
 }
-`, testResourceWorkspaceAppGroup_basic_step1(name))
+`, testResourceWorkspaceAppGroup_basic_step1(testResourceWorkspaceAppGroup_base(name), name))
 }

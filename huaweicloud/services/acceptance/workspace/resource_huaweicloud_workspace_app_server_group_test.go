@@ -21,6 +21,7 @@ func getResourceAppServerGroupFunc(cfg *config.Config, state *terraform.Resource
 	return workspace.GetServerGroupById(client, state.Primary.ID)
 }
 
+// Before running this test, please enable a service that connects to LocalAD and the corresponding OU is created.
 func TestAccResourceAppServerGroup_basic(t *testing.T) {
 	var (
 		resourceName = "huaweicloud_workspace_app_server_group.test"
@@ -50,7 +51,10 @@ func TestAccResourceAppServerGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "os_type", "Windows"),
 					resource.TestCheckResourceAttr(resourceName, "flavor_id", acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID),
-					resource.TestCheckResourceAttr(resourceName, "subnet_id", acceptance.HW_WORKSPACE_AD_NETWORK_ID),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
+						"data.huaweicloud_workspace_service.test", "vpc_id"),
+					resource.TestCheckResourceAttrPair(resourceName, "subnet_id",
+						"data.huaweicloud_workspace_service.test", "network_ids.0"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "90"),
 					resource.TestCheckResourceAttr(resourceName, "image_id", acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID),
@@ -106,32 +110,32 @@ func TestAccResourceAppServerGroup_basic(t *testing.T) {
 
 func testResourceAppServerGroup_base(name, appType, amountingPolicy string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_workspace_service" "test" {}
+
 resource "huaweicloud_workspace_app_server_group" "primary" {
   name             = "%[1]s_primary"
   os_type          = "Windows"
   flavor_id        = "%[2]s"
-  vpc_id           = "%[3]s"
-  subnet_id        = "%[4]s"
+  vpc_id           = data.huaweicloud_workspace_service.test.vpc_id
+  subnet_id        = data.huaweicloud_workspace_service.test.network_ids[0]
   system_disk_type = "SAS"
   system_disk_size = 80
   is_vdi           = false
-  app_type         = "%[5]s"
-  image_id         = "%[6]s"
+  image_id         = "%[3]s"
   image_type       = "gold"
-  image_product_id = "%[7]s"
+  image_product_id = "%[4]s"
 
   ip_virtual {
     enable = true
   }
 
-  storage_mount_policy = "%[8]s"
+  app_type             = "%[5]s"
+  storage_mount_policy = "%[6]s"
 }
 `, name, acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID,
-		acceptance.HW_WORKSPACE_AD_VPC_ID,
-		acceptance.HW_WORKSPACE_AD_NETWORK_ID,
-		appType,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID,
+		appType,
 		amountingPolicy)
 }
 
@@ -143,16 +147,16 @@ resource "huaweicloud_workspace_app_server_group" "test" {
   name                    = "%[2]s"
   os_type                 = "Windows"
   flavor_id               = "%[3]s"
-  vpc_id                  = "%[4]s"
-  subnet_id               = "%[5]s"
+  vpc_id                  = data.huaweicloud_workspace_service.test.vpc_id
+  subnet_id               = data.huaweicloud_workspace_service.test.network_ids[0]
   system_disk_type        = "SAS"
   system_disk_size        = 90
   is_vdi                  = false
-  image_id                = "%[6]s"
+  image_id                = "%[4]s"
   image_type              = "gold"
-  image_product_id        = "%[7]s"
+  image_product_id        = "%[5]s"
   description             = "Created by script"
-  ou_name                 = "%[8]s"
+  ou_name                 = "%[6]s"
   primary_server_group_id = huaweicloud_workspace_app_server_group.primary.id
 
   tags = {
@@ -177,8 +181,6 @@ resource "huaweicloud_workspace_app_server_group" "test" {
 }
 `, testResourceAppServerGroup_base(name, "COMMON_APP", "USER"), name,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID,
-		acceptance.HW_WORKSPACE_AD_VPC_ID,
-		acceptance.HW_WORKSPACE_AD_NETWORK_ID,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID,
 		acceptance.HW_WORKSPACE_OU_NAME)
@@ -192,15 +194,15 @@ resource "huaweicloud_workspace_app_server_group" "test" {
   name                    = "%[2]s"
   os_type                 = "Windows"
   flavor_id               = "%[3]s"
-  vpc_id                  = "%[4]s"
-  subnet_id               = "%[5]s"
+  vpc_id                  = data.huaweicloud_workspace_service.test.vpc_id
+  subnet_id               = data.huaweicloud_workspace_service.test.network_ids[0]
   system_disk_type        = "SAS"
   system_disk_size        = 80
   app_type                = "SESSION_DESKTOP_APP"
   is_vdi                  = false
-  image_id                = "%[6]s"
+  image_id                = "%[4]s"
   image_type              = "gold"
-  image_product_id        = "%[7]s"
+  image_product_id        = "%[5]s"
   primary_server_group_id = huaweicloud_workspace_app_server_group.primary.id
 
   tags = {
@@ -225,8 +227,6 @@ resource "huaweicloud_workspace_app_server_group" "test" {
 }
 `, testResourceAppServerGroup_base(name, "SESSION_DESKTOP_APP", "ANY"), name,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID,
-		acceptance.HW_WORKSPACE_AD_VPC_ID,
-		acceptance.HW_WORKSPACE_AD_NETWORK_ID,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID)
 }

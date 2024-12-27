@@ -27,6 +27,9 @@ func TestAccAppPublishment_basic(t *testing.T) {
 		resourceName = "huaweicloud_workspace_app_publishment.test"
 		name         = acceptance.RandomAccResourceName()
 		updateName   = acceptance.RandomAccResourceName()
+		baseConfig   = testResourceWorkspaceAppGroup_basic_step1(
+			testResourceWorkspaceAppGroup_base(name, "COMMON_APP"),
+			name, "COMMON_APP")
 	)
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -43,7 +46,7 @@ func TestAccAppPublishment_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppPublishment_basic_step1(name),
+				Config: testAccAppPublishment_basic_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "app_group_id", "huaweicloud_workspace_app_group.test", "id"),
@@ -63,7 +66,7 @@ func TestAccAppPublishment_basic(t *testing.T) {
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`))),
 			},
 			{
-				Config: testAccAppPublishment_basic_step2(updateName),
+				Config: testAccAppPublishment_basic_step2(baseConfig, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -90,34 +93,7 @@ func TestAccAppPublishment_basic(t *testing.T) {
 	})
 }
 
-func testAccAppPublishment_base(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_workspace_app_group" "test" {
-  name = "%[1]s"
-}
-
-resource "huaweicloud_workspace_app_server_group" "test" {
-  name             = "%[1]s"
-  os_type          = "Windows"
-  flavor_id        = "%[2]s"
-  vpc_id           = "%[3]s"
-  subnet_id        = "%[4]s"
-  system_disk_type = "SAS"
-  system_disk_size = 80
-  is_vdi           = true
-  app_type         = "COMMON_APP"
-  image_id         = "%[5]s"
-  image_type       = "gold"
-  image_product_id = "%[6]s"
-}
-`, name, acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID,
-		acceptance.HW_WORKSPACE_AD_VPC_ID,
-		acceptance.HW_WORKSPACE_AD_NETWORK_ID,
-		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
-		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID)
-}
-
-func testAccAppPublishment_basic_step1(name string) string {
+func testAccAppPublishment_basic_step1(baseConfig, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -136,10 +112,10 @@ resource "huaweicloud_workspace_app_publishment" "test" {
   icon_index     = 0
   status         = "FORBIDDEN"
 }
-`, testAccAppPublishment_base(name), name)
+`, baseConfig, name)
 }
 
-func testAccAppPublishment_basic_step2(updateName string) string {
+func testAccAppPublishment_basic_step2(baseConfig, updateName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -154,7 +130,7 @@ resource "huaweicloud_workspace_app_publishment" "test" {
   icon_index     = 0
   status         = "NORMAL"
 }
-`, testAccAppPublishment_base(updateName), updateName)
+`, baseConfig, updateName)
 }
 
 func testAppPublishmentImportState(rName string) resource.ImportStateIdFunc {
