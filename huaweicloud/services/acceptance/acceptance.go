@@ -111,7 +111,9 @@ var (
 	HW_RAM_SHARE_INVITATION_ID       = os.Getenv("HW_RAM_SHARE_INVITATION_ID")
 	HW_RAM_SHARE_ID                  = os.Getenv("HW_RAM_SHARE_ID")
 
-	HW_RMS_TARGET_ID = os.Getenv("HW_RMS_TARGET_ID")
+	HW_RMS_TARGET_ID          = os.Getenv("HW_RMS_TARGET_ID")
+	HW_RMS_EXCLUDED_ACCOUNT_1 = os.Getenv("HW_RMS_EXCLUDED_ACCOUNT_1")
+	HW_RMS_EXCLUDED_ACCOUNT_2 = os.Getenv("HW_RMS_EXCLUDED_ACCOUNT_2")
 
 	HW_CDN_DOMAIN_NAME = os.Getenv("HW_CDN_DOMAIN_NAME")
 	// `HW_CDN_CERT_DOMAIN_NAME` Configure the domain name environment variable of the certificate type.
@@ -1134,6 +1136,13 @@ func TestAccPreCheckRAMSharedPrincipalsQueryFields(t *testing.T) {
 func TestAccPreCheckRMSTargetID(t *testing.T) {
 	if HW_RMS_TARGET_ID == "" {
 		t.Skip("HW_RMS_TARGET_ID must be set for the acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRMSExcludedAccounts(t *testing.T) {
+	if HW_RMS_EXCLUDED_ACCOUNT_1 == "" || HW_RMS_EXCLUDED_ACCOUNT_2 == "" {
+		t.Skip("HW_RMS_EXCLUDED_ACCOUNT_1 and HW_RMS_EXCLUDED_ACCOUNT_2 must be set for the acceptance tests.")
 	}
 }
 

@@ -39,38 +39,33 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the assignment package name. It contains 1 to 64 characters.
+* `name` - (Required, String) Specifies the assignment package name. It contains `1` to `64` characters.
+
+* `excluded_accounts` - (Optional, List) Specifies the excluded accounts for conformance package deployment.
+
+* `template_key` - (Optional, String, ForceNew) Specifies the name of a predefined conformance package. It contains `1` to
+  `128` characters.
 
   Changing this parameter will create a new resource.
 
-* `excluded_accounts` - (Optional, List, ForceNew) Specifies the excluded accounts for conformance package deployment.
+* `template_body` - (Optional, String, ForceNew) Specifies the content of a custom assignment package. It contains `1` to
+  `51200` characters.
 
   Changing this parameter will create a new resource.
 
-* `template_key` - (Optional, String, ForceNew) Specifies the name of a predefined conformance package. It contains 1 to
-  128 characters.
+* `template_uri` - (Optional, String, ForceNew) Specifies the OBS address of a conformance package. It contains `1` to
+  `1024` characters.
 
   Changing this parameter will create a new resource.
 
-* `template_body` - (Optional, String, ForceNew) Specifies the content of a custom assignment package. It contains 1 to
-  51200 characters.
+* `vars_structure` - (Optional, List) Specifies the parameters of a conformance package.
 
-  Changing this parameter will create a new resource.
-
-* `template_uri` - (Optional, String, ForceNew) Specifies the OBS address of a conformance package. It contains 1 to
-  1024 characters.
-
-  Changing this parameter will create a new resource.
-
-* `vars_structure` - (Optional, List, ForceNew) Specifies the parameters of a conformance package.
-
-  Changing this parameter will create a new resource.
 The [vars_structure](#OrgAssignmentPackage_VarStructure) structure is documented below.
 
 <a name="OrgAssignmentPackage_VarStructure"></a>
 The `vars_structure` block supports:
 
-* `var_key` - (Optional, String) Specifies the name of a parameter. It contains 1 to 64 characters.
+* `var_key` - (Optional, String) Specifies the name of a parameter. It contains `1` to `64` characters.
 
 * `var_value` - (Optional, String) Specifies the value of a parameter. It's a json string.
 
