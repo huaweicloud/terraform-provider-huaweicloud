@@ -12,18 +12,18 @@ import (
 func TestAccDataSourceAuditRuleScopes_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_dbss_audit_rule_scopes.test"
-		name           = acceptance.RandomAccResourceName()
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckDbssInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceAuditRuleScopes_basic(name),
+				Config: testDataSourceAuditRuleScopes_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "scopes.#"),
@@ -37,12 +37,10 @@ func TestAccDataSourceAuditRuleScopes_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceAuditRuleScopes_basic(name string) string {
+func testDataSourceAuditRuleScopes_basic() string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_dbss_audit_rule_scopes" "test" {
-  instance_id = huaweicloud_dbss_instance.test.instance_id
+  instance_id = "%s"
 }
-`, testInstance_basic(name))
+`, acceptance.HW_DBSS_INSATNCE_ID)
 }

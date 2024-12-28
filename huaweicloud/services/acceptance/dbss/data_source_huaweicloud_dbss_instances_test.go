@@ -1,7 +1,6 @@
 package dbss
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,18 +11,18 @@ import (
 func TestAccDataSourceInstances_basic(t *testing.T) {
 	var (
 		dataSource = "data.huaweicloud_dbss_instances.test"
-		rName      = acceptance.RandomAccResourceName()
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckDbssInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceInstances_basic(rName),
+				Config: testDataSourceDataSourceInstances_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "instances.#"),
@@ -59,12 +58,4 @@ func TestAccDataSourceInstances_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceInstances_basic(name string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_dbss_instances" "test" {
-  depends_on = [huaweicloud_dbss_instance.test]
-}
-`, testInstance_basic(name))
-}
+const testDataSourceDataSourceInstances_basic = `data "huaweicloud_dbss_instances" "test" {}`

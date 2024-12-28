@@ -12,7 +12,6 @@ import (
 func TestAccDataSourceAuditRiskRules_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_dbss_audit_risk_rules.test"
-		name           = acceptance.RandomAccResourceName()
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
 
 		byName   = "data.huaweicloud_dbss_audit_risk_rules.filter_by_name"
@@ -25,11 +24,12 @@ func TestAccDataSourceAuditRiskRules_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckDbssInstanceId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceAuditRiskRules_basic(name),
+				Config: testDataSourceAuditRiskRules_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
@@ -52,12 +52,10 @@ func TestAccDataSourceAuditRiskRules_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceAuditRiskRules_basic(name string) string {
+func testDataSourceAuditRiskRules_basic() string {
 	return fmt.Sprintf(`
-%s
-
 data "huaweicloud_dbss_audit_risk_rules" "test" {
-  instance_id = huaweicloud_dbss_instance.test.instance_id
+  instance_id = "%[1]s"
 }
 
 locals {
@@ -65,7 +63,7 @@ locals {
 }
 
 data "huaweicloud_dbss_audit_risk_rules" "filter_by_name" {
-  instance_id = huaweicloud_dbss_instance.test.instance_id
+  instance_id = "%[1]s"
   name        = local.name
 }
 
@@ -80,7 +78,7 @@ locals {
 }
 
 data "huaweicloud_dbss_audit_risk_rules" "filter_by_risk_level" {
-  instance_id = huaweicloud_dbss_instance.test.instance_id
+  instance_id = "%[1]s"
   risk_level  = local.risk_level
 }
 
@@ -89,5 +87,5 @@ output "risk_level_filter_useful" {
     [for v in data.huaweicloud_dbss_audit_risk_rules.filter_by_risk_level.rules[*].risk_level : v == local.risk_level]
   )
 }
-`, testInstance_basic(name))
+`, acceptance.HW_DBSS_INSATNCE_ID)
 }
