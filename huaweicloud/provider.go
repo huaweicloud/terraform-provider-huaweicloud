@@ -612,9 +612,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_cph_server_bandwidths":   cph.DataSourceCphServerBandwidths(),
 			"huaweicloud_cph_encode_servers":      cph.DataSourceCphEncodeServers(),
 
-			"huaweicloud_cse_microservice_engine_flavors": cse.DataSourceMicroserviceEngineFlavors(),
-			"huaweicloud_cse_microservice_engines":        cse.DataSourceMicroserviceEngines(),
-			"huaweicloud_cse_nacos_namespaces":            cse.DataSourceNacosNamespaces(),
+			"huaweicloud_cse_microservice_engine_configurations": cse.DataSourceMicroserviceEngineConfigurations(),
+			"huaweicloud_cse_microservice_engine_flavors":        cse.DataSourceMicroserviceEngineFlavors(),
+			"huaweicloud_cse_microservice_engines":               cse.DataSourceMicroserviceEngines(),
+			"huaweicloud_cse_nacos_namespaces":                   cse.DataSourceNacosNamespaces(),
 
 			"huaweicloud_csms_events":                   dew.DataSourceDewCsmsEvents(),
 			"huaweicloud_csms_secrets":                  dew.DataSourceDewCsmsSecrets(),
