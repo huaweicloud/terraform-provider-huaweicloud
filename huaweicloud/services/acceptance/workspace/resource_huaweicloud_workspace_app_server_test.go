@@ -21,6 +21,7 @@ func getResourceAppServerFunc(cfg *config.Config, state *terraform.ResourceState
 	return workspace.GetServerById(client, state.Primary.ID)
 }
 
+// Before running this test, please enable a service that connects to LocalAD and the corresponding OU is created.
 func TestAccResourceAppServer_basic(t *testing.T) {
 	var (
 		resourceName = "huaweicloud_workspace_app_server.test"
@@ -54,8 +55,10 @@ func TestAccResourceAppServer_basic(t *testing.T) {
 						"huaweicloud_workspace_app_server_group.test", "system_disk_type"),
 					resource.TestCheckResourceAttrPair(resourceName, "root_volume.0.size",
 						"huaweicloud_workspace_app_server_group.test", "system_disk_size"),
-					resource.TestCheckResourceAttr(resourceName, "vpc_id", acceptance.HW_WORKSPACE_AD_VPC_ID),
-					resource.TestCheckResourceAttr(resourceName, "subnet_id", acceptance.HW_WORKSPACE_AD_NETWORK_ID),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
+						"data.huaweicloud_workspace_service.test", "vpc_id"),
+					resource.TestCheckResourceAttrPair(resourceName, "subnet_id",
+						"data.huaweicloud_workspace_service.test", "network_ids.0"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created server by script"),
 					resource.TestCheckResourceAttr(resourceName, "ou_name", acceptance.HW_WORKSPACE_OU_NAME),
 					resource.TestCheckResourceAttr(resourceName, "maintain_status", "true"),
@@ -88,22 +91,22 @@ func TestAccResourceAppServer_basic(t *testing.T) {
 
 func testResourceAppServer_base(name string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_workspace_service" "test" {}
+
 resource "huaweicloud_workspace_app_server_group" "test" {
   name             = "%[1]s"
   os_type          = "Windows"
   flavor_id        = "%[2]s"
-  vpc_id           = "%[3]s"
-  subnet_id        = "%[4]s"
+  vpc_id           = data.huaweicloud_workspace_service.test.vpc_id
+  subnet_id        = data.huaweicloud_workspace_service.test.network_ids[0]
   system_disk_type = "SAS"
   system_disk_size = 80
   is_vdi           = true
-  image_id         = "%[5]s"
+  image_id         = "%[3]s"
   image_type       = "gold"
-  image_product_id = "%[6]s"
+  image_product_id = "%[4]s"
 }
 `, name, acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID,
-		acceptance.HW_WORKSPACE_AD_VPC_ID,
-		acceptance.HW_WORKSPACE_AD_NETWORK_ID,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID,
 	)
@@ -158,6 +161,7 @@ resource "huaweicloud_workspace_app_server" "test" {
 `, testResourceAppServer_base(name), name, acceptance.HW_WORKSPACE_OU_NAME)
 }
 
+// Before running this test, please enable a service that connects to LocalAD and the corresponding OU is created.
 func TestAccResourceAppServer_prepaid(t *testing.T) {
 	var (
 		resourceName = "huaweicloud_workspace_app_server.test"
