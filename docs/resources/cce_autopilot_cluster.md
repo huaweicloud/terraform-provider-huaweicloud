@@ -293,10 +293,10 @@ The autopilot cluster can be imported using the cluster ID, e.g.
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`eip_id`, `delete_efs`, `delete_eni`, `delete_net`, `delete_obs`, `delete_sfs30` and `lts_reclaim_policy`. It is generally
-recommended running `terraform plan` after importing a cluster. You can then decide if changes should be applied to
-the cluster, or the resource definition should be updated to align with the cluster. Also you can ignore changes as
-below.
+`enable_snat`, `enable_swr_image_access`, `eip_id`, `delete_efs`, `delete_eni`, `delete_net`, `delete_obs`, `delete_sfs30`
+and `lts_reclaim_policy`. It is generally recommended running `terraform plan` after importing a cluster.
+You can then decide if changes should be applied to the cluster, or the resource definition should be updated to align
+with the cluster. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_cce_autopilot_cluster" "mycluster" {
@@ -304,7 +304,7 @@ resource "huaweicloud_cce_autopilot_cluster" "mycluster" {
 
   lifecycle {
     ignore_changes = [
-      delete_efs, delete_obs,
+      enable_snat, delete_efs, delete_obs,
     ]
   }
 }
