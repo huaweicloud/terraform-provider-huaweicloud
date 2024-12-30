@@ -55,7 +55,8 @@ func ResourceNetworkAcl() *schema.Resource {
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -185,7 +186,7 @@ func resourceNetworkAclCreate(ctx context.Context, d *schema.ResourceData, meta 
 		},
 	}
 
-	createNetworkAclOpt.JSONBody = utils.RemoveNil(buildCreateNetworkAclBodyParams(d))
+	createNetworkAclOpt.JSONBody = utils.RemoveNil(buildCreateNetworkAclBodyParams(d, cfg))
 	createNetworkAclResp, err := client.Request("POST", createNetworkAclPath, &createNetworkAclOpt)
 	if err != nil {
 		return diag.Errorf("error creating network ACL: %s", err)
@@ -324,11 +325,11 @@ func networkAclDisassociatSubnets(client *golangsdk.ServiceClient, subnets []int
 	return nil
 }
 
-func buildCreateNetworkAclBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateNetworkAclBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"firewall": map[string]interface{}{
 			"name":                  d.Get("name"),
-			"enterprise_project_id": d.Get("enterprise_project_id"),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 			"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 			"admin_state_up":        d.Get("enabled"),
 		},

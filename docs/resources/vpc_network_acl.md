@@ -79,7 +79,7 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the network ACL name. The value can contain no more than 64 characters,
   including letters, digits, underscores (_), hyphens (-), and periods (.).
 
-* `enterprise_project_id` - (Required, String) Specifies the enterprise project ID of the network ACL.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the network ACL.
 
 * `description` - (Optional, String) Specifies the network ACL description. The value can contain no more
   than 255 characters and cannot contain angle brackets (< or >).
