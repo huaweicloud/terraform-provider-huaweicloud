@@ -148,12 +148,10 @@ func ResourceAutopilotCluster() *schema.Resource {
 			"enable_snat": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
 			},
 			"enable_swr_image_access": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
 			},
 			"enable_autopilot": {
 				Type:     schema.TypeBool,
@@ -613,6 +611,7 @@ func resourceAutopilotClusterRead(_ context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
+	// enable_snat and enable_swr_image_access not saved, because thay are not returned
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
 		d.Set("name", utils.PathSearch("metadata.name", getClusterRespBody, nil)),
@@ -624,8 +623,6 @@ func resourceAutopilotClusterRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("version", utils.PathSearch("spec.version", getClusterRespBody, nil)),
 		d.Set("description", utils.PathSearch("spec.description", getClusterRespBody, nil)),
 		d.Set("custom_san", utils.PathSearch("spec.customSan", getClusterRespBody, nil)),
-		d.Set("enable_snat", utils.PathSearch("spec.enableSnat", getClusterRespBody, nil)),
-		d.Set("enable_swr_image_access", utils.PathSearch("spec.enableSWRImageAccess", getClusterRespBody, nil)),
 		d.Set("enable_autopilot", utils.PathSearch("spec.enableAutopilot", getClusterRespBody, nil)),
 		d.Set("ipv6_enable", utils.PathSearch("spec.ipv6enable", getClusterRespBody, nil)),
 		d.Set("host_network", flattenHostNetwork(getClusterRespBody)),
