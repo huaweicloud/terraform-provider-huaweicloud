@@ -168,9 +168,8 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 resource "huaweicloud_vpc_network_acl" "test" {
-  name                  = "%s"
-  description           = "created by terraform"
-  enterprise_project_id = 0
+  name        = "%s"
+  description = "created by terraform"
 
   ingress_rules {
     action                 = "allow"
@@ -222,10 +221,9 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 resource "huaweicloud_vpc_network_acl" "test" {
-  name                  = "%s-update"
-  description           = "created by terraform update"
-  enterprise_project_id = 0
-  enabled               = false
+  name        = "%s-update"
+  description = "created by terraform update"
+  enabled     = false
 
   ingress_rules {
     action                 = "allow"
@@ -297,10 +295,9 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 resource "huaweicloud_vpc_network_acl" "test" {
-  name                  = "%s-update"
-  description           = "created by terraform update"
-  enterprise_project_id = 0
-  enabled               = false
+  name        = "%s-update"
+  description = "created by terraform update"
+  enabled     = false
 
   ingress_rules {
     action                 = "allow"
