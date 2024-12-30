@@ -72,7 +72,7 @@ func TestAccHostAccessConfig_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testHostAccessConfig_basic(name),
+				Config: testHostAccessConfig_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -85,10 +85,13 @@ func TestAccHostAccessConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "log_stream_id", "huaweicloud_lts_stream.test", "id"),
 					resource.TestCheckResourceAttrSet(rName, "log_group_name"),
 					resource.TestCheckResourceAttrSet(rName, "log_stream_name"),
+					resource.TestCheckResourceAttrSet(rName, "demo_log"),
+					resource.TestCheckResourceAttr(rName, "demo_fields.#", "2"),
+					resource.TestCheckResourceAttr(rName, "processor_type", "SPLIT"),
 				),
 			},
 			{
-				Config: testHostAccessConfig_basic_update(name),
+				Config: testHostAccessConfig_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(rName, "access_config.0.paths.0", "/var/log/*/*.log"),
 					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.0", "/var/log/*/a.log"),
@@ -96,13 +99,19 @@ func TestAccHostAccessConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(rName, "host_group_ids.#", "1"),
 					resource.TestCheckResourceAttrPair(rName, "host_group_ids.0", "huaweicloud_lts_host_group.test", "id"),
+					resource.TestCheckResourceAttrSet(rName, "demo_log"),
+					resource.TestCheckResourceAttr(rName, "demo_fields.#", "1"),
+					resource.TestCheckResourceAttr(rName, "demo_fields.0.name", "field1"),
+					resource.TestCheckResourceAttr(rName, "demo_fields.0.value", "level:warn1"),
+					resource.TestCheckResourceAttr(rName, "processor_type", "SPLIT"),
 				),
 			},
 			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccHostAccessConfigImportStateFunc(rName),
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdFunc:       testAccHostAccessConfigImportStateFunc(rName),
+				ImportStateVerifyIgnore: []string{"processors"},
 			},
 		},
 	})
@@ -183,7 +192,7 @@ resource "huaweicloud_lts_stream" "test" {
 `, name)
 }
 
-func testHostAccessConfig_basic(name string) string {
+func testHostAccessConfig_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -210,11 +219,45 @@ resource "huaweicloud_lts_host_access" "test" {
     key = "value"
     foo = "bar"
   }
+
+  demo_log = "2024-10-11 10:59:07.000 a.log:1 level:warn|error"
+
+  demo_fields {
+   name  = "field2"
+   value = "error"
+  } 
+  demo_fields {
+   name  = "field1"
+   value = "2024-10-11-10:59:07.000 a.log:1 level:warn"
+  }
+
+  processor_type = "SPLIT"
+
+  processors {
+    type   = "processor_filter_regex"
+    detail = jsonencode({
+      "include": {
+        "name1": "^terraform"
+      },
+      "exclude": {
+        "black": "test"
+      }
+    })
+  }
+  processors {
+    type   = "processor_split_string"
+    detail = jsonencode({
+      "split_sep": "|",
+      "keys": ["field1", "field2"],
+      "keep_source": false,
+      "keep_source_if_parse_error": false
+    })
+  }
 }
 `, testHostAccessConfig_base(name), name)
 }
 
-func testHostAccessConfig_basic_update(name string) string {
+func testHostAccessConfig_basic_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -243,6 +286,25 @@ resource "huaweicloud_lts_host_access" "test" {
   tags = {
     key   = "value-updated"
     owner = "terraform"
+  }
+
+  demo_log = "2024-10-11-10:59:07.000 level:warn1"
+
+  demo_fields {
+   name  = "field1"
+   value = "level:warn1"
+  }
+
+  processor_type = "SPLIT"
+
+  processors {
+    type = "processor_split_string"
+    detail = jsonencode({
+      "split_sep":" ",
+      "keys": ["field1"],
+      "keep_source": true,
+      "keep_source_if_parse_error": true
+    })
   }
 }
 `, testHostAccessConfig_base(name), name)

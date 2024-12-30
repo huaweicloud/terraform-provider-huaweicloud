@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -73,7 +74,57 @@ func ResourceHostAccessConfig() *schema.Resource {
 				Computed: true,
 			},
 			"tags": common.TagsSchema(),
-
+			"processor_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"processors"},
+				Description:  `The type of the ICAgent structuring parsing.`,
+			},
+			"processors": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				RequiredWith: []string{"processor_type"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The type of the parser.`,
+						},
+						"detail": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringIsJSON,
+							Description:  `The configuration of the parser, in JSON format.`,
+						},
+					},
+				},
+				Description: `The list of the ICAgent structuring parsing rules.`,
+			},
+			"demo_log": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The example log of the ICAgent structuring parsing.`,
+			},
+			"demo_fields": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the parsed field.`,
+						},
+						"value": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The value of the parsed field.`,
+						},
+					},
+				},
+				Description: `The list of the parsed fields of the example log`,
+			},
 			"access_type": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -243,6 +294,10 @@ func buildCreateHostAccessConfigBodyParams(d *schema.ResourceData) map[string]in
 		"log_info":             logInfoOpts,
 		"host_group_info":      buildHostGroupInfoRequestBody(d),
 		"access_config_tag":    utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		"processor_type":       utils.ValueIgnoreEmpty(d.Get("processor_type")),
+		"processors":           buildHostAccessProcessors(d.Get("processors").([]interface{})),
+		"demo_log":             utils.ValueIgnoreEmpty(d.Get("demo_log")),
+		"demo_fields":          buildHostAccessDemoFields(d.Get("demo_fields").(*schema.Set)),
 	}
 	return bodyParams
 }
@@ -349,6 +404,37 @@ func buildHostAccessConfigWindowsLogInfoRequestBody(rawParams interface{}) map[s
 	return nil
 }
 
+func buildHostAccessProcessors(processors []interface{}) []map[string]interface{} {
+	if len(processors) < 1 || processors[0] == nil {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(processors))
+	for _, processor := range processors {
+		result = append(result, map[string]interface{}{
+			"type":   utils.ValueIgnoreEmpty(utils.PathSearch("type", processor, nil)),
+			"detail": utils.StringToJson(utils.PathSearch("detail", processor, "").(string)),
+		})
+	}
+
+	return result
+}
+
+func buildHostAccessDemoFields(demoFields *schema.Set) []map[string]interface{} {
+	if demoFields.Len() < 1 {
+		return nil
+	}
+	result := make([]map[string]interface{}, 0, demoFields.Len())
+	for _, demoField := range demoFields.List() {
+		result = append(result, map[string]interface{}{
+			"field_name":  utils.ValueIgnoreEmpty(utils.PathSearch("name", demoField, nil)),
+			"field_value": utils.ValueIgnoreEmpty(utils.PathSearch("value", demoField, nil)),
+		})
+	}
+
+	return result
+}
+
 func resourceHostAccessConfigRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -406,6 +492,10 @@ func resourceHostAccessConfigRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("host_group_ids", utils.PathSearch("host_group_info.host_group_id_list", listHostAccessConfigRespBody, nil)),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("access_config_tag", listHostAccessConfigRespBody, nil))),
 		d.Set("access_config", flattenHostAccessConfigDetail(listHostAccessConfigRespBody)),
+		d.Set("processor_type", utils.PathSearch("processor_type", listHostAccessConfigRespBody, nil)),
+		d.Set("demo_log", utils.PathSearch("demo_log", listHostAccessConfigRespBody, nil)),
+		d.Set("demo_fields",
+			flattenHostAccessDemoFields(utils.PathSearch("demo_fields", listHostAccessConfigRespBody, make([]interface{}, 0)).([]interface{}))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -451,6 +541,21 @@ func flattenHostAccessConfigWindowsLogInfo(resp interface{}) []map[string]interf
 	}
 }
 
+func flattenHostAccessDemoFields(demoFields []interface{}) []map[string]interface{} {
+	if len(demoFields) == 0 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(demoFields))
+	for i, demoField := range demoFields {
+		result[i] = map[string]interface{}{
+			"name":  utils.PathSearch("field_name", demoField, nil),
+			"value": utils.PathSearch("field_value", demoField, nil),
+		}
+	}
+	return result
+}
+
 func resourceHostAccessConfigUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -459,6 +564,10 @@ func resourceHostAccessConfigUpdate(ctx context.Context, d *schema.ResourceData,
 		"access_config",
 		"host_group_ids",
 		"tags",
+		"processor_type",
+		"processors",
+		"demo_log",
+		"demo_fields",
 	}
 
 	if d.HasChanges(updateHostAccessConfigChanges...) {
@@ -503,6 +612,10 @@ func buildUpdateHostAccessConfigBodyParams(d *schema.ResourceData) map[string]in
 		"access_config_detail": buildHostAccessConfigDeatilRequestBody(d.Get("access_config")),
 		"host_group_info":      buildUpdateHostGroupInfoRequestBody(d),
 		"access_config_tag":    utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		"processor_type":       utils.ValueIgnoreEmpty(d.Get("processor_type")),
+		"processors":           utils.ValueIgnoreEmpty(buildHostAccessProcessors(d.Get("processors").([]interface{}))),
+		"demo_log":             utils.ValueIgnoreEmpty(d.Get("demo_log")),
+		"demo_fields":          utils.ValueIgnoreEmpty(buildHostAccessDemoFields(d.Get("demo_fields").(*schema.Set))),
 	}
 	return bodyParams
 }
