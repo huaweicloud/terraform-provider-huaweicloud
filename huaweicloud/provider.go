@@ -813,6 +813,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_redis_flavors":                geminidb.DataSourceGaussDBRedisFlavors(),
 			"huaweicloud_gaussdb_influx_instances":             geminidb.DataSourceGaussDBInfluxInstances(),
 
+			"huaweicloud_gaussdb_opengauss_storage_types":         gaussdb.DataSourceGaussdbOpengaussStorageTypes(),
 			"huaweicloud_gaussdb_opengauss_datastores":            gaussdb.DataSourceGaussdbOpengaussDatastores(),
 			"huaweicloud_gaussdb_opengauss_flavors":               gaussdb.DataSourceGaussdbOpengaussFlavors(),
 			"huaweicloud_gaussdb_opengauss_instance":              gaussdb.DataSourceOpenGaussInstance(),
