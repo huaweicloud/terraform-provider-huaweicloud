@@ -63,6 +63,26 @@
                       "computed": true
                     }
                   },
+                  "block_types": {
+                    "headers": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "description": "The key name of the response header.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value for the specified response header key.",
+                            "required": true
+                          }
+                        },
+                        "description": "The configuration of the custom response headers."
+                      },
+                      "nesting_mode": "set"
+                    }
+                  },
                   "description": "The API custom response rules definition."
                 },
                 "nesting_mode": "set"

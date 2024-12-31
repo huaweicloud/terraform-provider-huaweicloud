@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_url_authentication": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the application name.",
+                "required": true,
+                "forcenew": true
+              },
+              "check_level": {
+                "type": "number",
+                "description": "Specifies the check level.",
+                "optional": true,
+                "forcenew": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name to which the URL validation belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_chain": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The generated signed URLs.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time of the valid access time defined by the user.",
+                "optional": true,
+                "forcenew": true
+              },
+              "stream_name": {
+                "type": "string",
+                "description": "Specifies the stream name.",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the domain name.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

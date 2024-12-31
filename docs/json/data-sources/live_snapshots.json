@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_live_snapshots": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the application name.",
+                "optional": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "snapshots": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_name": "string",
+                      "call_back_auth_key": "string",
+                      "call_back_enabled": "string",
+                      "call_back_url": "string",
+                      "domain_name": "string",
+                      "frequency": "number",
+                      "storage_bucket": "string",
+                      "storage_location": "string",
+                      "storage_mode": "number",
+                      "storage_path": "string"
+                    }
+                  ]
+                ],
+                "description": "The snapshot list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

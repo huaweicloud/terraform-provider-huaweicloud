@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_opengauss_parameter_template": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "engine_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_configuration_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "data_type": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "need_restart": {
+                      "type": "bool",
+                      "computed": true
+                    },
+                    "readonly": {
+                      "type": "bool",
+                      "computed": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "value_range": {
+                      "type": "string",
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

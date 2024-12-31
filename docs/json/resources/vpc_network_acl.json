@@ -20,7 +20,8 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",

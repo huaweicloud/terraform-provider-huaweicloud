@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_live_record_callbacks": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the application name.",
+                "optional": true
+              },
+              "callbacks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_name": "string",
+                      "created_at": "string",
+                      "domain_name": "string",
+                      "id": "string",
+                      "sign_type": "string",
+                      "types": [
+                        "list",
+                        "string"
+                      ],
+                      "updated_at": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "description": "The callback configurations.",
+                "computed": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the ingest domain name.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

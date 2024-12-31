@@ -22,8 +22,7 @@
               },
               "configuration_id": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "coordinator_num": {
                 "type": "number",
@@ -60,8 +59,7 @@
               },
               "flavor": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "force_import": {
                 "type": "bool",
@@ -164,6 +162,13 @@
                 "type": "string",
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "time_zone": {
                 "type": "string",
                 "optional": true,
@@ -248,6 +253,21 @@
                 "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               },
               "volume": {
                 "block": {

@@ -72,6 +72,12 @@
                 "optional": true,
                 "computed": true
               },
+              "force_backup": {
+                "type": "bool",
+                "description": "Whether to automatically execute snapshot when shrinking the number of nodes.",
+                "optional": true,
+                "default": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

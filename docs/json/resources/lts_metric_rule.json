@@ -1,0 +1,217 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_metric_rule": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the log metric rule, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the log metric rule.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "description": "The log group ID to which the log metric rule belongs.",
+                "required": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "description": "The log stream ID to which the log metric rule belongs.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the log metric rule.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "report": {
+                "type": "bool",
+                "description": "Whether to report data to sinks.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the log metric rule.",
+                "required": true
+              },
+              "window_size": {
+                "type": "string",
+                "description": "The interval time for processing data windows.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "aggregator": {
+                "block": {
+                  "attributes": {
+                    "field": {
+                      "type": "string",
+                      "description": "The field of the log statistics.",
+                      "required": true
+                    },
+                    "group_by": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of the group fields of the log statistics.",
+                      "optional": true
+                    },
+                    "keyword": {
+                      "type": "string",
+                      "description": "The keyword of the log statistics.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the log statistics.",
+                      "required": true
+                    }
+                  },
+                  "description": "The configuration of log statistics mode."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "filter": {
+                "block": {
+                  "attributes": {
+                    "type": {
+                      "type": "string",
+                      "description": "The filter type of the log.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "filters": {
+                      "block": {
+                        "attributes": {
+                          "type": {
+                            "type": "string",
+                            "description": "The filter type of the log.",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "filters": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "description": "The filter field of the log.",
+                                  "required": true
+                                },
+                                "lower": {
+                                  "type": "string",
+                                  "description": "The minimum value corresponding to the log filter field.",
+                                  "optional": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "description": "The filter conditions of the log.",
+                                  "required": true
+                                },
+                                "upper": {
+                                  "type": "string",
+                                  "description": "The maximum value corresponding to the log filter field.",
+                                  "optional": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "description": "The value corresponding to the log filter field.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The list of the log filter rule associations."
+                            },
+                            "nesting_mode": "set"
+                          }
+                        },
+                        "description": "The list of log filtering rule groups."
+                      },
+                      "nesting_mode": "set"
+                    }
+                  },
+                  "description": "The configuration of log filtering rule."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "sampler": {
+                "block": {
+                  "attributes": {
+                    "ratio": {
+                      "type": "string",
+                      "description": "The sampling rate of the log.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the log sampling.",
+                      "required": true
+                    }
+                  },
+                  "description": "The sampling configuration of the log."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "sinks": {
+                "block": {
+                  "attributes": {
+                    "instance_id": {
+                      "type": "string",
+                      "description": "The ID of the AOM Prometheus common instance.",
+                      "optional": true
+                    },
+                    "metric_name": {
+                      "type": "string",
+                      "description": "The name of the generated log metric.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the AOM Prometheus common instance.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the stored object.",
+                      "required": true
+                    }
+                  },
+                  "description": "The storage location of the generated metrics."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

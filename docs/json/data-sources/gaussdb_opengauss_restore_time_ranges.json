@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_restore_time_ranges": {
+          "block": {
+            "attributes": {
+              "date": {
+                "type": "string",
+                "description": "Specifies the date to be queried.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB OpenGauss instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "restore_time": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "end_time": "number",
+                      "start_time": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of restoration time ranges.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

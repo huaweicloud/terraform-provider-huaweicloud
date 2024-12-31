@@ -7,7 +7,7 @@
             "attributes": {
               "host": {
                 "type": "string",
-                "required": true,
+                "optional": true,
                 "forcenew": true
               },
               "id": {

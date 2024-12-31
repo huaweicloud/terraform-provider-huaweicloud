@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_notification_configuration": {
+          "block": {
+            "attributes": {
+              "auth_sign_key": {
+                "type": "string",
+                "description": "Specifies the authentication key.",
+                "optional": true,
+                "sensitive": true
+              },
+              "call_back_area": {
+                "type": "string",
+                "description": "Specifies the region where the server that receives callback notifications is located.",
+                "optional": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the ingest domain name to which the notification configuration belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "url": {
+                "type": "string",
+                "description": "Specifies the callback URL.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

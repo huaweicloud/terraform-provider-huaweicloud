@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_opengauss_restore": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "restore_time": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "source_instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "target_instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

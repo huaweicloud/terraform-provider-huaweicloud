@@ -47,7 +47,7 @@
               "ttl_in_days": {
                 "type": "number",
                 "optional": true,
-                "forcenew": true
+                "computed": true
               }
             }
           },

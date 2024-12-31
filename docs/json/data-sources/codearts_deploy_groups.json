@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_deploy_groups": {
+          "block": {
+            "attributes": {
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_by": "string",
+                      "description": "string",
+                      "env_count": "number",
+                      "host_count": "number",
+                      "id": "string",
+                      "is_proxy_mode": "number",
+                      "name": "string",
+                      "os_type": "string",
+                      "permission": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "can_add_host": "bool",
+                            "can_copy": "bool",
+                            "can_delete": "bool",
+                            "can_edit": "bool",
+                            "can_manage": "bool",
+                            "can_view": "bool"
+                          }
+                        ]
+                      ],
+                      "resource_pool_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the host cluster list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_proxy_mode": {
+                "type": "string",
+                "description": "Specifies whether the host is an agent host.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of host cluster.",
+                "optional": true
+              },
+              "os_type": {
+                "type": "string",
+                "description": "Specifies the operating system. Valid values are **windows**, **linux**.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_pool_id": {
+                "type": "string",
+                "description": "Specifies the customized resource pool ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

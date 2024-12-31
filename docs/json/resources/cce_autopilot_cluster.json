@@ -79,13 +79,11 @@
               },
               "enable_snat": {
                 "type": "bool",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "enable_swr_image_access": {
                 "type": "bool",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "flavor": {
                 "type": "string",

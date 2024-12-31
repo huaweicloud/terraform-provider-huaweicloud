@@ -127,6 +127,10 @@
                 "optional": true,
                 "forcenew": true
               },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
               "tags": {
                 "type": [
                   "map",
@@ -141,8 +145,7 @@
               },
               "volume_type": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "wwn": {
                 "type": "string",

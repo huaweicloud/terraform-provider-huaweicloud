@@ -20,12 +20,6 @@
                 "description": "The name of the replication destination region.",
                 "optional": true
               },
-              "enable_acceleration": {
-                "type": "bool",
-                "description": "Whether to enable the acceleration function to shorten the replication time for cross-region",
-                "optional": true,
-                "forcenew": true
-              },
               "enabled": {
                 "type": "bool",
                 "description": "Whether to enable the CBR policy.",

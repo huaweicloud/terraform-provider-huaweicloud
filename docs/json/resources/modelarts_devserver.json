@@ -1,0 +1,174 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_devserver": {
+          "block": {
+            "attributes": {
+              "admin_pass": {
+                "type": "string",
+                "description": "The login password for logging in to the server.",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "architecture": {
+                "type": "string",
+                "description": "The architecture of the DevServer.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "description": "The availability zone where the DevServer is located.",
+                "optional": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "description": "The charging mode of the DevServer.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the DevServer, in RFC3339 format.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID to which the DevServer belongs.",
+                "optional": true,
+                "forcenew": true
+              },
+              "flavor": {
+                "type": "string",
+                "description": "The flavor of the DevServer.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "The image ID of the DevServer.",
+                "required": true,
+                "forcenew": true
+              },
+              "ipv6_enable": {
+                "type": "bool",
+                "description": "Whether to enable IPv6.",
+                "optional": true,
+                "forcenew": true
+              },
+              "key_pair_name": {
+                "type": "string",
+                "description": "The key pair name for logging in to the server.",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the DevServer.",
+                "required": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "description": "The charging period of the DevServer.",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "description": "The charging period unit of the DevServer.",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "roce_id": {
+                "type": "string",
+                "description": "The RoCE network ID of the DevServer.",
+                "optional": true,
+                "forcenew": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "description": "The ID of security group to which the DevServer belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The ID of the subnet to which the DevServer belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the DevServer.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "user_data": {
+                "type": "string",
+                "description": "The user data defined for the server.",
+                "optional": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The ID of the VPC to which the DevServer belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "root_volume": {
+                "block": {
+                  "attributes": {
+                    "size": {
+                      "type": "number",
+                      "description": "The size of system disk.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of system disk.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The system disk configuration of the DevServer."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

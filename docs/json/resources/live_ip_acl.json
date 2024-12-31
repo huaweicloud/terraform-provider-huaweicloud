@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_ip_acl": {
+          "block": {
+            "attributes": {
+              "auth_type": {
+                "type": "string",
+                "description": "Specifies the authentication mode.",
+                "required": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the ingest or streaming domain name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_auth_list": {
+                "type": "string",
+                "description": "Specifies the blacklist or whitelist IP addresses.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

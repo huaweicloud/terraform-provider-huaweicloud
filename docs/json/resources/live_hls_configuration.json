@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_hls_configuration": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "application": {
+                "block": {
+                  "attributes": {
+                    "hls_fragment": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "hls_min_frags": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "hls_ts_count": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

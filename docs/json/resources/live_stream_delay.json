@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_stream_delay": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the application name.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "delay": {
+                "type": "number",
+                "description": "Specifies the delay time, in ms.",
+                "required": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the streaming domain name.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

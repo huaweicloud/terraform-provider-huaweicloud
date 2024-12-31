@@ -66,6 +66,12 @@
                 "description": "The create time.",
                 "computed": true
               },
+              "delete_eip_on_termination": {
+                "type": "bool",
+                "description": "Whether to delete the EIP when the VPN gateway is deleted.",
+                "optional": true,
+                "default": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The enterprise project ID",

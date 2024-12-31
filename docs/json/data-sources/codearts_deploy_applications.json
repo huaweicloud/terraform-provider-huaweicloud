@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_deploy_applications": {
+          "block": {
+            "attributes": {
+              "applications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "arrange_infos": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "deploy_system": "string",
+                            "id": "string",
+                            "state": "string"
+                          }
+                        ]
+                      ],
+                      "can_copy": "bool",
+                      "can_create_env": "bool",
+                      "can_delete": "bool",
+                      "can_disable": "bool",
+                      "can_execute": "bool",
+                      "can_manage": "bool",
+                      "can_modify": "bool",
+                      "can_view": "bool",
+                      "create_tenant_id": "string",
+                      "create_user_id": "string",
+                      "created_at": "string",
+                      "deploy_system": "string",
+                      "duration": "string",
+                      "end_time": "string",
+                      "execution_state": "string",
+                      "execution_time": "string",
+                      "executor_id": "string",
+                      "executor_nick_name": "string",
+                      "id": "string",
+                      "is_care": "bool",
+                      "is_disable": "bool",
+                      "name": "string",
+                      "project_name": "string",
+                      "release_id": "number",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the application list",
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the application group ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "states": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the application status list.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

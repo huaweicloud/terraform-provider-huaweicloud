@@ -1,0 +1,171 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_service": {
+          "block": {
+            "attributes": {
+              "access_mode": {
+                "type": "string",
+                "description": "The access mode of Workspace service.",
+                "computed": true
+              },
+              "ad_domain": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "active_dns_ip": "string",
+                      "active_domain_ip": "string",
+                      "active_domain_name": "string",
+                      "admin_account": "string",
+                      "delete_computer_object": "bool",
+                      "name": "string",
+                      "standby_dns_ip": "string",
+                      "standby_domain_ip": "string",
+                      "standby_domain_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The configuration of AD domain.",
+                "computed": true
+              },
+              "auth_type": {
+                "type": "string",
+                "description": "The authentication type of Workspace service.",
+                "computed": true
+              },
+              "dedicated_subnets": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The subnet segments of the dedicated access.",
+                "computed": true
+              },
+              "desktop_security_group": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The desktop security group automatically created under the specified VPC after the service\nis registered.",
+                "computed": true
+              },
+              "enterprise_id": {
+                "type": "string",
+                "description": "The enterprise ID.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "infrastructure_security_group": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The management component security group automatically created under the specified VPC\nafter service is registered.",
+                "computed": true
+              },
+              "internet_access_address": {
+                "type": "string",
+                "description": "The internet access address.",
+                "computed": true
+              },
+              "internet_access_port": {
+                "type": "number",
+                "description": "The internet access port.",
+                "computed": true
+              },
+              "is_locked": {
+                "type": "number",
+                "description": "Whether the service is locked.",
+                "computed": true
+              },
+              "lock_reason": {
+                "type": "string",
+                "description": "The time when the service is locked.",
+                "computed": true
+              },
+              "lock_time": {
+                "type": "string",
+                "description": "The time when the service is locked.",
+                "computed": true
+              },
+              "management_subnet_cidr": {
+                "type": "string",
+                "description": "The subnet segment of the management component.",
+                "computed": true
+              },
+              "network_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The network ID list of subnets that the service have.",
+                "computed": true
+              },
+              "otp_config_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_id": "string",
+                      "app_secret": "string",
+                      "auth_server_access_mode": "string",
+                      "auth_url": "string",
+                      "cert_content": "string",
+                      "enable": "bool",
+                      "receive_mode": "string",
+                      "rule": "string",
+                      "rule_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The configuration of auxiliary authentication.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the environments are located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the Workspace service.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The VPC ID to which the service belongs.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

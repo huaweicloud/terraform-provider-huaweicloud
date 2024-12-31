@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_deploy_group_permission": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "permission_name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "permission_value": {
+                "type": "bool",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "role_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

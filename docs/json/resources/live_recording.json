@@ -68,6 +68,11 @@
                       "optional": true,
                       "computed": true
                     },
+                    "record_slice_duration": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
                     "recording_length": {
                       "type": "number",
                       "required": true
