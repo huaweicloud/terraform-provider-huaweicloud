@@ -1883,7 +1883,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lb_pool":         lb.ResourcePoolV2(),
 			"huaweicloud_lb_whitelist":    lb.ResourceWhitelistV2(),
 
-			"huaweicloud_live_bucket_authorization":       live.ResourceLiveBucketAuthorization(),
+			"huaweicloud_live_bucket_authorization":       live.ResourceBucketAuthorization(),
 			"huaweicloud_live_channel":                    live.ResourceChannel(),
 			"huaweicloud_live_disable_push_stream":        live.ResourceDisablePushStream(),
 			"huaweicloud_live_domain":                     live.ResourceDomain(),
@@ -1895,7 +1895,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_live_record_callback":            live.ResourceRecordCallback(),
 			"huaweicloud_live_recording":                  live.ResourceRecording(),
 			"huaweicloud_live_referer_validation":         live.ResourceRefererValidation(),
-			"huaweicloud_live_snapshot":                   live.ResourceLiveSnapshot(),
+			"huaweicloud_live_snapshot":                   live.ResourceSnapshot(),
 			"huaweicloud_live_transcoding":                live.ResourceTranscoding(),
 			"huaweicloud_live_url_authentication":         live.ResourceUrlAuthentication(),
 			"huaweicloud_live_url_validation":             live.ResourceUrlValidation(),

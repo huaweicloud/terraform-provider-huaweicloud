@@ -25,6 +25,7 @@ import (
 // @API Live POST /v1/{project_id}/domain
 // @API Live DELETE /v1/{project_id}/domains_mapping
 // @API Live PUT /v1/{project_id}/domains_mapping
+// @API Live PUT /v1/{project_id}/domain/ipv6-switch
 func ResourceDomain() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDomainCreate,
