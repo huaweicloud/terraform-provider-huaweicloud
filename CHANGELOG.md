@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## 1.72.0 (December 31, 2024)
+
+* **New Resource:**
+  + `huaweicloud_live_stream_delay` [GH-6103]
+  + `huaweicloud_modelarts_devserver_action` [GH-6098]
+  + `huaweicloud_gaussdb_opengauss_restore` [GH-6093]
+  + `huaweicloud_modelarts_devserver` [GH-6088]
+  + `huaweicloud_gaussdb_opengauss_parameter_template` [GH-6059]
+
+* **New Data Source:**
+  + `huaweicloud_live_channels` [GH-6090]
+  + `huaweicloud_cce_autopilot_cluster_certificate` [GH-6074]
+  + `huaweicloud_cts_resources` [GH-6068]
+  + `huaweicloud_gaussdb_opengauss_backups` [GH-6063]
+  + `huaweicloud_cts_operations` [GH-6058]
+  + `huaweicloud_cce_autopilot_addon_templates` [GH-6056]
+
+ENHANCEMENTS:
+
+* add default value for shared config file [GH-6091]
+* resource/huaweicloud_opengauss_instance: add configuration id update support [GH-6110]
+* resource/huaweicloud_identitycenter_permission_set: add tags support [GH-6099]
+
 ## 1.71.2 (December 13, 2024)
 
 ENHANCEMENTS:
