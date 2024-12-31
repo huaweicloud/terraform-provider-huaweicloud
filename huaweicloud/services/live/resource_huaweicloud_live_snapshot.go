@@ -25,12 +25,12 @@ import (
 // @API Live GET /v1/{project_id}/stream/snapshot
 // @API Live POST /v1/{project_id}/stream/snapshot
 // @API Live PUT /v1/{project_id}/stream/snapshot
-func ResourceLiveSnapshot() *schema.Resource {
+func ResourceSnapshot() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceLiveSnapshotCreate,
-		UpdateContext: resourceLiveSnapshotUpdate,
-		ReadContext:   resourceLiveSnapshotRead,
-		DeleteContext: resourceLiveSnapshotDelete,
+		CreateContext: resourceSnapshotCreate,
+		UpdateContext: resourceSnapshotUpdate,
+		ReadContext:   resourceSnapshotRead,
+		DeleteContext: resourceSnapshotDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -96,32 +96,25 @@ func ResourceLiveSnapshot() *schema.Resource {
 	}
 }
 
-func resourceLiveSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createLiveSnapshot: create Live snapshot
+func resourceSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		createLiveSnapshotHttpUrl = "v1/{project_id}/stream/snapshot"
-		createLiveSnapshotProduct = "live"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/stream/snapshot"
+		product = "live"
 	)
-	createLiveSnapshotClient, err := cfg.NewServiceClient(createLiveSnapshotProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Live Client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	createLiveSnapshotPath := createLiveSnapshotClient.Endpoint + createLiveSnapshotHttpUrl
-	createLiveSnapshotPath = strings.ReplaceAll(createLiveSnapshotPath, "{project_id}",
-		createLiveSnapshotClient.ProjectID)
-
-	createLiveSnapshotOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateLiveSnapshotBodyParams(d, region)),
 	}
-	createLiveSnapshotOpt.JSONBody = utils.RemoveNil(buildCreateLiveSnapshotBodyParams(d, region))
-	_, err = createLiveSnapshotClient.Request("POST", createLiveSnapshotPath, &createLiveSnapshotOpt)
+	_, err = client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error creating Live snapshot: %s", err)
 	}
@@ -131,7 +124,7 @@ func resourceLiveSnapshotCreate(ctx context.Context, d *schema.ResourceData, met
 
 	d.SetId(domainName + "/" + appName)
 
-	return resourceLiveSnapshotRead(ctx, d, meta)
+	return resourceSnapshotRead(ctx, d, meta)
 }
 
 func buildCreateLiveSnapshotBodyParams(d *schema.ResourceData, region string) map[string]interface{} {
@@ -157,53 +150,44 @@ func buildLiveSnapshotObsLocationChildBody(d *schema.ResourceData, region string
 	return params
 }
 
-func resourceLiveSnapshotRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getLiveSnapshot: Query Live snapshot
+func resourceSnapshotRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		getLiveSnapshotHttpUrl = "v1/{project_id}/stream/snapshot"
-		getLiveSnapshotProduct = "live"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/{project_id}/stream/snapshot"
+		product = "live"
 	)
-	getLiveSnapshotClient, err := cfg.NewServiceClient(getLiveSnapshotProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Live Client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <domain_name>/<app_name>")
+		return diag.Errorf("invalid ID format, want '<domain_name>/<app_name>', but got '%s'", d.Id())
 	}
 	domainName := parts[0]
 	appName := parts[1]
 
-	getLiveSnapshotPath := getLiveSnapshotClient.Endpoint + getLiveSnapshotHttpUrl
-	getLiveSnapshotPath = strings.ReplaceAll(getLiveSnapshotPath, "{project_id}", getLiveSnapshotClient.ProjectID)
-
-	getLiveSnapshotQueryParams := buildGetLiveSnapshotQueryParams(domainName, appName)
-	getLiveSnapshotPath += getLiveSnapshotQueryParams
-
-	getLiveSnapshotOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildGetSnapshotQueryParams(domainName, appName)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getLiveSnapshotResp, err := getLiveSnapshotClient.Request("GET", getLiveSnapshotPath, &getLiveSnapshotOpt)
 
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving Live snapshot")
 	}
 
-	getLiveSnapshotRespBody, err := utils.FlattenResponse(getLiveSnapshotResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	snapshot := utils.PathSearch("snapshot_config_list|[0]", getLiveSnapshotRespBody, nil)
+	snapshot := utils.PathSearch("snapshot_config_list|[0]", respBody, nil)
 	if snapshot == nil {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
@@ -225,15 +209,15 @@ func resourceLiveSnapshotRead(_ context.Context, d *schema.ResourceData, meta in
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildGetLiveSnapshotQueryParams(domainName, appName string) string {
+func buildGetSnapshotQueryParams(domainName, appName string) string {
 	return fmt.Sprintf("?domain=%s&app_name=%s", domainName, appName)
 }
 
-func resourceLiveSnapshotUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSnapshotUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	updateLiveSnapshotHasChanges := []string{
+	updateSnapshotHasChanges := []string{
 		"frequency",
 		"storage_mode",
 		"storage_bucket",
@@ -243,34 +227,28 @@ func resourceLiveSnapshotUpdate(ctx context.Context, d *schema.ResourceData, met
 		"call_back_auth_key",
 	}
 
-	if d.HasChanges(updateLiveSnapshotHasChanges...) {
-		// updateLiveSnapshot: update Live snapshot
+	if d.HasChanges(updateSnapshotHasChanges...) {
 		var (
-			updateLiveSnapshotHttpUrl = "v1/{project_id}/stream/snapshot"
-			updateLiveSnapshotProduct = "live"
+			httpUrl = "v1/{project_id}/stream/snapshot"
+			product = "live"
 		)
-		updateLiveSnapshotClient, err := cfg.NewServiceClient(updateLiveSnapshotProduct, region)
+		client, err := cfg.NewServiceClient(product, region)
 		if err != nil {
-			return diag.Errorf("error creating Live Client: %s", err)
+			return diag.Errorf("error creating Live client: %s", err)
 		}
 
-		updateLiveSnapshotPath := updateLiveSnapshotClient.Endpoint + updateLiveSnapshotHttpUrl
-		updateLiveSnapshotPath = strings.ReplaceAll(updateLiveSnapshotPath, "{project_id}",
-			updateLiveSnapshotClient.ProjectID)
-
-		updateLiveSnapshotOpt := golangsdk.RequestOpts{
+		requestPath := client.Endpoint + httpUrl
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+			JSONBody:         utils.RemoveNil(buildUpdateLiveSnapshotBodyParams(d, region)),
 		}
-		updateLiveSnapshotOpt.JSONBody = utils.RemoveNil(buildUpdateLiveSnapshotBodyParams(d, region))
-		_, err = updateLiveSnapshotClient.Request("PUT", updateLiveSnapshotPath, &updateLiveSnapshotOpt)
+		_, err = client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
 			return diag.Errorf("error updating Live snapshot: %s", err)
 		}
 	}
-	return resourceLiveSnapshotRead(ctx, d, meta)
+	return resourceSnapshotRead(ctx, d, meta)
 }
 
 func buildUpdateLiveSnapshotBodyParams(d *schema.ResourceData, region string) map[string]interface{} {
@@ -287,34 +265,25 @@ func buildUpdateLiveSnapshotBodyParams(d *schema.ResourceData, region string) ma
 	return bodyParams
 }
 
-func resourceLiveSnapshotDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteLiveSnapshot: Delete Live snapshot
+func resourceSnapshotDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		deleteLiveSnapshotHttpUrl = "v1/{project_id}/stream/snapshot"
-		deleteLiveSnapshotProduct = "live"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/stream/snapshot"
+		product = "live"
 	)
-	deleteLiveSnapshotClient, err := cfg.NewServiceClient(deleteLiveSnapshotProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Live Client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	deleteLiveSnapshotPath := deleteLiveSnapshotClient.Endpoint + deleteLiveSnapshotHttpUrl
-	deleteLiveSnapshotPath = strings.ReplaceAll(deleteLiveSnapshotPath, "{project_id}",
-		deleteLiveSnapshotClient.ProjectID)
-
-	deleteLiveSnapshotParams := buildDeleteLiveSnapshotParams(d)
-	deleteLiveSnapshotPath += deleteLiveSnapshotParams
-
-	deleteLiveSnapshotOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildDeleteSnapshotParams(d)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	_, err = deleteLiveSnapshotClient.Request("DELETE", deleteLiveSnapshotPath, &deleteLiveSnapshotOpt)
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error deleting Live snapshot: %s", err)
 	}
@@ -322,6 +291,6 @@ func resourceLiveSnapshotDelete(_ context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func buildDeleteLiveSnapshotParams(d *schema.ResourceData) string {
+func buildDeleteSnapshotParams(d *schema.ResourceData) string {
 	return fmt.Sprintf("?domain=%v&app_name=%v", d.Get("domain_name"), d.Get("app_name"))
 }

@@ -16,15 +16,14 @@ import (
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API Live PUT /v1/{project_id}/obs/authority
-func ResourceLiveBucketAuthorization() *schema.Resource {
+func ResourceBucketAuthorization() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceLiveBucketAuthorizationCreate,
-		ReadContext:   resourceLiveBucketAuthorizationRead,
-		DeleteContext: resourceLiveBucketAuthorizationDelete,
+		CreateContext: resourceBucketAuthorizationCreate,
+		ReadContext:   resourceBucketAuthorizationRead,
+		DeleteContext: resourceBucketAuthorizationDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -46,51 +45,43 @@ func ResourceLiveBucketAuthorization() *schema.Resource {
 	}
 }
 
-func resourceLiveBucketAuthorizationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createLiveBucketAuthorization: create Live bucket authorization
+func resourceBucketAuthorizationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		createLiveBucketAuthorizationHttpUrl = "v1/{project_id}/obs/authority"
-		createLiveBucketAuthorizationProduct = "live"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/obs/authority"
+		product = "live"
 	)
-	createLiveBucketAuthorizationClient, err := cfg.NewServiceClient(createLiveBucketAuthorizationProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Live Client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	createLiveBucketAuthorizationPath := createLiveBucketAuthorizationClient.Endpoint + createLiveBucketAuthorizationHttpUrl
-	createLiveBucketAuthorizationPath = strings.ReplaceAll(createLiveBucketAuthorizationPath, "{project_id}",
-		createLiveBucketAuthorizationClient.ProjectID)
-
-	createLiveBucketAuthorizationOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
+		JSONBody:         buildBucketAuthorizationBodyParams(d, 1),
 	}
-	createLiveBucketAuthorizationOpt.JSONBody = utils.RemoveNil(buildLiveBucketAuthorizationBodyParams(d, 1))
-	_, err = createLiveBucketAuthorizationClient.Request("PUT", createLiveBucketAuthorizationPath,
-		&createLiveBucketAuthorizationOpt)
+	_, err = client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error creating Live bucket Authorization: %s", err)
+		return diag.Errorf("error creating Live bucket authorization: %s", err)
 	}
 
 	d.SetId(d.Get("bucket").(string))
 
-	return resourceLiveBucketAuthorizationRead(ctx, d, meta)
+	return resourceBucketAuthorizationRead(ctx, d, meta)
 }
 
-func buildLiveBucketAuthorizationBodyParams(d *schema.ResourceData, operation int) map[string]interface{} {
+func buildBucketAuthorizationBodyParams(d *schema.ResourceData, operation int) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"bucket":    utils.ValueIgnoreEmpty(d.Get("bucket")),
+		"bucket":    d.Get("bucket"),
 		"operation": operation,
 	}
 	return bodyParams
 }
 
-func resourceLiveBucketAuthorizationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceBucketAuthorizationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -103,35 +94,28 @@ func resourceLiveBucketAuthorizationRead(_ context.Context, d *schema.ResourceDa
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceLiveBucketAuthorizationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteLiveBucketAuthorization: Delete Live bucket Authorization
+func resourceBucketAuthorizationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		deleteLiveBucketAuthorizationHttpUrl = "v1/{project_id}/obs/authority"
-		deleteLiveBucketAuthorizationProduct = "live"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/obs/authority"
+		product = "live"
 	)
-	deleteLiveBucketAuthorizationClient, err := cfg.NewServiceClient(deleteLiveBucketAuthorizationProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Live Client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	deleteLiveBucketAuthorizationPath := deleteLiveBucketAuthorizationClient.Endpoint + deleteLiveBucketAuthorizationHttpUrl
-	deleteLiveBucketAuthorizationPath = strings.ReplaceAll(deleteLiveBucketAuthorizationPath, "{project_id}",
-		deleteLiveBucketAuthorizationClient.ProjectID)
-
-	deleteLiveBucketAuthorizationOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
+		JSONBody:         buildBucketAuthorizationBodyParams(d, 0),
 	}
-	deleteLiveBucketAuthorizationOpt.JSONBody = utils.RemoveNil(buildLiveBucketAuthorizationBodyParams(d, 0))
-	_, err = deleteLiveBucketAuthorizationClient.Request("PUT", deleteLiveBucketAuthorizationPath,
-		&deleteLiveBucketAuthorizationOpt)
+	_, err = client.Request("PUT", requestPath,
+		&requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Live bucket Authorization: %s", err)
+		return diag.Errorf("error deleting Live bucket authorization: %s", err)
 	}
 
 	return nil
