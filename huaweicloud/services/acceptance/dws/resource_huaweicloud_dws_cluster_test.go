@@ -18,12 +18,12 @@ func getClusterResourceFunc(cfg *config.Config, state *terraform.ResourceState) 
 	// getDwsCluster: Query the DWS cluster.
 	getDwsClusterClient, err := cfg.NewServiceClient("dws", region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating DWS Client: %s", err)
+		return nil, fmt.Errorf("error creating DWS client: %s", err)
 	}
 
 	getDwsClusterRespBody, err := dws.GetClusterInfoByClusterId(getDwsClusterClient, state.Primary.ID)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving DwsCluster: %s", err)
+		return nil, fmt.Errorf("error retrieving DWS cluster: %s", err)
 	}
 
 	return getDwsClusterRespBody, nil
@@ -89,6 +89,7 @@ func TestAccResourceCluster_basicV1(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "number_of_node", "3"),
 					resource.TestCheckResourceAttr(resourceName, "public_ip.0.public_bind_type", dws.PublicBindTypeNotUse),
 					resource.TestCheckResourceAttr(resourceName, "public_ip.0.eip_id", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
@@ -102,7 +103,7 @@ func TestAccResourceCluster_basicV1(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints", "logical_cluster_enable"},
+				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints", "logical_cluster_enable", "force_backup"},
 			},
 		},
 	})
@@ -218,7 +219,7 @@ data "huaweicloud_availability_zones" "test" {}
 resource "huaweicloud_dws_cluster" "test" {
   name                   = "%[3]s"
   node_type              = "dwsk2.xlarge"
-  number_of_node         = 6
+  number_of_node         = 3
   vpc_id                 = huaweicloud_vpc.test.id
   network_id             = huaweicloud_vpc_subnet.test.id
   security_group_id      = huaweicloud_networking_secgroup.test2.id
@@ -314,9 +315,10 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "number_of_node", "3"),
 					resource.TestCheckResourceAttr(resourceName, "public_ip.0.public_bind_type", dws.PublicBindTypeNotUse),
 					resource.TestCheckResourceAttr(resourceName, "public_ip.0.eip_id", ""),
-					resource.TestCheckResourceAttr(resourceName, "elb.0.name", ""),
+					resource.TestCheckResourceAttr(resourceName, "elb.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 				),
@@ -330,7 +332,7 @@ func TestAccResourceCluster_basicV2(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"user_pwd", "number_of_cn", "volume", "endpoints", "lts_enable",
-					"logical_cluster_enable", "elb_id"},
+					"logical_cluster_enable", "elb_id", "force_backup"},
 			},
 		},
 	})
@@ -462,7 +464,8 @@ func testAccDwsCluster_basicV2_step3(rName, password string) string {
 resource "huaweicloud_dws_cluster" "testv2" {
   name                   = "%[2]s"
   node_type              = "dwsk2.xlarge"
-  number_of_node         = 6
+  number_of_node         = 3
+  force_backup           = false
   vpc_id                 = huaweicloud_vpc.test.id
   network_id             = huaweicloud_vpc_subnet.test.id
   security_group_id      = huaweicloud_networking_secgroup.test2.id
