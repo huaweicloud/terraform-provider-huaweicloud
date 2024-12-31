@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_live_cdn_ips
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LIVE
+paths:
+    /v1/{project_id}/cdn/ip-info:
+        GET:
+            tag: LIVE

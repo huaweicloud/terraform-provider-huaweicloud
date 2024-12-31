@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_lts_metric_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LTS
+paths:
+    /v2/{project_id}/lts/log2metric/rules:
+        POST:
+            tag: LTS
+    /v2/{project_id}/lts/log2metric/rules/{rule_id}:
+        DELETE:
+            tag: LTS
+        GET:
+            tag: LTS
+        PUT:
+            tag: LTS

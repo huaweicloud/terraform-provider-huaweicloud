@@ -16,6 +16,9 @@ paths:
             tag: LTS
         POST:
             tag: LTS
+    /v2/{project_id}/groups/{log_group_id}/streams-ttl/{log_stream_id}:
+        PUT:
+            tag: LTS
     /v2/{project_id}/groups/{log_group_id}/streams/{log_stream_id}:
         DELETE:
             tag: LTS

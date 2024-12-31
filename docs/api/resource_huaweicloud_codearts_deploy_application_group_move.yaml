@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_deploy_application_group_move
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsDeploy
+paths:
+    /v1/projects/{project_id}/applications/groups/swap:
+        PUT:
+            tag: CodeArtsDeploy

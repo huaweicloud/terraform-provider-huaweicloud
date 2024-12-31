@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_codearts_deploy_host
+    title: resource_huaweicloud_codearts_deploy_application_group
     description: ""
 schemes:
     - https
@@ -8,13 +8,13 @@ host: huaweicloud.com
 tags:
     - name: CodeArtsDeploy
 paths:
-    /v1/resources/host-groups/{group_id}/hosts:
+    /v1/projects/{project_id}/applications/groups:
+        GET:
+            tag: CodeArtsDeploy
         POST:
             tag: CodeArtsDeploy
-    /v1/resources/host-groups/{group_id}/hosts/{host_id}:
+    /v1/projects/{project_id}/applications/groups/{group_id}:
         DELETE:
-            tag: CodeArtsDeploy
-        GET:
             tag: CodeArtsDeploy
         PUT:
             tag: CodeArtsDeploy

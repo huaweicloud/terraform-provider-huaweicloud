@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_live_hls_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Live
+paths:
+    /v1/{project_id}/domain/hls:
+        GET:
+            tag: Live
+        PUT:
+            tag: Live

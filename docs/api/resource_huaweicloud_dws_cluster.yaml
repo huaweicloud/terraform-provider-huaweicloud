@@ -16,6 +16,9 @@ paths:
             tag: DWS
         GET:
             tag: DWS
+    /v1.0/{project_id}/clusters/{cluster_id}/cluster-shrink:
+        POST:
+            tag: DWS
     /v1.0/{project_id}/clusters/{cluster_id}/expand-instance-storage:
         POST:
             tag: DWS

@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_live_origin_pull_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Live
+paths:
+    /v1/{project_id}/domain/pull-sources:
+        GET:
+            tag: Live
+        PUT:
+            tag: Live

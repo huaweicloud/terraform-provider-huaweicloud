@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_live_disable_push_stream
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Live
+paths:
+    /v1/{project_id}/stream/blocks:
+        DELETE:
+            tag: Live
+        GET:
+            tag: Live
+        POST:
+            tag: Live
+        PUT:
+            tag: Live

@@ -18,3 +18,12 @@ paths:
             tag: VPC
         PUT:
             tag: VPC
+    /v3/{project_id}/ports/{port_id}/tags:
+        GET:
+            tag: VPC
+    /v3/{project_id}/ports/{port_id}/tags/create:
+        POST:
+            tag: VPC
+    /v3/{project_id}/ports/{port_id}/tags/delete:
+        POST:
+            tag: VPC

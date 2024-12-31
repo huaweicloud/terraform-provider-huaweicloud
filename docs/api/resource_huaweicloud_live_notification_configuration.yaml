@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_live_notification_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Live
+paths:
+    /v1/{project_id}/notifications/publish:
+        DELETE:
+            tag: Live
+        GET:
+            tag: Live
+        PUT:
+            tag: Live

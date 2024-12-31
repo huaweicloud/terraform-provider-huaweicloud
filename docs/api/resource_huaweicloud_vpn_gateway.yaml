@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: VPN
 paths:
+    /v3/{project_id}/eip/publicips/{publicip_id}/disassociate-instance:
+        POST:
+            tag: EIP
     /v5/{project_id}/{resource_type}/{resource_id}/tags/create:
         POST:
             tag: VPN

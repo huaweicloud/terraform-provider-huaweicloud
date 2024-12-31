@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_opengauss_backup_stop
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/backups/stop:
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/jobs:
+        GET:
+            tag: GaussDB
