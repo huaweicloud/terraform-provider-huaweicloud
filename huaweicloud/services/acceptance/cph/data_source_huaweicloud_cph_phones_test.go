@@ -35,6 +35,12 @@ func TestAccDataSourceCphPhones_basic(t *testing.T) {
 					resource.TestCheckOutput("is_status_filter_useful", "true"),
 				),
 			},
+			{
+				Config: testCphServerBase(rName),
+				Check: resource.ComposeTestCheckFunc(
+					waitForDeletionCooldownComplete(),
+				),
+			},
 		},
 	})
 }

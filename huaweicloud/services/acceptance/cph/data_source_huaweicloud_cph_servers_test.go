@@ -3,8 +3,10 @@ package cph
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -37,8 +39,22 @@ func TestAccDataSourceCphServers_basic(t *testing.T) {
 					resource.TestCheckOutput("is_status_filter_useful", "true"),
 				),
 			},
+			{
+				Config: testCphServerBase(rName),
+				Check: resource.ComposeTestCheckFunc(
+					waitForDeletionCooldownComplete(),
+				),
+			},
 		},
 	})
+}
+
+func waitForDeletionCooldownComplete() resource.TestCheckFunc {
+	return func(_ *terraform.State) error {
+		// lintignore:R018
+		time.Sleep(10 * time.Minute)
+		return nil
+	}
 }
 
 func testDataSourceCphServers_basic(name string) string {
