@@ -60,7 +60,7 @@ func TestAccAssetAgencyAuthorization_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAssetAgencyAuthorization_basic,
+				Config: testAccAssetAgencyAuthorization_config(true, true),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "csms", "true"),
@@ -68,40 +68,28 @@ func TestAccAssetAgencyAuthorization_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccAssetAgencyAuthorization_update1,
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "csms", "true"),
-					resource.TestCheckResourceAttr(rName, "kms", "false")),
-			},
-			{
-				Config: testAccAssetAgencyAuthorization_update2,
+				Config: testAccAssetAgencyAuthorization_config(false, true),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "csms", "false"),
+					resource.TestCheckResourceAttr(rName, "kms", "true")),
+			},
+			{
+				Config: testAccAssetAgencyAuthorization_config(true, false),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "csms", "true"),
 					resource.TestCheckResourceAttr(rName, "kms", "false")),
 			},
 		},
 	})
 }
 
-const testAccAssetAgencyAuthorization_basic = `
+func testAccAssetAgencyAuthorization_config(isCsmsEnabled, isKmsEnabled bool) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_cbh_asset_agency_authorization" "test" {
-  csms = true
-  kms  = true
+  csms = "%[1]v"
+  kms  = "%[2]v"
 }
-`
-
-const testAccAssetAgencyAuthorization_update1 = `
-resource "huaweicloud_cbh_asset_agency_authorization" "test" {
-  csms = true
-  kms  = false
+`, isCsmsEnabled, isKmsEnabled)
 }
-`
-
-const testAccAssetAgencyAuthorization_update2 = `
-resource "huaweicloud_cbh_asset_agency_authorization" "test" {
-  csms = false
-  kms  = false
-}
-`
