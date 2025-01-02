@@ -22,6 +22,12 @@ func TestAccCphPhoneReset_basic(t *testing.T) {
 			{
 				Config: testCphPhoneReset_basic(name),
 			},
+			{
+				Config: testCphServerBase(name),
+				Check: resource.ComposeTestCheckFunc(
+					waitForDeletionCooldownComplete(),
+				),
+			},
 		},
 	})
 }
@@ -34,7 +40,7 @@ data "huaweicloud_cph_phones" "test" {
   server_id = huaweicloud_cph_server.test.id
 }
 
-resource "huaweicloud_cph_phone_action" "reset" {
+resource "huaweicloud_cph_phone_reset" "reset" {
   phones {
     phone_id = data.huaweicloud_cph_phones.test.phones[0].phone_id
   }
