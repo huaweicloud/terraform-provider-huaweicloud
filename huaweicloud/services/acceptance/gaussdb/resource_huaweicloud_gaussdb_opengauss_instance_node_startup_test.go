@@ -10,10 +10,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccOpenGaussInstanceRestart_basic(t *testing.T) {
+func TestAccOpenGaussInstanceNodeStartup_basic(t *testing.T) {
 	var obj interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_gaussdb_opengauss_instance_restart.test"
+	resourceName := "huaweicloud_gaussdb_opengauss_instance.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -31,7 +31,7 @@ func TestAccOpenGaussInstanceRestart_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussInstanceRestart_basic(rName),
+				Config: testAccOpenGaussInstanceNodeStartup_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 				),
@@ -40,7 +40,7 @@ func TestAccOpenGaussInstanceRestart_basic(t *testing.T) {
 	})
 }
 
-func testAccOpenGaussInstanceRestart_base(rName string) string {
+func testAccOpenGaussInstanceNodeStartup_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -94,14 +94,26 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
     size = 40
   }
 }
+
+data "huaweicloud_gaussdb_opengauss_instance_nodes" "test" {
+  instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
+}
+
+resource "huaweicloud_gaussdb_opengauss_instance_node_stop" "test" {
+  instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
+  node_id     = data.huaweicloud_gaussdb_opengauss_instance_nodes.test.nodes[0].id
+}
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccOpenGaussInstanceRestart_basic(rName string) string {
+func testAccOpenGaussInstanceNodeStartup_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_gaussdb_opengauss_instance_restart" "test" {
+resource "huaweicloud_gaussdb_opengauss_instance_node_startup" "test" {
+  depends_on = [huaweicloud_gaussdb_opengauss_instance_node_stop.test]
+
   instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
-}`, testAccOpenGaussInstanceRestart_base(rName))
+  node_id     = data.huaweicloud_gaussdb_opengauss_instance_nodes.test.nodes[0].id
+}`, testAccOpenGaussInstanceNodeStartup_base(rName))
 }
