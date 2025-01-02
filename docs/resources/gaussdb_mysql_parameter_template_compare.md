@@ -3,7 +3,7 @@ subcategory: "GaussDB(for MySQL)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_gaussdb_mysql_parameter_template_compare"
 description: |-
-  Manages a GaussDB MySQL parameter template apply resource within HuaweiCloud.
+  Manages a GaussDB MySQL parameter template compare resource within HuaweiCloud.
 ---
 
 # huaweicloud_gaussdb_mysql_parameter_template_compare

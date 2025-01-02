@@ -1,9 +1,10 @@
-package taurusdb
+package gaussdb
 
 import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -15,12 +16,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforMySQL POST /v3/{project_id}/configurations/comparison
-func ResourceGaussDBMysqlTemplateCompare() *schema.Resource {
+// @API GaussDB POST /v3/{project_id}/configurations/comparison
+func ResourceOpenGaussParameterTemplateCompare() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceParameterTemplateCompareCreate,
-		ReadContext:   resourceParameterTemplateCompareRead,
-		DeleteContext: resourceParameterTemplateCompareDelete,
+		CreateContext: resourceOpenGaussParameterTemplateCompareCreate,
+		ReadContext:   resourceOpenGaussParameterTemplateCompareRead,
+		DeleteContext: resourceOpenGaussParameterTemplateCompareDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(60 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -28,12 +33,12 @@ func ResourceGaussDBMysqlTemplateCompare() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"source_configuration_id": {
+			"source_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"target_configuration_id": {
+			"target_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -50,7 +55,7 @@ func ResourceGaussDBMysqlTemplateCompare() *schema.Resource {
 func gaussDBTemplateCompareDifferencesSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"parameter_name": {
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -67,13 +72,13 @@ func gaussDBTemplateCompareDifferencesSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceParameterTemplateCompareCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceOpenGaussParameterTemplateCompareCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
 	var (
 		httpUrl = "v3/{project_id}/configurations/comparison"
-		product = "gaussdb"
+		product = "opengauss"
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
@@ -84,16 +89,16 @@ func resourceParameterTemplateCompareCreate(_ context.Context, d *schema.Resourc
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 
 	createOpt := golangsdk.RequestOpts{KeepResponseBody: true}
-	createOpt.JSONBody = utils.RemoveNil(buildCreateParameterTemplateCompareBodyParams(d))
+	createOpt.JSONBody = utils.RemoveNil(buildCreateOpenGaussParameterTemplateCompareBodyParams(d))
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating GaussDB MySQL parameter template compare: %s", err)
+		return diag.Errorf("error creating GaussDB OpenGauss parameter template compare: %s", err)
 	}
 
-	sourceConfigurationId := d.Get("source_configuration_id").(string)
-	targetConfigurationId := d.Get("target_configuration_id").(string)
-	d.SetId(fmt.Sprintf("%s/%s", sourceConfigurationId, targetConfigurationId))
+	sourceId := d.Get("source_id").(string)
+	targetId := d.Get("target_id").(string)
+	d.SetId(fmt.Sprintf("%s/%s", sourceId, targetId))
 
 	createRespBody, err := utils.FlattenResponse(createResp)
 	if err != nil {
@@ -101,21 +106,21 @@ func resourceParameterTemplateCompareCreate(_ context.Context, d *schema.Resourc
 	}
 
 	mErr := multierror.Append(
-		d.Set("differences", flattenGaussDBParameterTemplateCompareResponseBody(createRespBody)),
+		d.Set("differences", flattenOpenGaussParameterTemplateCompareResponseBody(createRespBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildCreateParameterTemplateCompareBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateOpenGaussParameterTemplateCompareBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"source_configuration_id": d.Get("source_configuration_id"),
-		"target_configuration_id": d.Get("target_configuration_id"),
+		"source_id": d.Get("source_id"),
+		"target_id": d.Get("target_id"),
 	}
 	return bodyParams
 }
 
-func flattenGaussDBParameterTemplateCompareResponseBody(resp interface{}) []interface{} {
+func flattenOpenGaussParameterTemplateCompareResponseBody(resp interface{}) []interface{} {
 	differencesJson := utils.PathSearch("differences", resp, make([]interface{}, 0))
 	differencesArray := differencesJson.([]interface{})
 	if len(differencesArray) < 1 {
@@ -124,21 +129,21 @@ func flattenGaussDBParameterTemplateCompareResponseBody(resp interface{}) []inte
 	rst := make([]interface{}, 0, len(differencesArray))
 	for _, v := range differencesArray {
 		rst = append(rst, map[string]interface{}{
-			"parameter_name": utils.PathSearch("parameter_name", v, nil),
-			"source_value":   utils.PathSearch("source_value", v, nil),
-			"target_value":   utils.PathSearch("target_value", v, nil),
+			"name":         utils.PathSearch("name", v, nil),
+			"source_value": utils.PathSearch("source_value", v, nil),
+			"target_value": utils.PathSearch("target_value", v, nil),
 		})
 	}
 	return rst
 }
 
-func resourceParameterTemplateCompareRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceOpenGaussParameterTemplateCompareRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceParameterTemplateCompareDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceOpenGaussParameterTemplateCompareDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := "Deleting parameter template compare resource is not supported. The resource is only removed from the" +
-		"state, the GaussDB MySQL instance remains in the cloud."
+		"state, the GaussDB OpenGauss instance remains in the cloud."
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
