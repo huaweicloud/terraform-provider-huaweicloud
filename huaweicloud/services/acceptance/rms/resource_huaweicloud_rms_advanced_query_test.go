@@ -78,8 +78,54 @@ func TestAccAdvancedQuery_basic(t *testing.T) {
 				Config: testAdvancedQuery_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
 					resource.TestCheckResourceAttr(rName, "expression", "update table_1 set volume_1 = 5"),
+					resource.TestCheckResourceAttr(rName, "description", "test_description_update"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccAdvancedQuery_aggregator(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_rms_advanced_query.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getAdvancedQueryResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAdvancedQuery_aggregator(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "type", "aggregator"),
+					resource.TestCheckResourceAttr(rName, "expression", "SELECT set_agg(domain_id) AS domain_ids FROM aggregator_resources"),
+					resource.TestCheckResourceAttr(rName, "description", "test_description"),
+				),
+			},
+			{
+				Config: testAdvancedQuery_aggregator_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
+					resource.TestCheckResourceAttr(rName, "type", "aggregator"),
+					resource.TestCheckResourceAttr(rName, "expression", "SELECT id FROM aggregator_resources WHERE ep_id = '0'"),
 					resource.TestCheckResourceAttr(rName, "description", "test_description_update"),
 				),
 			},
@@ -105,8 +151,30 @@ resource "huaweicloud_rms_advanced_query" "test" {
 func testAdvancedQuery_basic_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_rms_advanced_query" "test" {
-  name        = "%s"
+  name        = "%s-update"
   expression  = "update table_1 set volume_1 = 5"
+  description = "test_description_update"
+}
+`, name)
+}
+
+func testAdvancedQuery_aggregator(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_rms_advanced_query" "test" {
+  name        = "%s"
+  type        = "aggregator"
+  expression  = "SELECT set_agg(domain_id) AS domain_ids FROM aggregator_resources"
+  description = "test_description"
+}
+`, name)
+}
+
+func testAdvancedQuery_aggregator_update(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_rms_advanced_query" "test" {
+  name        = "%s-update"
+  type        = "aggregator"
+  expression  = "SELECT id FROM aggregator_resources WHERE ep_id = '0'"
   description = "test_description_update"
 }
 `, name)

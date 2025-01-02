@@ -22,11 +22,16 @@ resource "huaweicloud_rms_advanced_query" "test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String, ForceNew) Specifies the advanced query name. It contains 1 to 64 characters.
-
-  Changing this parameter will create a new resource.
+* `name` - (Required, String) Specifies the advanced query name. It contains 1 to 64 characters.
 
 * `expression` - (Required, String) Specifies the advanced query expression. It contains 1 to 4096 characters.
+
+* `type` - (Optional, String) Specifies the advanced query type.
+  The valid values are as follows:
+  + **account**: means the customized query statement of a single account;
+  + **aggregator**: means the user-defined query statement of the aggregator.
+  
+  Defaults to **account**.
 
 * `description` - (Optional, String) Specifies the advanced query description. It contains 1 to 512 characters.
 
