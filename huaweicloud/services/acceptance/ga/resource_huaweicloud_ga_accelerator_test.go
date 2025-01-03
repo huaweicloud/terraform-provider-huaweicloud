@@ -63,9 +63,14 @@ func TestAccAccelerator_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", "terraform test"),
 					resource.TestCheckResourceAttr(rName, "ip_sets.0.area", "CM"),
+					resource.TestCheckResourceAttr(rName, "ip_sets.0.ip_type", "IPV4"),
+					resource.TestCheckResourceAttr(rName, "ip_sets.1.area", "CM"),
+					resource.TestCheckResourceAttr(rName, "ip_sets.1.ip_type", "IPV6"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrSet(rName, "ip_sets.0.ip_address"),
+					resource.TestCheckResourceAttrSet(rName, "ip_sets.1.ip_address"),
 				),
 			},
 			{
@@ -94,7 +99,13 @@ resource "huaweicloud_ga_accelerator" "test" {
   description = "terraform test"
 
   ip_sets {
-    area = "CM"
+    ip_type = "IPV4"
+    area    = "CM"
+  }
+
+  ip_sets {
+    ip_type = "IPV6"
+    area    = "CM"
   }
 
   tags = {
@@ -112,7 +123,13 @@ resource "huaweicloud_ga_accelerator" "test" {
   description = "terraform test update"
 
   ip_sets {
-    area = "CM"
+    ip_type = "IPV4"
+    area    = "CM"
+  }
+
+  ip_sets {
+    ip_type = "IPV6"
+    area    = "CM"
   }
 
   tags = {
