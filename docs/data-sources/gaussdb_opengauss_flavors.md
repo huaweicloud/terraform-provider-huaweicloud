@@ -29,8 +29,8 @@ The following arguments are supported:
 
 * `ha_mode` - (Optional, String) Specifies the instance type.
   Value options:
-  + **Primary/standby**: centralization_standard
-  + **Distributed (independent deployment)**: enterprise
+  + **centralization_standard**: Primary/standby
+  + **enterprise**: Distributed (independent deployment)
 
 ## Attribute Reference
 
