@@ -75,6 +75,36 @@ func TestAccDeployApplication_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "create_type", "template"),
 					resource.TestCheckResourceAttr(rName, "trigger_source", "0"),
 					resource.TestCheckResourceAttr(rName, "steps.step1", "Download Package"),
+					resource.TestCheckResourceAttr(rName, "is_disable", "false"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+					resource.TestCheckResourceAttrSet(rName, "project_name"),
+					resource.TestCheckResourceAttrSet(rName, "can_modify"),
+					resource.TestCheckResourceAttrSet(rName, "can_delete"),
+					resource.TestCheckResourceAttrSet(rName, "can_view"),
+					resource.TestCheckResourceAttrSet(rName, "can_execute"),
+					resource.TestCheckResourceAttrSet(rName, "can_copy"),
+					resource.TestCheckResourceAttrSet(rName, "can_manage"),
+					resource.TestCheckResourceAttrSet(rName, "can_create_env"),
+					resource.TestCheckResourceAttrSet(rName, "task_id"),
+					resource.TestCheckResourceAttrSet(rName, "task_name"),
+				),
+			},
+			{
+				Config: testDeployApplication_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "project_id",
+						"huaweicloud_codearts_project.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "group_id",
+						"huaweicloud_codearts_deploy_application_group.test", "id"),
+					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
+					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "is_draft", "false"),
+					resource.TestCheckResourceAttr(rName, "create_type", "template"),
+					resource.TestCheckResourceAttr(rName, "trigger_source", "0"),
+					resource.TestCheckResourceAttr(rName, "steps.step1", "Download Package"),
+					resource.TestCheckResourceAttr(rName, "is_disable", "true"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 					resource.TestCheckResourceAttrSet(rName, "project_name"),
@@ -97,6 +127,7 @@ func TestAccDeployApplication_basic(t *testing.T) {
 					"is_draft",
 					"trigger_source",
 					"operation_list",
+					"group_id",
 				},
 			},
 		},
@@ -241,6 +272,55 @@ EOF
   }
 }
 `, testProject_basic(name), name)
+}
+
+func testDeployApplication_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_codearts_deploy_application" "test" {
+  project_id     = huaweicloud_codearts_project.test.id
+  name           = "%[2]s-update"
+  is_draft       = false
+  create_type    = "template"
+  trigger_source = "0"
+  is_disable     = true
+  group_id       = huaweicloud_codearts_deploy_application_group.test.id
+
+  operation_list {
+    name        = "Download Package"
+    description = "download package description update"
+    code        = "https://example.com/xxx.zip"
+    entrance    = "main.yml"
+    version     = "1.1.282"
+    module_id   = "devcloud2018.select_deploy_source_task.select_deploy_source_tab"
+    params      = <<EOF
+[
+  {
+    "name":"groupId",
+    "label":"env",
+    "displaySettings":{
+      "DevCloud.ControlType":"DeploymentGroup",
+      "DevCloud.ControlType.Select":[
+        {
+          "displayName":"",
+          "value":""
+        }
+      ]
+    },
+    "defaultDisplay":[
+      {
+        "displayName":"$${host_group}",
+        "value":"$${host_group}",
+        "os":"linux"
+      }
+    ]
+  }
+]
+EOF
+  }
+}
+`, testDeployApplicationGroup_basic(name), name)
 }
 
 func testDeployApplication_resourcePoolId(name string) string {
