@@ -58,6 +58,34 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value to attach to the host access.
 
+* `processor_type` - (Optional, String) Specifies the type of the ICAgent structuring parsing.  
+  This parameter must be set together with the `processors` parameter.  
+  The valid values are as follows:
+  + **SINGLE_LINE**
+  + **MULTI_LINE**
+  + **REGEX**
+  + **MULTI_REGEX**
+  + **SPLIT**
+  + **JSON**
+  + **NGINX**
+  + **COMPOSE**
+
+* `processors` - (Optional, List) Specifies the list of the ICAgent structuring parsing rules.  
+  The [processors](#HostAccessProcessors) structure is documented below.  
+  This parameter must be set together with the `processor_type` parameter.  
+  Please refer to the [Setting ICAgent Structuring Parsing Rules](https://support.huaweicloud.com/intl/en-us/usermanual-lts/lts_07_0072.html).
+
+ -> For the same log stream, If you have configured cloud structuring parsing, delete its configurations before configuring
+    ICAgent structuring parsing.
+
+* `demo_log` - (Optional, String) Specifies the example log of the ICAgent structuring parsing.  
+  This parameter is available when the `processor_type` parameter is specified.
+
+* `demo_fields` - (Optional, List) Specifies the list of the parsed fields of the example log.  
+  The [demo_fields](#HostAccessDemoFields) structure is documented below.  
+  This parameter must be set together with the `demo_log` parameter.  
+  This parameter is available when the `processor_type` parameter is specified.
+
 <a name="HostAccessConfigDeatil"></a>
 The `access_config` block supports:
 
@@ -139,6 +167,29 @@ The `windows_log_info` block supports:
   + When `time_offset_unit` is set to **hour**, the value ranges from `1` to `168` hours.
   + When `time_offset_unit` is set to **sec**, the value ranges from `1` to `604,800` seconds.
 
+<a name="HostAccessProcessors"></a>
+The `processors` block supports:
+
+* `type` - (Optional, String) Specifies the type of the parser.  
+  The valid values are as follows:
+  + **processor_regex**
+  + **processor_split_string**
+  + **processor_json**
+  + **processor_gotime**
+  + **processor_filter_regex**
+  + **processor_drop**
+  + **processor_rename**
+
+* `detail` - (Optional, String) Specifies the configuration of the parser, in JSON format.  
+  For the keys, please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/api-lts/CreateAccessConfig.html#CreateAccessConfig__request_Detail).
+
+<a name="HostAccessDemoFields"></a>
+The `demo_fields` block supports:
+
+* `name` - (Optional, String) Specifies the name of the parsed field.
+
+* `value` - (Optional, String) Specifies the value of the parsed field.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -157,4 +208,23 @@ The host access can be imported using the `name`, e.g.
 
 ```bash
 $ terraform import huaweicloud_lts_host_access.test <name>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason.
+The missing attributes include: `processors`.
+It is generally recommended running `terraform plan` after importing the resource.
+You can then decide if changes should be applied to the instance, or the resource definition should be updated to
+align with the instance. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_lts_host_access" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      processors,
+    ]
+  }
+}
 ```
