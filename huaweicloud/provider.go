@@ -2237,6 +2237,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_repository": codearts.ResourceRepository(),
 
 			"huaweicloud_codearts_deploy_application":            codeartsdeploy.ResourceDeployApplication(),
+			"huaweicloud_codearts_deploy_application_copy":       codeartsdeploy.ResourceDeployApplicationCopy(),
 			"huaweicloud_codearts_deploy_application_group":      codeartsdeploy.ResourceDeployApplicationGroup(),
 			"huaweicloud_codearts_deploy_application_group_move": codeartsdeploy.ResourceDeployApplicationGroupMove(),
 			"huaweicloud_codearts_deploy_environment":            codeartsdeploy.ResourceDeployEnvironment(),
