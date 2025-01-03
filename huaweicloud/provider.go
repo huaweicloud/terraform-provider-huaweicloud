@@ -822,6 +822,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_instance_coordinators": gaussdb.DataSourceGaussdbOpengaussInstanceCoordinators(),
 			"huaweicloud_gaussdb_opengauss_databases":             gaussdb.DataSourceOpenGaussDatabases(),
 			"huaweicloud_gaussdb_opengauss_parameter_templates":   gaussdb.DataSourceGaussdbOpengaussParameterTemplates(),
+			"huaweicloud_gaussdb_opengauss_pt_modify_records":     gaussdb.DataSourceGaussdbOpengaussPtModifyRecords(),
 			"huaweicloud_gaussdb_opengauss_restore_time_ranges":   gaussdb.DataSourceGaussdbOpengaussRestoreTimeRanges(),
 			"huaweicloud_gaussdb_opengauss_restorable_instances":  gaussdb.DataSourceGaussdbOpengaussRestorableInstances(),
 			"huaweicloud_gaussdb_opengauss_backups":               gaussdb.DataSourceGaussdbOpengaussBackups(),
