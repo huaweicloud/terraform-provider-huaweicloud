@@ -38,13 +38,18 @@ func ResourceAdvancedQuery() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ResourceQL name.`,
 			},
 			"expression": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the ResourceQL expression.`,
+			},
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the ResourceQL type.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -99,8 +104,9 @@ func resourceAdvancedQueryCreate(ctx context.Context, d *schema.ResourceData, me
 
 func buildCreateAdvancedQueryBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
-		"expression":  utils.ValueIgnoreEmpty(d.Get("expression")),
+		"name":        d.Get("name"),
+		"expression":  d.Get("expression"),
+		"type":        utils.ValueIgnoreEmpty(d.Get("type")),
 		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
@@ -145,6 +151,7 @@ func resourceAdvancedQueryRead(_ context.Context, d *schema.ResourceData, meta i
 		mErr,
 		d.Set("name", utils.PathSearch("name", getAdvancedQueryRespBody, nil)),
 		d.Set("expression", utils.PathSearch("expression", getAdvancedQueryRespBody, nil)),
+		d.Set("type", utils.PathSearch("type", getAdvancedQueryRespBody, nil)),
 		d.Set("description", utils.PathSearch("description", getAdvancedQueryRespBody, nil)),
 	)
 
@@ -156,7 +163,9 @@ func resourceAdvancedQueryUpdate(ctx context.Context, d *schema.ResourceData, me
 	region := cfg.GetRegion(d)
 
 	updateAdvancedQueryChanges := []string{
+		"name",
 		"expression",
+		"type",
 		"description",
 	}
 
@@ -190,9 +199,10 @@ func resourceAdvancedQueryUpdate(ctx context.Context, d *schema.ResourceData, me
 
 func buildUpdateAdvancedQueryBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
-		"expression":  utils.ValueIgnoreEmpty(d.Get("expression")),
-		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"name":        d.Get("name"),
+		"expression":  d.Get("expression"),
+		"type":        utils.ValueIgnoreEmpty(d.Get("type")),
+		"description": d.Get("description"),
 	}
 	return bodyParams
 }
