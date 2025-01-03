@@ -286,9 +286,6 @@ The following arguments are supported:
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether to enable IPv6 in the cluster.
   Changing this parameter will create a new cluster resource.
 
-* `support_istio` - (Optional, Bool, ForceNew) Specifies whether to support Istio in the cluster.
-  Changing this parameter will create a new cluster resource.
-
 * `extend_params` - (Optional, List, ForceNew) Specifies the extended parameter.
   The [object](#cce_cluster_extend_params) structure is documented below.
   Changing this parameter will create a new cluster resource.
@@ -417,6 +414,8 @@ In addition to all arguments above, the following attributes are exported:
 * `eni_subnet_cidr` - The ENI network segment. This value is valid when only one eni_subnet_id is specified.
 
 * `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
+
+* `support_istio` - Whether Istio is supported in the cluster.
 
 The `certificate_clusters` block supports:
 
