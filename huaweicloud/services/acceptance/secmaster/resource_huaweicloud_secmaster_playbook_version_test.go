@@ -89,14 +89,17 @@ func testPlaybookVersion_basic(name string) string {
 %[1]s
 
 data "huaweicloud_secmaster_data_classes" "test" {
-  workspace_id = "%[2]s"
+  workspace_id  = "%[2]s"
+  business_code = "Policy"
 }
 
 resource "huaweicloud_secmaster_playbook_version" "test" {
-  workspace_id = "%[2]s"
-  playbook_id  = huaweicloud_secmaster_playbook.test.id
-  dataclass_id = data.huaweicloud_secmaster_data_classes.test.data_classes[0].id
-  description  = "created by terraform"
+  workspace_id      = "%[2]s"
+  playbook_id       = huaweicloud_secmaster_playbook.test.id
+  dataclass_id      = data.huaweicloud_secmaster_data_classes.test.data_classes[0].id
+  description       = "created by terraform"
+  dataobject_create = true
+  trigger_type      = "EVENT"
 }
 
 data "huaweicloud_secmaster_workflows" "test" {
