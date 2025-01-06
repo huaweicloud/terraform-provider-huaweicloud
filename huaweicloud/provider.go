@@ -1742,6 +1742,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_function_trigger":           fgs.ResourceFunctionTrigger(),
 
 			"huaweicloud_ga_accelerator":    ga.ResourceAccelerator(),
+			"huaweicloud_ga_access_log":     ga.ResourceAccessLog(),
 			"huaweicloud_ga_address_group":  ga.ResourceIpAddressGroup(),
 			"huaweicloud_ga_listener":       ga.ResourceListener(),
 			"huaweicloud_ga_endpoint_group": ga.ResourceEndpointGroup(),
