@@ -181,6 +181,8 @@ var (
 	HW_GAUSSDB_MYSQL_START_TIME                = os.Getenv("HW_GAUSSDB_MYSQL_START_TIME")
 	HW_GAUSSDB_MYSQL_END_TIME                  = os.Getenv("HW_GAUSSDB_MYSQL_END_TIME")
 
+	HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID = os.Getenv("HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID")
+
 	HW_VOD_WATERMARK_FILE   = os.Getenv("HW_VOD_WATERMARK_FILE")
 	HW_VOD_MEDIA_ASSET_FILE = os.Getenv("HW_VOD_MEDIA_ASSET_FILE")
 
@@ -1357,6 +1359,13 @@ func TestAccPreCheckGaussDBMysqlJobId(t *testing.T) {
 func TestAccPreCheckGaussDBMysqlTimeRange(t *testing.T) {
 	if HW_GAUSSDB_MYSQL_START_TIME == "" || HW_GAUSSDB_MYSQL_END_TIME == "" {
 		t.Skip("HW_GAUSSDB_MYSQL_START_TIME and HW_GAUSSDB_MYSQL_END_TIME must be set for GaussDB MySQL acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGaussDBOpenGaussParameterTemplateId(t *testing.T) {
+	if HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID == "" {
+		t.Skip("HW_GAUSSDB_OPENGAUSS_PARAMETER_TEMPLATE_ID must be set for GaussDB OpenGauss acceptance tests")
 	}
 }
 
