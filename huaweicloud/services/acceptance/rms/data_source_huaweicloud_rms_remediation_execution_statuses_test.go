@@ -17,7 +17,7 @@ func TestAccDataSourceRemediationExecutionStatuses_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckRMSTargetID(t)
+			acceptance.TestAccPreCheckRMSTargetIDForFGS(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{

@@ -111,7 +111,8 @@ var (
 	HW_RAM_SHARE_INVITATION_ID       = os.Getenv("HW_RAM_SHARE_INVITATION_ID")
 	HW_RAM_SHARE_ID                  = os.Getenv("HW_RAM_SHARE_ID")
 
-	HW_RMS_TARGET_ID          = os.Getenv("HW_RMS_TARGET_ID")
+	HW_RMS_TARGET_ID_FOR_FGS  = os.Getenv("HW_RMS_TARGET_ID_FOR_FGS")
+	HW_RMS_TARGET_ID_FOR_RFS  = os.Getenv("HW_RMS_TARGET_ID_FOR_RFS")
 	HW_RMS_EXCLUDED_ACCOUNT_1 = os.Getenv("HW_RMS_EXCLUDED_ACCOUNT_1")
 	HW_RMS_EXCLUDED_ACCOUNT_2 = os.Getenv("HW_RMS_EXCLUDED_ACCOUNT_2")
 
@@ -1134,9 +1135,16 @@ func TestAccPreCheckRAMSharedPrincipalsQueryFields(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckRMSTargetID(t *testing.T) {
-	if HW_RMS_TARGET_ID == "" {
-		t.Skip("HW_RMS_TARGET_ID must be set for the acceptance tests.")
+func TestAccPreCheckRMSTargetIDForFGS(t *testing.T) {
+	if HW_RMS_TARGET_ID_FOR_FGS == "" {
+		t.Skip("HW_RMS_TARGET_ID_FOR_FGS must be set for the acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRMSTargetIDForRFS(t *testing.T) {
+	if HW_RMS_TARGET_ID_FOR_RFS == "" {
+		t.Skip("HW_RMS_TARGET_ID_FOR_RFS must be set for the acceptance tests.")
 	}
 }
 

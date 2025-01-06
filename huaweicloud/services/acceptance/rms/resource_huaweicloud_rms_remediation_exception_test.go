@@ -36,7 +36,7 @@ func TestAccResourceRemediationException_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckRMSTargetID(t)
+			acceptance.TestAccPreCheckRMSTargetIDForFGS(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -164,5 +164,5 @@ resource "huaweicloud_rms_remediation_configuration" "test" {
   provisioner "local-exec" {
     command = "sleep 10"
   }
-}`, name, acceptance.HW_REGION_NAME, acceptance.HW_RMS_TARGET_ID)
+}`, name, acceptance.HW_REGION_NAME, acceptance.HW_RMS_TARGET_ID_FOR_FGS)
 }

@@ -43,7 +43,7 @@ func TestAccResourceRmsRemediationConfiguration_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckRMSTargetID(t)
+			acceptance.TestAccPreCheckRMSTargetIDForRFS(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -53,7 +53,7 @@ func TestAccResourceRmsRemediationConfiguration_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "target_type", "rfs"),
-					resource.TestCheckResourceAttr(resourceName, "target_id", acceptance.HW_RMS_TARGET_ID),
+					resource.TestCheckResourceAttr(resourceName, "target_id", acceptance.HW_RMS_TARGET_ID_FOR_RFS),
 					resource.TestCheckResourceAttr(resourceName, "resource_parameter.0.resource_id", "file_prefix"),
 					resource.TestCheckResourceAttr(resourceName, "static_parameter.0.var_key", "bucket_name"),
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "agency"),
@@ -68,7 +68,7 @@ func TestAccResourceRmsRemediationConfiguration_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "target_type", "rfs"),
-					resource.TestCheckResourceAttr(resourceName, "target_id", acceptance.HW_RMS_TARGET_ID),
+					resource.TestCheckResourceAttr(resourceName, "target_id", acceptance.HW_RMS_TARGET_ID_FOR_RFS),
 					resource.TestCheckResourceAttr(resourceName, "resource_parameter.0.resource_id", "file_prefix"),
 					resource.TestCheckResourceAttr(resourceName, "static_parameter.0.var_key", "bucket_name"),
 					resource.TestCheckResourceAttr(resourceName, "static_parameter.1.var_key", "compress_type"),
@@ -110,7 +110,7 @@ resource "huaweicloud_rms_remediation_configuration" "test" {
   auth_value            = "test_RFS_CTS" 
   maximum_attempts      = 5  
   retry_attempt_seconds = 3600  
-}`, testResourceRmsRemediationConfiguration_base(), acceptance.HW_RMS_TARGET_ID)
+}`, testResourceRmsRemediationConfiguration_base(), acceptance.HW_RMS_TARGET_ID_FOR_RFS)
 }
 
 func testResourceRmsRemediationConfiguration_update() string {
@@ -139,7 +139,7 @@ resource "huaweicloud_rms_remediation_configuration" "test" {
   auth_value            = "test_RFS_CTS" 
   maximum_attempts      = 6  
   retry_attempt_seconds = 60  
-}`, testResourceRmsRemediationConfiguration_base(), acceptance.HW_RMS_TARGET_ID)
+}`, testResourceRmsRemediationConfiguration_base(), acceptance.HW_RMS_TARGET_ID_FOR_RFS)
 }
 
 func testResourceRmsRemediationConfiguration_base() string {
