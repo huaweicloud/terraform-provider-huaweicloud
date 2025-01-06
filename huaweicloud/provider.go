@@ -522,7 +522,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_node":                cce.DataSourceNode(),
 			"huaweicloud_cce_nodes":               cce.DataSourceNodes(),
 			"huaweicloud_cce_node_pool":           cce.DataSourceCCENodePoolV3(),
-			"huaweicloud_cci_namespaces":          cci.DataSourceCciNamespaces(),
+			"huaweicloud_cce_charts":              cce.DataSourceCCECharts(),
+
+			"huaweicloud_cci_namespaces": cci.DataSourceCciNamespaces(),
 
 			"huaweicloud_ccm_certificates":               ccm.DataSourceCertificates(),
 			"huaweicloud_ccm_certificate_export":         ccm.DataSourceCertificateExport(),
