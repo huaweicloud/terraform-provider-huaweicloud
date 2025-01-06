@@ -342,12 +342,6 @@ func ResourceCluster() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"support_istio": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
 			"tags": common.TagsSchema(),
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
@@ -385,6 +379,14 @@ func ResourceCluster() *schema.Resource {
 			"kube_config_raw": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"support_istio": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc("", utils.SchemaDescInput{
+					Computed: true,
+				}),
 			},
 			"certificate_clusters": {
 				Type:     schema.TypeList,
@@ -697,7 +699,6 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 			CustomSan:     utils.ExpandToStringList(d.Get("custom_san").([]interface{})),
 			IPv6Enable:    d.Get("ipv6_enable").(bool),
 			KubeProxyMode: d.Get("kube_proxy_mode").(string),
-			SupportIstio:  d.Get("support_istio").(bool),
 		},
 	}
 
