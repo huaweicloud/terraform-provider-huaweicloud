@@ -1420,6 +1420,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": bcs.ResourceInstance(),
 
+			"huaweicloud_cae_application":              cae.ResourceApplication(),
 			"huaweicloud_cae_component":                cae.ResourceComponent(),
 			"huaweicloud_cae_component_configurations": cae.ResourceComponentConfigurations(),
 			"huaweicloud_cae_component_deployment":     cae.ResourceComponentDeployment(),
