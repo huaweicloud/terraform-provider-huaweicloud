@@ -798,6 +798,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_quotas":                fgs.DataSourceQuotas(),
 
 			"huaweicloud_ga_accelerators":       ga.DataSourceAccelerators(),
+			"huaweicloud_ga_access_logs":        ga.DataSourceGaAccessLogs(),
 			"huaweicloud_ga_address_groups":     ga.DataSourceAddressGroups(),
 			"huaweicloud_ga_availability_zones": ga.DataSourceAvailabilityZones(),
 			"huaweicloud_ga_endpoint_groups":    ga.DataSourceEndpointGroups(),
