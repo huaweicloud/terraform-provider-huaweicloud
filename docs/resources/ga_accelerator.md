@@ -11,6 +11,8 @@ Manages a GA accelerator resource within HuaweiCloud.
 
 ## Example Usage
 
+### Accelerator With IPV4
+
 ```hcl
 variable "name" {}
 variable "description" {}
@@ -21,6 +23,33 @@ resource "huaweicloud_ga_accelerator" "test" {
 
   ip_sets {
     area = "CM"
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+```
+
+#### Accelerator With IPV4 And IPV6
+
+```hcl
+variable "name" {}
+variable "description" {}
+
+resource "huaweicloud_ga_accelerator" "test" {
+  name        = var.name
+  description = var.description
+
+  ip_sets {
+    ip_type = "IPV4"
+    area    = "CM"
+  }
+
+  ip_sets {
+    ip_type = "IPV6"
+    area    = "CM"
   }
 
   tags = {
@@ -62,10 +91,14 @@ The `AccelerateIp` block supports:
 
   Changing this parameter will create a new resource.
 
-* `ip_type` - (Optional, String, ForceNew) Specifies the IP address version. Only **IPV4** is supported for now.
-  Defaults to **IPV4**.
-
+* `ip_type` - (Optional, String, ForceNew) Specifies the IP address version. Defaults to **IPV4**.
   Changing this parameter will create a new resource.
+  The valid values are as follows:
+  + **IPV4**
+  + **IPV6**
+
+  -> If you want to set this parameter to **IPV6**, you must set **IPV4** at the same time.
+    Please refer to the document sample.
 
 ## Attribute Reference
 

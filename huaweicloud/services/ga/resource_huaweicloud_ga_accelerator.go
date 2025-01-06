@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -54,7 +53,7 @@ func ResourceAccelerator() *schema.Resource {
 			},
 			"ip_sets": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
+				MaxItems: 2,
 				Elem:     AcceleratorAccelerateIpSchema(),
 				Required: true,
 				ForceNew: true,
@@ -123,9 +122,6 @@ func AcceleratorAccelerateIpSchema() *schema.Resource {
 					Specifies the acceleration area. The value can be one of the following:
 					  - **OUTOFCM**: Outside the Chinese mainland
 					  - **CM**: Chinese mainland`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"OUTOFCM", "CM",
-				}, false),
 			},
 			"ip_type": {
 				Type:        schema.TypeString,
@@ -133,9 +129,6 @@ func AcceleratorAccelerateIpSchema() *schema.Resource {
 				ForceNew:    true,
 				Default:     "IPV4",
 				Description: `Specifies the IP address version.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"IPV4",
-				}, false),
 			},
 			"ip_address": {
 				Type:        schema.TypeString,
@@ -251,14 +244,18 @@ func buildCreateAcceleratorIpSetsChildBody(d *schema.ResourceData) []map[string]
 		return nil
 	}
 
-	raw := rawParams[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"area":       utils.ValueIgnoreEmpty(raw["area"]),
-		"ip_address": utils.ValueIgnoreEmpty(raw["ip_address"]),
-		"ip_type":    utils.ValueIgnoreEmpty(raw["ip_type"]),
+	ipSets := make([]map[string]interface{}, 0, len(rawParams))
+	for _, v := range rawParams {
+		raw := v.(map[string]interface{})
+		params := map[string]interface{}{
+			"area":       utils.ValueIgnoreEmpty(raw["area"]),
+			"ip_address": utils.ValueIgnoreEmpty(raw["ip_address"]),
+			"ip_type":    utils.ValueIgnoreEmpty(raw["ip_type"]),
+		}
+		ipSets = append(ipSets, params)
 	}
 
-	return []map[string]interface{}{params}
+	return ipSets
 }
 
 func createAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
@@ -347,7 +344,7 @@ func resourceAcceleratorRead(_ context.Context, d *schema.ResourceData, meta int
 		mErr,
 		d.Set("name", utils.PathSearch("accelerator.name", respBody, nil)),
 		d.Set("description", utils.PathSearch("accelerator.description", respBody, nil)),
-		d.Set("ip_sets", flattenGetAcceleratorResponseBodyAccelerateIp(respBody)),
+		d.Set("ip_sets", flattenAccelerateIpSets(utils.PathSearch("accelerator.ip_sets", respBody, make([]interface{}, 0)))),
 		d.Set("enterprise_project_id", utils.PathSearch("accelerator.enterprise_project_id", respBody, nil)),
 		d.Set("tags", flattenGetAcceleratorResponseBodyResourceTag(respBody)),
 		d.Set("status", utils.PathSearch("accelerator.status", respBody, nil)),
@@ -360,20 +357,22 @@ func resourceAcceleratorRead(_ context.Context, d *schema.ResourceData, meta int
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetAcceleratorResponseBodyAccelerateIp(resp interface{}) []interface{} {
-	var rst []interface{}
-	curArray := utils.PathSearch("accelerator.ip_sets", resp, make([]interface{}, 0)).([]interface{})
-	if len(curArray) < 1 {
+func flattenAccelerateIpSets(resp interface{}) []map[string]interface{} {
+	rawArray, _ := resp.([]interface{})
+	if len(rawArray) == 0 {
 		return nil
 	}
 
-	rst = []interface{}{
-		map[string]interface{}{
-			"area":       utils.PathSearch("area", curArray[0], nil),
-			"ip_address": utils.PathSearch("ip_address", curArray[0], nil),
-			"ip_type":    utils.PathSearch("ip_type", curArray[0], nil),
-		},
+	rst := make([]map[string]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		params := map[string]interface{}{
+			"area":       utils.PathSearch("area", v, nil),
+			"ip_address": utils.PathSearch("ip_address", v, nil),
+			"ip_type":    utils.PathSearch("ip_type", v, nil),
+		}
+		rst[i] = params
 	}
+
 	return rst
 }
 
