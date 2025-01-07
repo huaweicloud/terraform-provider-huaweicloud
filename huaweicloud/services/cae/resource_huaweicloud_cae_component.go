@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,12 +19,15 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var ComponentResourceNotFoundCodes = []string{
-	"CAE.01500208", // Application or component does not found.
-	"CAE.01500404", // Environment does not found.
+var componentResourceNotFoundCodes = []string{
+	"CAE.01500208", // Application or component does not found, and status code is 400.
+	"CAE.01500404", // Environment does not found, and status code is 400.
+	"CAE.01500000", // Application or component does not found, and status code is 500.
 }
 
 // @API CAE POST /v1/{project_id}/cae/applications/{application_id}/components
+// @API CAE POST /v1/{project_id}/cae/applications/{application_id}/component-with-configurations
+// @API CAE GET /v1/{project_id}/cae/jobs/{job_id}
 // @API CAE GET /v1/{project_id}/cae/applications/{application_id}/components/{component_id}
 // @API CAE PUT /v1/{project_id}/cae/applications/{application_id}/components/{component_id}
 // @API CAE DELETE /v1/{project_id}/cae/applications/{application_id}/components/{component_id}
@@ -115,6 +121,35 @@ func ResourceComponent() *schema.Resource {
 						},
 					},
 				},
+			},
+			"deploy_after_create": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Whether to deploy the component after creating the resource.`,
+			},
+			"configurations": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The type of the component configuration.`,
+						},
+						"data": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringIsJSON,
+							Description:  `The component configuration detail, in JSON format.`,
+						},
+					},
+				},
+				Description: `The list of configurations of the component.`,
 			},
 			"created_at": {
 				Type:     schema.TypeString,
@@ -266,57 +301,113 @@ func buildCreateOrUpdateComponentBodyParams(d *schema.ResourceData) map[string]i
 
 func resourceComponentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/cae/applications/{application_id}/components"
-		product = "cae"
+		cfg               = meta.(*config.Config)
+		environmentId     = d.Get("environment_id").(string)
+		applicationId     = d.Get("application_id").(string)
+		isDeployComponent = d.Get("deploy_after_create").(bool)
+		err               error
 	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cae", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating CAE Client: %s", err)
+		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
+	if isDeployComponent {
+		err = createAndDeployComponent(ctx, client, d, environmentId, applicationId)
+	} else {
+		err = createComponent(client, d, environmentId, applicationId)
+	}
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return resourceComponentRead(ctx, d, meta)
+}
+
+func createComponent(client *golangsdk.ServiceClient, d *schema.ResourceData, environmentId, applicationId string) error {
+	httpUrl := "v1/{project_id}/cae/applications/{application_id}/components"
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{application_id}", d.Get("application_id").(string))
+	createPath = strings.ReplaceAll(createPath, "{application_id}", applicationId)
 
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"X-Environment-Id": d.Get("environment_id").(string),
+			"X-Environment-Id": environmentId,
 		},
 		JSONBody: utils.RemoveNil(buildCreateOrUpdateComponentBodyParams(d)),
 	}
 	createResp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
-		return diag.Errorf("error creating CAE component: %s", err)
+		return fmt.Errorf("error creating CAE component under specified application (%s): %s", applicationId, err)
 	}
 
 	createRespBody, err := utils.FlattenResponse(createResp)
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
 
 	componentId := utils.PathSearch("metadata.id", createRespBody, "").(string)
 	if componentId == "" {
-		return diag.Errorf("unable to find the CAE component ID from the API response")
+		return fmt.Errorf("unable to find the CAE component ID from the API response")
 	}
 
 	d.SetId(componentId)
-	return resourceComponentRead(ctx, d, meta)
+	return nil
+}
+
+func createAndDeployComponent(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, environmentId,
+	applicationId string) error {
+	httpUrl := "v1/{project_id}/cae/applications/{application_id}/component-with-configurations"
+	createDeployPath := client.Endpoint + httpUrl
+	createDeployPath = strings.ReplaceAll(createDeployPath, "{project_id}", client.ProjectID)
+	createDeployPath = strings.ReplaceAll(createDeployPath, "{application_id}", applicationId)
+
+	params := buildCreateOrUpdateComponentBodyParams(d)
+	params["configurations"] = buildConfigurationItemsBodyParams(d.Get("configurations").(*schema.Set))
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"X-Environment-Id": environmentId,
+		},
+		JSONBody: utils.RemoveNil(params),
+	}
+	resp, err := client.Request("POST", createDeployPath, &opt)
+	if err != nil {
+		return fmt.Errorf("error creating and deploying CAE component under specified application (%s): %s", applicationId, err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+
+	componentId := utils.PathSearch("metadata.id", respBody, "").(string)
+	if componentId == "" {
+		return fmt.Errorf("unable to find the CAE component ID from the API response")
+	}
+
+	d.SetId(componentId)
+
+	jobId := utils.PathSearch("status.job_id", respBody, "").(string)
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      deployJobRefreshFunc(client, environmentId, jobId, []string{"success"}),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        20 * time.Second,
+		PollInterval: 30 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for the deploy component job (%s) to complete: %s", jobId, err)
+	}
+	return nil
 }
 
 // GetComponentById is a method to query component details from a specified application ID using given parameters.
-func GetComponentById(cfg *config.Config, region, environmentId, applicationId, componentId string) (interface{}, error) {
-	var (
-		httpUrl = "v1/{project_id}/cae/applications/{application_id}/components/{component_id}"
-		product = "cae"
-	)
-	client, err := cfg.NewServiceClient(product, region)
-	if err != nil {
-		return nil, fmt.Errorf("error creating CAE Client: %s", err)
-	}
-
+func GetComponentById(client *golangsdk.ServiceClient, environmentId, applicationId, componentId string) (interface{}, error) {
+	httpUrl := "v1/{project_id}/cae/applications/{application_id}/components/{component_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{application_id}", applicationId)
@@ -329,25 +420,28 @@ func GetComponentById(cfg *config.Config, region, environmentId, applicationId, 
 	}
 	resp, err := client.Request("GET", getPath, &getComponentOpt)
 	if err != nil {
-		return nil, err
+		return nil, common.ConvertExpected400ErrInto404Err(
+			common.ConvertExpected500ErrInto404Err(err, "error_code", componentResourceNotFoundCodes...),
+			"error_code",
+			componentResourceNotFoundCodes...)
 	}
 
-	getComponentRespBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return getComponentRespBody, nil
+	return utils.FlattenResponse(resp)
 }
 
 func resourceComponentRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	componentId := d.Id()
-	componentRespBody, err := GetComponentById(cfg, region, d.Get("environment_id").(string), d.Get("application_id").(string), componentId)
+
+	client, err := cfg.NewServiceClient("cae", region)
 	if err != nil {
-		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", ComponentResourceNotFoundCodes...),
-			fmt.Sprintf("error retrieving CAE component (%s): %s", componentId, err))
+		return diag.Errorf("error creating CAE client: %s", err)
+	}
+
+	componentRespBody, err := GetComponentById(client, d.Get("environment_id").(string), d.Get("application_id").(string), componentId)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error retrieving CAE component (%s)", componentId))
 	}
 
 	mErr := multierror.Append(
@@ -453,7 +547,7 @@ func resourceComponentUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CAE Client: %s", err)
+		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
 	updatePath := client.Endpoint + httpUrl
@@ -477,36 +571,70 @@ func resourceComponentUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceComponentRead(ctx, d, meta)
 }
 
-func resourceComponentDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceComponentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/cae/applications/{application_id}/components/{component_id}"
-		product = "cae"
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		httpUrl       = "v1/{project_id}/cae/applications/{application_id}/components/{component_id}"
+		product       = "cae"
+		environmentId = d.Get("environment_id").(string)
+		applicationId = d.Get("application_id").(string)
+		componentId   = d.Id()
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CAE Client: %s", err)
+		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
 	deletePath := client.Endpoint + httpUrl
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{application_id}", d.Get("application_id").(string))
-	componentId := d.Id()
+	deletePath = strings.ReplaceAll(deletePath, "{application_id}", applicationId)
 	deletePath = strings.ReplaceAll(deletePath, "{component_id}", componentId)
 
 	deleteComponentOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"X-Environment-Id": d.Get("environment_id").(string),
+			"X-Environment-Id": environmentId,
 		},
 	}
-	_, err = client.Request("DELETE", deletePath, &deleteComponentOpt)
+	resp, err := client.Request("DELETE", deletePath, &deleteComponentOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CAE component (%s): %s", componentId, err)
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", componentResourceNotFoundCodes...),
+			fmt.Sprintf("error deleting CAE component (%s)", componentId))
+	}
+
+	_, err = utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"DELETED"},
+		Refresh:      refreshDeleteComponentFunc(client, environmentId, applicationId, componentId),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        10 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for deleting component to complete: %s", err)
 	}
 
 	return nil
+}
+
+func refreshDeleteComponentFunc(client *golangsdk.ServiceClient, environmentId, applicationId, componentId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		respBody, err := GetComponentById(client, environmentId, applicationId, componentId)
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return "deleted", "DELETED", nil
+			}
+			return nil, "ERROR", err
+		}
+		return respBody, "PENDING", nil
+	}
 }
 
 func resourceComponentImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {

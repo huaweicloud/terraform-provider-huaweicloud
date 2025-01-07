@@ -2,6 +2,7 @@ package cae
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,9 +14,14 @@ import (
 )
 
 func getComponentFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("cae", acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CAE client: %s", err)
+	}
+
 	environmentId := state.Primary.Attributes["environment_id"]
 	applicationId := state.Primary.Attributes["application_id"]
-	return cae.GetComponentById(cfg, acceptance.HW_REGION_NAME, environmentId, applicationId, state.Primary.ID)
+	return cae.GetComponentById(client, environmentId, applicationId, state.Primary.ID)
 }
 
 func TestAccComponent_basic(t *testing.T) {
@@ -197,4 +203,157 @@ func testAccComponentImportStateFunc(name string) resource.ImportStateIdFunc {
 
 		return fmt.Sprintf("%s/%s/%s", environmentId, applicationId, componentId), nil
 	}
+}
+
+func TestAccComponent_deploy(t *testing.T) {
+	var (
+		obj interface{}
+
+		withConfiguration      = "huaweicloud_cae_component.test.0"
+		withoutConfiguration   = "huaweicloud_cae_component.test.1"
+		rcWithConfiguration    = acceptance.InitResourceCheck(withConfiguration, &obj, getComponentFunc)
+		rcWithoutConfiguration = acceptance.InitResourceCheck(withoutConfiguration, &obj, getComponentFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckCaeEnvironment(t)
+			acceptance.TestAccPreCheckCaeApplication(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcWithConfiguration.CheckResourceDestroy(),
+			rcWithoutConfiguration.CheckResourceDestroy(),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComponent_deploy(name),
+				Check: resource.ComposeTestCheckFunc(
+					rcWithConfiguration.CheckResourceExists(),
+					resource.TestMatchResourceAttr(withConfiguration, "metadata.0.name", regexp.MustCompile(name)),
+					resource.TestCheckResourceAttr(withConfiguration, "environment_id", acceptance.HW_CAE_ENVIRONMENT_ID),
+					resource.TestCheckResourceAttr(withConfiguration, "application_id", acceptance.HW_CAE_APPLICATION_ID),
+					resource.TestCheckResourceAttr(withConfiguration, "metadata.0.annotations.version", "1.0.0"),
+					resource.TestCheckResourceAttr(withConfiguration, "spec.0.replica", "1"),
+					resource.TestCheckResourceAttr(withConfiguration, "spec.0.runtime", "Docker"),
+					resource.TestCheckResourceAttr(withConfiguration, "spec.0.resource_limit.0.cpu", "500m"),
+					resource.TestCheckResourceAttr(withConfiguration, "spec.0.resource_limit.0.memory", "1Gi"),
+					resource.TestCheckResourceAttr(withConfiguration, "spec.0.source.0.type", "image"),
+					resource.TestCheckResourceAttrSet(withConfiguration, "spec.0.source.0.url"),
+					resource.TestCheckResourceAttr(withConfiguration, "configurations.#", "2"),
+					rcWithoutConfiguration.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withoutConfiguration, "configurations.#", "0"),
+				),
+			},
+			{
+				ResourceName:      "huaweicloud_cae_component.test[0]",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"metadata.0.annotations",
+					"spec.0.build.0.parameters",
+					"deploy_after_create",
+					"configurations",
+				},
+				ImportStateIdFunc: testAccComponentImportStateFunc(withConfiguration),
+			},
+			{
+				ResourceName:      "huaweicloud_cae_component.test[1]",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"metadata.0.annotations",
+					"spec.0.build.0.parameters",
+					"deploy_after_create",
+				},
+				ImportStateIdFunc: testAccComponentImportStateFunc(withoutConfiguration),
+			},
+		},
+	})
+}
+
+func testAccComponent_deploy(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_swr_repositories" "test" {}
+
+locals {
+  swr_repositories = [for v in data.huaweicloud_swr_repositories.test.repositories : v if length(v.tags) > 0][0]
+}
+
+locals {
+  configurations = [
+    {
+      type = "env"
+      data = jsonencode({
+        "spec" : {
+          "envs" : {
+            "key" : "value",
+            "foo" : "baar"
+          }
+        }
+      })
+    },
+    {
+      type = "lifecycle"
+      data = jsonencode({
+        "spec" : {
+          "postStart" : {
+            "exec" : {
+              "command" : [
+                "/bin/bash",
+                "-c",
+                "sleep",
+                "10",
+                "done"
+              ]
+            }
+          }
+        }
+      })
+    }
+  ]
+}
+
+resource "huaweicloud_cae_component" "test" {
+  count          = 2
+  environment_id = "%[1]s"
+  application_id = "%[2]s"
+
+  metadata {
+    name = "%[3]s${count.index}"
+
+    annotations = {
+      version = "1.0.0"
+    }
+  }
+
+  spec {
+    replica = 1
+    runtime = "Docker"
+
+    source {
+      type = "image"
+      url  = format("%%s:%%s", local.swr_repositories.path, local.swr_repositories.tags[0])
+    }
+
+    resource_limit {
+      cpu    = "500m"
+      memory = "1Gi"
+    }
+  }
+
+  deploy_after_create = true
+
+  dynamic "configurations" {
+    for_each = count.index == 0 ? local.configurations : []
+    content {
+      type = configurations.value.type
+      data = configurations.value.data
+    }
+  }
+}
+`, acceptance.HW_CAE_ENVIRONMENT_ID, acceptance.HW_CAE_APPLICATION_ID, name)
 }

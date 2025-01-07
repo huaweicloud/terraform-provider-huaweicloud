@@ -58,11 +58,11 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
   Changing this creates a new resource.
 
-* `environment_id` - (Required, String, ForceNew) Specifies the environment ID to which the application and the
+* `environment_id` - (Required, String, ForceNew) Specifies the ID of the environment to which the application and the
   component belongs.
   Changing this creates a new resource.
 
-* `application_id` - (Required, String, ForceNew) Specifies the application ID to which the component belongs.
+* `application_id` - (Required, String, ForceNew) Specifies the ID of the application to which the component belongs.
   Changing this creates a new resource.
 
 * `metadata` - (Required, List) Specifies the metadata of the component.
@@ -70,6 +70,16 @@ The following arguments are supported:
 
 * `spec` - (Required, List) Specifies the configuration information of the component.
   The [spec](#component_spec) structure is documented below.
+
+* `deploy_after_create` - (Optional, Bool, ForceNew) Specifies whether to deploy the component after creating the resource.
+  Defaults to **false**.
+  Changing this creates a new resource.
+
+* `configurations` - (Optional, List, ForceNew) Specifies the list of configurations of the component.  
+  The [configurations](#component_configurations) structure is documented below.  
+  Changing this creates a new resource.
+
+  -> This parameter is available only when the `deploy_after_create` parameter is set to **true**.
 
 <a name="component_metadata"></a>
 The `metadata` block supports:
@@ -80,7 +90,7 @@ The `metadata` block supports:
 
 * `annotations` - (Required, Map) Specifies the key/value pairs parameters related to the component.
   Currently, only `version` is supported and required.
-  The format is `A.B.C` or `A.B.C.D`, A, B, C and D must be interger. e.g.`1.0.0` or `1.0.0.0`
+  The format is `A.B.C` or `A.B.C.D`, A, B, C and D must be integer. e.g.`1.0.0` or `1.0.0.0`
 
 <a name="component_spec"></a>
 The `spec` block supports:
@@ -155,7 +165,7 @@ The `build` block supports:
   + **artifact_name**: Select and run the specified JAR package from multiple JAR packages generated during Maven build.
   The JAR package end with **.jar**. Fuzzy match is supported. e.g. `demo-1.0.jar`, `demo*.jar`.
 
-  -> `build_cmd`, `dockerfile_path` and `artifact_name` parameters is valid only when `source.type` is set to `code`.
+  -> `build_cmd`, `dockerfile_path` and `artifact_name` parameters are valid only when `source.type` is set to `code`.
      `dockerfile_path` and `artifact_name` parameters can't be set at the same time.
      `dockerfile_content` is valid only when `source.type` is set to `softwarePackage`.
 
@@ -164,6 +174,19 @@ The `archive` block supports:
 
 * `artifact_namespace` - (Required, String) Specifies the name of the SWR organization after the code source
   corresponding to component is built.
+
+<a name="component_configurations"></a>
+The `configurations` block supports:
+
+* `type` - (Required, String, ForceNew) Specifies the type of the component configuration.  
+  Please following [reference documentation](https://support.huaweicloud.com/api-cae/CreateComponentWithConfiguration.html#CreateComponentWithConfiguration__request_ConfigurationItem).
+
+  Changing this creates a new resource.
+
+* `data` - (Required, String, ForceNew) Specifies the component configuration detail, in JSON format.  
+  Please following [reference documentation](https://support.huaweicloud.com/api-cae/CreateComponentWithConfiguration.html#CreateComponentWithConfiguration__response_ConfigurationData).
+
+  Changing this creates a new resource.
 
 ## Attribute Reference
 
@@ -185,7 +208,7 @@ $ terraform import huaweicloud_cae_component.test <environment_id>/<application_
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
-The missing attributes include: `metadata.0.annotations`, `spec.0.build.0.parameters`.
+The missing attributes include: `metadata.0.annotations`, `spec.0.build.0.parameters`, `deploy_after_create`, `configurations`.
 It is generally recommended running `terraform plan` after importing the resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to
 align with the resource. Also you can ignore changes as below.
@@ -196,7 +219,7 @@ resource "huaweicloud_cae_component" "test" {
 
   lifecycle {
     ignore_changes = [
-      metadata.0.annotations, spec.0.build.0.parameters,
+      metadata.0.annotations, spec.0.build.0.parameters, deploy_after_create, configurations,
     ]
   }
 }
