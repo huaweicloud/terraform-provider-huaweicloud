@@ -20,7 +20,7 @@ data "huaweicloud_cce_charts" "test" {}
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to obtain the CCE cluster certificate. If omitted, the
+* `region` - (Optional, String) Specifies the region in which to obtain the CCE charts. If omitted, the
   provider-level region will be used.
 
 ## Attribute Reference
