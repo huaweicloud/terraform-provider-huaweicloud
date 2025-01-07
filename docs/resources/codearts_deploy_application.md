@@ -2,7 +2,8 @@
 subcategory: "CodeArts Deploy"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_codearts_deploy_application"
-description: ""
+description: |-
+  Manages a CodeArts deploy application resource within HuaweiCloud.
 ---
 
 # huaweicloud_codearts_deploy_application
@@ -100,6 +101,9 @@ The following arguments are supported:
   
   -> When value is **true**, it's unable to update other parameters.
 
+* `permission_level` - (Optional, String) Specifies the permission level.
+  Valid values are **instance** and **project**. Defaults to **project**.
+
 <a name="DeployApplication_operation_list"></a>
 The `operation_list` block supports:
 
@@ -139,7 +143,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `can_copy` - Indicates whether the user has the copy permission.
 
-* `can_manage` - Check whether the user has the management permission, including adding, deleting, modifying,
+* `can_manage` - Indicates whether the user has the management permission, including adding, deleting, modifying,
   querying deployment and permission modification.
 
 * `can_create_env` - Indicates whether the user has the permission to create an environment.
@@ -153,6 +157,35 @@ In addition to all arguments above, the following attributes are exported:
 * `task_name` - The deployment task name.
 
 * `steps` - The deployment steps. The example value is `{"step1":"XXX", "step2":"XXX"}`.
+
+* `permission_matrix` - Indicates the permission matrix.
+  The [permission_matrix](#attrblock--permission_matrix) structure is documented below.
+
+<a name="attrblock--permission_matrix"></a>
+The `permission_matrix` block supports:
+
+* `role_id` - Indicates the role ID.
+
+* `role_name` - Indicates the role name.
+
+* `role_type` - Indicates the role type.
+
+* `can_modify` - Indicates whether the role has the editing permission.
+
+* `can_delete` - Indicates whether the role has the deletion permission.
+
+* `can_view` - Indicates whether the role has the view permission.
+
+* `can_execute` - Indicates whether the role has the deployment permission.
+
+* `can_copy` - Indicates whether the role has the copy permission.
+
+* `can_manage` - Check whether the role has the management permission, including adding, deleting, modifying,
+  querying deployment and permission modification.
+
+* `can_create_env` - Indicates whether the role has the permission to create an environment.
+
+* `can_disable` - Indicates whether the role has the permission to disable the application.
 
 ## Import
 
