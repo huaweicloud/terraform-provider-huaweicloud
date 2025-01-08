@@ -1358,10 +1358,16 @@ func componentStatusRefreshFunc(client *golangsdk.ServiceClient, appId, commpone
 }
 
 func waitV3ComponentUpdateCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	expectedStatuses := []string{
+		"PENDING",
+		"RUNNING",
+		"GRAYING", // Upgrade the component by gray release and waiting for manual continuation.
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      componentStatusRefreshFunc(client, d.Get("application_id").(string), d.Id(), []string{"PENDING", "RUNNING"}),
+		Refresh:      componentStatusRefreshFunc(client, d.Get("application_id").(string), d.Id(), expectedStatuses),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		PollInterval: 10 * time.Second,
 	}
