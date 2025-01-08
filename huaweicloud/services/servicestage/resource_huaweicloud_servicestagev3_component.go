@@ -427,11 +427,13 @@ func ResourceV3Component() *schema.Resource {
 						"address": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: `The address of the external access.`,
 						},
 						"forward_port": {
 							Type:        schema.TypeInt,
 							Optional:    true,
+							Computed:    true,
 							Description: `The forward port of the external access.`,
 						},
 					},
