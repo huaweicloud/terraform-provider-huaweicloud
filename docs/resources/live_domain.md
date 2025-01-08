@@ -57,8 +57,6 @@ The following arguments are supported:
   Defaults to **mainland_china**. Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.
-  For enterprise users, if omitted, default enterprise project will be used.
-
   Changing this parameter will create a new resource.
 
 * `ingest_domain_name` - (Optional, String) Specifies the ingest domain name, which associates with the streaming
