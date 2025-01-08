@@ -230,7 +230,7 @@ func flattenV3Components(components []interface{}) []map[string]interface{} {
 				make([]interface{}, 0)).([]interface{})),
 			"build": utils.JsonToString(utils.PathSearch("build", component, nil)),
 			"external_accesses": flattenV3ExternalAccesses(utils.PathSearch("external_accesses", component,
-				make(map[string]interface{})).(map[string]interface{})),
+				make([]interface{}, 0)).([]interface{})),
 			"tags":   utils.FlattenTagsToMap(utils.PathSearch("labels", component, make([]interface{}, 0))),
 			"status": utils.PathSearch("status.component_status", component, nil),
 			"created_at": utils.FormatTimeStampRFC3339(int64(utils.PathSearch("status.create_time", component,
