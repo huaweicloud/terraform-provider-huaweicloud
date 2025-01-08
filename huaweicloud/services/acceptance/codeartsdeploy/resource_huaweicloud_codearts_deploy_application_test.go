@@ -76,6 +76,7 @@ func TestAccDeployApplication_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "trigger_source", "0"),
 					resource.TestCheckResourceAttr(rName, "steps.step1", "Download Package"),
 					resource.TestCheckResourceAttr(rName, "is_disable", "false"),
+					resource.TestCheckResourceAttr(rName, "permission_level", "instance"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 					resource.TestCheckResourceAttrSet(rName, "project_name"),
@@ -105,6 +106,7 @@ func TestAccDeployApplication_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "trigger_source", "0"),
 					resource.TestCheckResourceAttr(rName, "steps.step1", "Download Package"),
 					resource.TestCheckResourceAttr(rName, "is_disable", "true"),
+					resource.TestCheckResourceAttr(rName, "permission_level", "project"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 					resource.TestCheckResourceAttrSet(rName, "project_name"),
@@ -231,12 +233,13 @@ func testDeployApplication_basic(name string) string {
 %[1]s
 
 resource "huaweicloud_codearts_deploy_application" "test" {
-  project_id     = huaweicloud_codearts_project.test.id
-  name           = "%[2]s"
-  description    = "test description"
-  is_draft       = true
-  create_type    = "template"
-  trigger_source = "0"
+  project_id       = huaweicloud_codearts_project.test.id
+  name             = "%[2]s"
+  description      = "test description"
+  is_draft         = true
+  create_type      = "template"
+  trigger_source   = "0"
+  permission_level = "instance"
 
   operation_list {
     name        = "Download Package"
@@ -279,13 +282,14 @@ func testDeployApplication_update(name string) string {
 %[1]s
 
 resource "huaweicloud_codearts_deploy_application" "test" {
-  project_id     = huaweicloud_codearts_project.test.id
-  name           = "%[2]s-update"
-  is_draft       = false
-  create_type    = "template"
-  trigger_source = "0"
-  is_disable     = true
-  group_id       = huaweicloud_codearts_deploy_application_group.test.id
+  project_id       = huaweicloud_codearts_project.test.id
+  name             = "%[2]s-update"
+  is_draft         = false
+  create_type      = "template"
+  trigger_source   = "0"
+  is_disable       = true
+  group_id         = huaweicloud_codearts_deploy_application_group.test.id
+  permission_level = "project"
 
   operation_list {
     name        = "Download Package"

@@ -2,12 +2,17 @@ package codeartsdeploy
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -21,6 +26,8 @@ import (
 // @API CodeArtsDeploy PUT /v1/applications
 // @API CodeArtsDeploy DELETE /v1/applications/{app_id}
 // @API CodeArtsDeploy PUT /v1/applications/{app_id}/disable
+// @API CodeArtsDeploy PUT /v3/applications/permission-level
+// @API CodeArtsDeploy GET /v3/applications/permissions
 // @API CodeArtsDeploy PUT /v1/projects/{project_id}/applications/groups/move
 func ResourceDeployApplication() *schema.Resource {
 	return &schema.Resource{
@@ -30,6 +37,11 @@ func ResourceDeployApplication() *schema.Resource {
 		DeleteContext: resourceDeployApplicationDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		// precheck values for `is_draft` and `operation_list`,
@@ -126,6 +138,12 @@ func ResourceDeployApplication() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies whether to disable the application.`,
 			},
+			"permission_level": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the permission level.`,
+			},
 			"is_care": {
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -179,7 +197,7 @@ func ResourceDeployApplication() *schema.Resource {
 			"can_manage": {
 				Type:     schema.TypeBool,
 				Computed: true,
-				Description: `Check whether the user has the management permission, including adding, deleting,
+				Description: `Indicates whether the user has the management permission, including adding, deleting,
 modifying, querying deployment and permission modification.`,
 			},
 			"can_create_env": {
@@ -202,6 +220,12 @@ modifying, querying deployment and permission modification.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Computed:    true,
 				Description: `The deployment steps.`,
+			},
+			"permission_matrix": {
+				Type:        schema.TypeList,
+				Elem:        deployApplicationPermissionMatrixSchema(),
+				Computed:    true,
+				Description: `Indicates the permission matrix.`,
 			},
 		},
 	}
@@ -244,6 +268,70 @@ func deployApplicationOperationSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the module ID.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func deployApplicationPermissionMatrixSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"role_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the role ID.`,
+			},
+			"role_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the role name.`,
+			},
+			"role_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the role type.`,
+			},
+			"can_modify": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the editing permission.`,
+			},
+			"can_disable": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the permission to disable application.`,
+			},
+			"can_delete": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the deletion permission.`,
+			},
+			"can_view": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the view permission.`,
+			},
+			"can_execute": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the deployment permission.`,
+			},
+			"can_copy": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the copy permission.`,
+			},
+			"can_manage": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Description: `Indicates whether the role has the management permission, including adding, deleting,
+modifying, querying deployment and permission modification.`,
+			},
+			"can_create_env": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the permission to create an environment.`,
 			},
 		},
 	}
@@ -294,6 +382,13 @@ func resourceDeployApplicationCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	// `permission_level` defaults to project level when the application is created
+	if v := d.Get("permission_level").(string); v == "instance" {
+		if err := updateDeployApplicationPermissionLevel(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceDeployApplicationRead(ctx, d, meta)
 }
 
@@ -314,6 +409,39 @@ func updateDeployApplicationDisable(client *golangsdk.ServiceClient, d *schema.R
 	_, err := client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
 		return fmt.Errorf("error updating CodeArts deploy application: %s", err)
+	}
+
+	return nil
+}
+
+func updateDeployApplicationPermissionLevel(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration) error {
+	httpUrl := "v3/applications/permission-level"
+	updatePath := client.Endpoint + httpUrl
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"project_id":       d.Get("project_id"),
+			"permission_level": d.Get("permission_level"),
+			"application_ids":  []string{d.Id()},
+		},
+	}
+
+	err := resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+		_, err := client.Request("PUT", updatePath, &updateOpt)
+		isRetry, err := handleDeployApplicationPermissionLevelOperationError(err)
+		if isRetry {
+			// lintignore:R018
+			time.Sleep(10 * time.Second)
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error updating CodeArts deploy application permission level: %s", err)
 	}
 
 	return nil
@@ -438,9 +566,55 @@ func resourceDeployApplicationRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("steps", flattenDeployApplicationSteps(resultRespBody)),
 		d.Set("is_disable", utils.PathSearch("is_disable", resultRespBody, nil)),
 		d.Set("is_care", utils.PathSearch("is_care", resultRespBody, nil)),
+		d.Set("permission_level", utils.PathSearch("permission_level", resultRespBody, nil)),
+	)
+
+	permissionMatrix, err := getDeployApplicationPermissionMatrix(client, d)
+	if err != nil {
+		log.Printf("[WARN] failed to retrieve application permission matrix: %s", err)
+	}
+
+	mErr = multierror.Append(
+		mErr,
+		d.Set("permission_matrix", flattenDeployApplicationPermissionMatrix(permissionMatrix)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getDeployApplicationPermissionMatrix(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	permissionLevel := d.Get("permission_level").(string)
+
+	httpUrl := "v3/applications/permissions"
+	getPath := client.Endpoint + httpUrl
+	if permissionLevel == "instance" {
+		getPath += fmt.Sprintf("?app_id=%s", d.Id())
+	} else {
+		getPath += fmt.Sprintf("?project_id=%s", d.Get("project_id").(string))
+	}
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	permissionMatrix := utils.PathSearch("result", getRespBody, make([]interface{}, 0)).([]interface{})
+	if len(permissionMatrix) == 0 {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Body: []byte("error retrieving CodeArts deploy application permission matrix, empty list"),
+			},
+		}
+	}
+
+	return permissionMatrix, nil
 }
 
 // flattenDeployApplicationSteps use to flatten deployment steps.
@@ -457,6 +631,30 @@ func flattenDeployApplicationSteps(resp interface{}) interface{} {
 		}
 	}
 	return rst
+}
+
+func flattenDeployApplicationPermissionMatrix(respBody interface{}) []interface{} {
+	if resp, isList := respBody.([]interface{}); isList {
+		rst := make([]interface{}, 0, len(resp))
+		for _, v := range resp {
+			rst = append(rst, map[string]interface{}{
+				"role_id":        utils.PathSearch("role_id", v, nil),
+				"role_name":      utils.PathSearch("name", v, nil),
+				"role_type":      utils.PathSearch("role_type", v, nil),
+				"can_modify":     utils.PathSearch("can_modify", v, nil),
+				"can_disable":    utils.PathSearch("can_disable", v, nil),
+				"can_delete":     utils.PathSearch("can_delete", v, nil),
+				"can_view":       utils.PathSearch("can_view", v, nil),
+				"can_execute":    utils.PathSearch("can_execute", v, nil),
+				"can_copy":       utils.PathSearch("can_copy", v, nil),
+				"can_manage":     utils.PathSearch("can_manage", v, nil),
+				"can_create_env": utils.PathSearch("can_create_env", v, nil),
+			})
+		}
+		return rst
+	}
+
+	return nil
 }
 
 func resourceDeployApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -498,6 +696,12 @@ func resourceDeployApplicationUpdate(ctx context.Context, d *schema.ResourceData
 
 	if d.HasChange("group_id") {
 		if err := updateDeployApplicationGroupId(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("permission_level") {
+		if err := updateDeployApplicationPermissionLevel(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -582,4 +786,28 @@ func resourceDeployApplicationDelete(_ context.Context, d *schema.ResourceData, 
 	}
 
 	return nil
+}
+
+// Deploy.00060222: Some application permissions in this project are being updated. Try again later.
+// Error will occur when two or more applications using instance level permission are creating.
+func handleDeployApplicationPermissionLevelOperationError(err error) (bool, error) {
+	if err == nil {
+		return false, nil
+	}
+
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var apiError interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
+			return false, jsonErr
+		}
+
+		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
+		if errorCodeErr != nil {
+			return false, fmt.Errorf("error parse error code from response body: %s", errorCodeErr)
+		}
+		if errorCode == "Deploy.00060222" {
+			return true, err
+		}
+	}
+	return false, err
 }
