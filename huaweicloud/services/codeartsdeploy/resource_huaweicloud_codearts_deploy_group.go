@@ -307,7 +307,7 @@ func resourceDeployGroupRead(_ context.Context, d *schema.ResourceData, meta int
 
 	permissionMatrix, err := getDeployGroupPermissionMatrix(client, d.Id())
 	if err != nil {
-		return diag.FromErr(err)
+		log.Printf("[WARN] failed to retrieve cluster group permission matrix: %s", err)
 	}
 
 	mErr = multierror.Append(
@@ -322,7 +322,7 @@ func resourceDeployGroupRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("updated_at", utils.PathSearch("updated_time", resultRespBody, nil)),
 		d.Set("created_by", flattenDeployGroupCreatedBy(resultRespBody)),
 		d.Set("permission", flattenDeployGroupPermission(resultRespBody)),
-		d.Set("permission_matrix", flattenDeployGroupPermissionMatrix(permissionMatrix.([]interface{}))),
+		d.Set("permission_matrix", flattenDeployGroupPermissionMatrix(permissionMatrix)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -390,25 +390,28 @@ func flattenDeployGroupPermission(resp interface{}) []interface{} {
 	}
 }
 
-func flattenDeployGroupPermissionMatrix(resp []interface{}) []interface{} {
-	rst := make([]interface{}, 0, len(resp))
-	for _, v := range resp {
-		rst = append(rst, map[string]interface{}{
-			"role_id":      utils.PathSearch("role_id", v, nil),
-			"role_name":    utils.PathSearch("name", v, nil),
-			"role_type":    utils.PathSearch("role_type", v, nil),
-			"can_view":     utils.PathSearch("can_view", v, nil),
-			"can_edit":     utils.PathSearch("can_edit", v, nil),
-			"can_delete":   utils.PathSearch("can_delete", v, nil),
-			"can_add_host": utils.PathSearch("can_add_host", v, nil),
-			"can_manage":   utils.PathSearch("can_manage", v, nil),
-			"can_copy":     utils.PathSearch("can_copy", v, nil),
-			"created_at":   utils.PathSearch("create_time", v, nil),
-			"updated_at":   utils.PathSearch("update_time", v, nil),
-		})
+func flattenDeployGroupPermissionMatrix(respBody interface{}) []interface{} {
+	if resp, isList := respBody.([]interface{}); isList {
+		rst := make([]interface{}, 0, len(resp))
+		for _, v := range resp {
+			rst = append(rst, map[string]interface{}{
+				"role_id":      utils.PathSearch("role_id", v, nil),
+				"role_name":    utils.PathSearch("name", v, nil),
+				"role_type":    utils.PathSearch("role_type", v, nil),
+				"can_view":     utils.PathSearch("can_view", v, nil),
+				"can_edit":     utils.PathSearch("can_edit", v, nil),
+				"can_delete":   utils.PathSearch("can_delete", v, nil),
+				"can_add_host": utils.PathSearch("can_add_host", v, nil),
+				"can_manage":   utils.PathSearch("can_manage", v, nil),
+				"can_copy":     utils.PathSearch("can_copy", v, nil),
+				"created_at":   utils.PathSearch("create_time", v, nil),
+				"updated_at":   utils.PathSearch("update_time", v, nil),
+			})
+		}
+		return rst
 	}
 
-	return rst
+	return nil
 }
 
 func resourceDeployGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

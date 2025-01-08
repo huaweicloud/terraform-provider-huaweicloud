@@ -131,7 +131,7 @@ func resourceDeployGroupPermissionRead(_ context.Context, d *schema.ResourceData
 	expression := fmt.Sprintf("[?role_id=='%s']|[0]", roleId)
 	role := utils.PathSearch(expression, permissionMatrix, nil)
 	if role == nil {
-		return diag.Errorf("unable to find role (%s) from API response", roleId)
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "unable to find role from API response")
 	}
 
 	mErr := multierror.Append(nil,
