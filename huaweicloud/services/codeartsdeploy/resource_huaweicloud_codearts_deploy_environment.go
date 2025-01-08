@@ -3,6 +3,7 @@ package codeartsdeploy
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -437,7 +438,7 @@ func resourceDeployEnvironmentRead(_ context.Context, d *schema.ResourceData, me
 
 	permissionMatrix, err := getDeployEnvironmentPermissionMatrix(client, d.Get("application_id").(string), d.Id())
 	if err != nil {
-		return diag.FromErr(err)
+		log.Printf("[WARN] failed to retrieve environment permission matrix: %s", err)
 	}
 
 	mErr := multierror.Append(nil,
@@ -450,7 +451,7 @@ func resourceDeployEnvironmentRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("instance_count", utils.PathSearch("instance_count", environment, nil)),
 		d.Set("created_by", flattenDeployEnvironmentCreatedBy(environment)),
 		d.Set("permission", flattenDeployEnvironmentPermission(environment)),
-		d.Set("permission_matrix", flattenDeployEnvironmentPermissionMatrix(permissionMatrix.([]interface{}))),
+		d.Set("permission_matrix", flattenDeployEnvironmentPermissionMatrix(permissionMatrix)),
 		d.Set("hosts", hosts),
 		d.Set("proxies", proxies),
 	)
@@ -575,25 +576,28 @@ func flattenDeployEnvironmentPermission(resp interface{}) []interface{} {
 	}
 }
 
-func flattenDeployEnvironmentPermissionMatrix(resp []interface{}) []interface{} {
-	rst := make([]interface{}, 0, len(resp))
-	for _, v := range resp {
-		rst = append(rst, map[string]interface{}{
-			"permission_id": utils.PathSearch("id", v, nil),
-			"role_id":       utils.PathSearch("role_id", v, nil),
-			"role_name":     utils.PathSearch("name", v, nil),
-			"role_type":     utils.PathSearch("role_type", v, nil),
-			"can_view":      utils.PathSearch("can_view", v, nil),
-			"can_edit":      utils.PathSearch("can_edit", v, nil),
-			"can_delete":    utils.PathSearch("can_delete", v, nil),
-			"can_manage":    utils.PathSearch("can_manage", v, nil),
-			"can_deploy":    utils.PathSearch("can_deploy", v, nil),
-			"created_at":    utils.PathSearch("create_time", v, nil),
-			"updated_at":    utils.PathSearch("update_time", v, nil),
-		})
+func flattenDeployEnvironmentPermissionMatrix(respBody interface{}) []interface{} {
+	if resp, isList := respBody.([]interface{}); isList {
+		rst := make([]interface{}, 0, len(resp))
+		for _, v := range resp {
+			rst = append(rst, map[string]interface{}{
+				"permission_id": utils.PathSearch("id", v, nil),
+				"role_id":       utils.PathSearch("role_id", v, nil),
+				"role_name":     utils.PathSearch("name", v, nil),
+				"role_type":     utils.PathSearch("role_type", v, nil),
+				"can_view":      utils.PathSearch("can_view", v, nil),
+				"can_edit":      utils.PathSearch("can_edit", v, nil),
+				"can_delete":    utils.PathSearch("can_delete", v, nil),
+				"can_manage":    utils.PathSearch("can_manage", v, nil),
+				"can_deploy":    utils.PathSearch("can_deploy", v, nil),
+				"created_at":    utils.PathSearch("create_time", v, nil),
+				"updated_at":    utils.PathSearch("update_time", v, nil),
+			})
+		}
+		return rst
 	}
 
-	return rst
+	return nil
 }
 
 func resourceDeployEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
