@@ -837,6 +837,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_restore_time_ranges":       gaussdb.DataSourceGaussdbOpengaussRestoreTimeRanges(),
 			"huaweicloud_gaussdb_opengauss_restorable_instances":      gaussdb.DataSourceGaussdbOpengaussRestorableInstances(),
 			"huaweicloud_gaussdb_opengauss_backups":                   gaussdb.DataSourceGaussdbOpengaussBackups(),
+			"huaweicloud_gaussdb_opengauss_backup_files":              gaussdb.DataSourceGaussdbOpengaussBackupFiles(),
 			"huaweicloud_gaussdb_opengauss_recycling_instances":       gaussdb.DataSourceGaussdbOpengaussRecyclingInstances(),
 			"huaweicloud_gaussdb_opengauss_ssl_cert_download_link":    gaussdb.DataSourceGaussdbOpengaussSslCertDownloadLink(),
 			"huaweicloud_gaussdb_opengauss_solution_template_setting": gaussdb.DataSourceGaussdbOpengaussSolutionTemplateSetting(),
