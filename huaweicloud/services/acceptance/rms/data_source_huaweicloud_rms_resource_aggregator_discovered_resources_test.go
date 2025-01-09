@@ -26,12 +26,6 @@ func TestAccDataSourceAggregatorDiscoveredResources_basic(t *testing.T) {
 			acceptance.TestAccPrecheckDomainId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"null": {
-				Source:            "hashicorp/null",
-				VersionConstraint: "3.2.1",
-			},
-		},
 		Steps: []resource.TestStep{
 			{
 				Config: testDataSourceAggregatorDiscoveredResources_basic(rName),
@@ -63,15 +57,11 @@ resource "huaweicloud_rms_resource_aggregator" "test" {
   account_ids = ["%[2]s"]
 
   depends_on = [huaweicloud_vpc.test]
-}
 
-# wait 30 seconds to let the aggregator discover resources
-resource "null_resource" "test" {
+  # wait 30 seconds to let the aggregator discover resources
   provisioner "local-exec" {
     command = "sleep 30"
   }
-
-  depends_on = [ huaweicloud_rms_resource_aggregator.test ]
 }
 `, name, acceptance.HW_DOMAIN_ID)
 }
@@ -82,22 +72,16 @@ func testDataSourceAggregatorDiscoveredResources_basic(name string) string {
 
 data "huaweicloud_rms_resource_aggregator_discovered_resources" "basic" {
   aggregator_id = huaweicloud_rms_resource_aggregator.test.id
-
-  depends_on = [ null_resource.test ]
 }
 
 data "huaweicloud_rms_resource_aggregator_discovered_resources" "filter_by_service_type" {
   aggregator_id = huaweicloud_rms_resource_aggregator.test.id
   service_type  = "vpc"
-
-  depends_on = [ null_resource.test ]
 }
 
 data "huaweicloud_rms_resource_aggregator_discovered_resources" "filter_by_resource_type" {
   aggregator_id = huaweicloud_rms_resource_aggregator.test.id
   resource_type = "vpcs"
-
-  depends_on = [ null_resource.test ]
 }
 
 data "huaweicloud_rms_resource_aggregator_discovered_resources" "filter_by_resource_id" {
@@ -106,8 +90,6 @@ data "huaweicloud_rms_resource_aggregator_discovered_resources" "filter_by_resou
   filter {
     resource_id = huaweicloud_vpc.test.id
   }
-
-  depends_on = [ null_resource.test ]
 }
 
 locals {

@@ -20,12 +20,6 @@ func TestAccDataSourceAggregatorAdvancedQuery_basic(t *testing.T) {
 			acceptance.TestAccPrecheckDomainId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"null": {
-				Source:            "hashicorp/null",
-				VersionConstraint: "3.2.1",
-			},
-		},
 		Steps: []resource.TestStep{
 			{
 				Config: testDataSourceAggregatorAdvancedQuery_basic(rName),
@@ -46,15 +40,11 @@ resource "huaweicloud_rms_resource_aggregator" "test" {
   name        = "%[1]s"
   type        = "ACCOUNT"
   account_ids = ["%[2]s"]
-}
 
-# wait 30 seconds to let the policies evaluate
-resource "null_resource" "test" {
+  # wait 30 seconds to let the policies evaluate
   provisioner "local-exec" {
     command = "sleep 30"
   }
-
-  depends_on = [ huaweicloud_rms_resource_aggregator.test ]
 }
 `, name, acceptance.HW_DOMAIN_ID)
 }
@@ -66,8 +56,6 @@ func testDataSourceAggregatorAdvancedQuery_basic(name string) string {
 data "huaweicloud_rms_resource_aggregator_advanced_query" "test" {
   aggregator_id = huaweicloud_rms_resource_aggregator.test.id
   expression    = "select name, id from aggregator_resources where provider = 'ecs' and type = 'cloudservers'"
-
-  depends_on = [ null_resource.test ]
 }
 
 locals {
