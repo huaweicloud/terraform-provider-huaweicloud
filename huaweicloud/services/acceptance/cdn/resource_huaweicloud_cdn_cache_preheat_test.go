@@ -7,40 +7,34 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdn"
 )
 
 func getCachePreheatResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "cdn"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating CDN v2 client: %s", err)
+		return nil, fmt.Errorf("error creating CDN client: %s", err)
 	}
 
-	request := &model.ShowHistoryTaskDetailsRequest{
-		EnterpriseProjectId: utils.StringIgnoreEmpty(state.Primary.Attributes["enterprise_project_id"]),
-		HistoryTasksId:      state.Primary.ID,
-	}
-
-	resp, err := hcCdnClient.ShowHistoryTaskDetails(request)
+	getRespBody, err := cdn.GetCacheDetailById(client, state.Primary.ID)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving CDN cache preheat: %s", err)
+		return nil, err
 	}
 
-	if resp == nil {
-		return nil, fmt.Errorf("error retrieving CDN cache preheat: Task is not found in API response")
-	}
-	return resp, nil
+	return getRespBody, nil
 }
 
 func TestAccCachePreheat_basic(t *testing.T) {
-	var obj interface{}
-
-	rName := "huaweicloud_cdn_cache_preheat.test"
+	var (
+		obj   interface{}
+		rName = "huaweicloud_cdn_cache_preheat.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -48,11 +42,15 @@ func TestAccCachePreheat_basic(t *testing.T) {
 		getCachePreheatResourceFunc,
 	)
 
+	// Avoid CheckDestroy, because there is nothing in the resource destroy method.
 	// lintignore:AT001
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckCDNURL(t)
+			// The value of the enterprise project ID must be consistent with the enterprise project to which the
+			// domain belongs.
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -61,6 +59,7 @@ func TestAccCachePreheat_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "urls.0", acceptance.HW_CDN_DOMAIN_URL),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(rName, "zh_url_encode", "true"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
@@ -77,8 +76,9 @@ func TestAccCachePreheat_basic(t *testing.T) {
 func testCachePreheat_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_cache_preheat" "test" {
-  urls          = ["%s"]
-  zh_url_encode = true
+  urls                  = ["%[1]s"]
+  enterprise_project_id = "%[2]s"
+  zh_url_encode         = true
 }
-`, acceptance.HW_CDN_DOMAIN_URL)
+`, acceptance.HW_CDN_DOMAIN_URL, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
