@@ -1073,8 +1073,8 @@ func flattenV3ComponentDeployStrategy(strategy map[string]interface{}) []map[str
 	return []map[string]interface{}{
 		{
 			"type":            utils.PathSearch("type", strategy, nil),
-			"rolling_release": utils.PathSearch("rolling_release", strategy, nil),
-			"gray_release":    utils.PathSearch("gray_release", strategy, nil),
+			"rolling_release": utils.JsonToString(utils.PathSearch("rolling_release", strategy, nil)),
+			"gray_release":    utils.JsonToString(utils.PathSearch("gray_release", strategy, nil)),
 		},
 	}
 }
