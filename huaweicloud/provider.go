@@ -841,6 +841,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_recycling_instances":       gaussdb.DataSourceGaussdbOpengaussRecyclingInstances(),
 			"huaweicloud_gaussdb_opengauss_ssl_cert_download_link":    gaussdb.DataSourceGaussdbOpengaussSslCertDownloadLink(),
 			"huaweicloud_gaussdb_opengauss_solution_template_setting": gaussdb.DataSourceGaussdbOpengaussSolutionTemplateSetting(),
+			"huaweicloud_gaussdb_opengauss_top_io_traffics":           gaussdb.DataSourceGaussdbOpengaussTopIoTraffics(),
 			"huaweicloud_gaussdb_opengauss_project_quotas":            gaussdb.DataSourceGaussdbOpengaussProjectQuotas(),
 
 			"huaweicloud_gaussdb_mysql_engine_versions":          taurusdb.DataSourceGaussdbMysqlEngineVersions(),
