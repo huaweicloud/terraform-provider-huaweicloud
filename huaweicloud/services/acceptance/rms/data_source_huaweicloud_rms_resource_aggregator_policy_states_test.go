@@ -27,12 +27,6 @@ func TestAccDataSourceAggregatorPolicyStates_basic(t *testing.T) {
 			acceptance.TestAccPrecheckDomainId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"null": {
-				Source:            "hashicorp/null",
-				VersionConstraint: "3.2.1",
-			},
-		},
 		Steps: []resource.TestStep{
 			{
 				Config: testDataSourceAggregatorPolicyStates_basic(rName, password),
@@ -66,15 +60,11 @@ resource "huaweicloud_rms_resource_aggregator" "test" {
   account_ids = ["%[3]s"]
 
   depends_on = [huaweicloud_identity_user.test]
-}
 
-# wait 30 seconds to let the policies evaluate
-resource "null_resource" "test" {
+  # wait 40 seconds to let the policies evaluate
   provisioner "local-exec" {
-    command = "sleep 30"
+    command = "sleep 40"
   }
-
-  depends_on = [ huaweicloud_rms_resource_aggregator.test ]
 }
 `, name, password, acceptance.HW_DOMAIN_ID)
 }
@@ -85,29 +75,21 @@ func testDataSourceAggregatorPolicyStates_basic(name, password string) string {
 
 data "huaweicloud_rms_resource_aggregator_policy_states" "basic" {
   aggregator_id = huaweicloud_rms_resource_aggregator.test.id
-
-  depends_on = [ null_resource.test ]
 }
 
 data "huaweicloud_rms_resource_aggregator_policy_states" "filter_by_compliance_state" {
   aggregator_id     = huaweicloud_rms_resource_aggregator.test.id
   compliance_state  = "Compliant"
-
-  depends_on = [ null_resource.test ]
 }
 
 data "huaweicloud_rms_resource_aggregator_policy_states" "filter_by_policy_assignment_name" {
   aggregator_id          = huaweicloud_rms_resource_aggregator.test.id
   policy_assignment_name = "iam-password-policy"
-
-  depends_on = [ null_resource.test ]
 }
 
 data "huaweicloud_rms_resource_aggregator_policy_states" "filter_by_resource_id" {
   aggregator_id = huaweicloud_rms_resource_aggregator.test.id
   resource_id   = huaweicloud_identity_user.test.id
-
-  depends_on = [ null_resource.test ]
 }
 
 locals {

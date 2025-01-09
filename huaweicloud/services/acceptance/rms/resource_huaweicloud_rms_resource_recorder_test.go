@@ -55,7 +55,12 @@ func TestAccRecorder_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			// Some test cases in RMS require the resource recorder to be enabled.
+			// Skip this test case during batch execution to ensure other test cases execute smoothly.
+			acceptance.TestAccPreCheckRMSResourceRecorder(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -65,7 +70,7 @@ func TestAccRecorder_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "agency_name", "rms_tracker_agency"),
 					resource.TestCheckResourceAttr(rName, "selector.0.all_supported", "false"),
-					resource.TestCheckResourceAttr(rName, "selector.0.resource_types.#", "5"),
+					resource.TestCheckResourceAttr(rName, "selector.0.resource_types.#", "8"),
 					resource.TestCheckResourceAttrSet(rName, "obs_channel.0.region"),
 					resource.TestCheckResourceAttrPair(rName, "obs_channel.0.bucket",
 						"huaweicloud_obs_bucket.test", "bucket"),
@@ -144,7 +149,11 @@ resource "huaweicloud_rms_resource_recorder" "test" {
 
   selector {
     all_supported  = false
-    resource_types = ["vpc.vpcs", "rds.instances", "dms.kafkas", "dms.rabbitmqs", "dms.queues"]
+
+    resource_types = [
+      "vpc.vpcs", "rds.instances", "dms.kafkas", "dms.rabbitmqs", "dms.queues",
+      "config.trackers", "config.policyAssignments", "config.conformancePacks",
+    ]
   }
 
   obs_channel {
