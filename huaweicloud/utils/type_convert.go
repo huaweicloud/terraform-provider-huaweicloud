@@ -162,3 +162,17 @@ func JsonToString(jsonObj interface{}) string {
 	}
 	return string(jsonStr)
 }
+
+func TryMapValueAnalysis(v interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+	switch cv := v.(type) {
+	case map[string]interface{}:
+		// Valid type, no action required.
+		result = cv
+	case string:
+		result = TryMapValueAnalysis(StringToJson(cv))
+	default:
+		log.Printf("[WARN][TryMapValueAnalysis] The value type to be analyzed is not map[string]interface{} or JSON string")
+	}
+	return result
+}
