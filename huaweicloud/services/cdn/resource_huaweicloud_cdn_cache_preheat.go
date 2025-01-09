@@ -7,13 +7,15 @@ package cdn
 
 import (
 	"context"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
+	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -25,6 +27,10 @@ func ResourceCachePreheat() *schema.Resource {
 		CreateContext: resourceCachePreheatCreate,
 		ReadContext:   resourceCachePreheatRead,
 		DeleteContext: resourceCachePreheatDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"urls": {
@@ -80,91 +86,93 @@ func ResourceCachePreheat() *schema.Resource {
 	}
 }
 
+func buildCachePreheatBodyParams(d *schema.ResourceData) interface{} {
+	refreshTaskMap := map[string]interface{}{
+		"urls": utils.ExpandToStringList(d.Get("urls").(*schema.Set).List()),
+	}
+	if v, ok := d.GetOk("zh_url_encode"); ok {
+		refreshTaskMap["zh_url_encode"] = v
+	}
+	bodyParams := map[string]interface{}{
+		"preheating_task": refreshTaskMap,
+	}
+
+	return bodyParams
+}
+
 func resourceCachePreheatCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
+	var (
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		product       = "cdn"
+		createHttpUrl = "v1.0/cdn/content/preheating-tasks"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	request := &model.CreatePreheatingTasksRequest{
-		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-		Body: &model.PreheatingTaskRequest{
-			PreheatingTask: &model.PreheatingTaskRequestBody{
-				ZhUrlEncode: utils.Bool(d.Get("zh_url_encode").(bool)),
-				Urls:        utils.ExpandToStringList(d.Get("urls").(*schema.Set).List()),
-			},
-		},
+	createPath := client.Endpoint + createHttpUrl
+	createPath += buildCacheQueryParams(d)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildCachePreheatBodyParams(d),
 	}
 
-	resp, err := hcCdnClient.CreatePreheatingTasks(request)
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating CDN cache preheat: %s", err)
 	}
 
-	if resp == nil || resp.PreheatingTask == nil || len(*resp.PreheatingTask) == 0 {
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	preheatingTask := utils.PathSearch("preheating_task", createRespBody, "").(string)
+	if preheatingTask == "" {
 		return diag.Errorf("error creating CDN cache preheat: ID is not found in API response")
 	}
-	d.SetId(*resp.PreheatingTask)
+
+	d.SetId(preheatingTask)
+
+	if err = waitingForCacheCreateCompleted(ctx, client, preheatingTask, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return diag.Errorf("error waiting for CDN cache preheat (%s) creation to completed: %s", preheatingTask, err)
+	}
+
 	return resourceCachePreheatRead(ctx, d, meta)
 }
 
 func resourceCachePreheatRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "cdn"
+		mErr    *multierror.Error
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	request := &model.ShowHistoryTaskDetailsRequest{
-		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-		HistoryTasksId:      d.Id(),
-	}
-
-	resp, err := hcCdnClient.ShowHistoryTaskDetails(request)
+	getRespBody, err := GetCacheDetailById(client, d.Id())
 	if err != nil {
-		return diag.Errorf("error retrieving CDN cache preheat: %s", err)
+		return common.CheckDeletedDiag(d, err, "CDN cache preheat")
 	}
 
-	if resp == nil {
-		return diag.Errorf("error retrieving CDN cache preheat: Task is not found in API response")
-	}
-
-	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
-		d.Set("urls", flattenUrls(resp.Urls)),
-		d.Set("status", resp.Status),
-		d.Set("created_at", flattenCreatedAt(resp.CreateTime)),
-		d.Set("processing", resp.Processing),
-		d.Set("succeed", resp.Succeed),
-		d.Set("failed", resp.Failed),
-		d.Set("total", resp.Total),
+		d.Set("urls", flattenCacheUrls(utils.PathSearch("urls", getRespBody, make([]interface{}, 0)).([]interface{}))),
+		d.Set("status", utils.PathSearch("status", getRespBody, nil)),
+		d.Set("created_at", flattenCreatedAt(getRespBody)),
+		d.Set("processing", utils.PathSearch("processing", getRespBody, float64(0)).(float64)),
+		d.Set("succeed", utils.PathSearch("succeed", getRespBody, float64(0)).(float64)),
+		d.Set("failed", utils.PathSearch("failed", getRespBody, float64(0)).(float64)),
+		d.Set("total", utils.PathSearch("total", getRespBody, float64(0)).(float64)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func flattenUrls(urlObjects *[]model.UrlObject) []string {
-	if urlObjects == nil || len(*urlObjects) == 0 {
-		return nil
-	}
-	urls := make([]string, 0, len(*urlObjects))
-	for _, obj := range *urlObjects {
-		if obj.Url != nil {
-			urls = append(urls, *obj.Url)
-		}
-	}
-	return urls
-}
-
-func flattenCreatedAt(createTime *int64) string {
-	if createTime == nil {
-		return ""
-	}
-	return utils.FormatTimeStampRFC3339(*createTime/1000, false)
 }
 
 func resourceCachePreheatDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
