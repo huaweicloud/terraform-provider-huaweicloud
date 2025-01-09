@@ -17,6 +17,7 @@ variable "instance_id" {}
 
 data "huaweicloud_gaussdb_opengauss_restore_time_ranges" "test" {
     instance_id = var.instance_id
+    date        = "2024-12-27"
 }
 ```
 
