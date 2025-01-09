@@ -1460,6 +1460,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_partition":                  cce.ResourcePartition(),
 			"huaweicloud_cce_chart":                      cce.ResourceChart(),
 			"huaweicloud_cce_cluster_certificate_revoke": cce.ResourceCertificateRevoke(),
+			"huaweicloud_cce_node_pool_scale":            cce.ResourceNodePoolScale(),
 
 			"huaweicloud_cts_tracker":      cts.ResourceCTSTracker(),
 			"huaweicloud_cts_data_tracker": cts.ResourceCTSDataTracker(),
