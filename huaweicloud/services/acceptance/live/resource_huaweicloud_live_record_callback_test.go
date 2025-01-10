@@ -2,33 +2,51 @@ package live
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getRecordCallbackResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcLiveV1Client(acceptance.HW_REGION_NAME)
+func getRecordCallbackFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	region := acceptance.HW_REGION_NAME
+	client, err := cfg.NewServiceClient("live", region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Live v1 client: %s", err)
+		return nil, fmt.Errorf("error creating Live client: %s", err)
 	}
-	return client.ShowRecordCallbackConfig(&model.ShowRecordCallbackConfigRequest{Id: state.Primary.ID})
+
+	getHttpUrl := "v1/{project_id}/record/callbacks/{id}"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{id}", state.Primary.ID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving Live record callback configuration: %s", err)
+	}
+
+	return utils.FlattenResponse(resp)
 }
 
 func TestAccRecordCallback_basic(t *testing.T) {
-	var obj model.ShowRecordCallbackConfigResponse
-	rName := "huaweicloud_live_record_callback.test"
-
+	var (
+		callbackObj interface{}
+		rName       = "huaweicloud_live_record_callback.test"
+	)
 	rc := acceptance.InitResourceCheck(
 		rName,
-		&obj,
-		getRecordCallbackResourceFunc,
+		&callbackObj,
+		getRecordCallbackFunc,
 	)
 
 	resource.Test(t, resource.TestCase{
