@@ -52,7 +52,7 @@ func TestAccDataSourceRmsHistories_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceRmsHistories_withStartTime(),
+				Config: testAccDataSourceRmsHistories_withTimeRange(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSource, "items.0.resource.0.tags.foo", "bar"),
@@ -82,10 +82,12 @@ data "huaweicloud_rms_resource_histories" "test" {
 `, testDataSourceRmsHistories_base())
 }
 
-func testAccDataSourceRmsHistories_withStartTime() string {
+func testAccDataSourceRmsHistories_withTimeRange() string {
 	currentTime := time.Now().UTC()
 	tenMinutesAgo := currentTime.Add(-10 * time.Minute)
-	timeString := tenMinutesAgo.Format("2006-01-02 15:04:05")
+	tenMinutesLater := currentTime.Add(10 * time.Minute)
+	earlyTimeString := tenMinutesAgo.Format("2006-01-02 15:04:05")
+	laterTimeString := tenMinutesLater.Format("2006-01-02 15:04:05")
 
 	return fmt.Sprintf(`
 %[1]s
@@ -93,8 +95,9 @@ func testAccDataSourceRmsHistories_withStartTime() string {
 data "huaweicloud_rms_resource_histories" "test" {
   resource_id  = huaweicloud_compute_instance.test.id
   earlier_time = "%[2]s"
+  later_time   = "%[3]s"
 }
-`, testDataSourceRmsHistories_base(), timeString)
+`, testDataSourceRmsHistories_base(), earlyTimeString, laterTimeString)
 }
 
 func testDataSourceRmsHistories_base() string {

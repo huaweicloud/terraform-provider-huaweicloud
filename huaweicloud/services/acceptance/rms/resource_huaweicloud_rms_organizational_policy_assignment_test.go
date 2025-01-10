@@ -177,6 +177,7 @@ func TestAccOrganizationalPolicyAssignment_custom(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckOrganizationsOpen(t)
+			acceptance.TestAccPreCheckRMSExcludedAccounts(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -252,13 +253,18 @@ resource "huaweicloud_rms_organizational_policy_assignment" "test" {
   function_urn    = "${huaweicloud_fgs_function.test.urn}:${huaweicloud_fgs_function.test.version}"
   period          = "TwentyFour_Hours"
 
+  excluded_accounts = [
+    "%[3]s",
+    "%[4]s",
+  ]
+
   parameters = {
     string_test = "\"string_value\""
     array_test  = "[\"array_element\"]"
     object_test = jsonencode({"terraform_version": "1.xx.x"})
   }
 }
-`, customConfig, name)
+`, customConfig, name, acceptance.HW_RMS_EXCLUDED_ACCOUNT_1, acceptance.HW_RMS_EXCLUDED_ACCOUNT_2)
 }
 
 func testAccOrganizationalPolicyAssignment_customUpdate(customConfig, name string) string {
@@ -274,13 +280,18 @@ resource "huaweicloud_rms_organizational_policy_assignment" "test" {
   function_urn    = "${huaweicloud_fgs_function.test.urn}:${huaweicloud_fgs_function.test.version}"
   period          = "Twelve_Hours"
 
+  excluded_accounts = [
+    "%[3]s",
+    "%[4]s",
+  ]
+
   parameters = {
     string_test       = "\"update_string_value\""
     update_array_test = "[\"array_element\"]"
     object_test       = jsonencode({"update_terraform_version": "1.xx.xx"})
   }
 }
-`, customConfig, name)
+`, customConfig, name, acceptance.HW_RMS_EXCLUDED_ACCOUNT_1, acceptance.HW_RMS_EXCLUDED_ACCOUNT_2)
 }
 
 func testOrganizationalPolicyAssignmentImportState(name string) resource.ImportStateIdFunc {
