@@ -105,7 +105,7 @@ func modifyDeployEnvironmentPermission(client *golangsdk.ServiceClient, d *schem
 
 	_, err := client.Request("PUT", modifyPath, &modifyOpt)
 	if err != nil {
-		return fmt.Errorf("error modifying CodeArts deploy environment permission")
+		return fmt.Errorf("error modifying CodeArts deploy environment permission: %s", err)
 	}
 
 	return nil

@@ -98,7 +98,7 @@ func modifyDeployGroupPermission(client *golangsdk.ServiceClient, d *schema.Reso
 
 	_, err := client.Request("PUT", modifyPath, &modifyOpt)
 	if err != nil {
-		return fmt.Errorf("error modifying CodeArts deploy group permission")
+		return fmt.Errorf("error modifying CodeArts deploy group permission: %s", err)
 	}
 
 	return nil
