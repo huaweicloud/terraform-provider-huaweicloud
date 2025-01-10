@@ -13,7 +13,7 @@ Use this data source to get a list of the Live record callback configurations.
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_live_record_callbacks" "test" {
+data "huaweicloud_live_record_callbacks" "test" {
 }
 ```
 
