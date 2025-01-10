@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceBillingOption_basic(t *testing.T) {
+func TestAccDataSourceBillingOption_basic(t *testing.T) {
 	var (
 		rName = "data.huaweicloud_cdn_billing_option.test"
 		dc    = acceptance.InitDataSourceCheck(rName)
@@ -19,11 +19,13 @@ func TestAccDatasourceBillingOption_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceBillingOption_basic,
+				Config: testDataSourceBillingOption_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "product_type"),
@@ -43,7 +45,7 @@ func TestAccDatasourceBillingOption_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDatasourceBillingOption_expectError,
+				Config: testDataSourceBillingOption_expectError,
 				ExpectError: regexp.MustCompile("Your query returned no results. " +
 					"Please change your search criteria and try again."),
 			},
@@ -51,7 +53,7 @@ func TestAccDatasourceBillingOption_basic(t *testing.T) {
 	})
 }
 
-const testAccDatasourceBillingOption_basic = `
+const testDataSourceBillingOption_basic = `
 data "huaweicloud_cdn_billing_option" "test" {
   product_type = "base"
 }
@@ -63,7 +65,7 @@ data "huaweicloud_cdn_billing_option" "all_filter" {
 }
 `
 
-const testAccDatasourceBillingOption_expectError = `
+const testDataSourceBillingOption_expectError = `
 data "huaweicloud_cdn_billing_option" "test" {
   product_type = "base"
 }
