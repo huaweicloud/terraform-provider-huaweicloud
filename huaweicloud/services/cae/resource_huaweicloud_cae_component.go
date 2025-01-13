@@ -38,6 +38,11 @@ func ResourceComponent() *schema.Resource {
 		UpdateContext: resourceComponentUpdate,
 		DeleteContext: resourceComponentDelete,
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
+
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceComponentImportState,
 		},

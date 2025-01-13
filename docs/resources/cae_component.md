@@ -198,6 +198,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated_at` - The latest update time of the component.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
+
 ## Import
 
 The CAE component can be imported using `environment_id`, `application_id` and `id`, separated by slashes (/), e.g.
