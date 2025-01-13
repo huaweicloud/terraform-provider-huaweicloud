@@ -378,6 +378,7 @@ func buildSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
 		"category":               utils.ValueIgnoreEmpty(d.Get("category")),
 		"type":                   utils.ValueIgnoreEmpty(d.Get("type")),
 		"flavor":                 d.Get("flavor"),
+		"version":                utils.ValueIgnoreEmpty(d.Get("version")),
 		"description":            utils.ValueIgnoreEmpty(d.Get("description")),
 		"customSan":              utils.ValueIgnoreEmpty(d.Get("custom_san")),
 		"enableSnat":             d.Get("enable_snat"),
