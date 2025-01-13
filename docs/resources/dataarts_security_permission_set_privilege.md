@@ -103,7 +103,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `name` - The resource ID.
+* `id` - The resource ID.
 
 * `status` - The current synchronization status of the resource.
   The valid values are **UNKNOWN**, **NOT_SYNC**, **SYNC_SUCCESS** and **SYNC_FAIL**.
