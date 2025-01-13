@@ -107,6 +107,139 @@ func identityCenterUsersUserSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the email of the user.`,
 			},
+			"phone_number": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The phone number of the user.`,
+			},
+			"user_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The type of the user.`,
+			},
+			"title": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The title of the user.`,
+			},
+			"addresses": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The addresses information of the user.`,
+				Elem:        identityCenterUsersAddressesSchema(),
+			},
+			"enterprise": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The enterprise information of the user.`,
+				Elem:        identityCenterUsersEnterpriseSchema(),
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the user.`,
+			},
+			"created_by": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creator of the user.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The update time of the user.`,
+			},
+			"updated_by": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The updater of the user.`,
+			},
+			"email_verified": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether the email is verified.`,
+			},
+			"enabled": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether the user is enabled.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func identityCenterUsersAddressesSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"country": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The country of the user.`,
+			},
+			"formatted": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `A string containing a formatted version of the address to be displayed.`,
+			},
+			"locality": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The locality of the user.`,
+			},
+			"postal_code": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The postal code of the user.`,
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The region of the user.`,
+			},
+			"street_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The street address of the user.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func identityCenterUsersEnterpriseSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"cost_center": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The cost center of the enterprise.`,
+			},
+			"department": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The department of the enterprise.`,
+			},
+			"division": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The division of the enterprise.`,
+			},
+			"employee_number": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The employee number of the enterprise.`,
+			},
+			"organization": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The organization of the enterprise.`,
+			},
+			"manager": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The manager of the enterprise.`,
+			},
 		},
 	}
 	return &sc
@@ -199,12 +332,23 @@ func flattenGetIdentityCenterUsersResponseBodyUser(d *schema.ResourceData, resp 
 			continue
 		}
 		rst = append(rst, map[string]interface{}{
-			"id":           utils.PathSearch("user_id", v, nil),
-			"user_name":    utils.PathSearch("user_name", v, nil),
-			"family_name":  rawFamilyName,
-			"given_name":   rawGivenName,
-			"display_name": rawDisplayName,
-			"email":        rawEmail,
+			"id":             utils.PathSearch("user_id", v, nil),
+			"user_name":      utils.PathSearch("user_name", v, nil),
+			"family_name":    rawFamilyName,
+			"given_name":     rawGivenName,
+			"display_name":   rawDisplayName,
+			"email":          rawEmail,
+			"phone_number":   utils.PathSearch("phone_numbers|[0].value", v, nil),
+			"title":          utils.PathSearch("title", v, nil),
+			"user_type":      utils.PathSearch("user_type", v, nil),
+			"created_by":     utils.PathSearch("created_by", v, nil),
+			"updated_by":     utils.PathSearch("updated_by", v, nil),
+			"email_verified": utils.PathSearch("email_verified", v, false),
+			"enabled":        utils.PathSearch("enabled", v, false),
+			"created_at":     utils.FormatTimeStampRFC3339(int64(utils.PathSearch("created_at", v, float64(0)).(float64))/1000, false),
+			"updated_at":     utils.FormatTimeStampRFC3339(int64(utils.PathSearch("updated_at", v, float64(0)).(float64))/1000, false),
+			"addresses":      flattenIdentityCenterUserAddresses(utils.PathSearch("addresses|[0]", v, nil)),
+			"enterprise":     flattenIdentityCenterUserEnterprise(utils.PathSearch("enterprise", v, nil)),
 		})
 	}
 	return rst
