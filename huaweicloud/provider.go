@@ -1813,6 +1813,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_parameter_template":         gaussdb.ResourceOpenGaussParameterTemplate(),
 			"huaweicloud_gaussdb_opengauss_parameter_template_apply":   gaussdb.ResourceOpenGaussParameterTemplateApply(),
 			"huaweicloud_gaussdb_opengauss_parameter_template_compare": gaussdb.ResourceOpenGaussParameterTemplateCompare(),
+			"huaweicloud_gaussdb_opengauss_parameter_template_reset":   gaussdb.ResourceOpenGaussParameterTemplateReset(),
 			"huaweicloud_gaussdb_opengauss_recycling_policy":           gaussdb.ResourceOpenGaussRecyclingPolicy(),
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
