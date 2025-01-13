@@ -79,7 +79,7 @@ The following arguments are supported:
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC to which the subnet belongs. Changing this creates
   a new subnet.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the availability zone (AZ) to which the subnet belongs.
+* `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone (AZ) to which the subnet belongs.
   The value must be an existing AZ in the system. Changing this creates a new subnet.
 
 * `description` - (Optional, String) Specifies supplementary information about the subnet. The value is a string of
