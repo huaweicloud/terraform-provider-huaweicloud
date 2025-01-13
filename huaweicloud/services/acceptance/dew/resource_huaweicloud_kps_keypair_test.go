@@ -423,12 +423,3 @@ resource "huaweicloud_kps_keypair" "test" {
 }
 `, testAccKeypair_import_base(name), name)
 }
-
-func testKeypair_publicKey(rName, key string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_kps_keypair" "test" {
-  name       = "%s"
-  public_key = "%s"
-}
-`, rName, key)
-}

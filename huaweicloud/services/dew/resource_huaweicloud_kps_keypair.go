@@ -1,9 +1,7 @@
 package dew
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -526,18 +524,4 @@ func resourceKeypairDelete(_ context.Context, d *schema.ResourceData, meta inter
 	}
 
 	return nil
-}
-
-func parseEncodeValue(b []byte, err error) (string, error) {
-	if err != nil {
-		return "", err
-	}
-
-	var rst *string
-	err = json.NewDecoder(bytes.NewReader(b)).Decode(&rst)
-	if err != nil {
-		return "", err
-	}
-
-	return *rst, nil
 }
