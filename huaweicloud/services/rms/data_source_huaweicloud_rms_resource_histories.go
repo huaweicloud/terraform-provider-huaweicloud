@@ -240,7 +240,7 @@ func (w *HistoriesDSWrapper) ShowResourceHistory() (*gjson.Result, error) {
 		return nil, err
 	}
 
-	uri := "/v1/resource-manager/domains/{domain_id}/resources/{resource_id}/history?limit=1"
+	uri := "/v1/resource-manager/domains/{domain_id}/resources/{resource_id}/history"
 	uri = strings.ReplaceAll(uri, "{domain_id}", w.Config.DomainID)
 	uri = strings.ReplaceAll(uri, "{resource_id}", w.Get("resource_id").(string))
 	params := map[string]any{}
