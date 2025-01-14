@@ -281,6 +281,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `switch_strategy` - Indicates the switch strategy.
 
+* `balance_status` - Indicates whether the host load is balanced due to a primary/standby switchover.
+
+* `error_log_switch_status` - Indicates whether error log collection is enabled. The value can be:
+  + **ON**: enabled
+  + **OFF**: disabled
+
 * `maintenance_window` - Indicates the maintenance window.
 
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
@@ -298,6 +304,10 @@ The `nodes` block contains:
 * `status` - Indicates the node status.
 
 * `availability_zone` - Indicates the availability zone of the node.
+
+* `private_ip` - Indicates the private IP address of the node.
+
+* `public_ip` - Indicates the EIP that has been bound.
 
 ## Timeouts
 

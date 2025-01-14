@@ -321,6 +321,14 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"balance_status": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"error_log_switch_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"nodes": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -343,6 +351,14 @@ func ResourceOpenGaussInstance() *schema.Resource {
 							Computed: true,
 						},
 						"availability_zone": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"private_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public_ip": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -723,6 +739,9 @@ func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, 
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", instance, make([]interface{}, 0)))),
 	)
 
+	mErr = multierror.Append(mErr, setBalanceStatus(d, client))
+	mErr = multierror.Append(mErr, setErrorLogSwitchStatus(d, client))
+
 	diagErr := setGaussDBMySQLParameters(ctx, d, client)
 	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
 
@@ -785,6 +804,8 @@ func setOpenGaussNodesAndRelatedNumbers(d *schema.ResourceData, instance interfa
 			"status":            utils.PathSearch("status", v, nil),
 			"role":              utils.PathSearch("role", v, nil),
 			"availability_zone": utils.PathSearch("availability_zone", v, nil),
+			"private_ip":        utils.PathSearch("private_ip", v, nil),
+			"public_ip":         utils.PathSearch("public_ip", v, nil),
 		}
 		nodesList = append(nodesList, node)
 
@@ -910,6 +931,53 @@ func setGaussDBMySQLParameters(ctx context.Context, d *schema.ResourceData, clie
 	return nil
 }
 
+func setBalanceStatus(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/balance"
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		log.Printf("[WARN] error retrieving GaussDB OpenGauss(%s) balance status: %s", d.Id(), err)
+		return nil
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return err
+	}
+	return d.Set("balance_status", utils.PathSearch("balanced", getRespBody, nil))
+}
+
+func setErrorLogSwitchStatus(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/error-log/switch/status"
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		log.Printf("[WARN] error retrieving GaussDB OpenGauss(%s) error log switch status: %s", d.Id(), err)
+		return nil
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return err
+	}
+	return d.Set("error_log_switch_status", utils.PathSearch("status", getRespBody, nil))
+}
 func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
