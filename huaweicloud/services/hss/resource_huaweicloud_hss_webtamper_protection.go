@@ -147,6 +147,37 @@ func openOrCloseDynamicProtection(client *hssv5.HssClient, cfg *config.Config, h
 	return err
 }
 
+// The method will be removed when refactoring the resource in the future.
+func checkWebTamperHostAvailable(client *hssv5.HssClient, region, epsId, hostId string) error {
+	request := hssv5model.ListHostStatusRequest{
+		Region:              &region,
+		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
+		HostId:              utils.String(hostId),
+	}
+
+	resp, err := client.ListHostStatus(&request)
+	if err != nil {
+		return fmt.Errorf("error querying HSS hosts: %s", err)
+	}
+
+	if resp == nil || resp.DataList == nil {
+		return fmt.Errorf("the host (%s) for HSS host protection does not exist", hostId)
+	}
+
+	hostList := *resp.DataList
+	if len(hostList) == 0 {
+		return fmt.Errorf("the host (%s) does not exist", hostId)
+	}
+
+	agentStatus := *hostList[0].AgentStatus
+	if agentStatus != hostAgentStatusOnline {
+		return fmt.Errorf("the host anget status for HSS protection must be: %s,"+
+			" but the current host (%s) agent status is: %s ", hostAgentStatusOnline, hostId, agentStatus)
+	}
+
+	return nil
+}
+
 func resourceWebTamperProtectionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
@@ -160,7 +191,7 @@ func resourceWebTamperProtectionCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating HSS v5 client: %s", err)
 	}
 
-	checkHostAvailableErr := checkHostAvailable(client, region, epsId, hostId)
+	checkHostAvailableErr := checkWebTamperHostAvailable(client, region, epsId, hostId)
 	if checkHostAvailableErr != nil {
 		return diag.FromErr(checkHostAvailableErr)
 	}
@@ -252,7 +283,7 @@ func resourceWebTamperProtectionUpdate(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating HSS v5 client: %s", err)
 	}
 
-	checkHostAvailableErr := checkHostAvailable(client, region, epsId, hostId)
+	checkHostAvailableErr := checkWebTamperHostAvailable(client, region, epsId, hostId)
 	if checkHostAvailableErr != nil {
 		return diag.FromErr(checkHostAvailableErr)
 	}
@@ -315,7 +346,7 @@ func resourceWebTamperProtectionImportState(_ context.Context, d *schema.Resourc
 		return []*schema.ResourceData{d}, fmt.Errorf("error creating HSS v5 client: %s", err)
 	}
 
-	checkHostAvailableErr := checkHostAvailable(client, region, QueryAllEpsValue, hostId)
+	checkHostAvailableErr := checkWebTamperHostAvailable(client, region, QueryAllEpsValue, hostId)
 
 	return []*schema.ResourceData{d}, checkHostAvailableErr
 }

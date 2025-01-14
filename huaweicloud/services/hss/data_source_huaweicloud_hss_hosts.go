@@ -278,3 +278,21 @@ func flattenHosts(hosts []hssv5model.Host) []interface{} {
 
 	return rst
 }
+
+// The method will be removed when refactoring the resource in the future.
+func convertChargingMode(chargingMode *string) string {
+	if utils.StringValue(chargingMode) == chargingModePacketCycle {
+		return chargingModePrePaid
+	}
+
+	return chargingModePostPaid
+}
+
+// The method will be removed when refactoring the resource in the future.
+func convertOpenTime(openTime *int64) string {
+	if openTime == nil {
+		return ""
+	}
+
+	return utils.FormatTimeStampRFC3339(*openTime/1000, false)
+}

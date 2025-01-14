@@ -2,6 +2,7 @@ package hss
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -9,62 +10,60 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getHostProtectionFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcHssV5Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return nil, fmt.Errorf("error creating HSS v5 client: %s", err)
-	}
-
+func getHostProtectionResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
-		epsId = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
-		id    = state.Primary.ID
+		region = acceptance.HW_REGION_NAME
+		epsId  = hss.QueryAllEpsValue
+		id     = state.Primary.ID
 	)
 
-	// If the enterprise project ID is not set during query, query all enterprise projects.
-	if epsId == "" {
-		epsId = hss.QueryAllEpsValue
-	}
-	listHostOpts := hssv5model.ListHostStatusRequest{
-		Region:              &acceptance.HW_REGION_NAME,
-		EnterpriseProjectId: utils.String(epsId),
-		HostId:              utils.String(id),
-	}
-
-	resp, err := client.ListHostStatus(&listHostOpts)
+	client, err := cfg.NewServiceClient("hss", region)
 	if err != nil {
-		return nil, fmt.Errorf("error querying HSS hosts: %s", err)
+		return nil, fmt.Errorf("error creating HSS client: %s", err)
 	}
 
-	if resp == nil || resp.DataList == nil {
-		return nil, fmt.Errorf("the host (%s) for HSS host protection does not exist", id)
+	getPath := client.Endpoint + "v5/{project_id}/host-management/hosts"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += fmt.Sprintf("?enterprise_project_id=%v&host_id=%v", epsId, id)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	hostList := *resp.DataList
-	if len(hostList) == 0 || utils.StringValue(hostList[0].ProtectStatus) == string(hss.ProtectStatusClosed) {
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving HSS host, %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	hostResp := utils.PathSearch("data_list[0]", getRespBody, nil)
+	agentStatus := utils.PathSearch("agent_status", hostResp, "").(string)
+	if hostResp == nil || agentStatus == string(hss.ProtectStatusClosed) {
 		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return hostList[0], nil
+	return hostResp, nil
 }
 
 func TestAccHostProtection_basic(t *testing.T) {
 	var (
-		host  *hssv5model.Host
+		host  interface{}
 		rName = "huaweicloud_hss_host_protection.test"
 	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&host,
-		getHostProtectionFunc,
+		getHostProtectionResourceFunc,
 	)
 
 	// Because after closing the protection, the ECS instance will automatically switch to free basic protection,
