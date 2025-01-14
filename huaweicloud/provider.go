@@ -611,6 +611,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cph_phone_custom_images": cph.DataSourceCphPhoneCustomImages(),
 			"huaweicloud_cph_server_bandwidths":   cph.DataSourceCphServerBandwidths(),
 			"huaweicloud_cph_encode_servers":      cph.DataSourceCphEncodeServers(),
+			"huaweicloud_cph_phone_connections":   cph.DataSourceCphPhoneConnections(),
 
 			"huaweicloud_cse_microservice_engine_flavors": cse.DataSourceMicroserviceEngineFlavors(),
 			"huaweicloud_cse_microservice_engines":        cse.DataSourceMicroserviceEngines(),
