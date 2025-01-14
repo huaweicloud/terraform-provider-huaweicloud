@@ -81,8 +81,10 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 				Config: testAccOpenGaussInstance_basic(rName, password, 3),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "subnet_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"huaweicloud_networking_secgroup.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor",
@@ -102,6 +104,14 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "6"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "dn:check_disconnect_query"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "off"),
+					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.name"),
+					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.status"),
+					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.role"),
+					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.availability_zone"),
+					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.private_ip"),
+					resource.TestCheckResourceAttr(resourceName, "balance_status", "true"),
+					resource.TestCheckResourceAttr(resourceName, "error_log_switch_status", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -328,7 +338,7 @@ data "huaweicloud_gaussdb_opengauss_flavors" "test" {
 
 resource "huaweicloud_gaussdb_opengauss_parameter_template" "test" {
   name           = "%[2]s"
-  engine_version = "8.201"
+  engine_version = "8.210"
   instance_mode  = "independent"
 
   parameters {
