@@ -3,12 +3,12 @@ subcategory: "Live"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_live_record_callback"
 description: |-
-  Manages a callback configuration within HuaweiCloud Live.
+  Manages a callback configuration resource within HuaweiCloud.
 ---
 
 # huaweicloud_live_record_callback
 
-Manages a callback configuration within HuaweiCloud Live.
+Manages a callback configuration resource within HuaweiCloud.
 
 -> Only one callback configuration can be created for an ingestion domain name.
 
@@ -18,15 +18,11 @@ Manages a callback configuration within HuaweiCloud Live.
 
 ```hcl
 variable "ingest_domain_name" {}
+variable "notify_callback_url"
 
-resource "huaweicloud_live_domain" "ingestDomain" {
-  name = var.ingest_domain_name
-  type = "push"
-}
-
-resource "huaweicloud_live_record_callback" "callback" {
+resource "huaweicloud_live_record_callback" "test" {
   domain_name = var.ingest_domain_name
-  url         = "http://mycallback.com.cn/record_notify"
+  url         = var.notify_callback_url
   types       = ["RECORD_NEW_FILE_START"]
 }
 ```
@@ -44,15 +40,17 @@ Changing this parameter will create a new resource.
 * `url` - (Required, String) Specifies the callback URL for sending recording notifications, which must start with
 `http://` or `https://`, and cannot contain message headers or parameters.
 
-* `types` - (Required, List) Specifies the types of recording notifications. The options are as follows:
+* `types` - (Required, List) Specifies the types of recording notifications.
+  The valid values are as follows:
   + **RECORD_NEW_FILE_START**: Recording started.
   + **RECORD_FILE_COMPLETE**: Recording file generated.
   + **RECORD_OVER**: Recording completed.
   + **RECORD_FAILED**: Recording failed.
 
-* `sign_type` - (Optional, String) Specifies the sign type. Valid values are:
-  + **HMACSHA256**:
-  + **MD5**:
+* `sign_type` - (Optional, String) Specifies the sign type.
+  The valid values are as follows:
+  + **HMACSHA256**
+  + **MD5**
 
   Defaults to **HMACSHA256**.
 
@@ -68,7 +66,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Callback configurations can be imported using the `id`, e.g.
+The record callback resource can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_live_record_callback.test <id>
