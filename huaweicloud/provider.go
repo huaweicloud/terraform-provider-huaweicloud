@@ -1426,6 +1426,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cae_component_deployment":     cae.ResourceComponentDeployment(),
 			"huaweicloud_cae_environment":              cae.ResourceEnvironment(),
 			"huaweicloud_cae_notification_rule":        cae.ResourceNotificationRule(),
+			"huaweicloud_cae_vpc_egress":               cae.ResourceVpcEgress(),
 
 			"huaweicloud_cbr_backup_share_accepter": cbr.ResourceBackupShareAccepter(),
 			"huaweicloud_cbr_backup_share":          cbr.ResourceBackupShare(),
