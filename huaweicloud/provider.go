@@ -475,6 +475,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_quotas":              as.DataSourceAsQuotas(),
 			"huaweicloud_as_group_quotas":        as.DataSourceAsGroupQuotas(),
 
+			"huaweicloud_asm_meshes": asm.DataSourceAsmMeshes(),
+
 			"huaweicloud_account":            DataSourceAccount(),
 			"huaweicloud_availability_zones": DataSourceAvailabilityZones(),
 
