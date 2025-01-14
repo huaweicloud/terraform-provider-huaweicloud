@@ -228,14 +228,3 @@ func flattenQuotas(quotasResp []interface{}) []interface{} {
 
 	return result
 }
-
-func flattenChargingMode(chargingMode string) string {
-	switch chargingMode {
-	case "packet_cycle":
-		return "prePaid"
-	case "on_demand":
-		return "postPaid"
-	default:
-		return ""
-	}
-}
