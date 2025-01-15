@@ -210,6 +210,42 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 	})
 }
 
+func TestAccVpcV1_WithEnhancedLocalRoute(t *testing.T) {
+	var vpc vpcs.Vpc
+
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_vpc.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckVpcEnhancedLocalRoute(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckVpcV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVpcV1_enhancedLocalRoute(rName, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcV1Exists(resourceName, &vpc),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "enhanced_local_route", "false"),
+				),
+			},
+			{
+				Config: testAccVpcV1_enhancedLocalRoute(rName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcV1Exists(resourceName, &vpc),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "enhanced_local_route", "true"),
+				),
+			},
+		},
+	})
+}
+
 // TestAccVpcV1_WithCustomRegion this case will run a test for resource-level region. Before run this case,
 // you shoule set `HW_CUSTOM_REGION_NAME` in your system and it should be different from `HW_REGION_NAME`.
 func TestAccVpcV1_WithCustomRegion(t *testing.T) {
@@ -440,6 +476,16 @@ resource "huaweicloud_vpc" "test" {
   enterprise_project_id = "%[2]s"
 }
 `, rName, epsId)
+}
+
+func testAccVpcV1_enhancedLocalRoute(rName, enhancedLocalRoute string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name                 = "%[1]s"
+  cidr                 = "192.168.0.0/16"
+  enhanced_local_route = "%[2]s"
+}
+`, rName, enhancedLocalRoute)
 }
 
 func testAccVpcV1_WithCustomRegion(name1, name2, region string) string {

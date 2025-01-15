@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -85,6 +87,14 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 					ValidateFunc: utils.ValidateCIDR,
 				},
 			},
+			"enhanced_local_route": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -128,6 +138,10 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 		Name:        d.Get("name").(string),
 		CIDR:        d.Get("cidr").(string),
 		Description: d.Get("description").(string),
+	}
+	if v, ok := d.GetOk("enhanced_local_route"); ok {
+		enhancedLocalRoute, _ := strconv.ParseBool(v.(string))
+		createOpts.EnhancedLocalRoute = &enhancedLocalRoute
 	}
 
 	epsID := cfg.GetEnterpriseProjectID(d)
@@ -215,6 +229,7 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 	d.Set("name", n.Name)
 	d.Set("cidr", n.CIDR)
 	d.Set("description", n.Description)
+	d.Set("enhanced_local_route", strconv.FormatBool(n.EnhancedLocalRoute))
 	d.Set("enterprise_project_id", n.EnterpriseProjectID)
 	d.Set("status", n.Status)
 	d.Set("region", region)
@@ -281,7 +296,7 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	vpcID := d.Id()
-	if d.HasChanges("name", "cidr", "description") {
+	if d.HasChanges("name", "cidr", "description", "enhanced_local_route") {
 		updateOpts := vpcs.UpdateOpts{
 			Name: d.Get("name").(string),
 			CIDR: d.Get("cidr").(string),
@@ -289,6 +304,10 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 		if d.HasChange("description") {
 			desc := d.Get("description").(string)
 			updateOpts.Description = &desc
+		}
+		if d.HasChange("enhanced_local_route") {
+			enhancedLocalRoute, _ := strconv.ParseBool(d.Get("enhanced_local_route").(string))
+			updateOpts.EnhancedLocalRoute = &enhancedLocalRoute
 		}
 
 		_, err = vpcs.Update(v1Client, vpcID, updateOpts).Extract()

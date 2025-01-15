@@ -42,6 +42,7 @@ var (
 	HW_IMAGE_NAME                    = os.Getenv("HW_IMAGE_NAME")
 	HW_IMS_DATA_DISK_IMAGE_ID        = os.Getenv("HW_IMS_DATA_DISK_IMAGE_ID")
 	HW_VPC_ID                        = os.Getenv("HW_VPC_ID")
+	HW_VPC_ENHANCED_LOCAL_ROUTE      = os.Getenv("HW_VPC_ENHANCED_LOCAL_ROUTE")
 	HW_VPN_P2C_GATEWAY_ID            = os.Getenv("HW_VPN_P2C_GATEWAY_ID")
 	HW_VPN_P2C_SERVER                = os.Getenv("HW_VPN_P2C_SERVER")
 	HW_VPN_P2C_CLIENT_CA_CERTIFICATE = os.Getenv("HW_VPN_P2C_CLIENT_CA_CERTIFICATE")
@@ -2726,6 +2727,13 @@ func TestAccPreCheckAsDataDiskImageId(t *testing.T) {
 func TestAccPreCheckVpcId(t *testing.T) {
 	if HW_VPC_ID == "" {
 		t.Skip("HW_VPC_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckVpcEnhancedLocalRoute(t *testing.T) {
+	if HW_VPC_ENHANCED_LOCAL_ROUTE == "" {
+		t.Skip("HW_VPC_ENHANCED_LOCAL_ROUTE must be set for the acceptance test")
 	}
 }
 
