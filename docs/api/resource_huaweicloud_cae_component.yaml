@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: CAE
 paths:
+    /v1/{project_id}/cae/applications/{application_id}/component-with-configurations:
+        POST:
+            tag: CAE
     /v1/{project_id}/cae/applications/{application_id}/components:
         POST:
             tag: CAE
@@ -17,4 +20,7 @@ paths:
         GET:
             tag: CAE
         PUT:
+            tag: CAE
+    /v1/{project_id}/cae/jobs/{job_id}:
+        GET:
             tag: CAE

@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cae_vpc_egress
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CAE
+paths:
+    /v1/{project_id}/cae/vpc-egress:
+        GET:
+            tag: CAE
+        POST:
+            tag: CAE
+    /v1/{project_id}/cae/vpc-egress/{vpc_egress_id}:
+        DELETE:
+            tag: CAE

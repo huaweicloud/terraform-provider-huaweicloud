@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_ga_access_logs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GA
+paths:
+    /v1/logtanks:
+        GET:
+            tag: GA

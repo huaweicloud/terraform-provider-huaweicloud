@@ -1,0 +1,32 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_deploy_environment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsDeploy
+paths:
+    /v1/applications/{application_id}/environments:
+        POST:
+            tag: CodeArtsDeploy
+    /v1/applications/{application_id}/environments/{environment_id}:
+        DELETE:
+            tag: CodeArtsDeploy
+        GET:
+            tag: CodeArtsDeploy
+        PUT:
+            tag: CodeArtsDeploy
+    /v1/applications/{application_id}/environments/{environment_id}/{host_id}:
+        DELETE:
+            tag: CodeArtsDeploy
+    /v1/applications/{application_id}/environments/{environment_id}/hosts:
+        GET:
+            tag: CodeArtsDeploy
+    /v1/applications/{application_id}/environments/{environment_id}/hosts/import:
+        POST:
+            tag: CodeArtsDeploy
+    /v2/applications/{application_id}/environments/{environment_id}/permissions:
+        GET:
+            tag: CodeArtsDeploy

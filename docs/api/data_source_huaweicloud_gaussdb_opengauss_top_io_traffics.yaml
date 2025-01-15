@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_gaussdb_opengauss_top_io_traffics
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/top-io-traffics:
+        GET:
+            tag: GaussDB

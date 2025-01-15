@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_identitycenter_system_identity_policy_attachments
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IDENTITYCENTER
+paths:
+    /v1/instances/{instance_id}/permission-sets/{permission_set_id}/managed-policies:
+        GET:
+            tag: IDENTITYCENTER

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_asm_meshes
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ASM
+paths:
+    /v1/meshes:
+        GET:
+            tag: ASM

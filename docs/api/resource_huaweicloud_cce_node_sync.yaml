@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cce_node_sync
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /api/v2/projects/{project_id}/clusters/{cluster_id}/nodes/{node_id}/sync:
+        GET:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: CCE

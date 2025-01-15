@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cfw_ips_rules
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CFW
+paths:
+    /v1/{project_id}/ips-rule:
+        GET:
+            tag: CFW

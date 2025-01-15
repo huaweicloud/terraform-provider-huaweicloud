@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_deploy_application_permission
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsDeploy
+paths:
+    /v3/applications/permissions:
+        PUT:
+            tag: CodeArtsDeploy

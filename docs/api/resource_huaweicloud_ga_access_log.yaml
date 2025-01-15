@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ga_access_log
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GA
+paths:
+    /v1/logtanks:
+        POST:
+            tag: GA
+    /v1/logtanks/{logtank_id}:
+        DELETE:
+            tag: GA
+        GET:
+            tag: GA
+        PUT:
+            tag: GA

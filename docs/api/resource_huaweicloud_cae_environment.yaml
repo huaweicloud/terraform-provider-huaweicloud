@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cae_environment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CAE
+paths:
+    /v1/{project_id}/cae/environments:
+        GET:
+            tag: CAE
+        POST:
+            tag: CAE
+    /v1/{project_id}/cae/environments/{environment_id}:
+        DELETE:
+            tag: CAE
+    /v1/{project_id}/cae/jobs/{job_id}:
+        GET:
+            tag: CAE
+        POST:
+            tag: CAE

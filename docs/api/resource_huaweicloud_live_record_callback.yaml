@@ -9,8 +9,6 @@ tags:
     - name: Live
 paths:
     /v1/{project_id}/record/callbacks:
-        GET:
-            tag: Live
         POST:
             tag: Live
     /v1/{project_id}/record/callbacks/{id}:
