@@ -22,8 +22,13 @@
               "name": {
                 "type": "string",
                 "description": "Specifies the ResourceQL name.",
-                "required": true,
-                "forcenew": true
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the ResourceQL type.",
+                "optional": true,
+                "computed": true
               }
             }
           },

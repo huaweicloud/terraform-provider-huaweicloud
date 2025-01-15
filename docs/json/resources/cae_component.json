@@ -14,6 +14,12 @@
                 "type": "string",
                 "computed": true
               },
+              "deploy_after_create": {
+                "type": "bool",
+                "description": "Whether to deploy the component after creating the resource.",
+                "optional": true,
+                "forcenew": true
+              },
               "environment_id": {
                 "type": "string",
                 "required": true,
@@ -33,6 +39,27 @@
               }
             },
             "block_types": {
+              "configurations": {
+                "block": {
+                  "attributes": {
+                    "data": {
+                      "type": "string",
+                      "description": "The component configuration detail, in JSON format.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the component configuration.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The list of configurations of the component."
+                },
+                "nesting_mode": "set",
+                "forcenew": true
+              },
               "metadata": {
                 "block": {
                   "attributes": {

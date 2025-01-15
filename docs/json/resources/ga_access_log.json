@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ga_access_log": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the access log.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the log group to which the access log belongs.",
+                "required": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "description": "Specifies the ID of the log stream to which the access log belongs.",
+                "required": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the ID of the resource to which the access log belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "Specifies the type of the resource to which the access log belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the access log.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the access log.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GA",
+            "name": "Global Accelerator",
+            "catalog": "Networking",
+            "name_cn": "全球加速",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

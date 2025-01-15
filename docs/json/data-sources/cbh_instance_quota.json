@@ -1,0 +1,37 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbh_instance_quota": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quota": {
+                "type": "number",
+                "computed": true
+              },
+              "quota_used": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBH",
+            "name": "Cloud Bastion Host",
+            "catalog": "Security & Compliance",
+            "name_cn": "云堡垒机",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

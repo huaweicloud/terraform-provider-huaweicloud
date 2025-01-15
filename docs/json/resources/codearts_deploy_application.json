@@ -8,14 +8,12 @@
               "artifact_source_system": {
                 "type": "string",
                 "description": "Specifies the source information transferred by the pipeline.",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "artifact_type": {
                 "type": "string",
                 "description": "Specifies the artifact type for the pipeline source.",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "can_copy": {
                 "type": "bool",
@@ -32,6 +30,11 @@
                 "description": "Indicates whether the user has the deletion permission.",
                 "computed": true
               },
+              "can_disable": {
+                "type": "bool",
+                "description": "Indicates whether the user has the permission to disable application.",
+                "computed": true
+              },
               "can_execute": {
                 "type": "bool",
                 "description": "Indicates whether the user has the deployment permission",
@@ -39,7 +42,7 @@
               },
               "can_manage": {
                 "type": "bool",
-                "description": "Check whether the user has the management permission, including adding, deleting,\nmodifying, querying deployment and permission modification.",
+                "description": "Indicates whether the user has the management permission, including adding, deleting,\nmodifying, querying deployment and permission modification.",
                 "computed": true
               },
               "can_modify": {
@@ -66,25 +69,65 @@
               "description": {
                 "type": "string",
                 "description": "Specifies the application description.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the group ID.",
+                "optional": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
+              "is_care": {
+                "type": "bool",
+                "description": "Indicates whether the user has favorited the application.",
+                "computed": true
+              },
+              "is_disable": {
+                "type": "bool",
+                "description": "Specifies whether to disable the application.",
+                "optional": true
+              },
               "is_draft": {
                 "type": "bool",
                 "description": "Specifies whether the application is in draft status.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
                 "description": "Specifies the application name.",
-                "required": true,
-                "forcenew": true
+                "required": true
+              },
+              "permission_level": {
+                "type": "string",
+                "description": "Specifies the permission level.",
+                "optional": true,
+                "computed": true
+              },
+              "permission_matrix": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "can_copy": "bool",
+                      "can_create_env": "bool",
+                      "can_delete": "bool",
+                      "can_disable": "bool",
+                      "can_execute": "bool",
+                      "can_manage": "bool",
+                      "can_modify": "bool",
+                      "can_view": "bool",
+                      "role_id": "string",
+                      "role_name": "string",
+                      "role_type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the permission matrix.",
+                "computed": true
               },
               "project_id": {
                 "type": "string",
@@ -104,9 +147,7 @@
               "resource_pool_id": {
                 "type": "string",
                 "description": "Specifies the custom slave resource pool ID.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "optional": true
               },
               "steps": {
                 "type": [
@@ -129,8 +170,7 @@
               "trigger_source": {
                 "type": "string",
                 "description": "Specifies where a deployment task can be executed.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "updated_at": {
                 "type": "string",
@@ -145,50 +185,42 @@
                     "code": {
                       "type": "string",
                       "description": "Specifies the download URL.",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "description": {
                       "type": "string",
                       "description": "Specifies the step description.",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "entrance": {
                       "type": "string",
                       "description": "Specifies the entry function.",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "module_id": {
                       "type": "string",
                       "description": "Specifies the module ID.",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "name": {
                       "type": "string",
                       "description": "Specifies the step name.",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "params": {
                       "type": "string",
                       "description": "Specifies the parameter.",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "version": {
                       "type": "string",
                       "description": "Specifies the version.",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     }
                   },
                   "description": "Specifies the deployment orchestration list information."
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               }
             }
           },

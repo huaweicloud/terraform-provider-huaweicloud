@@ -13,10 +13,6 @@
                 "type": "string",
                 "computed": true
               },
-              "is_managed": {
-                "type": "bool",
-                "optional": true
-              },
               "keypairs": {
                 "type": [
                   "list",

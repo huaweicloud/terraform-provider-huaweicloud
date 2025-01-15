@@ -1,0 +1,145 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cae_notification_rule": {
+          "block": {
+            "attributes": {
+              "enabled": {
+                "type": "bool",
+                "description": "Whether to enable the event notification rule.",
+                "optional": true
+              },
+              "event_name": {
+                "type": "string",
+                "description": "The trigger event of the event notification.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the event notification rule.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "notification": {
+                "block": {
+                  "attributes": {
+                    "endpoint": {
+                      "type": "string",
+                      "description": "The endpoint of the event notification.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "description": "The protocol of the event notification.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "template": {
+                      "type": "string",
+                      "description": "The template language of the event notification.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The configuration of the event notification."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "scope": {
+                "block": {
+                  "attributes": {
+                    "applications": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of the applications IDs.",
+                      "optional": true
+                    },
+                    "components": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of the components IDs.",
+                      "optional": true
+                    },
+                    "environments": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of the environment IDs.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type to which the event notification rule takes effect.",
+                      "required": true
+                    }
+                  },
+                  "description": "The scope in which event notification rule takes effect."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "trigger_policy": {
+                "block": {
+                  "attributes": {
+                    "count": {
+                      "type": "number",
+                      "description": "The number of times the event occurred.",
+                      "optional": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "description": "The condition of the event notification.",
+                      "optional": true
+                    },
+                    "period": {
+                      "type": "number",
+                      "description": "The trigger period of the event.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the trigger.",
+                      "required": true
+                    }
+                  },
+                  "description": "The trigger policy of the event notification rule."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CAE",
+            "name": "Cloud Application Engine",
+            "catalog": "CodeArts",
+            "name_cn": "云应用引擎",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

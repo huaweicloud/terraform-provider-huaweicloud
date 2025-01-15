@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_deploy_application_permission": {
+          "block": {
+            "attributes": {
+              "application_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the application IDs.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID for CodeArts service.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "roles": {
+                "block": {
+                  "attributes": {
+                    "can_copy": {
+                      "type": "bool",
+                      "description": "Specifies whether the role has the copy permission.",
+                      "required": true
+                    },
+                    "can_create_env": {
+                      "type": "bool",
+                      "description": "Specifies whether the role has the permission to create an environment.",
+                      "required": true
+                    },
+                    "can_delete": {
+                      "type": "bool",
+                      "description": "Specifies whether the role has the deletion permission.",
+                      "required": true
+                    },
+                    "can_disable": {
+                      "type": "bool",
+                      "description": "Specifies whether the role has the permission to disable application.",
+                      "required": true
+                    },
+                    "can_execute": {
+                      "type": "bool",
+                      "description": "Specifies whether the role has the deployment permission.",
+                      "required": true
+                    },
+                    "can_manage": {
+                      "type": "bool",
+                      "description": "Specifies whether the role has the management permission, including adding, deleting,\n\t\tmodifying, querying deployment and permission modification.",
+                      "required": true
+                    },
+                    "can_modify": {
+                      "type": "bool",
+                      "description": "Specifies whether the role has the editing permission.",
+                      "required": true
+                    },
+                    "can_view": {
+                      "type": "bool",
+                      "description": "Specifies whether the role has the view permission.",
+                      "required": true
+                    },
+                    "role_id": {
+                      "type": "string",
+                      "description": "Specifies the role ID.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the role permissions list."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

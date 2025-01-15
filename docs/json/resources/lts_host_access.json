@@ -9,6 +9,11 @@
                 "type": "string",
                 "computed": true
               },
+              "demo_log": {
+                "type": "string",
+                "description": "The example log of the ICAgent structuring parsing.",
+                "optional": true
+              },
               "host_group_ids": {
                 "type": [
                   "list",
@@ -43,6 +48,11 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "processor_type": {
+                "type": "string",
+                "description": "The type of the ICAgent structuring parsing.",
+                "optional": true
               },
               "region": {
                 "type": "string",
@@ -145,6 +155,42 @@
                 "nesting_mode": "list",
                 "min_items": 1,
                 "max_items": 1
+              },
+              "demo_fields": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the parsed field.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the parsed field.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of the parsed fields of the example log"
+                },
+                "nesting_mode": "set"
+              },
+              "processors": {
+                "block": {
+                  "attributes": {
+                    "detail": {
+                      "type": "string",
+                      "description": "The configuration of the parser, in JSON format.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the parser.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of the ICAgent structuring parsing rules."
+                },
+                "nesting_mode": "list"
               }
             }
           },

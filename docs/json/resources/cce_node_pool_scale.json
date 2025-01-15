@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cce_node_pool_scale": {
+          "block": {
+            "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "desired_node_count": {
+                "type": "number",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "nodepool_id": {
+                "type": "string",
+                "required": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scalable_checking": {
+                "type": "string",
+                "optional": true
+              },
+              "scale_groups": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

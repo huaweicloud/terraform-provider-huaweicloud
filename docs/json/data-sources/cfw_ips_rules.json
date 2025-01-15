@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_ips_rules": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ips_id": {
+                "type": "string",
+                "description": "Specifies the IPS rule ID.",
+                "optional": true
+              },
+              "ips_name_like": {
+                "type": "string",
+                "description": "Specifies the IPS rule name.",
+                "optional": true
+              },
+              "ips_status": {
+                "type": "string",
+                "description": "Specifies the IPS rule status.",
+                "optional": true
+              },
+              "is_updated_ips_rule_queried": {
+                "type": "bool",
+                "description": "Specifies whether to check for new update rules.",
+                "optional": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "required": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "affected_application": "string",
+                      "create_time": "string",
+                      "default_status": "string",
+                      "ips_cve": "string",
+                      "ips_group": "string",
+                      "ips_id": "string",
+                      "ips_level": "string",
+                      "ips_name": "string",
+                      "ips_rules_type": "string",
+                      "ips_status": "string"
+                    }
+                  ]
+                ],
+                "description": "The IPS rule list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

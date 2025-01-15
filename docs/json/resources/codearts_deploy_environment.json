@@ -1,0 +1,179 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_deploy_environment": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "Specifies the application ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the create time.",
+                "computed": true
+              },
+              "created_by": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "user_id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the creator information.",
+                "computed": true
+              },
+              "deploy_type": {
+                "type": "number",
+                "description": "Specifies the deployment type.",
+                "required": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_count": {
+                "type": "number",
+                "description": "Indicates the number of host instances in the environment.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the environment name.",
+                "required": true
+              },
+              "os_type": {
+                "type": "string",
+                "description": "Specifies the operating system.",
+                "required": true,
+                "forcenew": true
+              },
+              "permission": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "can_delete": "bool",
+                      "can_deploy": "bool",
+                      "can_edit": "bool",
+                      "can_manage": "bool",
+                      "can_view": "bool"
+                    }
+                  ]
+                ],
+                "description": "Indicates the user permission.",
+                "computed": true
+              },
+              "permission_matrix": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "can_delete": "bool",
+                      "can_deploy": "bool",
+                      "can_edit": "bool",
+                      "can_manage": "bool",
+                      "can_view": "bool",
+                      "created_at": "string",
+                      "permission_id": "number",
+                      "role_id": "string",
+                      "role_name": "string",
+                      "role_type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the permission matrix.",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID for CodeArts service.",
+                "required": true,
+                "forcenew": true
+              },
+              "proxies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "connection_status": "string",
+                      "group_id": "string",
+                      "host_id": "string",
+                      "host_name": "string",
+                      "ip_address": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the proxy hosts list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "hosts": {
+                "block": {
+                  "attributes": {
+                    "connection_status": {
+                      "type": "string",
+                      "description": "Indicates the connection status.",
+                      "computed": true
+                    },
+                    "group_id": {
+                      "type": "string",
+                      "description": "Specifies the cluster group ID.",
+                      "required": true
+                    },
+                    "host_id": {
+                      "type": "string",
+                      "description": "Specifies the host ID.",
+                      "required": true
+                    },
+                    "host_name": {
+                      "type": "string",
+                      "description": "Indicates the host name.",
+                      "computed": true
+                    },
+                    "ip_address": {
+                      "type": "string",
+                      "description": "Indicates the IP address.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the hosts list."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

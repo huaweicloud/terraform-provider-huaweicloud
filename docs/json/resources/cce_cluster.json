@@ -224,9 +224,7 @@
               },
               "support_istio": {
                 "type": "bool",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "tags": {
                 "type": [
