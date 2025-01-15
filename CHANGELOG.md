@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 1.72.1 (January 15, 2025)
+
+* **New Resource:**
+  + `huaweicloud_cae_vpc_egress` [GH-6175]
+  + `huaweicloud_cae_environment` [GH-6134]
+  + `huaweicloud_cae_notification_rule` [GH-6132]
+
+* **New Data Source:**
+  + `huaweicloud_cae_notification_rules` [GH-6168]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_autopilot_cluster: add version support [GH-6191]
+
 ## 1.72.0 (December 31, 2024)
 
 * **New Resource:**
