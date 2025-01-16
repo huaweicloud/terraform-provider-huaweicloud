@@ -484,6 +484,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_instances": bms.DataSourceBmsInstances(),
 
 			"huaweicloud_cae_applications":       cae.DataSourceApplications(),
+			"huaweicloud_cae_components":         cae.DataSourceComponents(),
 			"huaweicloud_cae_environments":       cae.DataSourceEnvironments(),
 			"huaweicloud_cae_notification_rules": cae.DataSourceCaeNotificationRules(),
 
