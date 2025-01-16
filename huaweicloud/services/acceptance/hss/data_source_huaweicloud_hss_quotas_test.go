@@ -150,5 +150,5 @@ data "huaweicloud_hss_quotas" "not_found" {
 output "not_found_validation_pass" {
   value = length(data.huaweicloud_hss_quotas.not_found.quotas) == 0
 }
-`, testAccQuota_basic())
+`, testAccQuota_basic)
 }

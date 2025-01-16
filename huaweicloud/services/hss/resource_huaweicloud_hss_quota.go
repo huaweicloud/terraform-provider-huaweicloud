@@ -121,6 +121,14 @@ func ResourceQuota() *schema.Resource {
 	}
 }
 
+func buildCreateQuotaQueryParams(epsId string) string {
+	if epsId != "" {
+		return fmt.Sprintf("?enterprise_project_id=%v", epsId)
+	}
+
+	return ""
+}
+
 func buildCreatePeriodUnitParam(d *schema.ResourceData) interface{} {
 	if d.Get("period_unit").(string) == "month" {
 		return 2
@@ -145,8 +153,8 @@ func buildCreateIsAutoRenewParam(d *schema.ResourceData) interface{} {
 	return nil
 }
 
-func buildCreateQuotaBodyParam(d *schema.ResourceData) map[string]interface{} {
-	bodyParam := map[string]interface{}{
+func buildCreateQuotaBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
 		"resource_spec_code": d.Get("version"),
 		"period_type":        buildCreatePeriodUnitParam(d),
 		"period_num":         d.Get("period").(int),
@@ -156,7 +164,7 @@ func buildCreateQuotaBodyParam(d *schema.ResourceData) map[string]interface{} {
 		"subscription_num": 1,
 	}
 
-	return bodyParam
+	return bodyParams
 }
 
 func resourceQuotaCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -174,13 +182,10 @@ func resourceQuotaCreate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	createPath := client.Endpoint + "v5/{project_id}/quotas/orders"
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	if epsId != "" {
-		createPath += "?enterprise_project_id=" + epsId
-	}
+	createPath += buildCreateQuotaQueryParams(epsId)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-		JSONBody:         buildCreateQuotaBodyParam(d),
+		JSONBody:         buildCreateQuotaBodyParams(d),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -198,7 +203,7 @@ func resourceQuotaCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("unable to find the order ID of the HSS quota from the API response")
 	}
 
-	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	bssClient, err := cfg.BssV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
@@ -213,6 +218,7 @@ func resourceQuotaCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	d.SetId(resourceId)
+
 	if tagsRaw, ok := d.GetOk("tags"); ok {
 		err = createQuotaTags(client, resourceId, tagsRaw.(map[string]interface{}))
 		if err != nil {
@@ -223,14 +229,16 @@ func resourceQuotaCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	return resourceQuotaRead(ctx, d, meta)
 }
 
-func GetQuotaById(client *golangsdk.ServiceClient, id, epsId string) ([]interface{}, error) {
+func buildGetQuotaQueryParams(epsId, quotaId string) string {
+	return fmt.Sprintf("?enterprise_project_id=%v&resource_id=%v", epsId, quotaId)
+}
+
+func GetQuotaById(client *golangsdk.ServiceClient, epsId, quotaId string) (interface{}, error) {
 	getPath := client.Endpoint + "v5/{project_id}/billing/quotas-detail"
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath += "?enterprise_project_id=" + epsId
-	getPath += "&resource_id=" + id
+	getPath += buildGetQuotaQueryParams(epsId, quotaId)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
@@ -243,17 +251,17 @@ func GetQuotaById(client *golangsdk.ServiceClient, id, epsId string) ([]interfac
 		return nil, err
 	}
 
-	quotas := utils.PathSearch("data_list", getRespBody, make([]interface{}, 0)).([]interface{})
+	quotaResp := utils.PathSearch("data_list[0]", getRespBody, nil)
 
-	return quotas, nil
+	return quotaResp, nil
 }
 
 func resourceQuotaRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		id      = d.Id()
-		epsId   = cfg.GetEnterpriseProjectID(d, "all_granted_eps")
+		quotaId = d.Id()
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
 		product = "hss"
 	)
 
@@ -262,16 +270,15 @@ func resourceQuotaRead(_ context.Context, d *schema.ResourceData, meta interface
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	quotas, err := GetQuotaById(client, id, epsId)
+	quota, err := GetQuotaById(client, epsId, quotaId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if len(quotas) < 1 {
+	if quota == nil {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "HSS quota")
 	}
 
-	quota := quotas[0]
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("version", utils.PathSearch("version", quota, nil)),
@@ -279,7 +286,7 @@ func resourceQuotaRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("used_status", utils.PathSearch("used_status", quota, nil)),
 		d.Set("host_id", utils.PathSearch("host_id", quota, nil)),
 		d.Set("host_name", utils.PathSearch("host_name", quota, nil)),
-		d.Set("charging_mode", convertChargingMode(utils.String(utils.PathSearch("charging_mode", quota, "").(string)))),
+		d.Set("charging_mode", flattenChargingMode(utils.PathSearch("charging_mode", quota, "").(string))),
 		d.Set("expire_time", utils.PathSearch("expire_time", quota, nil)),
 		d.Set("shared_quota", utils.PathSearch("shared_quota", quota, nil)),
 		d.Set("is_trial_quota", utils.PathSearch("is_trial_quota", quota, nil)),
@@ -295,7 +302,7 @@ func resourceQuotaUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		id      = d.Id()
+		quotaId = d.Id()
 		product = "hss"
 	)
 
@@ -310,8 +317,8 @@ func resourceQuotaUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), id); err != nil {
-			return diag.Errorf("error updating the auto_renew of the HSS quota (%s): %s", id, err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), quotaId); err != nil {
+			return diag.Errorf("error updating the auto_renew of the HSS quota (%s): %s", quotaId, err)
 		}
 	}
 
@@ -322,12 +329,12 @@ func resourceQuotaUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 
 		if len(oMap) > 0 {
 			oldKeys := getOldTagKeys(oMap)
-			if err := utils.DeleteResourceTagsWithKeys(client, oldKeys, "hss", id); err != nil {
+			if err := utils.DeleteResourceTagsWithKeys(client, oldKeys, "hss", quotaId); err != nil {
 				return diag.FromErr(err)
 			}
 		}
 		if len(nMap) > 0 {
-			if err := createQuotaTags(client, id, nMap); err != nil {
+			if err := createQuotaTags(client, quotaId, nMap); err != nil {
 				return diag.FromErr(err)
 			}
 		}
@@ -335,7 +342,7 @@ func resourceQuotaUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := config.MigrateResourceOpts{
-			ResourceId:   id,
+			ResourceId:   quotaId,
 			ResourceType: "hss",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
@@ -348,14 +355,13 @@ func resourceQuotaUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	return resourceQuotaRead(ctx, d, meta)
 }
 
-func createQuotaTags(client *golangsdk.ServiceClient, id string, tagsMap map[string]interface{}) error {
+func createQuotaTags(client *golangsdk.ServiceClient, quotaId string, tagsMap map[string]interface{}) error {
 	createTagsPath := client.Endpoint + "v5/{project_id}/{resource_type}/{resource_id}/tags/create"
 	createTagsPath = strings.ReplaceAll(createTagsPath, "{project_id}", client.ProjectID)
 	createTagsPath = strings.ReplaceAll(createTagsPath, "{resource_type}", "hss")
-	createTagsPath = strings.ReplaceAll(createTagsPath, "{resource_id}", id)
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{resource_id}", quotaId)
 	createTagsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 	createTagsOpt.JSONBody = map[string]interface{}{
 		"tags": utils.ExpandResourceTags(tagsMap),
@@ -363,7 +369,7 @@ func createQuotaTags(client *golangsdk.ServiceClient, id string, tagsMap map[str
 
 	_, err := client.Request("POST", createTagsPath, &createTagsOpt)
 	if err != nil {
-		return fmt.Errorf("error setting tags of the HSS quota (%s): %s", id, err)
+		return fmt.Errorf("error setting tags of the HSS quota (%s): %s", quotaId, err)
 	}
 
 	return nil
@@ -384,8 +390,8 @@ func resourceQuotaDelete(ctx context.Context, d *schema.ResourceData, meta inter
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		id      = d.Id()
-		epsId   = cfg.GetEnterpriseProjectID(d, "all_granted_eps")
+		quotaId = d.Id()
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
 		product = "hss"
 	)
 
@@ -394,7 +400,7 @@ func resourceQuotaDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	if err = common.UnsubscribePrePaidResource(d, cfg, []string{id}); err != nil {
+	if err = common.UnsubscribePrePaidResource(d, cfg, []string{quotaId}); err != nil {
 		// When the resource does not exist, the API for unsubscribing prePaid resource will return a `400` status code,
 		// and the response body is as follows:
 		// {"error_code": "CBC.30000067",
@@ -403,30 +409,30 @@ func resourceQuotaDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "CBC.30000067"), "error unsubscribe HSS quota")
 	}
 
-	if err := waitingForQuotaDeleted(ctx, client, id, epsId, d.Timeout(schema.TimeoutDelete)); err != nil {
-		return diag.Errorf("error waiting for HSS quota (%s) deleted: %s", id, err)
+	if err := waitingForQuotaDeleted(ctx, client, epsId, quotaId, d.Timeout(schema.TimeoutDelete)); err != nil {
+		return diag.Errorf("error waiting for HSS quota (%s) deleted: %s", quotaId, err)
 	}
 
 	return nil
 }
 
-func waitingForQuotaDeleted(ctx context.Context, client *golangsdk.ServiceClient, id, epsId string,
+func waitingForQuotaDeleted(ctx context.Context, client *golangsdk.ServiceClient, epsId, quotaId string,
 	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			quotas, err := GetQuotaById(client, id, epsId)
+			quota, err := GetQuotaById(client, epsId, quotaId)
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			if len(quotas) < 1 {
+			if quota == nil {
 				m := map[string]string{"code": "COMPLETED"}
 				return m, "COMPLETED", nil
 			}
 
-			return quotas[0], "PENDING", nil
+			return quota, "PENDING", nil
 		},
 		Timeout:      timeout,
 		Delay:        10 * time.Second,

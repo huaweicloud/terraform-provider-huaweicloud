@@ -14,58 +14,55 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 )
 
-func getQuotaFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getQuotaResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
 		region  = acceptance.HW_REGION_NAME
 		product = "hss"
-		epsId   = state.Primary.Attributes["enterprise_project_id"]
-		id      = state.Primary.ID
+		epsId   = hss.QueryAllEpsValue
+		quotaId = state.Primary.ID
 	)
-
-	// If the enterprise project ID is not set during query, set to query all enterprise projects.
-	if epsId == "" {
-		epsId = hss.QueryAllEpsValue
-	}
 
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating HSS client: %s", err)
 	}
 
-	quotas, err := hss.GetQuotaById(client, id, epsId)
+	quotaResp, err := hss.GetQuotaById(client, epsId, quotaId)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(quotas) < 1 {
+	if quotaResp == nil {
 		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return quotas[0], nil
+	return quotaResp, nil
 }
 
 func TestAccQuota_basic(t *testing.T) {
 	var (
-		obj   interface{}
-		rName = "huaweicloud_hss_quota.test"
+		obj          interface{}
+		rName        = "huaweicloud_hss_quota.test"
+		migrateEpsId = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
 	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getQuotaFunc,
+		getQuotaResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// This test case need setting a non default enterprise project ID.
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccQuota_basic(),
+				Config: testAccQuota_basic,
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "version", "hss.version.premium"),
@@ -82,10 +79,10 @@ func TestAccQuota_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccQuota_basic_update(),
+				Config: testAccQuota_basic_update(migrateEpsId),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", migrateEpsId),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value_update"),
 					resource.TestCheckResourceAttrSet(rName, "enterprise_project_name"),
@@ -103,8 +100,7 @@ func TestAccQuota_basic(t *testing.T) {
 	})
 }
 
-func testAccQuota_basic() string {
-	return `
+const testAccQuota_basic string = `
 resource "huaweicloud_hss_quota" "test" {
   version               = "hss.version.premium"
   period_unit           = "month"
@@ -118,9 +114,8 @@ resource "huaweicloud_hss_quota" "test" {
   }
 }
 `
-}
 
-func testAccQuota_basic_update() string {
+func testAccQuota_basic_update(migrateEpsId string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_hss_quota" "test" {
   version               = "hss.version.premium"
@@ -134,7 +129,7 @@ resource "huaweicloud_hss_quota" "test" {
     key = "value_update"
   }
 }
-`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, migrateEpsId)
 }
 
 func TestAccQuota_periodUnitIsYear(t *testing.T) {
@@ -146,7 +141,7 @@ func TestAccQuota_periodUnitIsYear(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getQuotaFunc,
+		getQuotaResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
