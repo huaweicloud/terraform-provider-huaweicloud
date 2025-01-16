@@ -1147,6 +1147,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_shared_accounts":           swr.DataSourceSharedAccounts(),
 			"huaweicloud_swr_image_retention_policies":  swr.DataSourceImageRetentionPolicies(),
 			"huaweicloud_swr_image_retention_histories": swr.DataSourceSwrImageRetentionHistories(),
+			"huaweicloud_swr_quotas":                    swr.DataSourceSwrQuotas(),
 
 			"huaweicloud_tms_resource_types": tms.DataSourceResourceTypes(),
 
