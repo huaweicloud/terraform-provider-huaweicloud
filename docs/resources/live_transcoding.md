@@ -2,12 +2,13 @@
 subcategory: "Live"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_live_transcoding"
-description: ""
+description: |-
+  Manages a Live transcoding resource within HuaweiCloud.
 ---
 
 # huaweicloud_live_transcoding
 
-Manages a Live transcoding within HuaweiCloud.
+Manages a Live transcoding resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -15,19 +16,17 @@ Manages a Live transcoding within HuaweiCloud.
 
 ```hcl
 variable "ingest_domain_name" {}
-
-resource "huaweicloud_live_domain" "ingestDomain" {
-  name = var.ingest_domain_name
-  type = "push"
-}
+variable "app_name" {}
+variable "video_encoding" {}
+variable "template_name" {}
 
 resource "huaweicloud_live_transcoding" "test" {
-  domain_name    = huaweicloud_live_domain.ingestDomain.name
-  app_name       = "live"
-  video_encoding = "H264"
+  domain_name    = var.ingest_domain_name
+  app_name       = var.app_name
+  video_encoding = var.video_encoding
 
   templates {
-    name    = "L"
+    name    = var.template_name
     width   = 300
     height  = 400
     bitrate = 300
@@ -39,14 +38,15 @@ resource "huaweicloud_live_transcoding" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create this resource. If omitted,
-the provider-level region will be used. Changing this parameter will create a new resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create this resource.
+  If omitted, the provider-level region will be used.
+  Changing this parameter will create a new resource.
 
 * `domain_name` - (Required, String, ForceNew) Specifies the ingest domain name.
-Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `app_name` - (Required, String, ForceNew) Specifies the application name.
-Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `video_encoding` - (Required, String) Specifies the video codec. The valid values are **H264** and **H265**.
 
@@ -76,13 +76,13 @@ contains letters, digits and hyphens (-).
   + **When the video encoding is H265**, value range: `320` ~ `3,840` and must be a multiple of `4`.
 
 * `height` - (Required, Int) Specifies video height (unit: pixel).
-  + **When the video encoding is H264**, value range: 32 ~ 2160 and must be a multiple of `2`.
-  + **When the video encoding is H265**, value range: 240 ~ 2160 and must be a multiple of `4`.
+  + **When the video encoding is H264**, value range: `32` ~ `2,160` and must be a multiple of `2`.
+  + **When the video encoding is H265**, value range: `240` ~ `2,160` and must be a multiple of `4`.
 
 * `bitrate` - (Required, Int) Specifies the bitrate of a transcoded video, in kbit/s. Value range: `40` ~ `30,000`.
 
 * `frame_rate` - (Optional, Int) Specifies the frame rate of the transcoded video, in fps. Value range: `0` ~ `30`.
-Value 0 indicates that the frame rate remains unchanged.
+  Value `0` indicates that the frame rate remains unchanged.
 
 * `protocol` - (Optional, String) Specifies the protocol type supported for transcoding output.
   The valid value is **RTMP**. Defaults to **RTMP**.
@@ -122,15 +122,14 @@ Value 0 indicates that the frame rate remains unchanged.
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID in format of **domain_name/app_name**. It is composed of domain name and the application name,
-separated by a slash.
+* `id` - The resource ID in format of **domain_name/app_name**.
 
 ## Import
 
-Transcoding can be imported using the `domain_name` and `app_name`, separated by a slash. e.g.
+The resource can be imported using the `domain_name` and `app_name`, separated by a slash, e.g.
 
 ```bash
-$ terraform import huaweicloud_live_transcoding.test play.example.demo.com/live
+$ terraform import huaweicloud_live_transcoding.test <domian_name>/<app_name>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -141,7 +140,7 @@ with the resource. Also, you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_live_transcoding" "test" {
-    ...
+  ...
 
   lifecycle {
     ignore_changes = [
