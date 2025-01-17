@@ -10,37 +10,43 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccOpenGaussParameterTemplateApply_basic(t *testing.T) {
-	var obj interface{}
-	rName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_gaussdb_opengauss_instance.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getOpenGaussInstanceFunc,
-	)
+func TestAccDataSourceGaussdbOpengaussUpgradeVersions_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_gaussdb_opengauss_upgrade_versions.test"
+	rName := acceptance.RandomAccResourceName()
+	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
-			acceptance.TestAccPreCheckHighCostAllow(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussParameterTemplateApply_basic(rName),
+				Config: testDataSourceGaussdbOpengaussUpgradeVersions_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSource, "upgrade_type_list.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "upgrade_type_list.0.enable"),
+					resource.TestCheckResourceAttrSet(dataSource, "upgrade_type_list.0.is_parallel_upgrade"),
+					resource.TestCheckResourceAttrSet(dataSource, "upgrade_type_list.0.upgrade_action_list.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "upgrade_type_list.0.upgrade_type"),
+					resource.TestCheckResourceAttrSet(dataSource, "rollback_enabled"),
+					resource.TestCheckResourceAttrSet(dataSource, "source_version"),
+					resource.TestCheckResourceAttrSet(dataSource, "roll_upgrade_progress.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "roll_upgrade_progress.0.az_description_map.%"),
+					resource.TestCheckResourceAttrSet(dataSource, "roll_upgrade_progress.0.not_fully_upgraded_az"),
+					resource.TestCheckResourceAttrSet(dataSource, "upgrade_candidate_versions.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "hotfix_upgrade_candidate_versions.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "hotfix_rollback_candidate_versions.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "hotfix_upgrade_infos.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "hotfix_rollback_infos.#"),
 				),
 			},
 		},
 	})
 }
 
-func testAccOpenGaussParameterTemplateApply_base(rName string) string {
+func testDataSourceGaussdbOpengaussUpgradeVersions_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -99,32 +105,15 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
     size = 40
   }
 }
-
-resource "huaweicloud_gaussdb_opengauss_parameter_template" "test" {
-  name           = "%[2]s"
-  engine_version = "8.201"
-  instance_mode  = "ha"
-
-  parameters {
-    name  = "autovacuum_naptime"
-    value = "1000"
-  }
-
-  parameters {
-    name  = "dn:check_disconnect_query"
-    value = "off"
-  }
-}
 `, common.TestBaseNetwork(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccOpenGaussParameterTemplateApply_basic(rName string) string {
+func testDataSourceGaussdbOpengaussUpgradeVersions_basic(name string) string {
 	return fmt.Sprintf(`
-%[1]s
+%s
 
-resource "huaweicloud_gaussdb_opengauss_parameter_template_apply" "test" {
-  config_id   = huaweicloud_gaussdb_opengauss_parameter_template.test.id
+data "huaweicloud_gaussdb_opengauss_upgrade_versions" "test" {
   instance_id = huaweicloud_gaussdb_opengauss_instance.test.id
 }
-`, testAccOpenGaussParameterTemplateApply_base(rName))
+`, testDataSourceGaussdbOpengaussUpgradeVersions_base(name))
 }
