@@ -2,7 +2,8 @@
 subcategory: "Host Security Service (HSS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_hss_host_group"
-description: ""
+description: |-
+  Manages an HSS host group resource within HuaweiCloud.
 ---
 
 # huaweicloud_hss_host_group
@@ -48,9 +49,13 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
+
 * `host_num` - The total host number.
+
 * `risk_host_num` - The number of hosts at risk.
+
 * `unprotect_host_num` - The number of unprotect hosts.
+
 * `unprotect_host_ids` - The ID list of the unprotect hosts.
 
 ## Timeouts
