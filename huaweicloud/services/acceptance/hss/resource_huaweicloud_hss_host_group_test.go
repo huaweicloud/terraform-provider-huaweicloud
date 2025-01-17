@@ -7,36 +7,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 )
 
-func getHostGroupFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcHssV5Client(acceptance.HW_REGION_NAME)
+func getHostGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region  = acceptance.HW_REGION_NAME
+		epsId   = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+		groupId = state.Primary.ID
+		product = "hss"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HSS v5 client: %s", err)
+		return nil, fmt.Errorf("error creating HSS client: %s", err)
 	}
 
-	return hss.QueryHostGroupById(client, acceptance.HW_REGION_NAME, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST,
-		state.Primary.ID)
+	return hss.QueryHostGroupById(client, region, epsId, groupId)
 }
 
 func TestAccHostGroup_basic(t *testing.T) {
 	var (
-		group *hssv5model.HostGroupItem
-
-		name  = acceptance.RandomAccResourceName()
-		rName = "huaweicloud_hss_host_group.test"
+		hostGroup interface{}
+		name      = acceptance.RandomAccResourceName()
+		rName     = "huaweicloud_hss_host_group.test"
 	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
-		&group,
-		getHostGroupFunc,
+		&hostGroup,
+		getHostGroupResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -93,7 +96,7 @@ resource "huaweicloud_kps_keypair" "test" {
 resource "huaweicloud_compute_instance" "test" {
   count = 2
 
-  name                  = "%[2]s"
+  name                  = "%[2]s_${count.index}"
   image_id              = data.huaweicloud_images_image.test.id
   flavor_id             = data.huaweicloud_compute_flavors.test.ids[0]
   security_groups       = [huaweicloud_networking_secgroup.test.name]
