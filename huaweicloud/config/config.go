@@ -316,6 +316,30 @@ func buildObsUserAgent() string {
 	return agent
 }
 
+// When performing derivative calculations, the derivative service name must exist.
+// Currently only iotda service supports derivative algorithms.
+// When a new service requires derivative algorithm calculation, please maintain this configuration.
+var derivedAuthServiceNameMap = map[string]string{
+	"iotda": "iotdm",
+}
+
+// NewServiceClientWithDerivedAuth create a ServiceClient that performs derivative algorithm authentication.
+// Please confirm that the `derivedAuthServiceNameMap` configuration contains the derived service name of the service.
+func (c *Config) NewServiceClientWithDerivedAuth(srv, region string, isDerived bool) (*golangsdk.ServiceClient, error) {
+	client, err := c.NewServiceClient(srv, region)
+	if err != nil {
+		return nil, err
+	}
+
+	// Used to enable derivative calculations of AK/SK.
+	if isDerived {
+		client.AKSKAuthOptions.IsDerived = true
+		client.AKSKAuthOptions.DerivedAuthServiceName = derivedAuthServiceNameMap[srv]
+	}
+
+	return client, nil
+}
+
 // NewServiceClient create a ServiceClient which was assembled from ServiceCatalog.
 // If you want to add new ServiceClient, please make sure the catalog was already in allServiceCatalog.
 // the endpoint likes https://{Name}.{Region}.myhuaweicloud.com/{Version}/{project_id}/{ResourceBase}
