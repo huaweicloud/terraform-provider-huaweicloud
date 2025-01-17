@@ -1169,17 +1169,21 @@ func Provider() *schema.Provider {
 			"huaweicloud_global_eips":                eip.DataSourceGlobalEIPs(),
 
 			"huaweicloud_vpc":                             vpc.DataSourceVpcV1(),
-			"huaweicloud_vpcs":                            vpc.DataSourceVpcs(),
 			"huaweicloud_vpc_address_groups":              vpc.DataSourceVpcAddressGroups(),
-			"huaweicloud_vpc_ids":                         vpc.DataSourceVpcIdsV1(),
+			"huaweicloud_vpc_flow_logs":                   vpc.DataSourceVpcFlowLogs(),
+			"huaweicloud_vpc_network_acls":                vpc.DataSourceNetworkAcls(),
 			"huaweicloud_vpc_peering_connection":          vpc.DataSourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_route_table":                 vpc.DataSourceVPCRouteTable(),
+			"huaweicloud_vpc_routes":                      vpc.DataSourceVpcRoutes(),
+			"huaweicloud_vpc_sub_network_interfaces":      vpc.DataSourceVpcSubNetworkInterfaces(),
 			"huaweicloud_vpc_subnet":                      vpc.DataSourceVpcSubnetV1(),
-			"huaweicloud_vpc_subnets":                     vpc.DataSourceVpcSubnets(),
 			"huaweicloud_vpc_subnet_ids":                  vpc.DataSourceVpcSubnetIdsV1(),
+			"huaweicloud_vpc_subnet_private_ips":          vpc.DataSourceVpcSubnetPrivateIps(),
+			"huaweicloud_vpc_subnets":                     vpc.DataSourceVpcSubnets(),
 			"huaweicloud_vpc_traffic_mirror_filter_rules": vpc.DataSourceVpcTrafficMirrorFilterRules(),
+			"huaweicloud_vpc_traffic_mirror_filters":      vpc.DataSourceVpcTrafficMirrorFilters(),
 			"huaweicloud_vpc_traffic_mirror_sessions":     vpc.DataSourceVpcTrafficMirrorSessions(),
-			"huaweicloud_vpc_network_acls":                vpc.DataSourceNetworkAcls(),
+			"huaweicloud_vpcs":                            vpc.DataSourceVpcs(),
 
 			"huaweicloud_vpcep_endpoints":           vpcep.DataSourceVPCEPEndpoints(),
 			"huaweicloud_vpcep_public_services":     vpcep.DataSourceVPCEPPublicServices(),
@@ -1268,12 +1272,11 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rds_flavors_v3": rds.DataSourceRdsFlavor(),
 
-			"huaweicloud_vpc_v1":                     vpc.DataSourceVpcV1(),
-			"huaweicloud_vpc_ids_v1":                 vpc.DataSourceVpcIdsV1(),
-			"huaweicloud_vpc_peering_connection_v2":  vpc.DataSourceVpcPeeringConnectionV2(),
-			"huaweicloud_vpc_subnet_v1":              vpc.DataSourceVpcSubnetV1(),
-			"huaweicloud_vpc_subnet_ids_v1":          vpc.DataSourceVpcSubnetIdsV1(),
-			"huaweicloud_vpc_traffic_mirror_filters": vpc.DataSourceVpcTrafficMirrorFilters(),
+			"huaweicloud_vpc_v1":                    vpc.DataSourceVpcV1(),
+			"huaweicloud_vpc_ids_v1":                vpc.DataSourceVpcIdsV1(),
+			"huaweicloud_vpc_peering_connection_v2": vpc.DataSourceVpcPeeringConnectionV2(),
+			"huaweicloud_vpc_subnet_v1":             vpc.DataSourceVpcSubnetV1(),
+			"huaweicloud_vpc_subnet_ids_v1":         vpc.DataSourceVpcSubnetIdsV1(),
 
 			"huaweicloud_cce_cluster_v3":                    cce.DataSourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":                       cce.DataSourceNode(),
@@ -1317,13 +1320,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_resource_instances":   organizations.DataSourceOrganizationsResourceInstances(),
 
 			// Deprecated ongoing (without DeprecationMessage), used by other providers
-			"huaweicloud_vpc_route":                  vpc.DataSourceVpcRouteV2(),
-			"huaweicloud_vpc_route_ids":              vpc.DataSourceVpcRouteIdsV2(),
-			"huaweicloud_vpc_route_v2":               vpc.DataSourceVpcRouteV2(),
-			"huaweicloud_vpc_route_ids_v2":           vpc.DataSourceVpcRouteIdsV2(),
-			"huaweicloud_vpc_routes":                 vpc.DataSourceVpcRoutes(),
-			"huaweicloud_vpc_flow_logs":              vpc.DataSourceVpcFlowLogs(),
-			"huaweicloud_vpc_sub_network_interfaces": vpc.DataSourceVpcSubNetworkInterfaces(),
+			"huaweicloud_vpc_route":        vpc.DataSourceVpcRouteV2(),
+			"huaweicloud_vpc_route_ids":    vpc.DataSourceVpcRouteIdsV2(),
+			"huaweicloud_vpc_route_v2":     vpc.DataSourceVpcRouteV2(),
+			"huaweicloud_vpc_route_ids_v2": vpc.DataSourceVpcRouteIdsV2(),
+			"huaweicloud_vpc_ids":          vpc.DataSourceVpcIdsV1(),
 
 			// Deprecated Just discard the resource name, use `huaweicloud_ccm_certificates` instead
 			"huaweicloud_scm_certificates": ccm.DataSourceCertificates(),
