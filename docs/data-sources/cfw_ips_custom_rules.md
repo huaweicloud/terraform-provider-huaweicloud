@@ -16,7 +16,7 @@ Use the data source to get the list of CFW IPS custom rules.
 variable "fw_instance_id" {}
 variable "object_id" {}
 
-data "huaweicloud_cfw_acl_rule" "test" {
+data "huaweicloud_cfw_ips_custom_rules" "test" {
   fw_instance_id = var.fw_instance_id
   object_id      = var.object_id
 }
