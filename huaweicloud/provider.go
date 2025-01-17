@@ -852,6 +852,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_top_io_traffics":           gaussdb.DataSourceGaussdbOpengaussTopIoTraffics(),
 			"huaweicloud_gaussdb_opengauss_project_quotas":            gaussdb.DataSourceGaussdbOpengaussProjectQuotas(),
 			"huaweicloud_gaussdb_opengauss_tasks":                     gaussdb.DataSourceOpenGaussTasks(),
+			"huaweicloud_gaussdb_opengauss_quotas":                    gaussdb.DataSourceGaussdbOpengaussQuotas(),
 
 			"huaweicloud_gaussdb_mysql_engine_versions":          taurusdb.DataSourceGaussdbMysqlEngineVersions(),
 			"huaweicloud_gaussdb_mysql_configuration":            taurusdb.DataSourceGaussdbMysqlConfiguration(),
@@ -1833,6 +1834,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_parameter_template_reset":   gaussdb.ResourceOpenGaussParameterTemplateReset(),
 			"huaweicloud_gaussdb_opengauss_recycling_policy":           gaussdb.ResourceOpenGaussRecyclingPolicy(),
 			"huaweicloud_gaussdb_opengauss_task_delete":                gaussdb.ResourceOpenGaussTaskDelete(),
+			"huaweicloud_gaussdb_opengauss_quota":                      gaussdb.ResourceOpenGaussQuota(),
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
 			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
