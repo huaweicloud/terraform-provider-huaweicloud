@@ -30,6 +30,10 @@ type AKSKAuthOptions struct {
 	SecretKey     string //Secret key
 	SecurityToken string //Security Token for temporary Access Key
 
+	IsDerived bool // Whether to enable the derivative algorithm
+
+	DerivedAuthServiceName string // Derivative algorithm service name. Required for derivative algorithm.
+
 	// AgencyNmae is the name of agnecy
 	AgencyName string
 

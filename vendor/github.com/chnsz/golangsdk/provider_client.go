@@ -312,7 +312,15 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 	prereqtok := req.Header.Get("X-Auth-Token")
 
 	if client.AKSKAuthOptions.AccessKey != "" {
-		if err := auth.Sign(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey); err != nil {
+		var err error
+		if client.AKSKAuthOptions.IsDerived {
+			err = auth.SignDerived(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey,
+				client.AKSKAuthOptions.DerivedAuthServiceName, client.AKSKAuthOptions.Region)
+		} else {
+			err = auth.Sign(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey)
+		}
+
+		if err != nil {
 			return nil, err
 		}
 		if client.AKSKAuthOptions.ProjectId != "" {
