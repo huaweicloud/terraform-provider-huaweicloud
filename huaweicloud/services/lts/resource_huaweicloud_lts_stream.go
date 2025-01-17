@@ -134,7 +134,7 @@ func buildCreateStreamBodyParams(cfg *config.Config, d *schema.ResourceData) map
 	userNoPermission := []string{"EPS.0004"}
 	epsId := cfg.GetEnterpriseProjectID(d)
 	if epsId == "" {
-		epsId = "0"
+		return bodyParams
 	}
 	epsInfo, err := getEnterpriseProjectById(cfg, cfg.GetRegion(d), epsId)
 	// If we catch error 403, it means that the user does not have EPS permissions, return immediately.
