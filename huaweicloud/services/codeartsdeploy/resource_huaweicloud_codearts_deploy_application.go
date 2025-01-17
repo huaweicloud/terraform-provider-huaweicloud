@@ -507,39 +507,18 @@ func buildArrangeInfoOperationListBodyParam(d *schema.ResourceData) []map[string
 
 func resourceDeployApplicationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		mErr    *multierror.Error
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/applications/{app_id}/info"
-		product = "codearts_deploy"
+		mErr   *multierror.Error
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
 	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("codearts_deploy", region)
 	if err != nil {
 		return diag.Errorf("error creating CodeArts deploy client: %s", err)
 	}
 
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{app_id}", d.Id())
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json;charset=utf-8",
-		},
-	}
-
-	getResp, err := client.Request("GET", getPath, &getOpt)
+	resultRespBody, err := getDeployApplication(client, d)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving CodeArts deploy application")
-	}
-
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	resultRespBody := utils.PathSearch("result", getRespBody, nil)
-	if resultRespBody == nil {
-		return diag.Errorf("error retrieving CodeArts deploy application: result is not found in API response")
 	}
 
 	mErr = multierror.Append(
@@ -580,6 +559,35 @@ func resourceDeployApplicationRead(_ context.Context, d *schema.ResourceData, me
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getDeployApplication(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	httpUrl := "v1/applications/{app_id}/info"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{app_id}", d.Id())
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf-8",
+		},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	resultRespBody := utils.PathSearch("result", getRespBody, nil)
+	if resultRespBody == nil {
+		return nil, fmt.Errorf("error retrieving CodeArts deploy application: result is not found in API response")
+	}
+
+	return resultRespBody, nil
 }
 
 func getDeployApplicationPermissionMatrix(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {

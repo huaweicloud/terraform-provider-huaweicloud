@@ -1,18 +1,31 @@
 ---
 subcategory: "CodeArts Deploy"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_codearts_deploy_application"
+page_title: "HuaweiCloud: huaweicloud_codearts_deploy_application_copy"
 description: |-
-  Manages a CodeArts deploy application resource within HuaweiCloud.
+  Manages a CodeArts deploy application copy resource within HuaweiCloud.
 ---
 
-# huaweicloud_codearts_deploy_application
+# huaweicloud_codearts_deploy_application_copy
 
-Manages a CodeArts deploy application resource within HuaweiCloud.
+Manages a CodeArts deploy application copy resource within HuaweiCloud.
 
 ## Example Usage
 
+### Copy the application
+
 ```hcl
+variable "source_app_id" {}
+
+resource "huaweicloud_codearts_deploy_application_copy" "test" {
+  source_app_id = var.source_app_id
+}
+```
+
+### Copy the application and update the copied application
+
+```hcl
+variable "source_app_id" {}
 variable "project_id" {}
 variable "operation_name" {}
 variable "operation_description" {}
@@ -22,7 +35,9 @@ variable "operation_entrance" {}
 variable "operation_version" {}
 variable "operation_module_id" {}
 
-resource "huaweicloud_codearts_deploy_application" "test" {
+resource "huaweicloud_codearts_deploy_application_copy" "test" {
+  source_app_id = var.source_app_id
+
   project_id     = var.project_id
   name           = "test_name"
   description    = "test description"
@@ -47,15 +62,18 @@ resource "huaweicloud_codearts_deploy_application" "test" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
-  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
+  If omitted, the provider-level region will be used.
+  Changing this creates a new resource.
 
-* `project_id` - (Required, String, ForceNew) Specifies the project ID for CodeArts service.
+* `source_app_id` - (Required, String, ForceNew) Specifies the source application ID.
+  Changing this creates a new resource.
 
+* `project_id` - (Optional, String, ForceNew) Specifies the project ID for CodeArts service.
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the application name.
+* `name` - (Optional, String) Specifies the application name.
 
-* `is_draft` - (Required, Bool) Specifies whether the application is in draft status.
+* `is_draft` - (Optional, Bool) Specifies whether the application is in draft status.
   Valid values:
   + **true**:  Draft state.
   + **false**: Available state.
@@ -63,10 +81,10 @@ The following arguments are supported:
   -> Only applications in available state can be deployed.
   If `operation_list` is not specified, this field can only be set to **true**.
 
-* `create_type` - (Required, String, ForceNew) Specifies the creation type. Only **template** is supported.
+* `create_type` - (Optional, String, ForceNew) Specifies the creation type. Only **template** is supported.
   Changing this parameter will create a new resource.
 
-* `trigger_source` - (Required, String) Specifies where a deployment task can be executed.
+* `trigger_source` - (Optional, String) Specifies where a deployment task can be executed.
   Valid values:
   + **0**: Indicates that all execution requests can be triggered.
   + **1**: Indicates that only pipeline can be triggered.
@@ -125,7 +143,7 @@ The `operation_list` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The resource ID, is same as the new application ID.
 
 * `created_at` - The create time.
 
@@ -196,21 +214,21 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The CodeArts deploy application resource can be imported using the `id`, e.g.
+The CodeArts deploy application copy resource can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_codearts_deploy_application.test <id>
+$ terraform import huaweicloud_codearts_deploy_application_copy.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `is_draft`, `trigger_source`,
+API response, security or some other reason. The missing attributes include: `source_app_id`, `is_draft`, `trigger_source`,
 `artifact_source_system`, `artifact_type`, `operation_list` and `group_id`.
 It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
 with the resource. Also, you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_codearts_deploy_application" "test" {
+resource "huaweicloud_codearts_deploy_application_copy" "test" {
   ...
   
   lifecycle {
