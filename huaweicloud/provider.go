@@ -853,6 +853,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_project_quotas":            gaussdb.DataSourceGaussdbOpengaussProjectQuotas(),
 			"huaweicloud_gaussdb_opengauss_tasks":                     gaussdb.DataSourceOpenGaussTasks(),
 			"huaweicloud_gaussdb_opengauss_quotas":                    gaussdb.DataSourceGaussdbOpengaussQuotas(),
+			"huaweicloud_gaussdb_opengauss_upgrade_versions":          gaussdb.DataSourceGaussdbOpengaussUpgradeVersions(),
 
 			"huaweicloud_gaussdb_mysql_engine_versions":          taurusdb.DataSourceGaussdbMysqlEngineVersions(),
 			"huaweicloud_gaussdb_mysql_configuration":            taurusdb.DataSourceGaussdbMysqlConfiguration(),
