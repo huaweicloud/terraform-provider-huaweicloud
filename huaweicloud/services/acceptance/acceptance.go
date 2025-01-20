@@ -236,7 +236,6 @@ var (
 	HW_WORKSPACE_USER_NAMES                        = os.Getenv("HW_WORKSPACE_USER_NAMES")
 
 	HW_FGS_AGENCY_NAME         = os.Getenv("HW_FGS_AGENCY_NAME")
-	HW_FGS_TEMPLATE_ID         = os.Getenv("HW_FGS_TEMPLATE_ID")
 	HW_FGS_GPU_TYPE            = os.Getenv("HW_FGS_GPU_TYPE")
 	HW_FGS_DEPENDENCY_OBS_LINK = os.Getenv("HW_FGS_DEPENDENCY_OBS_LINK")
 
@@ -805,13 +804,6 @@ func TestAccPreCheckFgsAgency(t *testing.T) {
 	// + LTS Administrator
 	if HW_FGS_AGENCY_NAME == "" {
 		t.Skip("HW_FGS_AGENCY_NAME must be set for FGS acceptance tests")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckFgsTemplateId(t *testing.T) {
-	if HW_FGS_TEMPLATE_ID == "" {
-		t.Skip("HW_FGS_TEMPLATE_ID must be set for FGS acceptance tests")
 	}
 }
 

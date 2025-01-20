@@ -3,55 +3,34 @@ package fgs
 import (
 	"fmt"
 	"regexp"
-	"strings"
 	"testing"
 
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 )
 
 func getApplicationFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	var (
-		region  = acceptance.HW_REGION_NAME
-		httpUrl = "v2/{project_id}/fgs/applications/{id}"
-	)
-
-	client, err := cfg.NewServiceClient("fgs", region)
+	client, err := cfg.NewServiceClient("fgs", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating FunctionGraph client: %s", err)
 	}
-
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{id}", state.Primary.ID)
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	requestResp, err := client.Request("GET", getPath, &getOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error getting FunctionGraph application: %s", err)
-	}
-	return utils.FlattenResponse(requestResp)
+	return fgs.GetApplicationById(client, state.Primary.ID)
 }
 
 func TestAccApplication_basic(t *testing.T) {
 	var (
-		obj          interface{}
-		resourceName = "huaweicloud_fgs_application.test"
-		name         = acceptance.RandomAccResourceName()
-	)
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getApplicationFunc,
+		resourceName = "huaweicloud_fgs_application.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getApplicationFunc)
+
+		name        = acceptance.RandomAccResourceName()
+		randUUID, _ = uuid.GenerateUUID()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -59,11 +38,14 @@ func TestAccApplication_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			// Please read the instructions carefully before use to ensure sufficient permissions.
 			acceptance.TestAccPreCheckFgsAgency(t)
-			acceptance.TestAccPreCheckFgsTemplateId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
+			{
+				Config:      testAccApplication_invalidTemplateId(randUUID),
+				ExpectError: regexp.MustCompile(fmt.Sprintf(`initAppModel failed.*templateId\[%s\]`, randUUID)),
+			},
 			{
 				Config: testAccApplication_basic(name),
 				Check: resource.ComposeTestCheckFunc(
@@ -89,13 +71,26 @@ func TestAccApplication_basic(t *testing.T) {
 	})
 }
 
+func testAccApplication_invalidTemplateId(randUUID string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_application" "invalid_template_id" {
+  name        = "tf_test_invalid_template_id"
+  agency_name = "%[1]s"
+  template_id = "%[2]s"
+  description = "The template ID is invalid"
+}
+`, acceptance.HW_FGS_AGENCY_NAME, randUUID)
+}
+
 func testAccApplication_basic(name string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_fgs_application_templates" "test" {}
+
 resource "huaweicloud_fgs_application" "test" {
   name        = "%[1]s"
   agency_name = "%[2]s"
-  template_id = "%[3]s"
+  template_id = data.huaweicloud_fgs_application_templates.test.templates[0].id
   description = "Created by terraform script"
 }
-`, name, acceptance.HW_FGS_AGENCY_NAME, acceptance.HW_FGS_TEMPLATE_ID)
+`, name, acceptance.HW_FGS_AGENCY_NAME)
 }
