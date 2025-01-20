@@ -23,7 +23,7 @@ func TestAccDataSourceRansomwareProtectionPolicies_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceRansomwareProtectionPolicies_basic(),
+				Config: testDataSourceRansomwareProtectionPolicies_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "policies.#"),
@@ -49,8 +49,7 @@ func TestAccDataSourceRansomwareProtectionPolicies_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceRansomwareProtectionPolicies_basic() string {
-	return `
+const testDataSourceRansomwareProtectionPolicies_basic string = `
 data "huaweicloud_hss_ransomware_protection_policies" "test" {}
 
 # Filter using policy ID.
@@ -107,4 +106,3 @@ output "is_operating_system_filter_useful" {
   )
 }
 `
-}
