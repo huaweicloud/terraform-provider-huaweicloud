@@ -2,38 +2,42 @@ package cpts
 
 import (
 	"fmt"
-	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getProjectResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcCptsV1Client(acceptance.HW_REGION_NAME)
+	client, err := conf.NewServiceClient("cpts", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating CPTS v1 client: %s", err)
+		return nil, fmt.Errorf("error creating CPTS client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(state.Primary.ID, 10, 32)
+	requestPath := client.Endpoint + "v1/{project_id}/test-suites/{test_suite_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{test_suite_id}", state.Primary.ID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("the project ID must be integer: %s", err)
+		return nil, fmt.Errorf("error retrieving CPTS project: %s", err)
 	}
 
-	request := &model.ShowProjectRequest{
-		TestSuiteId: int32(id),
-	}
-
-	return client.ShowProject(request)
+	return utils.FlattenResponse(resp)
 }
 
 func TestAccProject_basic(t *testing.T) {
-	var obj model.CreateProjectResponse
+	var obj interface{}
 
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_cpts_project.test"
