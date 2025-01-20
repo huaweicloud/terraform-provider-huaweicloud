@@ -194,7 +194,7 @@ func buildCreateApplicationBodyParams(d *schema.ResourceData) map[string]interfa
 
 func applicationStatusRefreshFunc(client *golangsdk.ServiceClient, appId string, targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		respBody, err := getApplicationById(client, appId)
+		respBody, err := GetApplicationById(client, appId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
 				log.Printf("[DEBUG] The FunctionGraph application (%s) has been deleted", appId)
@@ -278,7 +278,7 @@ func resourceApplicationCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceApplicationRead(ctx, d, meta)
 }
 
-func getApplicationById(client *golangsdk.ServiceClient, resourceId string) (interface{}, error) {
+func GetApplicationById(client *golangsdk.ServiceClient, resourceId string) (interface{}, error) {
 	var (
 		httpUrl = "v2/{project_id}/fgs/applications/{id}"
 	)
@@ -311,7 +311,7 @@ func resourceApplicationRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating FunctionGraph client: %s", err)
 	}
 
-	respBody, err := getApplicationById(client, d.Id())
+	respBody, err := GetApplicationById(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "FunctionGraph application")
 	}
