@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -18,6 +19,9 @@ import (
 // @API VPC POST /v1/{project_id}/privateips
 // @API VPC GET /v1/{project_id}/privateips/{privateip_id}
 // @API VPC DELETE /v1/{project_id}/privateips/{privateip_id}
+
+var privateIPSyncNonUpdatableParams = []string{"subnet_id", "ip_address"}
+
 func ResourceSubnetPrivateIP() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSubnetPrivateIPCreate,
@@ -28,6 +32,8 @@ func ResourceSubnetPrivateIP() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(privateIPSyncNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -44,6 +50,12 @@ func ResourceSubnetPrivateIP() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 			"status": {
 				Type:     schema.TypeString,
