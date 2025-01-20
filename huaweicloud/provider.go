@@ -1160,6 +1160,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_quotas":                    swr.DataSourceSwrQuotas(),
 			"huaweicloud_swr_feature_gates":             swr.DataSourceSwrFeatureGates(),
 			"huaweicloud_swr_domain_overviews":          swr.DataSourceSwrDomainOverviews(),
+			"huaweicloud_swr_domain_resource_reports":   swr.DataSourceSwrDomainReports(),
 
 			"huaweicloud_tms_resource_types": tms.DataSourceResourceTypes(),
 
