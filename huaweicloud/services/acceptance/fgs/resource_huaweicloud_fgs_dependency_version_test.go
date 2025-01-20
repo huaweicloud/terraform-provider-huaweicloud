@@ -34,27 +34,24 @@ func TestAccDependencyVersion_basic(t *testing.T) {
 		rName        = acceptance.RandomAccResourceName()
 		resourceName = "huaweicloud_fgs_dependency_version.test"
 		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDependencyVersionFunc)
-
-		pkgLocation = fmt.Sprintf("https://%s.obs.cn-north-4.myhuaweicloud.com/FunctionGraph/dependencies/huaweicloudsdkcore.zip",
-			acceptance.HW_OBS_BUCKET_NAME)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckOBSBucket(t)
+			acceptance.TestAccPreCheckFgsDependencyLink(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDependencyVersion_basic(rName, pkgLocation),
+				Config: testAccDependencyVersion_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "runtime", "Python2.7"),
-					resource.TestCheckResourceAttr(resourceName, "link", pkgLocation),
+					resource.TestCheckResourceAttr(resourceName, "link", acceptance.HW_FGS_DEPENDENCY_OBS_LINK),
 					resource.TestCheckResourceAttrSet(resourceName, "dependency_id"),
 				),
 			},
@@ -126,7 +123,7 @@ func testAccDependencyVersionImportStateFunc_withVersionId(rName string) resourc
 	}
 }
 
-func testAccDependencyVersion_basic(rName, pkgLocation string) string {
+func testAccDependencyVersion_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_dependency_version" "test" {
   name        = "%s"
@@ -134,5 +131,5 @@ resource "huaweicloud_fgs_dependency_version" "test" {
   runtime     = "Python2.7"
   link        = "%s"
 }
-`, rName, pkgLocation)
+`, rName, acceptance.HW_FGS_DEPENDENCY_OBS_LINK)
 }

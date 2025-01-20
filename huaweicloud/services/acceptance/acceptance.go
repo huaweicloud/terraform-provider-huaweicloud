@@ -73,7 +73,6 @@ var (
 	HW_CNAD_ENABLE_FLAG       = os.Getenv("HW_CNAD_ENABLE_FLAG")
 	HW_CNAD_PROJECT_OBJECT_ID = os.Getenv("HW_CNAD_PROJECT_OBJECT_ID")
 
-	HW_OBS_BUCKET_NAME        = os.Getenv("HW_OBS_BUCKET_NAME")
 	HW_OBS_DESTINATION_BUCKET = os.Getenv("HW_OBS_DESTINATION_BUCKET")
 	HW_OBS_USER_DOMAIN_NAME1  = os.Getenv("HW_OBS_USER_DOMAIN_NAME1")
 	HW_OBS_USER_DOMAIN_NAME2  = os.Getenv("HW_OBS_USER_DOMAIN_NAME2")
@@ -999,13 +998,6 @@ func TestAccPreCheckProject(t *testing.T) {
 func TestAccPreCheckOBS(t *testing.T) {
 	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
 		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY must be set for OBS acceptance tests")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckOBSBucket(t *testing.T) {
-	if HW_OBS_BUCKET_NAME == "" {
-		t.Skip("HW_OBS_BUCKET_NAME must be set for OBS object acceptance tests")
 	}
 }
 
