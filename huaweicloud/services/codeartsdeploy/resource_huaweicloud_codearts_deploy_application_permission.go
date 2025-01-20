@@ -132,7 +132,7 @@ func modifyDeployApplicationPermission(client *golangsdk.ServiceClient, d *schem
 
 	_, err := client.Request("PUT", modifyPath, &modifyOpt)
 	if err != nil {
-		return fmt.Errorf("error updating CodeArts deploy application permission")
+		return fmt.Errorf("error updating CodeArts deploy application permission: %s", err)
 	}
 
 	return nil

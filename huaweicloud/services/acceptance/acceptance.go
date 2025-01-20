@@ -385,7 +385,9 @@ var (
 	HW_NEW_GM_ENC_CERTIFICATE_PRIVATE_KEY = os.Getenv("HW_NEW_GM_ENC_CERTIFICATE_PRIVATE_KEY")
 	HW_NEW_GM_CERTIFICATE_CHAIN           = os.Getenv("HW_NEW_GM_CERTIFICATE_CHAIN")
 
-	HW_CODEARTS_RESOURCE_POOL_ID  = os.Getenv("HW_CODEARTS_RESOURCE_POOL_ID")
+	HW_CODEARTS_RESOURCE_POOL_ID   = os.Getenv("HW_CODEARTS_RESOURCE_POOL_ID")
+	HW_CODEARTS_DEPLOYMENT_TASK_ID = os.Getenv("HW_CODEARTS_DEPLOYMENT_TASK_ID")
+
 	HW_CODEARTS_ENABLE_FLAG       = os.Getenv("HW_CODEARTS_ENABLE_FLAG")
 	HW_CODEARTS_PUBLIC_IP_ADDRESS = os.Getenv("HW_CODEARTS_PUBLIC_IP_ADDRESS")
 
@@ -1918,6 +1920,13 @@ func TestAccPreCheckGMCertificate(t *testing.T) {
 func TestAccPreCheckCodeArtsDeployResourcePoolID(t *testing.T) {
 	if HW_CODEARTS_RESOURCE_POOL_ID == "" {
 		t.Skip("HW_CODEARTS_RESOURCE_POOL_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCodeArtsDeploymentTaskID(t *testing.T) {
+	if HW_CODEARTS_DEPLOYMENT_TASK_ID == "" {
+		t.Skip("HW_CODEARTS_DEPLOYMENT_TASK_ID must be set for this acceptance test")
 	}
 }
 
