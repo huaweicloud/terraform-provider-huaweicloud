@@ -2,41 +2,29 @@ package cpts
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cpts"
 )
 
 func getTaskResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcCptsV1Client(acceptance.HW_REGION_NAME)
+	client, err := conf.NewServiceClient("cpts", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating CPTS v1 client: %s", err)
+		return nil, fmt.Errorf("error creating CPTS client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(state.Primary.ID, 10, 32)
-	if err != nil {
-		return nil, fmt.Errorf("the Task ID must be integer: %s", err)
-	}
-
-	request := &model.ShowTaskRequest{
-		TaskId: int32(id),
-	}
-
-	return client.ShowTask(request)
+	return cpts.GetTaskDetail(client, state.Primary.ID)
 }
 
 func TestAccTask_basic(t *testing.T) {
-	var obj model.CreateTaskResponse
+	var obj interface{}
 
 	rName := acceptance.RandomAccResourceName()
-	updateName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_cpts_task.test"
 
 	rc := acceptance.InitResourceCheck(
@@ -51,7 +39,7 @@ func TestAccTask_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testTask_basic(rName, 200),
+				Config: testTask_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -62,9 +50,9 @@ func TestAccTask_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testTask_basic(updateName, 102),
+				Config: testTask_basic_update1(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "status", "2"),
 					resource.TestCheckResourceAttr(resourceName, "benchmark_concurrency", "102"),
 					resource.TestCheckResourceAttrPair(resourceName, "project_id",
@@ -75,21 +63,32 @@ func TestAccTask_basic(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cluster_type"},
+				ImportStateVerifyIgnore: []string{"cluster_type", "operation"},
 			},
 		},
 	})
 }
 
-func testTask_basic(rName string, concurrency int) string {
-	projectTaskConfig := testProject_basic(rName, "created by acc test")
+func testTask_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cpts_task" "test" {
-  name                  = "%s"
+  name                  = "%[2]s"
   project_id            = huaweicloud_cpts_project.test.id
-  benchmark_concurrency = %d
+  benchmark_concurrency = 200
 }
-`, projectTaskConfig, rName, concurrency)
+`, testProject_basic(rName), rName)
+}
+
+func testTask_basic_update1(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cpts_task" "test" {
+  name                  = "%[2]s-update"
+  project_id            = huaweicloud_cpts_project.test.id
+  benchmark_concurrency = 102
+}
+`, testProject_basic(rName), rName)
 }
