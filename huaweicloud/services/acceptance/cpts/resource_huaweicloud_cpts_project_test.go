@@ -54,19 +54,19 @@ func TestAccProject_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testProject_basic(rName, "created by acc test"),
+				Config: testProject_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			{
-				Config: testProject_basic(rName, ""),
+				Config: testProject_basic_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
@@ -81,11 +81,20 @@ func TestAccProject_basic(t *testing.T) {
 	})
 }
 
-func testProject_basic(rName, desc string) string {
+func testProject_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cpts_project" "test" {
   name        = "%s"
-  description = "%s"
+  description = "test description"
 }
-`, rName, desc)
+`, rName)
+}
+
+func testProject_basic_update(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cpts_project" "test" {
+  name        = "%s-update"
+  description = ""
+}
+`, rName)
 }
