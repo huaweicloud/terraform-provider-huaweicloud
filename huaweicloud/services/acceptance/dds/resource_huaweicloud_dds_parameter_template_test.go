@@ -87,7 +87,7 @@ func TestAccDdsParameterTemplate_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "description", "test description update"),
+					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "node_version", "4.0"),
 					resource.TestCheckResourceAttr(rName, "parameters.0.name",
 						"connPoolMaxConnsPerHost"),
@@ -127,7 +127,7 @@ func testDdsParameterTemplate_basic_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dds_parameter_template" "test" {
   name         = "%s"
-  description  = "test description update"
+  description  = ""
   node_type    = "mongos"
   node_version = "4.0"
 
