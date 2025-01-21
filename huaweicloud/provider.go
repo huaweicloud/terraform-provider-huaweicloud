@@ -1269,6 +1269,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_flavors":                  workspace.DataSourceWorkspaceFlavors(),
 			"huaweicloud_workspace_service":                  workspace.DataSourceService(),
 
+			"huaweicloud_cpts_projects": cpts.DataSourceCptsProjects(),
+
 			// Legacy
 			"huaweicloud_images_image_v2":        ims.DataSourceImagesImageV2(),
 			"huaweicloud_networking_port_v2":     vpc.DataSourceNetworkingPortV2(),
