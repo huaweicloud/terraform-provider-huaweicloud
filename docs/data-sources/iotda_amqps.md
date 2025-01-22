@@ -2,12 +2,13 @@
 subcategory: "IoT Device Access (IoTDA)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_iotda_amqps"
-description: ""
+description: |-
+  Use this data source to get the list of the IoTDA AMQP queues within HuaweiCloud.
 ---
 
 # huaweicloud_iotda_amqps
 
-Use this data source to get the list of the IoTDA AMQP queues.
+Use this data source to get the list of the IoTDA AMQP queues within HuaweiCloud.
 
 -> When accessing an IoTDA **standard** or **enterprise** edition instance, you need to specify
   the IoTDA service endpoint in `provider` block.
@@ -28,6 +29,7 @@ Use this data source to get the list of the IoTDA AMQP queues.
 
 ```hcl
 variable "queue_name" {}
+
 data "huaweicloud_iotda_amqps" "test" {
   name = var.queue_name
 }
