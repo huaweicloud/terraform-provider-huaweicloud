@@ -8,19 +8,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/fgs/v2/function"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 )
 
-func getFunction(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.FgsV2Client(acceptance.HW_REGION_NAME)
+func getFunction(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("fgs", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud FunctionGraph client: %s", err)
+		return nil, fmt.Errorf("error creating FunctionGraph client: %s", err)
 	}
-	return function.GetMetadata(c, state.Primary.ID).Extract()
+
+	return fgs.GetFunctionMetadata(client, state.Primary.ID)
 }
 
 func TestAccFunction_basic(t *testing.T) {
