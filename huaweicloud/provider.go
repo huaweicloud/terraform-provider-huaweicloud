@@ -839,6 +839,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_instance_nodes":            gaussdb.DataSourceGaussdbOpengaussInstanceNodes(),
 			"huaweicloud_gaussdb_opengauss_instance_coordinators":     gaussdb.DataSourceGaussdbOpengaussInstanceCoordinators(),
 			"huaweicloud_gaussdb_opengauss_databases":                 gaussdb.DataSourceOpenGaussDatabases(),
+			"huaweicloud_gaussdb_opengauss_schemas":                   gaussdb.DataSourceOpenGaussSchemas(),
 			"huaweicloud_gaussdb_opengauss_parameter_templates":       gaussdb.DataSourceGaussdbOpengaussParameterTemplates(),
 			"huaweicloud_gaussdb_opengauss_pt_modify_records":         gaussdb.DataSourceGaussdbOpengaussPtModifyRecords(),
 			"huaweicloud_gaussdb_opengauss_pt_apply_records":          gaussdb.DataSourceGaussdbOpengaussPtApplyRecords(),
