@@ -107,5 +107,5 @@ output "is_runtime_filter_useful" {
     [for v in data.huaweicloud_fgs_dependency_versions.filter_by_runtime.versions[*].runtime : v == local.runtime]
   )
 }
-`, testAccDependencyVersion_basic(name, acceptance.HW_FGS_DEPENDENCY_OBS_LINK))
+`, testAccDependencyVersion_basic(name))
 }

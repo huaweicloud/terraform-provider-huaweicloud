@@ -7,59 +7,55 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 )
 
 func getDependencyResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.FgsV2Client(acceptance.HW_REGION_NAME)
+	client, err := conf.FgsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud FunctionGraph v2 client: %s", err)
+		return nil, fmt.Errorf("error creating FunctionGraph client: %s", err)
 	}
-	return dependencies.Get(c, state.Primary.ID)
+	return fgs.GetDependencyById(client, state.Primary.ID)
 }
 
-func TestAccFunctionGraphResourceDependency_basic(t *testing.T) {
-	var f dependencies.Dependency
-	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_fgs_dependency.test"
-	pkgLocation := fmt.Sprintf("https://%s.obs.cn-north-4.myhuaweicloud.com/FunctionGraph/dependencies/huaweicloudsdkcore.zip",
-		acceptance.HW_OBS_BUCKET_NAME)
+func TestAccDependency_basic(t *testing.T) {
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&f,
-		getDependencyResourceFunc,
+		resourceName = "huaweicloud_fgs_dependency.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDependencyResourceFunc)
+
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckOBSBucket(t)
+			acceptance.TestAccPreCheckFgsDependencyLink(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFunctionGraphResourceDependency_basic(rName, pkgLocation),
+				Config: testAccDependency_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "runtime", "Python2.7"),
-					resource.TestCheckResourceAttr(resourceName, "link", pkgLocation),
+					resource.TestCheckResourceAttr(resourceName, "link", acceptance.HW_FGS_DEPENDENCY_OBS_LINK),
 				),
 			},
 			{
-				Config: testAccFunctionGraphResourceDependency_update(rName, pkgLocation),
+				Config: testAccDependency_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
+					resource.TestCheckResourceAttr(resourceName, "name", name+"_update"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "runtime", "Python3.6"),
-					resource.TestCheckResourceAttr(resourceName, "link", pkgLocation),
+					resource.TestCheckResourceAttr(resourceName, "link", acceptance.HW_FGS_DEPENDENCY_OBS_LINK),
 				),
 			},
 			{
@@ -71,24 +67,24 @@ func TestAccFunctionGraphResourceDependency_basic(t *testing.T) {
 	})
 }
 
-func testAccFunctionGraphResourceDependency_basic(rName, pkgLocation string) string {
+func testAccDependency_basic_step1(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_dependency" "test" {
-  name        = "%s"
+  name        = "%[1]s"
   description = "Created by terraform script"
   runtime     = "Python2.7"
-  link        = "%s"
+  link        = "%[2]s"
 }
-`, rName, pkgLocation)
+`, name, acceptance.HW_FGS_DEPENDENCY_OBS_LINK)
 }
 
-func testAccFunctionGraphResourceDependency_update(rName, pkgLocation string) string {
+func testAccDependency_basic_step2(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_dependency" "test" {
-  name        = "%s_update"
-  description = "Updated by terraform script"
+  name        = "%[1]s_update"
+  description = "Updated by terraform script" # Does not support empty.
   runtime     = "Python3.6"
-  link        = "%s"
+  link        = "%[2]s"
 }
-`, rName, pkgLocation)
+`, name, acceptance.HW_FGS_DEPENDENCY_OBS_LINK)
 }
