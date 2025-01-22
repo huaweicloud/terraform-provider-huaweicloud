@@ -185,17 +185,15 @@ resource "huaweicloud_fgs_function" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the Function resource.  
+* `region` - (Optional, String, ForceNew) Specifies the region where the function is located.  
   If omitted, the provider-level region will be used. Changing this will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the function.
+* `name` - (Required, String, ForceNew) Specifies the name of the function.  
   Changing this will create a new resource.
-
-* `app` - (Required, String) Specifies the group to which the function belongs.
 
 * `memory_size` - (Required, Int) Specifies the memory size allocated to the function, in MByte (MB).
 
-* `runtime` - (Required, String, ForceNew) Specifies the environment for executing the function.
+* `runtime` - (Required, String, ForceNew) Specifies the environment for executing the function.  
   The valid values are as follows:
   + **Java8**
   + **Java11**
@@ -216,13 +214,16 @@ The following arguments are supported:
   + **Custom**
   + **http**
 
-  If the function is created using an SWR image, set this parameter to `Custom Image`.
+  If the function is created using an SWR image, set this parameter to `Custom Image`.  
   Changing this will create a new resource.
 
 * `timeout` - (Required, Int) Specifies the timeout interval of the function, in seconds.  
   The value ranges from `3` to `900`.
 
-* `code_type` - (Required, String) Specifies the function code type, which can be:
+* `app` - (Required, String) Specifies the group to which the function belongs.
+
+* `code_type` - (Required, String) Specifies the code type of the function.  
+  The valid values are as follows:
   + **inline**: inline code.
   + **zip**: ZIP file.
   + **jar**: JAR file or java functions.
@@ -231,35 +232,41 @@ The following arguments are supported:
 
 * `handler` - (Required, String) Specifies the entry point of the function.
 
--> If the function is created using an SWR image, keep `code_type` empty and use **-** to set the handler.
+-> If the function is created by an SWR image, keep `code_type` empty and use hyphen character (-) to set the handler.
 
-* `functiongraph_version` - (Optional, String, ForceNew) Specifies the FunctionGraph version, default value is **v2**.
-  Some regions support only v1, the default value is **v1**.
+* `description` - (Optional, String) Specifies the description of the function.
+
+* `functiongraph_version` - (Optional, String, ForceNew) Specifies the function framework version.  
+  The valid values are as follows:
   + **v1**: Hosts event-driven functions in a serverless context.
   + **v2**: Next-generation function hosting service powered by Huawei YuanRong architecture.
 
+  Defaults to **v2**.  
   Changing this will create a new resource.
+
+  -> Some regions support only **v1**, the default value is **v1**.
 
 * `func_code` - (Optional, String) Specifies the function code.  
   The code value can be encoded using **Base64** or just with the text code.  
   Required if the `code_type` is set to **inline**, **zip**, or **jar**.
 
-* `code_url` - (Optional, String) Specifies the code url.  
+* `code_url` - (Optional, String) Specifies the URL where the function code is stored in OBS.  
   Required if the `code_type` is set to **obs**.
 
-* `code_filename` - (Optional, String) Specifies the name of a function file.  
+* `code_filename` - (Optional, String) Specifies the name of the function file.  
   Required if the `code_type` is set to **jar** or **zip**.
 
 * `depend_list` - (Optional, List) Specifies the ID list of the dependencies.
 
-* `user_data` - (Optional, String) Specifies the Key/Value information defined for the function. Key/value data might be
-  parsed with [Terraform `jsonencode()` function]('https://www.terraform.io/docs/language/functions/jsonencode.html').
+* `user_data` - (Optional, String) Specifies the key/value information defined for the function.  
+  The key/value data might be parsed with [Terraform `jsonencode()` function]('https://www.terraform.io/docs/language/functions/jsonencode.html').
 
 * `encrypted_user_data` - (Optional, String) Specifies the key/value information defined to be encrypted for the
-  function. The format is the same as `user_data`.
+  function.  
+  The format is the same as `user_data`.
 
-* `agency` - (Optional, String) Specifies the agency. This parameter is mandatory if the function needs to access other
-  cloud services.
+* `agency` - (Optional, String) Specifies the agency configuration of the function.  
+  This parameter is mandatory if the function needs to access other cloud services.
 
 * `app_agency` - (Optional, String) Specifies the execution agency enables you to obtain a token or an AK/SK for
   accessing other cloud services.
@@ -268,83 +275,85 @@ The following arguments are supported:
      agency (`agency`) can be independently set, which can reduce unnecessary performance loss. Otherwise, the same
      agency is used for both function execution and function configuration.
 
-* `description` - (Optional, String) Specifies the description of the function.
-
 * `initializer_handler` - (Optional, String) Specifies the initializer of the function.
 
-* `initializer_timeout` - (Optional, Int) Specifies the maximum duration the function can be initialized. Value range:
-  1s to 300s.
+* `initializer_timeout` - (Optional, Int) Specifies the maximum duration the function can be initialized, in seconds.  
+  The valid value is range from `1` to `300`.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the
   function belongs.  
   Changing this will create a new resource.
 
-* `vpc_id` - (Optional, String) Specifies the ID of VPC.
+* `vpc_id` - (Optional, String) Specifies the ID of the VPC to which the function belongs.
 
 * `network_id` - (Optional, String) Specifies the network ID of subnet.
 
   -> An agency with VPC management permissions must be specified for the function.
 
-* `dns_list` - (Optional, String) Specifies the private DNS configuration of the function network.
+* `dns_list` - (Optional, String) Specifies the private DNS configuration of the function network.  
   Private DNS list is associated to the function by a string in the following format:  
   `[{\"id\":\"ff8080828a07ffea018a17184aa310f5\","domain_name":"functiondebug.example1.com."}]`
 
   -> Ensure the agency with DNS management permissions specified before using this parameter.
 
-* `mount_user_id` - (Optional, Int) Specifies the user ID, a non-0 integer from `–1` to `65,534`.
+* `mount_user_id` - (Optional, Int) Specifies the mount user ID.  
+  The valid value is range from `–1` to `65,534`, except `0`.  
   Defaults to `-1`.
 
-* `mount_user_group_id` - (Optional, Int) Specifies the user group ID, a non-0 integer from `–1` to `65,534`.
+* `mount_user_group_id` - (Optional, Int) Specifies the mount user group ID.  
+  The valid value is range from `–1` to `65,534`, except `0`.  
   Defaults to `-1`.
 
-* `func_mounts` - (Optional, List) Specifies the file system list. The `func_mounts` object structure is documented
-  below.
+* `func_mounts` - (Optional, List) Specifies the list of function mount configuration.  
+  The [func_mounts](#function_func_mounts) structure is documented below.
 
-* `custom_image` - (Optional, List) Specifies the custom image configuration for creating function.
-  The [object](#functiongraph_custom_image) structure is documented below.  
+* `custom_image` - (Optional, List) Specifies the custom image configuration of the function.  
+  The [custom_image](#function_custom_image) structure is documented below.  
   Required if the parameter `code_type` is **Custom-Image-Swr**.
 
 * `max_instance_num` - (Optional, String) Specifies the maximum number of instances of the function.  
-  The valid value ranges from `-1` to `1,000`, defaults to `400`.
+  The valid value is range from `-1` to `1,000`, defaults to `400`.
   + The minimum value is `-1` and means the number of instances is unlimited.
   + `0` means this function is disabled.
   + The empty value means to keep the default (latest updated) value.
 
   -> This parameter is only supported by the `v2` version of the function.
 
-* `versions` - (Optional, List) Specifies the versions management of the function.
-  The [object](#functiongraph_versions_management) structure is documented below.
+* `versions` - (Optional, List) Specifies the versions management of the function.  
+  The [versions](#function_versions) structure is documented below.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the function.
 
-* `log_group_id` - (Optional, String) Specifies the ID of the LTS log group.
+* `log_group_id` - (Optional, String) Specifies the LTS group ID for collecting logs.
 
-* `log_group_name` - (Optional, String) Specifies the name of the LTS log group.
+* `log_group_name` - (Optional, String) Specifies the LTS group name for collecting logs.
 
-* `log_stream_id` - (Optional, String) Specifies the ID of the LTS log stream.
+* `log_stream_id` - (Optional, String) Specifies the LTS stream IID for collecting logs.
 
-* `log_stream_name` - (Optional, String) Specifies the name of the LTS stream.
+* `log_stream_name` - (Optional, String) Specifies the LTS stream name for collecting logs.
 
-* `reserved_instances` - (Optional, List) Specifies the reserved instance policies of the function.
-  The [reserved_instances](#functiongraph_reserved_instances) structure is documented below.
+* `reserved_instances` - (Optional, List) Specifies the reserved instance policies of the function.  
+  The [reserved_instances](#function_reserved_instances) structure is documented below.
 
-* `concurrency_num` - (Optional, Int) Specifies the number of concurrent requests of the function.
-  The valid value ranges from `1` to `1,000`, the default value is `1`.
-  
+* `concurrency_num` - (Optional, Int) Specifies the number of concurrent requests of the function.  
+  The valid value is range from `1` to `1,000`, the default value is `1`.
+
   -> 1. This parameter is only supported by the `v2` version of the function.
      <br>2. This parameter is available only when the `runtime` parameter is set to **http** or **Custom Image**.
 
-* `gpu_memory` - (Optional, Int) Specifies the GPU memory size allocated to the function, in MByte (MB).
-  The valid value ranges form `1,024` to `16,384`, the value must be a multiple of `1,024`.
-  If not specified, the GPU function is disabled.
-
-* `gpu_type` - (Optional, String) Specifies the GPU type to the function.
+* `gpu_type` - (Optional, String) Specifies the GPU type of the function.  
   Currently, only **nvidia-t4** is supported.
 
-  -> If you want to use the `gpu_memory` and `gpu_type` parameters, the `runtime` parameter must be set to `Custom` or
-  `Custom Image`. And you need to submit a service ticket to open this function, please refer to
-  the documentation [how to submit a service ticket](https://support.huaweicloud.com/intl/en-us/usermanual-ticket/topic_0065264094.html).
+* `gpu_memory` - (Optional, Int) Specifies the GPU memory size allocated to the function, in MByte (MB).  
+  The valid value is range form `1,024` to `16,384`, the value must be a multiple of `1,024`.  
+  If not specified, the GPU function is disabled.
 
+  ~> Submit a service ticket to open this function (GPU configuration), for the way please refer to
+  the [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-ticket/topic_0065264094.html).
+
+  -> If the `gpu_memory` and `gpu_type` configured, the `runtime` must be set to `Custom` or `Custom Image`.
+
+<a name="function_func_mounts"></a>
 The `func_mounts` block supports:
 
 * `mount_type` - (Required, String) Specifies the mount type.
@@ -354,92 +363,94 @@ The `func_mounts` block supports:
 
 * `mount_resource` - (Required, String) Specifies the ID of the mounted resource (corresponding cloud service).
 
-* `mount_share_path` - (Required, String) Specifies the remote mount path. Example: 192.168.0.12:/data.
+* `mount_share_path` - (Required, String) Specifies the remote mount path. Example: **192.168.0.12:/data**.
 
 * `local_mount_path` - (Required, String) Specifies the function access path.
 
-<a name="functiongraph_custom_image"></a>
+<a name="function_custom_image"></a>
 The `custom_image` block supports:
 
 * `url` - (Required, String) Specifies the URL of SWR image, the URL must start with `swr.`.
 
-* `command` - (Optional, String) Specifies the startup commands of the SWR image.
-  Multiple commands are separated by commas (,). e.g. `/bin/sh`.
+* `command` - (Optional, String) Specifies the startup commands of the SWR image.  
+  Multiple commands are separated by commas (,). e.g. `/bin/sh`.  
   If this parameter is not specified, the entrypoint or CMD in the image configuration will be used by default.
 
-* `args` - (Optional, String) Specifies the command line arguments used to start the SWR image.
-  If multiple arguments are separated by commas (,). e.g. `-args,value`.
+* `args` - (Optional, String) Specifies the command line arguments used to start the SWR image.  
+  If multiple arguments are separated by commas (,). e.g. `-args,value`.  
   If this parameter is not specified, the CMD in the image configuration will be used by default.
 
-* `working_dir` - (Optional, String) Specifies the working directory of the SWR image.
-  If not specified, the default value is `/`.
+* `working_dir` - (Optional, String) Specifies the working directory of the SWR image.  
+  If not specified, the default value is `/`.  
   Currently, the folder path can only be set to `/` and it cannot be created or modified.
 
-<a name="functiongraph_versions_management"></a>
+<a name="function_versions"></a>
 The `versions` block supports:
 
 * `name` - (Required, String) Specifies the version name.
 
-* `aliases` - (Optional, List) Specifies the aliases management for specified version.
-  The [object](#functiongraph_aliases_management) structure is documented below.
+* `aliases` - (Optional, List) Specifies the aliases management for specified version.  
+  The [aliases](#function_aliases) structure is documented below.
 
   -> A version can configure at most **one** alias.
 
-<a name="functiongraph_aliases_management"></a>
+<a name="function_aliases"></a>
 The `aliases` block supports:
 
 * `name` - (Required, String) Specifies the name of the version alias.
 
 * `description` - (Optional, String) Specifies the description of the version alias.
 
-<a name="functiongraph_reserved_instances"></a>
+<a name="function_reserved_instances"></a>
 The `reserved_instances` block supports:
 
-* `qualifier_type` - (Required, String) Specifies qualifier type of reserved instance. The valid values are as follows:
+* `qualifier_type` - (Required, String) Specifies the qualifier type of reserved instance.  
+  The valid values are as follows:
   + **version**
   + **alias**
 
-  -> Reserved instances cannot be configured for both a function alias and the corresponding version. For example,
-  if the alias of the `latest` version is `1.0` and reserved instances have been configured for this version,
-  no more instances can be configured for alias `1.0`.
+  -> Reserved instances cannot be configured for both a function alias and the corresponding version.
+     <br>For example, if the alias of the `latest` version is `1.0` and reserved instances have been configured for this
+     version, no more instances can be configured for alias `1.0`.
 
 * `qualifier_name` - (Required, String) Specifies the version name or alias name.
 
-* `count` - (Required, Int) Specifies the number of reserved instance.
-  The valid value ranges from `0` to `1,000`.
+* `count` - (Required, Int) Specifies the number of reserved instance.  
+  The valid value is range from `0` to `1,000`.  
   If this parameter is set to `0`, the reserved instance will not run.
 
-* `idle_mode` - (Optional, Bool) Specifies whether to enable the idle mode. The default value is `false`.
-  If this parameter is enabled, reserved instances are initialized and the mode change needs some time to take effect.
+* `idle_mode` - (Optional, Bool) Specifies whether to enable the idle mode.  
+  Defaults to **false**.  
+  If this parameter is enabled, reserved instances are initialized and the mode change needs some time to take effect.  
   You will still be billed at the price of reserved instances for non-idle mode in this period.
 
-* `tactics_config` - (Optional, List) Specifies the auto scaling policies for reserved instance.
-  The [tactics_config](#functiongraph_tactics_config) structure is documented below.
+* `tactics_config` - (Optional, List) Specifies the auto scaling policies for reserved instance.  
+  The [tactics_config](#function_reserved_instances_tactics_config) structure is documented below.
 
-<a name="functiongraph_tactics_config"></a>
+<a name="function_reserved_instances_tactics_config"></a>
 The `tactics_config` block supports:
 
-* `cron_configs` - (Optional, List) Specifies the list of scheduled policy configurations.
-  The [cron_configs](#functiongraph_cron_configs) structure is documented below.
+* `cron_configs` - (Optional, List) Specifies the list of scheduled policy configurations.  
+  The [cron_configs](#function_reserved_instances_tactics_config_cron_configs) structure is documented below.
 
-* `metric_configs` - (Optional, List) Specifies the list of metric policy configurations.
-  The [metric_configs](#functiongraph_metric_configs) structure is documented below.
+* `metric_configs` - (Optional, List) Specifies the list of metric policy configurations.  
+  The [metric_configs](#function_reserved_instances_tactics_metric_configs) structure is documented below.
 
-  -> If you want to use the `metric_configs` parameter, please open a service ticket to enable this function. Refer to
-  the documentation [how to submit a service ticket](https://support.huaweicloud.com/intl/en-us/usermanual-ticket/topic_0065264094.html).
+  ~> Submit a service ticket to open this function (metric policy), for the way please refer to
+  the [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-ticket/topic_0065264094.html).
 
-<a name="functiongraph_cron_configs"></a>
+<a name="function_reserved_instances_tactics_config_cron_configs"></a>
 The `cron_configs` block supports:
 
-* `name` - (Required, String) Specifies the name of scheduled policy configuration.
+* `name` - (Required, String) Specifies the name of scheduled policy configuration.  
   The valid length is limited from `1` to `60` characters, only letters, digits, hyphens (-), and underscores (_) are allowed.
   The name must start with a letter and ending with a letter or digit.
 
-* `cron` - (Required, String) Specifies the cron expression.
-  Set this parameter, you can refer to this [document](https://support.huaweicloud.com/intl/en-us/usermanual-functiongraph/functiongraph_01_0908.html).
+* `cron` - (Required, String) Specifies the cron expression.  
+  For the syntax, please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-functiongraph/functiongraph_01_0908.html).
 
-* `count` - (Required, Int) Specifies the number of reserved instance to which the policy belongs.
-  The valid value ranges from `0` to `1,000`.
+* `count` - (Required, Int) Specifies the number of reserved instance to which the policy belongs.  
+  The valid value is range from `0` to `1,000`.
 
   -> The number of reserved instances must be greater than or equal to the number of reserved instances in the basic configuration.
 
@@ -447,20 +458,22 @@ The `cron_configs` block supports:
 
 * `expired_time` - (Required, Int) Specifies the expiration timestamp of the policy. The unit is `s`, e.g. **1740560074**.
 
-<a name="functiongraph_metric_configs"></a>
+<a name="function_reserved_instances_tactics_metric_configs"></a>
 The `metric_configs` block supports:
 
-* `name` - (Required, String) Specifies the name of metric policy.
-  The valid length is limited from `1` to `60` characters, only letters, digits, hyphens (-), and underscores (_) are allowed.
-  The name must start with a letter and ending with a letter or digit.
+* `name` - (Required, String) Specifies the name of metric policy.  
+  The valid length is limited from `1` to `60` characters, only letters, digits, hyphens (-), and underscores (_) are
+  allowed. The name must start with a letter and ending with a letter or digit.
 
-* `type` - (Required, String) Specifies the type of metric policy.
+* `type` - (Required, String) Specifies the type of metric policy.  
   The valid value is as follows:
   + **Concurrency**: Reserved instance usage.
 
-* `threshold` - (Required, Int) Specifies the metric policy threshold. The valid value ranges from `1` to `99`.
+* `threshold` - (Required, Int) Specifies the metric policy threshold.  
+  The valid value is range from `1` to `99`.
 
-* `min` - (Required, Int) Specifies the minimun of traffic. The valid value ranges from `0` to `1,000`.
+* `min` - (Required, Int) Specifies the minimun of traffic.  
+  The valid value is range from `0` to `1,000`.
 
   -> The number of reserved instances must be greater than or equal to the number of reserved instances in the basic configuration.
 
@@ -470,9 +483,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID, comsist of `urn` and current `version`, the format is `<urn>:<version>`.
 
-* `func_mounts/status` - The status of file system.
+* `func_mounts/status` - The mount status.
 
-* `urn` - Uniform Resource Name.
+* `urn` - The URN (Uniform Resource Name) of the function.
 
 * `version` - The version of the function.
 

@@ -56,28 +56,48 @@ func ResourceFgsFunctionV2() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region where the function is located.`,
 			},
+
+			// Required parameters.
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the function.`,
 			},
 			"memory_size": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `The memory size allocated to the function, in MByte (MB).`,
 			},
 			"runtime": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The environment for executing the function.`,
 			},
 			"timeout": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `The timeout interval of the function, in seconds.`,
+			},
+
+			// Optional parameters but required in documentation.
+			"app": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"package"},
+				Description: utils.SchemaDesc(
+					`The group to which the function belongs.`,
+					utils.SchemaDescInput{
+						Required: true,
+					},
+				),
 			},
 			"code_type": {
 				Type:     schema.TypeString,
@@ -91,10 +111,22 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				),
 			},
 			"handler": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The entry point of the function.`,
+					utils.SchemaDescInput{
+						Required: true,
+					},
+				),
+			},
+
+			// Optional parameters.
+			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
-				Description: `schema: Required; The entry point of the function.`,
+				Description: `The description of the function.`,
 			},
 			"functiongraph_version": {
 				Type:     schema.TypeString,
@@ -104,134 +136,104 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"v1", "v2",
 				}, false), // The current default value is v1, which may be adjusted in the future.
+				Description: `The description of the function.`,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"package": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"app"},
-				Deprecated:    "use app instead",
-			},
-			"app": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"package"},
-				Description:   "schema: Required",
+			"func_code": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				StateFunc:   utils.DecodeHashAndHexEncode,
+				Description: `The function code.`,
 			},
 			"code_url": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The URL where the function code is stored in OBS.`,
 			},
 			"code_filename": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The name of the function file.`,
+			},
+			"depend_list": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The ID list of the dependencies.`,
 			},
 			"user_data": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The key/value information defined for the function.`,
 			},
 			"encrypted_user_data": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
-			},
-			"xrole": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"agency"},
-				Deprecated:    "use agency instead",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				Description: `The key/value information defined to be encrypted for the function.`,
 			},
 			"agency": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"xrole"},
+				Description:   `The agency configuration of the function.`,
 			},
 			"app_agency": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"func_code": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				StateFunc: utils.DecodeHashAndHexEncode,
-			},
-			"depend_list": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The execution agency enables you to obtain a token or an AK/SK for accessing other cloud services.`,
 			},
 			"initializer_handler": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The initializer of the function.`,
 			},
 			"initializer_timeout": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The maximum duration the function can be initialized.`,
 			},
 			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The ID of the enterprise project to which the function belongs.`,
 			},
 			"vpc_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"network_id"},
+				Description:  `The ID of the VPC to which the function belongs.`,
 			},
 			"network_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"vpc_id"},
+				Description:  `The network ID of subnet.`,
 			},
 			"dns_list": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				RequiredWith: []string{"vpc_id"},
+				Description:  `The private DNS configuration of the function network.`,
 			},
 			"mount_user_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The mount user ID.`,
 			},
 			"mount_user_group_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-			},
-			"log_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				RequiredWith: []string{
-					"log_stream_id", "log_group_name", "log_stream_name"},
-			},
-			"log_stream_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				RequiredWith: []string{"log_group_id"},
-			},
-			"log_group_name": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				RequiredWith: []string{"log_group_id"},
-			},
-			"log_stream_name": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				RequiredWith: []string{"log_group_id"},
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The mount user group ID.`,
 			},
 			"func_mounts": {
 				Type:     schema.TypeList,
@@ -240,27 +242,33 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mount_type": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The mount type.`,
 						},
 						"mount_resource": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The ID of the mounted resource (corresponding cloud service).`,
 						},
 						"mount_share_path": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The remote mount path.`,
 						},
 						"local_mount_path": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The function access path.`,
 						},
 						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The mount status.`,
 						},
 					},
 				},
+				Description: `The list of function mount configuration.`,
 			},
 			"custom_image": {
 				Type:     schema.TypeList,
@@ -272,39 +280,50 @@ func ResourceFgsFunctionV2() *schema.Resource {
 						"url": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Specifies the URL of SWR image.",
+							Description: "The URL of SWR image.",
 						},
 						"command": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Specifies the startup commands of the SWR image.",
+							Description: "The startup commands of the SWR image.",
 						},
 						"args": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Specifies the command line arguments used to start the SWR image.",
+							Description: "The command line arguments used to start the SWR image.",
 						},
 						"working_dir": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							Description: "Specifies the working directory of the SWR image.",
+							Description: "The working directory of the SWR image.",
 						},
 						"user_id": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "schema: Internal; Specifies the user ID for running the image.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: utils.SchemaDesc(
+								`The user ID that used to run SWR image.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 						"user_group_id": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "schema: Internal; Specifies the user group ID for running the image.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: utils.SchemaDesc(
+								`The user group ID that used to run SWR image.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 					},
 				},
 				ConflictsWith: []string{
 					"code_type",
 				},
+				Description: `The custom image configuration of the function.`,
 			},
 			"max_instance_num": {
 				// The original type of this parameter is int, but its zero value is meaningful.
@@ -314,9 +333,10 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				//   + 0: this function is disabled.
 				//   + (0, +1000]: Specific value (2023.06.26).
 				//   + empty: keep the default (latest updated) value.
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The maximum number of instances of the function.`,
 			},
 			"versions": {
 				Type:     schema.TypeSet,
@@ -353,74 +373,145 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				},
 				Description: "The versions management of the function.",
 			},
-			"tags": common.TagsSchema(),
+			"tags": common.TagsSchema(
+				`The key/value pairs to associate with the function.`,
+			),
+			"log_group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				RequiredWith: []string{
+					"log_stream_id",
+					"log_group_name",
+					"log_stream_name",
+				},
+				Description: `The LTS group ID for collecting logs.`,
+			},
+			"log_group_name": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"log_group_id"},
+				Description:  `The LTS group name for collecting logs.`,
+			},
+			"log_stream_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"log_group_id"},
+				Description:  `The LTS stream ID for collecting logs.`,
+			},
+			"log_stream_name": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"log_group_id"},
+				Description:  `The LTS stream name for collecting logs.`,
+			},
 			"reserved_instances": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"qualifier_type": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The qualifier type of reserved instance.`,
 						},
 						"qualifier_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The version name or alias name.`,
 						},
 						"count": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The number of reserved instance.`,
 						},
 						"idle_mode": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Whether to enable the idle mode.`,
 						},
 						"tactics_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem:     tracticsConfigsSchema(),
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Elem:        tracticsConfigsSchema(),
+							Description: `The auto scaling policies for reserved instance.`,
 						},
 					},
 				},
+				Description: `The reserved instance policies of the function.`,
 			},
 			// The value in the api document is -1 to 1000, After confirmation, when the parameter set to -1 or 0,
 			// the actual number of concurrent requests is 1, so the value range is set to 1 to 1000, and the document
 			// will be modified later (2024.02.29).
 			"concurrency_num": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-			},
-			"gpu_memory": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				RequiredWith: []string{"gpu_type"},
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The number of concurrent requests of the function.`,
 			},
 			"gpu_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"gpu_memory"},
+				Description:  `The GPU type of the function.`,
+			},
+			"gpu_memory": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"gpu_type"},
+				Description:  `The GPU memory size allocated to the function, in MByte (MB).`,
 			},
 			// Currently, the "pre_stop_timeout" and "pre_stop_timeout" are not visible on the page,
 			// so they are temporarily used as internal parameters.
 			"pre_stop_handler": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "schema: Internal; Specifies the pre-stop handler of a function.",
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: utils.SchemaDesc(
+					`The pre-stop handler of a function.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"pre_stop_timeout": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "schema: Internal; Specifies the maximum duration that the function can be initialized.",
+				Type:     schema.TypeInt,
+				Optional: true,
+				Description: utils.SchemaDesc(
+					`The maximum duration that the function can be initialized.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+
+			// Deprecated parameters.
+			"package": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"app"},
+				Deprecated:    `use app instead`,
+			},
+			"xrole": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"agency"},
+				Deprecated:    `use agency instead`,
+			},
+
+			// Attributes.
+			"urn": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The URN (Uniform Resource Name) of the function.`,
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"urn": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The version of the function.`,
 			},
 		},
 	}
@@ -435,27 +526,33 @@ func tracticsConfigsSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of scheduled policy configuration.`,
 						},
 						"cron": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The cron expression.`,
 						},
 						"count": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The number of reserved instance to which the policy belongs.`,
 						},
 						"start_time": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The effective timestamp of policy.`,
 						},
 						"expired_time": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The expiration timestamp of the policy.`,
 						},
 					},
 				},
+				Description: `The list of scheduled policy configurations.`,
 			},
 			"metric_configs": {
 				Type:     schema.TypeList,
@@ -463,23 +560,28 @@ func tracticsConfigsSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of metric policy.`,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The type of metric policy.`,
 						},
 						"threshold": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The metric policy threshold.`,
 						},
 						"min": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The minimun of traffic.`,
 						},
 					},
 				},
+				Description: `The list of metric policy configurations.`,
 			},
 		},
 	}
