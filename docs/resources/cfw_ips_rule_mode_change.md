@@ -21,7 +21,7 @@ variable "object_id" {}
 variable "ips_ids" {}
 variable "status" {}
 
-resource "huaweicloud_cfw_ips_rule_mode_change" {
+resource "huaweicloud_cfw_ips_rule_mode_change" "test"{
   object_id = var.object_id
   ips_ids   = var.ips_ids
   status    = var.status
