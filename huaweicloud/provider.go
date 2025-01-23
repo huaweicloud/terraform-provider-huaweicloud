@@ -1537,6 +1537,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_address_group":        cfw.ResourceAddressGroup(),
 			"huaweicloud_cfw_address_group_member": cfw.ResourceAddressGroupMember(),
 			"huaweicloud_cfw_alarm_config":         cfw.ResourceAlarmConfig(),
+			"huaweicloud_cfw_anti_virus":           cfw.ResourceAntiVirus(),
 			"huaweicloud_cfw_black_white_list":     cfw.ResourceBlackWhiteList(),
 			"huaweicloud_cfw_eip_protection":       cfw.ResourceEipProtection(),
 			"huaweicloud_cfw_service_group":        cfw.ResourceServiceGroup(),
