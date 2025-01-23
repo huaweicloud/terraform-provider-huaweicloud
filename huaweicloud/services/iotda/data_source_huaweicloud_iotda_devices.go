@@ -246,3 +246,17 @@ func flattenDevices(devices []model.QueryDeviceSimplify) []interface{} {
 
 	return rst
 }
+
+// flattenTags This method will be deleted in other PRs.
+func flattenTags(s *[]model.TagV5Dto) map[string]interface{} {
+	if s == nil {
+		return nil
+	}
+
+	rst := make(map[string]interface{})
+	for _, v := range *s {
+		rst[v.TagKey] = v.TagValue
+	}
+
+	return rst
+}

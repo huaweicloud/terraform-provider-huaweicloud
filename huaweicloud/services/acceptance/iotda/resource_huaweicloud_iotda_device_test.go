@@ -2,28 +2,49 @@ package iotda
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getDeviceResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, WithDerivedAuth())
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "iotda"
+		httpUrl = "v5/iot/{project_id}/devices/{device_id}"
+	)
+
+	isDerived := WithDerivedAuth()
+	client, err := conf.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
 		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
 	}
 
-	return client.ShowDevice(&model.ShowDeviceRequest{DeviceId: state.Primary.ID})
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", state.Primary.ID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
 }
 
 func TestAccDevice_basic(t *testing.T) {
-	var obj model.ShowDeviceResponse
+	var obj interface{}
 
 	nodeId := acceptance.RandomAccResourceName()
 	name := acceptance.RandomAccResourceName()
