@@ -139,18 +139,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created_at` - The rule create time.
 
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 5 minutes.
-* `update` - Default is 5 minutes.
-* `delete` - Default is 5 minutes.
-
 ## Import
 
 AOM service discovery rules can be imported using the `name`, e.g.
 
 ```bash
-$ terraform import huaweicloud_aom_service_discovery_rule.alarm_rule rule_name
+$ terraform import huaweicloud_aom_service_discovery_rule.alarm_rule <name>
 ```
