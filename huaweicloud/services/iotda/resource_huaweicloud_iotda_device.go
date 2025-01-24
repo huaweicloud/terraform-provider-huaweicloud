@@ -201,7 +201,7 @@ func createDevice(client *golangsdk.ServiceClient, d *schema.ResourceData) (inte
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildCreateDeviceBodyParams(d),
+		JSONBody:         utils.RemoveNil(buildCreateDeviceBodyParams(d)),
 	}
 
 	resp, err := client.Request("POST", requestPath, &requestOpt)
