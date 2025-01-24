@@ -52,6 +52,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
 
+* `created_at` - The creation time of the AMQP queue.
+  The format is **yyyyMMdd'T'HHmmss'Z'**. e.g. **20151212T121212Z**.
+
+* `updated_at` - The latest update time of the AMQP queue.
+  The format is **yyyyMMdd'T'HHmmss'Z'**. e.g. **20151212T121212Z**.
+
 ## Import
 
 The AMQP queue can be imported using the `id`, e.g.

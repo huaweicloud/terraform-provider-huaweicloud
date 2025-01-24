@@ -41,6 +41,14 @@ func ResourceAmqp() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -141,6 +149,8 @@ func resourceAmqpRead(_ context.Context, d *schema.ResourceData, meta interface{
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("queue_name", queueResp, nil)),
+		d.Set("created_at", utils.PathSearch("create_time", queueResp, nil)),
+		d.Set("updated_at", utils.PathSearch("last_modify_time", queueResp, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
