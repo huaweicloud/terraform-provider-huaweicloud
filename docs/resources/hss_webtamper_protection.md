@@ -2,7 +2,8 @@
 subcategory: "Host Security Service (HSS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_hss_webtamper_protection"
-description: ""
+description: |-
+  Manages an HSS web tamper protection resource within HuaweiCloud.
 ---
 
 # huaweicloud_hss_webtamper_protection
@@ -92,9 +93,9 @@ You can then decide if changes should be applied to the resource, or the resourc
 should be updated to align with the resource. Also, you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_hss_webtamper_protection" "test" { 
+resource "huaweicloud_hss_webtamper_protection" "test" {
   ...
-  
+
   lifecycle {
     ignore_changes = [
       quota_id, is_dynamics_protect, enterprise_project_id,
