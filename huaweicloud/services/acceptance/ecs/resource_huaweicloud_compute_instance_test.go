@@ -30,7 +30,6 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "terraform test"),
-					resource.TestCheckResourceAttr(resourceName, "hostname", "hostname-test"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(resourceName, "system_disk_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "security_groups.#"),
@@ -59,7 +58,6 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "description", "terraform test update"),
-					resource.TestCheckResourceAttr(resourceName, "hostname", "hostname-update"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "60"),
 					resource.TestCheckResourceAttr(resourceName, "agency_name", "test222"),
 					resource.TestCheckResourceAttr(resourceName, "agent_list", "ces"),
@@ -412,7 +410,6 @@ func testAccComputeInstance_basic(rName string) string {
 resource "huaweicloud_compute_instance" "test" {
   name                = "%s"
   description         = "terraform test"
-  hostname            = "hostname-test"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
@@ -459,7 +456,6 @@ func testAccComputeInstance_update(rName string) string {
 resource "huaweicloud_compute_instance" "test" {
   name                = "%s-update"
   description         = "terraform test update"
-  hostname            = "hostname-update"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
