@@ -2,52 +2,27 @@ package dms
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
 )
 
-func getDmsKafkaPermissionsFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := c.HcDmsV2Client(acceptance.HW_REGION_NAME)
+func getDmsKafkaPermissionsFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.DmsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DMS client: %s", err)
 	}
 
-	// Split instance_id and topic_name from resource id
-	parts := strings.SplitN(state.Primary.ID, "/", 2)
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid id format, must be <instance_id>/<topic_name>")
-	}
-	instanceId := parts[0]
-	topicName := parts[1]
-
-	request := &model.ShowTopicAccessPolicyRequest{
-		InstanceId: instanceId,
-		TopicName:  topicName,
-	}
-
-	response, err := client.ShowTopicAccessPolicy(request)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving DMS kafka permissions: %s", err)
-	}
-
-	if response.Policies != nil && len(*response.Policies) != 0 {
-		policies := *response.Policies
-		return policies, nil
-	}
-
-	return nil, fmt.Errorf("can not found DMS kafka user")
+	return dms.GetDmsKafkaPermissions(client, state.Primary.Attributes["instance_id"], state.Primary.Attributes["topic_name"])
 }
 
 func TestAccDmsKafkaPermissions_basic(t *testing.T) {
-	var policies []model.PolicyEntity
+	var policies interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_dms_kafka_permissions.test"
 	password := acceptance.RandomPassword()
