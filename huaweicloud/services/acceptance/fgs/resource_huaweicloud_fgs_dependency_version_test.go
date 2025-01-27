@@ -20,11 +20,7 @@ func getDependencyVersionFunc(conf *config.Config, state *terraform.ResourceStat
 		return nil, fmt.Errorf("error creating FunctionGraph v2 client: %s", err)
 	}
 
-	dependId, version, err := fgs.ParseDependVersionResourceId(state.Primary.ID)
-	if err != nil {
-		return nil, err
-	}
-	return dependencies.GetVersion(client, dependId, version)
+	return fgs.GetDependencyVersionById(client, state.Primary.ID)
 }
 
 func TestAccDependencyVersion_basic(t *testing.T) {
