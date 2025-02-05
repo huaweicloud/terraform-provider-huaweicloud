@@ -104,6 +104,9 @@ type Config struct {
 	Metadata any
 
 	EnableForceNew bool
+
+	// SigningAlgorithm is used to select encryption algorithm
+	SigningAlgorithm string
 }
 
 func (c *Config) LoadAndValidate() error {
