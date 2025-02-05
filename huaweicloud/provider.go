@@ -416,6 +416,12 @@ func Provider() *schema.Provider {
 				Description: descriptions["enable_force_new"],
 				DefaultFunc: schema.EnvDefaultFunc("HW_ENABLE_FORCE_NEW", false),
 			},
+			"signing_algorithm": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["signing_algorithm"],
+				DefaultFunc: schema.EnvDefaultFunc("HW_SIGNING_ALGORITHM", ""),
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -2625,6 +2631,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		RPLock:              new(sync.Mutex),
 		SecurityKeyLock:     new(sync.Mutex),
 		EnableForceNew:      d.Get("enable_force_new").(bool),
+		SigningAlgorithm:    d.Get("signing_algorithm").(string),
 	}
 
 	// get assume role
