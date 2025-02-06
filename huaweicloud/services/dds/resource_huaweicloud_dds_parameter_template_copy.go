@@ -14,11 +14,19 @@ import (
 )
 
 // @API DDS POST /v3/{project_id}/configurations/{config_id}/copy
+// @API DDS DELETE /v3/{project_id}/configurations/{config_id}
+// @API DDS GET /v3/{project_id}/configurations/{config_id}
+// @API DDS PUT /v3/{project_id}/configurations/{config_id}
 func ResourceDDSParameterTemplateCopy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceParameterTemplateCopyCreate,
-		ReadContext:   resourceParameterTemplateCopyRead,
-		DeleteContext: resourceParameterTemplateCopyDelete,
+		UpdateContext: resourceDdsParameterTemplateUpdate,
+		ReadContext:   resourceDdsParameterTemplateRead,
+		DeleteContext: resourceDdsParameterTemplateDelete,
+
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -36,20 +44,45 @@ func ResourceDDSParameterTemplateCopy() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the name of replicated parameter template.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Specifies the description of replicated parameter template.`,
+			},
+			"parameter_values": {
+				Type:        schema.TypeMap,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+				Description: `Specifies the mapping between parameter names and parameter values.`,
+			},
+			"node_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the database version.`,
+			},
+			"parameters": {
+				Type:        schema.TypeList,
+				Elem:        ParameterTemplateParameterSchema(),
+				Computed:    true,
+				Description: `Indicates the parameters defined by users based on the default parameter templates.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the create time.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the update time.`,
 			},
 		},
 	}
 }
 
-func resourceParameterTemplateCopyCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceParameterTemplateCopyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("dds", region)
@@ -84,7 +117,13 @@ func resourceParameterTemplateCopyCreate(_ context.Context, d *schema.ResourceDa
 
 	d.SetId(id)
 
-	return nil
+	if _, ok := d.GetOk("parameter_values"); ok {
+		if err := updateParameterTemplate(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	return resourceDdsParameterTemplateRead(ctx, d, meta)
 }
 
 func buildCreateParameterTemplateCopyBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -93,19 +132,4 @@ func buildCreateParameterTemplateCopyBodyParams(d *schema.ResourceData) map[stri
 		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
-}
-
-func resourceParameterTemplateCopyRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	return nil
-}
-
-func resourceParameterTemplateCopyDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting parameter template copy resource is not supported. The resource is only removed from the" +
-		"state, the DDS parameter template remains in the cloud."
-	return diag.Diagnostics{
-		diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  errorMsg,
-		},
-	}
 }
