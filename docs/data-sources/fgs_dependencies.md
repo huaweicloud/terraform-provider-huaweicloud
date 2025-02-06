@@ -9,6 +9,10 @@ description: ""
 
 Use this data source to filter dependent packages of FGS from HuaweiCloud.
 
+~> Between `1.64.2` and `1.72.1`., the version list of each dependent package is queried by default.
+   <br>This will cause the query to take up a lot of time and may trigger flow control.
+   <br>There are not recommended to use.
+
 ## Example Usage
 
 ### Obtain all public dependent packages
@@ -47,6 +51,9 @@ data "huaweicloud_fgs_dependencies" "test" {
   **Go1.x**, **C#(.NET Core 2.0)**, **C#(.NET Core 2.1)**, **C#(.NET Core 3.1)** and **PHP7.3**.
 
 * `name` - (Optional, String) Specifies the dependent package runtime to match.
+
+* `is_versions_query_allowed` - (Optional, Bool) Specifies whether to query the versions of each dependent package.
+  Defaults to **false**.
 
 ## Attribute Reference
 

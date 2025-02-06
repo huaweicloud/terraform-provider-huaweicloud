@@ -43,6 +43,10 @@ func DataSourceFunctionGraphDependencies() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"is_versions_query_allowed": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"packages": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -131,7 +135,7 @@ func dataSourceFunctionGraphDependenciesRead(_ context.Context, d *schema.Resour
 	d.SetId(randUUID)
 
 	resp, _ := dependencies.ExtractDependencies(allPages)
-	packages := flatFunctionGraphDependencies(client, resp.Dependencies)
+	packages := flatFunctionGraphDependencies(client, resp.Dependencies, d.Get("is_versions_query_allowed").(bool))
 	mErr := multierror.Append(
 		d.Set("packages", packages),
 	)
@@ -141,13 +145,14 @@ func dataSourceFunctionGraphDependenciesRead(_ context.Context, d *schema.Resour
 	return nil
 }
 
-func flatFunctionGraphDependencies(client *golangsdk.ServiceClient, pkgs []dependencies.Dependency) []map[string]interface{} {
+func flatFunctionGraphDependencies(client *golangsdk.ServiceClient, pkgs []dependencies.Dependency,
+	isVersionsQueryAllowed bool) []map[string]interface{} {
 	packages := make([]map[string]interface{}, len(pkgs))
 
 	names := schema.NewSet(schema.HashString, nil)
 	for i, pkg := range pkgs {
 		names.Add(pkg.Name)
-		packages[i] = map[string]interface{}{
+		elem := map[string]interface{}{
 			"id":        pkg.ID,
 			"name":      pkg.Name,
 			"owner":     pkg.Owner,
@@ -156,8 +161,12 @@ func flatFunctionGraphDependencies(client *golangsdk.ServiceClient, pkgs []depen
 			"size":      pkg.Size,
 			"file_name": pkg.FileName,
 			"runtime":   pkg.Runtime,
-			"versions":  flattenPckVersions(client, pkg.ID),
 		}
+
+		if isVersionsQueryAllowed {
+			elem["versions"] = flattenPckVersions(client, pkg.ID)
+		}
+		packages[i] = elem
 	}
 
 	return packages
