@@ -3,7 +3,6 @@ package mpc
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -282,64 +281,6 @@ func buildCommonBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return commonParams
 }
 
-func buildVideosOpts(rawVideos []interface{}) *[]mpc.VideoObj {
-	if len(rawVideos) == 0 {
-		return nil
-	}
-
-	videos := make([]mpc.VideoObj, len(rawVideos))
-	for i, rawVideo := range rawVideos {
-		video := rawVideo.(map[string]interface{})
-		videos[i] = mpc.VideoObj{
-			Width:   int32(video["width"].(int)),
-			Height:  int32(video["height"].(int)),
-			Bitrate: int32(video["bitrate"].(int)),
-		}
-	}
-
-	return &videos
-}
-
-func buildVideoCommonOpts(rawVideoCommon []interface{}) *mpc.VideoCommon {
-	if len(rawVideoCommon) != 1 {
-		return nil
-	}
-
-	videoCommon := rawVideoCommon[0].(map[string]interface{})
-	videoCommonOpts := mpc.VideoCommon{
-		Codec:              utils.Int32(int32(videoCommon["codec"].(int))),
-		Profile:            utils.Int32(int32(videoCommon["profile"].(int))),
-		Level:              utils.Int32(int32(videoCommon["level"].(int))),
-		Preset:             utils.Int32(int32(videoCommon["quality"].(int))),
-		MaxIframesInterval: utils.Int32(int32(videoCommon["max_iframes_interval"].(int))),
-		BframesCount:       utils.Int32(int32(videoCommon["max_consecutive_bframes"].(int))),
-		FrameRate:          utils.Int32(int32(videoCommon["fps"].(int))),
-		BlackCut:           utils.Int32(int32(videoCommon["black_bar_removal"].(int))),
-		OutputPolicy:       buildVideoCommonOutputPolicyOpts(videoCommon["output_policy"].(string)),
-	}
-
-	return &videoCommonOpts
-}
-
-func buildVideoCommonOutputPolicyOpts(outputPolicy string) *mpc.VideoCommonOutputPolicy {
-	if outputPolicy == "" {
-		return nil
-	}
-
-	var outputPolicyOpts mpc.VideoCommonOutputPolicy
-	switch outputPolicy {
-	case "discard":
-		outputPolicyOpts = mpc.GetVideoCommonOutputPolicyEnum().DISCARD
-	case "transcode":
-		outputPolicyOpts = mpc.GetVideoCommonOutputPolicyEnum().TRANSCODE
-	default:
-		log.Printf("[WARN] output_policy invalid: %s", outputPolicy)
-		return nil
-	}
-
-	return &outputPolicyOpts
-}
-
 func resourceTranscodingTemplateGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -521,31 +462,46 @@ func flattenTemplateIds(rawtTemplateIds []interface{}) []string {
 }
 
 func resourceTranscodingTemplateGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcMpcV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/template_group/transcodings"
+	)
+
+	client, err := cfg.NewServiceClient("mpc", region)
 	if err != nil {
-		return diag.Errorf("error creating MPC client : %s", err)
+		return diag.Errorf("error creating MPC client: %s", err)
 	}
 
-	updateOpts := mpc.ModifyTransTemplateGroup{
-		GroupId:     d.Id(),
-		Name:        utils.String(d.Get("name").(string)),
-		Videos:      buildVideosOpts(d.Get("videos").([]interface{})),
-		VideoCommon: buildVideoCommonOpts(d.Get("video_common").([]interface{})),
-		Audio:       buildAudioOpts(d.Get("audio").([]interface{})),
-		Common:      buildCommonOpts(d),
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updateOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200, 201, 204,
+		},
+		JSONBody: utils.RemoveNil(buildUpdateTemplateGroupBodyParams(d)),
 	}
 
-	updateReq := mpc.UpdateTemplateGroupRequest{
-		Body: &updateOpts,
-	}
-
-	_, err = client.UpdateTemplateGroup(&updateReq)
+	_, err = client.Request("PUT", updatePath, &updateOpts)
 	if err != nil {
 		return diag.Errorf("error updating MPC transcoding template group: %s", err)
 	}
 
 	return resourceTranscodingTemplateGroupRead(ctx, d, meta)
+}
+
+func buildUpdateTemplateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	templateGroupParams := map[string]interface{}{
+		"group_id":     d.Id(),
+		"name":         d.Get("name"),
+		"videos":       buildVideosBodyParams(d.Get("videos").([]interface{})),
+		"audio":        buildAudioBodyParams(d.Get("audio").([]interface{})),
+		"video_common": buildVideoCommonBodyParams(d.Get("video_common").([]interface{})),
+		"common":       buildCommonBodyParams(d),
+	}
+
+	return templateGroupParams
 }
 
 func resourceTranscodingTemplateGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
