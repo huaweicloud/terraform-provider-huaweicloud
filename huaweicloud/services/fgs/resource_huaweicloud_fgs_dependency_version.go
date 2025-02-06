@@ -3,6 +3,7 @@ package fgs
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -10,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -99,39 +99,65 @@ func ResourceDependencyVersion() *schema.Resource {
 	}
 }
 
-func buildDependencyVersionOpts(d *schema.ResourceData) dependencies.DependVersionOpts {
+func buildCreateDependencyVersionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	// Since the ZIP file upload is limited in size and requires encoding, only the OBS type is supported.
 	// The ZIP file uploading can also be achieved by uploading OBS objects and is more secure.
-	return dependencies.DependVersionOpts{
-		Name:        d.Get("name").(string),
-		Runtime:     d.Get("runtime").(string),
-		Description: utils.String(d.Get("description").(string)),
-		Type:        "obs",
-		Link:        d.Get("link").(string),
+	return map[string]interface{}{
+		"name":        d.Get("name").(string),
+		"runtime":     d.Get("runtime").(string),
+		"description": utils.ValueIgnoreEmpty(d.Get("description").(string)),
+		"depend_type": "obs",
+		"depend_link": d.Get("link").(string),
 	}
 }
 
 func resourceDependencyVersionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.FgsV2Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/fgs/dependencies/version"
+	)
+
+	client, err := cfg.NewServiceClient("fgs", region)
 	if err != nil {
-		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph client: %s", err)
 	}
 
-	resp, err := dependencies.CreateVersion(client, buildDependencyVersionOpts(d))
-	if err != nil {
-		return diag.Errorf("error creating custom dependency version: %s", err)
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildCreateDependencyVersionBodyParams(d)),
 	}
+
+	requestResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return diag.Errorf("error creating FunctionGraph dependent package version: %s", err)
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	dependId := utils.PathSearch("dep_id", respBody, "").(string)
+	dependVersion := utils.PathSearch("version", respBody, float64(0)).(float64)
+	if dependId == "" || dependVersion == 0 {
+		return diag.Errorf("unable to find the dependent package version ID or version from the API response")
+	}
+
 	// Using depend ID and version number as the resource ID.
-	d.SetId(fmt.Sprintf("%s/%d", resp.DepId, resp.Version))
+	d.SetId(fmt.Sprintf("%s/%v", dependId, dependVersion))
 
 	return resourceDependencyVersionRead(ctx, d, meta)
 }
 
-func ParseDependVersionResourceId(resourceId string) (dependId, versionInfo string, err error) {
+func parseDependVersionResourceId(resourceId string) (dependId, versionInfo string) {
 	parts := strings.Split(resourceId, "/")
 	if len(parts) < 2 {
-		err = fmt.Errorf("invalid ID format for dependency version resource, it must contain two parts: "+
+		log.Printf("[ERROR] invalid ID format for dependency version resource, it must contain two parts: "+
 			"dependency package information and version information, e.g. '<dependency name>/<version number>'. "+
 			"but the ID that you provided does not meet this requirement '%s'", resourceId)
 		return
@@ -141,18 +167,43 @@ func ParseDependVersionResourceId(resourceId string) (dependId, versionInfo stri
 	return
 }
 
-func resourceDependencyVersionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.FgsV2Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
+func GetDependencyVersionById(client *golangsdk.ServiceClient, resourceId string) (interface{}, error) {
+	var (
+		httpUrl                 = "v2/{project_id}/fgs/dependencies/{depend_id}/version/{version}"
+		dependId, dependVersion = parseDependVersionResourceId(resourceId)
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{depend_id}", dependId)
+	getPath = strings.ReplaceAll(getPath, "{version}", dependVersion)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
-	dependId, version, err := ParseDependVersionResourceId(d.Id())
+	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return diag.FromErr(err)
+		return nil, fmt.Errorf("error creating FunctionGraph application: %s", err)
 	}
-	resp, err := dependencies.GetVersion(client, dependId, version)
+	return utils.FlattenResponse(requestResp)
+}
+
+func resourceDependencyVersionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		resourceId = d.Id()
+	)
+
+	client, err := cfg.NewServiceClient("fgs", region)
+	if err != nil {
+		return diag.Errorf("error creating FunctionGraph client: %s", err)
+	}
+
+	respBody, err := GetDependencyVersionById(client, resourceId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "FunctionGraph dependency version")
 	}
@@ -162,15 +213,15 @@ func resourceDependencyVersionRead(_ context.Context, d *schema.ResourceData, me
 	// If the ReadContext is set this value according to the query result, ForceNew behavior will be triggered the next
 	// time it is applied.
 	mErr := multierror.Append(
-		d.Set("runtime", resp.Runtime),
-		d.Set("name", resp.Name),
-		d.Set("description", resp.Description),
-		d.Set("etag", resp.Etag),
-		d.Set("size", resp.Size),
-		d.Set("owner", resp.Owner),
-		d.Set("version", resp.Version),
-		d.Set("version_id", resp.ID),
-		d.Set("dependency_id", resp.DepId),
+		d.Set("runtime", utils.PathSearch("runtime", respBody, nil)),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("etag", utils.PathSearch("etag", respBody, nil)),
+		d.Set("size", utils.PathSearch("size", respBody, nil)),
+		d.Set("owner", utils.PathSearch("owner", respBody, nil)),
+		d.Set("version", utils.PathSearch("version", respBody, nil)),
+		d.Set("version_id", utils.PathSearch("id", respBody, nil)),
+		d.Set("dependency_id", utils.PathSearch("dep_id", respBody, nil)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting resource fields of custom dependency version (%s): %s", d.Id(), err)
@@ -180,21 +231,110 @@ func resourceDependencyVersionRead(_ context.Context, d *schema.ResourceData, me
 }
 
 func resourceDependencyVersionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.FgsV2Client(cfg.GetRegion(d))
+	var (
+		cfg                     = meta.(*config.Config)
+		region                  = cfg.GetRegion(d)
+		httpUrl                 = "v2/{project_id}/fgs/dependencies/{depend_id}/version/{version}"
+		resourceId              = d.Id()
+		dependId, dependVersion = parseDependVersionResourceId(resourceId)
+	)
+
+	client, err := cfg.NewServiceClient("fgs", region)
 	if err != nil {
-		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
+		return diag.Errorf("error creating FunctionGraph client: %s", err)
 	}
 
-	dependId, version, err := ParseDependVersionResourceId(d.Id())
-	if err != nil {
-		return diag.FromErr(err)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{depend_id}", dependId)
+	deletePath = strings.ReplaceAll(deletePath, "{version}", dependVersion)
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
-	err = dependencies.DeleteVersion(client, dependId, version)
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting custom dependency version")
 	}
 	return nil
+}
+
+func getDependencies(client *golangsdk.ServiceClient) ([]interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/fgs/dependencies?maxitems=100"
+		marker  = 0
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	result := make([]interface{}, 0)
+	for {
+		listPathWithMarker := fmt.Sprintf("%s&&marker=%v", listPath, marker)
+		requestResp, err := client.Request("GET", listPathWithMarker, &listOpt)
+		if err != nil {
+			return nil, fmt.Errorf("error querying dependent packages: %s", err)
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		dependencies := utils.PathSearch("dependencies", respBody, make([]interface{}, 0)).([]interface{})
+		if len(dependencies) < 1 {
+			break
+		}
+		result = append(result, dependencies...)
+		marker += len(dependencies)
+	}
+
+	return result, nil
+}
+
+func getDependencyVersions(client *golangsdk.ServiceClient, dependId string) ([]interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/fgs/dependencies/{depend_id}/version?maxitems=100"
+		marker  = 0
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{depend_id}", dependId)
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	result := make([]interface{}, 0)
+	for {
+		listPathWithMarker := fmt.Sprintf("%s&&marker=%v", listPath, marker)
+		requestResp, err := client.Request("GET", listPathWithMarker, &listOpt)
+		if err != nil {
+			return nil, fmt.Errorf("error querying dependent package versions: %s", err)
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		dependencies := utils.PathSearch("dependencies", respBody, make([]interface{}, 0)).([]interface{})
+		if len(dependencies) < 1 {
+			break
+		}
+		result = append(result, dependencies...)
+		marker += len(dependencies)
+	}
+
+	return result, nil
 }
 
 // getSpecifiedDependencyVersion is a method that queries the corresponding dependency version based on the entered ID.
@@ -203,56 +343,46 @@ func resourceDependencyVersionDelete(_ context.Context, d *schema.ResourceData, 
 // + <depend_id>/<version_id>
 // + <depend_name>/<version> (All information that can be found through the console)
 // + <depend_name>/<version_id>
-func getSpecifiedDependencyVersion(client *golangsdk.ServiceClient, resourceId string) (*dependencies.DependencyVersion, error) {
-	dependInfo, versionInfo, err := ParseDependVersionResourceId(resourceId)
-	if err != nil {
-		return nil, err
-	}
+func refreshSpecifiedDependencyVersion(client *golangsdk.ServiceClient, resourceId string) (dependId, dependVersion string, err error) {
+	dependId, dependVersion = parseDependVersionResourceId(resourceId)
 
+	var resultList []interface{}
 	// If the input dependency package information part is not in UUID format, perform a query to obtain the
 	// corresponding ID.
-	if !utils.IsUUID(dependInfo) {
-		opts := dependencies.ListOpts{
-			Name: dependInfo,
-		}
-		allPages, err := dependencies.List(client, opts).AllPages()
+	if !utils.IsUUID(dependId) {
+		resultList, err = getDependencies(client)
 		if err != nil {
-			return nil, err
+			return dependId, dependVersion, err
 		}
-		listResp, _ := dependencies.ExtractDependencies(allPages)
-		if len(listResp.Dependencies) < 1 {
-			return nil, golangsdk.ErrDefault404{
+		dependId = utils.PathSearch(fmt.Sprintf("[?name=='%s']|[0].id", dependId), resultList, "").(string)
+		if dependId == "" {
+			return dependId, dependVersion, golangsdk.ErrDefault404{
 				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte(fmt.Sprintf("unable to find the dependency package using its name: %s", dependInfo)),
+					Body: []byte(fmt.Sprintf("unable to find the dependency package using its name: %s", dependId)),
 				},
 			}
 		}
-		// Make sure the dependInfo content is the dependency ID.
-		dependInfo = listResp.Dependencies[0].ID
 	}
 
 	// If the input dependency version information part is in UUID format, perform a query to obtain the specified
 	// version using its ID.
-	if utils.IsUUID(versionInfo) {
-		opts := dependencies.ListVersionsOpts{
-			DependId: dependInfo,
-		}
-		listResp, err := dependencies.ListVersions(client, opts)
+	if utils.IsUUID(dependVersion) {
+		resultList, err := getDependencyVersions(client, dependId)
 		if err != nil {
-			return nil, err
+			return dependId, dependVersion, err
 		}
-		for _, dependVersion := range listResp {
-			if dependVersion.ID == versionInfo {
-				return &dependVersion, nil
+		dependVersion = fmt.Sprint(utils.PathSearch(fmt.Sprintf("[?id=='%s']|[0].version", dependVersion),
+			resultList, float64(0)).(float64))
+		if dependVersion == "" {
+			return dependId, dependVersion, golangsdk.ErrDefault404{
+				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+					Body: []byte(fmt.Sprintf("unable to find the dependency package version using its ID: %s", dependVersion)),
+				},
 			}
 		}
-		return nil, golangsdk.ErrDefault404{
-			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("unable to find the dependency package using its ID: %s", versionInfo)),
-			},
-		}
 	}
-	return dependencies.GetVersion(client, dependInfo, versionInfo)
+
+	return dependId, dependVersion, nil
 }
 
 func resourceDependencyVersionImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
@@ -263,11 +393,11 @@ func resourceDependencyVersionImportState(_ context.Context, d *schema.ResourceD
 	}
 
 	// Query the corresponding dependency version based on the user's import ID.
-	resp, err := getSpecifiedDependencyVersion(client, d.Id())
+	dependId, dependVersion, err := refreshSpecifiedDependencyVersion(client, d.Id())
 	if err != nil {
 		return []*schema.ResourceData{d}, err
 	}
-	d.SetId(fmt.Sprintf("%s/%d", resp.DepId, resp.Version))
+	d.SetId(fmt.Sprintf("%s/%v", dependId, dependVersion))
 
 	return []*schema.ResourceData{d}, nil
 }
