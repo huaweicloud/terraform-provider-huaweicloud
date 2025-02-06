@@ -214,6 +214,10 @@ The following arguments are supported:
   at [EPS](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/enterprise_project).
   If omitted, the `HW_ENTERPRISE_PROJECT_ID` environment variable is used.
 
+* `signing_algorithm` - (Optional) The signing algorithm for authentication. Valid values are **HmacSHA256**,
+  **HmacSM3**, **EcdsaP256SHA256**, **SM2SM3**.
+  If omitted, the `HW_SIGNING_ALGORITHM` environment variable is used.
+
 * `regional` - (Optional) Whether the service endpoints are regional. The default value is `false`.
 
 * `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints. The following
