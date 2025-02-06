@@ -21,10 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API MPC DELETE /v1/{project_id}/template_group/transcodings
-// @API MPC GET /v1/{project_id}/template_group/transcodings
 // @API MPC POST /v1/{project_id}/template_group/transcodings
+// @API MPC GET /v1/{project_id}/template_group/transcodings
 // @API MPC PUT /v1/{project_id}/template_group/transcodings
+// @API MPC DELETE /v1/{project_id}/template_group/transcodings
 func ResourceTranscodingTemplateGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTranscodingTemplateGroupCreate,
@@ -65,6 +65,8 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			// If the requestBody not contain `audio`, after creating the resource,
+			// execute `terraform plan` will trigger update.
 			"audio": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -99,6 +101,8 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 					},
 				},
 			},
+			// If the requestBody not contain `video_common`, after creating the resource,
+			// execute `terraform plan` will trigger update.
 			"video_common": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -190,6 +194,94 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 	}
 }
 
+func buildCreateTemplateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	templateGroupParams := map[string]interface{}{
+		"name":         d.Get("name"),
+		"videos":       buildVideosBodyParams(d.Get("videos").([]interface{})),
+		"audio":        buildAudioBodyParams(d.Get("audio").([]interface{})),
+		"video_common": buildVideoCommonBodyParams(d.Get("video_common").([]interface{})),
+		"common":       buildCommonBodyParams(d),
+	}
+
+	return templateGroupParams
+}
+
+func buildVideosBodyParams(rawVideos []interface{}) []map[string]interface{} {
+	if len(rawVideos) == 0 {
+		return nil
+	}
+
+	videos := make([]map[string]interface{}, 0, len(rawVideos))
+	for _, v := range rawVideos {
+		video := v.(map[string]interface{})
+		params := map[string]interface{}{
+			"width":   video["width"],
+			"height":  video["height"],
+			"bitrate": video["bitrate"],
+		}
+		videos = append(videos, params)
+	}
+
+	return videos
+}
+
+func buildAudioBodyParams(rawAudio []interface{}) map[string]interface{} {
+	if len(rawAudio) == 0 {
+		return nil
+	}
+
+	audio := rawAudio[0].(map[string]interface{})
+	audioParams := map[string]interface{}{
+		"output_policy": buildOutputPolicy(audio["output_policy"].(string)),
+		"codec":         audio["codec"],
+		"sample_rate":   audio["sample_rate"],
+		"bitrate":       audio["bitrate"],
+		"channels":      audio["channels"],
+	}
+
+	return audioParams
+}
+
+func buildVideoCommonBodyParams(rawVideoCommon []interface{}) map[string]interface{} {
+	if len(rawVideoCommon) == 0 {
+		return nil
+	}
+
+	videoCommon := rawVideoCommon[0].(map[string]interface{})
+	videoCommonParams := map[string]interface{}{
+		"output_policy":        buildOutputPolicy(videoCommon["output_policy"].(string)),
+		"codec":                videoCommon["codec"],
+		"profile":              videoCommon["profile"],
+		"level":                videoCommon["level"],
+		"preset":               videoCommon["quality"],
+		"max_iframes_interval": videoCommon["max_iframes_interval"],
+		"bframes_count":        videoCommon["max_consecutive_bframes"],
+		"frame_rate":           videoCommon["fps"],
+		"black_cut":            videoCommon["black_bar_removal"],
+	}
+
+	return videoCommonParams
+}
+
+func buildOutputPolicy(outputPolicy string) interface{} {
+	if outputPolicy == "discard" || outputPolicy == "transcode" {
+		return outputPolicy
+	}
+
+	return nil
+}
+
+func buildCommonBodyParams(d *schema.ResourceData) map[string]interface{} {
+	commonParams := map[string]interface{}{
+		"PVC":           d.Get("low_bitrate_hd"),
+		"hls_interval":  d.Get("hls_segment_duration"),
+		"dash_interval": d.Get("dash_segment_duration"),
+		"pack_type":     d.Get("output_format"),
+	}
+
+	return commonParams
+}
+
 func buildVideosOpts(rawVideos []interface{}) *[]mpc.VideoObj {
 	if len(rawVideos) == 0 {
 		return nil
@@ -249,30 +341,40 @@ func buildVideoCommonOutputPolicyOpts(outputPolicy string) *mpc.VideoCommonOutpu
 }
 
 func resourceTranscodingTemplateGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcMpcV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/template_group/transcodings"
+	)
+
+	client, err := cfg.NewServiceClient("mpc", region)
 	if err != nil {
-		return diag.Errorf("error creating MPC client : %s", err)
+		return diag.Errorf("error creating MPC client: %s", err)
 	}
 
-	createOpts := mpc.TransTemplateGroup{
-		Name:        d.Get("name").(string),
-		Videos:      buildVideosOpts(d.Get("videos").([]interface{})),
-		VideoCommon: buildVideoCommonOpts(d.Get("video_common").([]interface{})),
-		Audio:       buildAudioOpts(d.Get("audio").([]interface{})),
-		Common:      buildCommonOpts(d),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateTemplateGroupBodyParams(d)),
 	}
 
-	createReq := mpc.CreateTemplateGroupRequest{
-		Body: &createOpts,
-	}
-
-	resp, err := client.CreateTemplateGroup(&createReq)
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating MPC transcoding template group: %s", err)
 	}
 
-	d.SetId(*resp.TemplateGroup.GroupId)
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	groupId := utils.PathSearch("template_group.group_id", respBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("error creating MPC transcoding template group: ID is not found in API response")
+	}
+
+	d.SetId(groupId)
 
 	return resourceTranscodingTemplateGroupRead(ctx, d, meta)
 }
