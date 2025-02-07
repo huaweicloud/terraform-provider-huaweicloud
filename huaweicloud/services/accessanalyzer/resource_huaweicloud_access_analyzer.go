@@ -89,7 +89,27 @@ func ResourceAccessAnalyzer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"status_reason": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"details": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"urn": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"organization_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -210,7 +230,9 @@ func resourceAccessAnalyzerRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("configuration", flattenConfiguration(utils.PathSearch("configuration", analyzer, nil))),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", analyzer, make([]interface{}, 0)))),
 		d.Set("status", utils.PathSearch("status", analyzer, nil)),
+		d.Set("status_reason", flattenStatusReason(utils.PathSearch("status_reason", analyzer, nil))),
 		d.Set("urn", utils.PathSearch("urn", analyzer, nil)),
+		d.Set("organization_id", utils.PathSearch("organization_id", analyzer, nil)),
 		d.Set("last_analyzed_resource", utils.PathSearch("last_analyzed_resource", analyzer, nil)),
 		d.Set("last_resource_analyzed_at", utils.PathSearch("last_resource_analyzed_at", analyzer, nil)),
 		d.Set("created_at", utils.PathSearch("created_at", analyzer, nil)),
