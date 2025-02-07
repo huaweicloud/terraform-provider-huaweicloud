@@ -32,9 +32,24 @@ The following arguments are supported:
 * `name` - (Required, String, NonUpdatable) Specifies the name of the analyzer.
 
 * `type` - (Required, String, NonUpdatable) Specifies the type of the analyzer.
-  The value can be: **account**.
+  The value can be: **account**, **organization**, **account_unused_access** and **organization_unused_access**.
+
+* `configuration` - (Optional, List, NonUpdatable) Specifies the configuration of the analyzer.
+  The [configuration](#configuration) structure is documented below.
 
 * `tags` - (Optional, Map) Specifies the tags of the analyzer.
+
+<a name="configuration"></a>
+The `configuration` block supports:
+
+* `unused_access` - (Optional, List, NonUpdatable) Specifies the unused access.
+  The [unused_access](#unused_access) structure is documented below.
+
+<a name="unused_access"></a>
+The `unused_access` block supports:
+
+* `unused_access_age` - (Optional, Int, NonUpdatable) Specifies the unused access age in days.
+  When the `type` is **account_unused_access** or **organization_unused_access**, the default value is 90.
 
 ## Attribute Reference
 

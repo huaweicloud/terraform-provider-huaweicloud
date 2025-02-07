@@ -22,7 +22,8 @@ import (
 // @API AccessAnalyzer DELETE /v5/analyzers/{analyzer_id}
 // @API AccessAnalyzer POST /v5/{resource_type}/{resource_id}/tags/create
 // @API AccessAnalyzer POST /v5/{resource_type}/{resource_id}/tags/delete
-var nonUpdatableParams = []string{"name", "type"}
+var nonUpdatableParams = []string{"name", "type", "configuration", "configuration.*.unused_access",
+	"configuration.*.unused_access.*.unused_access_age"}
 
 func ResourceAccessAnalyzer() *schema.Resource {
 	return &schema.Resource{
@@ -45,6 +46,31 @@ func ResourceAccessAnalyzer() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"unused_access": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"unused_access_age": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"tags": common.TagsSchema(),
 			"enable_force_new": {
@@ -111,9 +137,33 @@ func resourceAccessAnalyzerCreate(ctx context.Context, d *schema.ResourceData, m
 
 func buildCreateAnalyzerBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name": d.Get("name"),
-		"type": d.Get("type").(string),
-		"tags": utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+		"name":          d.Get("name"),
+		"type":          d.Get("type").(string),
+		"configuration": buildConfigurationBodyParams(d),
+		"tags":          utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+	}
+	return bodyParams
+}
+
+func buildConfigurationBodyParams(d *schema.ResourceData) map[string]interface{} {
+	configuration := d.Get("configuration")
+	if configuration == nil || len(configuration.([]interface{})) == 0 {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"unused_access": buildUnusedAccessBodyParams(utils.PathSearch("[0].unused_access", configuration, nil)),
+	}
+	return bodyParams
+}
+
+func buildUnusedAccessBodyParams(unusedAccess interface{}) map[string]interface{} {
+	if unusedAccess == nil || len(unusedAccess.([]interface{})) == 0 {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"unused_access_age": utils.PathSearch("[0].unused_access_age", unusedAccess, nil),
 	}
 	return bodyParams
 }
@@ -150,6 +200,7 @@ func resourceAccessAnalyzerRead(_ context.Context, d *schema.ResourceData, meta 
 	mErr := multierror.Append(nil,
 		d.Set("name", utils.PathSearch("name", analyzer, nil)),
 		d.Set("type", utils.PathSearch("type", analyzer, nil)),
+		d.Set("configuration", flattenConfiguration(utils.PathSearch("configuration", analyzer, nil))),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", analyzer, make([]interface{}, 0)))),
 		d.Set("status", utils.PathSearch("status", analyzer, nil)),
 		d.Set("urn", utils.PathSearch("urn", analyzer, nil)),
@@ -163,6 +214,34 @@ func resourceAccessAnalyzerRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	return nil
+}
+
+func flattenConfiguration(configuration interface{}) []map[string]interface{} {
+	if configuration == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"unused_access": flattenUnusedAccess(utils.PathSearch("unused_access", configuration, nil)),
+		},
+	}
+
+	return res
+}
+
+func flattenUnusedAccess(unusedAccess interface{}) []map[string]interface{} {
+	if unusedAccess == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"unused_access_age": utils.PathSearch("unused_access_age", unusedAccess, nil),
+		},
+	}
+
+	return res
 }
 
 func resourceAccessAnalyzerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
