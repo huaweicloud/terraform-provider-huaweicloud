@@ -40,6 +40,9 @@ resource "huaweicloud_access_analyzer_archive_rule" "test" {
 
 The following arguments are supported:
 
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create resource.
+  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
+
 * `analyzer_id` - (Required, String, NonUpdatable) Specifies the ID of the analyzer to which the archice rule belongs.
 
 * `name` - (Required, String, NonUpdatable) Specifies the name of the archice rule.

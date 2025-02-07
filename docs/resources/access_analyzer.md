@@ -29,6 +29,9 @@ resource "huaweicloud_access_analyzer" "test" {
 
 The following arguments are supported:
 
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create resource.
+  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
+
 * `name` - (Required, String, NonUpdatable) Specifies the name of the analyzer.
 
 * `type` - (Required, String, NonUpdatable) Specifies the type of the analyzer.

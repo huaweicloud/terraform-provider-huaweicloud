@@ -39,6 +39,12 @@ func ResourceAccessAnalyzer() *schema.Resource {
 		CustomizeDiff: config.FlexibleForceNew(nonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -198,6 +204,7 @@ func resourceAccessAnalyzerRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	mErr := multierror.Append(nil,
+		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", analyzer, nil)),
 		d.Set("type", utils.PathSearch("type", analyzer, nil)),
 		d.Set("configuration", flattenConfiguration(utils.PathSearch("configuration", analyzer, nil))),
