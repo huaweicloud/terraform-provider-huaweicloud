@@ -38,6 +38,12 @@ func ResourceArchiveRule() *schema.Resource {
 		CustomizeDiff: config.FlexibleForceNew(nonUpdatableParamsArchiveRule),
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"analyzer_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -229,6 +235,7 @@ func resourceArchiveRuleRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	mErr := multierror.Append(nil,
+		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", archiveRule, nil)),
 		d.Set("urn", utils.PathSearch("urn", archiveRule, nil)),
 		d.Set("created_at", utils.PathSearch("created_at", archiveRule, nil)),
