@@ -110,18 +110,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `state_reason` - Indicates the reason of alarm status.
 
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 5 minutes.
-* `update` - Default is 5 minutes.
-* `delete` - Default is 5 minutes.
-
 ## Import
 
 AOM alarm rules can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_aom_alarm_rule.alarm_rule 966746116613832710
+$ terraform import huaweicloud_aom_alarm_rule.alarm_rule <id>
 ```
