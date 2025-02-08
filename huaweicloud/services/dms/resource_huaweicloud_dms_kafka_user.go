@@ -2,13 +2,14 @@ package dms
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -72,25 +73,29 @@ func ResourceDmsKafkaUser() *schema.Resource {
 }
 
 func resourceDmsKafkaUserCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcDmsV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	instanceUser := d.Get("name").(string)
 	instanceId := d.Get("instance_id").(string)
+	instanceUser := d.Get("name").(string)
 
-	createOpts := &model.CreateInstanceUserRequest{
-		InstanceId: instanceId,
-		Body: &model.CreateInstanceUserReq{
-			UserName:   utils.String(instanceUser),
-			UserPasswd: utils.String(d.Get("password").(string)),
-			UserDesc:   utils.String(d.Get("description").(string)),
+	createHttpUrl := "v2/{project_id}/instances/{instance_id}/users"
+	createPath := client.Endpoint + createHttpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
 		},
+		JSONBody: utils.RemoveNil(buildCreateDmsKafkaUserBodyParams(d)),
 	}
 
-	_, err = client.CreateInstanceUser(createOpts)
+	_, err = client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating DMS instance user: %s", err)
 	}
@@ -100,74 +105,100 @@ func resourceDmsKafkaUserCreate(ctx context.Context, d *schema.ResourceData, met
 	return resourceDmsKafkaUserRead(ctx, d, meta)
 }
 
+func buildCreateDmsKafkaUserBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"user_name":   d.Get("name"),
+		"user_desc":   d.Get("description"),
+		"user_passwd": d.Get("password"),
+	}
+	return bodyParams
+}
+
 func resourceDmsKafkaUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcDmsV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
 	// Split instance_id and user from resource id
-	parts := strings.SplitN(d.Id(), "/", 2)
+	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<user>")
+		return diag.Errorf("invalid ID format, must be <instance_id>/<user>")
 	}
 	instanceId := parts[0]
 	instanceUser := parts[1]
 
-	// List all instance users
-	request := &model.ShowInstanceUsersRequest{
-		InstanceId: instanceId,
-	}
-
-	response, err := client.ShowInstanceUsers(request)
+	user, err := GetDmsKafkaUser(client, instanceId, instanceUser)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error listing DMS instance users")
 	}
 
-	if response.Users != nil && len(*response.Users) != 0 {
-		users := *response.Users
-		for _, user := range users {
-			if *user.UserName == instanceUser {
-				d.Set("instance_id", instanceId)
-				d.Set("name", instanceUser)
-				d.Set("description", user.UserDesc)
-				d.Set("default_app", user.DefaultApp)
-				d.Set("role", user.Role)
-				d.Set("created_at", utils.FormatTimeStampRFC3339(*user.CreatedTime/1000, false))
-				return nil
-			}
-		}
+	mErr := multierror.Append(nil,
+		d.Set("region", cfg.GetRegion(d)),
+		d.Set("instance_id", instanceId),
+		d.Set("name", instanceUser),
+		d.Set("description", utils.PathSearch("user_desc", user, nil)),
+		d.Set("default_app", utils.PathSearch("default_app", user, nil)),
+		d.Set("role", utils.PathSearch("role", user, nil)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("created_time", user, float64(0)).(float64))/1000, false)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func GetDmsKafkaUser(client *golangsdk.ServiceClient, instId, name string) (interface{}, error) {
+	getHttpUrl := "v2/{project_id}/instances/{instance_id}/users"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	// DB user deleted
-	d.SetId("")
-	log.Printf("[WARN] failed to fetch DMS instance user %s: deleted", instanceUser)
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil
+	searchPath := fmt.Sprintf("users[?user_name=='%s']|[0]", name)
+	user := utils.PathSearch(searchPath, getRespBody, nil)
+	if user == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return user, nil
 }
 
 func resourceDmsKafkaUserUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcDmsV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	instanceId := d.Get("instance_id").(string)
+	updateHttpUrl := "v2/{engine}/{project_id}/instances/{instance_id}/users/{user_name}"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{engine}", "kafka")
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{user_name}", d.Get("name").(string))
 
-	updateOpts := &model.UpdateInstanceUserRequest{
-		Engine:     "kafka",
-		InstanceId: instanceId,
-		UserName:   d.Get("name").(string),
-		Body: &model.UpdateUserReq{
-			UserName:    utils.String(d.Get("name").(string)),
-			NewPassword: utils.String(d.Get("password").(string)),
-			UserDesc:    utils.String(d.Get("description").(string)),
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
 		},
+		JSONBody: utils.RemoveNil(buildUpdateDmsKafkaUserBodyParams(d)),
 	}
 
-	_, err = client.UpdateInstanceUser(updateOpts)
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
 		return diag.Errorf("error updating DMS instance user: %s", err)
 	}
@@ -175,29 +206,41 @@ func resourceDmsKafkaUserUpdate(ctx context.Context, d *schema.ResourceData, met
 	return resourceDmsKafkaUserRead(ctx, d, meta)
 }
 
+func buildUpdateDmsKafkaUserBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"user_name":    d.Get("name"),
+		"user_desc":    d.Get("description"),
+		"new_password": d.Get("password"),
+	}
+	return bodyParams
+}
+
 func resourceDmsKafkaUserDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcDmsV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	instanceId := d.Get("instance_id").(string)
-	users := []string{d.Get("name").(string)}
-	action := model.GetBatchDeleteInstanceUsersReqActionEnum().DELETE
+	deleteHttpUrl := "v2/{project_id}/instances/{instance_id}/users"
+	deletePath := client.Endpoint + deleteHttpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{instance_id}", d.Get("instance_id").(string))
 
-	deleteOpts := &model.BatchDeleteInstanceUsersRequest{
-		InstanceId: instanceId,
-		Body: &model.BatchDeleteInstanceUsersReq{
-			Action: &action,
-			Users:  &users,
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+		JSONBody: map[string]interface{}{
+			"action": "delete",
+			"users":  []interface{}{d.Get("name")},
 		},
 	}
 
-	log.Printf("[DEBUG] Delete DMS instance user options: %#v", deleteOpts)
-	_, err = client.BatchDeleteInstanceUsers(deleteOpts)
+	_, err = client.Request("PUT", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DMS instance user: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting DMS instance user")
 	}
 
 	return nil
