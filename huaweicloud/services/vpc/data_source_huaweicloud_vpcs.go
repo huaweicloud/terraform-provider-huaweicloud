@@ -113,7 +113,7 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 		return diag.Errorf("error creating VPC V2 client: %s", err)
 	}
 
-	v3Client, err := cfg.HcVpcV3Client(region)
+	v3Client, err := cfg.NewServiceClient("vpcv3", region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v3 client: %s", err)
 	}
@@ -167,7 +167,7 @@ func dataSourceVpcsRead(_ context.Context, d *schema.ResourceData, meta interfac
 		if err != nil {
 			diag.Errorf("error retrieving VPC (%s) v3 detail: %s", vpcResource.ID, err)
 		}
-		vpc["secondary_cidrs"] = res.Vpc.ExtendCidrs
+		vpc["secondary_cidrs"] = utils.PathSearch("vpc.extend_cidrs", res, nil)
 
 		vpcs = append(vpcs, vpc)
 		ids = append(ids, vpcResource.ID)
