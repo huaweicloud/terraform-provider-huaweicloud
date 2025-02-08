@@ -3,10 +3,10 @@ package dms
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -14,8 +14,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
-
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kafka/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -79,30 +77,36 @@ func ResourceDmsKafkaPermissions() *schema.Resource {
 	}
 }
 
-func buildPoliciesOpts(rawPolicies []interface{}) ([]model.AccessPolicyEntity, error) {
+func buildPoliciesOpts(rawPolicies []interface{}) []interface{} {
 	if len(rawPolicies) < 1 {
-		return nil, nil
+		return nil
 	}
 
-	policies := make([]model.AccessPolicyEntity, len(rawPolicies))
-	for i, v := range rawPolicies {
+	policies := make([]interface{}, 0, len(rawPolicies))
+	for _, v := range rawPolicies {
 		policy := v.(map[string]interface{})
-		var accessPolicy model.AccessPolicyEntityAccessPolicy
-		if err := accessPolicy.UnmarshalJSON([]byte(policy["access_policy"].(string))); err != nil {
-			return nil, fmt.Errorf("error parsing the argument access_policy: %s", err)
-		}
-		policies[i] = model.AccessPolicyEntity{
-			UserName:     utils.String(policy["user_name"].(string)),
-			AccessPolicy: &accessPolicy,
-		}
+		policies = append(policies, map[string]interface{}{
+			"user_name":     policy["user_name"],
+			"access_policy": policy["access_policy"],
+		})
 	}
 
-	return policies, nil
+	return policies
+}
+
+func buildCreateOrUpdateDmsKafkaPermissionsBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":     d.Get("topic_name"),
+		"policies": buildPoliciesOpts(d.Get("policies").([]interface{})),
+	}
+	return map[string]interface{}{
+		"topics": []interface{}{bodyParams},
+	}
 }
 
 func resourceDmsKafkaPermissionsCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcDmsV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
@@ -110,130 +114,132 @@ func resourceDmsKafkaPermissionsCreateOrUpdate(ctx context.Context, d *schema.Re
 	topicName := d.Get("topic_name").(string)
 	instanceId := d.Get("instance_id").(string)
 
-	policies, err := buildPoliciesOpts(d.Get("policies").([]interface{}))
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	createOrUpdateOpts := &model.UpdateTopicAccessPolicyRequest{
-		InstanceId: instanceId,
-		Body: &model.UpdateTopicAccessPolicyReq{
-			Topics: []model.AccessPolicyTopicEntity{
-				{
-					Name:     topicName,
-					Policies: policies,
-				},
-			},
-		},
-	}
-
-	_, err = client.UpdateTopicAccessPolicy(createOrUpdateOpts)
-	if err != nil {
-		return diag.Errorf("error creating DMS kafka permissions: %s", err)
+	if err := updateKafkaPermissions(client, instanceId, buildCreateOrUpdateDmsKafkaPermissionsBodyParams(d)); err != nil {
+		return diag.Errorf("error setting DMS kafka permissions: %s", err)
 	}
 
 	id := instanceId + "/" + topicName
 	d.SetId(id)
 
-	cli, err := c.DmsV2Client(c.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating DMS Kafka(v2) client: %s", err)
-	}
-
-	err = waitForKafkaTopicAccessPolicyComplete(ctx, cli, d, instanceId, schema.TimeoutCreate)
-	if err != nil {
+	if err = waitForKafkaTopicAccessPolicyComplete(ctx, client, d, instanceId, schema.TimeoutCreate); err != nil {
 		return diag.FromErr(err)
 	}
 
 	return resourceDmsKafkaPermissionsRead(ctx, d, meta)
 }
 
+func updateKafkaPermissions(client *golangsdk.ServiceClient, instanceId string, opt map[string]interface{}) error {
+	createHttpUrl := "v1/{project_id}/instances/{instance_id}/topics/accesspolicy"
+	createPath := client.Endpoint + createHttpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+		JSONBody: utils.RemoveNil(opt),
+	}
+
+	_, err := client.Request("POST", createPath, &createOpt)
+	return err
+}
+
 func resourceDmsKafkaPermissionsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcDmsV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
 	// Split instance_id and topic_name from resource id
-	parts := strings.SplitN(d.Id(), "/", 2)
+	parts := strings.Split(d.Id(), "/")
 	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<topic_name>")
+		return diag.Errorf("invalid ID format, must be <instance_id>/<topic_name>")
 	}
 	instanceId := parts[0]
 	topicName := parts[1]
 
-	request := &model.ShowTopicAccessPolicyRequest{
-		InstanceId: instanceId,
-		TopicName:  topicName,
-	}
-
-	response, err := client.ShowTopicAccessPolicy(request)
+	policies, err := GetDmsKafkaPermissions(client, instanceId, topicName)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DMS kafka permission")
 	}
+	mErr := multierror.Append(nil,
+		d.Set("region", cfg.GetRegion(d)),
+		d.Set("instance_id", instanceId),
+		d.Set("topic_name", topicName),
+		d.Set("policies", flattenPolicies(policies)),
+	)
 
-	if response.Policies != nil && len(*response.Policies) != 0 {
-		policies := *response.Policies
-		d.Set("instance_id", instanceId)
-		d.Set("topic_name", topicName)
-		d.Set("policies", flattenPolicies(policies))
-		return nil
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func GetDmsKafkaPermissions(client *golangsdk.ServiceClient, instId, name string) ([]interface{}, error) {
+	getHttpUrl := "v1/{project_id}/instances/{instance_id}/topics/{topic_name}/accesspolicy"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instId)
+	getPath = strings.ReplaceAll(getPath, "{topic_name}", name)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	// DB permission deleted
-	log.Printf("[WARN] failed to fetch DMS kafka permission %s: deleted", d.Id())
-	d.SetId("")
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil
+	policies := utils.PathSearch("policies", getRespBody, make([]interface{}, 0)).([]interface{})
+	if len(policies) == 0 {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return policies, nil
 }
 
 func resourceDmsKafkaPermissionsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcDmsV2Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.DmsV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	topicName := d.Get("topic_name").(string)
 	instanceId := d.Get("instance_id").(string)
 
-	deleteOpts := &model.UpdateTopicAccessPolicyRequest{
-		InstanceId: instanceId,
-		Body: &model.UpdateTopicAccessPolicyReq{
-			Topics: []model.AccessPolicyTopicEntity{
-				{
-					Name:     topicName,
-					Policies: []model.AccessPolicyEntity{},
-				},
-			},
-		},
+	if err := updateKafkaPermissions(client, instanceId, buildDeleteDmsKafkaPermissionsBodyParams(d)); err != nil {
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(
+			err, "failed_topics|[0].error_msg", "Topic policy is empty."), "error deleting DMS kafka permissions")
 	}
 
-	_, err = client.UpdateTopicAccessPolicy(deleteOpts)
-	if err != nil {
-		return diag.Errorf("error deleting DMS kafka permissions: %s", err)
-	}
-
-	cli, err := c.DmsV2Client(c.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating DMS Kafka(v2) client: %s", err)
-	}
-
-	err = waitForKafkaTopicAccessPolicyComplete(ctx, cli, d, instanceId, schema.TimeoutDelete)
-	if err != nil {
+	if err := waitForKafkaTopicAccessPolicyComplete(ctx, client, d, instanceId, schema.TimeoutDelete); err != nil {
 		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func flattenPolicies(policies []model.PolicyEntity) []map[string]interface{} {
+func buildDeleteDmsKafkaPermissionsBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":     d.Get("topic_name"),
+		"policies": []interface{}{},
+	}
+	return map[string]interface{}{
+		"topics": []interface{}{bodyParams},
+	}
+}
+
+func flattenPolicies(policies []interface{}) []map[string]interface{} {
 	policiesToSet := make([]map[string]interface{}, len(policies))
 	for i, v := range policies {
 		policiesToSet[i] = map[string]interface{}{
-			"user_name":     v.UserName,
-			"access_policy": v.AccessPolicy.Value(),
+			"user_name":     utils.PathSearch("user_name", v, nil),
+			"access_policy": utils.PathSearch("access_policy", v, nil),
 		}
 	}
 
