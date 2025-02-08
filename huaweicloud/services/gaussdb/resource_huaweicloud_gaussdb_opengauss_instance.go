@@ -269,6 +269,11 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"mysql_compatibility_port": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"tags": common.TagsSchema(),
 			"force_import": {
 				Type:     schema.TypeBool,
@@ -469,6 +474,12 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
+	if port, ok := d.GetOk("mysql_compatibility_port"); ok && port.(string) != "0" {
+		if err = openMysqlCompatibilityPort(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
@@ -649,6 +660,49 @@ func initializeParameters(ctx context.Context, d *schema.ResourceData, client *g
 	return nil
 }
 
+func openMysqlCompatibilityPort(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/mysql-compatibility"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = buildUpdateMysqlCompatibilityPortBodyParams(d)
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("POST", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     instanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error opening GaussDB OpenGauss instance (%s) MySQL compatibility port: %s", d.Id(), err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return err
+	}
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return fmt.Errorf("error opening GaussDB OpenGauss instance MySQL compatibility port: job_id is not " +
+			"found in API response")
+	}
+	return checkGaussDBOpenGaussJobFinish(ctx, client, jobId.(string), 10, d.Timeout(timeout))
+}
+
 func restartGaussDBOpenGaussInstance(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	var (
 		httpUrl = "v3/{project_id}/instances/{instance_id}/restart"
@@ -735,6 +789,7 @@ func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, 
 		d.Set("backup_strategy", flattenGaussDBOpenGaussResponseBodyBackupStrategy(instance)),
 		setOpenGaussNodesAndRelatedNumbers(d, instance, &dnNum),
 		d.Set("volume", flattenGaussDBOpenGaussResponseBodyVolume(instance, dnNum)),
+		d.Set("mysql_compatibility_port", utils.PathSearch("mysql_compatibility.port", instance, nil)),
 		setOpenGaussPrivateIpsAndEndpoints(d, instance),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", instance, make([]interface{}, 0)))),
 	)
@@ -1054,6 +1109,25 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 		ctx, err = updateParameters(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("mysql_compatibility_port") {
+		res, err := getGaussDBOpenGaussInstancesById(client, d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		port := utils.PathSearch("instances[0].mysql_compatibility.port", res, nil)
+		if port == nil || port.(string) == "0" {
+			err = openMysqlCompatibilityPort(ctx, client, d, schema.TimeoutUpdate)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		} else {
+			err = updateMysqlCompatibilityPort(ctx, client, d, schema.TimeoutUpdate)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -1553,6 +1627,56 @@ func modifyParameters(ctx context.Context, client *golangsdk.ServiceClient, d *s
 	}
 	restartRequired := utils.PathSearch("restart_required", updateRespBody, false).(bool)
 	return restartRequired, nil
+}
+
+func updateMysqlCompatibilityPort(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/mysql-compatibility"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = buildUpdateMysqlCompatibilityPortBodyParams(d)
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("PUT", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     instanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB OpenGauss instance (%s) MySQL compatibility port: %s", d.Id(), err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return err
+	}
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return fmt.Errorf("error updating GaussDB OpenGauss instance MySQL compatibility port: job_id is not " +
+			"found in API response")
+	}
+	return checkGaussDBOpenGaussJobFinish(ctx, client, jobId.(string), 10, d.Timeout(timeout))
+}
+
+func buildUpdateMysqlCompatibilityPortBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"port": d.Get("mysql_compatibility_port"),
+	}
+	return bodyParams
 }
 
 func addInstanceTags(d *schema.ResourceData, client *golangsdk.ServiceClient, addTags map[string]interface{}) error {

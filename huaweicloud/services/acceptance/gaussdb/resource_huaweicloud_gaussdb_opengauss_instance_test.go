@@ -167,6 +167,7 @@ func TestAccOpenGaussInstance_flavor(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor",
 						"data.huaweicloud_gaussdb_opengauss_flavors.test", "flavors.0.spec_code"),
+					resource.TestCheckResourceAttr(resourceName, "mysql_compatibility_port", "12345"),
 				),
 			},
 			{
@@ -175,6 +176,7 @@ func TestAccOpenGaussInstance_flavor(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor",
 						"data.huaweicloud_gaussdb_opengauss_flavors.test", "flavors.1.spec_code"),
+					resource.TestCheckResourceAttr(resourceName, "mysql_compatibility_port", "12346"),
 				),
 			},
 		},
@@ -432,7 +434,8 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
                       data.huaweicloud_availability_zones.test.names[1], 
                       data.huaweicloud_availability_zones.test.names[2]])
 
-  enterprise_project_id = "%[4]s"
+  mysql_compatibility_port = "12345"
+  enterprise_project_id    = "%[4]s"
 
   ha {
     mode             = "centralization_standard"
@@ -476,7 +479,8 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
                       data.huaweicloud_availability_zones.test.names[1], 
                       data.huaweicloud_availability_zones.test.names[2]])
 
-  enterprise_project_id = "%[4]s"
+  mysql_compatibility_port = "12346"
+  enterprise_project_id    = "%[4]s"
 
   ha {
     mode             = "centralization_standard"

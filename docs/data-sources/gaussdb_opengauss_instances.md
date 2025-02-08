@@ -2,12 +2,13 @@
 subcategory: "GaussDB"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_gaussdb_opengauss_instances"
-description: ""
+description: |-
+  Use this data source to get available GaussDB OpenGauss instances.
 ---
 
 # huaweicloud_gaussdb_opengauss_instances
 
-Use this data source to get available HuaweiCloud gaussdb opengauss instances.
+Use this data source to get available GaussDB OpenGauss instances.
 
 ## Example Usage
 
@@ -89,6 +90,8 @@ The `instances` block supports:
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 
 * `ha` - Indicates the instance ha information. Structure is documented below.
+
+* `mysql_compatibility_port` - Indicates the port for MySQL compatibility.
 
 The `volume` block supports:
 
