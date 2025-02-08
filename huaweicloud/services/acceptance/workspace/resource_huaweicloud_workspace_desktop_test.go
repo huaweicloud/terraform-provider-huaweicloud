@@ -7,11 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/workspace/v2/desktops"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/workspace"
 )
 
 func getDesktopFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -19,20 +18,20 @@ func getDesktopFunc(conf *config.Config, state *terraform.ResourceState) (interf
 	if err != nil {
 		return nil, fmt.Errorf("Error creating Workspace v2 client: %s", err)
 	}
-	return desktops.Get(client, state.Primary.ID)
+	return workspace.GetDesktopById(client, state.Primary.ID)
 }
 
 func TestAccDesktop_basic(t *testing.T) {
 	var (
-		desktop      desktops.Desktop
-		resourceName = "huaweicloud_workspace_desktop.test"
-		rName        = acceptance.RandomAccResourceNameWithDash()
-	)
+		rName = acceptance.RandomAccResourceNameWithDash()
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&desktop,
-		getDesktopFunc,
+		desktop      interface{}
+		resourceName = "huaweicloud_workspace_desktop.test"
+		rc           = acceptance.InitResourceCheck(
+			resourceName,
+			&desktop,
+			getDesktopFunc,
+		)
 	)
 
 	resource.Test(t, resource.TestCase{
@@ -59,6 +58,7 @@ func TestAccDesktop_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "data_volume.1.size", "70"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrPair(resourceName, "nic.0.network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "email_notification", "true"),
 				),
 			},
 			{
@@ -97,7 +97,7 @@ func TestAccDesktop_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "data_volume.2.size", "20"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "data_volume.3.size", "40"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "baar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
 					resource.TestCheckResourceAttrPair(resourceName, "nic.0.network_id", "huaweicloud_vpc_subnet.standby", "id"),
 				),
 			},
@@ -110,8 +110,7 @@ func TestAccDesktop_basic(t *testing.T) {
 					"image_type",
 					"user_email",
 					"vpc_id",
-					"power_action",
-					"power_action_type",
+					"email_notification",
 				},
 			},
 		},
@@ -127,22 +126,23 @@ func testAccDesktop_basic_step2(rName string) string {
 }
 
 func testAccDesktop_basic_step3(rName string) string {
-	return testAccDesktop_basic_update(rName, 100)
+	return testAccDesktop_basic_update(rName)
 }
 
 func TestAccDesktop_UpdateWithEpsId(t *testing.T) {
 	var (
-		desktop      desktops.Desktop
-		resourceName = "huaweicloud_workspace_desktop.test"
-		rName        = acceptance.RandomAccResourceNameWithDash()
-	)
-	srcEPS := acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
-	destEPS := acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+		rName = acceptance.RandomAccResourceNameWithDash()
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&desktop,
-		getDesktopFunc,
+		desktop      interface{}
+		resourceName = "huaweicloud_workspace_desktop.test"
+		rc           = acceptance.InitResourceCheck(
+			resourceName,
+			&desktop,
+			getDesktopFunc,
+		)
+
+		srcEPS  = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+		destEPS = acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
 	)
 
 	resource.Test(t, resource.TestCase{
@@ -184,15 +184,15 @@ func TestAccDesktop_UpdateWithEpsId(t *testing.T) {
 
 func TestAccDesktop_powerAction(t *testing.T) {
 	var (
-		desktop      desktops.Desktop
-		resourceName = "huaweicloud_workspace_desktop.test"
-		rName        = acceptance.RandomAccResourceNameWithDash()
-	)
+		rName = acceptance.RandomAccResourceNameWithDash()
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&desktop,
-		getDesktopFunc,
+		desktop      interface{}
+		resourceName = "huaweicloud_workspace_desktop.test"
+		rc           = acceptance.InitResourceCheck(
+			resourceName,
+			&desktop,
+			getDesktopFunc,
+		)
 	)
 
 	resource.Test(t, resource.TestCase{
@@ -247,7 +247,7 @@ func TestAccDesktop_powerAction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "power_action", "os-hibernate"),
 					resource.TestCheckResourceAttr(resourceName, "power_action_type", "HARD"),
-					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
+					resource.TestCheckResourceAttr(resourceName, "status", "HIBERNATED"),
 				),
 			},
 			{
@@ -342,12 +342,13 @@ resource "huaweicloud_workspace_desktop" "test" {
     foo = "bar"
   }
 
-  delete_user = true
+  email_notification = true
+  delete_user        = true
 }
 `, testAccDesktop_base(rName), rName, rootVolumeSize)
 }
 
-func testAccDesktop_basic_update(rName string, rootVolumeSize int) string {
+func testAccDesktop_basic_update(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -389,13 +390,10 @@ resource "huaweicloud_workspace_desktop" "test" {
     }
   }
 
-  tags = {
-    foo = "baar"
-  }
-
-  delete_user = true
+  email_notification = true
+  delete_user        = true
 }
-`, testAccDesktop_base(rName), rName, rootVolumeSize)
+`, testAccDesktop_base(rName), rName)
 }
 
 func testAccDesktop_withEPSId(rName, epsId string) string {
