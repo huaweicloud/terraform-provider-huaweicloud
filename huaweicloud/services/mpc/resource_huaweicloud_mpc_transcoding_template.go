@@ -2,13 +2,17 @@ package mpc
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
 
 	mpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model"
 
@@ -17,8 +21,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API MPC GET /v1/{project_id}/template/transcodings
 // @API MPC POST /v1/{project_id}/template/transcodings
+// @API MPC GET /v1/{project_id}/template/transcodings
 // @API MPC PUT /v1/{project_id}/template/transcodings
 // @API MPC DELETE /v1/{project_id}/template/transcodings
 func ResourceTranscodingTemplate() *schema.Resource {
@@ -291,44 +295,114 @@ func resourceTranscodingTemplateCreate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceTranscodingTemplateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcMpcV1Client(config.GetRegion(d))
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("mpc", region)
 	if err != nil {
-		return diag.Errorf("error creating MPC client : %s", err)
+		return diag.Errorf("error creating MPC client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(d.Id(), 10, 32)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	resp, err := client.ListTemplate(&mpc.ListTemplateRequest{TemplateId: &[]int32{int32(id)}})
+	respBody, err := GetTranscodingTemplate(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving MPC transcoding template")
 	}
 
-	templateList := *resp.TemplateArray
-	// templateList is never empty but still check it in case the api change
-	if len(templateList) == 0 || templateList[0].Template == nil {
-		log.Printf("unable to retrieve MPC transcoding template: %s", d.Id())
-		d.SetId("")
-		return nil
-	}
-	template := templateList[0].Template
-
-	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
-		d.Set("name", template.TemplateName),
-		d.Set("audio", flattenAudio(template.Audio)),
-		d.Set("video", flattenVideo(template.Video)),
-		setCommonAttrs(d, template.Common),
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("template_name", respBody, nil)),
+		d.Set("video", flattenTemplateVideo(utils.PathSearch("video", respBody, nil))),
+		d.Set("audio", flattenTemplateAudio(utils.PathSearch("audio", respBody, nil))),
 	)
 
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting MPC transcoding template fields: %s", err)
+	rawCommon := utils.PathSearch("common", respBody, nil)
+	if rawCommon != nil {
+		mErr = multierror.Append(mErr,
+			d.Set("low_bitrate_hd", utils.PathSearch("PVC", rawCommon, nil)),
+			d.Set("hls_segment_duration", utils.PathSearch("hls_interval", rawCommon, nil)),
+			d.Set("dash_segment_duration", utils.PathSearch("dash_interval", rawCommon, nil)),
+			d.Set("output_format", utils.PathSearch("pack_type", rawCommon, nil)),
+		)
 	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func GetTranscodingTemplate(client *golangsdk.ServiceClient, templateId string) (interface{}, error) {
+	httpUrl := "v1/{project_id}/template/transcodings"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = fmt.Sprintf("%s?template_id=%s", getPath, templateId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	template := utils.PathSearch("template_array[0].template", respBody, nil)
+	if template == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return template, nil
+}
+
+func flattenTemplateVideo(video interface{}) []map[string]interface{} {
+	if video == nil {
+		return nil
+	}
+
+	videoResult := map[string]interface{}{
+		"output_policy":           flattenTemplateOutputPolicy(utils.PathSearch("output_policy", video, "").(string)),
+		"codec":                   utils.PathSearch("codec", video, nil),
+		"bitrate":                 utils.PathSearch("bitrate", video, nil),
+		"profile":                 utils.PathSearch("profile", video, nil),
+		"level":                   utils.PathSearch("level", video, nil),
+		"quality":                 utils.PathSearch("preset", video, nil),
+		"max_reference_frames":    4,
+		"max_iframes_interval":    utils.PathSearch("max_iframes_interval", video, nil),
+		"max_consecutive_bframes": utils.PathSearch("bframes_count", video, nil),
+		"fps":                     utils.PathSearch("frame_rate", video, nil),
+		"width":                   utils.PathSearch("width", video, nil),
+		"height":                  utils.PathSearch("height", video, nil),
+		"black_bar_removal":       utils.PathSearch("black_cut", video, nil),
+	}
+
+	return []map[string]interface{}{videoResult}
+}
+
+func flattenTemplateOutputPolicy(outputPolicy string) string {
+	if outputPolicy == "discard" || outputPolicy == "transcode" {
+		return outputPolicy
+	}
+
+	return ""
+}
+
+func flattenTemplateAudio(audio interface{}) []map[string]interface{} {
+	if audio == nil {
+		return nil
+	}
+
+	audioResult := map[string]interface{}{
+		"output_policy": flattenTemplateOutputPolicy(utils.PathSearch("output_policy", audio, "").(string)),
+		"codec":         utils.PathSearch("codec", audio, nil),
+		"bitrate":       utils.PathSearch("bitrate", audio, nil),
+		"sample_rate":   utils.PathSearch("sample_rate", audio, nil),
+		"channels":      utils.PathSearch("channels", audio, nil),
+	}
+
+	return []map[string]interface{}{audioResult}
 }
 
 func resourceTranscodingTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -381,77 +455,4 @@ func resourceTranscodingTemplateDelete(_ context.Context, d *schema.ResourceData
 	}
 
 	return nil
-}
-
-func setCommonAttrs(d *schema.ResourceData, common *mpc.Common) error {
-	if common == nil {
-		return nil
-	}
-	mErr := multierror.Append(nil,
-		d.Set("low_bitrate_hd", common.Pvc),
-		d.Set("hls_segment_duration", common.HlsInterval),
-		d.Set("dash_segment_duration", common.DashInterval),
-		d.Set("output_format", common.PackType),
-	)
-
-	return mErr
-}
-
-func flattenAudio(audio *mpc.Audio) []map[string]interface{} {
-	if audio == nil {
-		return nil
-	}
-	audioResult := map[string]interface{}{
-		"codec":       audio.Codec,
-		"sample_rate": audio.SampleRate,
-		"channels":    audio.Channels,
-		"bitrate":     audio.Bitrate,
-	}
-
-	var outputPolicy string
-	switch *audio.OutputPolicy {
-	case mpc.GetAudioOutputPolicyEnum().DISCARD:
-		outputPolicy = "discard"
-	case mpc.GetAudioOutputPolicyEnum().TRANSCODE:
-		outputPolicy = "transcode"
-	default:
-		outputPolicy = ""
-	}
-	audioResult["output_policy"] = outputPolicy
-
-	return []map[string]interface{}{audioResult}
-}
-
-func flattenVideo(video *mpc.Video) []map[string]interface{} {
-	if video == nil {
-		return nil
-	}
-	videoResult := map[string]interface{}{
-		"output_policy":           video.OutputPolicy,
-		"codec":                   video.Codec,
-		"bitrate":                 video.Bitrate,
-		"profile":                 video.Profile,
-		"level":                   video.Level,
-		"quality":                 video.Preset,
-		"max_reference_frames":    4,
-		"max_iframes_interval":    video.MaxIframesInterval,
-		"max_consecutive_bframes": video.BframesCount,
-		"fps":                     video.FrameRate,
-		"width":                   video.Width,
-		"height":                  video.Height,
-		"black_bar_removal":       video.BlackCut,
-	}
-
-	var outputPolicy string
-	switch *video.OutputPolicy {
-	case mpc.GetVideoOutputPolicyEnum().DISCARD:
-		outputPolicy = "discard"
-	case mpc.GetVideoOutputPolicyEnum().TRANSCODE:
-		outputPolicy = "transcode"
-	default:
-		outputPolicy = ""
-	}
-	videoResult["output_policy"] = outputPolicy
-
-	return []map[string]interface{}{videoResult}
 }

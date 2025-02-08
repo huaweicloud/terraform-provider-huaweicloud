@@ -2,57 +2,44 @@ package mpc
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	mpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mpc"
 )
 
-func getTemplateResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.HcMpcV1Client(acceptance.HW_REGION_NAME)
+func getTemplateResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	region := acceptance.HW_REGION_NAME
+	client, err := cfg.NewServiceClient("mpc", region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating MPC client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(state.Primary.ID, 10, 32)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := c.ListTemplate(&mpc.ListTemplateRequest{TemplateId: &[]int32{int32(id)}})
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving MPC transcoding template: %d", err)
-	}
-
-	templateList := *resp.TemplateArray
-	template := templateList[0].Template
-	if template == nil {
-		return nil, fmt.Errorf("unable to retrieve MPC transcoding template: %d", id)
-	}
-
-	return template, nil
+	return mpc.GetTranscodingTemplate(client, state.Primary.ID)
 }
 
 func TestAccTranscodingTemplate_basic(t *testing.T) {
-	var template mpc.QueryTransTemplate
-	rName := acceptance.RandomAccResourceNameWithDash()
-	rNameUpdate := rName + "-update"
-	resourceName := "huaweicloud_mpc_transcoding_template.test"
+	var (
+		templateObj  interface{}
+		rName        = acceptance.RandomAccResourceNameWithDash()
+		rNameUpdate  = rName + "-update"
+		resourceName = "huaweicloud_mpc_transcoding_template.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&template,
+		&templateObj,
 		getTemplateResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -71,11 +58,6 @@ func TestAccTranscodingTemplate_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: testTranscodingTemplate_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
@@ -85,6 +67,11 @@ func TestAccTranscodingTemplate_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "video.0.codec", "1"),
 					resource.TestCheckResourceAttr(resourceName, "video.0.profile", "3"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
