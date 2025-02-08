@@ -184,6 +184,15 @@ The following arguments are supported:
 * `parameters` - (Optional, List) Specifies an array of one or more parameters to be set to the instance after launched.
   The [parameters](#parameters_struct) structure is documented below.
 
+* `mysql_compatibility_port` - (Optional, String) Specifies the port for MySQL compatibility. Value range: **0** or
+  **1024** to **39989**.
+  + The following ports are used by the system and cannot be used: **2378**, **2379**, **2380**, **2400**, **4999**,
+    **5000**, **5001**, **5100**, **5500**, **5999**, **6000**, **6001**, **6009**, **6010**, **6500**, **8015**, **8097**,
+    **8098**, **8181**, **9090**, **9100**, **9180**, **9187**, **9200**, **12016**, **12017**, **20049**, **20050**,
+    **21731**, **21732**, **32122**, **32123**, **32124**, **32125**, **32126**, **39001**,
+    **[Database port, Database port + 10]**.
+  + If the value is **0**, the MySQL compatibility port is disabled.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of opengauss instance.
   The valid values are as follows:
   + **prePaid**: the yearly/monthly billing mode.

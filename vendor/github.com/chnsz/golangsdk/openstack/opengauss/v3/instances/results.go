@@ -45,12 +45,13 @@ type GaussDBInstance struct {
 	PrivateIps        []string `json:"private_ips"`
 	ReplicaNum        int      `json:"replica_num"`
 
-	Volume         VolumeOpt         `json:"volume"`
-	Ha             HaOpt             `json:"ha"`
-	Nodes          []Nodes           `json:"nodes"`
-	DataStore      DataStoreOpt      `json:"datastore"`
-	BackupStrategy BackupStrategyOpt `json:"backup_strategy"`
-	ChargeInfo     ChargeInfoResp    `json:"charge_info"`
+	MysqlCompatibility MysqlCompatibility `json:"mysql_compatibility"`
+	Volume             VolumeOpt          `json:"volume"`
+	Ha                 HaOpt              `json:"ha"`
+	Nodes              []Nodes            `json:"nodes"`
+	DataStore          DataStoreOpt       `json:"datastore"`
+	BackupStrategy     BackupStrategyOpt  `json:"backup_strategy"`
+	ChargeInfo         ChargeInfoResp     `json:"charge_info"`
 
 	EnterpriseProjectId string `json:"enterprise_project_id"`
 }
@@ -61,6 +62,10 @@ type Nodes struct {
 	Status           string `json:"status"`
 	Role             string `json:"role"`
 	AvailabilityZone string `json:"availability_zone"`
+}
+
+type MysqlCompatibility struct {
+	Port string `json:"port"`
 }
 
 type commonResult struct {
