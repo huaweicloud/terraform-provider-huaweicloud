@@ -549,15 +549,29 @@ func resourceTranscodingTemplateGroupUpdate(ctx context.Context, d *schema.Resou
 }
 
 func resourceTranscodingTemplateGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcMpcV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/template_group/transcodings"
+	)
+
+	client, err := cfg.NewServiceClient("mpc", region)
 	if err != nil {
-		return diag.Errorf("error creating MPC client : %s", err)
+		return diag.Errorf("error creating MPC client: %s", err)
 	}
 
-	_, err = client.DeleteTemplateGroup(&mpc.DeleteTemplateGroupRequest{GroupId: d.Id()})
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = fmt.Sprintf("%s?group_id=%s", deletePath, d.Id())
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting MPC transcoding template group: %s", err)
+		// When the resource does not exist, delete API will return `403`, the error code is `MPC.10231`.
+		return common.CheckDeletedDiag(d, common.ConvertExpected403ErrInto404Err(err, "error_code", "MPC.10231"),
+			"error deleting MPC transcoding template group")
 	}
 
 	return nil
