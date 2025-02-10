@@ -425,7 +425,8 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"huaweicloud_access_analyzers": accessanalyzer.DataSourceAccessAnalyzers(),
+			"huaweicloud_access_analyzers":              accessanalyzer.DataSourceAccessAnalyzers(),
+			"huaweicloud_access_analyzer_archive_rules": accessanalyzer.DataSourceAccessAnalyzerArchiveRules(),
 
 			"huaweicloud_antiddos_config_ranges":                antiddos.DataSourceConfigRanges(),
 			"huaweicloud_antiddos_weekly_protection_statistics": antiddos.DataSourceWeeklyProtectionStatistics(),
