@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/restart
+// @API GaussDB POST /v3/{project_id}/instances/{instance_id}/db-startup
 // @API GaussDB GET /v3/{project_id}/instances
 // @API GaussDB GET /v3/{project_id}/jobs
 func ResourceOpenGaussInstanceNodeStartup() *schema.Resource {
