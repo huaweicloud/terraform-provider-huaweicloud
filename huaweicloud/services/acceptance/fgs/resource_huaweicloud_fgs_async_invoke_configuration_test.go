@@ -8,18 +8,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/fgs/v2/function"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 )
 
-func getAsyncInvokeConfigFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.FgsV2Client(acceptance.HW_REGION_NAME)
+func getAsyncInvokeConfigFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("fgs", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating FunctionGraph v2 client: %s", err)
+		return nil, fmt.Errorf("error creating FunctionGraph client: %s", err)
 	}
-	return function.GetAsyncInvokeConfig(c, state.Primary.ID)
+	return fgs.GetAsyncIncokeConfigurations(client, state.Primary.ID)
 }
 
 func TestAccAsyncInvokeConfig_basic(t *testing.T) {
