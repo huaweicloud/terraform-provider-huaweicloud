@@ -136,6 +136,21 @@ func StringToJson(jsonStrObj string) interface{} {
 	return jsonMap
 }
 
+// Try to parse the string value as the JSON array format, if the operation failed, returns an empty list result.
+func StringToJsonArray(jsonStrArray string) []map[string]interface{} {
+	if jsonStrArray == "" {
+		return nil
+	}
+
+	var jsonArray []map[string]interface{}
+	err := json.Unmarshal([]byte(jsonStrArray), &jsonArray)
+	if err != nil {
+		log.Printf("[ERROR] Unable to convert the JSON string to the JSON array: %s", err)
+		return make([]map[string]interface{}, 0)
+	}
+	return jsonArray
+}
+
 // Try to convert the JSON object to the string value, if the operation failed, returns an empty string.
 func JsonToString(jsonObj interface{}) string {
 	if jsonObj == nil {
