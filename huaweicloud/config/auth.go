@@ -14,8 +14,8 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/auth"
 	huaweisdk "github.com/chnsz/golangsdk/openstack"
-
 	iam_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/signer"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/pathorcontents"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -138,10 +138,20 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 		},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if client.AKSKAuthOptions.AccessKey != "" {
-				err := auth.Sign(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey)
+				if c.SigningAlgorithm == "" || c.SigningAlgorithm == signer.HmacSHA256 {
+					return auth.Sign(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey)
+				}
+
+				sn, err := signer.GetSigner(signer.SigningAlgorithm(c.SigningAlgorithm))
 				if err != nil {
 					return err
 				}
+
+				_, err = sn.Sign(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey)
+				if err != nil {
+					return err
+				}
+				return nil
 			}
 			return nil
 		},
