@@ -2610,6 +2610,8 @@ func init() {
 		"enterprise_project_id": "enterprise project id",
 
 		"enable_force_new": "Whether to enable ForceNew",
+
+		"signing_algorithm": "The signing algorithm for authentication",
 	}
 }
 
