@@ -47,3 +47,41 @@ resource "huaweicloud_codearts_deploy_application_permission" "test" {
   }
 }`, testDeployApplication_basic(rName), value)
 }
+
+func TestAccDeployApplicationPermissionModify_conflict(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      nil,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDeployApplicationPermissionModify_conflict(rName),
+			},
+		},
+	})
+}
+
+func testAccDeployApplicationPermissionModify_conflict(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_codearts_deploy_application_permission" "test" {
+  count = 2 
+
+  project_id      = huaweicloud_codearts_deploy_application.test.project_id
+  application_ids = [huaweicloud_codearts_deploy_application.test.id]
+
+  roles {
+    role_id        = try(huaweicloud_codearts_deploy_application.test.permission_matrix[2].role_id, "")
+    can_modify     = false
+    can_disable    = true
+    can_delete     = true
+    can_view       = true
+    can_execute    = true
+    can_copy       = true
+    can_manage     = true
+    can_create_env = true
+  }
+}`, testDeployApplication_basic(rName))
+}

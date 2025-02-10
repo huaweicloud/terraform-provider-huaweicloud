@@ -392,3 +392,83 @@ resource "huaweicloud_codearts_deploy_application" "test" {
 }
 `, testProject_basic(name), name)
 }
+
+func TestAccDeployApplication_conflict(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_codearts_deploy_application.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getDeployApplicationResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testDeployApplication_conflict(name, "project"),
+			},
+			{
+				Config: testDeployApplication_conflict(name, "instance"),
+			},
+		},
+	})
+}
+
+func testDeployApplication_conflict(name, level string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_codearts_deploy_application" "test" {
+  count = 2
+
+  project_id       = huaweicloud_codearts_project.test.id
+  name             = "%[2]s-${count.index}"
+  description      = "test description"
+  is_draft         = true
+  create_type      = "template"
+  trigger_source   = "0"
+  permission_level = "%[3]s"
+
+  operation_list {
+    name        = "Download Package"
+    description = "download package description"
+    code        = "https://example.com/xxx.zip"
+    entrance    = "main.yml"
+    version     = "1.1.282"
+    module_id   = "devcloud2018.select_deploy_source_task.select_deploy_source_tab"
+    params      = <<EOF
+[
+  {
+    "name":"groupId",
+    "label":"env",
+    "displaySettings":{
+      "DevCloud.ControlType":"DeploymentGroup",
+      "DevCloud.ControlType.Select":[
+        {
+          "displayName":"",
+          "value":""
+        }
+      ]
+    },
+    "defaultDisplay":[
+      {
+        "displayName":"$${host_group}",
+        "value":"$${host_group}",
+        "os":"linux"
+      }
+    ]
+  }
+]
+EOF
+  }
+}
+`, testProject_basic(name), name, level)
+}
