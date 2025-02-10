@@ -193,3 +193,82 @@ resource "huaweicloud_fgs_async_invoke_configuration" "test" {
 }
 `, testAccAsyncInvokeConfig_base(name), name)
 }
+
+func TestAccAsyncInvokeConfig_withoutDestConfigs(t *testing.T) {
+	var (
+		obj interface{}
+
+		name = acceptance.RandomAccResourceNameWithDash()
+
+		rName = "huaweicloud_fgs_async_invoke_configuration.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getAsyncInvokeConfigFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			// Please read the instructions carefully before use to ensure sufficient permissions.
+			acceptance.TestAccPreCheckFgsAgency(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAsyncInvokeConfig_withoutDestConfigs_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "function_urn",
+						"huaweicloud_fgs_function.test", "urn"),
+					resource.TestCheckResourceAttr(rName, "max_async_event_age_in_seconds", "3500"),
+					resource.TestCheckResourceAttr(rName, "max_async_retry_attempts", "2"),
+					resource.TestCheckResourceAttr(rName, "enable_async_status_log", "true"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+				),
+			},
+			{
+				Config: testAccAsyncInvokeConfig_withoutDestConfigs_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "function_urn",
+						"huaweicloud_fgs_function.test", "urn"),
+					resource.TestCheckResourceAttr(rName, "max_async_event_age_in_seconds", "4000"),
+					resource.TestCheckResourceAttr(rName, "max_async_retry_attempts", "0"),
+					resource.TestCheckResourceAttr(rName, "enable_async_status_log", "false"),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccAsyncInvokeConfig_withoutDestConfigs_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_async_invoke_configuration" "test" {
+  function_urn                   = huaweicloud_fgs_function.test.urn
+  max_async_event_age_in_seconds = 3500
+  max_async_retry_attempts       = 2
+  enable_async_status_log        = true
+}
+`, testAccAsyncInvokeConfig_base(name))
+}
+
+func testAccAsyncInvokeConfig_withoutDestConfigs_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_async_invoke_configuration" "test" {
+  function_urn                   = huaweicloud_fgs_function.test.urn
+  max_async_event_age_in_seconds = 4000
+  max_async_retry_attempts       = 0
+}
+`, testAccAsyncInvokeConfig_base(name))
+}
