@@ -1455,11 +1455,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_bms_instance": bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance": bcs.ResourceInstance(),
 
+			"huaweicloud_cae_component_action":         cae.ResourceComponentAction(),
 			"huaweicloud_cae_application":              cae.ResourceApplication(),
 			"huaweicloud_cae_certificate":              cae.ResourceCertificate(),
 			"huaweicloud_cae_component":                cae.ResourceComponent(),
 			"huaweicloud_cae_component_configurations": cae.ResourceComponentConfigurations(),
-			"huaweicloud_cae_component_deployment":     cae.ResourceComponentDeployment(),
 			"huaweicloud_cae_domain":                   cae.ResourceDomain(),
 			"huaweicloud_cae_environment":              cae.ResourceEnvironment(),
 			"huaweicloud_cae_notification_rule":        cae.ResourceNotificationRule(),
@@ -2458,6 +2458,7 @@ func Provider() *schema.Provider {
 			// Deprecated
 			"huaweicloud_apig_vpc_channel":               deprecated.ResourceApigVpcChannelV2(),
 			"huaweicloud_blockstorage_volume_v2":         deprecated.ResourceBlockStorageVolumeV2(),
+			"huaweicloud_cae_component_deployment":       cae.ResourceComponentAction(),
 			"huaweicloud_cfw_protection_rule":            deprecated.ResourceProtectionRule(),
 			"huaweicloud_csbs_backup":                    deprecated.ResourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":             deprecated.ResourceCSBSBackupPolicyV1(),

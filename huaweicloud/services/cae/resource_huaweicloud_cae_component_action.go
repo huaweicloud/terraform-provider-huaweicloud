@@ -19,13 +19,13 @@ import (
 
 // @API CAE POST /v1/{project_id}/cae/applications/{application_id}/components/{component_id}/action
 // @API CAE GET /v1/{project_id}/cae/jobs/{job_id}
-// ResourceComponentDeployment is a definition of the one-time action resource that used to manage component deployment.
-func ResourceComponentDeployment() *schema.Resource {
+// ResourceComponentAction is a definition of the one-time action resource that used to manage component deployment.
+func ResourceComponentAction() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceComponentDeploymentCreate,
-		ReadContext:   resourceComponentDeploymentRead,
-		UpdateContext: resourceComponentDeploymentUpdate,
-		DeleteContext: resourceComponentDeploymentDelete,
+		CreateContext: resourceComponentActionCreate,
+		ReadContext:   resourceComponentActionRead,
+		UpdateContext: resourceComponentActionUpdate,
+		DeleteContext: resourceComponentActionDelete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -89,7 +89,7 @@ func ResourceComponentDeployment() *schema.Resource {
 	}
 }
 
-func buildCreateComponentDeploymentBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateComponentActionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"api_version": "v1",
 		"kind":        "Action",
@@ -119,7 +119,7 @@ func deployComponent(ctx context.Context, client *golangsdk.ServiceClient, d *sc
 		MoreHeaders: map[string]string{
 			"X-Environment-ID": environmentId,
 		},
-		JSONBody: utils.RemoveNil(buildCreateComponentDeploymentBodyParams(d)),
+		JSONBody: utils.RemoveNil(buildCreateComponentActionBodyParams(d)),
 	}
 	requestResp, err := client.Request("POST", modifyPath, &opts)
 	if err != nil {
@@ -192,7 +192,7 @@ func deployJobRefreshFunc(client *golangsdk.ServiceClient, environmentId, jobId 
 	}
 }
 
-func resourceComponentDeploymentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceComponentActionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg         = meta.(*config.Config)
 		region      = cfg.GetRegion(d)
@@ -209,15 +209,15 @@ func resourceComponentDeploymentCreate(ctx context.Context, d *schema.ResourceDa
 	}
 	d.SetId(componentId)
 
-	return resourceComponentDeploymentRead(ctx, d, meta)
+	return resourceComponentActionRead(ctx, d, meta)
 }
 
-func resourceComponentDeploymentRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceComponentActionRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in the 'Read()' method because the resource is a one-time action resource.
 	return nil
 }
 
-func resourceComponentDeploymentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceComponentActionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -232,10 +232,10 @@ func resourceComponentDeploymentUpdate(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	return resourceComponentDeploymentRead(ctx, d, meta)
+	return resourceComponentActionRead(ctx, d, meta)
 }
 
-func resourceComponentDeploymentDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceComponentActionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in the 'Delete()' method because the resource is a one-time action resource.
 	return nil
 }
