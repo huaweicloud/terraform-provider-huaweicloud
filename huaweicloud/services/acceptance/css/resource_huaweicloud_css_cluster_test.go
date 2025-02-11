@@ -630,7 +630,7 @@ resource "huaweicloud_css_cluster" "test" {
 
   lifecycle {
     ignore_changes = [
-      backup_strategy, ess_node_config.0.shrink_node_ids,
+      ess_node_config.0.shrink_node_ids,
     ]
   }
 }
