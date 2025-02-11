@@ -2,9 +2,7 @@ package fgs
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -70,7 +68,7 @@ func ResourceFunctionTrigger() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringIsJSON,
-				Description:  `The detailed configuration of the function trigger.`,
+				Description:  `The detailed configuration of the function trigger event, in JSON format.`,
 			},
 			// INFO:
 			// + Currently, only some triggers support setting the **DISABLED** value, such as `TIMER`, `DDS`, `DMS`,
@@ -98,6 +96,14 @@ func ResourceFunctionTrigger() *schema.Resource {
 	}
 }
 
+func buildCreateFunctionTriggerBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"trigger_type_code": d.Get("type"),
+		"trigger_status":    d.Get("status"),
+		"event_data":        utils.StringToJson(d.Get("event_data").(string)),
+	}
+}
+
 func resourceFunctionTriggerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg         = meta.(*config.Config)
@@ -117,6 +123,9 @@ func resourceFunctionTriggerCreate(ctx context.Context, d *schema.ResourceData, 
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildCreateFunctionTriggerBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	requestResp, err := client.Request("POST", createPath, &createOpt)
@@ -129,24 +138,13 @@ func resourceFunctionTriggerCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	resourceId := utils.PathSearch("trigger_id", respBody, "")
-	d.SetId(resourceId.(string))
+	triggerId := utils.PathSearch("trigger_id", respBody, "").(string)
+	if triggerId == "" {
+		return diag.Errorf("unable to find the function trigger ID from the API response")
+	}
+	d.SetId(triggerId)
 
 	return resourceFunctionTriggerRead(ctx, d, meta)
-}
-
-func buildCreateFunctionTriggerBodyParams(d *schema.ResourceData) map[string]interface{} {
-	params := d.Get("event_data").(string)
-	parseResult := make(map[string]interface{})
-	err := json.Unmarshal([]byte(params), &parseResult)
-	if err != nil {
-		log.Printf("[ERROR] Invalid type of the params, not json format")
-	}
-	return map[string]interface{}{
-		"trigger_type_code": d.Get("type"),
-		"trigger_status":    d.Get("status"),
-		"event_data":        parseResult,
-	}
 }
 
 func waitForFunctionTriggerStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
@@ -199,6 +197,9 @@ func GetTriggerById(client *golangsdk.ServiceClient, functionUrn, triggerType, t
 	getPath = strings.ReplaceAll(getPath, "{trigger_id}", triggerId)
 	getOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	requestResp, err := client.Request("GET", getPath, &getOpts)
@@ -206,15 +207,6 @@ func GetTriggerById(client *golangsdk.ServiceClient, functionUrn, triggerType, t
 		return nil, common.ConvertExpected500ErrInto404Err(err, "error_code", "FSS.0500")
 	}
 	return utils.FlattenResponse(requestResp)
-}
-
-func parseEventData(eventData interface{}) interface{} {
-	jsonEventData, err := json.Marshal(eventData)
-	if err != nil {
-		log.Printf("[ERROR] unable to convert the event data of the function trigger, not json format")
-		return nil
-	}
-	return string(jsonEventData)
 }
 
 func resourceFunctionTriggerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -233,14 +225,14 @@ func resourceFunctionTriggerRead(_ context.Context, d *schema.ResourceData, meta
 
 	respBody, err := GetTriggerById(client, functionUrn, triggerType, triggerId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Function trigger")
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error querying function trigger (%s)", triggerId))
 	}
 
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("type", utils.PathSearch("trigger_type_code", respBody, nil)),
 		d.Set("status", utils.PathSearch("trigger_status", respBody, nil)),
-		d.Set("event_data", parseEventData(utils.PathSearch("event_data", respBody, nil))),
+		d.Set("event_data", utils.JsonToString(utils.PathSearch("event_data", respBody, nil))),
 		d.Set("created_at", utils.PathSearch("created_time", respBody, nil)),
 		d.Set("updated_at", utils.PathSearch("last_updated_time", respBody, nil)),
 	)
@@ -249,15 +241,9 @@ func resourceFunctionTriggerRead(_ context.Context, d *schema.ResourceData, meta
 }
 
 func buildUpdateFunctionTriggerBodyParams(d *schema.ResourceData) map[string]interface{} {
-	params := d.Get("event_data").(string)
-	parseResult := make(map[string]interface{})
-	err := json.Unmarshal([]byte(params), &parseResult)
-	if err != nil {
-		log.Printf("[ERROR] Invalid type of the params, not json format")
-	}
 	return map[string]interface{}{
 		"trigger_status": d.Get("status"),
-		"event_data":     parseResult,
+		"event_data":     utils.StringToJson(d.Get("event_data").(string)),
 	}
 }
 
@@ -284,11 +270,14 @@ func resourceFunctionTriggerUpdate(ctx context.Context, d *schema.ResourceData, 
 	updateOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildUpdateFunctionTriggerBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	_, err = client.Request("PUT", updatePath, &updateOpts)
 	if err != nil {
-		return diag.Errorf("error deleting function trigger: %s", err)
+		return diag.Errorf("error updating function trigger: %s", err)
 	}
 
 	err = waitForFunctionTriggerStatusCompleted(ctx, client, d)
@@ -320,8 +309,8 @@ func resourceFunctionTriggerDelete(ctx context.Context, d *schema.ResourceData, 
 	deletePath = strings.ReplaceAll(deletePath, "{trigger_id}", triggerId)
 	deleteOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
 		},
 	}
 
