@@ -43,11 +43,11 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `analyzer_id` - (Required, String, NonUpdatable) Specifies the ID of the analyzer to which the archice rule belongs.
+* `analyzer_id` - (Required, String, NonUpdatable) Specifies the ID of the analyzer to which the archive rule belongs.
 
-* `name` - (Required, String, NonUpdatable) Specifies the name of the archice rule.
+* `name` - (Required, String, NonUpdatable) Specifies the name of the archive rule.
 
-* `filters` - (Required, List) Specifies the filters of the archice rule.
+* `filters` - (Required, List) Specifies the filters of the archive rule.
   The [filters](#filters) structure is documented below.
 
 <a name="filters"></a>

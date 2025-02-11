@@ -1,12 +1,12 @@
 ---
 subcategory: "Access Analyzer"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_access_analyzer"
+page_title: "HuaweiCloud: huaweicloud_access_analyzers"
 description: |-
   Use this data source to get a list of Access Analyzers within HuaweiCloud.
 ---
 
-# huaweicloud_access_analyzer
+# huaweicloud_access_analyzers
 
 Use this data source to get a list of Access Analyzers within HuaweiCloud.
 
