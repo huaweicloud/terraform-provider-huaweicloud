@@ -4,48 +4,55 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/fgs/v2/function"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API FunctionGraph GET /v2/{project_id}/fgs/functions
-func DataSourceFunctionGraphFunctions() *schema.Resource {
+func DataSourceFunctions() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceFunctionGraphFunctionsRead,
+		ReadContext: dataSourceFunctionsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The region where the functions are located.`,
 			},
 			"package_name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The package name used to query the functions.`,
 			},
 			"urn": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The function URN used to query the specified function.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The function name used to query the specified function.`,
 			},
 			"runtime": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The dependency package runtime used to query the functions.`,
 			},
 			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The ID of the enterprise project to which the functions belong.`,
 			},
 			"functions": {
 				Type:     schema.TypeList,
@@ -53,77 +60,95 @@ func DataSourceFunctionGraphFunctions() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The function name.`,
 						},
 						"urn": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The function URN.`,
 						},
 						"package": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The package name that function used.`,
 						},
 						"runtime": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The dependency package runtime of the function.`,
 						},
 						"timeout": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The timeout interval of the function.`,
 						},
 						"handler": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The entry point of the function.`,
 						},
 						"memory_size": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The memory size(MB) allocated to the function.`,
 						},
 						"code_type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The function code type.`,
 						},
 						"code_url": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The code URL.`,
 						},
 						"code_filename": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the function file.`,
 						},
 						"user_data": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The custom user data (key/value pairs) defined for the function.`,
 						},
 						"encrypted_user_data": {
-							Type:      schema.TypeString,
-							Sensitive: true,
-							Computed:  true,
+							Type:        schema.TypeString,
+							Sensitive:   true,
+							Computed:    true,
+							Description: `The custom user data (key/value pairs) defined to be encrypted for the function.`,
 						},
 						"version": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The function version.`,
 						},
 						"agency": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The IAM agency name for the function configuration.`,
 						},
 						"app_agency": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The IAM agency name for the function execution.`,
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The description of the function.`,
 						},
 						"vpc_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The VPC ID to which the function belongs.`,
 						},
 						"network_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The network ID of subnet to which the function belongs.`,
 						},
 						"max_instance_num": {
 							// The original type of this parameter is int, but its zero value is meaningful.
@@ -133,97 +158,122 @@ func DataSourceFunctionGraphFunctions() *schema.Resource {
 							//   + 0: this function is disabled.
 							//   + (0, +1000]: Specific value (2023.06.26).
 							//   + empty: keep the default (latest updated) value.
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The maximum number of instances for a single function.`,
 						},
 						"initializer_handler": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The initializer of the function.`,
 						},
 						"initializer_timeout": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The maximum duration the function can be initialized.`,
 						},
 						"enterprise_project_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The enterprise project ID to which the function belongs.`,
 						},
 						"log_group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The LTS log group ID.`,
 						},
 						"log_stream_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The LTS log stream ID.`,
 						},
 						"functiongraph_version": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The functionGraph version.`,
 						},
 					},
 				},
+				Description: `All functions that match the filter parameters.`,
 			},
 		},
 	}
 }
 
-func dataSourceFunctionGraphFunctionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	fgsClient, err := conf.FgsV2Client(region)
-	if err != nil {
-		return diag.Errorf("error creating FunctionGraph V2 client: %s", err)
+func buildFunctionsQueryParams(d *schema.ResourceData) string {
+	if pkgName, ok := d.GetOk("package_name"); ok {
+		return fmt.Sprintf("&package_name=%v", pkgName)
 	}
-
-	// MaxItems and Marker use default values.
-	opts := function.ListOpts{
-		PackageName: d.Get("package_name").(string),
-	}
-	allPages, err := function.List(fgsClient, opts).AllPages()
-	if err != nil {
-		return diag.Errorf("error querying functions: %s", err)
-	}
-	resp, err := function.ExtractList(allPages)
-	if err != nil {
-		return diag.Errorf("error querying functions: %s", err)
-	}
-
-	filterResult, err := filterFunctionList(d, resp.Functions, conf)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	uuid, err := uuid.GenerateUUID()
-	if err != nil {
-		return diag.Errorf("unable to generate ID: %s", err)
-	}
-	d.SetId(uuid)
-	mErr := multierror.Append(nil,
-		d.Set("region", region),
-		d.Set("functions", flattenFunctions(filterResult)),
-	)
-
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving datas of FunctionGraph functions: %s", err)
-	}
-
-	return nil
+	return ""
 }
 
-func filterFunctionList(d *schema.ResourceData, functions []function.Function, conf *config.Config) ([]interface{}, error) {
-	filter := map[string]interface{}{
-		"FuncName":            d.Get("name"),
-		"FuncUrn":             d.Get("urn"),
-		"Runtime":             d.Get("runtime"),
-		"EnterpriseProjectID": conf.GetEnterpriseProjectID(d),
+func getFunctions(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/fgs/functions?maxitems=100"
+		marker  float64
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath += buildFunctionsQueryParams(d)
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
-	filterResult, err := utils.FilterSliceWithField(functions, filter)
-	if err != nil {
-		return nil, fmt.Errorf("error filtering list of functions: %s", err)
+	for {
+		listPathWithMarker := fmt.Sprintf("%s&marker=%v", listPath, marker)
+		requestResp, err := client.Request("GET", listPathWithMarker, &listOpt)
+		if err != nil {
+			return nil, err
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		functions := utils.PathSearch("functions", respBody, make([]interface{}, 0)).([]interface{})
+		if len(functions) < 1 {
+			break
+		}
+		result = append(result, functions...)
+		// In this API, marker has the same meaning as offset.
+		nextMarker := utils.PathSearch("next_marker", respBody, float64(0)).(float64)
+		if nextMarker == marker || nextMarker == 0 {
+			// Make sure the next marker value is correct, not the previous marker or zero (in the last page).
+			break
+		}
+		marker = nextMarker
 	}
 
-	return filterResult, nil
+	return result, nil
+}
+
+// In-place modification of slices will cause data confusion in concurrent call scenarios.
+// Although this scenario does not exist, this method is kept for the sake of understanding and avoiding missing
+// considerations when copying other methods.
+func filterFunctions(cfg *config.Config, d *schema.ResourceData, functions []interface{}) []interface{} {
+	result := functions
+
+	if name, ok := d.GetOk("name"); ok && len(result) > 0 {
+		result = utils.PathSearch(fmt.Sprintf("[?func_name=='%v']", name), result, make([]interface{}, 0)).([]interface{})
+	}
+
+	if urn, ok := d.GetOk("urn"); ok && len(result) > 0 {
+		result = utils.PathSearch(fmt.Sprintf("[?func_urn=='%v']", urn), result, make([]interface{}, 0)).([]interface{})
+	}
+
+	if runtime, ok := d.GetOk("runtime"); ok && len(result) > 0 {
+		result = utils.PathSearch(fmt.Sprintf("[?runtime=='%v']", runtime), result, make([]interface{}, 0)).([]interface{})
+	}
+
+	if epsId := cfg.GetEnterpriseProjectID(d); epsId != "" && len(result) > 0 {
+		result = utils.PathSearch(fmt.Sprintf("[?enterprise_project_id=='%v']", epsId), result, make([]interface{}, 0)).([]interface{})
+	}
+
+	return result
 }
 
 func flattenFunctions(functions []interface{}) []map[string]interface{} {
@@ -231,36 +281,64 @@ func flattenFunctions(functions []interface{}) []map[string]interface{} {
 		return nil
 	}
 
-	result := make([]map[string]interface{}, len(functions))
-	for i, val := range functions {
-		f := val.(function.Function)
-		result[i] = map[string]interface{}{
-			"name":                  f.FuncName,
-			"urn":                   f.FuncUrn,
-			"package":               f.Package,
-			"runtime":               f.Runtime,
-			"timeout":               f.Timeout,
-			"handler":               f.Handler,
-			"memory_size":           f.MemorySize,
-			"code_type":             f.CodeType,
-			"code_url":              f.CodeUrl,
-			"code_filename":         f.CodeFileName,
-			"user_data":             f.UserData,
-			"encrypted_user_data":   f.EncryptedUserData,
-			"version":               f.Version,
-			"agency":                f.Xrole,
-			"app_agency":            f.AppXrole,
-			"description":           f.Description,
-			"vpc_id":                f.FuncVpc.VpcId,
-			"network_id":            f.FuncVpc.SubnetId,
-			"max_instance_num":      strconv.Itoa(*f.StrategyConfig.Concurrency),
-			"initializer_handler":   f.InitializerHandler,
-			"initializer_timeout":   f.InitializerTimeout,
-			"enterprise_project_id": f.EnterpriseProjectID,
-			"log_group_id":          f.LogGroupId,
-			"log_stream_id":         f.LogStreamId,
-			"functiongraph_version": f.Type,
-		}
+	result := make([]map[string]interface{}, 0, len(functions))
+	for _, function := range functions {
+		result = append(result, map[string]interface{}{
+			"name":                  utils.PathSearch("func_name", function, nil),
+			"urn":                   utils.PathSearch("func_urn", function, nil),
+			"package":               utils.PathSearch("package", function, nil),
+			"runtime":               utils.PathSearch("runtime", function, nil),
+			"timeout":               utils.PathSearch("timeout", function, nil),
+			"handler":               utils.PathSearch("handler", function, nil),
+			"memory_size":           utils.PathSearch("memory_size", function, nil),
+			"code_type":             utils.PathSearch("code_type", function, nil),
+			"code_url":              utils.PathSearch("code_url", function, nil),
+			"code_filename":         utils.PathSearch("code_filename", function, nil),
+			"user_data":             utils.PathSearch("user_data", function, nil),
+			"encrypted_user_data":   utils.PathSearch("encrypted_user_data", function, nil),
+			"version":               utils.PathSearch("version", function, nil),
+			"agency":                utils.PathSearch("xrole", function, nil),
+			"app_agency":            utils.PathSearch("app_xrole", function, nil),
+			"description":           utils.PathSearch("description", function, nil),
+			"vpc_id":                utils.PathSearch("func_vpc.vpc_id", function, nil),
+			"network_id":            utils.PathSearch("func_vpc.subnet_id", function, nil),
+			"max_instance_num":      strconv.Itoa(int(utils.PathSearch("strategy_config.concurrency", function, float64(0)).(float64))),
+			"initializer_handler":   utils.PathSearch("initializer_handler", function, nil),
+			"initializer_timeout":   utils.PathSearch("initializer_timeout", function, nil),
+			"enterprise_project_id": utils.PathSearch("enterprise_project_id", function, nil),
+			"log_group_id":          utils.PathSearch("log_group_id", function, nil),
+			"log_stream_id":         utils.PathSearch("log_stream_id", function, nil),
+			"functiongraph_version": utils.PathSearch("type", function, nil),
+		})
 	}
+
 	return result
+}
+
+func dataSourceFunctionsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+	client, err := cfg.NewServiceClient("fgs", region)
+	if err != nil {
+		return diag.Errorf("error creating FunctionGraph client: %s", err)
+	}
+
+	functions, err := getFunctions(client, d)
+	if err != nil {
+		return diag.Errorf("error querying functions: %s", err)
+	}
+
+	uuid, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(uuid)
+
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("functions", flattenFunctions(filterFunctions(cfg, d, functions))),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
