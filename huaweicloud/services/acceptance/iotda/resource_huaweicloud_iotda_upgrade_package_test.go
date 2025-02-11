@@ -2,34 +2,46 @@ package iotda
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getUpgradePackageResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, WithDerivedAuth())
+func getUpgradePackageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region    = acceptance.HW_REGION_NAME
+		isDerived = iotda.WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/ota-upgrades/packages/{package_id}"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
+		return nil, fmt.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	getOpts := &model.ShowOtaPackageRequest{
-		PackageId: state.Primary.ID,
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{package_id}", state.Primary.ID)
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	resp, err := client.ShowOtaPackage(getOpts)
+	getResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return nil, fmt.Errorf("error querying IoTDA OTA upgrade package")
+		return nil, fmt.Errorf("error retrieving IoTDA OTA upgrade package: %s", err)
 	}
 
-	return resp, nil
+	return utils.FlattenResponse(getResp)
 }
 
 func TestAccUpgradePackage_basic(t *testing.T) {
