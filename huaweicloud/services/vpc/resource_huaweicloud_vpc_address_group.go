@@ -3,6 +3,7 @@ package vpc
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -10,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	vpc_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -108,100 +109,118 @@ func ResourceVpcAddressGroup() *schema.Resource {
 func resourceVpcAddressGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.HcVpcV3Client(region)
+	client, err := cfg.NewServiceClient("vpcv3", region)
 	if err != nil {
-		return diag.Errorf("error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC v3 client: %s", err)
 	}
 
-	ipSet := buildIpSet(d)
-	ipExtraSet := buildIpExtraSet(d)
+	createAddressGroupHttpUrl := "v3/{project_id}/vpc/address-groups"
+	createAddressGroupPath := client.Endpoint + createAddressGroupHttpUrl
+	createAddressGroupPath = strings.ReplaceAll(createAddressGroupPath, "{project_id}", client.ProjectID)
 
-	addressGroupBody := &vpc_model.CreateAddressGroupOption{
-		Name:                d.Get("name").(string),
-		IpSet:               ipSet,
-		IpVersion:           int32(d.Get("ip_version").(int)),
-		Description:         utils.StringIgnoreEmpty(d.Get("description").(string)),
-		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-		MaxCapacity:         utils.Int32IgnoreEmpty(int32(d.Get("max_capacity").(int))),
-		IpExtraSet:          ipExtraSet,
+	createAddressGroupPathOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	createOpts := &vpc_model.CreateAddressGroupRequest{
-		Body: &vpc_model.CreateAddressGroupRequestBody{
-			AddressGroup: addressGroupBody,
-		},
-	}
+	addressGroupBody := buildCreateAddressGroupBodyParams(d, cfg)
+	createAddressGroupPathOpt.JSONBody = utils.RemoveNil(addressGroupBody)
 
 	log.Printf("[DEBUG] Create VPC address group options: %#v", addressGroupBody)
-	response, err := client.CreateAddressGroup(createOpts)
+	response, err := client.Request("POST", createAddressGroupPath, &createAddressGroupPathOpt)
 	if err != nil {
 		return diag.Errorf("error creating VPC address group: %s", err)
 	}
 
-	d.SetId(response.AddressGroup.Id)
+	responseBody, err := utils.FlattenResponse(response)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	id := utils.PathSearch("address_group.id", responseBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating VPC address group: ID is not found in API response")
+	}
+
+	d.SetId(id)
 	return resourceVpcAddressGroupRead(ctx, d, meta)
 }
 
-func buildIpSet(d *schema.ResourceData) *[]string {
-	addresses := utils.ExpandToStringListBySet(d.Get("addresses").(*schema.Set))
-	if len(addresses) == 0 {
-		return nil
+func buildCreateAddressGroupBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"address_group": map[string]interface{}{
+			"name":                  d.Get("name"),
+			"ip_set":                utils.ValueIgnoreEmpty(d.Get("addresses").(*schema.Set).List()),
+			"ip_version":            d.Get("ip_version"),
+			"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+			"max_capacity":          utils.ValueIgnoreEmpty(d.Get("max_capacity").(int)),
+			"ip_extra_set":          buildIpExtraSet(d),
+		},
 	}
 
-	return &addresses
+	return bodyParams
 }
 
-func buildIpExtraSet(d *schema.ResourceData) *[]vpc_model.IpExtraSetOption {
+func buildIpExtraSet(d *schema.ResourceData) []map[string]interface{} {
 	ipExtraSet := d.Get("ip_extra_set").(*schema.Set).List()
 	if len(ipExtraSet) == 0 {
 		return nil
 	}
 
-	res := make([]vpc_model.IpExtraSetOption, len(ipExtraSet))
+	res := make([]map[string]interface{}, len(ipExtraSet))
 	for i, v := range ipExtraSet {
-		ip := v.(map[string]interface{})
-		remarks := ip["remarks"].(string)
-		res[i] = vpc_model.IpExtraSetOption{
-			Ip:      ip["ip"].(string),
-			Remarks: &remarks,
+		res[i] = map[string]interface{}{
+			"ip":      utils.PathSearch("ip", v, nil),
+			"remarks": utils.PathSearch("remarks", v, nil),
 		}
 	}
 
-	return &res
+	return res
 }
 
 func resourceVpcAddressGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcVpcV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("vpcv3", region)
 	if err != nil {
-		return diag.Errorf("error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC v3 client: %s", err)
 	}
 
-	request := &vpc_model.ShowAddressGroupRequest{
-		AddressGroupId: d.Id(),
+	getAddressGroupHttpUrl := "v3/{project_id}/vpc/address-groups/{address_group_id}"
+	getAddressGroupPath := client.Endpoint + getAddressGroupHttpUrl
+	getAddressGroupPath = strings.ReplaceAll(getAddressGroupPath, "{project_id}", client.ProjectID)
+	getAddressGroupPath = strings.ReplaceAll(getAddressGroupPath, "{address_group_id}", d.Id())
+
+	getAddressGroupPathOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	response, err := client.ShowAddressGroup(request)
+	response, err := client.Request("GET", getAddressGroupPath, &getAddressGroupPathOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error fetching VPC address group")
 	}
 
+	respBody, err := utils.FlattenResponse(response)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("name", response.AddressGroup.Name),
-		d.Set("description", response.AddressGroup.Description),
-		d.Set("addresses", response.AddressGroup.IpSet),
-		d.Set("ip_version", response.AddressGroup.IpVersion),
-		d.Set("max_capacity", response.AddressGroup.MaxCapacity),
-		d.Set("enterprise_project_id", response.AddressGroup.EnterpriseProjectId),
-		d.Set("ip_extra_set", flattenIpExtraSet(response.AddressGroup.IpExtraSet)),
+		d.Set("name", utils.PathSearch("address_group.name", respBody, nil)),
+		d.Set("description", utils.PathSearch("address_group.description", respBody, nil)),
+		d.Set("addresses", utils.PathSearch("address_group.ip_set", respBody, nil)),
+		d.Set("ip_version", utils.PathSearch("address_group.ip_version", respBody, nil)),
+		d.Set("max_capacity", utils.PathSearch("address_group.max_capacity", respBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("address_group.enterprise_project_id", respBody, nil)),
+		d.Set("ip_extra_set", flattenIpExtraSet(
+			utils.PathSearch("address_group.ip_extra_set", respBody, []interface{}{}).([]interface{}))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenIpExtraSet(ipExtraSet []vpc_model.IpExtraSetRespOption) []map[string]interface{} {
+func flattenIpExtraSet(ipExtraSet []interface{}) []map[string]interface{} {
 	if len(ipExtraSet) == 0 {
 		return nil
 	}
@@ -210,8 +229,8 @@ func flattenIpExtraSet(ipExtraSet []vpc_model.IpExtraSetRespOption) []map[string
 
 	for i, v := range ipExtraSet {
 		res[i] = map[string]interface{}{
-			"ip":      v.Ip,
-			"remarks": v.Remarks,
+			"ip":      utils.PathSearch("ip", v, nil),
+			"remarks": utils.PathSearch("remarks", v, nil),
 		}
 	}
 
@@ -219,50 +238,27 @@ func flattenIpExtraSet(ipExtraSet []vpc_model.IpExtraSetRespOption) []map[string
 }
 
 func resourceVpcAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcVpcV3Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("vpcv3", region)
 	if err != nil {
-		return diag.Errorf("error creating VPC client: %s", err)
+		return diag.Errorf("error creating VPC v3 client: %s", err)
 	}
 
-	addressGroupBody := &vpc_model.UpdateAddressGroupOption{}
+	updateAddressGroupHttpUrl := "v3/{project_id}/vpc/address-groups/{address_group_id}"
+	updateAddressGroupPath := client.Endpoint + updateAddressGroupHttpUrl
+	updateAddressGroupPath = strings.ReplaceAll(updateAddressGroupPath, "{project_id}", client.ProjectID)
+	updateAddressGroupPath = strings.ReplaceAll(updateAddressGroupPath, "{address_group_id}", d.Id())
 
-	if d.HasChange("name") {
-		groupName := d.Get("name").(string)
-		addressGroupBody.Name = &groupName
-	}
+	addressGroupBody := buildUpdateAddressGroupBodyParams(d)
 
-	if d.HasChange("description") {
-		groupDescription := d.Get("description").(string)
-		addressGroupBody.Description = &groupDescription
-	}
-
-	if d.HasChange("addresses") {
-		rawAddresses := d.Get("addresses").(*schema.Set).List()
-		ipSet := make([]string, len(rawAddresses))
-		for i, value := range rawAddresses {
-			ipSet[i] = value.(string)
-		}
-		addressGroupBody.IpSet = &ipSet
-	}
-
-	if d.HasChange("ip_extra_set") {
-		addressGroupBody.IpExtraSet = buildIpExtraSet(d)
-	}
-
-	if d.HasChange("max_capacity") {
-		addressGroupBody.MaxCapacity = utils.Int32IgnoreEmpty(int32(d.Get("max_capacity").(int)))
-	}
-
-	updateOpts := &vpc_model.UpdateAddressGroupRequest{
-		AddressGroupId: d.Id(),
-		Body: &vpc_model.UpdateAddressGroupRequestBody{
-			AddressGroup: addressGroupBody,
-		},
+	updateAddressGroupPathOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(addressGroupBody),
 	}
 
 	log.Printf("[DEBUG] Update VPC address group options: %#v", addressGroupBody)
-	_, err = client.UpdateAddressGroup(updateOpts)
+	_, err = client.Request("PUT", updateAddressGroupPath, &updateAddressGroupPathOpt)
 	if err != nil {
 		return diag.Errorf("error updating VPC address group: %s", err)
 	}
@@ -270,25 +266,61 @@ func resourceVpcAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceVpcAddressGroupRead(ctx, d, meta)
 }
 
-func resourceVpcAddressGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcVpcV3Client(region)
-	if err != nil {
-		return diag.Errorf("error creating VPC client: %s", err)
+func buildUpdateAddressGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	addressGroup := map[string]interface{}{}
+
+	if d.HasChange("name") {
+		addressGroup["name"] = d.Get("name")
 	}
 
-	if !d.Get("force_destroy").(bool) {
-		request := &vpc_model.DeleteAddressGroupRequest{
-			AddressGroupId: d.Id(),
-		}
-		_, err = client.DeleteAddressGroup(request)
-	} else {
-		req := &vpc_model.DeleteIpAddressGroupForceRequest{
-			AddressGroupId: d.Id(),
-		}
-		_, err = client.DeleteIpAddressGroupForce(req)
+	if d.HasChange("description") {
+		addressGroup["description"] = d.Get("description")
 	}
+
+	if d.HasChange("addresses") {
+		addressGroup["ip_set"] = d.Get("addresses").(*schema.Set).List()
+	}
+
+	if d.HasChange("ip_extra_set") {
+		addressGroup["ip_extra_set"] = buildIpExtraSet(d)
+	}
+
+	if d.HasChange("max_capacity") {
+		addressGroup["max_capacity"] = d.Get("max_capacity").(int)
+	}
+
+	bodyParam := map[string]interface{}{
+		"address_group": addressGroup,
+	}
+
+	return bodyParam
+}
+
+func resourceVpcAddressGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("vpcv3", region)
+	if err != nil {
+		return diag.Errorf("error creating VPC v3 client: %s", err)
+	}
+
+	var deleteAddressGroupHttpUrl string
+
+	if !d.Get("force_destroy").(bool) {
+		deleteAddressGroupHttpUrl = "v3/{project_id}/vpc/address-groups/{address_group_id}"
+	} else {
+		deleteAddressGroupHttpUrl = "v3/{project_id}/vpc/address-groups/{address_group_id}/force"
+	}
+
+	deleteAddressGroupPath := client.Endpoint + deleteAddressGroupHttpUrl
+	deleteAddressGroupPath = strings.ReplaceAll(deleteAddressGroupPath, "{project_id}", client.ProjectID)
+	deleteAddressGroupPath = strings.ReplaceAll(deleteAddressGroupPath, "{address_group_id}", d.Id())
+
+	deleteAddressGroupPathOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deleteAddressGroupPath, &deleteAddressGroupPathOpt)
 
 	if err != nil {
 		return diag.Errorf("error deleting VPC address group: %s", err)
