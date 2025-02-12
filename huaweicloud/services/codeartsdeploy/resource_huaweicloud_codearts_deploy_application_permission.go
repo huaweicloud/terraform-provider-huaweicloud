@@ -3,9 +3,11 @@ package codeartsdeploy
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -20,6 +22,11 @@ func ResourceDeployApplicationPermission() *schema.Resource {
 		ReadContext:   resourceDeployApplicationPermissionRead,
 		UpdateContext: resourceDeployApplicationPermissionCreateOrUpdate,
 		DeleteContext: resourceDeployApplicationPermissionDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -106,7 +113,12 @@ func resourceDeployApplicationPermissionCreateOrUpdate(ctx context.Context, d *s
 		return diag.Errorf("error creating CodeArts deploy client: %s", err)
 	}
 
-	err = modifyDeployApplicationPermission(client, d)
+	timeout := d.Timeout(schema.TimeoutCreate)
+	if !d.IsNewResource() {
+		timeout = d.Timeout(schema.TimeoutUpdate)
+	}
+
+	err = modifyDeployApplicationPermission(ctx, client, d, timeout)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -122,15 +134,36 @@ func resourceDeployApplicationPermissionCreateOrUpdate(ctx context.Context, d *s
 	return resourceDeployApplicationPermissionRead(ctx, d, meta)
 }
 
-func modifyDeployApplicationPermission(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func modifyDeployApplicationPermission(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration) error {
 	httpUrl := "v3/applications/permissions"
 	modifyPath := client.Endpoint + httpUrl
 	modifyOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildDeployApplicationPermissionBodyParams(d),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			// API's language defaults to zh-cn.
+			// When response is error, diag.Diagnostics sometimes will cause error:
+			// `error while marshaling: string field contains invalid UTF-8`
+			"X-Language": "en-us",
+		},
+		JSONBody: buildDeployApplicationPermissionBodyParams(d),
 	}
 
-	_, err := client.Request("PUT", modifyPath, &modifyOpt)
+	err := resource.RetryContext(ctx, timeout, func() *resource.RetryError {
+		_, err := client.Request("PUT", modifyPath, &modifyOpt)
+		isRetry, err := handleDeployApplicationPermissionLevelOperationError(err)
+		if isRetry {
+			// lintignore:R018
+			time.Sleep(10 * time.Second)
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+
 	if err != nil {
 		return fmt.Errorf("error updating CodeArts deploy application permission: %s", err)
 	}

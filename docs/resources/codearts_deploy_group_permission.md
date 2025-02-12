@@ -56,6 +56,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minutes.
+* `update` - Default is 10 minutes.
+
 ## Import
 
 The CodeArts deploy group permission resource can be imported using the `project_id`, `group_id`, `role_id` and

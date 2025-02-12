@@ -359,7 +359,6 @@ func getDeployGroupPermissionMatrix(client *golangsdk.ServiceClient, id string) 
 func flattenDeployGroupCreatedBy(resp interface{}) []interface{} {
 	curJson := utils.PathSearch("created_by", resp, nil)
 	if curJson == nil {
-		log.Printf("[ERROR] error flatten created_by, cause this field is not found in API response")
 		return nil
 	}
 
@@ -374,7 +373,6 @@ func flattenDeployGroupCreatedBy(resp interface{}) []interface{} {
 func flattenDeployGroupPermission(resp interface{}) []interface{} {
 	curJson := utils.PathSearch("permission", resp, nil)
 	if curJson == nil {
-		log.Printf("[ERROR] error flatten permission, cause this field is not found in API response")
 		return nil
 	}
 
@@ -489,8 +487,9 @@ func resourceDeployGroupImportState(_ context.Context, d *schema.ResourceData,
 	}
 
 	d.SetId(parts[1])
-	if err := d.Set("project_id", parts[0]); err != nil {
-		return nil, fmt.Errorf("error saving project ID: %s", err)
-	}
-	return []*schema.ResourceData{d}, nil
+	mErr := multierror.Append(nil,
+		d.Set("project_id", parts[0]),
+	)
+
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
