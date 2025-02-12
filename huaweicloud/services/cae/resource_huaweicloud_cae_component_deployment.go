@@ -176,10 +176,18 @@ func deployJobRefreshFunc(client *golangsdk.ServiceClient, environmentId, jobId 
 		}
 
 		status := utils.PathSearch("spec.status", resp, "null").(string)
-
 		if utils.StrSliceContains(targets, status) {
 			return resp, "COMPLETED", nil
 		}
+
+		if status == "failed" {
+			task := utils.PathSearch("spec.tasks[?status=='failed']|[0]", resp, nil)
+
+			return resp, "ERROR",
+				fmt.Errorf("the job (%s) execution failed: (%s)", utils.PathSearch("name", task, "").(string),
+					utils.PathSearch("detail", task, "").(string))
+		}
+
 		return resp, "PENDING", nil
 	}
 }
