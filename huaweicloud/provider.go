@@ -1876,6 +1876,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_task_delete":                gaussdb.ResourceOpenGaussTaskDelete(),
 			"huaweicloud_gaussdb_opengauss_sync_sql_throttling_task":   gaussdb.ResourceOpenGaussSyncSqlThrottlingTask(),
 			"huaweicloud_gaussdb_opengauss_quota":                      gaussdb.ResourceOpenGaussQuota(),
+			"huaweicloud_gaussdb_opengauss_sql_throttling_task":        gaussdb.ResourceOpenGaussSqlThrottlingTask(),
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
 			"huaweicloud_ges_metadata": ges.ResourceGesMetadata(),
