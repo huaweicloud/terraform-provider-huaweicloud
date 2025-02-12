@@ -41,18 +41,26 @@ The following arguments are supported:
 * `runtime` - (Optional, String) Specifies the dependency package runtime used to query the functions.  
   The valid values are as follows:
   + **Java8**
+  + **Java11**
   + **Node.js6.10**
   + **Node.js8.10**
   + **Node.js10.16**
   + **Node.js12.13**
+  + **Node.js14.18**
+  + **Node.js16.17**
+  + **Node.js18.15**
   + **Python2.7**
   + **Python3.6**
-  + **Go1.8**
+  + **Python3.9**
+  + **Python3.10**
   + **Go1.x**
-  + **C#(.NET Core 2.0)**
   + **C#(.NET Core 2.1)**
   + **C#(.NET Core 3.1)**
+  + **Custom**
   + **PHP7.3**
+  + **http**
+  + **Custom Image**
+  + **Cangjie1.0**
 
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the functions belong.
 
