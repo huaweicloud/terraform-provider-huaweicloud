@@ -2,12 +2,13 @@
 subcategory: "IoT Device Access (IoTDA)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_iotda_batchtask"
-description: ""
+description: |-
+  Manages an IoTDA batch task resource within HuaweiCloud.
 ---
 
 # huaweicloud_iotda_batchtask
 
-Manages an IoTDA batch task within HuaweiCloud.
+Manages an IoTDA batch task resource within HuaweiCloud.
 
 -> When accessing an IoTDA **standard** or **enterprise** edition instance, you need to specify the IoTDA service
   endpoint in `provider` block.
