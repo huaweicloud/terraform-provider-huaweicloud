@@ -2,13 +2,15 @@ package iotda
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -61,47 +63,56 @@ func DataSourceDataBacklogPolicies() *schema.Resource {
 	}
 }
 
-func dataSourceDataBacklogPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg       = meta.(*config.Config)
-		region    = cfg.GetRegion(d)
-		isDerived = WithDerivedAuth(cfg, region)
-	)
-
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildDataBacklogPoliciesQueryParams(d *schema.ResourceData) string {
+	if v, ok := d.GetOk("policy_name"); ok {
+		return fmt.Sprintf("&policy_name=%v", v)
 	}
 
+	return ""
+}
+
+func dataSourceDataBacklogPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		allPolicies []model.BacklogPolicyInfo
-		limit       = int32(50)
-		offset      int32
+		cfg         = meta.(*config.Config)
+		region      = cfg.GetRegion(d)
+		httpUrl     = "v5/iot/{project_id}/routing-rule/backlog-policy?limit=50"
+		product     = "iotda"
+		allPolicies []interface{}
+		offset      = 0
 	)
 
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildDataBacklogPoliciesQueryParams(d)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	for {
-		listOpts := model.ListRoutingBacklogPolicyRequest{
-			PolicyName: utils.StringIgnoreEmpty(d.Get("policy_name").(string)),
-			Limit:      utils.Int32(limit),
-			Offset:     &offset,
+		requestPathWithOffset := fmt.Sprintf("%s&offset=%d", requestPath, offset)
+		resp, err := client.Request("GET", requestPathWithOffset, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error querying IoTDA data backlog policies: %s", err)
 		}
 
-		listResp, listErr := client.ListRoutingBacklogPolicy(&listOpts)
-		if listErr != nil {
-			return diag.Errorf("error querying IoTDA data backlog policies: %s", listErr)
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if listResp == nil || listResp.BacklogPolicies == nil {
+		policies := utils.PathSearch("backlog_policies", respBody, make([]interface{}, 0)).([]interface{})
+		if len(policies) == 0 {
 			break
 		}
 
-		if len(*listResp.BacklogPolicies) == 0 {
-			break
-		}
-
-		allPolicies = append(allPolicies, *listResp.BacklogPolicies...)
-		//nolint:gosec
-		offset += int32(len(*listResp.BacklogPolicies))
+		allPolicies = append(allPolicies, policies...)
+		offset += len(allPolicies)
 	}
 
 	uuID, err := uuid.GenerateUUID()
@@ -119,7 +130,7 @@ func dataSourceDataBacklogPoliciesRead(_ context.Context, d *schema.ResourceData
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenDataBacklogPolicies(policies []model.BacklogPolicyInfo) []interface{} {
+func flattenDataBacklogPolicies(policies []interface{}) []interface{} {
 	if len(policies) == 0 {
 		return nil
 	}
@@ -127,11 +138,11 @@ func flattenDataBacklogPolicies(policies []model.BacklogPolicyInfo) []interface{
 	rst := make([]interface{}, 0, len(policies))
 	for _, v := range policies {
 		rst = append(rst, map[string]interface{}{
-			"id":           v.PolicyId,
-			"name":         v.PolicyName,
-			"description":  v.Description,
-			"backlog_size": v.BacklogSize,
-			"backlog_time": v.BacklogTime,
+			"id":           utils.PathSearch("policy_id", v, nil),
+			"name":         utils.PathSearch("policy_name", v, nil),
+			"description":  utils.PathSearch("description", v, nil),
+			"backlog_size": utils.PathSearch("backlog_size", v, nil),
+			"backlog_time": utils.PathSearch("backlog_time", v, nil),
 		})
 	}
 
