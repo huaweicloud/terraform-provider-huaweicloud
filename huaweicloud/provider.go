@@ -599,12 +599,15 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_servergroups":            ecs.DataSourceComputeServerGroups(),
 			"huaweicloud_compute_instance_remote_console": ecs.DataSourceComputeInstanceRemoteConsole(),
 
+			// CodeArts
 			"huaweicloud_codearts_deploy_groups":                         codeartsdeploy.DataSourceCodeartsDeployGroups(),
 			"huaweicloud_codearts_deploy_hosts":                          codeartsdeploy.DataSourceCodeartsDeployHosts(),
 			"huaweicloud_codearts_deploy_application_groups":             codeartsdeploy.DataSourceCodeartsDeployApplicationGroups(),
 			"huaweicloud_codearts_deploy_applications":                   codeartsdeploy.DataSourceCodeartsDeployApplications(),
 			"huaweicloud_codearts_deploy_application_deployment_records": codeartsdeploy.DataSourceCodeartsDeployApplicationDeploymentRecords(),
 			"huaweicloud_codearts_deploy_environments":                   codeartsdeploy.DataSourceCodeartsDeployEnvironments(),
+
+			"huaweicloud_codearts_inspector_host_groups": codeartsinspector.DataSourceCodeartsInspectorHostGroups(),
 
 			"huaweicloud_cts_notifications": cts.DataSourceNotifications(),
 			"huaweicloud_cts_traces":        cts.DataSourceCtsTraces(),
@@ -2333,6 +2336,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_codearts_inspector_website":      codeartsinspector.ResourceInspectorWebsite(),
 			"huaweicloud_codearts_inspector_website_scan": codeartsinspector.ResourceInspectorWebsiteScan(),
+			"huaweicloud_codearts_inspector_host_group":   codeartsinspector.ResourceInspectorHostGroup(),
 
 			"huaweicloud_dsc_instance":           dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_asset_obs":          dsc.ResourceAssetObs(),
