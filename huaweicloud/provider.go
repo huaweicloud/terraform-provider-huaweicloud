@@ -1385,8 +1385,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_antiddos_basic":                     antiddos.ResourceCloudNativeAntiDdos(),
 			"huaweicloud_antiddos_default_protection_policy": antiddos.ResourceDefaultProtectionPolicy(),
 
-			"huaweicloud_access_analyzer":              accessanalyzer.ResourceAccessAnalyzer(),
-			"huaweicloud_access_analyzer_archive_rule": accessanalyzer.ResourceArchiveRule(),
+			"huaweicloud_access_analyzer":                    accessanalyzer.ResourceAccessAnalyzer(),
+			"huaweicloud_access_analyzer_archive_rule":       accessanalyzer.ResourceArchiveRule(),
+			"huaweicloud_access_analyzer_archive_rule_apply": accessanalyzer.ResourceArchiveRuleApply(),
 
 			"huaweicloud_aom_alarm_rule":                     aom.ResourceAlarmRule(),
 			"huaweicloud_aomv4_alarm_rule":                   aom.ResourceAlarmRuleV4(),
