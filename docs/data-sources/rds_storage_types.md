@@ -2,7 +2,8 @@
 subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rds_storage_types"
-description: ""
+description: |-
+  Use this data source to get the list of RDS storage types.
 ---
 
 # huaweicloud_rds_storage_types
