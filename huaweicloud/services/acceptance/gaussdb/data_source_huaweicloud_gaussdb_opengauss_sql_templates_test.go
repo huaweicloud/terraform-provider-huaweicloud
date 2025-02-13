@@ -9,8 +9,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceGaussdbOpengaussLimitSqlModels_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_gaussdb_opengauss_limit_sql_models.test"
+func TestAccDataSourceGaussdbOpengaussSqlTemplates_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_gaussdb_opengauss_sql_templates.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -43,24 +43,24 @@ locals {
   master_node_id = [for v in local.instance.nodes : v if v.role == "master"][0].id
 }
 
-data "huaweicloud_gaussdb_opengauss_limit_sql_models" "test" {
+data "huaweicloud_gaussdb_opengauss_sql_templates" "test" {
   instance_id = "%[1]s"
   node_id     = local.master_node_id
 }
 
 locals {
-  sql_model = data.huaweicloud_gaussdb_opengauss_limit_sql_models.test.node_limit_sql_model_list[0].sql_model
+  sql_model = data.huaweicloud_gaussdb_opengauss_sql_templates.test.node_limit_sql_model_list[0].sql_model
 }
 
-data "huaweicloud_gaussdb_opengauss_limit_sql_models" "sql_model_filter" {
+data "huaweicloud_gaussdb_opengauss_sql_templates" "sql_model_filter" {
   instance_id = "%[1]s"
   node_id     = local.master_node_id
-  sql_model   = data.huaweicloud_gaussdb_opengauss_limit_sql_models.test.node_limit_sql_model_list[0].sql_model
+  sql_model   = data.huaweicloud_gaussdb_opengauss_sql_templates.test.node_limit_sql_model_list[0].sql_model
 }
 
 output "sql_model_filter_is_useful" {
-  value = length(data.huaweicloud_gaussdb_opengauss_limit_sql_models.sql_model_filter.node_limit_sql_model_list) > 0 && alltrue(
-  [for v in data.huaweicloud_gaussdb_opengauss_limit_sql_models.sql_model_filter.node_limit_sql_model_list[*].sql_model :
+  value = length(data.huaweicloud_gaussdb_opengauss_sql_templates.sql_model_filter.node_limit_sql_model_list) > 0 && alltrue(
+  [for v in data.huaweicloud_gaussdb_opengauss_sql_templates.sql_model_filter.node_limit_sql_model_list[*].sql_model :
   v == local.sql_model]
   )
 }
