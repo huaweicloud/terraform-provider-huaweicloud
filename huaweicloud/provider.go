@@ -1866,6 +1866,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_opengauss_parameter_template_reset":   gaussdb.ResourceOpenGaussParameterTemplateReset(),
 			"huaweicloud_gaussdb_opengauss_recycling_policy":           gaussdb.ResourceOpenGaussRecyclingPolicy(),
 			"huaweicloud_gaussdb_opengauss_task_delete":                gaussdb.ResourceOpenGaussTaskDelete(),
+			"huaweicloud_gaussdb_opengauss_sync_sql_throttling_task":   gaussdb.ResourceOpenGaussSyncSqlThrottlingTask(),
 			"huaweicloud_gaussdb_opengauss_quota":                      gaussdb.ResourceOpenGaussQuota(),
 
 			"huaweicloud_ges_graph":    ges.ResourceGesGraph(),
