@@ -2,12 +2,13 @@
 subcategory: "Cloud Trace Service (CTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cts_tracker"
-description: ""
+description: |-
+  Manages CTS system tracker resource within HuaweiCloud.
 ---
 
 # huaweicloud_cts_tracker
 
-Manages CTS **system** tracker resource within HuaweiCloud.
+Manages CTS system tracker resource within HuaweiCloud.
 
 ## Example Usage
 

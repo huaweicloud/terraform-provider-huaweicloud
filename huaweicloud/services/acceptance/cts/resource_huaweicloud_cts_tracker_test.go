@@ -2,15 +2,17 @@ package cts
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func TestAccCTSTracker_keepTracker(t *testing.T) {
@@ -90,32 +92,48 @@ func testAccCheckCTSTrackerExists(n string) resource.TestCheckFunc {
 		}
 
 		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		ctsClient, err := cfg.HcCtsV3Client(acceptance.HW_REGION_NAME)
+		ctsClient, err := cfg.NewServiceClient("cts", acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("error creating CTS client: %s", err)
 		}
 
-		name := rs.Primary.Attributes["name"]
-		listOpts := &cts.ListTrackersRequest{
-			TrackerName: &name,
-		}
-
-		response, err := ctsClient.ListTrackers(listOpts)
-		if err != nil {
-			return fmt.Errorf("error retrieving CTS tracker: %s", err)
-		}
-
-		if response.Trackers == nil || len(*response.Trackers) == 0 {
-			return fmt.Errorf("can not find the CTS tracker %s", name)
-		}
-
-		return nil
+		trackerName := rs.Primary.Attributes["name"]
+		_, err = getSystemTracker(ctsClient, trackerName)
+		return err
 	}
+}
+
+func getSystemTracker(ctsClient *golangsdk.ServiceClient, trackerName string) (interface{}, error) {
+	getTrackerHttpUrl := "v3/{project_id}/trackers?tracker_name={tracker_name}&tracker_type={tracker_type}"
+	getTrackerOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getTrackerPath := ctsClient.Endpoint + getTrackerHttpUrl
+	getTrackerPath = strings.ReplaceAll(getTrackerPath, "{project_id}", ctsClient.ProjectID)
+	getTrackerPath = strings.ReplaceAll(getTrackerPath, "{tracker_name}", trackerName)
+	getTrackerPath = strings.ReplaceAll(getTrackerPath, "{tracker_type}", "system")
+
+	response, err := ctsClient.Request("GET", getTrackerPath, &getTrackerOpts)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving CTS tracker: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(response)
+	if err != nil {
+		return nil, err
+	}
+
+	tracker := utils.PathSearch("trackers|[0]", respBody, nil)
+	if tracker == nil {
+		return nil, fmt.Errorf("can not find the CTS tracker %s", trackerName)
+	}
+	return tracker, nil
 }
 
 func testAccCheckCTSTrackerDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	ctsClient, err := cfg.HcCtsV3Client(acceptance.HW_REGION_NAME)
+	ctsClient, err := cfg.NewServiceClient("cts", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("error creating CTS client: %s", err)
 	}
@@ -126,22 +144,12 @@ func testAccCheckCTSTrackerDestroy(s *terraform.State) error {
 		}
 
 		name := rs.Primary.Attributes["name"]
-		listOpts := &cts.ListTrackersRequest{
-			TrackerName: &name,
-		}
-
-		response, err := ctsClient.ListTrackers(listOpts)
+		ctsTracker, err := getSystemTracker(ctsClient, name)
 		if err != nil {
-			return fmt.Errorf("error retrieving CTS tracker: %s", err)
+			return err
 		}
 
-		if response.Trackers == nil || len(*response.Trackers) == 0 {
-			return fmt.Errorf("can not find the CTS tracker %s", name)
-		}
-
-		allTrackers := *response.Trackers
-		ctsTracker := allTrackers[0]
-		if ctsTracker.Status != nil && ctsTracker.Status.Value() != "disabled" {
+		if status := utils.PathSearch("status", ctsTracker, "").(string); status != "" && status != "disabled" {
 			return fmt.Errorf("can not disable the CTS tracker %s", name)
 		}
 	}
@@ -150,35 +158,17 @@ func testAccCheckCTSTrackerDestroy(s *terraform.State) error {
 }
 
 func getCTSTrackerResourceObj(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcCtsV3Client(acceptance.HW_REGION_NAME)
+	client, err := conf.NewServiceClient("cts", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CTS client: %s", err)
 	}
 
 	name := state.Primary.Attributes["name"]
-	trackerType := cts.GetListTrackersRequestTrackerTypeEnum().SYSTEM
-	listOpts := &cts.ListTrackersRequest{
-		TrackerName: &name,
-		TrackerType: &trackerType,
-	}
-
-	response, err := client.ListTrackers(listOpts)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving CTS tracker: %s", err)
-	}
-
-	if response.Trackers == nil || len(*response.Trackers) == 0 {
-		return nil, fmt.Errorf("can not find the CTS tracker %s", name)
-	}
-
-	allTrackers := *response.Trackers
-	ctsTracker := allTrackers[0]
-
-	return ctsTracker, nil
+	return getSystemTracker(client, name)
 }
 
 func TestAccCTSTracker_deleteTracker(t *testing.T) {
-	var tracker cts.TrackerResponseBody
+	var tracker interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_cts_tracker.tracker"
 
