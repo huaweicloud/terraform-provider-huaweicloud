@@ -14,17 +14,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 )
 
-func getDependencyVersionFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.FgsV2Client(acceptance.HW_REGION_NAME)
+func getDependencyVersionFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("fgs", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating FunctionGraph v2 client: %s", err)
+		return nil, fmt.Errorf("error creating FunctionGraph client: %s", err)
 	}
 
-	dependId, version, err := fgs.ParseDependVersionResourceId(state.Primary.ID)
-	if err != nil {
-		return nil, err
-	}
-	return dependencies.GetVersion(client, dependId, version)
+	return fgs.GetDependencyVersionById(client, state.Primary.ID)
 }
 
 func TestAccDependencyVersion_basic(t *testing.T) {
