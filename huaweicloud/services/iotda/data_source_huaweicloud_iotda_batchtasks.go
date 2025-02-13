@@ -2,13 +2,15 @@ package iotda
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -143,118 +145,125 @@ func DataSourceBatchTasks() *schema.Resource {
 	}
 }
 
+func buildBatchTasksQueryParams(d *schema.ResourceData) string {
+	queryParams := fmt.Sprintf("?limit=50&task_type=%v", d.Get("type").(string))
+	if v, ok := d.GetOk("space_id"); ok {
+		queryParams = fmt.Sprintf("%s&app_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("status"); ok {
+		queryParams = fmt.Sprintf("%s&status=%v", queryParams, v)
+	}
+
+	return queryParams
+}
+
 func dataSourceBatchTasksRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
+		httpUrl   = "v5/iot/{project_id}/batchtasks"
+		offset    = 0
+		result    = make([]interface{}, 0)
 	)
 
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	var (
-		allTasks []model.Task
-		limit    = int32(50)
-		offset   int32
-	)
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildBatchTasksQueryParams(d)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
 
 	for {
-		listOpts := model.ListBatchTasksRequest{
-			AppId:    utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			TaskType: d.Get("type").(string),
-			Status:   utils.StringIgnoreEmpty(d.Get("status").(string)),
-			Limit:    utils.Int32(limit),
-			Offset:   &offset,
+		currentPath := fmt.Sprintf("%s&offset=%v", getPath, offset)
+		getResp, err := client.Request("GET", currentPath, &getOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving IoTDA batch tasks: %s", err)
 		}
 
-		listResp, listErr := client.ListBatchTasks(&listOpts)
-		if listErr != nil {
-			return diag.Errorf("error querying IoTDA batch tasks: %s", listErr)
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if listResp == nil || listResp.Batchtasks == nil {
+		batchTasksResp := utils.PathSearch("batchtasks", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(batchTasksResp) == 0 {
 			break
 		}
 
-		if len(*listResp.Batchtasks) == 0 {
-			break
-		}
-
-		allTasks = append(allTasks, *listResp.Batchtasks...)
-		//nolint:gosec
-		offset += int32(len(*listResp.Batchtasks))
+		result = append(result, batchTasksResp...)
+		offset += len(batchTasksResp)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuId)
+	d.SetId(generateUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("batchtasks", flattenBatchTasks(allTasks)),
+		d.Set("batchtasks", flattenBatchTasks(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenBatchTasks(tasks []model.Task) []interface{} {
-	if len(tasks) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(tasks))
-	for _, v := range tasks {
+func flattenBatchTasks(batchTasksResp []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(batchTasksResp))
+	for _, v := range batchTasksResp {
 		rst = append(rst, map[string]interface{}{
-			"id":             v.TaskId,
-			"name":           v.TaskName,
-			"type":           v.TaskType,
-			"targets":        v.Targets,
-			"targets_filter": v.TargetsFilter,
-			"task_policy":    flattenDataSourceTaskPolicy(v.TaskPolicy),
-			"status":         v.Status,
-			"status_desc":    v.StatusDesc,
-			"task_progress":  flattenDataSourceTaskProgress(v.TaskProgress),
-			"created_at":     v.CreateTime,
+			"id":             utils.PathSearch("task_id", v, nil),
+			"name":           utils.PathSearch("task_name", v, nil),
+			"type":           utils.PathSearch("task_type", v, nil),
+			"targets":        utils.PathSearch("targets", v, nil),
+			"targets_filter": utils.PathSearch("targets_filter", v, nil),
+			"task_policy":    flattenDataSourceTaskPolicy(utils.PathSearch("task_policy", v, nil)),
+			"status":         utils.PathSearch("status", v, nil),
+			"status_desc":    utils.PathSearch("status_desc", v, nil),
+			"task_progress":  flattenDataSourceTaskProgress(utils.PathSearch("task_progress", v, nil)),
+			"created_at":     utils.PathSearch("create_time", v, nil),
 		})
 	}
 
 	return rst
 }
 
-func flattenDataSourceTaskPolicy(taskPolicy *model.TaskPolicy) []interface{} {
-	if taskPolicy == nil {
+func flattenDataSourceTaskPolicy(taskPolicyResp interface{}) []interface{} {
+	if taskPolicyResp == nil {
 		return nil
 	}
 
 	rst := map[string]interface{}{
-		"schedule_time":  taskPolicy.ScheduleTime,
-		"retry_count":    taskPolicy.RetryCount,
-		"retry_interval": taskPolicy.RetryInterval,
+		"schedule_time":  utils.PathSearch("schedule_time", taskPolicyResp, nil),
+		"retry_count":    utils.PathSearch("retry_count", taskPolicyResp, nil),
+		"retry_interval": utils.PathSearch("retry_interval", taskPolicyResp, nil),
 	}
 
 	return []interface{}{rst}
 }
 
-func flattenDataSourceTaskProgress(taskProgress *model.TaskProgress) []interface{} {
-	if taskProgress == nil {
+func flattenDataSourceTaskProgress(taskProgressResp interface{}) []interface{} {
+	if taskProgressResp == nil {
 		return nil
 	}
 
 	rst := map[string]interface{}{
-		"total":           taskProgress.Total,
-		"processing":      taskProgress.Processing,
-		"success":         taskProgress.Success,
-		"fail":            taskProgress.Fail,
-		"waitting":        taskProgress.Waitting,
-		"fail_wait_retry": taskProgress.FailWaitRetry,
-		"stopped":         taskProgress.Stopped,
-		"removed":         taskProgress.Removed,
+		"total":           utils.PathSearch("total", taskProgressResp, nil),
+		"processing":      utils.PathSearch("processing", taskProgressResp, nil),
+		"success":         utils.PathSearch("success", taskProgressResp, nil),
+		"fail":            utils.PathSearch("fail", taskProgressResp, nil),
+		"waitting":        utils.PathSearch("waitting", taskProgressResp, nil),
+		"fail_wait_retry": utils.PathSearch("fail_wait_retry", taskProgressResp, nil),
+		"stopped":         utils.PathSearch("stopped", taskProgressResp, nil),
+		"removed":         utils.PathSearch("removed", taskProgressResp, nil),
 	}
 
 	return []interface{}{rst}
