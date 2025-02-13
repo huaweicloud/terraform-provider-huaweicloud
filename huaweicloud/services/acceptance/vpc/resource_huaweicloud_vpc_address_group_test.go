@@ -2,32 +2,44 @@ package vpc
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	vpc_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vpc/v3/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getVpcAddressGroupResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcVpcV3Client(acceptance.HW_REGION_NAME)
+func getVpcAddressGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("vpcv3", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Huaweicloud VPC client: %s", err)
+		return nil, fmt.Errorf("error creating VPC v3 client: %s", err)
 	}
 
-	request := &vpc_model.ShowAddressGroupRequest{
-		AddressGroupId: state.Primary.ID,
+	getAddressGroupHttpUrl := "v3/{project_id}/vpc/address-groups/{address_group_id}"
+	getAddressGroupPath := client.Endpoint + getAddressGroupHttpUrl
+	getAddressGroupPath = strings.ReplaceAll(getAddressGroupPath, "{project_id}", client.ProjectID)
+	getAddressGroupPath = strings.ReplaceAll(getAddressGroupPath, "{address_group_id}", state.Primary.ID)
+
+	getAddressGroupPathOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	return client.ShowAddressGroup(request)
+	response, err := client.Request("GET", getAddressGroupPath, &getAddressGroupPathOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching VPC address group: %s", err)
+	}
+
+	return utils.FlattenResponse(response)
 }
 
 func TestAccVpcAddressGroup_basic(t *testing.T) {
-	var group vpc_model.ShowAddressGroupResponse
+	var group interface{}
 
 	rName := acceptance.RandomAccResourceName()
 	rNameUpdate := rName + "_updated"
@@ -77,7 +89,7 @@ func TestAccVpcAddressGroup_basic(t *testing.T) {
 }
 
 func TestAccVpcAddressGroup_ipExtraSet(t *testing.T) {
-	var group vpc_model.ShowAddressGroupResponse
+	var group interface{}
 
 	rName := acceptance.RandomAccResourceName()
 	rNameUpdate := rName + "_updated"
@@ -127,7 +139,7 @@ func TestAccVpcAddressGroup_ipExtraSet(t *testing.T) {
 }
 
 func TestAccVpcAddressGroup_ipv6(t *testing.T) {
-	var group vpc_model.ShowAddressGroupResponse
+	var group interface{}
 
 	rName := acceptance.RandomAccResourceName()
 	rNameUpdate := rName + "_updated"
@@ -177,7 +189,7 @@ func TestAccVpcAddressGroup_ipv6(t *testing.T) {
 }
 
 func TestAccVpcAddressGroup_eps(t *testing.T) {
-	var group vpc_model.ShowAddressGroupResponse
+	var group interface{}
 
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_vpc_address_group.test"
