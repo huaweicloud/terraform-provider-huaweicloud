@@ -1,8 +1,14 @@
 package deprecated
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"io"
+	"mime/multipart"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -10,12 +16,10 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/def"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API IoTDA POST /v5/iot/{project_id}/batchtask-files
@@ -57,12 +61,17 @@ func ResourceBatchTaskFile() *schema.Resource {
 }
 
 func resourceBatchTaskFileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/batchtask-files"
+		product = "iotda"
+	)
+
 	isDerived := iotda.WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
 	file, err := os.Open(d.Get("content").(string))
@@ -71,79 +80,123 @@ func resourceBatchTaskFileCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 	defer file.Close()
 
-	body := model.UploadBatchTaskFileRequestBody{
-		File: &def.FilePart{
-			Content: file,
+	var requestBody bytes.Buffer
+	multiPartWriter := multipart.NewWriter(&requestBody)
+
+	formFile, err := multiPartWriter.CreateFormFile("file", filepath.Base(file.Name()))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	_, err = io.Copy(formFile, file)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	err = multiPartWriter.Close()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type":         multiPartWriter.FormDataContentType(),
+			"X-Sdk-Content-Sha256": "UNSIGNED-PAYLOAD",
 		},
+		RawBody: &requestBody,
 	}
-	createOpt := model.UploadBatchTaskFileRequest{
-		Body: &body,
-	}
-	resp, err := client.UploadBatchTaskFile(&createOpt)
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error uploading IoTDA batch task file: %s", err)
 	}
 
-	if resp == nil || resp.FileId == nil {
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	fileID := utils.PathSearch("file_id", respBody, "").(string)
+	if fileID == "" {
 		return diag.Errorf("error uploading IoTDA batch task file: ID is not found in API response")
 	}
 
-	d.SetId(*resp.FileId)
+	d.SetId(fileID)
 
 	return resourceBatchTaskFileRead(ctx, d, meta)
 }
 
 func resourceBatchTaskFileRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/batchtask-files"
+		product = "iotda"
+	)
+
 	isDerived := iotda.WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	resp, err := client.ListBatchTaskFiles(&model.ListBatchTaskFilesRequest{})
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error querying IoTDA batch task files")
+		return diag.Errorf("error querying IoTDA batch task files: %s", err)
 	}
 
-	allFiles := *resp.Files
-	targetFile := new(model.BatchTaskFile)
-	for i := range allFiles {
-		if *allFiles[i].FileId == d.Id() {
-			targetFile = &allFiles[i]
-			break
-		}
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	if targetFile.FileId == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "IoTDA batch task file")
+	taskFile := utils.PathSearch(fmt.Sprintf("files[?file_id == '%s']|[0]", d.Id()), respBody, nil)
+	if taskFile == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("name", targetFile.FileName),
-		d.Set("created_at", targetFile.UploadTime),
+		d.Set("name", utils.PathSearch("file_name", taskFile, nil)),
+		d.Set("created_at", utils.PathSearch("upload_time", taskFile, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceBatchTaskFileDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/batchtask-files/{file_id}"
+		product = "iotda"
+	)
+
 	isDerived := iotda.WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	deleteOpt := model.DeleteBatchTaskFileRequest{
-		FileId: d.Id(),
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{file_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	_, err = client.DeleteBatchTaskFile(&deleteOpt)
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting IoTDA batch task file: %s", err)
+		// When the resource does not exist, the API response status code is `404`.
+		return common.CheckDeletedDiag(d, err, "error deleting IoTDA batch task file")
 	}
 
 	return nil

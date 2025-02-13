@@ -2,6 +2,7 @@ package deprecated
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -9,31 +10,48 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/iotda"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getBatchTaskFileResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, iotda.WithDerivedAuth())
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "iotda"
+		httpUrl = "v5/iot/{project_id}/batchtask-files"
+		ID      = state.Primary.ID
+	)
+
+	isDerived := iotda.WithDerivedAuth()
+	client, err := conf.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
+		return nil, fmt.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	resp, err := client.ListBatchTaskFiles(&model.ListBatchTaskFilesRequest{})
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error querying IoTDA batch task files")
+		return nil, fmt.Errorf("error querying IoTDA batch task files: %s", err)
 	}
 
-	for _, respFile := range *resp.Files {
-		if *respFile.FileId == state.Primary.ID {
-			return respFile, nil
-		}
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, golangsdk.ErrDefault404{}
+	taskFile := utils.PathSearch(fmt.Sprintf("files[?file_id == '%s']|[0]", ID), respBody, nil)
+	if taskFile == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return taskFile, nil
 }
 
 func TestAccBatchTaskFile_basic(t *testing.T) {
@@ -75,12 +93,31 @@ func TestAccBatchTaskFile_basic(t *testing.T) {
 	})
 }
 
+// When accessing an IoTDA **standard** or **enterprise** edition instance, you need to specify the IoTDA service
+// endpoint using environment filed `HW_IOTDA_ACCESS_ADDRESS`.
+func buildIoTDAEndpoint() string {
+	endpoint := acceptance.HW_IOTDA_ACCESS_ADDRESS
+	if endpoint == "" {
+		return ""
+	}
+
+	// lintignore:AT004
+	return fmt.Sprintf(`
+provider "huaweicloud" {
+  endpoints = {
+    iotda = "%s"
+  }
+}
+`, endpoint)
+}
+
 func testBatchTaskFile_basic() string {
 	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_iotda_batchtask_file" "test" {
   content = "%s"
 }
 
-`, acceptance.HW_IOTDA_BATCHTASK_FILE_PATH)
+`, buildIoTDAEndpoint(), acceptance.HW_IOTDA_BATCHTASK_FILE_PATH)
 }
