@@ -520,20 +520,29 @@ func resourceTranscodingTemplateUpdate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceTranscodingTemplateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcMpcV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/template/transcodings"
+	)
+
+	client, err := cfg.NewServiceClient("mpc", region)
 	if err != nil {
-		return diag.Errorf("error creating MPC client : %s", err)
+		return diag.Errorf("error creating MPC client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(d.Id(), 10, 32)
-	if err != nil {
-		diag.FromErr(err)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = fmt.Sprintf("%s?template_id=%s", deletePath, d.Id())
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	_, err = client.DeleteTemplate(&mpc.DeleteTemplateRequest{TemplateId: id})
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting MPC transcoding template: %s", err)
+		// When the resource does not exist, delete API will return `403`, the error code is `MPC.10239`.
+		return common.CheckDeletedDiag(d, common.ConvertExpected403ErrInto404Err(err, "error_code", "MPC.10239"),
+			"error deleting MPC transcoding template")
 	}
 
 	return nil
