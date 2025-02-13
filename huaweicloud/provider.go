@@ -1467,8 +1467,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cae_application":              cae.ResourceApplication(),
 			"huaweicloud_cae_certificate":              cae.ResourceCertificate(),
-			"huaweicloud_cae_component_action":         cae.ResourceComponentAction(),
 			"huaweicloud_cae_component":                cae.ResourceComponent(),
+			"huaweicloud_cae_component_action":         cae.ResourceComponentAction(),
 			"huaweicloud_cae_component_configurations": cae.ResourceComponentConfigurations(),
 			"huaweicloud_cae_domain":                   cae.ResourceDomain(),
 			"huaweicloud_cae_environment":              cae.ResourceEnvironment(),

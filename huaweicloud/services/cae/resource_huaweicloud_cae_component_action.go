@@ -38,7 +38,7 @@ func ResourceComponentAction() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `The region in which to create the resource.`,
+				Description: `The region where the component to be operated is located.`,
 			},
 			"environment_id": {
 				Type:        schema.TypeString,
@@ -56,7 +56,7 @@ func ResourceComponentAction() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The ID of the component being operated.`,
+				Description: `The ID of the component to be operated.`,
 			},
 			"metadata": {
 				Type:     schema.TypeList,
@@ -73,7 +73,7 @@ func ResourceComponentAction() *schema.Resource {
 							Type:        schema.TypeMap,
 							Optional:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
-							Description: `The key/value pairs parameters related to the component being operated.`,
+							Description: `The key/value pairs parameters related to the component to be operated.`,
 						},
 					},
 				},
