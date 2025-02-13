@@ -13,28 +13,29 @@ import (
 
 func TestAccDataApplications_basic(t *testing.T) {
 	var (
-		rcName       = "huaweicloud_fgs_application.test"
+		base = "huaweicloud_fgs_application.test"
+
 		all          = "data.huaweicloud_fgs_applications.all"
 		dcForAllApps = acceptance.InitDataSourceCheck(all)
 
-		byAppId           = "data.huaweicloud_fgs_applications.filter_by_app_id"
+		byAppId           = "data.huaweicloud_fgs_applications.filter_by_application_id"
 		dcByAppId         = acceptance.InitDataSourceCheck(byAppId)
-		byNotFoundAppId   = "data.huaweicloud_fgs_applications.filter_by_not_found_app_id"
+		byNotFoundAppId   = "data.huaweicloud_fgs_applications.filter_by_not_found_application_id"
 		dcByNotFoundAppId = acceptance.InitDataSourceCheck(byNotFoundAppId)
 
-		byAppName           = "data.huaweicloud_fgs_applications.filter_by_app_name"
+		byAppName           = "data.huaweicloud_fgs_applications.filter_by_name"
 		dcByAppName         = acceptance.InitDataSourceCheck(byAppName)
-		byNotFoundAppName   = "data.huaweicloud_fgs_applications.filter_by_not_found_app_name"
+		byNotFoundAppName   = "data.huaweicloud_fgs_applications.filter_by_not_found_name"
 		dcByNotFoundAppName = acceptance.InitDataSourceCheck(byNotFoundAppName)
 
-		byAppStatus           = "data.huaweicloud_fgs_applications.filter_by_app_status"
+		byAppStatus           = "data.huaweicloud_fgs_applications.filter_by_status"
 		dcByAppStatus         = acceptance.InitDataSourceCheck(byAppStatus)
-		byNotFoundAppStatus   = "data.huaweicloud_fgs_applications.filter_by_not_found_app_status"
+		byNotFoundAppStatus   = "data.huaweicloud_fgs_applications.filter_by_not_found_status"
 		dcByNotFoundAppStatus = acceptance.InitDataSourceCheck(byNotFoundAppStatus)
 
-		byAppDesc           = "data.huaweicloud_fgs_applications.filter_by_app_desc"
+		byAppDesc           = "data.huaweicloud_fgs_applications.filter_by_description"
 		dcByAppDesc         = acceptance.InitDataSourceCheck(byAppDesc)
-		byNotFoundAppDesc   = "data.huaweicloud_fgs_applications.filter_by_not_found_app_desc"
+		byNotFoundAppDesc   = "data.huaweicloud_fgs_applications.filter_by_not_found_description"
 		dcByNotFoundAppDesc = acceptance.InitDataSourceCheck(byNotFoundAppDesc)
 	)
 
@@ -47,35 +48,37 @@ func TestAccDataApplications_basic(t *testing.T) {
 			{
 				Config: testAccDataApplications_basic(),
 				Check: resource.ComposeTestCheckFunc(
+					// Without filter parameters.
 					dcForAllApps.CheckResourceExists(),
 					resource.TestMatchResourceAttr(all, "applications.#", regexp.MustCompile(`[1-9][0-9]*`)),
 					// Filter by application ID.
 					dcByAppId.CheckResourceExists(),
-					resource.TestCheckOutput("is_app_id_filter_useful", "true"),
+					resource.TestCheckOutput("is_application_id_filter_useful", "true"),
 					dcByNotFoundAppId.CheckResourceExists(),
-					resource.TestCheckOutput("app_id_not_found_validation_pass", "true"),
+					resource.TestCheckOutput("application_id_not_found_validation_pass", "true"),
 					// Filter by application name.
 					dcByAppName.CheckResourceExists(),
-					resource.TestCheckOutput("is_app_name_filter_useful", "true"),
+					resource.TestCheckOutput("is_name_filter_useful", "true"),
 					dcByNotFoundAppName.CheckResourceExists(),
-					resource.TestCheckOutput("app_name_not_found_validation_pass", "true"),
+					resource.TestCheckOutput("name_not_found_validation_pass", "true"),
 					// Filter by application status.
 					dcByAppStatus.CheckResourceExists(),
-					resource.TestCheckOutput("is_app_status_filter_useful", "true"),
+					resource.TestCheckOutput("is_status_filter_useful", "true"),
 					dcByNotFoundAppStatus.CheckResourceExists(),
-					resource.TestCheckOutput("app_status_not_found_validation_pass", "true"),
+					resource.TestCheckOutput("status_not_found_validation_pass", "true"),
 					// Filter by application description.
 					dcByAppDesc.CheckResourceExists(),
-					resource.TestCheckOutput("is_app_desc_filter_useful", "true"),
+					resource.TestCheckOutput("is_description_filter_useful", "true"),
 					dcByNotFoundAppDesc.CheckResourceExists(),
-					resource.TestCheckOutput("app_desc_not_found_validation_pass", "true"),
-					// Check attributes.
-					resource.TestCheckResourceAttrPair(byAppId, "applications.0.id", rcName, "id"),
-					resource.TestCheckResourceAttrPair(byAppId, "applications.0.name", rcName, "name"),
-					resource.TestCheckResourceAttrPair(byAppId, "applications.0.status", rcName, "status"),
-					resource.TestCheckResourceAttrPair(byAppId, "applications.0.description", rcName, "description"),
+					resource.TestCheckOutput("description_not_found_validation_pass", "true"),
+					// Check the attributes.
+					resource.TestCheckResourceAttrPair(byAppId, "applications.0.id", base, "id"),
+					resource.TestCheckResourceAttrPair(byAppId, "applications.0.name", base, "name"),
+					resource.TestCheckResourceAttrPair(byAppId, "applications.0.status", base, "status"),
+					resource.TestCheckResourceAttrPair(byAppId, "applications.0.description", base, "description"),
 					resource.TestMatchResourceAttr(byAppId, "applications.0.updated_at",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					// Attribute 'created_at' has been deprecated from the API and the corresponding documentation.
 				),
 			},
 		},
@@ -91,23 +94,23 @@ func testAccDataApplications_basic() string {
 
 # Without any filter parameter.
 data "huaweicloud_fgs_applications" "all" {
-  // Query applications after application resource create.
+  # Query applications after application resource create.
   depends_on = [
     huaweicloud_fgs_application.test,
   ]
 }
 
-// Filter by application ID.
+# Filter by application ID.
 locals {
-  app_id = huaweicloud_fgs_application.test.id
+  application_id = huaweicloud_fgs_application.test.id
 }
 
-data "huaweicloud_fgs_applications" "filter_by_app_id" {
-  application_id = local.app_id
+data "huaweicloud_fgs_applications" "filter_by_application_id" {
+  application_id = local.application_id
 }
 
-data "huaweicloud_fgs_applications" "filter_by_not_found_app_id" {
-  // Query applications using a not exist ID after application resource create.
+data "huaweicloud_fgs_applications" "filter_by_not_found_application_id" {
+  # Query applications using a not exist ID after application resource create.
   depends_on = [
     huaweicloud_fgs_application.test,
   ]
@@ -116,121 +119,121 @@ data "huaweicloud_fgs_applications" "filter_by_not_found_app_id" {
 }
 
 locals {
-  app_id_filter_result = [for v in data.huaweicloud_fgs_applications.filter_by_app_id.applications[*].id :
-    v == local.app_id]
+  application_id_filter_result = [for v in data.huaweicloud_fgs_applications.filter_by_application_id.applications[*].id :
+    v == local.application_id]
 }
 
-output "is_app_id_filter_useful" {
-  value = length(local.app_id_filter_result) > 0 && alltrue(local.app_id_filter_result)
+output "is_application_id_filter_useful" {
+  value = length(local.application_id_filter_result) > 0 && alltrue(local.application_id_filter_result)
 }
 
-output "app_id_not_found_validation_pass" {
-  value = length(data.huaweicloud_fgs_applications.filter_by_not_found_app_id.applications) == 0
+output "application_id_not_found_validation_pass" {
+  value = length(data.huaweicloud_fgs_applications.filter_by_not_found_application_id.applications) == 0
 }
 
-// Filter by application name.
+# Filter by application name.
 locals {
-  app_name = huaweicloud_fgs_application.test.name
+  application_name = huaweicloud_fgs_application.test.name
 }
 
-data "huaweicloud_fgs_applications" "filter_by_app_name" {
-  // The behavior of parameter 'name' of the application resource is 'Required', means this parameter does not
-  // have 'Know After Apply' behavior.
+data "huaweicloud_fgs_applications" "filter_by_name" {
+  # The behavior of parameter 'name' of the application resource is 'Required', means this parameter does not
+  # have 'Know After Apply' behavior.
   depends_on = [
     huaweicloud_fgs_application.test,
   ]
 
-  name = local.app_name
+  name = local.application_name
 }
 
-data "huaweicloud_fgs_applications" "filter_by_not_found_app_name" {
-  // Query applications using a not exist name after application resource create.
+data "huaweicloud_fgs_applications" "filter_by_not_found_name" {
+  # Query applications using a not exist name after application resource create.
   depends_on = [
     huaweicloud_fgs_application.test,
   ]
 
-  name = "app_name_not_found"
+  name = "name_not_found"
 }
 
 locals {
-  app_name_filter_result = [for v in data.huaweicloud_fgs_applications.filter_by_app_name.applications[*].name :
-    v == local.app_name]
+  name_filter_result = [for v in data.huaweicloud_fgs_applications.filter_by_name.applications[*].name :
+    v == local.application_name]
 }
 
-output "is_app_name_filter_useful" {
-  value = length(local.app_name_filter_result) > 0 && alltrue(local.app_name_filter_result)
+output "is_name_filter_useful" {
+  value = length(local.name_filter_result) > 0 && alltrue(local.name_filter_result)
 }
 
-output "app_name_not_found_validation_pass" {
-  value = length(data.huaweicloud_fgs_applications.filter_by_not_found_app_name.applications) == 0
+output "name_not_found_validation_pass" {
+  value = length(data.huaweicloud_fgs_applications.filter_by_not_found_name.applications) == 0
 }
 
-// Filter by application status.
+# Filter by application status.
 locals {
-  app_status = huaweicloud_fgs_application.test.status
+  application_status = huaweicloud_fgs_application.test.status
 }
 
-data "huaweicloud_fgs_applications" "filter_by_app_status" {
-  status = local.app_status
+data "huaweicloud_fgs_applications" "filter_by_status" {
+  status = local.application_status
 }
 
-data "huaweicloud_fgs_applications" "filter_by_not_found_app_status" {
-  // Query application using a not exist status after application resource create.
+data "huaweicloud_fgs_applications" "filter_by_not_found_status" {
+  # Query application using a not exist status after application resource create.
   depends_on = [
     huaweicloud_fgs_application.test,
   ]
 
-  status = "app_status_not_found"
+  status = "status_not_found"
 }
 
 locals {
-  app_status_filter_result = [for v in data.huaweicloud_fgs_applications.filter_by_app_status.applications[*].status :
-    v == local.app_status]
+  status_filter_result = [for v in data.huaweicloud_fgs_applications.filter_by_status.applications[*].status :
+    v == local.application_status]
 }
 
-output "is_app_status_filter_useful" {
-  value = length(local.app_status_filter_result) > 0 && alltrue(local.app_status_filter_result)
+output "is_status_filter_useful" {
+  value = length(local.status_filter_result) > 0 && alltrue(local.status_filter_result)
 }
 
-output "app_status_not_found_validation_pass" {
-  value = length(data.huaweicloud_fgs_applications.filter_by_not_found_app_status.applications) == 0
+output "status_not_found_validation_pass" {
+  value = length(data.huaweicloud_fgs_applications.filter_by_not_found_status.applications) == 0
 }
 
-// Filter by application description.
+# Filter by application description.
 locals {
-  app_desc = huaweicloud_fgs_application.test.description
+  application_description = huaweicloud_fgs_application.test.description
 }
 
-data "huaweicloud_fgs_applications" "filter_by_app_desc" {
-  // The behavior of parameter 'description' of the resource is not have the 'Computed', means this parameter does not
-  // have 'Know After Apply' behavior.
+data "huaweicloud_fgs_applications" "filter_by_description" {
+  # The behavior of parameter 'description' of the resource is not have the 'Computed', means this parameter does not
+  # have 'Know After Apply' behavior.
   depends_on = [
     huaweicloud_fgs_application.test,
   ]
 
-  description = local.app_desc
+  description = local.application_description
 }
 
-data "huaweicloud_fgs_applications" "filter_by_not_found_app_desc" {
-  // Query applications using a not exist description after application resource create.
+data "huaweicloud_fgs_applications" "filter_by_not_found_description" {
+  # Query applications using a not exist description after application resource create.
   depends_on = [
     huaweicloud_fgs_application.test,
   ]
 
-  description = "app_desc_not_found"
+  description = "description_not_found"
 }
 
 locals {
-  app_desc_filter_result = [for v in data.huaweicloud_fgs_applications.filter_by_app_desc.applications[*].description :
-    v == local.app_desc]
+  description_filter_result = [for v in data.huaweicloud_fgs_applications.filter_by_description.applications[*].description :
+    v == local.application_description]
 }
 
-output "is_app_desc_filter_useful" {
-  value = length(local.app_desc_filter_result) > 0 && alltrue(local.app_desc_filter_result)
+output "is_description_filter_useful" {
+  value = length(local.description_filter_result) > 0 && alltrue(local.description_filter_result)
 }
 
-output "app_desc_not_found_validation_pass" {
-  value = length(data.huaweicloud_fgs_applications.filter_by_not_found_app_desc.applications) == 0
+output "description_not_found_validation_pass" {
+  value = length(data.huaweicloud_fgs_applications.filter_by_not_found_description.applications) == 0
 }
 `, testAccApplication_basic(name), randAppId)
 }
