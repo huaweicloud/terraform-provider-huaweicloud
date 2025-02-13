@@ -7,28 +7,26 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 )
 
-func getBatchTaskResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, WithDerivedAuth())
+func getBatchTaskResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region    = acceptance.HW_REGION_NAME
+		isDerived = iotda.WithDerivedAuth(cfg, region)
+		product   = "iotda"
+		taskId    = state.Primary.ID
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
+		return nil, fmt.Errorf("error creating IoTDA client: %s", err)
 	}
 
 	// There is no need to handle pagination related parameters here, as it only applies to the structure of subtasks.
-	resp, err := client.ShowBatchTask(&model.ShowBatchTaskRequest{
-		TaskId: state.Primary.ID,
-	})
-
-	if err != nil {
-		return nil, fmt.Errorf("error querying IoTDA batch task: %s", err)
-	}
-
-	return resp, nil
+	return iotda.GetBatchTaskById(client, taskId)
 }
 
 func TestAccBatchTask_basic(t *testing.T) {
@@ -58,8 +56,7 @@ func TestAccBatchTask_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "type", "freezeDevices"),
-					resource.TestCheckResourceAttrPair(resourceName, "space_id", "huaweicloud_iotda_space.test", "id"),
-
+					resource.TestCheckResourceAttrPair(resourceName, "space_id", "data.huaweicloud_iotda_spaces.test", "spaces.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "status"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttr(resourceName, "task_progress.0.total", "2"),
@@ -121,42 +118,54 @@ func TestAccBatchTask_withTargetsFilterField(t *testing.T) {
 }
 
 func testBatchTask_base(name, nodeId string) string {
-	productBasic := testProduct_basic(name)
-
 	return fmt.Sprintf(`
 %[1]s
+
+data "huaweicloud_iotda_spaces" "test" {
+  is_default = true
+}
+
+resource "huaweicloud_iotda_product" "test" {
+  name        = "%[2]s"
+  device_type = "test"
+  protocol    = "MQTT"
+  space_id    = data.huaweicloud_iotda_spaces.test.spaces[0].id
+  data_type   = "json"
+
+  services {
+    id   = "service_1"
+    type = "serv_type"
+  }
+}
 
 resource "huaweicloud_iotda_device" "test1" {
   name       = "%[2]s"
   node_id    = "%[3]s"
-  space_id   = huaweicloud_iotda_space.test.id
+  space_id   = data.huaweicloud_iotda_spaces.test.spaces[0].id
   product_id = huaweicloud_iotda_product.test.id
 }
 
 resource "huaweicloud_iotda_device" "test2" {
   name       = "%[2]s_2"
   node_id    = "%[3]s_2"
-  space_id   = huaweicloud_iotda_space.test.id
+  space_id   = data.huaweicloud_iotda_spaces.test.spaces[0].id
   product_id = huaweicloud_iotda_product.test.id
   secret     = "1234567890"
 }
-
-`, productBasic, name, nodeId)
+`, buildIoTDAEndpoint(), name, nodeId)
 }
 
 func testBatchTask_basic(name, nodeId string) string {
-	batchTaskBase := testBatchTask_base(name, nodeId)
-
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_iotda_batchtask" "test_freeze" {
   name     = "%[2]s"
   type     = "freezeDevices"
-  space_id = huaweicloud_iotda_space.test.id
+  space_id = data.huaweicloud_iotda_spaces.test.spaces[0].id
   targets  = [huaweicloud_iotda_device.test1.id, huaweicloud_iotda_device.test2.id]
 }
-`, batchTaskBase, name, nodeId)
+`, testBatchTask_base(name, nodeId), name, nodeId)
 }
 
 func testBatchTask_withTargetsFilterField(name string) string {
@@ -173,4 +182,60 @@ resource "huaweicloud_iotda_batchtask" "test_unfreeze" {
   }
 }
 `, buildIoTDAEndpoint(), name)
+}
+
+func TestAccBatchTask_withTargetsFileField(t *testing.T) {
+	var (
+		obj          interface{}
+		resourceName = "huaweicloud_iotda_batchtask.test_create"
+		name         = acceptance.RandomAccResourceName()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getBatchTaskResourceFunc,
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckIOTDABatchTaskFilePath(t)
+			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testBatchTask_withTargetsFileField(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "type", "createDevices"),
+
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "task_details.#"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"space_id", "targets", "targets_filter", "targets_file"},
+			},
+		},
+	})
+}
+
+func testBatchTask_withTargetsFileField(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_iotda_batchtask" "test_create" {
+  name         = "%[2]s"
+  type         = "createDevices"
+  targets_file = "%[3]s"
+}
+`, buildIoTDAEndpoint(), name, acceptance.HW_IOTDA_BATCHTASK_FILE_PATH)
 }
