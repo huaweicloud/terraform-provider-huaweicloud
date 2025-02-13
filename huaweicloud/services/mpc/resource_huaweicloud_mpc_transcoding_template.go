@@ -4,11 +4,14 @@ import (
 	"context"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
 
 	mpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model"
 
@@ -262,30 +265,112 @@ func buildVideoOutputPolicyOpts(outputPolicy string) *mpc.VideoOutputPolicy {
 	return &outputPolicyOpts
 }
 
+func buildCreateTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
+	templateGroupParams := map[string]interface{}{
+		"template_name": d.Get("name"),
+		"video":         buildTemplateVideoBodyParams(d.Get("video").([]interface{})),
+		"audio":         buildTemplateAudioBodyParams(d.Get("audio").([]interface{})),
+		"common":        buildTemplateCommonBodyParams(d),
+	}
+
+	return templateGroupParams
+}
+
+func buildTemplateVideoBodyParams(rawVideo []interface{}) map[string]interface{} {
+	if len(rawVideo) == 0 {
+		return nil
+	}
+
+	video := rawVideo[0].(map[string]interface{})
+	videoParams := map[string]interface{}{
+		"output_policy":        buildTemplateOutputPolicy(video["output_policy"].(string)),
+		"codec":                video["codec"],
+		"bitrate":              video["bitrate"],
+		"profile":              video["profile"],
+		"level":                video["level"],
+		"preset":               video["quality"],
+		"max_iframes_interval": video["max_iframes_interval"],
+		"bframes_count":        video["max_consecutive_bframes"],
+		"frame_rate":           video["fps"],
+		"width":                video["width"],
+		"height":               video["height"],
+		"black_cut":            video["black_bar_removal"],
+	}
+
+	return videoParams
+}
+
+func buildTemplateOutputPolicy(outputPolicy string) interface{} {
+	if outputPolicy == "discard" || outputPolicy == "transcode" {
+		return outputPolicy
+	}
+
+	return nil
+}
+
+func buildTemplateAudioBodyParams(rawAudio []interface{}) map[string]interface{} {
+	if len(rawAudio) == 0 {
+		return nil
+	}
+
+	audio := rawAudio[0].(map[string]interface{})
+	audioParams := map[string]interface{}{
+		"output_policy": buildTemplateOutputPolicy(audio["output_policy"].(string)),
+		"codec":         audio["codec"],
+		"sample_rate":   audio["sample_rate"],
+		"bitrate":       audio["bitrate"],
+		"channels":      audio["channels"],
+	}
+
+	return audioParams
+}
+
+func buildTemplateCommonBodyParams(d *schema.ResourceData) map[string]interface{} {
+	commonParams := map[string]interface{}{
+		"PVC":           d.Get("low_bitrate_hd"),
+		"hls_interval":  d.Get("hls_segment_duration"),
+		"dash_interval": d.Get("dash_segment_duration"),
+		"pack_type":     d.Get("output_format"),
+	}
+
+	return commonParams
+}
+
 func resourceTranscodingTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcMpcV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/template/transcodings"
+	)
+
+	client, err := cfg.NewServiceClient("mpc", region)
 	if err != nil {
-		return diag.Errorf("error creating MPC client : %s", err)
+		return diag.Errorf("error creating MPC client: %s", err)
 	}
 
-	createOpts := mpc.TransTemplate{
-		TemplateName: d.Get("name").(string),
-		Video:        buildVideoOpts(d.Get("video").([]interface{})),
-		Audio:        buildAudioOpts(d.Get("audio").([]interface{})),
-		Common:       buildCommonOpts(d),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateTemplateBodyParams(d)),
 	}
 
-	createReq := mpc.CreateTransTemplateRequest{
-		Body: &createOpts,
-	}
-
-	resp, err := client.CreateTransTemplate(&createReq)
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating MPC transcoding template: %s", err)
 	}
 
-	d.SetId(strconv.FormatInt(int64(*resp.TemplateId), 10))
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	templateId := utils.PathSearch("template_id", respBody, float64(0)).(float64)
+	if templateId == 0 {
+		return diag.Errorf("error creating MPC transcoding template group: ID is not found in API response")
+	}
+
+	d.SetId(strconv.FormatInt(int64(templateId), 10))
 
 	return resourceTranscodingTemplateRead(ctx, d, meta)
 }
