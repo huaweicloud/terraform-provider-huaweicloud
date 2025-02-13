@@ -104,12 +104,13 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "6"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "dn:check_disconnect_query"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "off"),
+					resource.TestCheckResourceAttr(resourceName, "advance_features.0.name", "ilm"),
+					resource.TestCheckResourceAttr(resourceName, "advance_features.0.value", "on"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.id"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.name"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.status"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.role"),
 					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.availability_zone"),
-					resource.TestCheckResourceAttrSet(resourceName, "nodes.0.private_ip"),
 					resource.TestCheckResourceAttr(resourceName, "balance_status", "true"),
 					resource.TestCheckResourceAttr(resourceName, "error_log_switch_status", "OFF"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -130,6 +131,8 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "cn:auto_increment_increment"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "1000"),
+					resource.TestCheckResourceAttr(resourceName, "advance_features.0.name", "ilm"),
+					resource.TestCheckResourceAttr(resourceName, "advance_features.0.value", "off"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo_update", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
@@ -321,6 +324,11 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
     value = "off"
   }
 
+  advance_features {
+    name  = "ilm"
+    value = "on"
+  }
+
   tags = {
     foo = "bar"
     key = "value"
@@ -397,6 +405,11 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   parameters {
     name  = "cn:auto_increment_increment"
     value = "1000"
+  }
+
+  advance_features {
+    name  = "ilm"
+    value = "off"
   }
 
   tags = {

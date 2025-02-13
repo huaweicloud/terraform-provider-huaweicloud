@@ -274,6 +274,23 @@ func ResourceOpenGaussInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"advance_features": {
+				Type: schema.TypeSet,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+				Optional: true,
+				Computed: true,
+			},
 			"tags": common.TagsSchema(),
 			"force_import": {
 				Type:     schema.TypeBool,
@@ -476,6 +493,12 @@ func resourceOpenGaussInstanceCreate(ctx context.Context, d *schema.ResourceData
 
 	if port, ok := d.GetOk("mysql_compatibility_port"); ok && port.(string) != "0" {
 		if err = openMysqlCompatibilityPort(ctx, client, d, schema.TimeoutCreate); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("advance_features"); ok {
+		if err = updateAdvanceFeatures(ctx, client, d, schema.TimeoutCreate); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -796,6 +819,7 @@ func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, 
 
 	mErr = multierror.Append(mErr, setBalanceStatus(d, client))
 	mErr = multierror.Append(mErr, setErrorLogSwitchStatus(d, client))
+	mErr = multierror.Append(mErr, setAdvanceFeatures(d, client))
 
 	diagErr := setGaussDBMySQLParameters(ctx, d, client)
 	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
@@ -1033,6 +1057,58 @@ func setErrorLogSwitchStatus(d *schema.ResourceData, client *golangsdk.ServiceCl
 	}
 	return d.Set("error_log_switch_status", utils.PathSearch("status", getRespBody, nil))
 }
+
+func setAdvanceFeatures(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	features, err := getAdvanceFeatures(client, d.Id())
+	if err != nil {
+		log.Printf("[WARN] error retrieving GaussDB OpenGauss(%s) error log switch status: %s", d.Id(), err)
+		return nil
+	}
+
+	rawAdvanceFeatures := d.Get("advance_features").(*schema.Set)
+	rawAdvanceFeatureMap := make(map[string]bool)
+	for _, rawAdvanceFeature := range rawAdvanceFeatures.List() {
+		rawAdvanceFeatureMap[rawAdvanceFeature.(map[string]interface{})["name"].(string)] = true
+	}
+	rst := make([]interface{}, 0, len(features))
+	for _, v := range features {
+		name := utils.PathSearch("name", v, "").(string)
+		if rawAdvanceFeatureMap[name] {
+			rst = append(rst, map[string]string{
+				"name":  utils.PathSearch("name", v, "").(string),
+				"value": utils.PathSearch("value", v, "").(string),
+			})
+		}
+	}
+	return d.Set("advance_features", rst)
+}
+
+func getAdvanceFeatures(client *golangsdk.ServiceClient, instanceId string) ([]interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/advance-features"
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+	features := utils.PathSearch("features", getRespBody, make([]interface{}, 0)).([]interface{})
+
+	return features, nil
+}
+
 func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -1128,6 +1204,12 @@ func resourceOpenGaussInstanceUpdate(ctx context.Context, d *schema.ResourceData
 			if err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	if d.HasChange("advance_features") {
+		if err = updateAdvanceFeatures(ctx, client, d, schema.TimeoutUpdate); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1677,6 +1759,98 @@ func buildUpdateMysqlCompatibilityPortBodyParams(d *schema.ResourceData) map[str
 		"port": d.Get("mysql_compatibility_port"),
 	}
 	return bodyParams
+}
+
+func updateAdvanceFeatures(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout string) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/advance-features"
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = buildUpdateAdvanceFeaturesBodyParams(d)
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("POST", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     instanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(timeout),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating GaussDB OpenGauss instance (%s) advance features: %s", d.Id(), err)
+	}
+
+	return checkAdvanceFeaturesJobFinish(ctx, d, client, timeout)
+}
+
+func buildUpdateAdvanceFeaturesBodyParams(d *schema.ResourceData) map[string]interface{} {
+	advanceFeatures := d.Get("advance_features").(*schema.Set).List()
+	params := make(map[string]string)
+	for _, v := range advanceFeatures {
+		key := v.(map[string]interface{})["name"].(string)
+		value := v.(map[string]interface{})["value"].(string)
+		params[key] = value
+	}
+	bodyParams := map[string]interface{}{
+		"params": params,
+	}
+	return bodyParams
+}
+
+func checkAdvanceFeaturesJobFinish(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	timeout string) error {
+	rawAdvanceFeatures := d.Get("advance_features").(*schema.Set).List()
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Pending"},
+		Target:       []string{"Completed"},
+		Refresh:      gaussDBOpenGaussAdvanceFeaturesRefreshFunc(client, d.Id(), rawAdvanceFeatures),
+		Timeout:      d.Timeout(timeout),
+		Delay:        2,
+		PollInterval: 2 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for GaussDB Opengauss advance features job (%s) to be completed", err)
+	}
+	return nil
+}
+
+func gaussDBOpenGaussAdvanceFeaturesRefreshFunc(client *golangsdk.ServiceClient, instanceId string,
+	rawAdvanceFeatures []interface{}) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		features, err := getAdvanceFeatures(client, instanceId)
+		if err != nil {
+			return nil, "Error", err
+		}
+
+		featuresMap := make(map[string]string)
+		for _, v := range features {
+			name := utils.PathSearch("name", v, "").(string)
+			value := utils.PathSearch("value", v, "").(string)
+			featuresMap[name] = value
+		}
+		for _, rawAdvanceFeature := range rawAdvanceFeatures {
+			name := rawAdvanceFeature.(map[string]interface{})["name"].(string)
+			value := rawAdvanceFeature.(map[string]interface{})["value"].(string)
+			// if raw advance feature name is not exist, it indicates the name is error, then it is no need to check the value
+			if v, ok := featuresMap[name]; ok && v != value {
+				return features, "Pending", nil
+			}
+		}
+
+		return features, "Completed", nil
+	}
 }
 
 func addInstanceTags(d *schema.ResourceData, client *golangsdk.ServiceClient, addTags map[string]interface{}) error {

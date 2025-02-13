@@ -193,6 +193,9 @@ The following arguments are supported:
     **[Database port, Database port + 10]**.
   + If the value is **0**, the MySQL compatibility port is disabled.
 
+* `advance_features` - (Optional, List) Specifies the advanced features.
+  The [advance_features](#advance_features_struct) structure is documented below.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of opengauss instance.
   The valid values are as follows:
   + **prePaid**: the yearly/monthly billing mode.
@@ -269,6 +272,13 @@ The `parameters` block supports:
 * `name` - (Required, String) Specifies the name of the parameter.
 
 * `value` - (Required, String) Specifies the value of the parameter.
+
+<a name="advance_features_struct"></a>
+The `advance_features` block supports:
+
+* `name` - (Required, String) Specifies the name of the advance feature.
+
+* `value` - (Required, String) Specifies the value of the advance feature.
 
 ## Attribute Reference
 
