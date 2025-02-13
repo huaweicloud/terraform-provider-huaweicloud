@@ -2,21 +2,36 @@ package fgs
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
+	"github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDependencyVersions_basic(t *testing.T) {
+func TestAccDataDependencyVersions_basic(t *testing.T) {
 	var (
-		rName          = acceptance.RandomAccResourceName()
-		dataSourceName = "data.huaweicloud_fgs_dependency_versions.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+		rName                      = "huaweicloud_fgs_dependency_version.test"
+		all                        = "data.huaweicloud_fgs_dependency_versions.all"
+		dcForAllDependencyVersions = acceptance.InitDataSourceCheck(all)
 
-		byVersionId   = "data.huaweicloud_fgs_dependency_versions.filter_by_version_id"
-		dcByVersionId = acceptance.InitDataSourceCheck(byVersionId)
+		byVersionId           = "data.huaweicloud_fgs_dependency_versions.filter_by_version_id"
+		dcByVersionId         = acceptance.InitDataSourceCheck(byVersionId)
+		byNotFoundVersionId   = "data.huaweicloud_fgs_dependency_versions.filter_by_not_found_version_id"
+		dcByNotFoundVersionId = acceptance.InitDataSourceCheck(byNotFoundVersionId)
+
+		byVersion           = "data.huaweicloud_fgs_dependency_versions.filter_by_version"
+		dcByVersion         = acceptance.InitDataSourceCheck(byVersion)
+		byNotFoundVersion   = "data.huaweicloud_fgs_dependency_versions.filter_by_not_found_version"
+		dcByNotFoundVersion = acceptance.InitDataSourceCheck(byNotFoundVersion)
+
+		byRuntime           = "data.huaweicloud_fgs_dependency_versions.filter_by_runtime"
+		dcByRuntime         = acceptance.InitDataSourceCheck(byRuntime)
+		byNotFoundRuntime   = "data.huaweicloud_fgs_dependency_versions.filter_by_not_found_runtime"
+		dcByNotFoundRuntime = acceptance.InitDataSourceCheck(byNotFoundRuntime)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -27,40 +42,59 @@ func TestAccDependencyVersions_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDependencyVersions_basic(rName),
+				Config: testAccDataDependencyVersions_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "versions.#"),
+					dcForAllDependencyVersions.CheckResourceExists(),
+					resource.TestMatchResourceAttr(all, "versions.#", regexp.MustCompile(`[1-9][0-9]*`)),
+					// Filter by version ID.
 					dcByVersionId.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.id", "huaweicloud_fgs_dependency_version.test", "version_id"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.version", "huaweicloud_fgs_dependency_version.test", "version"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.dependency_id", "huaweicloud_fgs_dependency_version.test",
-						"dependency_id"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.dependency_name", "huaweicloud_fgs_dependency_version.test", "name"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.runtime", "huaweicloud_fgs_dependency_version.test", "runtime"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.link", "huaweicloud_fgs_dependency_version.test", "link"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.size", "huaweicloud_fgs_dependency_version.test", "size"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.etag", "huaweicloud_fgs_dependency_version.test", "etag"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.owner", "huaweicloud_fgs_dependency_version.test", "owner"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.description", "huaweicloud_fgs_dependency_version.test",
-						"description"),
 					resource.TestCheckOutput("is_version_id_filter_useful", "true"),
+					dcByNotFoundVersionId.CheckResourceExists(),
+					resource.TestCheckOutput("version_id_not_found_validation_pass", "true"),
+					// Filter by version number.
+					dcByVersion.CheckResourceExists(),
 					resource.TestCheckOutput("is_version_filter_useful", "true"),
+					dcByNotFoundVersion.CheckResourceExists(),
+					resource.TestCheckOutput("version_not_found_validation_pass", "true"),
+					// Filter by runtime of the dependency version.
+					dcByRuntime.CheckResourceExists(),
 					resource.TestCheckOutput("is_runtime_filter_useful", "true"),
+					dcByNotFoundRuntime.CheckResourceExists(),
+					resource.TestCheckOutput("runtime_not_found_validation_pass", "true"),
+					// Check attributes.
+					dcByVersionId.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.id", rName, "version_id"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.version", rName, "version"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.dependency_id", rName, "dependency_id"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.dependency_name", rName, "name"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.runtime", rName, "runtime"),
+					resource.TestCheckResourceAttrSet(byVersionId, "versions.0.link"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.size", rName, "size"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.etag", rName, "etag"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.owner", rName, "owner"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.description", rName, "description"),
 				),
 			},
 		},
 	})
 }
-func testAccDependencyVersions_basic(name string) string {
+
+func testAccDataDependencyVersions_basic() string {
+	var (
+		name             = acceptance.RandomAccResourceName()
+		randVersionId, _ = uuid.GenerateUUID()
+		randVersion      = acctest.RandIntRange(10000, 99999)
+	)
+
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_fgs_dependency_versions" "test" {
+# Without any filter parameter.
+data "huaweicloud_fgs_dependency_versions" "all" {
   dependency_id = huaweicloud_fgs_dependency_version.test.dependency_id
 }
 
-// Filter by version ID
+# Filter by version ID.
 locals {
   version_id = huaweicloud_fgs_dependency_version.test.version_id
 }
@@ -70,13 +104,30 @@ data "huaweicloud_fgs_dependency_versions" "filter_by_version_id" {
   version_id    = local.version_id
 }
 
-output "is_version_id_filter_useful" {
-  value = length(data.huaweicloud_fgs_dependency_versions.filter_by_version_id.versions) >= 1 && alltrue(
-    [for v in data.huaweicloud_fgs_dependency_versions.filter_by_version_id.versions[*].id : v == local.version_id]
-  )
+data "huaweicloud_fgs_dependency_versions" "filter_by_not_found_version_id" {
+  # Query dependency versions using a not exist version ID after dependency version resource create.
+  depends_on = [
+    huaweicloud_fgs_dependency_version.test,
+  ]
+
+  dependency_id = huaweicloud_fgs_dependency_version.test.dependency_id
+  version_id    = "%[2]s"
 }
 
-// Filter by version
+locals {
+  version_id_filter_result = [for v in data.huaweicloud_fgs_dependency_versions.filter_by_version_id.versions[*].id :
+    v == local.version_id]
+}
+
+output "is_version_id_filter_useful" {
+  value = length(local.version_id_filter_result) > 0 && alltrue(local.version_id_filter_result)
+}
+
+output "version_id_not_found_validation_pass" {
+  value = length(data.huaweicloud_fgs_dependency_versions.filter_by_not_found_version_id.versions) == 0
+}
+
+# Filter by version.
 locals {
   version = huaweicloud_fgs_dependency_version.test.version
 }
@@ -86,26 +137,62 @@ data "huaweicloud_fgs_dependency_versions" "filter_by_version" {
   version       = local.version
 }
 
-output "is_version_filter_useful" {
-  value = length(data.huaweicloud_fgs_dependency_versions.filter_by_version.versions) > 0 && alltrue(
-    [for v in data.huaweicloud_fgs_dependency_versions.filter_by_version.versions[*].version : v == local.version]
-  )
+data "huaweicloud_fgs_dependency_versions" "filter_by_not_found_version" {
+  # Query dependency versions using a not exist version ID after dependency version resource create.
+  depends_on = [
+    huaweicloud_fgs_dependency_version.test,
+  ]
+
+  dependency_id = huaweicloud_fgs_dependency_version.test.dependency_id
+  version       = %[3]d
 }
 
-// Filter by runtime
 locals {
-  runtime = data.huaweicloud_fgs_dependency_versions.test.versions[0].runtime
+  version_filter_result = [for v in data.huaweicloud_fgs_dependency_versions.filter_by_version.versions[*].version :
+    v == local.version]
+}
+
+output "is_version_filter_useful" {
+  value = length(local.version_filter_result) > 0 && alltrue(local.version_filter_result)
+}
+
+output "version_not_found_validation_pass" {
+  value = length(data.huaweicloud_fgs_dependency_versions.filter_by_not_found_version.versions) == 0
+}
+
+# Filter by runtime.
+locals {
+  runtime = huaweicloud_fgs_dependency_version.test.runtime
 }
 
 data "huaweicloud_fgs_dependency_versions" "filter_by_runtime" {
+  # The behavior of parameter 'runtime' of the resource is 'Required', means this parameter does not
+  # have 'Know After Apply' behavior.
   dependency_id = huaweicloud_fgs_dependency_version.test.dependency_id
   runtime       = local.runtime
 }
 
-output "is_runtime_filter_useful" {
-  value = length(data.huaweicloud_fgs_dependency_versions.filter_by_runtime.versions) > 0 && alltrue(
-    [for v in data.huaweicloud_fgs_dependency_versions.filter_by_runtime.versions[*].runtime : v == local.runtime]
-  )
+data "huaweicloud_fgs_dependency_versions" "filter_by_not_found_runtime" {
+  # Query dependency versions using a not exist version ID after dependency version resource create.
+  depends_on = [
+    huaweicloud_fgs_dependency_version.test,
+  ]
+
+  dependency_id = huaweicloud_fgs_dependency_version.test.dependency_id
+  runtime       = "runtime_not_found"
 }
-`, testAccDependencyVersion_basic(name))
+
+locals {
+  runtime_filter_result = [for v in data.huaweicloud_fgs_dependency_versions.filter_by_runtime.versions[*].runtime :
+    v == local.runtime]
+}
+
+output "is_runtime_filter_useful" {
+  value = length(local.runtime_filter_result) > 0 && alltrue(local.runtime_filter_result)
+}
+
+output "runtime_not_found_validation_pass" {
+  value = length(data.huaweicloud_fgs_dependency_versions.filter_by_not_found_runtime.versions) == 0
+}
+`, testAccDependencyVersion_basic(name), randVersionId, randVersion)
 }
