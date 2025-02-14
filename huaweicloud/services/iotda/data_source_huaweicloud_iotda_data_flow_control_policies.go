@@ -2,13 +2,15 @@ package iotda
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -73,49 +75,65 @@ func DataSourceDataFlowControlPolicies() *schema.Resource {
 	}
 }
 
-func dataSourceDataFlowControlPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg       = meta.(*config.Config)
-		region    = cfg.GetRegion(d)
-		isDerived = WithDerivedAuth(cfg, region)
-	)
-
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildDataFlowControlPoliciesQueryParams(d *schema.ResourceData) string {
+	rst := ""
+	if v, ok := d.GetOk("scope"); ok {
+		rst += fmt.Sprintf("&scope=%v", v)
 	}
 
+	if v, ok := d.GetOk("scope_value"); ok {
+		rst += fmt.Sprintf("&scope_value=%v", v)
+	}
+
+	if v, ok := d.GetOk("policy_name"); ok {
+		rst += fmt.Sprintf("&policy_name=%v", v)
+	}
+
+	return rst
+}
+
+func dataSourceDataFlowControlPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		allPolicies []model.FlowControlPolicyInfo
-		limit       = int32(50)
-		offset      int32
+		cfg         = meta.(*config.Config)
+		region      = cfg.GetRegion(d)
+		httpUrl     = "v5/iot/{project_id}/routing-rule/flowcontrol-policy?limit=50"
+		product     = "iotda"
+		allPolicies []interface{}
+		offset      = 0
 	)
 
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildDataFlowControlPoliciesQueryParams(d)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	for {
-		listOpts := model.ListRoutingFlowControlPolicyRequest{
-			Scope:      utils.StringIgnoreEmpty(d.Get("scope").(string)),
-			ScopeValue: utils.StringIgnoreEmpty(d.Get("scope_value").(string)),
-			PolicyName: utils.StringIgnoreEmpty(d.Get("policy_name").(string)),
-			Limit:      utils.Int32(limit),
-			Offset:     &offset,
+		requestPathWithOffset := fmt.Sprintf("%s&offset=%d", requestPath, offset)
+		resp, err := client.Request("GET", requestPathWithOffset, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error querying IoTDA data flow control policies: %s", err)
 		}
 
-		listResp, listErr := client.ListRoutingFlowControlPolicy(&listOpts)
-		if listErr != nil {
-			return diag.Errorf("error querying IoTDA data flow control policies: %s", listErr)
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if listResp == nil || listResp.FlowcontrolPolicies == nil {
+		policies := utils.PathSearch("flowcontrol_policies", respBody, make([]interface{}, 0)).([]interface{})
+		if len(policies) == 0 {
 			break
 		}
 
-		if len(*listResp.FlowcontrolPolicies) == 0 {
-			break
-		}
-
-		allPolicies = append(allPolicies, *listResp.FlowcontrolPolicies...)
-		//nolint:gosec
-		offset += int32(len(*listResp.FlowcontrolPolicies))
+		allPolicies = append(allPolicies, policies...)
+		offset += len(policies)
 	}
 
 	uuID, err := uuid.GenerateUUID()
@@ -133,7 +151,7 @@ func dataSourceDataFlowControlPoliciesRead(_ context.Context, d *schema.Resource
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenDataFlowControlPolicies(policies []model.FlowControlPolicyInfo) []interface{} {
+func flattenDataFlowControlPolicies(policies []interface{}) []interface{} {
 	if len(policies) == 0 {
 		return nil
 	}
@@ -141,12 +159,12 @@ func flattenDataFlowControlPolicies(policies []model.FlowControlPolicyInfo) []in
 	rst := make([]interface{}, 0, len(policies))
 	for _, v := range policies {
 		rst = append(rst, map[string]interface{}{
-			"id":          v.PolicyId,
-			"name":        v.PolicyName,
-			"description": v.Description,
-			"scope":       v.Scope,
-			"scope_value": v.ScopeValue,
-			"limit":       v.Limit,
+			"id":          utils.PathSearch("policy_id", v, nil),
+			"name":        utils.PathSearch("policy_name", v, nil),
+			"description": utils.PathSearch("description", v, nil),
+			"scope":       utils.PathSearch("scope", v, nil),
+			"scope_value": utils.PathSearch("scope_value", v, nil),
+			"limit":       utils.PathSearch("limit", v, nil),
 		})
 	}
 
