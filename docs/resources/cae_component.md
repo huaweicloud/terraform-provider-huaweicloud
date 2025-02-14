@@ -15,6 +15,8 @@ Manages a component resource within HuaweiCloud.
 
 ## Example Usage
 
+### Create a component
+
 ```hcl
 variable "environment_id" {}
 variable "application_id" {}
@@ -50,6 +52,45 @@ resource "huaweicloud_cae_component" "test" {
 }
 ```
 
+### Create and deploy a component
+
+```hcl
+variable "environment_id" {}
+variable "application_id" {}
+variable "component_name" {}
+variable "image_url" {}
+
+resource "huaweicloud_cae_component" "test" {
+  environment_id = var.environment_id
+  application_id = var.application_id
+
+  metadata {
+    name = var.component_name
+
+    annotations = {
+      version = "1.0.0"
+    }
+  }
+
+  spec {
+    runtime = "Docker"
+    replica = 1
+
+    source {
+      type = "image"
+      url  = var.image_url
+    }
+
+    resource_limit {
+      cpu    = "500m"
+      memory = "1Gi"
+    }
+  }
+
+  action = "deploy"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -71,15 +112,15 @@ The following arguments are supported:
 * `spec` - (Required, List) Specifies the configuration information of the component.
   The [spec](#component_spec) structure is documented below.
 
-* `deploy_after_create` - (Optional, Bool, ForceNew) Specifies whether to deploy the component after creating the resource.
-  Defaults to **false**.
-  Changing this creates a new resource.
+* `action` - (Optional, String) Specifies operation type of the component.  
+  The valid values are as follows:
+  + **deploy**: Deploy component. Only valid for undeployed component.
+  + **configure**: Configurations of effesctive component. Only valid for deployed component.
 
-* `configurations` - (Optional, List, ForceNew) Specifies the list of configurations of the component.  
+* `configurations` - (Optional, List) Specifies the list of configurations of the component.  
   The [configurations](#component_configurations) structure is documented below.  
-  Changing this creates a new resource.
 
-  -> This parameter is available only when the `deploy_after_create` parameter is set to **true**.
+  -> This parameter must be used together with `action` parameter.
 
 <a name="component_metadata"></a>
 The `metadata` block supports:
@@ -178,15 +219,11 @@ The `archive` block supports:
 <a name="component_configurations"></a>
 The `configurations` block supports:
 
-* `type` - (Required, String, ForceNew) Specifies the type of the component configuration.  
-  Please following [reference documentation](https://support.huaweicloud.com/api-cae/CreateComponentWithConfiguration.html#CreateComponentWithConfiguration__request_ConfigurationItem).
+* `type` - (Required, String) Specifies the type of the component configuration.  
+  Please following [reference documentation](https://support.huaweicloud.com/api-cae/CreateComponentConfiguration.html#CreateComponentConfiguration__request_ConfigurationItem).
 
-  Changing this creates a new resource.
-
-* `data` - (Required, String, ForceNew) Specifies the component configuration detail, in JSON format.  
-  Please following [reference documentation](https://support.huaweicloud.com/api-cae/CreateComponentWithConfiguration.html#CreateComponentWithConfiguration__response_ConfigurationData).
-
-  Changing this creates a new resource.
+* `data` - (Required, String) Specifies the configuration detail, in JSON format.  
+  Please following [reference documentation](https://support.huaweicloud.com/api-cae/CreateComponentConfiguration.html#CreateComponentConfiguration__request_ConfigurationData).
 
 ## Attribute Reference
 
@@ -203,6 +240,7 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 10 minutes.
+* `update` - Default is 10 minutes.
 * `delete` - Default is 10 minutes.
 
 ## Import
@@ -215,7 +253,7 @@ $ terraform import huaweicloud_cae_component.test <environment_id>/<application_
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
-The missing attributes include: `metadata.0.annotations`, `spec.0.build.0.parameters`, `deploy_after_create`, `configurations`.
+The missing attributes include: `metadata.0.annotations`, `spec.0.build.0.parameters`, `action`, `configurations`.
 It is generally recommended running `terraform plan` after importing the resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to
 align with the resource. Also you can ignore changes as below.
@@ -226,7 +264,7 @@ resource "huaweicloud_cae_component" "test" {
 
   lifecycle {
     ignore_changes = [
-      metadata.0.annotations, spec.0.build.0.parameters, deploy_after_create, configurations,
+      metadata.0.annotations, spec.0.build.0.parameters, action, configurations,
     ]
   }
 }

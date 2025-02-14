@@ -205,14 +205,18 @@ func testAccComponentImportStateFunc(name string) resource.ImportStateIdFunc {
 	}
 }
 
-func TestAccComponent_deploy(t *testing.T) {
+func TestAccComponent_configurations(t *testing.T) {
 	var (
 		obj interface{}
 
-		withConfiguration      = "huaweicloud_cae_component.test.0"
-		withoutConfiguration   = "huaweicloud_cae_component.test.1"
-		rcWithConfiguration    = acceptance.InitResourceCheck(withConfiguration, &obj, getComponentFunc)
-		rcWithoutConfiguration = acceptance.InitResourceCheck(withoutConfiguration, &obj, getComponentFunc)
+		withConfiguration                  = "huaweicloud_cae_component.test.0"
+		withoutConfiguration               = "huaweicloud_cae_component.test.1"
+		withConfigurationUpdateDeploy      = "huaweicloud_cae_component.deploy_after_update.0"
+		withoutConfigurationUpdateDeploy   = "huaweicloud_cae_component.deploy_after_update.1"
+		rcWithConfiguration                = acceptance.InitResourceCheck(withConfiguration, &obj, getComponentFunc)
+		rcWithoutConfiguration             = acceptance.InitResourceCheck(withoutConfiguration, &obj, getComponentFunc)
+		rcWithConfigurationUpdateDeploy    = acceptance.InitResourceCheck(withConfigurationUpdateDeploy, &obj, getComponentFunc)
+		rcWithoutConfigurationUpdateDeploy = acceptance.InitResourceCheck(withoutConfigurationUpdateDeploy, &obj, getComponentFunc)
 
 		name = acceptance.RandomAccResourceNameWithDash()
 	)
@@ -227,10 +231,12 @@ func TestAccComponent_deploy(t *testing.T) {
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			rcWithConfiguration.CheckResourceDestroy(),
 			rcWithoutConfiguration.CheckResourceDestroy(),
+			rcWithConfigurationUpdateDeploy.CheckResourceDestroy(),
+			rcWithoutConfigurationUpdateDeploy.CheckResourceDestroy(),
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComponent_deploy(name),
+				Config: testAccComponent_configurations_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rcWithConfiguration.CheckResourceExists(),
 					resource.TestMatchResourceAttr(withConfiguration, "metadata.0.name", regexp.MustCompile(name)),
@@ -246,6 +252,25 @@ func TestAccComponent_deploy(t *testing.T) {
 					resource.TestCheckResourceAttr(withConfiguration, "configurations.#", "2"),
 					rcWithoutConfiguration.CheckResourceExists(),
 					resource.TestCheckResourceAttr(withoutConfiguration, "configurations.#", "0"),
+					rcWithConfigurationUpdateDeploy.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withConfigurationUpdateDeploy, "configurations.#", "0"),
+					rcWithoutConfigurationUpdateDeploy.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withoutConfigurationUpdateDeploy, "configurations.#", "0"),
+				),
+			},
+			{
+				Config: testAccComponent_configurations_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rcWithConfiguration.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withConfiguration, "configurations.#", "1"),
+					resource.TestCheckResourceAttr(withConfiguration, "configurations.0.type", "env"),
+					resource.TestCheckResourceAttr(withConfiguration, "configurations.0.data", ""),
+					rcWithoutConfiguration.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withoutConfiguration, "configurations.#", "1"),
+					rcWithConfigurationUpdateDeploy.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withConfigurationUpdateDeploy, "configurations.#", "1"),
+					rcWithoutConfigurationUpdateDeploy.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withoutConfigurationUpdateDeploy, "configurations.#", "0"),
 				),
 			},
 			{
@@ -255,7 +280,7 @@ func TestAccComponent_deploy(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"metadata.0.annotations",
 					"spec.0.build.0.parameters",
-					"deploy_after_create",
+					"action",
 					"configurations",
 				},
 				ImportStateIdFunc: testAccComponentImportStateFunc(withConfiguration),
@@ -267,7 +292,33 @@ func TestAccComponent_deploy(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"metadata.0.annotations",
 					"spec.0.build.0.parameters",
-					"deploy_after_create",
+					"action",
+					"configurations",
+				},
+				ImportStateIdFunc: testAccComponentImportStateFunc(withoutConfiguration),
+			},
+
+			{
+				ResourceName:      "huaweicloud_cae_component.deploy_after_update[0]",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"metadata.0.annotations",
+					"spec.0.build.0.parameters",
+					"action",
+					"configurations",
+				},
+				ImportStateIdFunc: testAccComponentImportStateFunc(withConfiguration),
+			},
+			{
+				ResourceName:      "huaweicloud_cae_component.deploy_after_update[1]",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"metadata.0.annotations",
+					"spec.0.build.0.parameters",
+					"action",
+					"configurations",
 				},
 				ImportStateIdFunc: testAccComponentImportStateFunc(withoutConfiguration),
 			},
@@ -275,8 +326,8 @@ func TestAccComponent_deploy(t *testing.T) {
 	})
 }
 
-func testAccComponent_deploy(name string) string {
-	return fmt.Sprintf(`
+func testAccComponent_deploy_base() string {
+	return `
 data "huaweicloud_swr_repositories" "test" {}
 
 locals {
@@ -315,15 +366,33 @@ locals {
       })
     }
   ]
+  configurations_update = [
+    {
+      type = "env"
+      data = jsonencode({
+        "spec" : {
+          "envs" : {
+            "key" : "value"
+          }
+        }
+      })
+    }
+  ]
 }
+`
+}
+
+func testAccComponent_configurations_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_cae_component" "test" {
   count          = 2
-  environment_id = "%[1]s"
-  application_id = "%[2]s"
+  environment_id = "%[2]s"
+  application_id = "%[3]s"
 
   metadata {
-    name = "%[3]s${count.index}"
+    name = "%[4]s${count.index}"
 
     annotations = {
       version = "1.0.0"
@@ -345,7 +414,7 @@ resource "huaweicloud_cae_component" "test" {
     }
   }
 
-  deploy_after_create = true
+  action = "deploy"
 
   dynamic "configurations" {
     for_each = count.index == 0 ? local.configurations : []
@@ -355,5 +424,126 @@ resource "huaweicloud_cae_component" "test" {
     }
   }
 }
-`, acceptance.HW_CAE_ENVIRONMENT_ID, acceptance.HW_CAE_APPLICATION_ID, name)
+
+resource "huaweicloud_cae_component" "deploy_after_update" {
+  count          = 2
+  environment_id = "%[2]s"
+  application_id = "%[3]s"
+
+  metadata {
+    name = "%[4]s-update-${count.index}"
+
+    annotations = {
+      version = "1.0.0"
+    }
+  }
+
+  spec {
+    replica = 1
+    runtime = "Docker"
+
+    source {
+      type = "image"
+      url  = format("%%s:%%s", local.swr_repositories.path, local.swr_repositories.tags[0])
+    }
+
+    resource_limit {
+      cpu    = "500m"
+      memory = "1Gi"
+    }
+  }
+}
+`, testAccComponent_deploy_base(), acceptance.HW_CAE_ENVIRONMENT_ID, acceptance.HW_CAE_APPLICATION_ID, name)
+}
+
+func testAccComponent_configurations_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+locals {
+  empty_configurations = [
+    {
+      type = "env"
+      data = ""
+  }]
+}
+
+resource "huaweicloud_cae_component" "test" {
+  count          = 2
+  environment_id = "%[2]s"
+  application_id = "%[3]s"
+
+  metadata {
+    name = "%[4]s${count.index}"
+
+    annotations = {
+      version = "1.0.0"
+    }
+  }
+
+  spec {
+    replica = 1
+    runtime = "Docker"
+
+    source {
+      type = "image"
+      url  = format("%%s:%%s", local.swr_repositories.path, local.swr_repositories.tags[0])
+    }
+
+    resource_limit {
+      cpu    = "500m"
+      memory = "1Gi"
+    }
+  }
+
+  action = "configure"
+
+  dynamic "configurations" {
+    for_each = count.index == 0 ? local.empty_configurations : local.configurations_update
+    content {
+      type = configurations.value.type
+      data = configurations.value.data
+    }
+  }
+}
+
+resource "huaweicloud_cae_component" "deploy_after_update" {
+  count          = 2
+  environment_id = "%[2]s"
+  application_id = "%[3]s"
+
+  metadata {
+    name = "%[4]s-update-${count.index}"
+
+    annotations = {
+      version = "1.0.0"
+    }
+  }
+
+  spec {
+    replica = 1
+    runtime = "Docker"
+
+    source {
+      type = "image"
+      url  = format("%%s:%%s", local.swr_repositories.path, local.swr_repositories.tags[0])
+    }
+
+    resource_limit {
+      cpu    = "500m"
+      memory = "1Gi"
+    }
+  }
+
+  action = "deploy"
+
+  dynamic "configurations" {
+    for_each = count.index == 0 ? local.configurations_update : []
+    content {
+      type = configurations.value.type
+      data = configurations.value.data
+    }
+  }
+}
+`, testAccComponent_deploy_base(), acceptance.HW_CAE_ENVIRONMENT_ID, acceptance.HW_CAE_APPLICATION_ID, name)
 }

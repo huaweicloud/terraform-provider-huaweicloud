@@ -26,7 +26,8 @@ var componentResourceNotFoundCodes = []string{
 }
 
 // @API CAE POST /v1/{project_id}/cae/applications/{application_id}/components
-// @API CAE POST /v1/{project_id}/cae/applications/{application_id}/component-with-configurations
+// @API CAE POST /v1/{project_id}/cae/applications/{application_id}/components/{component_id}/configurations
+// @API CAE POST /v1/{project_id}/cae/applications/{application_id}/components/{component_id}/action
 // @API CAE GET /v1/{project_id}/cae/jobs/{job_id}
 // @API CAE GET /v1/{project_id}/cae/applications/{application_id}/components/{component_id}
 // @API CAE PUT /v1/{project_id}/cae/applications/{application_id}/components/{component_id}
@@ -40,6 +41,7 @@ func ResourceComponent() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
@@ -127,28 +129,24 @@ func ResourceComponent() *schema.Resource {
 					},
 				},
 			},
-			"deploy_after_create": {
-				Type:        schema.TypeBool,
+			"action": {
+				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
-				Description: `Whether to deploy the component after creating the resource.`,
+				Description: `The operation type of the component.`,
 			},
 			"configurations": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `The type of the component configuration.`,
 						},
 						"data": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ForceNew:     true,
 							ValidateFunc: validation.StringIsJSON,
 							Description:  `The component configuration detail, in JSON format.`,
 						},
@@ -163,6 +161,16 @@ func ResourceComponent() *schema.Resource {
 			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			// Deprecated arguments
+			"deploy_after_create": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: utils.SchemaDesc(`Whether to deploy the component after creating the resource.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					}),
 			},
 		},
 	}
@@ -306,30 +314,44 @@ func buildCreateOrUpdateComponentBodyParams(d *schema.ResourceData) map[string]i
 
 func resourceComponentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg               = meta.(*config.Config)
-		environmentId     = d.Get("environment_id").(string)
-		applicationId     = d.Get("application_id").(string)
-		isDeployComponent = d.Get("deploy_after_create").(bool)
-		err               error
+		cfg           = meta.(*config.Config)
+		environmentId = d.Get("environment_id").(string)
+		applicationId = d.Get("application_id").(string)
 	)
 	client, err := cfg.NewServiceClient("cae", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	if isDeployComponent {
-		err = createAndDeployComponent(ctx, client, d, environmentId, applicationId)
-	} else {
-		err = createComponent(client, d, environmentId, applicationId)
-	}
-
+	createRespBody, err := createComponent(client, d, environmentId, applicationId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
+	componentId := utils.PathSearch("metadata.id", createRespBody, "").(string)
+	if componentId == "" {
+		return diag.Errorf("unable to find the CAE component ID from the API response")
+	}
+	d.SetId(componentId)
+
+	if d.Get("action").(string) == "deploy" || d.Get("deploy_after_create").(bool) {
+		if configurations, ok := d.GetOk("configurations"); ok {
+			err := updateComponentConfigurations(client, environmentId, applicationId, componentId, configurations.(*schema.Set))
+			if err != nil {
+				return diag.Errorf("error creating configurations for the component (%s)", componentId)
+			}
+		}
+
+		err = doActionComponent(ctx, client, d, componentId, buildDeployOrConfigureComponentBodyParams("deploy"), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.Errorf("unable to deploy the component (%s): %s", componentId, err)
+		}
+	}
+
 	return resourceComponentRead(ctx, d, meta)
 }
 
-func createComponent(client *golangsdk.ServiceClient, d *schema.ResourceData, environmentId, applicationId string) error {
+func createComponent(client *golangsdk.ServiceClient, d *schema.ResourceData, environmentId, applicationId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/applications/{application_id}/components"
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
@@ -338,76 +360,16 @@ func createComponent(client *golangsdk.ServiceClient, d *schema.ResourceData, en
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"X-Environment-Id": environmentId,
+			"X-Environment-ID": environmentId,
 		},
 		JSONBody: utils.RemoveNil(buildCreateOrUpdateComponentBodyParams(d)),
 	}
 	createResp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
-		return fmt.Errorf("error creating CAE component under specified application (%s): %s", applicationId, err)
+		return nil, fmt.Errorf("error creating CAE component under specified application (%s): %s", applicationId, err)
 	}
 
-	createRespBody, err := utils.FlattenResponse(createResp)
-	if err != nil {
-		return err
-	}
-
-	componentId := utils.PathSearch("metadata.id", createRespBody, "").(string)
-	if componentId == "" {
-		return fmt.Errorf("unable to find the CAE component ID from the API response")
-	}
-
-	d.SetId(componentId)
-	return nil
-}
-
-func createAndDeployComponent(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, environmentId,
-	applicationId string) error {
-	httpUrl := "v1/{project_id}/cae/applications/{application_id}/component-with-configurations"
-	createDeployPath := client.Endpoint + httpUrl
-	createDeployPath = strings.ReplaceAll(createDeployPath, "{project_id}", client.ProjectID)
-	createDeployPath = strings.ReplaceAll(createDeployPath, "{application_id}", applicationId)
-
-	params := buildCreateOrUpdateComponentBodyParams(d)
-	params["configurations"] = buildConfigurationItemsBodyParams(d.Get("configurations").(*schema.Set))
-	opt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": environmentId,
-		},
-		JSONBody: utils.RemoveNil(params),
-	}
-	resp, err := client.Request("POST", createDeployPath, &opt)
-	if err != nil {
-		return fmt.Errorf("error creating and deploying CAE component under specified application (%s): %s", applicationId, err)
-	}
-
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return err
-	}
-
-	componentId := utils.PathSearch("metadata.id", respBody, "").(string)
-	if componentId == "" {
-		return fmt.Errorf("unable to find the CAE component ID from the API response")
-	}
-
-	d.SetId(componentId)
-
-	jobId := utils.PathSearch("status.job_id", respBody, "").(string)
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      deployJobRefreshFunc(client, environmentId, jobId, []string{"success"}),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        20 * time.Second,
-		PollInterval: 30 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for the deploy component job (%s) to complete: %s", jobId, err)
-	}
-	return nil
+	return utils.FlattenResponse(createResp)
 }
 
 // GetComponentById is a method to query component details from a specified application ID using given parameters.
@@ -420,7 +382,7 @@ func GetComponentById(client *golangsdk.ServiceClient, environmentId, applicatio
 	getComponentOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"X-Environment-Id": environmentId,
+			"X-Environment-ID": environmentId,
 		},
 	}
 	resp, err := client.Request("GET", getPath, &getComponentOpt)
@@ -543,36 +505,148 @@ func flattenBuild(parameters interface{}, build interface{}) []map[string]interf
 	}
 }
 
+func buildComponentConfigurationBodyParams(configurations *schema.Set) map[string]interface{} {
+	return map[string]interface{}{
+		"api_version": "v1",
+		"kind":        "ComponentConfiguration",
+		"items":       buildComponentConfigurationItemsBodyParams(configurations),
+	}
+}
+
+func buildComponentConfigurationItemsBodyParams(items *schema.Set) []map[string]interface{} {
+	if items.Len() < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, items.Len())
+	for i, v := range items.List() {
+		result[i] = map[string]interface{}{
+			"type": utils.PathSearch("type", v, nil),
+			"data": utils.ValueIgnoreEmpty(utils.StringToJson(utils.PathSearch("data", v, "").(string))),
+		}
+	}
+	return result
+}
+
+func updateComponentConfigurations(client *golangsdk.ServiceClient, environmentId, applicationId, componentId string,
+	configurations *schema.Set) error {
+	httpUrl := "v1/{project_id}/cae/applications/{application_id}/components/{component_id}/configurations"
+	configPath := client.Endpoint + httpUrl
+	configPath = strings.ReplaceAll(configPath, "{project_id}", client.ProjectID)
+	configPath = strings.ReplaceAll(configPath, "{application_id}", applicationId)
+	configPath = strings.ReplaceAll(configPath, "{component_id}", componentId)
+	opts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"X-Environment-ID": environmentId,
+		},
+		JSONBody: utils.RemoveNil(buildComponentConfigurationBodyParams(configurations)),
+	}
+	_, err := client.Request("POST", configPath, &opts)
+	return err
+}
+
+func buildDeployOrConfigureComponentBodyParams(action string) map[string]interface{} {
+	return map[string]interface{}{
+		"api_version": "v1",
+		"kind":        "Action",
+		"metadata": map[string]interface{}{
+			"name": action,
+		},
+	}
+}
+
+func doActionComponent(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, componentId string,
+	params map[string]interface{}, timeOut time.Duration) error {
+	var (
+		httpUrl       = "v1/{project_id}/cae/applications/{application_id}/components/{component_id}/action"
+		environmentId = d.Get("environment_id").(string)
+		applicationId = d.Get("application_id").(string)
+	)
+
+	actionPath := client.Endpoint + httpUrl
+	actionPath = strings.ReplaceAll(actionPath, "{project_id}", client.ProjectID)
+	actionPath = strings.ReplaceAll(actionPath, "{application_id}", applicationId)
+	actionPath = strings.ReplaceAll(actionPath, "{component_id}", componentId)
+	opts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"X-Environment-ID": environmentId,
+		},
+		JSONBody: utils.RemoveNil(params),
+	}
+	requestResp, err := client.Request("POST", actionPath, &opts)
+	if err != nil {
+		return err
+	}
+
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      deployJobRefreshFunc(client, environmentId, jobId, []string{"success"}),
+		Timeout:      timeOut,
+		Delay:        20 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for the action component job (%s) to complete: %s", jobId, err)
+	}
+	return nil
+}
+
 func resourceComponentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/cae/applications/{application_id}/components/{component_id}"
-		product = "cae"
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		httpUrl       = "v1/{project_id}/cae/applications/{application_id}/components/{component_id}"
+		environmentId = d.Get("environment_id").(string)
+		applicationId = d.Get("application_id").(string)
+		componentId   = d.Id()
 	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cae", region)
 	if err != nil {
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{application_id}", d.Get("application_id").(string))
-	componentId := d.Id()
-	updatePath = strings.ReplaceAll(updatePath, "{component_id}", componentId)
-
-	updateComponentOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": d.Get("environment_id").(string),
-		},
-		JSONBody: utils.RemoveNil(buildCreateOrUpdateComponentBodyParams(d)),
+	if d.HasChanges("metadata", "spec") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{application_id}", applicationId)
+		updatePath = strings.ReplaceAll(updatePath, "{component_id}", componentId)
+		updateComponentOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"X-Environment-ID": environmentId,
+			},
+			JSONBody: utils.RemoveNil(buildCreateOrUpdateComponentBodyParams(d)),
+		}
+		_, err = client.Request("PUT", updatePath, &updateComponentOpt)
+		if err != nil {
+			return diag.Errorf("error updating CAE component (%s): %s", componentId, err)
+		}
 	}
-	_, err = client.Request("PUT", updatePath, &updateComponentOpt)
-	if err != nil {
-		return diag.Errorf("error updating CAE component (%s): %s", componentId, err)
-	}
 
+	if d.HasChanges("action", "configurations") {
+		if d.HasChange("configurations") {
+			err := updateComponentConfigurations(client, environmentId, applicationId, componentId, d.Get("configurations").(*schema.Set))
+			if err != nil {
+				return diag.Errorf("error updating configurations of the component (%s): %s", componentId, err)
+			}
+		}
+
+		action := d.Get("action").(string)
+		err = doActionComponent(ctx, client, d, componentId, buildDeployOrConfigureComponentBodyParams(action), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.Errorf("unable to %s the component (%s): %s", action, componentId, err)
+		}
+	}
 	return resourceComponentRead(ctx, d, meta)
 }
 
@@ -599,7 +673,7 @@ func resourceComponentDelete(ctx context.Context, d *schema.ResourceData, meta i
 	deleteComponentOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
-			"X-Environment-Id": environmentId,
+			"X-Environment-ID": environmentId,
 		},
 	}
 	resp, err := client.Request("DELETE", deletePath, &deleteComponentOpt)
