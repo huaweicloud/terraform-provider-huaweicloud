@@ -248,6 +248,11 @@ func resourceLogstashClusterCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
+	v1client, err := conf.CssV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating CSS V1 client: %s", err)
+	}
+
 	createClusterOpts, paramErr := buildlogstashClusterCreateParameters(d, conf)
 	if paramErr != nil {
 		return diag.FromErr(paramErr)
@@ -283,7 +288,7 @@ func resourceLogstashClusterCreate(ctx context.Context, d *schema.ResourceData, 
 		d.SetId(resourceId)
 	}
 
-	createResultErr := checkClusterCreateResult(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutCreate))
+	createResultErr := checkClusterCreateResult(ctx, v1client, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if createResultErr != nil {
 		return diag.FromErr(createResultErr)
 	}
@@ -385,7 +390,7 @@ func resourceLogstashClusterRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("vpc_id", clusterDetail.VpcId),
 		d.Set("subnet_id", clusterDetail.SubnetId),
 		d.Set("security_group_id", clusterDetail.SecurityGroupId),
-		d.Set("nodes", flattenClusterNodes(clusterDetail.Instances)),
+		d.Set("nodes", flattenClusterNodes(utils.PathSearch("instances", clusterDetail, make([]interface{}, 0)).([]interface{}))),
 		setLogstashNodeConfigsAndAz(d, clusterDetail),
 		d.Set("tags", flattenTags(clusterDetail.Tags)),
 		d.Set("created_at", clusterDetail.Created),
