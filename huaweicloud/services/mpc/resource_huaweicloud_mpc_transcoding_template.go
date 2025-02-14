@@ -3,7 +3,6 @@ package mpc
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -13,8 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-
-	mpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -174,96 +171,6 @@ func ResourceTranscodingTemplate() *schema.Resource {
 			},
 		},
 	}
-}
-
-func buildCommonOpts(d *schema.ResourceData) *mpc.Common {
-	commonOpts := mpc.Common{
-		Pvc:          utils.Bool(d.Get("low_bitrate_hd").(bool)),
-		HlsInterval:  utils.Int32(int32(d.Get("hls_segment_duration").(int))),
-		DashInterval: utils.Int32(int32(d.Get("dash_segment_duration").(int))),
-		PackType:     int32(d.Get("output_format").(int)),
-	}
-
-	return &commonOpts
-}
-
-func buildAudioOpts(rawAudio []interface{}) *mpc.Audio {
-	if len(rawAudio) != 1 {
-		return nil
-	}
-
-	audio := rawAudio[0].(map[string]interface{})
-	audioOpts := mpc.Audio{
-		Codec:        utils.Int32(int32(audio["codec"].(int))),
-		SampleRate:   utils.Int32(int32(audio["sample_rate"].(int))),
-		Channels:     int32(audio["channels"].(int)),
-		Bitrate:      utils.Int32(int32(audio["bitrate"].(int))),
-		OutputPolicy: buildAudioOutputPolicyOpts(audio["output_policy"].(string)),
-	}
-
-	return &audioOpts
-}
-
-func buildAudioOutputPolicyOpts(outputPolicy string) *mpc.AudioOutputPolicy {
-	if outputPolicy == "" {
-		return nil
-	}
-
-	var outputPolicyOpts mpc.AudioOutputPolicy
-	switch outputPolicy {
-	case "discard":
-		outputPolicyOpts = mpc.GetAudioOutputPolicyEnum().DISCARD
-	case "transcode":
-		outputPolicyOpts = mpc.GetAudioOutputPolicyEnum().TRANSCODE
-	default:
-		log.Printf("[WARN] output_policy invalid: %s", outputPolicy)
-		return nil
-	}
-
-	return &outputPolicyOpts
-}
-
-func buildVideoOpts(rawVideo []interface{}) *mpc.Video {
-	if len(rawVideo) != 1 {
-		return nil
-	}
-
-	video := rawVideo[0].(map[string]interface{})
-	videoOpts := mpc.Video{
-		Codec:              utils.Int32(int32(video["codec"].(int))),
-		Bitrate:            utils.Int32(int32(video["bitrate"].(int))),
-		Profile:            utils.Int32(int32(video["profile"].(int))),
-		Level:              utils.Int32(int32(video["level"].(int))),
-		Preset:             utils.Int32(int32(video["quality"].(int))),
-		MaxIframesInterval: utils.Int32(int32(video["max_iframes_interval"].(int))),
-		BframesCount:       utils.Int32(int32(video["max_consecutive_bframes"].(int))),
-		FrameRate:          utils.Int32(int32(video["fps"].(int))),
-		Width:              utils.Int32(int32(video["width"].(int))),
-		Height:             utils.Int32(int32(video["height"].(int))),
-		BlackCut:           utils.Int32(int32(video["black_bar_removal"].(int))),
-		OutputPolicy:       buildVideoOutputPolicyOpts(video["output_policy"].(string)),
-	}
-
-	return &videoOpts
-}
-
-func buildVideoOutputPolicyOpts(outputPolicy string) *mpc.VideoOutputPolicy {
-	if outputPolicy == "" {
-		return nil
-	}
-
-	var outputPolicyOpts mpc.VideoOutputPolicy
-	switch outputPolicy {
-	case "discard":
-		outputPolicyOpts = mpc.GetVideoOutputPolicyEnum().DISCARD
-	case "transcode":
-		outputPolicyOpts = mpc.GetVideoOutputPolicyEnum().TRANSCODE
-	default:
-		log.Printf("[WARN] output_policy invalid: %s", outputPolicy)
-		return nil
-	}
-
-	return &outputPolicyOpts
 }
 
 func buildCreateTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -488,35 +395,50 @@ func flattenTemplateAudio(audio interface{}) []map[string]interface{} {
 }
 
 func resourceTranscodingTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcMpcV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/template/transcodings"
+	)
+
+	client, err := cfg.NewServiceClient("mpc", region)
 	if err != nil {
-		return diag.Errorf("error creating MPC client : %s", err)
+		return diag.Errorf("error creating MPC client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(d.Id(), 10, 32)
+	templateId, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	updateOpts := mpc.ModifyTransTemplateReq{
-		TemplateId:   id,
-		TemplateName: d.Get("name").(string),
-		Video:        buildVideoOpts(d.Get("video").([]interface{})),
-		Audio:        buildAudioOpts(d.Get("audio").([]interface{})),
-		Common:       buildCommonOpts(d),
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updateOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200, 201, 204,
+		},
+		JSONBody: utils.RemoveNil(buildUpdateTemplateBodyParams(d, int(templateId))),
 	}
 
-	updateReq := mpc.UpdateTransTemplateRequest{
-		Body: &updateOpts,
-	}
-
-	_, err = client.UpdateTransTemplate(&updateReq)
+	_, err = client.Request("PUT", updatePath, &updateOpts)
 	if err != nil {
 		return diag.Errorf("error updating MPC transcoding template: %s", err)
 	}
 
 	return resourceTranscodingTemplateRead(ctx, d, meta)
+}
+
+func buildUpdateTemplateBodyParams(d *schema.ResourceData, templateId int) map[string]interface{} {
+	templateGroupParams := map[string]interface{}{
+		"template_id":   templateId,
+		"template_name": d.Get("name"),
+		"video":         buildTemplateVideoBodyParams(d.Get("video").([]interface{})),
+		"audio":         buildTemplateAudioBodyParams(d.Get("audio").([]interface{})),
+		"common":        buildTemplateCommonBodyParams(d),
+	}
+
+	return templateGroupParams
 }
 
 func resourceTranscodingTemplateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
