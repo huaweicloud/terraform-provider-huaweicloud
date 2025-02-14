@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccComponentDeployment_basic(t *testing.T) {
+func TestAccComponentAction_basic(t *testing.T) {
 	baseConfig := testAccComponentConfiguration_base()
 	// Avoid CheckDestroy because this resource is a one-time action resource and there is nothing in the destroy
 	// method.
@@ -24,22 +24,22 @@ func TestAccComponentDeployment_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// One-time action resource do not need to be checked and no processing is performed in the Read method.
-				Config: testAccComponentDeployment_basic_step1(baseConfig),
+				Config: testAccComponentAction_basic_step1(baseConfig),
 			},
 			{
-				Config: testAccComponentDeployment_basic_step2(baseConfig),
+				Config: testAccComponentAction_basic_step2(baseConfig),
 			},
 			{
-				Config: testAccComponentDeployment_basic_step3(baseConfig),
+				Config: testAccComponentAction_basic_step3(baseConfig),
 			},
 			{
-				Config: testAccComponentDeployment_basic_step4(baseConfig),
+				Config: testAccComponentAction_basic_step4(baseConfig),
 			},
 		},
 	})
 }
 
-func testAccComponentDeployment_basic_step1(baseConfig string) string {
+func testAccComponentAction_basic_step1(baseConfig string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -68,7 +68,7 @@ resource "huaweicloud_cae_component_configurations" "test" {
   }
 }
 
-resource "huaweicloud_cae_component_deployment" "test" {
+resource "huaweicloud_cae_component_action" "test" {
   environment_id = "%[2]s"
   application_id = "%[3]s"
   component_id   = huaweicloud_cae_component.test.id
@@ -86,7 +86,7 @@ resource "huaweicloud_cae_component_deployment" "test" {
 `, baseConfig, acceptance.HW_CAE_ENVIRONMENT_ID, acceptance.HW_CAE_APPLICATION_ID)
 }
 
-func testAccComponentDeployment_basic_step2(baseConfig string) string {
+func testAccComponentAction_basic_step2(baseConfig string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -126,7 +126,7 @@ resource "huaweicloud_cae_component_configurations" "test" {
   }
 }
 
-resource "huaweicloud_cae_component_deployment" "test" {
+resource "huaweicloud_cae_component_action" "test" {
   environment_id = "%[2]s"
   application_id = "%[3]s"
   component_id   = huaweicloud_cae_component.test.id
@@ -144,7 +144,7 @@ resource "huaweicloud_cae_component_deployment" "test" {
 `, baseConfig, acceptance.HW_CAE_ENVIRONMENT_ID, acceptance.HW_CAE_APPLICATION_ID)
 }
 
-func testAccComponentDeployment_basic_step3(baseConfig string) string {
+func testAccComponentAction_basic_step3(baseConfig string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -184,7 +184,7 @@ resource "huaweicloud_cae_component_configurations" "test" {
   }
 }
 
-resource "huaweicloud_cae_component_deployment" "test" {
+resource "huaweicloud_cae_component_action" "test" {
   environment_id = "%[2]s"
   application_id = "%[3]s"
   component_id   = huaweicloud_cae_component.test.id
@@ -202,7 +202,7 @@ resource "huaweicloud_cae_component_deployment" "test" {
 `, baseConfig, acceptance.HW_CAE_ENVIRONMENT_ID, acceptance.HW_CAE_APPLICATION_ID)
 }
 
-func testAccComponentDeployment_basic_step4(baseConfig string) string {
+func testAccComponentAction_basic_step4(baseConfig string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -242,7 +242,7 @@ resource "huaweicloud_cae_component_configurations" "test" {
   }
 }
 
-resource "huaweicloud_cae_component_deployment" "test" {
+resource "huaweicloud_cae_component_action" "test" {
   environment_id = "%[2]s"
   application_id = "%[3]s"
   component_id   = huaweicloud_cae_component.test.id
