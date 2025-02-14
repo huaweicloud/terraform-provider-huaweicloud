@@ -112,7 +112,7 @@ func dataSourceDataBacklogPoliciesRead(_ context.Context, d *schema.ResourceData
 		}
 
 		allPolicies = append(allPolicies, policies...)
-		offset += len(allPolicies)
+		offset += len(policies)
 	}
 
 	uuID, err := uuid.GenerateUUID()
