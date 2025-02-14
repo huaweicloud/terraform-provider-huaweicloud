@@ -52,7 +52,11 @@ func ResourceUser() *schema.Resource {
 			},
 			"email": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+			},
+			"phone": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -80,6 +84,16 @@ func ResourceUser() *schema.Resource {
 			"disabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
+			},
+			"active_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"password": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"locked": {
 				Type:     schema.TypeBool,
@@ -112,7 +126,10 @@ func translateUTC0Time(timeStr string) (string, error) {
 func buildUserCreateOpts(d *schema.ResourceData) (users.CreateOpts, error) {
 	result := users.CreateOpts{
 		Name:                    d.Get("name").(string),
+		ActiveType:              d.Get("active_type").(string),
 		Email:                   d.Get("email").(string),
+		Phone:                   d.Get("phone").(string),
+		Password:                d.Get("password").(string),
 		Description:             d.Get("description").(string),
 		EnableChangePassword:    utils.Bool(d.Get("enable_change_password").(bool)),
 		NextLoginChangePassword: utils.Bool(d.Get("next_login_change_password").(bool)),
@@ -173,7 +190,9 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", resp.Name),
+		d.Set("active_type", resp.ActiveType),
 		d.Set("email", resp.Email),
+		d.Set("phone", resp.Phone),
 		d.Set("description", resp.Description),
 		d.Set("account_expires", parseUserAccountExpires(resp.AccountExpires)),
 		d.Set("enable_change_password", resp.EnableChangePassword),
@@ -191,7 +210,9 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 func buildUserUpdateOpts(d *schema.ResourceData) (users.UpdateOpts, error) {
 	result := users.UpdateOpts{
-		Email:                   d.Get("email").(string),
+		ActiveType:              d.Get("active_type").(string),
+		Email:                   utils.String(d.Get("email").(string)),
+		Phone:                   utils.String(d.Get("phone").(string)),
 		Description:             utils.String(d.Get("description").(string)),
 		EnableChangePassword:    utils.Bool(d.Get("enable_change_password").(bool)),
 		NextLoginChangePassword: utils.Bool(d.Get("next_login_change_password").(bool)),
