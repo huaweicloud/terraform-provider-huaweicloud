@@ -349,8 +349,8 @@ func resourceHostProtectionRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 
 	hostResp := utils.PathSearch("data_list[0]", getRespBody, nil)
-	agentStatus := utils.PathSearch("agent_status", hostResp, "").(string)
-	if hostResp == nil || agentStatus == string(ProtectStatusClosed) {
+	protectStatus := utils.PathSearch("protect_status", hostResp, "").(string)
+	if hostResp == nil || protectStatus == string(ProtectStatusClosed) {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "HSS host protection")
 	}
 
