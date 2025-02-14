@@ -17,9 +17,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceGaussdbOpengaussLimitSqlModels() *schema.Resource {
+func DataSourceGaussdbOpengaussSqlTemplates() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceGaussdbOpengaussLimitSqlModelsRead,
+		ReadContext: dataSourceGaussdbOpengaussSqlTemplatesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -66,20 +66,20 @@ func DataSourceGaussdbOpengaussLimitSqlModels() *schema.Resource {
 	}
 }
 
-type OpengaussLimitSqlModelsDSWrapper struct {
+type OpengaussSqlTemplatesDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
 }
 
-func newOpengaussLimitSqlModelsDSWrapper(d *schema.ResourceData, meta interface{}) *OpengaussLimitSqlModelsDSWrapper {
-	return &OpengaussLimitSqlModelsDSWrapper{
+func newOpengaussSqlTemplatesDSWrapper(d *schema.ResourceData, meta interface{}) *OpengaussSqlTemplatesDSWrapper {
+	return &OpengaussSqlTemplatesDSWrapper{
 		ResourceDataWrapper: schemas.NewSchemaWrapper(d),
 		Config:              meta.(*config.Config),
 	}
 }
 
-func dataSourceGaussdbOpengaussLimitSqlModelsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	wrapper := newOpengaussLimitSqlModelsDSWrapper(d, meta)
+func dataSourceGaussdbOpengaussSqlTemplatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	wrapper := newOpengaussSqlTemplatesDSWrapper(d, meta)
 	lisNodLimSqlModRst, err := wrapper.ListNodeLimitSqlModel()
 	if err != nil {
 		return diag.FromErr(err)
@@ -100,7 +100,7 @@ func dataSourceGaussdbOpengaussLimitSqlModelsRead(_ context.Context, d *schema.R
 }
 
 // @API GaussDB GET /v3/{project_id}/instances/{instance_id}/list-node-limit-sql-model
-func (w *OpengaussLimitSqlModelsDSWrapper) ListNodeLimitSqlModel() (*gjson.Result, error) {
+func (w *OpengaussSqlTemplatesDSWrapper) ListNodeLimitSqlModel() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "opengauss")
 	if err != nil {
 		return nil, err
@@ -122,7 +122,7 @@ func (w *OpengaussLimitSqlModelsDSWrapper) ListNodeLimitSqlModel() (*gjson.Resul
 		Result()
 }
 
-func (w *OpengaussLimitSqlModelsDSWrapper) listNodeLimitSqlModelToSchema(body *gjson.Result) error {
+func (w *OpengaussSqlTemplatesDSWrapper) listNodeLimitSqlModelToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),

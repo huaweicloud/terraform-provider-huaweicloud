@@ -1,12 +1,12 @@
 ---
 subcategory: "GaussDB"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_gaussdb_opengauss_limit_sql_models"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_opengauss_sql_templates"
 description: |-
   Use this data source to get the SQL templates of a specified node.
 ---
 
-# huaweicloud_gaussdb_opengauss_limit_sql_models
+# huaweicloud_gaussdb_opengauss_sql_templates
 
 Use this data source to get the SQL templates of a specified node.
 
@@ -16,7 +16,7 @@ Use this data source to get the SQL templates of a specified node.
 variable "instance_id" {}
 variable "node_id" {}
 
-data "huaweicloud_gaussdb_opengauss_limit_sql_models" "test" {
+data "huaweicloud_gaussdb_opengauss_sql_templates" "test" {
   instance_id = var.instance_id
   node_id     = var.node_id
 }
