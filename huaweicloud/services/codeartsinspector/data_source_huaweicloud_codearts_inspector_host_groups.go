@@ -29,18 +29,18 @@ func DataSourceCodeartsInspectorHostGroups() *schema.Resource {
 			"groups": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `Specifies the group list.`,
+				Description: `Indicates the group list.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Specifies the group ID.`,
+							Description: `Indicates the group ID.`,
 						},
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Specifies the group name.`,
+							Description: `Indicates the group name.`,
 						},
 					},
 				},
