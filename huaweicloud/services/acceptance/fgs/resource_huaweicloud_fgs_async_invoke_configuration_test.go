@@ -12,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getAsyncInvokeConfigFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -24,14 +23,13 @@ func getAsyncInvokeConfigFunc(conf *config.Config, state *terraform.ResourceStat
 }
 
 func TestAccAsyncInvokeConfig_basic(t *testing.T) {
-	var cfg function.AsyncInvokeConfig
-	name := acceptance.RandomAccResourceNameWithDash()
-	rName := "huaweicloud_fgs_async_invoke_configuration.test"
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&cfg,
-		getAsyncInvokeConfigFunc,
+		name = acceptance.RandomAccResourceNameWithDash()
+
+		rName = "huaweicloud_fgs_async_invoke_configuration.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getAsyncInvokeConfigFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -44,7 +42,7 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAsyncInvokeConfig_basic_step1(name, acceptance.HW_FGS_AGENCY_NAME),
+				Config: testAccAsyncInvokeConfig_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "function_urn",
@@ -61,7 +59,7 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccAsyncInvokeConfig_basic_step2(name, acceptance.HW_FGS_AGENCY_NAME),
+				Config: testAccAsyncInvokeConfig_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "function_urn",
@@ -86,28 +84,46 @@ func TestAccAsyncInvokeConfig_basic(t *testing.T) {
 	})
 }
 
-func testAccAsyncInvokeConfig_basic_step1(name, agency string) string {
+func testAccAsyncInvokeConfig_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_obs_bucket" "test" {
-  bucket        = "%[1]s"
-  acl           = "private"
-  force_destroy = true
-}
+variable "function_code_content" {
+  type    = string
+  default = <<EOT
+def main():
+    print("Hello, World!")
 
-resource "huaweicloud_smn_topic" "test" {
-  name = "%[1]s"
+if __name__ == "__main__":
+    main()
+EOT
 }
 
 resource "huaweicloud_fgs_function" "test" {
   name        = "%[1]s"
   app         = "default"
+  agency      = "%[2]s"
+  description = "fuction test"
   handler     = "index.handler"
   memory_size = 128
   timeout     = 3
   runtime     = "Python2.7"
   code_type   = "inline"
-  func_code   = "e42a37a22f4988ba7a681e3042e5c7d13c04e6c1"
-  agency      = "%[2]s"
+  func_code   = base64encode(var.function_code_content)
+}
+`, name, acceptance.HW_FGS_AGENCY_NAME)
+}
+
+func testAccAsyncInvokeConfig_basic_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_obs_bucket" "test" {
+  bucket        = "%[2]s"
+  acl           = "private"
+  force_destroy = true
+}
+
+resource "huaweicloud_smn_topic" "test" {
+  name = "%[2]s"
 }
 
 resource "huaweicloud_fgs_async_invoke_configuration" "test" {
@@ -132,10 +148,10 @@ resource "huaweicloud_fgs_async_invoke_configuration" "test" {
     })
   }
 }
-`, name, agency)
+`, testAccAsyncInvokeConfig_base(name), name)
 }
 
-func testAccAsyncInvokeConfig_basic_step2(name, agency string) string {
+func testAccAsyncInvokeConfig_basic_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -147,24 +163,13 @@ resource "huaweicloud_dis_stream" "test" {
 resource "huaweicloud_fgs_function" "failure_transport" {
   name        = "%[2]s-failure-transport"
   app         = "default"
+  description = "fuction test"
   handler     = "index.handler"
   memory_size = 128
   timeout     = 3
   runtime     = "Python2.7"
   code_type   = "inline"
-  func_code   = "e42a37a22f4988ba7a681e3042e5c7d13c04e6c1"
-}
-
-resource "huaweicloud_fgs_function" "test" {
-  name        = "%[2]s"
-  app         = "default"
-  handler     = "index.handler"
-  memory_size = 128
-  timeout     = 3
-  runtime     = "Python2.7"
-  code_type   = "inline"
-  func_code   = "e42a37a22f4988ba7a681e3042e5c7d13c04e6c1"
-  agency      = "%[3]s"
+  func_code   = base64encode(var.function_code_content)
 }
 
 resource "huaweicloud_fgs_async_invoke_configuration" "test" {
@@ -186,5 +191,5 @@ resource "huaweicloud_fgs_async_invoke_configuration" "test" {
     })
   }
 }
-`, common.TestBaseNetwork(name), name, agency)
+`, testAccAsyncInvokeConfig_base(name), name)
 }
