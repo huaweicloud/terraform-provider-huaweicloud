@@ -14,9 +14,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
-	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -150,44 +147,6 @@ func buildCreateRequestBody(d *schema.ResourceData) map[string]interface{} {
 	return reqBody
 }
 
-func expandResourceTags(tagmap map[string]interface{}) *[]cts.Tags {
-	taglist := make([]cts.Tags, 0, len(tagmap))
-
-	for k, v := range tagmap {
-		taglist = append(taglist, cts.Tags{
-			Key:   utils.String(k),
-			Value: utils.String(v.(string)),
-		})
-	}
-
-	return &taglist
-}
-
-func buildCreateTagOpt(taglist *[]cts.Tags, id string) *cts.BatchCreateResourceTagsRequest {
-	reqBody := cts.BatchCreateResourceTagsRequestBody{
-		Tags: taglist,
-	}
-	tagOpt := cts.BatchCreateResourceTagsRequest{
-		ResourceId:   id,
-		ResourceType: cts.GetBatchCreateResourceTagsRequestResourceTypeEnum().CTS_TRACKER,
-		Body:         &reqBody,
-	}
-
-	return &tagOpt
-}
-
-func buildDeleteTagOpt(taglist *[]cts.Tags, id string) *cts.BatchDeleteResourceTagsRequest {
-	reqBody := cts.BatchDeleteResourceTagsRequestBody{
-		Tags: taglist,
-	}
-	tagOpt := cts.BatchDeleteResourceTagsRequest{
-		ResourceId:   id,
-		ResourceType: cts.GetBatchDeleteResourceTagsRequestResourceTypeEnum().CTS_TRACKER,
-		Body:         &reqBody,
-	}
-
-	return &tagOpt
-}
 func buildDataBucketOpts(d *schema.ResourceData) map[string]interface{} {
 	dataBucketCfg := map[string]interface{}{
 		"data_bucket_name": d.Get("data_bucket").(string),
@@ -220,29 +179,6 @@ func buildTransferBucketOpts(d *schema.ResourceData) map[string]interface{} {
 	}
 
 	return transferCfg
-}
-
-func updateResourceTags(ctsClient *client.CtsClient, d *schema.ResourceData) error {
-	oldRaw, newRaw := d.GetChange("tags")
-	id := d.Id()
-
-	if oldTags := oldRaw.(map[string]interface{}); len(oldTags) > 0 {
-		oldTagList := expandResourceTags(oldTags)
-		_, err := ctsClient.BatchDeleteResourceTags(buildDeleteTagOpt(oldTagList, id))
-		if err != nil {
-			return err
-		}
-	}
-
-	if newTags := newRaw.(map[string]interface{}); len(newTags) > 0 {
-		newTagsList := expandResourceTags(newTags)
-		_, err := ctsClient.BatchCreateResourceTags(buildCreateTagOpt(newTagsList, id))
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func updateTags(ctsClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
