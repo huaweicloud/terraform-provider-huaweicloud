@@ -2,13 +2,15 @@ package iotda
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -105,47 +107,66 @@ func DataSourceUpgradePackages() *schema.Resource {
 	}
 }
 
-func dataSourceIotdaUpgradePackagesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	isDerived := WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildUpgradePackagesQueryParams(d *schema.ResourceData) string {
+	rst := fmt.Sprintf("&package_type=%v", d.Get("type"))
+
+	if v, ok := d.GetOk("space_id"); ok {
+		rst += fmt.Sprintf("&app_id=%v", v)
 	}
 
+	if v, ok := d.GetOk("product_id"); ok {
+		rst += fmt.Sprintf("&product_id=%v", v)
+	}
+
+	if v, ok := d.GetOk("version"); ok {
+		rst += fmt.Sprintf("&version=%v", v)
+	}
+
+	return rst
+}
+
+func dataSourceIotdaUpgradePackagesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		upgradePackages []model.OtaPackageInfo
-		limit           = int32(50)
-		offset          int32
+		cfg         = meta.(*config.Config)
+		region      = cfg.GetRegion(d)
+		httpUrl     = "v5/iot/{project_id}/ota-upgrades/packages?limit=50"
+		product     = "iotda"
+		allPackages []interface{}
+		offset      = 0
 	)
 
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildUpgradePackagesQueryParams(d)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	for {
-		listOpts := model.ListOtaPackageInfoRequest{
-			AppId:       utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			PackageType: d.Get("type").(string),
-			ProductId:   utils.StringIgnoreEmpty(d.Get("product_id").(string)),
-			Version:     utils.StringIgnoreEmpty(d.Get("version").(string)),
-			Limit:       utils.Int32(limit),
-			Offset:      &offset,
+		requestPathWithOffset := fmt.Sprintf("%s&offset=%d", requestPath, offset)
+		resp, err := client.Request("GET", requestPathWithOffset, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving upgrade packages: %s", err)
 		}
 
-		listResp, listErr := client.ListOtaPackageInfo(&listOpts)
-		if listErr != nil {
-			return diag.Errorf("error retrieving upgrade packages: %s", listErr)
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if listResp == nil || listResp.Packages == nil {
+		packages := utils.PathSearch("packages", respBody, make([]interface{}, 0)).([]interface{})
+		if len(packages) == 0 {
 			break
 		}
 
-		if len(*listResp.Packages) == 0 {
-			break
-		}
-
-		upgradePackages = append(upgradePackages, *listResp.Packages...)
-		//nolint:gosec
-		offset += int32(len(*listResp.Packages))
+		allPackages = append(allPackages, packages...)
+		offset += len(packages)
 	}
 
 	uuId, err := uuid.GenerateUUID()
@@ -156,13 +177,13 @@ func dataSourceIotdaUpgradePackagesRead(_ context.Context, d *schema.ResourceDat
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("packages", flattenPackages(upgradePackages)),
+		d.Set("packages", flattenPackages(allPackages)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenPackages(packages []model.OtaPackageInfo) []interface{} {
+func flattenPackages(packages []interface{}) []interface{} {
 	if len(packages) == 0 {
 		return nil
 	}
@@ -170,15 +191,15 @@ func flattenPackages(packages []model.OtaPackageInfo) []interface{} {
 	rst := make([]interface{}, 0, len(packages))
 	for _, v := range packages {
 		rst = append(rst, map[string]interface{}{
-			"id":                      v.PackageId,
-			"space_id":                v.AppId,
-			"product_id":              v.ProductId,
-			"type":                    v.PackageType,
-			"version":                 v.Version,
-			"description":             v.Description,
-			"support_source_versions": v.SupportSourceVersions,
-			"custom_info":             v.CustomInfo,
-			"created_at":              v.CreateTime,
+			"id":                      utils.PathSearch("package_id", v, nil),
+			"space_id":                utils.PathSearch("app_id", v, nil),
+			"product_id":              utils.PathSearch("product_id", v, nil),
+			"type":                    utils.PathSearch("package_type", v, nil),
+			"version":                 utils.PathSearch("version", v, nil),
+			"description":             utils.PathSearch("description", v, nil),
+			"support_source_versions": utils.PathSearch("support_source_versions", v, nil),
+			"custom_info":             utils.PathSearch("custom_info", v, nil),
+			"created_at":              utils.PathSearch("create_time", v, nil),
 		})
 	}
 
