@@ -3,14 +3,16 @@ subcategory: "FunctionGraph"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_fgs_dependency_versions"
 description: |-
-  Use this data source to get the list of dependency package versions of FGS within HuaweiCloud.
+  Use this data source to get the list of dependency package versions within HuaweiCloud.
 ---
 
 # huaweicloud_fgs_dependency_versions
 
-Use this data source to get the list of dependency package versions of FGS within HuaweiCloud.
+Use this data source to get the list of dependency package versions within HuaweiCloud.
 
 ## Example Usage
+
+### Query all versions under a specified dependency package
 
 ```hcl
 variable "dependency_id" {}
@@ -20,11 +22,23 @@ data "huaweicloud_fgs_dependency_versions" "test" {
 }
 ```
 
+### Query a specified dependency package version
+
+```hcl
+variable "dependency_id" {}
+variable "version_name" {}
+
+data "huaweicloud_fgs_dependency_versions" "test" {
+  dependency_id = var.dependency_id
+  version       = var.version_name
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the data source.
+* `region` - (Optional, String) Specifies the region where the dependency package and the versions are located.  
   If omitted, the provider-level region will be used.
 
 * `dependency_id` - (Required, String) Specifies the ID of the dependency package to which the versions belong.
@@ -60,7 +74,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `versions` - All dependency package versions that match the filter parameters.
+* `versions` - All dependency package versions that match the filter parameters.  
   The [versions](#dependency_versions) structure is documented below.
 
 <a name="dependency_versions"></a>
