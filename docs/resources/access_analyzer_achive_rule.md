@@ -3,12 +3,12 @@ subcategory: "Access Analyzer"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_access_analyzer_archive_rule"
 description: |-
-  Manages an Access Analyzer resource within HuaweiCloud.
+  Manages an Access Analyzer archive rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_access_analyzer_archive_rule
 
-Manages an Access Analyzer resource within HuaweiCloud.
+Manages an Access Analyzer archive rule resource within HuaweiCloud.
 
 ## Example Usage
 
