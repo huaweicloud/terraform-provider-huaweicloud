@@ -11,7 +11,6 @@ import (
 	"github.com/tidwall/gjson"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/filters"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/httphelper"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -136,6 +135,7 @@ func (w *CustomLinesDSWrapper) ListCustomLine() (*gjson.Result, error) {
 	params := map[string]any{
 		"line_id": w.Get("line_id"),
 		"name":    w.Get("name"),
+		"status":  w.Get("status"),
 	}
 	params = utils.RemoveNil(params)
 	return httphelper.New(client).
@@ -143,10 +143,6 @@ func (w *CustomLinesDSWrapper) ListCustomLine() (*gjson.Result, error) {
 		URI(uri).
 		Query(params).
 		OffsetPager("lines", "offset", "limit", 0).
-		Filter(
-			filters.New().From("lines").
-				Where("status", "=", w.Get("status")),
-		).
 		Request().
 		Result()
 }
