@@ -2,13 +2,15 @@ package iotda
 
 import (
 	"context"
-	"fmt"
+	"log"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -61,126 +63,138 @@ func ResourceDataBacklogPolicy() *schema.Resource {
 	}
 }
 
-func convertStringValueToInt32(value string) *int32 {
-	if value == "0" {
-		return utils.Int32(0)
+func buildBacklogRequestValue(value string) interface{} {
+	r, err := strconv.Atoi(value)
+	if err != nil {
+		log.Printf("[ERROR] error converting string value to int value: %s", err)
+		return nil
 	}
 
-	parsedValue := utils.StringToInt(&value)
-	if parsedValue != nil {
-		//nolint:gosec
-		return utils.Int32IgnoreEmpty(int32(*parsedValue))
-	}
-
-	return nil
+	return r
 }
 
-func buildDataBacklogPolicyCreateParams(d *schema.ResourceData) *model.CreateRoutingBacklogPolicyRequest {
-	createOptsBody := model.AddBacklogPolicy{
-		PolicyName:  utils.StringIgnoreEmpty(d.Get("name").(string)),
-		Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-		BacklogSize: convertStringValueToInt32(d.Get("backlog_size").(string)),
-		BacklogTime: convertStringValueToInt32(d.Get("backlog_time").(string)),
-	}
-
-	return &model.CreateRoutingBacklogPolicyRequest{
-		Body: &createOptsBody,
+func buildDataBacklogPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"policy_name":  utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
+		"backlog_size": buildBacklogRequestValue(d.Get("backlog_size").(string)),
+		"backlog_time": buildBacklogRequestValue(d.Get("backlog_time").(string)),
 	}
 }
 
 func resourceDataBacklogPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg       = meta.(*config.Config)
-		region    = cfg.GetRegion(d)
-		isDerived = WithDerivedAuth(cfg, region)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/routing-rule/backlog-policy"
+		product = "iotda"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	resp, err := client.CreateRoutingBacklogPolicy(buildDataBacklogPolicyCreateParams(d))
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildDataBacklogPolicyBodyParams(d)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA data backlog policy: %s", err)
 	}
 
-	if resp == nil || resp.PolicyId == nil {
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	policyID := utils.PathSearch("policy_id", respBody, "").(string)
+	if policyID == "" {
 		return diag.Errorf("error creating IoTDA data backlog policy: ID is not found in API response")
 	}
 
-	d.SetId(*resp.PolicyId)
+	d.SetId(policyID)
 
 	return resourceDataBacklogPolicyRead(ctx, d, meta)
 }
 
-func buildDataBacklogPolicyQueryParams(d *schema.ResourceData) *model.ShowRoutingBacklogPolicyRequest {
-	return &model.ShowRoutingBacklogPolicyRequest{
-		PolicyId: d.Id(),
-	}
-}
-
 func resourceDataBacklogPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg       = meta.(*config.Config)
-		region    = cfg.GetRegion(d)
-		isDerived = WithDerivedAuth(cfg, region)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/routing-rule/backlog-policy/{policy_id}"
+		product = "iotda"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	resp, err := client.ShowRoutingBacklogPolicy(buildDataBacklogPolicyQueryParams(d))
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	// When the resource does not exist, query API will return `404` error code.
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA data backlog policy")
 	}
 
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	backlogSizeAttribute := utils.PathSearch("backlog_size", respBody, float64(0)).(float64)
+	backlogTimeAttribute := utils.PathSearch("backlog_time", respBody, float64(0)).(float64)
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", resp.PolicyName),
-		d.Set("description", resp.Description),
-		d.Set("backlog_size", parseBacklogValueToString(resp.BacklogSize)),
-		d.Set("backlog_time", parseBacklogValueToString(resp.BacklogTime)),
+		d.Set("name", utils.PathSearch("policy_name", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("backlog_size", flattenBackLogAttribute(backlogSizeAttribute)),
+		d.Set("backlog_time", flattenBackLogAttribute(backlogTimeAttribute)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func parseBacklogValueToString(value *int32) string {
-	if value != nil {
-		return fmt.Sprintf("%v", *value)
-	}
-
-	return ""
-}
-
-func buildDataBacklogPolicyUpdateParams(d *schema.ResourceData) *model.UpdateRoutingBacklogPolicyRequest {
-	updateOptsBody := model.UpdateBacklogPolicy{
-		PolicyName:  utils.StringIgnoreEmpty(d.Get("name").(string)),
-		Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-		BacklogSize: convertStringValueToInt32(d.Get("backlog_size").(string)),
-		BacklogTime: convertStringValueToInt32(d.Get("backlog_time").(string)),
-	}
-
-	return &model.UpdateRoutingBacklogPolicyRequest{
-		PolicyId: d.Id(),
-		Body:     &updateOptsBody,
-	}
+func flattenBackLogAttribute(value float64) string {
+	return strconv.FormatInt(int64(value), 10)
 }
 
 func resourceDataBacklogPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg       = meta.(*config.Config)
-		region    = cfg.GetRegion(d)
-		isDerived = WithDerivedAuth(cfg, region)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/routing-rule/backlog-policy/{policy_id}"
+		product = "iotda"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	_, err = client.UpdateRoutingBacklogPolicy(buildDataBacklogPolicyUpdateParams(d))
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildDataBacklogPolicyBodyParams(d)),
+	}
+
+	_, err = client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error updating IoTDA data backlog policy: %s", err)
 	}
@@ -188,24 +202,28 @@ func resourceDataBacklogPolicyUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceDataBacklogPolicyRead(ctx, d, meta)
 }
 
-func buildDataBacklogPolicyDeleteParams(d *schema.ResourceData) *model.DeleteRoutingBacklogPolicyRequest {
-	return &model.DeleteRoutingBacklogPolicyRequest{
-		PolicyId: d.Id(),
-	}
-}
-
 func resourceDataBacklogPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg       = meta.(*config.Config)
-		region    = cfg.GetRegion(d)
-		isDerived = WithDerivedAuth(cfg, region)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/routing-rule/backlog-policy/{policy_id}"
+		product = "iotda"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	_, err = client.DeleteRoutingBacklogPolicy(buildDataBacklogPolicyDeleteParams(d))
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	// When the resource does not exist, delete API will return `404` error code.
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting IoTDA data backlog policy")

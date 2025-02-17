@@ -209,6 +209,21 @@ func buildDeviceMessageBodyParams(d *schema.ResourceData) *model.CreateMessageRe
 	return &bodyParams
 }
 
+// This method will be deleted after the resource `huaweicloud_iotda_device_message` is reconstructed.
+func convertStringValueToInt32(value string) *int32 {
+	if value == "0" {
+		return utils.Int32(0)
+	}
+
+	parsedValue := utils.StringToInt(&value)
+	if parsedValue != nil {
+		//nolint:gosec
+		return utils.Int32IgnoreEmpty(int32(*parsedValue))
+	}
+
+	return nil
+}
+
 func resourceDeviceMessageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg       = meta.(*config.Config)
