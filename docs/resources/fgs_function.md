@@ -505,7 +505,7 @@ $ terraform import huaweicloud_fgs_function.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
-API response. The missing attributes are: `app`, `func_code`, `tags`.
+API response. The missing attributes are: `app`, `func_code`, `encrypted_user_data`, `tags`.
 It is generally recommended running `terraform plan` after importing a function.
 You can then decide if changes should be applied to the function, or the resource definition should be updated to align
 with the function. Also you can ignore changes as below.

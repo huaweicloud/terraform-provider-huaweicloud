@@ -984,7 +984,6 @@ func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("runtime", f.Runtime),
 		d.Set("timeout", f.Timeout),
 		d.Set("user_data", f.UserData),
-		d.Set("encrypted_user_data", f.EncryptedUserData),
 		d.Set("version", f.Version),
 		d.Set("urn", functionUrn),
 		d.Set("app_agency", f.AppXrole),
@@ -1424,7 +1423,7 @@ func resourceFgsFunctionCodeUpdate(fgsClient *golangsdk.ServiceClient, urn strin
 		for _, depend := range dependListRaw.List() {
 			dependList = append(dependList, depend.(string))
 		}
-		updateCodeOpts.DependList = dependList
+		updateCodeOpts.DependVersionList = dependList
 	}
 
 	if v, ok := d.GetOk("func_code"); ok {
