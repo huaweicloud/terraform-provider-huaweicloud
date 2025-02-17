@@ -2,15 +2,17 @@ package iotda
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/list-device-group
@@ -65,54 +67,57 @@ func dataSourceDeviceBindingGroupsRead(_ context.Context, d *schema.ResourceData
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
+		httpUrl   = "v5/iot/{project_id}/devices/{device_id}/list-device-group"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	listOpts := model.ListDeviceGroupsByDeviceRequest{
-		DeviceId: d.Get("device_id").(string),
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{device_id}", d.Get("device_id").(string))
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	allDeviceGroups := make([]model.ListDeviceGroupSummary, 0)
-	listResp, listErr := client.ListDeviceGroupsByDevice(&listOpts)
-	if listErr != nil {
-		return diag.Errorf("error querying IoTDA device groups: %s", listErr)
+	getResp, err := client.Request("POST", getPath, &getOpt)
+	if err != nil {
+		return diag.Errorf("error retrieving IoTDA device groups: %s", err)
 	}
 
-	if listResp != nil && listResp.DeviceGroups != nil {
-		allDeviceGroups = *listResp.DeviceGroups
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	uuID, err := uuid.GenerateUUID()
+	deviceGroupsResp := utils.PathSearch("device_groups", getRespBody, make([]interface{}, 0)).([]interface{})
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuID)
+	d.SetId(generateUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("groups", flattenListDeviceGroups(allDeviceGroups)),
+		d.Set("groups", flattenListDeviceGroups(deviceGroupsResp)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenListDeviceGroups(deviceGroups []model.ListDeviceGroupSummary) []interface{} {
-	if len(deviceGroups) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(deviceGroups))
-	for _, v := range deviceGroups {
+func flattenListDeviceGroups(deviceGroupsResp []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(deviceGroupsResp))
+	for _, v := range deviceGroupsResp {
 		rst = append(rst, map[string]interface{}{
-			"id":              v.GroupId,
-			"name":            v.Name,
-			"description":     v.Description,
-			"parent_group_id": v.SuperGroupId,
-			"type":            v.GroupType,
+			"id":              utils.PathSearch("group_id", v, nil),
+			"name":            utils.PathSearch("name", v, nil),
+			"description":     utils.PathSearch("description", v, nil),
+			"parent_group_id": utils.PathSearch("super_group_id", v, nil),
+			"type":            utils.PathSearch("group_type", v, nil),
 		})
 	}
 
