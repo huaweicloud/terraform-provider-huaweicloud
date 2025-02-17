@@ -27,6 +27,8 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specified the name of the custom line. Fuzzy search is supported.
 
+* `ip` - (Optional, String) Specifies the IP address used to query custom line which is in the IP address range.
+
 * `status` - (Optional, String) Specifies the status of the custom line.  
   The valid values are as follows:
   + **ACTIVE**

@@ -37,6 +37,11 @@ func DataSourceDNSCustomLines() *schema.Resource {
 				Optional:    true,
 				Description: `Specified the name of the custom line. Fuzzy search is supported.`,
 			},
+			"ip": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the IP address used to query custom line which is in the IP address range.`,
+			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -136,6 +141,7 @@ func (w *CustomLinesDSWrapper) ListCustomLine() (*gjson.Result, error) {
 		"line_id": w.Get("line_id"),
 		"name":    w.Get("name"),
 		"status":  w.Get("status"),
+		"ip":      w.Get("ip"),
 	}
 	params = utils.RemoveNil(params)
 	return httphelper.New(client).
