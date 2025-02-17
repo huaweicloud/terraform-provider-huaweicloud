@@ -984,7 +984,6 @@ func resourceFgsFunctionRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("runtime", f.Runtime),
 		d.Set("timeout", f.Timeout),
 		d.Set("user_data", f.UserData),
-		d.Set("encrypted_user_data", f.EncryptedUserData),
 		d.Set("version", f.Version),
 		d.Set("urn", functionUrn),
 		d.Set("app_agency", f.AppXrole),
