@@ -140,11 +140,13 @@ type UpdateOptsBuilder interface {
 
 // Function struct for update
 type UpdateCodeOpts struct {
-	CodeType     string           `json:"code_type" required:"true"`
-	CodeUrl      string           `json:"code_url,omitempty"`
-	DependList   []string         `json:"depend_list,omitempty"`
-	CodeFileName string           `json:"code_filename,omitempty"`
-	FuncCode     FunctionCodeOpts `json:"func_code,omitempty"`
+	CodeType          string           `json:"code_type" required:"true"`
+	CodeUrl           string           `json:"code_url,omitempty"`
+	DependVersionList []string         `json:"depend_version_list,omitempty"`
+	CodeFileName      string           `json:"code_filename,omitempty"`
+	FuncCode          FunctionCodeOpts `json:"func_code,omitempty"`
+	// Deprecated parameter.
+	DependList []string `json:"depend_list,omitempty"`
 }
 
 func (opts UpdateCodeOpts) ToUpdateMap() (map[string]interface{}, error) {

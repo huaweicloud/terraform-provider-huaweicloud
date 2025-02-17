@@ -1423,7 +1423,7 @@ func resourceFgsFunctionCodeUpdate(fgsClient *golangsdk.ServiceClient, urn strin
 		for _, depend := range dependListRaw.List() {
 			dependList = append(dependList, depend.(string))
 		}
-		updateCodeOpts.DependList = dependList
+		updateCodeOpts.DependVersionList = dependList
 	}
 
 	if v, ok := d.GetOk("func_code"); ok {

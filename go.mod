@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
-	github.com/chnsz/golangsdk v0.0.0-20250207083604-9eb3506329cf
+	github.com/chnsz/golangsdk v0.0.0-20250217034539-d16a3d7dc780
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-uuid v1.0.3
@@ -17,6 +17,9 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/thedevsaddam/gojsonq v2.3.0+incompatible
 	github.com/tidwall/gjson v1.17.1
+	github.com/tjfoc/gmsm v1.4.1
+	go.mongodb.org/mongo-driver v1.12.0
+	golang.org/x/crypto v0.21.0
 )
 
 require (
@@ -57,13 +60,10 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
-	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/vmihailenco/msgpack/v4 v4.3.12 // indirect
 	github.com/vmihailenco/tagparser v0.1.1 // indirect
 	github.com/zclconf/go-cty v1.11.0 // indirect
-	go.mongodb.org/mongo-driver v1.12.0 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
