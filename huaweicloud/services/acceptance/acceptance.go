@@ -238,6 +238,7 @@ var (
 	HW_WORKSPACE_USER_NAMES                        = os.Getenv("HW_WORKSPACE_USER_NAMES")
 
 	HW_FGS_AGENCY_NAME         = os.Getenv("HW_FGS_AGENCY_NAME")
+	HW_FGS_APP_AGENCY_NAME     = os.Getenv("HW_FGS_APP_AGENCY_NAME")
 	HW_FGS_GPU_TYPE            = os.Getenv("HW_FGS_GPU_TYPE")
 	HW_FGS_DEPENDENCY_OBS_LINK = os.Getenv("HW_FGS_DEPENDENCY_OBS_LINK")
 
@@ -804,8 +805,16 @@ func TestAccPreCheckFgsAgency(t *testing.T) {
 	// + SMN Administrator
 	// For the acceptance tests of the function trigger and the application:
 	// + LTS Administrator
+	// + SWR Administrator
 	if HW_FGS_AGENCY_NAME == "" {
 		t.Skip("HW_FGS_AGENCY_NAME must be set for FGS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckFgsAppAgency(t *testing.T) {
+	if HW_FGS_APP_AGENCY_NAME == "" {
+		t.Skip("HW_FGS_APP_AGENCY_NAME must be set for FGS acceptance tests")
 	}
 }
 
@@ -1295,16 +1304,16 @@ func TestAccPreCheckComponent(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckComponentDeployment(t *testing.T) {
+func TestAccPreCheckImageUrl(t *testing.T) {
 	if HW_BUILD_IMAGE_URL == "" {
-		t.Skip("SWR image URL configuration is not completed for acceptance test of component deployment.")
+		t.Skip("HW_BUILD_IMAGE_URL must be set for acceptance test.")
 	}
 }
 
 // lintignore:AT003
 func TestAccPreCheckImageUrlUpdated(t *testing.T) {
 	if HW_BUILD_IMAGE_URL_UPDATED == "" {
-		t.Skip("SWR image update URL configuration is not completed for acceptance test of component deployment.")
+		t.Skip("HW_BUILD_IMAGE_URL_UPDATED must be set for acceptance test.")
 	}
 }
 

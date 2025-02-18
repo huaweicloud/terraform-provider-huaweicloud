@@ -34,7 +34,7 @@ func TestAccFunctionTrigger_basic(t *testing.T) {
 		resNameTimerRate = "huaweicloud_fgs_function_trigger.timer_rate"
 		resNameTimerCron = "huaweicloud_fgs_function_trigger.timer_cron"
 
-		rcFunc      = acceptance.InitResourceCheck(resNameFunc, &relatedFunc, getResourceObj)
+		rcFunc      = acceptance.InitResourceCheck(resNameFunc, &relatedFunc, getFunction)
 		rcTimerRate = acceptance.InitResourceCheck(resNameTimerRate, &timeTrigger, getFunctionTriggerFunc)
 		rcTimerCron = acceptance.InitResourceCheck(resNameTimerCron, &timeTrigger, getFunctionTriggerFunc)
 	)
