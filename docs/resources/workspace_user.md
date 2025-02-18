@@ -43,7 +43,7 @@ The following arguments are supported:
 
   Changing this will create a new resource.
 
-* `email` - (Required, String) Specifies the email address of user. The value can contain `1` to `64` characters.
+* `email` - (Optional, String) Specifies the email address of user. The value can contain `1` to `64` characters.
 
 * `description` - (Optional, String) Specifies the description of user. The maximum length is `255` characters.
 
