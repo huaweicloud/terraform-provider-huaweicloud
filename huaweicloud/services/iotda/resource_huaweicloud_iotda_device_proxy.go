@@ -2,12 +2,13 @@ package iotda
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -71,29 +72,34 @@ func ResourceDeviceProxy() *schema.Resource {
 	}
 }
 
-func buildEffectiveTimeRangeBodyParams(d *schema.ResourceData) *model.EffectiveTimeRange {
-	effectiveTimeRangeMap, ok := d.Get("effective_time_range").([]interface{})[0].(map[string]interface{})
+func buildEffectiveTimeRangeBodyParams(d *schema.ResourceData) map[string]interface{} {
+	rawEffectiveTimeRange, ok := d.Get("effective_time_range").([]interface{})
 	if !ok {
 		return nil
 	}
 
-	return &model.EffectiveTimeRange{
-		StartTime: utils.String(effectiveTimeRangeMap["start_time"].(string)),
-		EndTime:   utils.String(effectiveTimeRangeMap["end_time"].(string)),
+	if len(rawEffectiveTimeRange) < 1 {
+		return nil
 	}
+
+	effectiveTimeRange := rawEffectiveTimeRange[0].(map[string]interface{})
+	effectiveTimeRangeParams := map[string]interface{}{
+		"start_time": effectiveTimeRange["start_time"],
+		"end_time":   effectiveTimeRange["end_time"],
+	}
+
+	return effectiveTimeRangeParams
 }
 
-func buildDeviceProxyCreateParams(d *schema.ResourceData) *model.CreateDeviceProxyRequest {
-	createOptsBody := model.AddDeviceProxy{
-		ProxyName:          d.Get("name").(string),
-		ProxyDevices:       utils.ExpandToStringList(d.Get("devices").(*schema.Set).List()),
-		EffectiveTimeRange: buildEffectiveTimeRangeBodyParams(d),
-		AppId:              d.Get("space_id").(string),
+func buildDeviceProxyCreateParams(d *schema.ResourceData) map[string]interface{} {
+	proxyParams := map[string]interface{}{
+		"proxy_name":           d.Get("name"),
+		"proxy_devices":        utils.ExpandToStringList(d.Get("devices").(*schema.Set).List()),
+		"effective_time_range": buildEffectiveTimeRangeBodyParams(d),
+		"app_id":               d.Get("space_id"),
 	}
 
-	return &model.CreateDeviceProxyRequest{
-		Body: &createOptsBody,
-	}
+	return proxyParams
 }
 
 func resourceDeviceProxyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -101,31 +107,39 @@ func resourceDeviceProxyCreate(ctx context.Context, d *schema.ResourceData, meta
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/device-proxies"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	createOpts := buildDeviceProxyCreateParams(d)
-	resp, err := client.CreateDeviceProxy(createOpts)
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildDeviceProxyCreateParams(d)),
+	}
+
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA device proxy: %s", err)
 	}
 
-	if resp == nil || resp.ProxyId == nil {
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	proxyId := utils.PathSearch("proxy_id", respBody, "").(string)
+	if proxyId == "" {
 		return diag.Errorf("error creating IoTDA device proxy: ID is not found in API response")
 	}
 
-	d.SetId(*resp.ProxyId)
+	d.SetId(proxyId)
 
 	return resourceDeviceProxyRead(ctx, d, meta)
-}
-
-func buildDeviceProxyQueryParams(d *schema.ResourceData) *model.ShowDeviceProxyRequest {
-	return &model.ShowDeviceProxyRequest{
-		ProxyId: d.Id(),
-	}
 }
 
 func resourceDeviceProxyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -133,51 +147,63 @@ func resourceDeviceProxyRead(_ context.Context, d *schema.ResourceData, meta int
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/device-proxies/{proxy_id}"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	response, err := client.ShowDeviceProxy(buildDeviceProxyQueryParams(d))
-	// When the resource does not exist, query API will return `404` error code.
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{proxy_id}", d.Id())
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
+		// When the resource does not exist, query API will return `404` error code.
 		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA device proxy")
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("space_id", response.AppId),
-		d.Set("name", response.ProxyName),
-		d.Set("devices", response.ProxyDevices),
-		d.Set("effective_time_range", flattenEffectiveTimeRange(response.EffectiveTimeRange)),
+		d.Set("space_id", utils.PathSearch("app_id", getRespBody, nil)),
+		d.Set("name", utils.PathSearch("proxy_name", getRespBody, nil)),
+		d.Set("devices", utils.PathSearch("proxy_devices", getRespBody, make([]interface{}, 0))),
+		d.Set("effective_time_range", flattenEffectiveTimeRange(utils.PathSearch("effective_time_range", getRespBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenEffectiveTimeRange(effectiveTimeRangeResp *model.EffectiveTimeRangeResponseDto) []map[string]interface{} {
+func flattenEffectiveTimeRange(effectiveTimeRangeResp interface{}) []map[string]interface{} {
 	if effectiveTimeRangeResp == nil {
 		return nil
 	}
 
-	return []map[string]interface{}{{
-		"start_time": effectiveTimeRangeResp.StartTime,
-		"end_time":   effectiveTimeRangeResp.EndTime,
-	}}
-}
-
-func buildDeviceProxyUpdateParams(d *schema.ResourceData) *model.UpdateDeviceProxyRequest {
-	updateRequest := model.UpdateDeviceProxyRequest{
-		ProxyId: d.Id(),
-		Body: &model.UpdateDeviceProxy{
-			ProxyName:          utils.String(d.Get("name").(string)),
-			ProxyDevices:       utils.ExpandToStringListPointer(d.Get("devices").(*schema.Set).List()),
-			EffectiveTimeRange: buildEffectiveTimeRangeBodyParams(d),
+	return []map[string]interface{}{
+		{
+			"start_time": utils.PathSearch("start_time", effectiveTimeRangeResp, nil),
+			"end_time":   utils.PathSearch("end_time", effectiveTimeRangeResp, nil),
 		},
 	}
+}
 
-	return &updateRequest
+func buildDeviceProxyUpdateParams(d *schema.ResourceData) map[string]interface{} {
+	updateProxyParams := map[string]interface{}{
+		"proxy_name":           d.Get("name"),
+		"proxy_devices":        utils.ExpandToStringList(d.Get("devices").(*schema.Set).List()),
+		"effective_time_range": buildEffectiveTimeRangeBodyParams(d),
+	}
+	return updateProxyParams
 }
 
 func resourceDeviceProxyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -185,14 +211,23 @@ func resourceDeviceProxyUpdate(ctx context.Context, d *schema.ResourceData, meta
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/device-proxies/{proxy_id}"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	updateOpts := buildDeviceProxyUpdateParams(d)
-	_, err = client.UpdateDeviceProxy(updateOpts)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{proxy_id}", d.Id())
+	updateOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildDeviceProxyUpdateParams(d)),
+	}
+
+	_, err = client.Request("PUT", updatePath, &updateOpts)
 	if err != nil {
 		return diag.Errorf("error updating IoTDA device proxy: %s", err)
 	}
@@ -200,26 +235,29 @@ func resourceDeviceProxyUpdate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceDeviceProxyRead(ctx, d, meta)
 }
 
-func buildDeviceProxyDeleteParams(d *schema.ResourceData) *model.DeleteDeviceProxyRequest {
-	return &model.DeleteDeviceProxyRequest{
-		ProxyId: d.Id(),
-	}
-}
-
 func resourceDeviceProxyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/device-proxies/{proxy_id}"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	_, err = client.DeleteDeviceProxy(buildDeviceProxyDeleteParams(d))
-	// When the resource does not exist, delete API will return `404` error code.
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{proxy_id}", d.Id())
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
+		// When the resource does not exist, delete API will return `404` error code.
 		return common.CheckDeletedDiag(d, err, "error deleting IoTDA device proxy")
 	}
 
