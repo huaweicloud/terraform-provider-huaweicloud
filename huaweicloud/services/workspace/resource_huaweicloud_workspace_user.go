@@ -52,7 +52,7 @@ func ResourceUser() *schema.Resource {
 			},
 			"email": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -191,7 +191,7 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 func buildUserUpdateOpts(d *schema.ResourceData) (users.UpdateOpts, error) {
 	result := users.UpdateOpts{
-		Email:                   d.Get("email").(string),
+		Email:                   utils.String(d.Get("email").(string)),
 		Description:             utils.String(d.Get("description").(string)),
 		EnableChangePassword:    utils.Bool(d.Get("enable_change_password").(bool)),
 		NextLoginChangePassword: utils.Bool(d.Get("next_login_change_password").(bool)),
