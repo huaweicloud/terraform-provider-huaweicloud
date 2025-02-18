@@ -13,8 +13,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	cssv2model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -89,21 +87,13 @@ func resourceCssClusterAzMigrateCreate(ctx context.Context, d *schema.ResourceDa
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	clusterID := d.Get("cluster_id").(string)
-	cssV1Client, err := conf.HcCssV1Client(region)
-	if err != nil {
-		return diag.Errorf("error creating CSS V1 client: %s", err)
-	}
 	client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
-	cssV2Client, err := conf.HcCssV2Client(region)
-	if err != nil {
-		return diag.Errorf("error creating CSS V2 client: %s", err)
-	}
 
 	// Check whether the cluster status is available.
-	err = checkClusterOperationCompleted(ctx, cssV1Client, clusterID, d.Timeout(schema.TimeoutCreate))
+	err = checkClusterOperationResult(ctx, client, clusterID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -135,20 +125,13 @@ func resourceCssClusterAzMigrateCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	// After the availability zone migration is successful, the cluster needs to be restarted before it can be used.
-	restartClusterOpts := cssv2model.RestartClusterRequest{
-		ClusterId: clusterID,
-		Body: &cssv2model.RestartClusterReq{
-			Type:  "role",
-			Value: "all",
-		},
-	}
-	_, err = cssV2Client.RestartCluster(&restartClusterOpts)
+	err = restartCluster(client, clusterID, "role", "all")
 	if err != nil {
 		return diag.Errorf("error restart CSS cluster, err: %s", err)
 	}
 
 	// Check whether the cluster status is available.
-	err = checkClusterOperationCompleted(ctx, cssV1Client, clusterID, d.Timeout(schema.TimeoutCreate))
+	err = checkClusterOperationResult(ctx, client, clusterID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
