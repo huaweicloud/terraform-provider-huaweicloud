@@ -467,7 +467,7 @@ func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	// update security group ID
 	if d.HasChange("security_group_id") {
-		err = updateSecurityGroup(ctx, d, cssV1Client, client)
+		err = updateSecurityGroup(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -490,7 +490,7 @@ func resourceLogstashClusterUpdate(ctx context.Context, d *schema.ResourceData, 
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 
-		err = updateChangingModeOrAutoRenew(ctx, d, cssV1Client, bssClient)
+		err = updateChangingModeOrAutoRenew(ctx, d, client, bssClient)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -607,19 +607,31 @@ func buildLogstashClusterV1ShrinkClusterParameters(d *schema.ResourceData, nodes
 
 func resourceLogstashClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	cssV1Client, err := conf.HcCssV1Client(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	clusterId := d.Id()
+	client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
-	_, err = cssV1Client.DeleteCluster(&model.DeleteClusterRequest{ClusterId: d.Id()})
+	deleteClusterHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}"
+	deleteClusterPath := client.Endpoint + deleteClusterHttpUrl
+	deleteClusterPath = strings.ReplaceAll(deleteClusterPath, "{project_id}", client.ProjectID)
+	deleteClusterPath = strings.ReplaceAll(deleteClusterPath, "{cluster_id}", clusterId)
+
+	deleteClusterOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	_, err = client.Request("DELETE", deleteClusterPath, &deleteClusterOpt)
 	if err != nil {
 		// "CSS.0015": The cluster does not exist. Status code is 403.
-		err = ConvertExpectedHwSdkErrInto404Err(err, 403, "CSS.0015", "")
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting CSS logstash cluster (%s)", d.Id()))
 	}
 
-	err = checkClusterDeleteResult(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutDelete))
+	err = checkClusterDeleteResult(ctx, client, d.Id(), d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.Errorf("failed to check the result of deletion %s", err)
 	}
@@ -707,8 +719,7 @@ func flattenGetRoute(resp interface{}) []interface{} {
 	return rst
 }
 
-func updateChangingModeOrAutoRenew(ctx context.Context, d *schema.ResourceData,
-	cssV1Client *cssv1.CssClient, bssClient *golangsdk.ServiceClient) error {
+func updateChangingModeOrAutoRenew(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
 	clusterID := d.Id()
 	autoRenew := d.Get("auto_renew").(string)
 	if d.HasChange("charging_mode") {
@@ -717,29 +728,39 @@ func updateChangingModeOrAutoRenew(ctx context.Context, d *schema.ResourceData,
 				"only support changing the CSS cluster form post-paid to pre-paid")
 		}
 
-		changeOpts := &model.UpdateOndemandClusterToPeriodRequest{
-			ClusterId: clusterID,
-			Body: &model.PeriodReq{
-				PeriodNum: int32(d.Get("period").(int)),
-				IsAutoPay: utils.Int32(1),
-			},
+		changeOpts := map[string]interface{}{
+			"periodNum": d.Get("period"),
+			"isAutoPay": 1,
 		}
 
 		if d.Get("period_unit").(string) == "month" {
-			changeOpts.Body.PeriodType = 2
+			changeOpts["periodType"] = 2
 		} else {
-			changeOpts.Body.PeriodType = 3
+			changeOpts["periodType"] = 3
 		}
 
 		if autoRenew == "true" {
-			changeOpts.Body.IsAutoRenew = utils.Int32(1)
+			changeOpts["isAutoRenew"] = 1
 		}
-		r, err := cssV1Client.UpdateOndemandClusterToPeriod(changeOpts)
+
+		updateClusterToPeriodHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/publickibana/bandwidth"
+		updateClusterToPeriodPath := client.Endpoint + updateClusterToPeriodHttpUrl
+		updateClusterToPeriodPath = strings.ReplaceAll(updateClusterToPeriodPath, "{project_id}", client.ProjectID)
+		updateClusterToPeriodPath = strings.ReplaceAll(updateClusterToPeriodPath, "{cluster_id}", clusterID)
+
+		updateClusterToPeriodOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+			JSONBody:         changeOpts,
+		}
+
+		resp, err := client.Request("POST", updateClusterToPeriodPath, &updateClusterToPeriodOpt)
 		if err != nil {
 			return fmt.Errorf("error updating the CSS cluster (%s) form post-paid to pre-paid: %s", clusterID, err)
 		}
 
-		_, err = common.WaitOrderResourceComplete(ctx, bssClient, *r.OrderId, d.Timeout(schema.TimeoutCreate))
+		orderId := utils.PathSearch("OrderId", resp, "").(string)
+		_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
