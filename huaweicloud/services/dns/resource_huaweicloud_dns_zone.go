@@ -114,6 +114,13 @@ func ResourceDNSZone() *schema.Resource {
 				Computed:    true,
 				Description: `The status of the zone.`,
 			},
+			"proxy_pattern": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The recursive resolution proxy mode for subdomains of the private zone.`,
+			},
 			"masters": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -176,6 +183,7 @@ func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta int
 		ZoneType:            zoneType,
 		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		Router:              resourceDNSRouter(d, region),
+		ProxyPattern:        d.Get("proxy_pattern").(string),
 	}
 
 	log.Printf("[DEBUG] Create options: %#v", createOpts)
@@ -305,8 +313,8 @@ func resourceDNSZoneRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("zone_type", zoneInfo.ZoneType),
 		d.Set("router", flattenPrivateZoneRouters(zoneInfo.Routers)),
 		d.Set("enterprise_project_id", zoneInfo.EnterpriseProjectID),
-		// The private zone also returns the "status" attribute.
 		d.Set("status", parseZoneStatus(zoneInfo.Status)),
+		d.Set("proxy_pattern", zoneInfo.ProxyPattern),
 		// Attributes
 		d.Set("masters", zoneInfo.Masters),
 	)
