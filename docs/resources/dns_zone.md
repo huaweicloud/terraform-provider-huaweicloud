@@ -77,6 +77,17 @@ The following arguments are supported:
 
   -> This is a one-time action.
 
+* `proxy_pattern` - (Optional, String, ForceNew) Specifies the recursive resolution proxy mode for subdomains of
+  the private zone.  
+  Defaults to **AUTHORITY**.  
+  The valid values are as follows:
+  + **AUTHORITY**: The recursive resolution proxy is disabled for the private zone.
+  + **RECURSIVE**: The recursive resolution proxy is enabled for the private zone.
+  
+  -> 1. This parameter ia available only when the `zone_type` parameter is set to **private**.
+     <br>2. If this parameter is set to **RECURSIVE**, but you query subdomains that are not configured in the zone namespace,
+     the DNS will recursively resolve the subdomains on the Internet and use the result from authoritative DNS servers.
+
 The `router` block supports:
 
 * `router_id` - (Required, String) ID of the associated VPC.
