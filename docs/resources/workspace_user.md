@@ -43,19 +43,7 @@ The following arguments are supported:
 
   Changing this will create a new resource.
 
-* `active_type` - (Optional, String) Specifies the activation mode of the user. Defaults to **USER_ACTIVATE**.  
-  The valid values are as follows:
-  + **USER_ACTIVATE**: Activated by the user.
-  + **ADMIN_ACTIVATE**: Activated by the administator.
-
-* `email` - (Optional, String) Specifies the email address of user. The value can contain `1` to `64` characters.
-
-* `phone` - (Optional, String) Specifies the phone number of user.
-
--> At least one of `email` and `phone` parameters must be provided.
-
-* `password` - (Optional, String) Specifies the initial passowrd of user.  
-  This parameter is available and required when `active_type` is set to **ADMIN_ACTIVATE**.
+* `email` - (Required, String) Specifies the email address of user. The value can contain `1` to `64` characters.
 
 * `description` - (Optional, String) Specifies the description of user. The maximum length is `255` characters.
 
