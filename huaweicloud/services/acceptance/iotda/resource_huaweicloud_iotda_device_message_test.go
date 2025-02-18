@@ -2,33 +2,64 @@ package iotda
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDeviceMessageResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, WithDerivedAuth())
+func getDeviceMessageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region    = acceptance.HW_REGION_NAME
+		isDerived = iotda.WithDerivedAuth(cfg, region)
+		product   = "iotda"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
+		return nil, fmt.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	queryOpts := &model.ShowDeviceMessageRequest{
-		DeviceId:  state.Primary.Attributes["device_id"],
-		MessageId: state.Primary.ID,
+	getPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}/messages/{message_id}"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{device_id}", state.Primary.Attributes["device_id"])
+	getPath = strings.ReplaceAll(getPath, "{message_id}", state.Primary.ID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	return client.ShowDeviceMessage(queryOpts)
+
+	// When the parent resource (device_id) does not exist, query API will return `404` error code.
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	// When the resource does not exist, query API will return `200` status code.
+	// Therefore, it is necessary to check whether the message ID is returned in the response body.
+	messageIdResp := utils.PathSearch("message_id", getRespBody, "").(string)
+	if messageIdResp == "" {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return getRespBody, nil
 }
 
 func TestAccDeviceMessage_basic(t *testing.T) {
 	var (
-		obj   model.ShowDeviceMessageResponse
+		obj   interface{}
 		name  = acceptance.RandomAccResourceName()
 		rName = "huaweicloud_iotda_device_message.test"
 	)
@@ -78,14 +109,31 @@ func testDeviceMessage_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+data "huaweicloud_iotda_spaces" "test" {
+  is_default = true
+}
+
+resource "huaweicloud_iotda_product" "test" {
+  name        = "%[2]s"
+  device_type = "test"
+  protocol    = "MQTT"
+  space_id    = data.huaweicloud_iotda_spaces.test.spaces[0].id
+  data_type   = "json"
+
+  services {
+    id   = "service_1"
+    type = "serv_type"
+  }
+}
+
 resource "huaweicloud_iotda_device" "test" {
   node_id    = "%[2]s"
   name       = "%[2]s"
-  space_id   = huaweicloud_iotda_space.test.id
+  space_id   = data.huaweicloud_iotda_spaces.test.spaces[0].id
   product_id = huaweicloud_iotda_product.test.id
   secret     = "1234567890"
 }
-`, testAccDevice_base(name), name)
+`, buildIoTDAEndpoint(), name)
 }
 
 func testDeviceMessage_basic(name string) string {

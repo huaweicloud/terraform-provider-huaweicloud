@@ -2,6 +2,8 @@ package iotda
 
 import (
 	"context"
+	"log"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -9,8 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -160,68 +160,59 @@ func ResourceDeviceMessage() *schema.Resource {
 	}
 }
 
-func buildDeviceMessagePropertiesParams(properties []interface{}) *model.PropertiesDto {
+func buildCreateDeviceMessagePropertiesParams(properties []interface{}) map[string]interface{} {
 	if len(properties) == 0 {
 		return nil
 	}
 
 	propertiesMap := properties[0].(map[string]interface{})
-	propertiesParams := &model.PropertiesDto{
-		CorrelationData: utils.StringIgnoreEmpty(propertiesMap["correlation_data"].(string)),
-		ResponseTopic:   utils.StringIgnoreEmpty(propertiesMap["response_topic"].(string)),
+	propertiesParams := map[string]interface{}{
+		"correlation_data": utils.ValueIgnoreEmpty(propertiesMap["correlation_data"].(string)),
+		"response_topic":   utils.ValueIgnoreEmpty(propertiesMap["response_topic"].(string)),
 	}
 
 	if userPropertiesList := propertiesMap["user_properties"].([]interface{}); len(userPropertiesList) > 0 {
-		userPropertiesParams := make([]model.UserPropDto, 0, len(userPropertiesList))
+		userPropertiesParams := make([]interface{}, 0, len(userPropertiesList))
 		for _, v := range userPropertiesList {
 			userPropMap := v.(map[string]interface{})
-			userProperties := model.UserPropDto{
-				PropKey:   utils.StringIgnoreEmpty(userPropMap["prop_key"].(string)),
-				PropValue: utils.StringIgnoreEmpty(userPropMap["prop_value"].(string)),
+			userProperties := map[string]interface{}{
+				"prop_key":   utils.ValueIgnoreEmpty(userPropMap["prop_key"].(string)),
+				"prop_value": utils.ValueIgnoreEmpty(userPropMap["prop_value"].(string)),
 			}
 			userPropertiesParams = append(userPropertiesParams, userProperties)
 		}
 		if len(userPropertiesParams) > 0 {
-			propertiesParams.UserProperties = &userPropertiesParams
+			propertiesParams["user_properties"] = userPropertiesParams
 		}
 	}
 
 	return propertiesParams
 }
 
-func buildDeviceMessageBodyParams(d *schema.ResourceData) *model.CreateMessageRequest {
-	message := d.Get("message")
-	bodyParams := model.CreateMessageRequest{
-		DeviceId: d.Get("device_id").(string),
-		Body: &model.DeviceMessageRequest{
-			MessageId:     utils.StringIgnoreEmpty(d.Get("message_id").(string)),
-			Name:          utils.StringIgnoreEmpty(d.Get("name").(string)),
-			Message:       &message,
-			Properties:    buildDeviceMessagePropertiesParams(d.Get("properties").([]interface{})),
-			Encoding:      utils.StringIgnoreEmpty(d.Get("encoding").(string)),
-			PayloadFormat: utils.StringIgnoreEmpty(d.Get("payload_format").(string)),
-			Topic:         utils.StringIgnoreEmpty(d.Get("topic").(string)),
-			TopicFullName: utils.StringIgnoreEmpty(d.Get("topic_full_name").(string)),
-			Ttl:           convertStringValueToInt32(d.Get("ttl").(string)),
-		},
+func buildDeviceMessageTTLRequestValue(value string) interface{} {
+	v, err := strconv.Atoi(value)
+	if err != nil {
+		log.Printf("[ERROR] error converting string value to int value: %s", err)
+		return nil
 	}
 
-	return &bodyParams
+	return v
 }
 
-// This method will be deleted after the resource `huaweicloud_iotda_device_message` is reconstructed.
-func convertStringValueToInt32(value string) *int32 {
-	if value == "0" {
-		return utils.Int32(0)
+func buildCreateDeviceMessageBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"message_id":      utils.ValueIgnoreEmpty(d.Get("message_id")),
+		"name":            utils.ValueIgnoreEmpty(d.Get("name")),
+		"message":         d.Get("message"),
+		"properties":      buildCreateDeviceMessagePropertiesParams(d.Get("properties").([]interface{})),
+		"encoding":        utils.ValueIgnoreEmpty(d.Get("encoding")),
+		"payload_format":  utils.ValueIgnoreEmpty(d.Get("payload_format")),
+		"topic":           utils.ValueIgnoreEmpty(d.Get("topic")),
+		"topic_full_name": utils.ValueIgnoreEmpty(d.Get("topic_full_name")),
+		"ttl":             buildDeviceMessageTTLRequestValue(d.Get("ttl").(string)),
 	}
 
-	parsedValue := utils.StringToInt(&value)
-	if parsedValue != nil {
-		//nolint:gosec
-		return utils.Int32IgnoreEmpty(int32(*parsedValue))
-	}
-
-	return nil
+	return bodyParams
 }
 
 func resourceDeviceMessageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -229,32 +220,40 @@ func resourceDeviceMessageCreate(ctx context.Context, d *schema.ResourceData, me
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	createOpts := buildDeviceMessageBodyParams(d)
-	resp, err := client.CreateMessage(createOpts)
+	createPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}/messages"
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{device_id}", d.Get("device_id").(string))
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateDeviceMessageBodyParams(d)),
+	}
+
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating device message: %s", err)
+		return diag.Errorf("error creating IoTDA device message: %s", err)
 	}
 
-	if resp == nil || resp.MessageId == nil {
-		return diag.Errorf("error creating device message: ID is not found in API response")
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	d.SetId(*resp.MessageId)
+	messageId := utils.PathSearch("message_id", createRespBody, "").(string)
+	if messageId == "" {
+		return diag.Errorf("error creating IoTDA device message: ID is not found in API response")
+	}
+
+	d.SetId(messageId)
 
 	return resourceDeviceMessageRead(ctx, d, meta)
-}
-
-func buildDeviceMessageQueryParams(d *schema.ResourceData) *model.ShowDeviceMessageRequest {
-	return &model.ShowDeviceMessageRequest{
-		DeviceId:  d.Get("device_id").(string),
-		MessageId: d.Id(),
-	}
 }
 
 func resourceDeviceMessageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -262,49 +261,109 @@ func resourceDeviceMessageRead(_ context.Context, d *schema.ResourceData, meta i
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	getPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}/messages/{message_id}"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{device_id}", d.Get("device_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{message_id}", d.Id())
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
 	// When the parent resource (device_id) does not exist, query API will return `404` error code.
-	response, err := client.ShowDeviceMessage(buildDeviceMessageQueryParams(d))
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA device message")
 	}
 
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	// When the resource does not exist, query API will return `200` status code.
 	// Therefore, it is necessary to check whether the message ID is returned in the response body.
-	if response == nil || response.MessageId == nil {
+	messageIdResp := utils.PathSearch("message_id", getRespBody, "").(string)
+	if messageIdResp == "" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving IoTDA device message")
 	}
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("message_id", response.MessageId),
-		d.Set("name", response.Name),
-		d.Set("message", response.Message),
-		d.Set("properties", flattenDeviceMessageProperties(response.Properties)),
-		d.Set("encoding", response.Encoding),
-		d.Set("payload_format", response.PayloadFormat),
-		d.Set("status", response.Status),
-		d.Set("error_info", flattenDeviceMessageErrorInfo(response.ErrorInfo)),
-		d.Set("created_time", response.CreatedTime),
-		d.Set("finished_time", response.FinishedTime),
+		d.Set("message_id", messageIdResp),
+		d.Set("name", utils.PathSearch("name", getRespBody, nil)),
+		d.Set("message", utils.PathSearch("message", getRespBody, nil)),
+		d.Set("properties", flattenDeviceMessageProperties(utils.PathSearch("properties", getRespBody, nil))),
+		d.Set("encoding", utils.PathSearch("encoding", getRespBody, nil)),
+		d.Set("payload_format", utils.PathSearch("payload_format", getRespBody, nil)),
+		d.Set("status", utils.PathSearch("status", getRespBody, nil)),
+		d.Set("error_info", flattenDeviceMessageErrorInfo(utils.PathSearch("error_info", getRespBody, nil))),
+		d.Set("created_time", utils.PathSearch("created_time", getRespBody, nil)),
+		d.Set("finished_time", utils.PathSearch("finished_time", getRespBody, nil)),
 	)
 
 	// The values of parameters `topic` and `topic_full_name` correspond to the `topic` field in the query API response.
-	if response.Topic != nil {
-		topicStr := *response.Topic
-		if strings.HasPrefix(topicStr, "$oc/devices") {
-			mErr = multierror.Append(mErr, d.Set("topic", flattenDeviceMessageTopicOrTopicFullName(topicStr)))
+	topicResp := utils.PathSearch("topic", getRespBody, "").(string)
+	if topicResp != "" {
+		if strings.HasPrefix(topicResp, "$oc/devices") {
+			mErr = multierror.Append(mErr, d.Set("topic", flattenDeviceMessageTopicOrTopicFullName(topicResp)))
 		} else {
-			mErr = multierror.Append(mErr, d.Set("topic_full_name", flattenDeviceMessageTopicOrTopicFullName(topicStr)))
+			mErr = multierror.Append(mErr, d.Set("topic_full_name", flattenDeviceMessageTopicOrTopicFullName(topicResp)))
 		}
 	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenDeviceMessageProperties(propertiesResp interface{}) []interface{} {
+	if propertiesResp == nil {
+		return nil
+	}
+
+	propertiesMap := map[string]interface{}{
+		"correlation_data": utils.PathSearch("correlation_data", propertiesResp, nil),
+		"response_topic":   utils.PathSearch("response_topic", propertiesResp, nil),
+		"user_properties":  flattenDeviceMessageUserProperties(utils.PathSearch("user_properties", propertiesResp, nil)),
+	}
+
+	return []interface{}{propertiesMap}
+}
+
+func flattenDeviceMessageUserProperties(userPropertiesResp interface{}) []interface{} {
+	if userPropertiesResp == nil {
+		return nil
+	}
+
+	userPropertiesRespList := userPropertiesResp.([]interface{})
+	result := make([]interface{}, len(userPropertiesRespList))
+	for i, v := range userPropertiesRespList {
+		result[i] = map[string]interface{}{
+			"prop_key":   utils.PathSearch("prop_key", v, nil),
+			"prop_value": utils.PathSearch("prop_value", v, nil),
+		}
+	}
+
+	return result
+}
+
+func flattenDeviceMessageErrorInfo(errorInfoResp interface{}) []interface{} {
+	if errorInfoResp == nil {
+		return nil
+	}
+
+	errorInfoMap := map[string]interface{}{
+		"error_code": utils.PathSearch("error_code", errorInfoResp, nil),
+		"error_msg":  utils.PathSearch("error_msg", errorInfoResp, nil),
+	}
+
+	return []interface{}{errorInfoMap}
 }
 
 // The topic prefix added to the platform field is: $oc/devices/{device_id}/user/
@@ -316,49 +375,6 @@ func flattenDeviceMessageTopicOrTopicFullName(topic string) string {
 	}
 
 	return topic
-}
-
-func flattenDeviceMessageProperties(properties *model.PropertiesDto) []interface{} {
-	if properties == nil {
-		return nil
-	}
-
-	propertiesMap := map[string]interface{}{
-		"correlation_data": properties.CorrelationData,
-		"response_topic":   properties.ResponseTopic,
-		"user_properties":  flattenDeviceMessageUserProperties(properties.UserProperties),
-	}
-
-	return []interface{}{propertiesMap}
-}
-
-func flattenDeviceMessageUserProperties(userProperties *[]model.UserPropDto) []interface{} {
-	if userProperties == nil {
-		return nil
-	}
-
-	result := make([]interface{}, len(*userProperties))
-	for i, v := range *userProperties {
-		result[i] = map[string]interface{}{
-			"prop_key":   v.PropKey,
-			"prop_value": v.PropValue,
-		}
-	}
-
-	return result
-}
-
-func flattenDeviceMessageErrorInfo(errorInfo *model.ErrorInfoDto) []interface{} {
-	if errorInfo == nil {
-		return nil
-	}
-
-	errorInfoMap := map[string]interface{}{
-		"error_code": errorInfo.ErrorCode,
-		"error_msg":  errorInfo.ErrorMsg,
-	}
-
-	return []interface{}{errorInfoMap}
 }
 
 func resourceDeviceMessageDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {

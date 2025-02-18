@@ -183,60 +183,13 @@ func flattenDeviceMessages(messagesResp []interface{}) []interface{} {
 			"encoding":       utils.PathSearch("encoding", v, nil),
 			"payload_format": utils.PathSearch("payload_format", v, nil),
 			"topic":          utils.PathSearch("topic", v, nil),
-			"properties":     flattenDataSourceDeviceMessageProperties(utils.PathSearch("properties", v, nil)),
+			"properties":     flattenDeviceMessageProperties(utils.PathSearch("properties", v, nil)),
 			"status":         utils.PathSearch("status", v, nil),
-			"error_info":     flattenDataSourceDeviceMessageErrorInfo(utils.PathSearch("error_info", v, nil)),
+			"error_info":     flattenDeviceMessageErrorInfo(utils.PathSearch("error_info", v, nil)),
 			"created_time":   utils.PathSearch("created_time", v, nil),
 			"finished_time":  utils.PathSearch("finished_time", v, nil),
 		})
 	}
 
 	return rst
-}
-
-// When refactoring resource, move this method directly to the resource for reuse.
-func flattenDataSourceDeviceMessageProperties(propertiesResp interface{}) []interface{} {
-	if propertiesResp == nil {
-		return nil
-	}
-
-	propertiesMap := map[string]interface{}{
-		"correlation_data": utils.PathSearch("correlation_data", propertiesResp, nil),
-		"response_topic":   utils.PathSearch("response_topic", propertiesResp, nil),
-		"user_properties":  flattenDataSourceDeviceMessageUserProperties(utils.PathSearch("user_properties", propertiesResp, nil)),
-	}
-
-	return []interface{}{propertiesMap}
-}
-
-// When refactoring resource, move this method directly to the resource for reuse.
-func flattenDataSourceDeviceMessageUserProperties(userPropertiesResp interface{}) []interface{} {
-	if userPropertiesResp == nil {
-		return nil
-	}
-
-	userPropertiesRespList := userPropertiesResp.([]interface{})
-	result := make([]interface{}, len(userPropertiesRespList))
-	for i, v := range userPropertiesRespList {
-		result[i] = map[string]interface{}{
-			"prop_key":   utils.PathSearch("prop_key", v, nil),
-			"prop_value": utils.PathSearch("prop_value", v, nil),
-		}
-	}
-
-	return result
-}
-
-// When refactoring resource, move this method directly to the resource for reuse.
-func flattenDataSourceDeviceMessageErrorInfo(errorInfoResp interface{}) []interface{} {
-	if errorInfoResp == nil {
-		return nil
-	}
-
-	errorInfoMap := map[string]interface{}{
-		"error_code": utils.PathSearch("error_code", errorInfoResp, nil),
-		"error_msg":  utils.PathSearch("error_msg", errorInfoResp, nil),
-	}
-
-	return []interface{}{errorInfoMap}
 }
