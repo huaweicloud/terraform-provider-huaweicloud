@@ -24,10 +24,6 @@ resource "huaweicloud_codearts_inspector_host_group" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
-  If omitted, the provider-level region will be used.
-  Changing this creates a new resource.
-
 * `name` - (Required, String, ForceNew) Specifies the host group name.
   Changing this creates a new resource.
 

@@ -32,12 +32,6 @@ func ResourceInspectorHostGroup() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -99,7 +93,6 @@ func resourceInspectorHostGroupRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", region),
 		d.Set("name", utils.PathSearch("name", group, nil)),
 	)
 

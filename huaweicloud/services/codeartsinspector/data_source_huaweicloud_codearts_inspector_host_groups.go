@@ -20,27 +20,21 @@ func DataSourceCodeartsInspectorHostGroups() *schema.Resource {
 		ReadContext: dataSourceCodeartsInspectorHostGroupsRead,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
-			},
 			"groups": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `Specifies the group list.`,
+				Description: `Indicates the group list.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Specifies the group ID.`,
+							Description: `Indicates the group ID.`,
 						},
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Specifies the group name.`,
+							Description: `Indicates the group name.`,
 						},
 					},
 				},
@@ -100,7 +94,6 @@ func (w *HostGroupsDSWrapper) ListGroups() (*gjson.Result, error) {
 func (w *HostGroupsDSWrapper) listGroupsToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("groups", schemas.SliceToList(body.Get("items"),
 			func(groups gjson.Result) any {
 				return map[string]any{
