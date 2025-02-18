@@ -2,12 +2,13 @@ package css
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	cssv2model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -59,57 +60,88 @@ func ResourceCssClusterRestart() *schema.Resource {
 func resourceCssClusterRestartCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	clusterID := d.Get("cluster_id").(string)
-	cssV1Client, err := conf.HcCssV1Client(region)
+	clusterId := d.Get("cluster_id").(string)
+	restartType := d.Get("type").(string)
+	value := d.Get("value").(string)
+	v1client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
-	cssV2Client, err := conf.HcCssV2Client(region)
+
+	v2client, err := conf.CssV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V2 client: %s", err)
 	}
 
 	// Check whether the cluster status is available.
-	err = checkClusterOperationCompleted(ctx, cssV1Client, clusterID, d.Timeout(schema.TimeoutCreate))
+	err = checkClusterOperationResult(ctx, v1client, clusterId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	if d.Get("is_rolling").(bool) {
-		rollingRestartClusterOpts := cssv2model.RollingRestartRequest{
-			ClusterId: clusterID,
-			Body: &cssv2model.RollingRestartReq{
-				Type:  d.Get("type").(string),
-				Value: d.Get("value").(string),
-			},
-		}
-
-		_, err = cssV2Client.RollingRestart(&rollingRestartClusterOpts)
+		err := rollingRestartCluster(v2client, clusterId, restartType, value)
 		if err != nil {
 			return diag.Errorf("error rolling restart CSS cluster, err: %s", err)
 		}
 	} else {
-		restartClusterOpts := cssv2model.RestartClusterRequest{
-			ClusterId: clusterID,
-			Body: &cssv2model.RestartClusterReq{
-				Type:  d.Get("type").(string),
-				Value: d.Get("value").(string),
-			},
-		}
-
-		_, err = cssV2Client.RestartCluster(&restartClusterOpts)
+		err := restartCluster(v2client, clusterId, restartType, value)
 		if err != nil {
 			return diag.Errorf("error restart CSS cluster, err: %s", err)
 		}
 	}
 
 	// Check whether the cluster restart is complete
-	err = checkClusterOperationCompleted(ctx, cssV1Client, clusterID, d.Timeout(schema.TimeoutCreate))
+	err = checkClusterOperationResult(ctx, v1client, clusterId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(clusterID)
+	d.SetId(clusterId)
+
+	return nil
+}
+
+func restartCluster(v2client *golangsdk.ServiceClient, clusterId, restartType, value string) error {
+	restartClusterHttpUrl := "v2.0/{project_id}/clusters/{cluster_id}/restart"
+	restartClusterPath := v2client.Endpoint + restartClusterHttpUrl
+	restartClusterPath = strings.ReplaceAll(restartClusterPath, "{project_id}", v2client.ProjectID)
+	restartClusterPath = strings.ReplaceAll(restartClusterPath, "{cluster_id}", clusterId)
+
+	restartClusterOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"type":  restartType,
+			"value": value,
+		},
+	}
+	_, err := v2client.Request("POST", restartClusterPath, &restartClusterOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func rollingRestartCluster(v2client *golangsdk.ServiceClient, clusterId, restartType, value string) error {
+	rollingRestartClusterHttpUrl := "v2.0/{project_id}/clusters/{cluster_id}/rolling_restart"
+	rollingRestartClusterPath := v2client.Endpoint + rollingRestartClusterHttpUrl
+	rollingRestartClusterPath = strings.ReplaceAll(rollingRestartClusterPath, "{project_id}", v2client.ProjectID)
+	rollingRestartClusterPath = strings.ReplaceAll(rollingRestartClusterPath, "{cluster_id}", clusterId)
+
+	rollingRestartClusterOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"type":  restartType,
+			"value": value,
+		},
+	}
+	_, err := v2client.Request("POST", rollingRestartClusterPath, &rollingRestartClusterOpt)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
