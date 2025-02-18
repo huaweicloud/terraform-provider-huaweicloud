@@ -2,29 +2,51 @@ package iotda
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDataFlowControlPolicyResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, WithDerivedAuth())
+func getDataFlowControlPolicyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region    = acceptance.HW_REGION_NAME
+		isDerived = iotda.WithDerivedAuth(cfg, region)
+		product   = "iotda"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
+		return nil, fmt.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	return client.ShowRoutingFlowControlPolicy(&model.ShowRoutingFlowControlPolicyRequest{PolicyId: state.Primary.ID})
+	getPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/flowcontrol-policy/{policy_id}"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{policy_id}", state.Primary.ID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	// When the resource does not exist, query API will return `404` error code.
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
 }
 
 func TestAccDataFlowControlPolicy_basic(t *testing.T) {
 	var (
-		obj   model.ShowDeviceProxyResponse
+		obj   interface{}
 		name  = acceptance.RandomAccResourceName()
 		rName = "huaweicloud_iotda_data_flow_control_policy.test"
 	)
@@ -75,7 +97,7 @@ func TestAccDataFlowControlPolicy_basic(t *testing.T) {
 
 func TestAccDataFlowControlPolicy_channelScope(t *testing.T) {
 	var (
-		obj   model.ShowDeviceProxyResponse
+		obj   interface{}
 		name  = acceptance.RandomAccResourceName()
 		rName = "huaweicloud_iotda_data_flow_control_policy.test"
 	)
@@ -128,7 +150,7 @@ func TestAccDataFlowControlPolicy_channelScope(t *testing.T) {
 
 func TestAccDataFlowControlPolicy_ruleScope(t *testing.T) {
 	var (
-		obj   model.ShowDeviceProxyResponse
+		obj   interface{}
 		name  = acceptance.RandomAccResourceName()
 		rName = "huaweicloud_iotda_data_flow_control_policy.test"
 	)
@@ -183,7 +205,7 @@ func TestAccDataFlowControlPolicy_ruleScope(t *testing.T) {
 
 func TestAccDataFlowControlPolicy_actionScope(t *testing.T) {
 	var (
-		obj   model.ShowDeviceProxyResponse
+		obj   interface{}
 		name  = acceptance.RandomAccResourceName()
 		rName = "huaweicloud_iotda_data_flow_control_policy.test"
 	)

@@ -2,12 +2,14 @@ package iotda
 
 import (
 	"context"
+	"log"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -67,18 +69,13 @@ func ResourceDataFlowControlPolicy() *schema.Resource {
 	}
 }
 
-func buildDataFlowControlPolicyCreateParams(d *schema.ResourceData) *model.CreateRoutingFlowControlPolicyRequest {
-	createOptsBody := model.AddFlowControlPolicy{
-		PolicyName:  utils.StringIgnoreEmpty(d.Get("name").(string)),
-		Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-		Scope:       utils.StringIgnoreEmpty(d.Get("scope").(string)),
-		ScopeValue:  utils.StringIgnoreEmpty(d.Get("scope_value").(string)),
-		//nolint:gosec
-		Limit: utils.Int32IgnoreEmpty(int32(d.Get("limit").(int))),
-	}
-
-	return &model.CreateRoutingFlowControlPolicyRequest{
-		Body: &createOptsBody,
+func buildCreateDataFlowControlPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"policy_name": utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"scope":       utils.ValueIgnoreEmpty(d.Get("scope")),
+		"scope_value": utils.ValueIgnoreEmpty(d.Get("scope_value")),
+		"limit":       utils.ValueIgnoreEmpty(d.Get("limit")),
 	}
 }
 
@@ -87,30 +84,40 @@ func resourceDataFlowControlPolicyCreate(ctx context.Context, d *schema.Resource
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	resp, err := client.CreateRoutingFlowControlPolicy(buildDataFlowControlPolicyCreateParams(d))
+	log.Printf("1111111111: %v", d.Get("limit"))
+	createPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/flowcontrol-policy"
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateDataFlowControlPolicyBodyParams(d)),
+	}
+
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA data flow control policy: %s", err)
 	}
 
-	if resp == nil || resp.PolicyId == nil {
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	policyId := utils.PathSearch("policy_id", createRespBody, "").(string)
+	if policyId == "" {
 		return diag.Errorf("error creating IoTDA data flow control policy: ID is not found in API response")
 	}
 
-	d.SetId(*resp.PolicyId)
+	d.SetId(policyId)
 
 	return resourceDataFlowControlPolicyRead(ctx, d, meta)
-}
-
-func buildDataFlowControlPolicyQueryParams(d *schema.ResourceData) *model.ShowRoutingFlowControlPolicyRequest {
-	return &model.ShowRoutingFlowControlPolicyRequest{
-		PolicyId: d.Id(),
-	}
 }
 
 func resourceDataFlowControlPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -118,41 +125,49 @@ func resourceDataFlowControlPolicyRead(_ context.Context, d *schema.ResourceData
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	resp, err := client.ShowRoutingFlowControlPolicy(buildDataFlowControlPolicyQueryParams(d))
+	getPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/flowcontrol-policy/{policy_id}"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{policy_id}", d.Id())
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	// When the resource does not exist, query API will return `404` error code.
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA data flow control policy")
 	}
 
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", resp.PolicyName),
-		d.Set("description", resp.Description),
-		d.Set("scope", resp.Scope),
-		d.Set("scope_value", resp.ScopeValue),
-		d.Set("limit", resp.Limit),
+		d.Set("name", utils.PathSearch("policy_name", getRespBody, nil)),
+		d.Set("description", utils.PathSearch("description", getRespBody, nil)),
+		d.Set("scope", utils.PathSearch("scope", getRespBody, nil)),
+		d.Set("scope_value", utils.PathSearch("scope_value", getRespBody, nil)),
+		d.Set("limit", utils.PathSearch("limit", getRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildDataFlowControlPolicyUpdateParams(d *schema.ResourceData) *model.UpdateRoutingFlowControlPolicyRequest {
-	updateOptsBody := model.UpdateFlowControlPolicy{
-		PolicyName:  utils.StringIgnoreEmpty(d.Get("name").(string)),
-		Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-		//nolint:gosec
-		Limit: utils.Int32IgnoreEmpty(int32(d.Get("limit").(int))),
-	}
-
-	return &model.UpdateRoutingFlowControlPolicyRequest{
-		PolicyId: d.Id(),
-		Body:     &updateOptsBody,
+func buildUpdateDataFlowControlPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"policy_name": utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"limit":       utils.ValueIgnoreEmpty(d.Get("limit")),
 	}
 }
 
@@ -161,13 +176,23 @@ func resourceDataFlowControlPolicyUpdate(ctx context.Context, d *schema.Resource
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	_, err = client.UpdateRoutingFlowControlPolicy(buildDataFlowControlPolicyUpdateParams(d))
+	updatePath := client.Endpoint + "v5/iot/{project_id}/routing-rule/flowcontrol-policy/{policy_id}"
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{policy_id}", d.Id())
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateDataFlowControlPolicyBodyParams(d)),
+	}
+
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
 		return diag.Errorf("error updating IoTDA data flow control policy: %s", err)
 	}
@@ -175,25 +200,28 @@ func resourceDataFlowControlPolicyUpdate(ctx context.Context, d *schema.Resource
 	return resourceDataFlowControlPolicyRead(ctx, d, meta)
 }
 
-func buildDataFlowControlPolicyDeleteParams(d *schema.ResourceData) *model.DeleteRoutingFlowControlPolicyRequest {
-	return &model.DeleteRoutingFlowControlPolicyRequest{
-		PolicyId: d.Id(),
-	}
-}
-
 func resourceDataFlowControlPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
 	)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	_, err = client.DeleteRoutingFlowControlPolicy(buildDataFlowControlPolicyDeleteParams(d))
+	deletePath := client.Endpoint + "v5/iot/{project_id}/routing-rule/flowcontrol-policy/{policy_id}"
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{policy_id}", d.Id())
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	// When the resource does not exist, delete API will return `404` error code.
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting IoTDA data flow control policy")
 	}
