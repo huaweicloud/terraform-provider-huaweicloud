@@ -946,18 +946,6 @@ func getAutoCreateBackupStrategy(d *schema.ResourceData, client *golangsdk.Servi
 	return utils.FlattenResponse(getClusterBackupStrategyResp)
 }
 
-func flattenTags(tags *[]model.ClusterDetailTags) map[string]string {
-	if tags == nil {
-		return nil
-	}
-
-	result := make(map[string]string)
-	for _, val := range *tags {
-		result[*val.Key] = utils.StringValue(val.Value)
-	}
-	return result
-}
-
 func flattenKibana(publicKibana interface{}) []interface{} {
 	elbWhiteListResp := utils.PathSearch("elbWhiteListResp", publicKibana, nil)
 	if publicKibana == nil || elbWhiteListResp == nil {
@@ -2064,7 +2052,7 @@ func checkClusterOperationCompleted(ctx context.Context, cssV1Client *cssv1.CssC
 				return nil, "failed", err
 			}
 
-			if checkCssClusterIsReady(resp) {
+			if checkOldCssClusterIsReady(resp) {
 				return resp, "Done", nil
 			}
 			return resp, "Pending", nil
@@ -2078,6 +2066,27 @@ func checkClusterOperationCompleted(ctx context.Context, cssV1Client *cssv1.CssC
 		return fmt.Errorf("error waiting for CSS (%s) to be extend: %s", clusterId, err)
 	}
 	return nil
+}
+
+func checkOldCssClusterIsReady(detail *model.ShowClusterDetailResponse) bool {
+	if utils.StringValue(detail.Status) != ClusterStatusAvailable {
+		return false
+	}
+
+	// actions --- the behaviors on a cluster
+	if detail.Actions != nil && len(*detail.Actions) > 0 {
+		return false
+	}
+
+	if detail.Instances == nil {
+		return false
+	}
+	for _, v := range *detail.Instances {
+		if utils.StringValue(v.Status) != ClusterStatusAvailable {
+			return false
+		}
+	}
+	return true
 }
 
 func checkCssClusterIsReady(detail interface{}) bool {
