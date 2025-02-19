@@ -956,7 +956,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	// Set instance tags
-	d.Set("tags", flattenTagsToMap(server.Tags))
+	d.Set("tags", flattenTagsToMap(d, server.Tags))
 
 	// Set expired time for prePaid instance
 	if normalizeChargingMode(server.Metadata.ChargingMode) == "prePaid" {
@@ -1829,15 +1829,30 @@ func shouldUnsubscribeEIP(d *schema.ResourceData) bool {
 	return deleteEIP && eipAddr != "" && eipType != "" && !sharebw
 }
 
-func flattenTagsToMap(tags []string) map[string]string {
+func flattenTagsToMap(d *schema.ResourceData, tags []string) map[string]string {
 	result := make(map[string]string)
 
-	for _, tagStr := range tags {
-		tag := strings.SplitN(tagStr, "=", 2)
-		if len(tag) == 1 {
-			result[tag[0]] = ""
-		} else if len(tag) == 2 {
-			result[tag[0]] = tag[1]
+	tagsRaw := d.Get("tags").(map[string]interface{})
+
+	if len(tagsRaw) != 0 {
+		for _, tagStr := range tags {
+			tag := strings.Split(tagStr, "=")
+			if _, ok := tagsRaw[tag[0]]; ok {
+				if len(tag) == 1 {
+					result[tag[0]] = ""
+				} else if len(tag) == 2 {
+					result[tag[0]] = tag[1]
+				}
+			}
+		}
+	} else {
+		for _, tagStr := range tags {
+			tag := strings.Split(tagStr, "=")
+			if len(tag) == 1 {
+				result[tag[0]] = ""
+			} else if len(tag) == 2 {
+				result[tag[0]] = tag[1]
+			}
 		}
 	}
 
