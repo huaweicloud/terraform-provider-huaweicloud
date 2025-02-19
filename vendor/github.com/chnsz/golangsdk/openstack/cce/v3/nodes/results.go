@@ -166,6 +166,10 @@ type VolumeSpec struct {
 	ClusterID string `json:"cluster_id,omitempty"`
 	// DSS pool type, fixed to dss
 	ClusterType string `json:"cluster_type,omitempty"`
+	// Disk ipos
+	Iops int `json:"iops,omitempty"`
+	// Disk throughput
+	Throughput int `json:"throughput,omitempty"`
 }
 
 type VolumeMetadata struct {
