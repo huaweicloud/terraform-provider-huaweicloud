@@ -364,16 +364,16 @@ func buildLogstashCssTags(tagmap map[string]interface{}) *[]model.CreateClusterT
 func resourceLogstashClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	cssV1Client, err := conf.HcCssV1Client(region)
+	v1Client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
-	clusterDetail, err := cssV1Client.ShowClusterDetail(&model.ShowClusterDetailRequest{ClusterId: d.Id()})
+	clusterDetail, err := getClusterDetails(v1Client, d.Id())
 	if err != nil {
 		// "CSS.0015": The cluster does not exist. Status code is 403.
-		err = ConvertExpectedHwSdkErrInto404Err(err, 403, "CSS.0015", "")
-		return common.CheckDeletedDiag(d, err, "error retrieving CSS logstash cluster")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015"), "error getting CSS cluster")
 	}
 
 	getRoutesRespBody, err := getClusterRoute(conf, d)
@@ -383,35 +383,36 @@ func resourceLogstashClusterRead(_ context.Context, d *schema.ResourceData, meta
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", clusterDetail.Name),
-		d.Set("engine_type", clusterDetail.Datastore.Type),
-		d.Set("engine_version", clusterDetail.Datastore.Version),
-		d.Set("enterprise_project_id", clusterDetail.EnterpriseProjectId),
-		d.Set("vpc_id", clusterDetail.VpcId),
-		d.Set("subnet_id", clusterDetail.SubnetId),
-		d.Set("security_group_id", clusterDetail.SecurityGroupId),
+		d.Set("name", utils.PathSearch("name", clusterDetail, nil)),
+		d.Set("engine_type", utils.PathSearch("datastore.type", clusterDetail, nil)),
+		d.Set("engine_version", utils.PathSearch("datastore.version", clusterDetail, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterpriseProjectId", clusterDetail, nil)),
+		d.Set("vpc_id", utils.PathSearch("vpcId", clusterDetail, nil)),
+		d.Set("subnet_id", utils.PathSearch("subnetId", clusterDetail, nil)),
+		d.Set("security_group_id", utils.PathSearch("securityGroupId", clusterDetail, nil)),
 		d.Set("nodes", flattenClusterNodes(utils.PathSearch("instances", clusterDetail, make([]interface{}, 0)).([]interface{}))),
-		setLogstashNodeConfigsAndAz(d, clusterDetail),
-		d.Set("tags", flattenTags(clusterDetail.Tags)),
-		d.Set("created_at", clusterDetail.Created),
-		d.Set("endpoint", clusterDetail.Endpoint),
-		d.Set("status", clusterDetail.Status),
+		setLogstashNodeConfigsAndAz(clusterDetail, d),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", clusterDetail, nil))),
+		d.Set("created_at", utils.PathSearch("created", clusterDetail, nil)),
+		d.Set("endpoint", utils.PathSearch("endpoint", clusterDetail, nil)),
+		d.Set("status", utils.PathSearch("status", clusterDetail, nil)),
 		d.Set("routes", flattenGetRoute(getRoutesRespBody)),
-		d.Set("updated_at", clusterDetail.Updated),
-		d.Set("is_period", clusterDetail.Period),
+		d.Set("updated_at", utils.PathSearch("updated", clusterDetail, nil)),
+		d.Set("is_period", utils.PathSearch("period", clusterDetail, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func setLogstashNodeConfigsAndAz(d *schema.ResourceData, detail *model.ShowClusterDetailResponse) error {
-	if detail.Instances == nil || len(*detail.Instances) == 0 {
+func setLogstashNodeConfigsAndAz(clusterDetail interface{}, d *schema.ResourceData) error {
+	instances := utils.PathSearch("instances", clusterDetail, make([]interface{}, 0)).([]interface{})
+	if len(instances) == 0 {
 		return nil
 	}
 
 	var azArray []string
-	for _, v := range *detail.Instances {
-		azArray = append(azArray, utils.StringValue(v.AzCode))
+	for _, v := range instances {
+		azArray = append(azArray, utils.PathSearch("azCode", v, "").(string))
 	}
 	azArray = utils.RemoveDuplicateElem(azArray)
 	az := strings.Join(azArray, ",")
@@ -419,11 +420,11 @@ func setLogstashNodeConfigsAndAz(d *schema.ResourceData, detail *model.ShowClust
 	mErr := multierror.Append(nil,
 		d.Set("availability_zone", az),
 		d.Set("node_config", []interface{}{map[string]interface{}{
-			"flavor":          (*detail.Instances)[0].SpecCode,
-			"instance_number": len(*detail.Instances),
+			"flavor":          utils.PathSearch("[0].specCode", instances, nil),
+			"instance_number": len(instances),
 			"volume": []interface{}{map[string]interface{}{
-				"size":        (*detail.Instances)[0].Volume.Size,
-				"volume_type": (*detail.Instances)[0].Volume.Type,
+				"size":        int(utils.PathSearch("[0].volume.size", instances, float64(0)).(float64)),
+				"volume_type": utils.PathSearch("[0].volume.type", instances, nil),
 			}},
 		}}),
 	)
