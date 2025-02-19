@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_cae_component_deployment
+    title: resource_huaweicloud_cae_component_action
     description: ""
 schemes:
     - https

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cfw_ips_rule_mode_change
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CFW
+paths:
+    /v1/{project_id}/ips-rule/mode:
+        POST:
+            tag: CFW

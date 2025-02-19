@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cae_application
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CAE
+paths:
+    /v1/{project_id}/cae/applications:
+        POST:
+            tag: CAE
+    /v1/{project_id}/cae/applications/{application_id}:
+        DELETE:
+            tag: CAE
+        GET:
+            tag: CAE

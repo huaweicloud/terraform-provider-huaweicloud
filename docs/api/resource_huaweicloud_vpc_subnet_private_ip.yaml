@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpc_subnet_private_ip
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPC
+paths:
+    /v1/{project_id}/privateips:
+        POST:
+            tag: VPC
+    /v1/{project_id}/privateips/{privateip_id}:
+        DELETE:
+            tag: VPC
+        GET:
+            tag: VPC

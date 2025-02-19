@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_access_analyzer_archive_rule_apply
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AccessAnalyzer
+paths:
+    /v5/analyzers/{analyzer_id}/archive-rules/{archive_rule_id}/apply:
+        POST:
+            tag: AccessAnalyzer

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_swr_feature_gates
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SWR
+paths:
+    /v2/manage/projects/{project_id}/feature-gates:
+        GET:
+            tag: SWR

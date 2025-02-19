@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_opengauss_quota
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/enterprise-projects/quotas:
+        GET:
+            tag: GaussDB
+        PUT:
+            tag: GaussDB

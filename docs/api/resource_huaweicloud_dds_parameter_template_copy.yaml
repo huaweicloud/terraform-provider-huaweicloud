@@ -8,6 +8,13 @@ host: huaweicloud.com
 tags:
     - name: DDS
 paths:
+    /v3/{project_id}/configurations/{config_id}:
+        DELETE:
+            tag: DDS
+        GET:
+            tag: DDS
+        PUT:
+            tag: DDS
     /v3/{project_id}/configurations/{config_id}/copy:
         POST:
             tag: DDS

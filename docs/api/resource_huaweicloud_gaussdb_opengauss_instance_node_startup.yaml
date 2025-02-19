@@ -11,7 +11,7 @@ paths:
     /v3/{project_id}/instances:
         GET:
             tag: GaussDB
-    /v3/{project_id}/instances/{instance_id}/restart:
+    /v3/{project_id}/instances/{instance_id}/db-startup:
         POST:
             tag: GaussDB
     /v3/{project_id}/jobs:

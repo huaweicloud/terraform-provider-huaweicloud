@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cae_certificate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CAE
+paths:
+    /v1/{project_id}/cae/certificates:
+        GET:
+            tag: CAE
+        POST:
+            tag: CAE
+    /v1/{project_id}/cae/certificates/{certificate_id}:
+        DELETE:
+            tag: CAE
+        PUT:
+            tag: CAE
