@@ -207,6 +207,8 @@ In addition to all arguments above, the following attributes are exported:
   + `extend_params` - The disk expansion parameters.
   + `kms_key_id` - The ID of a KMS key. This is used to encrypt the volume.
   + `dss_pool_id` - The DSS pool ID. This field is used only for dedicated storage.
+  + `iops` - The iops of the disk.
+  + `throughput` - The throughput of the disk.
 
 * `data_volumes` - The configurations of the data disk.
   + `size` - The disk size in GB.
@@ -214,6 +216,8 @@ In addition to all arguments above, the following attributes are exported:
   + `extend_params` - The disk expansion parameters.
   + `kms_key_id` - The ID of a KMS key. This is used to encrypt the volume.
   + `dss_pool_id` - The DSS pool ID. This field is used only for dedicated storage.
+  + `iops` - The iops of the disk.
+  + `throughput` - The throughput of the disk.
 
 ## Timeouts
 

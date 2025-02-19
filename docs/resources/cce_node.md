@@ -295,6 +295,10 @@ The following arguments are supported:
     Changing this parameter will create a new resource.
   + `dss_pool_id` - (Optional, String, ForceNew) Specifies the DSS pool ID. This field is used only for
     dedicated storage. Changing this parameter will create a new resource.
+  + `iops` - (Optional, Int, ForceNew) Specifies the iops of the disk,
+    required when `volumetype` is **GPSSD2** or **ESSD2**.
+  + `throughput` - (Optional, Int, ForceNew) Specifies the throughput of the disk in MiB/s,
+    required when `volumetype` is **GPSSD2**.
 
 * `data_volumes` - (Required, List, ForceNew) Specifies the configurations of the data disk.
   Changing this parameter will create a new resource.
@@ -309,6 +313,10 @@ The following arguments are supported:
     Changing this parameter will create a new resource.
   + `dss_pool_id` - (Optional, String, ForceNew) Specifies the DSS pool ID. This field is used only for
     dedicated storage. Changing this parameter will create a new resource.
+  + `iops` - (Optional, Int, ForceNew) Specifies the iops of the disk,
+    required when `volumetype` is **GPSSD2** or **ESSD2**.
+  + `throughput` - (Optional, Int, ForceNew) Specifies the throughput of the disk in MiB/s,
+    required when `volumetype` is **GPSSD2**.
 
     -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first
     time ever.

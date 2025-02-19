@@ -250,12 +250,25 @@ func resourceNodeRootVolume() *schema.Schema {
 					Computed: true,
 					ForceNew: true,
 				},
+				"iops": {
+					Type:     schema.TypeInt,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
+				"throughput": {
+					Type:     schema.TypeInt,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
 
 				// Internal parameters
 				"hw_passthrough": {
 					Type:        schema.TypeBool,
 					Optional:    true,
 					ForceNew:    true,
+					Computed:    true,
 					Description: "schema: Internal",
 				},
 
@@ -311,12 +324,25 @@ func resourceNodeDataVolume() *schema.Schema {
 					Computed: true,
 					ForceNew: true,
 				},
+				"iops": {
+					Type:     schema.TypeInt,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
+				"throughput": {
+					Type:     schema.TypeInt,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
 
 				// Internal parameters
 				"hw_passthrough": {
 					Type:        schema.TypeBool,
 					Optional:    true,
 					ForceNew:    true,
+					Computed:    true,
 					Description: "schema: Internal",
 				},
 
@@ -341,6 +367,8 @@ func buildResourceNodeRootVolume(d *schema.ResourceData) nodes.VolumeSpec {
 		root.VolumeType = rawMap["volumetype"].(string)
 		root.HwPassthrough = rawMap["hw_passthrough"].(bool)
 		root.ExtendParam = rawMap["extend_params"].(map[string]interface{})
+		root.Iops = rawMap["iops"].(int)
+		root.Throughput = rawMap["throughput"].(int)
 
 		if rawMap["kms_key_id"].(string) != "" {
 			metadata := nodes.VolumeMetadata{
@@ -369,6 +397,8 @@ func buildResourceNodeDataVolume(d *schema.ResourceData) []nodes.VolumeSpec {
 			VolumeType:    rawMap["volumetype"].(string),
 			HwPassthrough: rawMap["hw_passthrough"].(bool),
 			ExtendParam:   rawMap["extend_params"].(map[string]interface{}),
+			Iops:          rawMap["iops"].(int),
+			Throughput:    rawMap["throughput"].(int),
 		}
 		if rawMap["kms_key_id"].(string) != "" {
 			metadata := nodes.VolumeMetadata{
@@ -394,6 +424,8 @@ func flattenResourceNodeRootVolume(d *schema.ResourceData, rootVolume nodes.Volu
 			"hw_passthrough": rootVolume.HwPassthrough,
 			"extend_param":   "",
 			"dss_pool_id":    rootVolume.ClusterID,
+			"iops":           rootVolume.Iops,
+			"throughput":     rootVolume.Throughput,
 		},
 	}
 
@@ -435,6 +467,8 @@ func flattenResourceNodeDataVolume(d *schema.ResourceData, dataVolumes []nodes.V
 				"hw_passthrough": v.HwPassthrough,
 				"extend_param":   "",
 				"dss_pool_id":    v.ClusterID,
+				"iops":           v.Iops,
+				"throughput":     v.Throughput,
 			}
 
 			orignExtendParams := orignDataVolumes[i].ExtendParam
@@ -461,6 +495,8 @@ func flattenResourceNodeDataVolume(d *schema.ResourceData, dataVolumes []nodes.V
 				"extend_param":   "",
 				"dss_pool_id":    v.ClusterID,
 				"extend_params":  v.ExtendParam,
+				"iops":           v.Iops,
+				"throughput":     v.Throughput,
 			}
 
 			if v.Metadata != nil {

@@ -373,6 +373,17 @@ The following arguments are supported:
 * `extension_scale_groups` - (Optional, List) Specifies the configurations of extended scaling groups in the node pool.
   The [object](#extension_scale_groups) structure is documented below.
 
+* `storage` - (Optional, List, ForceNew) Specifies the disk initialization management parameter.
+  If omitted, disks are managed based on the DockerLVMConfigOverride parameter in extendParam.
+  This parameter is supported for clusters of v1.15.11 and later. Changing this parameter will create a new resource.
+
+  + `selectors` - (Required, List, ForceNew) Specifies the disk selection.
+    Matched disks are managed according to match labels and storage type. Structure is documented below.
+    Changing this parameter will create a new resource.
+  + `groups` - (Required, List, ForceNew) Specifies the storage group consists of multiple storage devices.
+    This is used to divide storage space. Structure is documented below.
+    Changing this parameter will create a new resource.
+
 The `root_volume` block supports:
 
 * `size` - (Required, Int, ForceNew) Specifies the disk size in GB. Changing this parameter will create a new resource.
@@ -387,6 +398,12 @@ The `root_volume` block supports:
 
 * `dss_pool_id` - (Optional, String, ForceNew) Specifies the DSS pool ID. This field is used only for dedicated storage.
   Changing this parameter will create a new resource.
+
+* `iops` - (Optional, Int, ForceNew) Specifies the iops of the disk,
+  required when `volumetype` is **GPSSD2** or **ESSD2**.
+  
+* `throughput` - (Optional, Int, ForceNew) Specifies the throughput of the disk in MiB/s,
+  required when `volumetype` is **GPSSD2**.
 
 The `data_volumes` block supports:
 
@@ -403,18 +420,13 @@ The `data_volumes` block supports:
 * `dss_pool_id` - (Optional, String, ForceNew) Specifies the DSS pool ID. This field is used only for dedicated storage.
   Changing this parameter will create a new resource.
 
+* `iops` - (Optional, Int, ForceNew) Specifies the iops of the disk,
+  required when `volumetype` is **GPSSD2** or **ESSD2**.
+  
+* `throughput` - (Optional, Int, ForceNew) Specifies the throughput of the disk in MiB/s,
+  required when `volumetype` is **GPSSD2**.
+
   -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first time ever.
-
-* `storage` - (Optional, List, ForceNew) Specifies the disk initialization management parameter.
-  If omitted, disks are managed based on the DockerLVMConfigOverride parameter in extendParam.
-  This parameter is supported for clusters of v1.15.11 and later. Changing this parameter will create a new resource.
-
-  + `selectors` - (Required, List, ForceNew) Specifies the disk selection.
-    Matched disks are managed according to match labels and storage type. Structure is documented below.
-    Changing this parameter will create a new resource.
-  + `groups` - (Required, List, ForceNew) Specifies the storage group consists of multiple storage devices.
-    This is used to divide storage space. Structure is documented below.
-    Changing this parameter will create a new resource.
 
 The `taints` block supports:
 

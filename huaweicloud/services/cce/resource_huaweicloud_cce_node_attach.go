@@ -218,6 +218,14 @@ func ResourceNodeAttach() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"iops": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"throughput": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 
 						// Internal parameters
 						"hw_passthrough": {
@@ -259,6 +267,14 @@ func ResourceNodeAttach() *schema.Resource {
 						},
 						"dss_pool_id": {
 							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"iops": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"throughput": {
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 
