@@ -214,6 +214,12 @@
                       "computed": true,
                       "forcenew": true
                     },
+                    "iops": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "kms_key_id": {
                       "type": "string",
                       "optional": true,
@@ -223,6 +229,12 @@
                     "size": {
                       "type": "number",
                       "required": true,
+                      "forcenew": true
+                    },
+                    "throughput": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "volumetype": {
@@ -404,6 +416,12 @@
                       "computed": true,
                       "forcenew": true
                     },
+                    "iops": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "kms_key_id": {
                       "type": "string",
                       "optional": true,
@@ -413,6 +431,12 @@
                     "size": {
                       "type": "number",
                       "required": true,
+                      "forcenew": true
+                    },
+                    "throughput": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "volumetype": {

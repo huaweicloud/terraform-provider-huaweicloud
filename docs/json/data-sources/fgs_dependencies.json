@@ -9,6 +9,10 @@
                 "type": "string",
                 "computed": true
               },
+              "is_versions_query_allowed": {
+                "type": "bool",
+                "optional": true
+              },
               "name": {
                 "type": "string",
                 "optional": true

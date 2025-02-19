@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_tasks": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the task name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the task status.",
+                "optional": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "ended_at": "string",
+                      "fail_reason": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "instance_status": "string",
+                      "job_id": "string",
+                      "name": "string",
+                      "process": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the task list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

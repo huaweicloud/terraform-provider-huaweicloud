@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_anti_virus": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "scan_protocol_configs": {
+                "block": {
+                  "attributes": {
+                    "action": {
+                      "type": "number",
+                      "description": "The antivirus action.",
+                      "required": true
+                    },
+                    "protocol_type": {
+                      "type": "number",
+                      "description": "The protocol type.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the scan protocol configurations."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

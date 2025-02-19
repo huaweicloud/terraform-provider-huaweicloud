@@ -1,0 +1,39 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_inspector_host_groups": {
+          "block": {
+            "attributes": {
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the group list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsInspector",
+            "name": "CodeArts Inspector",
+            "catalog": "CodeArts",
+            "name_cn": "漏洞管理服务",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

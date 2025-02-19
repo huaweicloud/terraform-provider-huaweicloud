@@ -7,12 +7,10 @@
             "attributes": {
               "db_type": {
                 "type": "string",
-                "description": "DB engine. The valid values are **MySQL**, **PostgreSQL**, **SQLServer**.",
                 "required": true
               },
               "db_version": {
                 "type": "string",
-                "description": "DB version number.",
                 "required": true
               },
               "id": {
@@ -21,7 +19,6 @@
               },
               "instance_mode": {
                 "type": "string",
-                "description": "HA mode. The valid values are **single**, **ha**, **replica**.",
                 "optional": true
               },
               "region": {
@@ -46,7 +43,6 @@
                     }
                   ]
                 ],
-                "description": "Storage_type list. For details, see Data structure of the storageType field.",
                 "computed": true
               }
             }

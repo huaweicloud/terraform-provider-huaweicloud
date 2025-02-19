@@ -95,7 +95,6 @@
               },
               "hostname": {
                 "type": "string",
-                "optional": true,
                 "computed": true
               },
               "id": {

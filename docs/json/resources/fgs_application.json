@@ -29,7 +29,7 @@
               },
               "params": {
                 "type": "string",
-                "description": "The template parameters.",
+                "description": "The template parameters, in JSON format.",
                 "optional": true,
                 "forcenew": true
               },

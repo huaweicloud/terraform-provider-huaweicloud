@@ -12,8 +12,7 @@
               "description": {
                 "type": "string",
                 "description": "Specifies the parameter template description.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "id": {
                 "type": "string",

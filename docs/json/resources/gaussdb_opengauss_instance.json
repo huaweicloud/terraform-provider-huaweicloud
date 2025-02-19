@@ -81,6 +81,11 @@
                 "type": "string",
                 "computed": true
               },
+              "mysql_compatibility_port": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "name": {
                 "type": "string",
                 "required": true
@@ -196,6 +201,21 @@
               }
             },
             "block_types": {
+              "advance_features": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
               "backup_strategy": {
                 "block": {
                   "attributes": {

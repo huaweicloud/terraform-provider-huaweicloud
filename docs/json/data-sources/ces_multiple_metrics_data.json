@@ -1,0 +1,131 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_multiple_metrics_data": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "datapoints": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "average": "number",
+                            "max": "number",
+                            "min": "number",
+                            "sum": "number",
+                            "timestamp": "number",
+                            "variance": "number"
+                          }
+                        ]
+                      ],
+                      "dimensions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "metric_name": "string",
+                      "namespace": "string",
+                      "unit": "string"
+                    }
+                  ]
+                ],
+                "description": "The metric data.",
+                "computed": true
+              },
+              "filter": {
+                "type": "string",
+                "description": "Specifies the data rollup method. The field does not affect the query result of raw data. (The period is **1**.)",
+                "required": true
+              },
+              "from": {
+                "type": "string",
+                "description": "Specifies the start time of the query.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "period": {
+                "type": "string",
+                "description": "Specifies how often Cloud Eye aggregates data.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "to": {
+                "type": "string",
+                "description": "Specifies the end time of the query.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "metrics": {
+                "block": {
+                  "attributes": {
+                    "metric_name": {
+                      "type": "string",
+                      "description": "Specifies the metric ID.",
+                      "required": true
+                    },
+                    "namespace": {
+                      "type": "string",
+                      "description": "Specifies the namespace of a service.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "dimensions": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the dimension.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "Specifies the dimension value.",
+                            "required": true
+                          }
+                        },
+                        "description": "Specifies metric dimensions."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the metric data."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

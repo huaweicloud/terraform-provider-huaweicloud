@@ -5,6 +5,11 @@
         "huaweicloud_cae_component": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "description": "The operation type of the component.",
+                "optional": true
+              },
               "application_id": {
                 "type": "string",
                 "required": true,
@@ -13,12 +18,6 @@
               "created_at": {
                 "type": "string",
                 "computed": true
-              },
-              "deploy_after_create": {
-                "type": "bool",
-                "description": "Whether to deploy the component after creating the resource.",
-                "optional": true,
-                "forcenew": true
               },
               "environment_id": {
                 "type": "string",
@@ -45,20 +44,17 @@
                     "data": {
                       "type": "string",
                       "description": "The component configuration detail, in JSON format.",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "type": {
                       "type": "string",
                       "description": "The type of the component configuration.",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   },
                   "description": "The list of configurations of the component."
                 },
-                "nesting_mode": "set",
-                "forcenew": true
+                "nesting_mode": "set"
               },
               "metadata": {
                 "block": {

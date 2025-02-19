@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ces_metric_data_add": {
+          "block": {
+            "attributes": {
+              "collect_time": {
+                "type": "string",
+                "description": "Specifies the collect time.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "ttl": {
+                "type": "number",
+                "description": "Specifies the monitoring metric data retention period.",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the monitoring metric data.",
+                "optional": true
+              },
+              "unit": {
+                "type": "string",
+                "description": "Specifies the unit of the monitoring metric data.",
+                "optional": true
+              },
+              "value": {
+                "type": "number",
+                "description": "Specifies the value of the monitoring metric data.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "metric": {
+                "block": {
+                  "attributes": {
+                    "metric_name": {
+                      "type": "string",
+                      "description": "Specifies the metric ID.",
+                      "required": true
+                    },
+                    "namespace": {
+                      "type": "string",
+                      "description": "Specifies the customized namespace.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "dimensions": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the dimension.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "Specifies the dimension value.",
+                            "required": true
+                          }
+                        },
+                        "description": "Specifies the metric dimension."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the CES monitoring metric data."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

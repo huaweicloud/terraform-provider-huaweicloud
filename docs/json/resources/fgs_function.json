@@ -7,19 +7,23 @@
             "attributes": {
               "agency": {
                 "type": "string",
+                "description": "The agency configuration of the function.",
                 "optional": true
               },
               "app": {
                 "type": "string",
+                "description": "The group to which the function belongs.",
                 "required": true
               },
               "app_agency": {
                 "type": "string",
+                "description": "The execution agency enables you to obtain a token or an AK/SK for accessing other cloud services.",
                 "optional": true,
                 "computed": true
               },
               "code_filename": {
                 "type": "string",
+                "description": "The name of the function file.",
                 "optional": true,
                 "computed": true
               },
@@ -30,10 +34,12 @@
               },
               "code_url": {
                 "type": "string",
+                "description": "The URL where the function code is stored in OBS.",
                 "optional": true
               },
               "concurrency_num": {
                 "type": "number",
+                "description": "The number of concurrent requests of the function.",
                 "optional": true,
                 "computed": true
               },
@@ -42,45 +48,54 @@
                   "set",
                   "string"
                 ],
+                "description": "The ID list of the dependencies.",
                 "optional": true,
                 "computed": true
               },
               "description": {
                 "type": "string",
+                "description": "The description of the function.",
                 "optional": true
               },
               "dns_list": {
                 "type": "string",
+                "description": "The private DNS configuration of the function network.",
                 "optional": true,
                 "computed": true
               },
               "encrypted_user_data": {
                 "type": "string",
+                "description": "The key/value information defined to be encrypted for the function.",
                 "optional": true,
                 "sensitive": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The ID of the enterprise project to which the function belongs.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
               },
               "func_code": {
                 "type": "string",
+                "description": "The function code.",
                 "optional": true
               },
               "functiongraph_version": {
                 "type": "string",
+                "description": "The description of the function.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
               },
               "gpu_memory": {
                 "type": "number",
+                "description": "The GPU memory size allocated to the function, in MByte (MB).",
                 "optional": true
               },
               "gpu_type": {
                 "type": "string",
+                "description": "The GPU type of the function.",
                 "optional": true
               },
               "handler": {
@@ -94,68 +109,82 @@
               },
               "initializer_handler": {
                 "type": "string",
+                "description": "The initializer of the function.",
                 "optional": true,
                 "computed": true
               },
               "initializer_timeout": {
                 "type": "number",
+                "description": "The maximum duration the function can be initialized.",
                 "optional": true,
                 "computed": true
               },
               "log_group_id": {
                 "type": "string",
+                "description": "The LTS group ID for collecting logs.",
                 "optional": true,
                 "computed": true
               },
               "log_group_name": {
                 "type": "string",
+                "description": "The LTS group name for collecting logs.",
                 "optional": true,
                 "computed": true
               },
               "log_stream_id": {
                 "type": "string",
+                "description": "The LTS stream ID for collecting logs.",
                 "optional": true,
                 "computed": true
               },
               "log_stream_name": {
                 "type": "string",
+                "description": "The LTS stream name for collecting logs.",
                 "optional": true,
                 "computed": true
               },
               "max_instance_num": {
                 "type": "string",
+                "description": "The maximum number of instances of the function.",
                 "optional": true,
                 "computed": true
               },
               "memory_size": {
                 "type": "number",
+                "description": "The memory size allocated to the function, in MByte (MB).",
                 "required": true
               },
               "mount_user_group_id": {
                 "type": "number",
+                "description": "The mount user group ID.",
                 "optional": true,
                 "computed": true
               },
               "mount_user_id": {
                 "type": "number",
+                "description": "The mount user ID.",
                 "optional": true,
                 "computed": true
               },
               "name": {
                 "type": "string",
+                "description": "The name of the function.",
                 "required": true,
                 "forcenew": true
               },
               "network_id": {
                 "type": "string",
+                "description": "The network ID of subnet.",
                 "optional": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the function is located.",
                 "computed": true
               },
               "runtime": {
                 "type": "string",
+                "description": "The environment for executing the function.",
                 "required": true,
                 "forcenew": true
               },
@@ -164,26 +193,32 @@
                   "map",
                   "string"
                 ],
+                "description": "The key/value pairs to associate with the function.",
                 "optional": true
               },
               "timeout": {
                 "type": "number",
+                "description": "The timeout interval of the function, in seconds.",
                 "required": true
               },
               "urn": {
                 "type": "string",
+                "description": "The URN (Uniform Resource Name) of the function.",
                 "computed": true
               },
               "user_data": {
                 "type": "string",
+                "description": "The key/value information defined for the function.",
                 "optional": true
               },
               "version": {
                 "type": "string",
+                "description": "The version of the function.",
                 "computed": true
               },
               "vpc_id": {
                 "type": "string",
+                "description": "The ID of the VPC to which the function belongs.",
                 "optional": true
               }
             },
@@ -193,26 +228,27 @@
                   "attributes": {
                     "args": {
                       "type": "string",
-                      "description": "Specifies the command line arguments used to start the SWR image.",
+                      "description": "The command line arguments used to start the SWR image.",
                       "optional": true
                     },
                     "command": {
                       "type": "string",
-                      "description": "Specifies the startup commands of the SWR image.",
+                      "description": "The startup commands of the SWR image.",
                       "optional": true
                     },
                     "url": {
                       "type": "string",
-                      "description": "Specifies the URL of SWR image.",
+                      "description": "The URL of SWR image.",
                       "required": true
                     },
                     "working_dir": {
                       "type": "string",
-                      "description": "Specifies the working directory of the SWR image.",
+                      "description": "The working directory of the SWR image.",
                       "optional": true,
                       "computed": true
                     }
-                  }
+                  },
+                  "description": "The custom image configuration of the function."
                 },
                 "nesting_mode": "list",
                 "max_items": 1
@@ -222,25 +258,31 @@
                   "attributes": {
                     "local_mount_path": {
                       "type": "string",
+                      "description": "The function access path.",
                       "required": true
                     },
                     "mount_resource": {
                       "type": "string",
+                      "description": "The ID of the mounted resource (corresponding cloud service).",
                       "required": true
                     },
                     "mount_share_path": {
                       "type": "string",
+                      "description": "The remote mount path.",
                       "required": true
                     },
                     "mount_type": {
                       "type": "string",
+                      "description": "The mount type.",
                       "required": true
                     },
                     "status": {
                       "type": "string",
+                      "description": "The mount status.",
                       "computed": true
                     }
-                  }
+                  },
+                  "description": "The list of function mount configuration."
                 },
                 "nesting_mode": "list"
               },
@@ -249,18 +291,22 @@
                   "attributes": {
                     "count": {
                       "type": "number",
+                      "description": "The number of reserved instance.",
                       "required": true
                     },
                     "idle_mode": {
                       "type": "bool",
+                      "description": "Whether to enable the idle mode.",
                       "optional": true
                     },
                     "qualifier_name": {
                       "type": "string",
+                      "description": "The version name or alias name.",
                       "required": true
                     },
                     "qualifier_type": {
                       "type": "string",
+                      "description": "The qualifier type of reserved instance.",
                       "required": true
                     }
                   },
@@ -273,25 +319,31 @@
                               "attributes": {
                                 "count": {
                                   "type": "number",
+                                  "description": "The number of reserved instance to which the policy belongs.",
                                   "required": true
                                 },
                                 "cron": {
                                   "type": "string",
+                                  "description": "The cron expression.",
                                   "required": true
                                 },
                                 "expired_time": {
                                   "type": "number",
+                                  "description": "The expiration timestamp of the policy.",
                                   "required": true
                                 },
                                 "name": {
                                   "type": "string",
+                                  "description": "The name of scheduled policy configuration.",
                                   "required": true
                                 },
                                 "start_time": {
                                   "type": "number",
+                                  "description": "The effective timestamp of policy.",
                                   "required": true
                                 }
-                              }
+                              },
+                              "description": "The list of scheduled policy configurations."
                             },
                             "nesting_mode": "list"
                           },
@@ -300,30 +352,37 @@
                               "attributes": {
                                 "min": {
                                   "type": "number",
+                                  "description": "The minimun of traffic.",
                                   "required": true
                                 },
                                 "name": {
                                   "type": "string",
+                                  "description": "The name of metric policy.",
                                   "required": true
                                 },
                                 "threshold": {
                                   "type": "number",
+                                  "description": "The metric policy threshold.",
                                   "required": true
                                 },
                                 "type": {
                                   "type": "string",
+                                  "description": "The type of metric policy.",
                                   "required": true
                                 }
-                              }
+                              },
+                              "description": "The list of metric policy configurations."
                             },
                             "nesting_mode": "list"
                           }
-                        }
+                        },
+                        "description": "The auto scaling policies for reserved instance."
                       },
                       "nesting_mode": "list",
                       "max_items": 1
                     }
-                  }
+                  },
+                  "description": "The reserved instance policies of the function."
                 },
                 "nesting_mode": "set"
               },

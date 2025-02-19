@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_predefined_tags": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "key": "string",
+                      "values": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of tags.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

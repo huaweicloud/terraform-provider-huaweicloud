@@ -9,6 +9,11 @@
                 "type": "string",
                 "computed": true
               },
+              "ip": {
+                "type": "string",
+                "description": "Specifies the IP address used to query custom line which is in the IP address range.",
+                "optional": true
+              },
               "line_id": {
                 "type": "string",
                 "description": "Specified the ID of the custom line. Fuzzy search is supported.",

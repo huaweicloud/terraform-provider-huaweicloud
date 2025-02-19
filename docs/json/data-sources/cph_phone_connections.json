@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cph_phone_connections": {
+          "block": {
+            "attributes": {
+              "client_type": {
+                "type": "string",
+                "description": "Specifies the client type applying for access.",
+                "required": true
+              },
+              "connect_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "access_ip": "string",
+                            "access_ipv6": "string",
+                            "access_port": "number",
+                            "access_time": "string",
+                            "intranet_ip": "string",
+                            "session_id": "string",
+                            "ticket": "string"
+                          }
+                        ]
+                      ],
+                      "phone_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The phone connection list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "phone_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the phone ids.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

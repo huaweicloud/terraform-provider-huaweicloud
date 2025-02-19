@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_slow_logs": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bucket_name": "string",
+                      "created_at": "string",
+                      "file_link": "string",
+                      "file_name": "string",
+                      "file_size": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "message": "string",
+                      "node_id": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "version": "string",
+                      "workflow_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the slow logs.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

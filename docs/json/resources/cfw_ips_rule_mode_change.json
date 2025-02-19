@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_ips_rule_mode_change": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ips_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IPS ID list.",
+                "optional": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the IPS rule status.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

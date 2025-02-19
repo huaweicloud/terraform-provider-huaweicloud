@@ -1,0 +1,298 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdn_domain_rule": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the domain name.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "rules": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the rule name. The valid length is limit from `1` to `50`.",
+                      "required": true
+                    },
+                    "priority": {
+                      "type": "number",
+                      "description": "Specifies the rule priority. The valid value is limit from 1 to 100.",
+                      "required": true
+                    },
+                    "rule_id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Specifies the rule status. Valid values are **on** and **off**.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "actions": {
+                      "block": {
+                        "block_types": {
+                          "access_control": {
+                            "block": {
+                              "attributes": {
+                                "type": {
+                                  "type": "string",
+                                  "description": "Specifies the access control type. Valid values are **block** and **trust**.",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "cache_rule": {
+                            "block": {
+                              "attributes": {
+                                "follow_origin": {
+                                  "type": "string",
+                                  "description": "Specifies the cache expiration time source. Valid values: **off**, **on**, and **min_ttl**",
+                                  "required": true
+                                },
+                                "force_cache": {
+                                  "type": "string",
+                                  "description": "Specifies whether to enable forced caching. Valid values are **on** and **off**.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "ttl": {
+                                  "type": "number",
+                                  "description": "Specifies the cache expiration time.",
+                                  "required": true
+                                },
+                                "ttl_unit": {
+                                  "type": "string",
+                                  "description": "Specifies the cache expiration time unit. Valid values: **s**, **m**, **h**, and **d**",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "flexible_origin": {
+                            "block": {
+                              "attributes": {
+                                "host_name": {
+                                  "type": "string",
+                                  "description": "Specifies the host name.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "http_port": {
+                                  "type": "number",
+                                  "description": "Specifies the HTTP port. Ranges from `1` to `65,535`. Defaults to `80`.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "https_port": {
+                                  "type": "number",
+                                  "description": "Specifies the HTTPS port. Ranges from `1` to `65,535`. Defaults to `443`.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "ip_or_domain": {
+                                  "type": "string",
+                                  "description": "Specifies the origin IP or domain name.",
+                                  "required": true
+                                },
+                                "obs_bucket_type": {
+                                  "type": "string",
+                                  "description": "Specifies the OBS bucket type. Valid values are **private** and **public**.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "origin_protocol": {
+                                  "type": "string",
+                                  "description": "Specifies the origin protocol.",
+                                  "required": true
+                                },
+                                "priority": {
+                                  "type": "number",
+                                  "description": "Specifies the origin priority. Valid value ranges from `1` to `100`.",
+                                  "required": true
+                                },
+                                "sources_type": {
+                                  "type": "string",
+                                  "description": "Specifies the source type. Valid values are: **ipaddr**, **domain**, and **obs_bucket**.",
+                                  "required": true
+                                },
+                                "weight": {
+                                  "type": "number",
+                                  "description": "Specifies the weight. Valid value ranges from `1` to `100`.",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set"
+                          },
+                          "http_response_header": {
+                            "block": {
+                              "attributes": {
+                                "action": {
+                                  "type": "string",
+                                  "description": "Specifies the operation type of setting HTTP response header.\nValid values are **set** and **delete**.",
+                                  "required": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Set HTTP response header parameters.",
+                                  "required": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "description": "Set the value of HTTP response header parameters.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set"
+                          },
+                          "origin_request_header": {
+                            "block": {
+                              "attributes": {
+                                "action": {
+                                  "type": "string",
+                                  "description": "Specifies the back-to-origin request header setting type.\nValid values are **delete** and **set**",
+                                  "required": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Set back-to-origin request header parameters.",
+                                  "required": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "description": "Set the value of the return-to-origin request header parameter.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set"
+                          },
+                          "origin_request_url_rewrite": {
+                            "block": {
+                              "attributes": {
+                                "rewrite_type": {
+                                  "type": "string",
+                                  "description": "Specifies the rewrite type. Valid values are **simple** and **wildcard**.",
+                                  "required": true
+                                },
+                                "source_url": {
+                                  "type": "string",
+                                  "description": "Specifies the URL to be rewritten back to the source.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "target_url": {
+                                  "type": "string",
+                                  "description": "Specifies the target URL.",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "request_url_rewrite": {
+                            "block": {
+                              "attributes": {
+                                "execution_mode": {
+                                  "type": "string",
+                                  "description": "Specifies the execution mode. Valid values are **redirect** and **break**.",
+                                  "required": true
+                                },
+                                "redirect_host": {
+                                  "type": "string",
+                                  "description": "Specifies the redirect host.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "redirect_status_code": {
+                                  "type": "number",
+                                  "description": "Specifies the redirect status code. Valid values are `301`, `302`, `303`, and `307`.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "redirect_url": {
+                                  "type": "string",
+                                  "description": "Specifies the redirect URL.",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "Specifies a list of actions to be performed when the rules are met"
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1
+                    },
+                    "conditions": {
+                      "block": {
+                        "block_types": {
+                          "match": {
+                            "block": {
+                              "attributes": {
+                                "criteria": {
+                                  "type": "string",
+                                  "description": "Specifies the match criteria list in JSON format.",
+                                  "required": true
+                                },
+                                "logic": {
+                                  "type": "string",
+                                  "description": "Specifies the logical operator. Valid values are **and** and **or**.",
+                                  "required": true
+                                }
+                              },
+                              "description": "Specifies the match configuration."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "Specifies a list of rules."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

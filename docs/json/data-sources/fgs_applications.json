@@ -7,6 +7,7 @@
             "attributes": {
               "application_id": {
                 "type": "string",
+                "description": "The application ID used to query specified application.",
                 "optional": true
               },
               "applications": {
@@ -23,10 +24,12 @@
                     }
                   ]
                 ],
+                "description": "All applications that match the filter parameters.",
                 "computed": true
               },
               "description": {
                 "type": "string",
+                "description": "The description of the application to be queried.",
                 "optional": true
               },
               "id": {
@@ -35,14 +38,17 @@
               },
               "name": {
                 "type": "string",
+                "description": "The application name used to query specified application.",
                 "optional": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the applications are located.",
                 "computed": true
               },
               "status": {
                 "type": "string",
+                "description": "The status of the application to be queried.",
                 "optional": true
               }
             }

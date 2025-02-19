@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_instance_snapshot": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the backup ID.",
+                "optional": true
+              },
+              "cluster_mode": {
+                "type": "string",
+                "description": "Indicates the instance deployment model.",
+                "computed": true
+              },
+              "coordinator_num": {
+                "type": "number",
+                "description": "Indicates the number of CNs.",
+                "computed": true
+              },
+              "data_volume_size": {
+                "type": "string",
+                "description": "Indicates the storage space, in GB",
+                "computed": true
+              },
+              "engine_version": {
+                "type": "string",
+                "description": "Indicates the engine version.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the original instance ID.",
+                "optional": true
+              },
+              "instance_mode": {
+                "type": "string",
+                "description": "Indicates the instance model.",
+                "computed": true
+              },
+              "node_num": {
+                "type": "number",
+                "description": "Indicates the number of nodes.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "replica_num": {
+                "type": "number",
+                "description": "Indicates the number of replicas.",
+                "computed": true
+              },
+              "restore_time": {
+                "type": "string",
+                "description": "Specifies the instance information at a time point.",
+                "optional": true
+              },
+              "sharding_num": {
+                "type": "number",
+                "description": "Indicates the number of shards.",
+                "computed": true
+              },
+              "solution": {
+                "type": "string",
+                "description": "Indicates the solution template type.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

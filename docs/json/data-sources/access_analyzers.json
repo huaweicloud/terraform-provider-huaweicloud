@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_access_analyzers": {
+          "block": {
+            "attributes": {
+              "analyzers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "configuration": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "unused_access": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "unused_access_age": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "id": "string",
+                      "last_analyzed_resource": "string",
+                      "last_resource_analyzed_at": "string",
+                      "name": "string",
+                      "organization_id": "string",
+                      "status": "string",
+                      "status_reason": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "code": "string",
+                            "details": "string"
+                          }
+                        ]
+                      ],
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "urn": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the analyzers.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the analyzer.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

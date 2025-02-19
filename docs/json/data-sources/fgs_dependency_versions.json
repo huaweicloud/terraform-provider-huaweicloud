@@ -7,7 +7,7 @@
             "attributes": {
               "dependency_id": {
                 "type": "string",
-                "description": "Specifies the ID of the dependency package to which the versions belong.",
+                "description": "The ID of the dependency package to which the versions belong.",
                 "required": true
               },
               "id": {
@@ -16,21 +16,22 @@
               },
               "region": {
                 "type": "string",
+                "description": "The region where the dependency package and the versions are located.",
                 "computed": true
               },
               "runtime": {
                 "type": "string",
-                "description": "Specifies the runtime of the dependency package version.",
+                "description": "The runtime of the dependency package version.",
                 "optional": true
               },
               "version": {
                 "type": "number",
-                "description": "Specifies the version of the dependency package.",
+                "description": "The version of the dependency package.",
                 "optional": true
               },
               "version_id": {
                 "type": "string",
-                "description": "Specifies the ID of the dependency package version.",
+                "description": "The ID of the dependency package version.",
                 "optional": true
               },
               "versions": {
@@ -52,6 +53,7 @@
                     }
                   ]
                 ],
+                "description": "All dependency package versions that match the filter parameters.",
                 "computed": true
               }
             }

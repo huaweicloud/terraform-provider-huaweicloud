@@ -21,6 +21,10 @@
                 "type": "string",
                 "required": true
               },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
               "updated_at": {
                 "type": "string",
                 "computed": true

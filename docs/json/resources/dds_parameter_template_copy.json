@@ -11,11 +11,15 @@
                 "required": true,
                 "forcenew": true
               },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the create time.",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "Specifies the description of replicated parameter template.",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -24,11 +28,47 @@
               "name": {
                 "type": "string",
                 "description": "Specifies the name of replicated parameter template.",
-                "required": true,
-                "forcenew": true
+                "required": true
+              },
+              "node_version": {
+                "type": "string",
+                "description": "Indicates the database version.",
+                "computed": true
+              },
+              "parameter_values": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the mapping between parameter names and parameter values.",
+                "optional": true
+              },
+              "parameters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "name": "string",
+                      "readonly": "bool",
+                      "restart_required": "bool",
+                      "type": "string",
+                      "value": "string",
+                      "value_range": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the parameters defined by users based on the default parameter templates.",
+                "computed": true
               },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the update time.",
                 "computed": true
               }
             }

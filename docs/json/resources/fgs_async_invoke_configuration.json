@@ -61,7 +61,7 @@
                       "required": true
                     }
                   },
-                  "description": "The target to be invoked when a function fails to be executed due to a system error or an internal error."
+                  "description": "The target to be invoked when a function fails to be executed due to a system error or an\ninternal error."
                 },
                 "nesting_mode": "list",
                 "max_items": 1

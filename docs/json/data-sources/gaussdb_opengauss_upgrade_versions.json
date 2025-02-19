@@ -1,0 +1,151 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_upgrade_versions": {
+          "block": {
+            "attributes": {
+              "hotfix_rollback_candidate_versions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the hot patch versions that can be rolled back.",
+                "computed": true
+              },
+              "hotfix_rollback_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_sensitive": "bool",
+                      "common_patch": "string",
+                      "descripition": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the information about hot patch versions that can be rolled back.",
+                "computed": true
+              },
+              "hotfix_upgrade_candidate_versions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the hot patch versions that can be updated.",
+                "computed": true
+              },
+              "hotfix_upgrade_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_sensitive": "bool",
+                      "common_patch": "string",
+                      "descripition": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the information about hot patch versions that can be installed.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB OpenGauss instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "roll_upgrade_progress": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "already_upgraded_az": "string",
+                      "az_description_map": [
+                        "map",
+                        "string"
+                      ],
+                      "not_fully_upgraded_az": "string",
+                      "total_dn_group_numbers": "string",
+                      "upgraded_dn_group_numbers": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the DN or AZ information during the rolling upgrade.",
+                "computed": true
+              },
+              "rollback_enabled": {
+                "type": "bool",
+                "description": "Indicates whether rollback is supported.",
+                "computed": true
+              },
+              "source_version": {
+                "type": "string",
+                "description": "Indicates the source instance version.",
+                "computed": true
+              },
+              "target_version": {
+                "type": "string",
+                "description": "Indicates the target version.",
+                "computed": true
+              },
+              "upgrade_candidate_versions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the versions that can be upgraded to, including minor and major versions.",
+                "computed": true
+              },
+              "upgrade_type_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enable": "bool",
+                      "is_parallel_upgrade": "bool",
+                      "upgrade_action_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enable": "bool",
+                            "upgrade_action": "string"
+                          }
+                        ]
+                      ],
+                      "upgrade_type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of upgrade types.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

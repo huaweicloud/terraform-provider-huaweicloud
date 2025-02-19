@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cfw_alarm_config": {
+          "block": {
+            "attributes": {
+              "alarm_time_period": {
+                "type": "number",
+                "description": "Specifies the alarm period.",
+                "required": true
+              },
+              "alarm_type": {
+                "type": "number",
+                "description": "Specifies the alarm type.",
+                "required": true
+              },
+              "frequency_count": {
+                "type": "number",
+                "description": "Specifies the alarm triggering frequency.",
+                "required": true
+              },
+              "frequency_time": {
+                "type": "number",
+                "description": "Specifies the alarm frequency time range.",
+                "required": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "language": {
+                "type": "string",
+                "description": "The alarm language.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "description": "Specifies the alarm severity.",
+                "required": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "description": "Specifies the alarm URN.",
+                "required": true
+              },
+              "username": {
+                "type": "string",
+                "description": "The username.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

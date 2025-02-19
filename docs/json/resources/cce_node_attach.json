@@ -29,8 +29,10 @@
                         "map",
                         "string"
                       ],
+                      "iops": "number",
                       "kms_key_id": "string",
                       "size": "number",
+                      "throughput": "number",
                       "volumetype": "string"
                     }
                   ]
@@ -134,8 +136,10 @@
                         "map",
                         "string"
                       ],
+                      "iops": "number",
                       "kms_key_id": "string",
                       "size": "number",
+                      "throughput": "number",
                       "volumetype": "string"
                     }
                   ]
