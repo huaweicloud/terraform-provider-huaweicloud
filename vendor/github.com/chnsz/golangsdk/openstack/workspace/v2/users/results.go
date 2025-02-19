@@ -22,8 +22,14 @@ type UserDetail struct {
 	ID string `json:"id"`
 	// User name.
 	Name string `json:"user_name"`
+	// The activation mode of the user.
+	// + USER_ACTIVATE: Activated by the user.
+	// + ADMIN_ACTIVATE: Activated by the administator.
+	ActiveType string `json:"active_type"`
 	// User email.
 	Email string `json:"user_email"`
+	// Mobile number of the user.
+	Phone string `json:"user_phone"`
 	// User description.
 	Description string `json:"description"`
 	// User SID.
