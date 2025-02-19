@@ -2,13 +2,15 @@ package iotda
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -73,77 +75,85 @@ func DataSourceDeviceProxies() *schema.Resource {
 	}
 }
 
+func buildDeviceProxiesQueryParams(d *schema.ResourceData) string {
+	queryParams := "?limit=50"
+	if v, ok := d.GetOk("space_id"); ok {
+		queryParams = fmt.Sprintf("%s&app_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("name"); ok {
+		queryParams = fmt.Sprintf("%s&proxy_name=%v", queryParams, v)
+	}
+
+	return queryParams
+}
+
 func dataSourceDeviceProxiesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg       = meta.(*config.Config)
 		region    = cfg.GetRegion(d)
 		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
+		httpUrl   = "v5/iot/{project_id}/device-proxies"
+		offset    = 0
+		result    = make([]interface{}, 0)
 	)
 
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	var (
-		allProxies []model.QueryDeviceProxySimplify
-		limit      = int32(50)
-		offset     int32
-	)
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildDeviceProxiesQueryParams(d)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
 
 	for {
-		listOpts := model.ListDeviceProxiesRequest{
-			AppId:     utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			ProxyName: utils.StringIgnoreEmpty(d.Get("name").(string)),
-			Limit:     utils.Int32(limit),
-			Offset:    &offset,
+		currentPath := fmt.Sprintf("%s&offset=%v", getPath, offset)
+		getResp, err := client.Request("GET", currentPath, &getOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving IoTDA device proxies: %s", err)
 		}
 
-		listResp, listErr := client.ListDeviceProxies(&listOpts)
-		if listErr != nil {
-			return diag.Errorf("error querying IoTDA device proxies: %s", listErr)
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if listResp == nil || listResp.DeviceProxies == nil {
+		proxiesResp := utils.PathSearch("device_proxies", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(proxiesResp) == 0 {
 			break
 		}
 
-		if len(*listResp.DeviceProxies) == 0 {
-			break
-		}
-
-		allProxies = append(allProxies, *listResp.DeviceProxies...)
-		//nolint:gosec
-		offset += int32(len(*listResp.DeviceProxies))
+		result = append(result, proxiesResp...)
+		offset += len(proxiesResp)
 	}
 
-	uuID, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuID)
+	d.SetId(generateUUID)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("proxies", flattenDeviceProxies(allProxies)),
+		d.Set("proxies", flattenDeviceProxies(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenDeviceProxies(proxies []model.QueryDeviceProxySimplify) []interface{} {
-	if len(proxies) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(proxies))
-	for _, v := range proxies {
+func flattenDeviceProxies(proxiesResp []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(proxiesResp))
+	for _, v := range proxiesResp {
 		rst = append(rst, map[string]interface{}{
-			"id":                   v.ProxyId,
-			"name":                 v.ProxyName,
-			"space_id":             v.AppId,
-			"effective_time_range": flattenEffectiveTimeRange(v.EffectiveTimeRange),
+			"id":                   utils.PathSearch("proxy_id", v, nil),
+			"name":                 utils.PathSearch("proxy_name", v, nil),
+			"space_id":             utils.PathSearch("app_id", v, nil),
+			"effective_time_range": flattenEffectiveTimeRange(utils.PathSearch("effective_time_range", v, nil)),
 		})
 	}
 
