@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 1.72.2 (February 19, 2025)
+
+* **New Resource:**
+  + `huaweicloud_cdn_domain_rule` [GH-6303]
+  + `huaweicloud_ces_metric_data_add` [GH-6290]
+
+* **New Data Source:**
+  + `huaweicloud_ces_metric_data` [GH-6308]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_opengauss_instance: add advance_features support [GH-6300]
+
 ## 1.72.1 (January 15, 2025)
 
 * **New Resource:**
