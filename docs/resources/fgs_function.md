@@ -2,7 +2,8 @@
 subcategory: "FunctionGraph"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_fgs_function"
-description: ""
+description: |-
+  Manages a Function resource within HuaweiCloud.
 ---
 
 # huaweicloud_fgs_function
@@ -189,6 +190,8 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the function.  
+  The valid length is limited from `2` to `60` characters, only letters, digits, underscores (_) and hyphens (-) are
+  allowed. The name must start with a letter, and end with a letter or a digit.
   Changing this will create a new resource.
 
 * `memory_size` - (Required, Int) Specifies the memory size allocated to the function, in MByte (MB).
@@ -202,23 +205,24 @@ The following arguments are supported:
   + **Node.js10.16**
   + **Node.js12.13**
   + **Node.js14.18**
+  + **Node.js16.17**
+  + **Node.js18.15**
   + **Python2.7**
   + **Python3.6**
   + **Python3.9**
-  + **Go1.8**
   + **Go1.x**
-  + **C#(.NET Core 2.0)**
   + **C#(.NET Core 2.1)**
   + **C#(.NET Core 3.1)**
-  + **PHP7.3**
   + **Custom**
+  + **PHP7.3**
   + **http**
+  + **Custom Image**
+  + **Cangjie1.0**
 
-  If the function is created using an SWR image, set this parameter to `Custom Image`.  
   Changing this will create a new resource.
 
 * `timeout` - (Required, Int) Specifies the timeout interval of the function, in seconds.  
-  The value ranges from `3` to `900`.
+  The value ranges from `3` to `259,200`.
 
 * `app` - (Required, String) Specifies the group to which the function belongs.
 
@@ -236,7 +240,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the function.
 
-* `functiongraph_version` - (Optional, String, ForceNew) Specifies the function framework version.  
+* `functiongraph_version` - (Optional, String, ForceNew) Specifies the version of the function framework.  
   The valid values are as follows:
   + **v1**: Hosts event-driven functions in a serverless context.
   + **v2**: Next-generation function hosting service powered by Huawei YuanRong architecture.
@@ -256,7 +260,7 @@ The following arguments are supported:
 * `code_filename` - (Optional, String) Specifies the name of the function file.  
   Required if the `code_type` is set to **jar** or **zip**.
 
-* `depend_list` - (Optional, List) Specifies the ID list of the dependencies.
+* `depend_list` - (Optional, List) Specifies the list of the dependency version IDs.
 
 * `user_data` - (Optional, String) Specifies the key/value information defined for the function.  
   The key/value data might be parsed with [Terraform `jsonencode()` function]('https://www.terraform.io/docs/language/functions/jsonencode.html').
@@ -304,7 +308,7 @@ The following arguments are supported:
   The valid value is range from `–1` to `65,534`, except `0`.  
   Defaults to `-1`.
 
-* `func_mounts` - (Optional, List) Specifies the list of function mount configuration.  
+* `func_mounts` - (Optional, List) Specifies the list of function mount configurations.  
   The [func_mounts](#function_func_mounts) structure is documented below.
 
 * `custom_image` - (Optional, List) Specifies the custom image configuration of the function.  
@@ -483,11 +487,17 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID, comsist of `urn` and current `version`, the format is `<urn>:<version>`.
 
-* `func_mounts/status` - The mount status.
+* `func_mounts` - The list of function mount configurations.  
+  The [func_mounts](#function_func_mounts_attr) structure is documented below.
 
 * `urn` - The URN (Uniform Resource Name) of the function.
 
 * `version` - The version of the function.
+
+<a name="function_func_mounts_attr"></a>
+The `func_mounts` block supports:
+
+* `status` - The mount status.
 
 ## Timeouts
 
