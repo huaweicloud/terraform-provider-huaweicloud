@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceDNSRecordsets_basic(t *testing.T) {
+func TestAccDatasourceRecordsets_basic(t *testing.T) {
 	rName := "data.huaweicloud_dns_recordsets.test"
 	dc := acceptance.InitDataSourceCheck(rName)
 	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
@@ -20,7 +20,7 @@ func TestAccDatasourceDNSRecordsets_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceDNSRecordsets_basic(name),
+				Config: testAccDatasourceRecordsets_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "recordsets.0.id"),
@@ -48,7 +48,7 @@ func TestAccDatasourceDNSRecordsets_basic(t *testing.T) {
 	})
 }
 
-func TestAccDatasourceDNSRecordsets_private(t *testing.T) {
+func TestAccDatasourceRecordsets_private(t *testing.T) {
 	rName := "data.huaweicloud_dns_recordsets.test"
 	dc := acceptance.InitDataSourceCheck(rName)
 	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
@@ -58,7 +58,7 @@ func TestAccDatasourceDNSRecordsets_private(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceDNSRecordsets_private(name),
+				Config: testAccDatasourceRecordsets_private(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "recordsets.0.id"),
@@ -83,7 +83,7 @@ func TestAccDatasourceDNSRecordsets_private(t *testing.T) {
 	})
 }
 
-func testAccDatasourceDNSRecordsets_basic(name string) string {
+func testAccDatasourceRecordsets_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -149,7 +149,7 @@ data "huaweicloud_dns_recordsets" "tags_filter" {
 `, testDNSRecordset_basic(name))
 }
 
-func testAccDatasourceDNSRecordsets_private(name string) string {
+func testAccDatasourceRecordsets_private(name string) string {
 	return fmt.Sprintf(`
 %s
 
