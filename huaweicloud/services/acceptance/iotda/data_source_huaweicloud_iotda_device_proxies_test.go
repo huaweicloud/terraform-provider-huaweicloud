@@ -44,6 +44,53 @@ func TestAccDataSourceDeviceProxies_basic(t *testing.T) {
 	})
 }
 
+func testDataSourceDeviceProxies_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_iotda_spaces" "test" {
+  is_default = true
+}
+
+resource "huaweicloud_iotda_product" "test" {
+  name        = "%[2]s"
+  device_type = "test"
+  protocol    = "MQTT"
+  space_id    = data.huaweicloud_iotda_spaces.test.spaces[0].id
+  data_type   = "json"
+
+  services {
+    id   = "service_1"
+    type = "serv_type"
+  }
+}
+
+resource "huaweicloud_iotda_device" "test" {
+  count = 3
+
+  node_id    = format("%[2]s_%%d", count.index)
+  name       = format("%[2]s_%%d", count.index)
+  space_id   = data.huaweicloud_iotda_spaces.test.spaces[0].id
+  product_id = huaweicloud_iotda_product.test.id
+}
+
+resource "huaweicloud_iotda_device_proxy" "test" {
+  depends_on = [
+    huaweicloud_iotda_device.test
+  ]
+
+  space_id = data.huaweicloud_iotda_spaces.test.spaces[0].id
+  name     = "%[2]s"
+  devices  = slice(huaweicloud_iotda_device.test[*].id, 0, 2)
+
+  effective_time_range {
+    start_time = "20881010T121212Z"
+    end_time   = "20881015T121212Z"
+  }
+}
+`, buildIoTDAEndpoint(), name)
+}
+
 func testAccDataSourceDeviceProxies_basic() string {
 	name := acceptance.RandomAccResourceName()
 
@@ -94,5 +141,5 @@ data "huaweicloud_iotda_device_proxies" "not_found" {
 output "not_found_validation_pass" {
   value = length(data.huaweicloud_iotda_device_proxies.not_found.proxies) == 0
 }
-`, testDeviceProxy_basic(name))
+`, testDataSourceDeviceProxies_base(name))
 }
