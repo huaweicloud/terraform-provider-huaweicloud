@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.72.3 (February 20, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_cluster: add enable_distribute_management support [GH-6375]
+
 ## 1.72.2 (February 19, 2025)
 
 * **New Resource:**
