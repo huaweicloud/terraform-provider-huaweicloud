@@ -823,7 +823,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_fgs_applications":          fgs.DataSourceApplications(),
 			"huaweicloud_fgs_application_templates": fgs.DataSourceApplicationTemplates(),
-			"huaweicloud_fgs_dependencies":          fgs.DataSourceFunctionGraphDependencies(),
+			"huaweicloud_fgs_dependencies":          fgs.DataSourceDependencies(),
 			"huaweicloud_fgs_dependency_versions":   fgs.DataSourceDependencieVersions(),
 			"huaweicloud_fgs_function_events":       fgs.DataSourceFunctionEvents(),
 			"huaweicloud_fgs_function_triggers":     fgs.DataSourceFunctionTriggers(),
