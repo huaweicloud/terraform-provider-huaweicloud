@@ -40,7 +40,8 @@
               "group_id": {
                 "type": "string",
                 "description": "The ID of the API group to which the API belongs.",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",

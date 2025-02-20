@@ -1,0 +1,95 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_inspector_host": {
+          "block": {
+            "attributes": {
+              "auth_status": {
+                "type": "number",
+                "description": "Indicates the auth status.",
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the host group ID.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip": {
+                "type": "string",
+                "description": "Specifies the host IP.",
+                "required": true,
+                "forcenew": true
+              },
+              "jumper_server_id": {
+                "type": "string",
+                "description": "Specifies the jumper server ID. Only available for linux host.",
+                "optional": true,
+                "forcenew": true
+              },
+              "last_scan_id": {
+                "type": "string",
+                "description": "Indicates the last scan ID.",
+                "computed": true
+              },
+              "last_scan_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "enable_weak_passwd": "bool",
+                      "end_time": "string",
+                      "progress": "number",
+                      "reason": "string",
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the last scan informations.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the host name.",
+                "required": true,
+                "forcenew": true
+              },
+              "os_type": {
+                "type": "string",
+                "description": "Specifies the host os type.",
+                "required": true,
+                "forcenew": true
+              },
+              "smb_credential_id": {
+                "type": "string",
+                "description": "Specifies the smb credential ID for windows host.",
+                "optional": true,
+                "forcenew": true
+              },
+              "ssh_credential_id": {
+                "type": "string",
+                "description": "Specifies the host ssh credential ID for linux host.",
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsInspector",
+            "name": "CodeArts Inspector",
+            "catalog": "CodeArts",
+            "name_cn": "漏洞管理服务",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

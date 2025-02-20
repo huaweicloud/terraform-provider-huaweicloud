@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_inspector_hosts": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the host group ID.",
+                "optional": true
+              },
+              "hosts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auth_status": "number",
+                      "group_id": "string",
+                      "id": "string",
+                      "ip": "string",
+                      "jumper_server_id": "string",
+                      "last_scan_id": "string",
+                      "last_scan_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "create_time": "string",
+                            "enable_weak_passwd": "bool",
+                            "end_time": "string",
+                            "progress": "number",
+                            "reason": "string",
+                            "status": "number"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "os_type": "string",
+                      "smb_credential_id": "string",
+                      "ssh_credential_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the host list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsInspector",
+            "name": "CodeArts Inspector",
+            "catalog": "CodeArts",
+            "name_cn": "漏洞管理服务",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}
