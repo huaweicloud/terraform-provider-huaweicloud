@@ -20,6 +20,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var domainRuleNonUpdatableParams = []string{"name"}
+
 // @API CDN GET /v1.0/cdn/configuration/domains/{domain_name}/rule
 // @API CDN PUT /v1.0/cdn/configuration/domains/{domain_name}/rules/full-update
 
@@ -40,6 +42,8 @@ func ResourceCdnDomainRule() *schema.Resource {
 			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(domainRuleNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -76,6 +80,12 @@ func ResourceCdnDomainRule() *schema.Resource {
 						},
 					},
 				},
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
