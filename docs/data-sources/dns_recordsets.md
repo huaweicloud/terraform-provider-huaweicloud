@@ -60,6 +60,10 @@ The following arguments are supported:
 
   If not specified, fuzzy matching will be used.
 
+* `created_at` - The creation time of the recordset, in RFC3339 format.
+
+* `updated_at` - The latest update time of the recordset, in RFC3339 format.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
