@@ -114,7 +114,8 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies an ID of the APIG dedicated instance to which the API belongs
   to. Changing this will create a new API resource.
 
-* `group_id` - (Required, String) Specifies an ID of the APIG group to which the API belongs to.
+* `group_id` - (Required, String, ForceNew) Specifies the ID of the APIG group to which the API belongs.  
+  Changing this will create a new API resource.
 
 * `type` - (Required, String) Specifies the API type.  
   The valid values are **Public** and **Private**.

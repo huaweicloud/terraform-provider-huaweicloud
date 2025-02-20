@@ -149,6 +149,7 @@ func ResourceApigAPIV2() *schema.Resource {
 			"group_id": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "The ID of the API group to which the API belongs.",
 			},
 			"type": {
