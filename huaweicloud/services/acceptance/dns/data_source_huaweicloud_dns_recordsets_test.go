@@ -2,6 +2,7 @@ package dns
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -11,9 +12,15 @@ import (
 )
 
 func TestAccDatasourceDNSRecordsets_basic(t *testing.T) {
-	rName := "data.huaweicloud_dns_recordsets.test"
-	dc := acceptance.InitDataSourceCheck(rName)
-	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
+	var (
+		name = fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
+
+		rName = "data.huaweicloud_dns_recordsets.test"
+		dc    = acceptance.InitDataSourceCheck(rName)
+
+		byId   = "data.huaweicloud_dns_recordsets.recordset_id_filter"
+		dcById = acceptance.InitDataSourceCheck(byId)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -23,24 +30,28 @@ func TestAccDatasourceDNSRecordsets_basic(t *testing.T) {
 				Config: testAccDatasourceDNSRecordsets_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.id"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.name"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.zone_id"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.zone_name"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.type"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.ttl"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.records.#"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.status"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.default"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.line_id"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.weight"),
-
+					resource.TestMatchResourceAttr(rName, "recordsets.#", regexp.MustCompile(`[1-9][0-9]*`)),
 					resource.TestCheckOutput("line_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("status_filter_is_useful", "true"),
 					resource.TestCheckOutput("type_filter_is_useful", "true"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
+					dcById.CheckResourceExists(),
 					resource.TestCheckOutput("recordset_id_filter_is_useful", "true"),
-
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.id"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.name"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.zone_id"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.zone_name"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.type"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.ttl"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.records.#"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.status"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.default"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.line_id"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.weight"),
+					resource.TestMatchResourceAttr(byId, "recordsets.0.created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(byId, "recordsets.0.updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					resource.TestCheckResourceAttr("data.huaweicloud_dns_recordsets.tags_filter", "recordsets.#", "1"),
 				),
 			},
@@ -49,9 +60,15 @@ func TestAccDatasourceDNSRecordsets_basic(t *testing.T) {
 }
 
 func TestAccDatasourceDNSRecordsets_private(t *testing.T) {
-	rName := "data.huaweicloud_dns_recordsets.test"
-	dc := acceptance.InitDataSourceCheck(rName)
-	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
+	var (
+		name = fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
+
+		rName = "data.huaweicloud_dns_recordsets.test"
+		dc    = acceptance.InitDataSourceCheck(rName)
+
+		byId   = "data.huaweicloud_dns_recordsets.recordset_id_filter"
+		dcById = acceptance.InitDataSourceCheck(byId)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -61,21 +78,25 @@ func TestAccDatasourceDNSRecordsets_private(t *testing.T) {
 				Config: testAccDatasourceDNSRecordsets_private(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.id"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.name"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.zone_id"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.zone_name"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.type"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.ttl"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.records.#"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.status"),
-					resource.TestCheckResourceAttrSet(rName, "recordsets.0.default"),
-
+					resource.TestMatchResourceAttr(rName, "recordsets.#", regexp.MustCompile(`[1-9][0-9]*`)),
 					resource.TestCheckOutput("status_filter_is_useful", "true"),
 					resource.TestCheckOutput("type_filter_is_useful", "true"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
+					dcById.CheckResourceExists(),
 					resource.TestCheckOutput("recordset_id_filter_is_useful", "true"),
-
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.id"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.name"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.zone_id"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.zone_name"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.type"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.ttl"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.records.#"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.status"),
+					resource.TestCheckResourceAttrSet(byId, "recordsets.0.default"),
+					resource.TestMatchResourceAttr(byId, "recordsets.0.created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(byId, "recordsets.0.updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					resource.TestCheckResourceAttr("data.huaweicloud_dns_recordsets.tags_filter", "recordsets.#", "1"),
 				),
 			},
@@ -151,7 +172,32 @@ data "huaweicloud_dns_recordsets" "tags_filter" {
 
 func testAccDatasourceDNSRecordsets_private(name string) string {
 	return fmt.Sprintf(`
-%s
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_dns_zone" "zone_1" {
+  name      = "%[2]s"
+  zone_type = "private"
+
+  router {
+    router_id = huaweicloud_vpc.test.id
+  }
+}
+
+resource "huaweicloud_dns_recordset" "test" {
+  zone_id     = huaweicloud_dns_zone.zone_1.id
+  name        = "%[2]s"
+  type        = "A"
+  description = "Created a record set by script"
+  ttl         = 600
+  records     = ["10.1.0.3"]
+
+  tags = {
+    foo = "bar_private"
+  }
+}
 
 data "huaweicloud_dns_recordsets" "test" {
   zone_id = huaweicloud_dns_recordset.test.zone_id
@@ -202,5 +248,5 @@ data "huaweicloud_dns_recordsets" "tags_filter" {
   zone_id = huaweicloud_dns_recordset.test.zone_id
   tags    = "foo,bar_private"
 }
-`, testDNSRecordset_privateZone(name))
+`, acceptance.RandomAccResourceName(), name)
 }

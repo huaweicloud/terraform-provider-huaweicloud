@@ -147,6 +147,16 @@ func recordsetSchema() *schema.Resource {
 				Computed:    true,
 				Description: `The weight of the recordset.`,
 			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the recordset, in RFC3339 format.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The latest update time of the recordset, in RFC3339 format.`,
+			},
 		},
 	}
 	return &sc
@@ -228,13 +238,37 @@ func flattenListRecordsets(resp interface{}) []interface{} {
 			"default":     utils.PathSearch("default", v, nil),
 			"line_id":     utils.PathSearch("line", v, nil),
 			"weight":      utils.PathSearch("weight", v, nil),
+			"created_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(getZoneCreatedAt(v),
+				"2006-01-02T15:04:05")/1000, false),
+			"updated_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(getZoneUpdatedAt(v),
+				"2006-01-02T15:04:05")/1000, false),
 		}
 	}
 	return rst
 }
 
+func getZoneCreatedAt(resp interface{}) string {
+	// The private recordset response field is `create_at`.
+	// The public recordset response field is `created_at`.
+	createdAt := utils.PathSearch("create_at", resp, "").(string)
+	if createdAt == "" {
+		return utils.PathSearch("created_at", resp, "").(string)
+	}
+	return createdAt
+}
+
+func getZoneUpdatedAt(resp interface{}) string {
+	// The private recordset response field is `update_at`.
+	// The public recordset response field is `updated_at`.
+	createdAt := utils.PathSearch("update_at", resp, "").(string)
+	if createdAt == "" {
+		return utils.PathSearch("updated_at", resp, "").(string)
+	}
+	return createdAt
+}
+
 func buildListRecordsetsQueryParams(d *schema.ResourceData, zoneType string) string {
-	queryParam := ""
+	queryParam := "?sort_key=name&sort_dir=asc"
 	if v, ok := d.GetOk("line_id"); ok && zoneType == "public" {
 		queryParam = fmt.Sprintf("%s&line_id=%v", queryParam, v)
 	}
@@ -263,8 +297,5 @@ func buildListRecordsetsQueryParams(d *schema.ResourceData, zoneType string) str
 		queryParam = fmt.Sprintf("%s&search_mode=%v", queryParam, v)
 	}
 
-	if queryParam != "" {
-		queryParam = "?" + queryParam[1:]
-	}
 	return queryParam
 }
