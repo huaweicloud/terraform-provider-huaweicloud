@@ -185,11 +185,10 @@ func ResourceCluster() *schema.Resource {
 				Description: "schema: Computed",
 			},
 			"enable_distribute_management": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"eni_subnet_id", "eni_subnet_cidr"},
-				Description:  "schema: Internal",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
 			},
 			"authentication_mode": {
 				Type:     schema.TypeString,
