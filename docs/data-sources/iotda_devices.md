@@ -2,7 +2,8 @@
 subcategory: "IoT Device Access (IoTDA)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_iotda_devices"
-description: ""
+description: |-
+  Use this data source to get the list of IoTDA devices within HuaweiCloud.
 ---
 
 # huaweicloud_iotda_devices
