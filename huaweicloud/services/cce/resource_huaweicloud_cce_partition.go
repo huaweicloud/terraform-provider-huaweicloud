@@ -69,7 +69,6 @@ func ResourcePartition() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
 			},
 		},
 	}
@@ -160,12 +159,6 @@ func resourcePartitionRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("partition_subnet_id", s.Spec.HostNetwork.SubnetID),
 	)
 
-	var containerNetworkIDs []string
-	for _, network := range s.Spec.ContainerNetwork {
-		containerNetworkIDs = append(containerNetworkIDs, network.SubnetID)
-	}
-	mErr = multierror.Append(mErr, d.Set("container_subnet_ids", containerNetworkIDs))
-
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("Error setting CCE Partition fields: %s", err)
 	}
@@ -196,19 +189,13 @@ func resourcePartitionUpdate(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourcePartitionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	cceClient, err := cfg.CceV3Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("Error creating CCE client: %s", err)
+	errorMsg := "Deleting partition resource is not supported. The partition resource is only removed from the state."
+	return diag.Diagnostics{
+		diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  errorMsg,
+		},
 	}
-
-	clusterid := d.Get("cluster_id").(string)
-	err = partitions.Delete(cceClient, clusterid, d.Id()).ExtractErr()
-	if err != nil {
-		return diag.Errorf("Error deleting CCE partition: %s", err)
-	}
-
-	return nil
 }
 
 func resourcePartitionImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
