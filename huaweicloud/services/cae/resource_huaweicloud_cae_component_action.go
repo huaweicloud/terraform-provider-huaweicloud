@@ -19,7 +19,7 @@ import (
 
 // @API CAE POST /v1/{project_id}/cae/applications/{application_id}/components/{component_id}/action
 // @API CAE GET /v1/{project_id}/cae/jobs/{job_id}
-// ResourceComponentAction is a definition of the one-time action resource that used to manage component deployment.
+// ResourceComponentAction is a definition of the one-time action resource that used to operate component.
 func ResourceComponentAction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceComponentActionCreate,
@@ -38,7 +38,7 @@ func ResourceComponentAction() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `The region in which to create the resource.`,
+				Description: `The region where the component to be operated is located.`,
 			},
 			"environment_id": {
 				Type:        schema.TypeString,
@@ -56,7 +56,7 @@ func ResourceComponentAction() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The ID of the component to which the configurations belong.`,
+				Description: `The ID of the component to be operated.`,
 			},
 			"metadata": {
 				Type:     schema.TypeList,
@@ -64,16 +64,16 @@ func ResourceComponentAction() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"annotations": {
-							Type:        schema.TypeMap,
-							Optional:    true,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-							Description: `The resource configurations.`,
-						},
 						"name": {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: `The action name.`,
+						},
+						"annotations": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The key/value pairs parameters related to the component to be operated.`,
 						},
 					},
 				},
@@ -83,7 +83,7 @@ func ResourceComponentAction() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringIsJSON,
-				Description:  `The specification detail of the action.`,
+				Description:  `The specification detail of the action, in JSON format.`,
 			},
 		},
 	}
@@ -97,55 +97,11 @@ func buildCreateComponentActionBodyParams(d *schema.ResourceData) map[string]int
 			"annotations": d.Get("metadata.0.annotations"),
 			"name":        d.Get("metadata.0.name"),
 		},
-		"spec": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("Specification detail", d.Get("spec").(string))),
+		"spec": utils.ValueIgnoreEmpty(utils.StringToJson(d.Get("spec").(string))),
 	}
 }
 
-func deployComponent(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout time.Duration) error {
-	var (
-		httpUrl       = "v1/{project_id}/cae/applications/{application_id}/components/{component_id}/action"
-		applicationId = d.Get("application_id").(string)
-		componentId   = d.Get("component_id").(string)
-		environmentId = d.Get("environment_id").(string)
-	)
-
-	modifyPath := client.Endpoint + httpUrl
-	modifyPath = strings.ReplaceAll(modifyPath, "{project_id}", client.ProjectID)
-	modifyPath = strings.ReplaceAll(modifyPath, "{application_id}", applicationId)
-	modifyPath = strings.ReplaceAll(modifyPath, "{component_id}", componentId)
-
-	opts := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": environmentId,
-		},
-		JSONBody: utils.RemoveNil(buildCreateComponentActionBodyParams(d)),
-	}
-	requestResp, err := client.Request("POST", modifyPath, &opts)
-	if err != nil {
-		return fmt.Errorf("error operating the component (%s): %s", componentId, err)
-	}
-	respBody, err := utils.FlattenResponse(requestResp)
-	if err != nil {
-		return fmt.Errorf("error retrieving API response of the deployment for the component configuration (%s): %s", componentId, err)
-	}
-	jobId := utils.PathSearch("job_id", respBody, "null").(string)
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      deployJobRefreshFunc(client, environmentId, jobId, []string{"success"}),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        20 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for the deploy job (%s) success: %s", jobId, err)
-	}
-	return nil
-}
-
-func getDeployJobDetail(client *golangsdk.ServiceClient, environmentId, jobId string) (interface{}, error) {
+func getActionJobDetail(client *golangsdk.ServiceClient, environmentId, jobId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/jobs/{job_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
@@ -159,18 +115,18 @@ func getDeployJobDetail(client *golangsdk.ServiceClient, environmentId, jobId st
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error querying deploy job detail by its ID (%s): %s", jobId, err)
+		return nil, fmt.Errorf("error querying the operation component job detail by its ID (%s): %s", jobId, err)
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving deploy job (%s) detail: %s", jobId, err)
+		return nil, fmt.Errorf("error retrieving the operation component job (%s) detail: %s", jobId, err)
 	}
 	return respBody, nil
 }
 
 func deployJobRefreshFunc(client *golangsdk.ServiceClient, environmentId, jobId string, targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := getDeployJobDetail(client, environmentId, jobId)
+		resp, err := getActionJobDetail(client, environmentId, jobId)
 		if err != nil {
 			return resp, "ERROR", err
 		}
@@ -203,9 +159,9 @@ func resourceComponentActionCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	err = deployComponent(ctx, client, d, d.Timeout(schema.TimeoutCreate))
+	err = doActionComponent(ctx, client, d, componentId, buildCreateComponentActionBodyParams(d), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error operating (%s) the component (%s): %s", d.Get("action").(string), componentId, err)
 	}
 	d.SetId(componentId)
 
@@ -219,17 +175,18 @@ func resourceComponentActionRead(_ context.Context, _ *schema.ResourceData, _ in
 
 func resourceComponentActionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
+		cfg         = meta.(*config.Config)
+		region      = cfg.GetRegion(d)
+		componentId = d.Get("component_id").(string)
 	)
 	client, err := cfg.NewServiceClient("cae", region)
 	if err != nil {
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	err = deployComponent(ctx, client, d, d.Timeout(schema.TimeoutUpdate))
+	err = doActionComponent(ctx, client, d, componentId, buildCreateComponentActionBodyParams(d), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("unable to operate (%s) the component (%s): %s", d.Get("action").(string), componentId, err)
 	}
 
 	return resourceComponentActionRead(ctx, d, meta)
@@ -237,5 +194,12 @@ func resourceComponentActionUpdate(ctx context.Context, d *schema.ResourceData, 
 
 func resourceComponentActionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in the 'Delete()' method because the resource is a one-time action resource.
-	return nil
+	errorMsg := `This resource is only a one-time action resource for operating the component. Deleting this resource will
+not clear the corresponding request record, but will only remove the resource information from the tfstate file.`
+	return diag.Diagnostics{
+		diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  errorMsg,
+		},
+	}
 }
