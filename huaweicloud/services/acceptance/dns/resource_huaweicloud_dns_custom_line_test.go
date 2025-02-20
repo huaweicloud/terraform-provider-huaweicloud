@@ -94,9 +94,8 @@ func TestAccDNSCustomLine_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "description", "test description update"),
-					resource.TestCheckResourceAttr(rName, "ip_segments.0", "100.100.100.101-100.100.100.101"),
-					resource.TestCheckResourceAttr(rName, "ip_segments.1", "100.100.100.102-100.100.100.102"),
+					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "ip_segments.#", "2"),
 				),
 			},
 			{
@@ -122,8 +121,7 @@ func testDNSCustomLine_basic_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_custom_line" "test" {
   name        = "%s_update"
-  description = "test description update"
-  ip_segments = ["100.100.100.101-100.100.100.101", "100.100.100.102-100.100.100.102"]
+  ip_segments = ["100.100.100.102-100.100.100.102", "100.100.100.101-100.100.100.101"]
 }
 `, name)
 }

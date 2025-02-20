@@ -56,7 +56,7 @@ func ResourceDNSCustomLine() *schema.Resource {
 				Description: `Specifies the custom line name.`,
 			},
 			"ip_segments": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				MinItems:    1,
@@ -66,7 +66,6 @@ func ResourceDNSCustomLine() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				Description: `Specifies the custom line description. A maximum of 255 characters are allowed.`,
 			},
 			"status": {
@@ -150,9 +149,10 @@ func waitForDNSCustomLineCreateOrUpdate(ctx context.Context, customLineClient *g
 
 func buildCreateOrUpdateDNSCustomLineBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
-		"description": utils.ValueIgnoreEmpty(d.Get("description")),
-		"ip_segments": utils.ValueIgnoreEmpty(d.Get("ip_segments")),
+		"name":        d.Get("name"),
+		"ip_segments": utils.ExpandToStringList(d.Get("ip_segments").(*schema.Set).List()),
+		// When description is updated to empty, the value of this field must be specified as an empty string.
+		"description": d.Get("description"),
 	}
 	return bodyParams
 }
