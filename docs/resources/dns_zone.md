@@ -57,6 +57,8 @@ The following arguments are supported:
 * `router` - (Optional, List) Router configuration block which is required if zone_type is private. The router
   structure is documented below.
 
+  -> Before changing this parameter, make sure the zone status is enabled.
+
 * `ttl` - (Optional, Int) The time to live (TTL) of the zone.  
   The valid value is range from `1` to `2,147,483,647`.
 
@@ -73,7 +75,18 @@ The following arguments are supported:
   + **ENABLE**
   + **DISABLE**
 
-  -> This parameter is only supported by the public zone, and it is a one-time action.
+  -> This is a one-time action.
+
+* `proxy_pattern` - (Optional, String, ForceNew) Specifies the recursive resolution proxy mode for subdomains of
+  the private zone.  
+  Defaults to **AUTHORITY**.  
+  The valid values are as follows:
+  + **AUTHORITY**: The recursive resolution proxy is disabled for the private zone.
+  + **RECURSIVE**: The recursive resolution proxy is enabled for the private zone.
+  
+  -> 1. This parameter ia available only when the `zone_type` parameter is set to **private**.
+     <br>2. If this parameter is set to **RECURSIVE**, but you query subdomains that are not configured in the zone namespace,
+     the DNS will recursively resolve the subdomains on the Internet and use the result from authoritative DNS servers.
 
 The `router` block supports:
 
