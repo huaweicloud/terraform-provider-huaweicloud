@@ -609,9 +609,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_deploy_application_deployment_records": codeartsdeploy.DataSourceCodeartsDeployApplicationDeploymentRecords(),
 			"huaweicloud_codearts_deploy_environments":                   codeartsdeploy.DataSourceCodeartsDeployEnvironments(),
 
-			"huaweicloud_codearts_inspector_websites":    codeartsinspector.DataSourceCodeartsInspectorWebsites(),
-			"huaweicloud_codearts_inspector_host_groups": codeartsinspector.DataSourceCodeartsInspectorHostGroups(),
-			"huaweicloud_codearts_inspector_hosts":       codeartsinspector.DataSourceCodeartsInspectorHosts(),
+			"huaweicloud_codearts_inspector_websites":           codeartsinspector.DataSourceCodeartsInspectorWebsites(),
+			"huaweicloud_codearts_inspector_website_scan_tasks": codeartsinspector.DataSourceCodeartsInspectorWebsiteScanTasks(),
+			"huaweicloud_codearts_inspector_host_groups":        codeartsinspector.DataSourceCodeartsInspectorHostGroups(),
+			"huaweicloud_codearts_inspector_hosts":              codeartsinspector.DataSourceCodeartsInspectorHosts(),
 
 			"huaweicloud_cts_notifications": cts.DataSourceNotifications(),
 			"huaweicloud_cts_traces":        cts.DataSourceCtsTraces(),
