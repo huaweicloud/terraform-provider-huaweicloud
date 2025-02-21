@@ -232,6 +232,30 @@ func TestAccDNSRecordset_privateZone(t *testing.T) {
 	})
 }
 
+func testAccDNSZone_private(zoneName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc" "default" {
+  name = "vpc-default"
+}
+
+resource "huaweicloud_dns_zone" "zone_1" {
+  name        = "%s"
+  email       = "email@example.com"
+  description = "a private zone"
+  zone_type   = "private"
+
+  router {
+    router_id = data.huaweicloud_vpc.default.id
+  }
+
+  tags = {
+    zone_type = "private"
+    owner     = "terraform"
+  }
+}
+`, zoneName)
+}
+
 func testAccRecordset_base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "test" {
