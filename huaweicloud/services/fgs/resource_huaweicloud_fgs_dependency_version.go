@@ -266,43 +266,6 @@ func resourceDependencyVersionDelete(_ context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func getDependencies(client *golangsdk.ServiceClient) ([]interface{}, error) {
-	var (
-		httpUrl = "v2/{project_id}/fgs/dependencies?maxitems=100"
-		marker  = 0
-	)
-
-	listPath := client.Endpoint + httpUrl
-	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-
-	result := make([]interface{}, 0)
-	for {
-		listPathWithMarker := fmt.Sprintf("%s&&marker=%v", listPath, marker)
-		requestResp, err := client.Request("GET", listPathWithMarker, &listOpt)
-		if err != nil {
-			return nil, fmt.Errorf("error querying dependency packages: %s", err)
-		}
-		respBody, err := utils.FlattenResponse(requestResp)
-		if err != nil {
-			return nil, err
-		}
-		dependencies := utils.PathSearch("dependencies", respBody, make([]interface{}, 0)).([]interface{})
-		if len(dependencies) < 1 {
-			break
-		}
-		result = append(result, dependencies...)
-		marker += len(dependencies)
-	}
-
-	return result, nil
-}
-
 func getDependencyVersions(client *golangsdk.ServiceClient, dependId string) ([]interface{}, error) {
 	var (
 		httpUrl = "v2/{project_id}/fgs/dependencies/{depend_id}/version?maxitems=100"
