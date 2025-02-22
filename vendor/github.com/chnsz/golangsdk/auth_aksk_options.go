@@ -45,6 +45,9 @@ type AKSKAuthOptions struct {
 
 	// whether using the customer catalog, defaults to false
 	WithUserCatalog bool
+
+	// SigningAlgorithm is used to select encryption algorithm
+	SigningAlgorithm string
 }
 
 // GetIdentityEndpoint implements the method of AuthOptionsProvider

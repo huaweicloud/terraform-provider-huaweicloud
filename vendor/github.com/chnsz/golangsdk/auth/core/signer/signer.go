@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
-
 	"fmt"
 	"io/ioutil"
 	"net/http"
