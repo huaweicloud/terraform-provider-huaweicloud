@@ -309,7 +309,9 @@ func TestAccRdsInstance_sqlserver_msdtc_hosts(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "msdtc_hosts.#", "2"),
+					resource.TestCheckResourceAttrPair(resourceName, "msdtc_hosts.0.ip",
+						"huaweicloud_compute_instance.ecs_2", "access_ip_v4"),
+					resource.TestCheckResourceAttr(resourceName, "msdtc_hosts.0.host_name", "msdtc-host-name-2"),
 				),
 			},
 		},
@@ -1135,10 +1137,6 @@ resource "huaweicloud_rds_instance" "test" {
     size = 40
   }
 
-  msdtc_hosts {
-    ip        = huaweicloud_compute_instance.ecs_1.access_ip_v4
-    host_name = "msdtc-host-name-1"
-  }
   msdtc_hosts {
     ip        = huaweicloud_compute_instance.ecs_2.access_ip_v4
     host_name = "msdtc-host-name-2"
