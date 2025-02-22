@@ -7,22 +7,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
 )
 
 func getLogstashConfigurationResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.HcCssV1Client(acceptance.HW_REGION_NAME)
+	client, err := cfg.CssV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CSS v1 client: %s", err)
 	}
 
-	return client.ShowGetConfDetail(&model.ShowGetConfDetailRequest{
-		ClusterId: state.Primary.Attributes["cluster_id"],
-		Name:      state.Primary.Attributes["name"],
-	})
+	return css.GetLogstashConfigDetails(client, state.Primary.Attributes["cluster_id"], state.Primary.Attributes["name"])
 }
 
 func TestAccLogstashConfiguration_basic(t *testing.T) {
