@@ -12,6 +12,8 @@ import (
 	"sync"
 
 	"github.com/chnsz/golangsdk/auth"
+
+	"github.com/chnsz/golangsdk/auth/core/signer"
 )
 
 // DefaultUserAgent is the default User-Agent string set in the request header.
@@ -311,26 +313,36 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 
 	prereqtok := req.Header.Get("X-Auth-Token")
 
-	if client.AKSKAuthOptions.AccessKey != "" {
+	authOpts := client.AKSKAuthOptions
+	if authOpts.AccessKey != "" {
 		var err error
-		if client.AKSKAuthOptions.IsDerived {
-			err = auth.SignDerived(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey,
-				client.AKSKAuthOptions.DerivedAuthServiceName, client.AKSKAuthOptions.Region)
+		if authOpts.IsDerived {
+			err = auth.SignDerived(req, authOpts.AccessKey, authOpts.SecretKey, authOpts.DerivedAuthServiceName, authOpts.Region)
+		} else if authOpts.SigningAlgorithm == "" || authOpts.SigningAlgorithm == signer.HmacSHA256 {
+			err = auth.Sign(req, authOpts.AccessKey, authOpts.SecretKey)
 		} else {
-			err = auth.Sign(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey)
+			sn, err := signer.GetSigner(signer.SigningAlgorithm(authOpts.SigningAlgorithm))
+			if err != nil {
+				return nil, err
+			}
+
+			_, err = sn.Sign(req, authOpts.AccessKey, authOpts.SecretKey)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		if err != nil {
 			return nil, err
 		}
-		if client.AKSKAuthOptions.ProjectId != "" {
-			req.Header.Set("X-Project-Id", client.AKSKAuthOptions.ProjectId)
+		if authOpts.ProjectId != "" {
+			req.Header.Set("X-Project-Id", authOpts.ProjectId)
 		}
-		if client.AKSKAuthOptions.DomainID != "" {
-			req.Header.Set("X-Domain-Id", client.AKSKAuthOptions.DomainID)
+		if authOpts.DomainID != "" {
+			req.Header.Set("X-Domain-Id", authOpts.DomainID)
 		}
-		if client.AKSKAuthOptions.SecurityToken != "" {
-			req.Header.Set("X-Security-Token", client.AKSKAuthOptions.SecurityToken)
+		if authOpts.SecurityToken != "" {
+			req.Header.Set("X-Security-Token", authOpts.SecurityToken)
 		}
 	}
 

@@ -20,13 +20,10 @@
 package signer
 
 import (
-	"log"
 	"math/big"
 	"net/http"
 
 	"github.com/tjfoc/gmsm/sm2"
-
-	"github.com/chnsz/golangsdk/auth/core/signer"
 )
 
 const (
@@ -48,9 +45,9 @@ func (s SM2SM3Signer) Sign(req *http.Request, ak, sk string) (map[string]string,
 	}
 
 	processContentHeader(req, xSdkContentSm3)
-	t := extractTime(req.Header.Get(signer.HeaderXDateTime))
+	t := extractTime(req.Header.Get(HeaderXDateTime))
+	req.Header.Set(HeaderXDateTime, t.UTC().Format(BasicDateFormat))
 	headerDate := t.UTC().Format(BasicDateFormat)
-	req.Header.Set(signer.HeaderXDateTime, t.UTC().Format(BasicDateFormat))
 	additionalHeaders := map[string]string{HeaderXDate: headerDate}
 
 	signedHeaders := extractSignedHeaders(req)
@@ -59,7 +56,6 @@ func (s SM2SM3Signer) Sign(req *http.Request, ak, sk string) (map[string]string,
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("[WZP_SM2_SM3_CR] cr is %s", cr)
 
 	sts, err := stringToSign(sdkSm2Sm3, cr, t, sm3HasherInst)
 	if err != nil {
@@ -77,6 +73,8 @@ func (s SM2SM3Signer) Sign(req *http.Request, ak, sk string) (map[string]string,
 	}
 
 	additionalHeaders[HeaderAuthorization] = authHeaderValue(sdkSm2Sm3, sig, ak, signedHeaders)
+	req.Header.Set(HeaderAuthorization, authHeaderValue(sdkSm2Sm3, sig, ak, signedHeaders))
+
 	return additionalHeaders, nil
 }
 

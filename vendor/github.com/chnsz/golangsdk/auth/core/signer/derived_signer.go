@@ -6,11 +6,12 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/hkdf"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"golang.org/x/crypto/hkdf"
 )
 
 const (

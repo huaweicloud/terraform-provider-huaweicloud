@@ -89,6 +89,8 @@ type CreateOpts struct {
 	Router *RouterOpts `json:"router,omitempty"`
 
 	// Recursive resolution proxy mode for subdomain names of private zones.
+	// + AUTHORITY: The recursive resolution proxy is disabled for the private zone.
+	// + RECURSIVE: The recursive resolution proxy is enabled for the private zone.
 	ProxyPattern string `json:"proxy_pattern,omitempty"`
 
 	// Deprecated: This parameter has been deprecated.

@@ -162,6 +162,11 @@ func (c *Config) LoadAndValidate() error {
 		}
 	}
 
+	if c.SigningAlgorithm != "" {
+		c.HwClient.AKSKAuthOptions.SigningAlgorithm = c.SigningAlgorithm
+		c.DomainClient.AKSKAuthOptions.SigningAlgorithm = c.SigningAlgorithm
+	}
+
 	return nil
 }
 
