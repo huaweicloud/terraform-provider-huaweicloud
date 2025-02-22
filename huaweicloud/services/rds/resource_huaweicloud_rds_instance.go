@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -61,6 +62,7 @@ type ctxType string
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ip
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/security-group
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/password
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/to-period
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/binlog/clear-policy
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
@@ -501,12 +503,30 @@ func ResourceRdsInstance() *schema.Resource {
 				ForceNew: true,
 			},
 
-			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
-			"auto_pay":      common.SchemaAutoPay(nil),
+			// charging_mode,  period_unit and period only support changing post-paid to pre-paid billing mode.
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, false),
+			},
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"period_unit"},
+			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
+			"auto_pay":   common.SchemaAutoPay(nil),
 		},
 	}
 }
@@ -1035,7 +1055,15 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	if d.HasChange("auto_renew") {
+	if d.HasChange("charging_mode") {
+		if d.Get("charging_mode").(string) == "postPaid" {
+			return diag.Errorf("error updating the charging mode of the RDS instance (%s): %s", d.Id(),
+				"only support changing post-paid instance to pre-paid")
+		}
+		if err = updateBillingModeToPeriod(ctx, d, cfg, client, instanceID); err != nil {
+			return diag.FromErr(err)
+		}
+	} else if d.HasChange("auto_renew") {
 		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
@@ -1672,6 +1700,82 @@ func updateRdsInstanceSSLConfig(ctx context.Context, d *schema.ResourceData, cli
 		return fmt.Errorf("only MySQL database support SSL enable and disable")
 	}
 	return configRdsInstanceSSL(ctx, d, client, instanceID)
+}
+
+func updateBillingModeToPeriod(ctx context.Context, d *schema.ResourceData, cfg *config.Config, client *golangsdk.ServiceClient,
+	instanceID string) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/to-period"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateBillingModeToPeriodBodyParams(d))
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("POST", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance(%s) billing mode from post-paid to pre-paid: %s", d.Id(), err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(res.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	orderId := utils.PathSearch("order_id", updateRespBody, "").(string)
+	if orderId == "" {
+		return fmt.Errorf("error updating RDS instance (%s) MSDTC hosts: order_id is not found in the API rsponse", d.Id())
+	}
+	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return fmt.Errorf("error creating BSS v2 client: %s", err)
+	}
+	// wait for order success
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"ACTIVE"},
+		Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        1 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for instance (%s) billing mode to be updated: %s", instanceID, err)
+	}
+	return nil
+}
+
+func buildUpdateBillingModeToPeriodBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"period_type":     strings.ToUpper(d.Get("period_unit").(string)),
+		"period_num":      d.Get("period").(int),
+		"auto_pay_policy": "YES",
+	}
+	if d.Get("auto_renew").(string) == "true" {
+		bodyParams["auto_renew_policy"] = "YES"
+	}
+	return bodyParams
 }
 
 func updateConfiguration(ctx context.Context, d *schema.ResourceData, client, clientV31 *golangsdk.ServiceClient,
