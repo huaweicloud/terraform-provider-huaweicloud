@@ -445,8 +445,11 @@ func (c *Config) newServiceClientByEndpoint(client *golangsdk.ProviderClient, sr
 		return nil, fmt.Errorf("service type %s is invalid or not supportted", srv)
 	}
 
+	// Copy the client to prevent interference with the original data.
+	clone := new(golangsdk.ProviderClient)
+	*clone = *client
 	sc := &golangsdk.ServiceClient{
-		ProviderClient: client,
+		ProviderClient: clone,
 		Endpoint:       endpoint,
 	}
 

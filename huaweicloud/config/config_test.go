@@ -80,3 +80,48 @@ func TestCheckObsEndpoint(t *testing.T) {
 	expected = "https://oss.region-1.myhuaweicloud.com/"
 	th.AssertEquals(t, expected, getObsEndpoint(cfg, "region-1"))
 }
+
+// This method is used to mix the generation interference of the test client.
+func TestCheckNewServiceClientWithDerivedAuth(t *testing.T) {
+	var (
+		cfg = &Config{
+			Endpoints: map[string]string{
+				"iotda": "xxxxxxxxx.st1.iotda-app.cn-north-4.myhuaweicloud.com",
+			},
+			Region:    "region-0",
+			AccessKey: "access key",
+			SecretKey: "security key",
+			RPLock:    new(sync.Mutex),
+			RegionProjectIDMap: map[string]string{
+				"region-0": "project ID",
+			},
+			HwClient: new(golangsdk.ProviderClient),
+		}
+		region = "region-0"
+	)
+
+	client1, err := cfg.NewServiceClient("evs", region)
+	if err != nil {
+		t.Errorf("error creating EVS client: %s", err)
+	}
+
+	client2, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, true)
+	if err != nil {
+		t.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	client3, err := cfg.NewServiceClient("evs", region)
+	if err != nil {
+		t.Errorf("error creating EVS client: %s", err)
+	}
+
+	client4, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, true)
+	if err != nil {
+		t.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	th.AssertEquals(t, false, client1.AKSKAuthOptions.IsDerived)
+	th.AssertEquals(t, true, client2.AKSKAuthOptions.IsDerived)
+	th.AssertEquals(t, false, client3.AKSKAuthOptions.IsDerived)
+	th.AssertEquals(t, true, client4.AKSKAuthOptions.IsDerived)
+}
