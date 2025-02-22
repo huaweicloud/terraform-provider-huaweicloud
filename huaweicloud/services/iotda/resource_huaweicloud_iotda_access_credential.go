@@ -2,13 +2,14 @@ package iotda
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -50,30 +51,48 @@ func ResourceAccessCredential() *schema.Resource {
 	}
 }
 
-func buildAccessCredentialBodyParams(d *schema.ResourceData) *model.CreateAccessCodeRequest {
-	bodyParams := model.CreateAccessCodeRequest{
-		Body: &model.CreateAccessCodeRequestBody{
-			Type:            utils.StringIgnoreEmpty(d.Get("type").(string)),
-			ForceDisconnect: utils.Bool(d.Get("force_disconnect").(bool)),
-		},
+func buildCreateAccessCredentialBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"type":             utils.ValueIgnoreEmpty(d.Get("type")),
+		"force_disconnect": d.Get("force_disconnect"),
 	}
-
-	return &bodyParams
 }
 
 func resourceAccessCredentialCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/auth/accesscode"
+		product = "iotda"
+	)
+
 	isDerived := WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	createOpts := buildAccessCredentialBodyParams(d)
-	respBody, err := client.CreateAccessCode(createOpts)
-	if err != nil || respBody == nil {
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateAccessCredentialBodyParams(d)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
 		return diag.Errorf("error creating access credential: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	accessKey := utils.PathSearch("access_key", respBody, "").(string)
+	accessCode := utils.PathSearch("access_code", respBody, "").(string)
+	if accessKey == "" || accessCode == "" {
+		return diag.Errorf("error creating access credential: 'access_key' or 'access_code' is empty in API response")
 	}
 
 	resourceId, err := uuid.GenerateUUID()
@@ -82,12 +101,6 @@ func resourceAccessCredentialCreate(_ context.Context, d *schema.ResourceData, m
 	}
 
 	d.SetId(resourceId)
-
-	accessKey := utils.StringValue(respBody.AccessCode)
-	accessCode := utils.StringValue(respBody.AccessKey)
-	if accessKey == "" || accessCode == "" {
-		return diag.Errorf("error creating access credential: 'access_key' or 'access_code' is empty in API response")
-	}
 
 	mErr := multierror.Append(
 		d.Set("access_key", accessKey),
