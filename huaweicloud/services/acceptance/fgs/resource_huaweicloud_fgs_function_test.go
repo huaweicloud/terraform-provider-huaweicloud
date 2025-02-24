@@ -1142,6 +1142,12 @@ func TestAccFunction_reservedInstance(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {
+				Source:            "hashicorp/time",
+				VersionConstraint: "0.12.1",
+			},
+		},
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			rcWithVersion.CheckResourceDestroy(),
 			rcWithAlias.CheckResourceDestroy(),
@@ -1222,6 +1228,14 @@ func testAccFunction_reservedInstance_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+# Using the current time as the start time.
+resource "time_static" "test" {}
+
+# Using the current time one day later as the expiration time.
+resource "time_offset" "test" {
+  offset_days = 1
+}
+
 resource "huaweicloud_fgs_function" "with_version" {
   name        = "%[2]s_with_version"
   memory_size = 128
@@ -1243,8 +1257,8 @@ resource "huaweicloud_fgs_function" "with_version" {
       cron_configs {
         name         = "scheme-waekcy"
         cron         = "0 */10 * * * ?"
-        start_time   = "1708342889"
-        expired_time = "1739878889"
+        start_time   = time_static.test.unix
+        expired_time = time_offset.test.unix
         count        = 2
       }
     }
@@ -1280,8 +1294,8 @@ resource "huaweicloud_fgs_function" "with_alias" {
       cron_configs {
         name         = "scheme-waekcy"
         cron         = "0 */10 * * * ?"
-        start_time   = "1708342889"
-        expired_time = "1739878889"
+        start_time   = time_static.test.unix
+        expired_time = time_offset.test.unix
         count        = 2
       }
     }
