@@ -10,6 +10,10 @@ description: |-
 
 Manages the function resource within HuaweiCloud.
 
+~> Since version `1.73.1`, the requests of the function resource will send these parameters:
+   <br>`enable_dynamic_memory`
+   <br>For the regions that do not support this parameter, please use the lower version to deploy this resource.
+
 ## Example Usage
 
 ### With base64 func code
@@ -179,6 +183,29 @@ resource "huaweicloud_fgs_function" "test" {
   log_stream_id   = var.log_stream_id
   log_group_name  = var.log_group_name
   log_stream_name = var.log_stream_name
+}
+```
+
+### With advanced configurations
+
+```hcl
+variable "function_name" {}
+variable "function_codes" {}
+variable "agency_name" {}
+
+resource "huaweicloud_fgs_function" "test" {
+  name                  = var.function_name
+  app                   = "default"
+  agency                = var.agency_name
+  description           = "fuction test"
+  handler               = "test.handler"
+  memory_size           = 128
+  timeout               = 3
+  runtime               = "Python2.7"
+  code_type             = "inline"
+  func_code             = base64encode(var.function_codes)
+  functiongraph_version = "v2"
+  enable_dynamic_memory = true
 }
 ```
 
@@ -356,6 +383,9 @@ The following arguments are supported:
   the [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-ticket/topic_0065264094.html).
 
   -> If the `gpu_memory` and `gpu_type` configured, the `runtime` must be set to **Custom** or **Custom Image**.
+
+* `enable_dynamic_memory` - (Optional, Bool) Specifies whether the dynamic memory configuration is enabled.  
+  Defaults to **false**.
 
 <a name="function_func_mounts"></a>
 The `func_mounts` block supports:
