@@ -7,27 +7,34 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 )
 
-func getDeviceCertificateResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, WithDerivedAuth())
+func getDeviceCertificateResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region    = acceptance.HW_REGION_NAME
+		isDerived = iotda.WithDerivedAuth(cfg, region)
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
+		return nil, fmt.Errorf("error creating IoTDA client: %s", err)
 	}
-	return iotda.QueryDeviceCertificate(client, state.Primary.ID, nil)
+
+	return iotda.QueryDeviceCertificate(client, state.Primary.ID, "")
 }
 
 func TestAccDeviceCertificate_basic(t *testing.T) {
-	var obj model.CertificatesRspDto
-	rName := "huaweicloud_iotda_device_certificate.test"
+	var (
+		deviceCaObj interface{}
+		rName       = "huaweicloud_iotda_device_certificate.test"
+		name        = acceptance.RandomAccResourceName()
+	)
 	rc := acceptance.InitResourceCheck(
 		rName,
-		&obj,
+		&deviceCaObj,
 		getDeviceCertificateResourceFunc,
 	)
 
@@ -40,7 +47,7 @@ func TestAccDeviceCertificate_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDeviceCertificate_basic(),
+				Config: testDeviceCertificate_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "cn", "huaweiIoT"),
@@ -61,9 +68,7 @@ func TestAccDeviceCertificate_basic(t *testing.T) {
 	})
 }
 
-func testDeviceCertificate_basic() string {
-	name := acceptance.RandomAccResourceName()
-
+func testDeviceCertificate_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
