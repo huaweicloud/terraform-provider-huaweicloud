@@ -17,9 +17,6 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/thedevsaddam/gojsonq v2.3.0+incompatible
 	github.com/tidwall/gjson v1.17.1
-	github.com/tjfoc/gmsm v1.4.1
-	go.mongodb.org/mongo-driver v1.17.2
-	golang.org/x/crypto v0.26.0
 )
 
 require (
@@ -60,10 +57,13 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
+	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/vmihailenco/msgpack/v4 v4.3.12 // indirect
 	github.com/vmihailenco/tagparser v0.1.1 // indirect
 	github.com/zclconf/go-cty v1.11.0 // indirect
+	go.mongodb.org/mongo-driver v1.17.2 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
@@ -75,3 +75,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace golang.org/x/crypto => golang.org/x/crypto v0.21.0
