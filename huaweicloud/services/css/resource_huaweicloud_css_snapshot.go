@@ -132,8 +132,8 @@ func resourceCssSnapshotRead(_ context.Context, d *schema.ResourceData, meta int
 	snapList, err := snapshots.List(cssClient, clusterID).Extract()
 	if err != nil {
 		// "CSS.0015": The cluster does not exist. Status code is 403.
-		err = ConvertExpectedHwSdkErrInto404Err(err, 403, "CSS.0015", "")
-		return common.CheckDeletedDiag(d, err, "snapshot")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015"), "error getting CSS cluster snapshot")
 	}
 
 	// find the snapshot by ID
@@ -174,8 +174,8 @@ func resourceCssSnapshotDelete(_ context.Context, d *schema.ResourceData, meta i
 	clusterID := d.Get("cluster_id").(string)
 	if err := snapshots.Delete(cssClient, clusterID, d.Id()).ExtractErr(); err != nil {
 		// "CSS.0015": The cluster does not exist. Status code is 403.
-		err = ConvertExpectedHwSdkErrInto404Err(err, 403, "CSS.0015", "")
-		return common.CheckDeletedDiag(d, err, "error deleting CSS cluster snapshot")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015"), "error deleting CSS cluster snapshot")
 	}
 
 	return nil

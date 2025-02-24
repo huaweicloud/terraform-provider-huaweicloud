@@ -71,17 +71,13 @@ func resourceNodeReplaceCreate(ctx context.Context, d *schema.ResourceData, meta
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	clusterID := d.Get("cluster_id").(string)
-	cssV1Client, err := conf.HcCssV1Client(region)
-	if err != nil {
-		return diag.Errorf("error creating CSS V1 client: %s", err)
-	}
 	client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
 	// Check whether the cluster status is available.
-	err = checkClusterOperationCompleted(ctx, cssV1Client, clusterID, d.Timeout(schema.TimeoutCreate))
+	err = checkClusterOperationResult(ctx, client, clusterID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -92,7 +88,7 @@ func resourceNodeReplaceCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	// Check whether the cluster node replacement is complete
-	err = checkClusterOperationCompleted(ctx, cssV1Client, clusterID, d.Timeout(schema.TimeoutCreate))
+	err = checkClusterOperationResult(ctx, client, clusterID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}

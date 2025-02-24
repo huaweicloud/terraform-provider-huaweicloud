@@ -17,9 +17,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -2042,53 +2039,6 @@ func checkClusterOperationResult(ctx context.Context, client *golangsdk.ServiceC
 	return nil
 }
 
-func checkClusterOperationCompleted(ctx context.Context, cssV1Client *cssv1.CssClient, clusterId string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"Pending"},
-		Target:  []string{"Done"},
-		Refresh: func() (interface{}, string, error) {
-			resp, err := cssV1Client.ShowClusterDetail(&model.ShowClusterDetailRequest{ClusterId: clusterId})
-			if err != nil {
-				return nil, "failed", err
-			}
-
-			if checkOldCssClusterIsReady(resp) {
-				return resp, "Done", nil
-			}
-			return resp, "Pending", nil
-		},
-		Timeout:      timeout,
-		PollInterval: 10 * timeout,
-		Delay:        10 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for CSS (%s) to be extend: %s", clusterId, err)
-	}
-	return nil
-}
-
-func checkOldCssClusterIsReady(detail *model.ShowClusterDetailResponse) bool {
-	if utils.StringValue(detail.Status) != ClusterStatusAvailable {
-		return false
-	}
-
-	// actions --- the behaviors on a cluster
-	if detail.Actions != nil && len(*detail.Actions) > 0 {
-		return false
-	}
-
-	if detail.Instances == nil {
-		return false
-	}
-	for _, v := range *detail.Instances {
-		if utils.StringValue(v.Status) != ClusterStatusAvailable {
-			return false
-		}
-	}
-	return true
-}
-
 func checkCssClusterIsReady(detail interface{}) bool {
 	status := utils.PathSearch("status", detail, "").(string)
 	actions := utils.PathSearch("actions", detail, make([]interface{}, 0)).([]interface{})
@@ -2662,14 +2612,10 @@ func updateShrinkInstance(ctx context.Context, d *schema.ResourceData, conf *con
 	if err != nil {
 		return fmt.Errorf("error creating CSS V1 client: %s", err)
 	}
-	hcClient, err := conf.HcCssV1Client(region)
-	if err != nil {
-		return fmt.Errorf("error creating CSS V1 client: %s", err)
-	}
 
 	if len(shrinkNodeIds) == 0 {
 		bodyParams := buildUpdateShrinkNodeByTypeBodyParams(nodeType, shrinkNodeSize)
-		err := updateShrinkInstanceNodeByType(ctx, d, hcClient, client, bodyParams)
+		err := updateShrinkInstanceNodeByType(ctx, d, client, bodyParams)
 		if err != nil {
 			return err
 		}
@@ -2699,8 +2645,8 @@ func buildUpdateShrinkNodeByTypeBodyParams(nodeType string, nodesize int) map[st
 	return bodyParams
 }
 
-func updateShrinkInstanceNodeByType(ctx context.Context, d *schema.ResourceData, hcClient *cssv1.CssClient,
-	client *golangsdk.ServiceClient, bodyParams map[string]interface{}) error {
+func updateShrinkInstanceNodeByType(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	bodyParams map[string]interface{}) error {
 	shrinkNodeHttpUrl := "v1.0/extend/{project_id}/clusters/{cluster_id}/role/shrink"
 	shrinkNodePath := client.Endpoint + shrinkNodeHttpUrl
 	shrinkNodePath = strings.ReplaceAll(shrinkNodePath, "{project_id}", client.ProjectID)
@@ -2718,7 +2664,7 @@ func updateShrinkInstanceNodeByType(ctx context.Context, d *schema.ResourceData,
 		return fmt.Errorf("error shrinking CSS cluster node by type, cluster_id: %s, error: %s", d.Id(), err)
 	}
 
-	err = checkClusterOperationCompleted(ctx, hcClient, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	err = checkClusterOperationResult(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
