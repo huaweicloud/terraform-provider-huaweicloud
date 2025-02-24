@@ -36,7 +36,7 @@ type iHasher interface {
 type sm3Hasher struct {
 }
 
-func (sm3Hasher) hash(data []byte) ([]byte, error) {
+func (h sm3Hasher) hash(data []byte) ([]byte, error) {
 	hash := sm3.New()
 	_, err := hash.Write(data)
 	if err != nil {

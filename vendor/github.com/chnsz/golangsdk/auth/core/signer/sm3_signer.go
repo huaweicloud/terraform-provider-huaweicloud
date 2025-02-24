@@ -22,8 +22,6 @@ package signer
 import (
 	"encoding/hex"
 	"net/http"
-
-	"github.com/chnsz/golangsdk/auth/core/signer"
 )
 
 const (
@@ -41,9 +39,9 @@ func (s SM3Signer) Sign(req *http.Request, ak, sk string) (map[string]string, er
 	}
 
 	processContentHeader(req, xSdkContentSm3)
-	t := extractTime(req.Header.Get(signer.HeaderXDateTime))
+	t := extractTime(req.Header.Get(HeaderXDateTime))
+	req.Header.Set(HeaderXDateTime, t.UTC().Format(BasicDateFormat))
 	headerDate := t.UTC().Format(BasicDateFormat)
-	req.Header.Set(signer.HeaderXDateTime, t.UTC().Format(BasicDateFormat))
 	additionalHeaders := map[string]string{HeaderXDate: headerDate}
 
 	signedHeaders := extractSignedHeaders(req)
@@ -64,6 +62,8 @@ func (s SM3Signer) Sign(req *http.Request, ak, sk string) (map[string]string, er
 	}
 
 	additionalHeaders[HeaderAuthorization] = authHeaderValue(sdkHmacSm3, sig, ak, signedHeaders)
+	req.Header.Set(HeaderAuthorization, authHeaderValue(sdkHmacSm3, sig, ak, signedHeaders))
+
 	return additionalHeaders, nil
 }
 
