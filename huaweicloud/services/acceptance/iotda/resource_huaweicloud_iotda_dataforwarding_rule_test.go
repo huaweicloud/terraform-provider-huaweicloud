@@ -2,29 +2,51 @@ package iotda
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getDataForwardingRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, WithDerivedAuth())
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "iotda"
+		httpUrl = "v5/iot/{project_id}/routing-rule/rules/{rule_id}"
+	)
+
+	isDerived := WithDerivedAuth()
+	client, err := conf.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
+		return nil, fmt.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	return client.ShowRoutingRule(&model.ShowRoutingRuleRequest{RuleId: state.Primary.ID})
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", state.Primary.ID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
 }
 
 // The forwarding target of **DMS_KAFKA_FORWARDING** type requires the use of a public IP address, which may pose a
 // security port risk, so it will not be tested temporarily.
 func TestAccDataForwardingRule_basic(t *testing.T) {
-	var obj model.ShowRoutingRuleResponse
+	var obj interface{}
 
 	name := acceptance.RandomAccResourceNameWithDash()
 	rName := "huaweicloud_iotda_dataforwarding_rule.test"
@@ -176,6 +198,15 @@ func TestAccDataForwardingRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "targets.0.id"),
 					resource.TestCheckResourceAttrPair(rName, "targets.0.amqp_forwarding.0.queue_name",
 						"huaweicloud_iotda_amqp.test.1", "name"),
+				),
+			},
+			{
+				Config: testDataForwardingRule_multipleTargets(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "trigger", "product:delete"),
+					resource.TestCheckResourceAttr(rName, "enabled", "true"),
+					resource.TestCheckResourceAttr(rName, "targets.#", "2"),
 				),
 			},
 			{
@@ -474,6 +505,40 @@ resource "huaweicloud_iotda_dataforwarding_rule" "test" {
 
     amqp_forwarding {
       queue_name = huaweicloud_iotda_amqp.test[1].name
+    }
+  }
+}
+`, buildIoTDAEndpoint(), name)
+}
+
+func testDataForwardingRule_multipleTargets(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_iotda_amqp" "test" {
+  count = 2
+
+  name = format("%[2]s_%%d", count.index)
+}
+
+resource "huaweicloud_iotda_dataforwarding_rule" "test" {
+  name    = "%[2]s"
+  trigger = "product:delete"
+  enabled = true
+
+  targets {
+    type = "AMQP_FORWARDING"
+
+    amqp_forwarding {
+      queue_name = huaweicloud_iotda_amqp.test[1].name
+    }
+  }
+
+  targets {
+    type = "HTTP_FORWARDING"
+
+    http_forwarding {
+      url = "http://www.exampletest.com"
     }
   }
 }
