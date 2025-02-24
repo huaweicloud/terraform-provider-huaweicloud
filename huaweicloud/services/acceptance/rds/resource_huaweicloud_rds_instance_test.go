@@ -468,6 +468,37 @@ func TestAccRdsInstance_restore_pg(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstance_change_billing_mode_to_prepaid(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_change_billing_mode_to_prepaid(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_change_billing_mode_to_prepaid_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckRdsInstanceDestroy(rsType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
@@ -1383,4 +1414,81 @@ resource "huaweicloud_rds_instance" "test_backup" {
   }
 }
 `, testBackup_pg_basic(name), name, pwd)
+}
+
+func testAccRdsInstance_change_billing_mode_to_prepaid(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "PostgreSQL"
+  db_version    = "14"
+  instance_mode = "single"
+  group_type    = "dedicated"
+  vcpus         = 8
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  time_zone         = "UTC+08:00"
+
+  db {
+    password = "Huangwei!120521"
+    type     = "PostgreSQL"
+    version  = "14"
+    port     = 8632
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
+}
+`, testAccRdsInstance_base(name), name)
+}
+
+func testAccRdsInstance_change_billing_mode_to_prepaid_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_rds_flavors" "test" {
+  db_type       = "PostgreSQL"
+  db_version    = "14"
+  instance_mode = "single"
+  group_type    = "dedicated"
+  vcpus         = 8
+}
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  time_zone         = "UTC+08:00"
+
+  db {
+    password = "Huangwei!120521"
+    type     = "PostgreSQL"
+    version  = "14"
+    port     = 8632
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = true
+}
+`, testAccRdsInstance_base(name), name)
 }
