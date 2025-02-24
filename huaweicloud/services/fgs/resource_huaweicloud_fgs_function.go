@@ -496,6 +496,35 @@ func ResourceFgsFunction() *schema.Resource {
 				// The stateful function can be closed, so computed behavior cannot be supported.
 				Description: `Whether the function is a stateful function.`,
 			},
+			"network_controller": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"trigger_access_vpcs": {
+							Type:     schema.TypeSet,
+							Required: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"vpc_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The ID of the VPC that can trigger the function.`,
+									},
+								},
+							},
+							Description: `The configuration of the VPCs that can trigger the function.`,
+						},
+						"disable_public_network": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Whether to disable the public network access.`,
+						},
+					},
+				},
+				Description: `The network configuration of the function.`,
+			},
 
 			// Deprecated parameters.
 			"package": {
@@ -640,6 +669,33 @@ func buildFunctionLogConfig(d *schema.ResourceData) map[string]interface{} {
 	}
 }
 
+func buildNetworkControllerTriggerAccessVpcs(triggerAccessVpcs []interface{}) []map[string]interface{} {
+	if len(triggerAccessVpcs) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(triggerAccessVpcs))
+	for _, triggerAccessVpc := range triggerAccessVpcs {
+		result = append(result, map[string]interface{}{
+			"vpc_id": utils.PathSearch("vpc_id", triggerAccessVpc, nil),
+		})
+	}
+	return result
+}
+
+func buildFunctionNetworkController(networkControlers []interface{}) map[string]interface{} {
+	if len(networkControlers) < 1 {
+		return nil
+	}
+
+	networkControler := networkControlers[0]
+	return map[string]interface{}{
+		"trigger_access_vpcs": buildNetworkControllerTriggerAccessVpcs(utils.PathSearch("trigger_access_vpcs",
+			networkControler, schema.NewSet(schema.HashString, nil)).(*schema.Set).List()),
+		"disable_public_network": utils.PathSearch("disable_public_network", networkControler, nil),
+	}
+}
+
 func buildCreateFunctionBodyParams(cfg *config.Config, d *schema.ResourceData) map[string]interface{} {
 	// Parameter app is recommended to replace parameter package.
 	pkg, ok := d.GetOk("app")
@@ -681,6 +737,7 @@ func buildCreateFunctionBodyParams(cfg *config.Config, d *schema.ResourceData) m
 		"log_config":            buildFunctionLogConfig(d),
 		"enable_dynamic_memory": d.Get("enable_dynamic_memory"),
 		"is_stateful_function":  d.Get("is_stateful_function"),
+		"network_controller":    buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
 	}
 }
 
@@ -803,6 +860,7 @@ func buildUpdateFunctionMetadataBodyParams(d *schema.ResourceData) map[string]in
 		"strategy_config":       buildFunctionStrategyConfig(d.Get("concurrency_num").(int)),
 		"enable_dynamic_memory": d.Get("enable_dynamic_memory"),
 		"is_stateful_function":  d.Get("is_stateful_function"),
+		"network_controller":    buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
 	}
 }
 
@@ -1392,6 +1450,35 @@ func flattenFunctionVersionAliases(aliases []interface{}) []map[string]interface
 	return result
 }
 
+func flattenNetworkControllerTriggerAccessVpcs(triggerAccessVpcs []interface{}) []map[string]interface{} {
+	if len(triggerAccessVpcs) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(triggerAccessVpcs))
+	for _, triggerAccessVpc := range triggerAccessVpcs {
+		result = append(result, map[string]interface{}{
+			"vpc_id": utils.PathSearch("vpc_id", triggerAccessVpc, nil),
+		})
+	}
+
+	return result
+}
+
+func flattenFunctionNetworkController(networkController interface{}) []map[string]interface{} {
+	if networkController == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"trigger_access_vpcs": flattenNetworkControllerTriggerAccessVpcs(utils.PathSearch("trigger_access_vpcs",
+				networkController, make([]interface{}, 0)).([]interface{})),
+			"disable_public_network": utils.PathSearch("disable_public_network", networkController, nil),
+		},
+	}
+}
+
 func flattenFunctionVersions(client *golangsdk.ServiceClient, functionUrn string) ([]map[string]interface{}, error) {
 	versionList, err := getFunctionVersions(client, functionUrn)
 	if err != nil {
@@ -1593,6 +1680,7 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 			function, make([]interface{}, 0)).([]interface{}))),
 		d.Set("enable_dynamic_memory", utils.PathSearch("enable_dynamic_memory", function, nil)),
 		d.Set("is_stateful_function", utils.PathSearch("is_stateful_function", function, nil)),
+		d.Set("network_controller", flattenFunctionNetworkController(utils.PathSearch("network_controller", function, nil))),
 		// Attributes.
 		d.Set("urn", utils.PathSearch("func_urn", function, nil)),
 		d.Set("version", utils.PathSearch("version", function, nil)),
@@ -1642,7 +1730,7 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "dns_list", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image",
 		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name", "concurrency_num", "gpu_memory", "gpu_type",
-		"enable_dynamic_memory", "is_stateful_function") {
+		"enable_dynamic_memory", "is_stateful_function", "network_controller") {
 		err := updateFunctionMetadata(client, d, funcUrnWithoutVersion)
 		if err != nil {
 			return diag.FromErr(err)
