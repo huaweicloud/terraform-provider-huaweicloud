@@ -1398,6 +1398,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_access_analyzer_archive_rule":       accessanalyzer.ResourceArchiveRule(),
 			"huaweicloud_access_analyzer_archive_rule_apply": accessanalyzer.ResourceArchiveRuleApply(),
 
+			"huaweicloud_aom_uniagent":                       aom.ResourceUniAgent(),
 			"huaweicloud_aom_alarm_rule":                     aom.ResourceAlarmRule(),
 			"huaweicloud_aomv4_alarm_rule":                   aom.ResourceAlarmRuleV4(),
 			"huaweicloud_aom_event_alarm_rule":               aom.ResourceEventAlarmRule(),
