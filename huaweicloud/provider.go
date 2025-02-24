@@ -1819,7 +1819,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_async_invoke_configuration": fgs.ResourceAsyncInvokeConfiguration(),
 			"huaweicloud_fgs_dependency":                 fgs.ResourceDependency(),
 			"huaweicloud_fgs_dependency_version":         fgs.ResourceDependencyVersion(),
-			"huaweicloud_fgs_function":                   fgs.ResourceFgsFunctionV2(),
+			"huaweicloud_fgs_function":                   fgs.ResourceFgsFunction(),
 			"huaweicloud_fgs_function_event":             fgs.ResourceFunctionEvent(),
 			"huaweicloud_fgs_function_topping":           fgs.ResourceFunctionTopping(),
 			"huaweicloud_fgs_function_trigger":           fgs.ResourceFunctionTrigger(),
@@ -2469,7 +2469,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_queue_v1":                dli.ResourceDliQueue(),
 			"huaweicloud_networking_vip_v2":           vpc.ResourceNetworkingVip(),
 			"huaweicloud_networking_vip_associate_v2": vpc.ResourceNetworkingVIPAssociateV2(),
-			"huaweicloud_fgs_function_v2":             fgs.ResourceFgsFunctionV2(),
+			"huaweicloud_fgs_function_v2":             fgs.ResourceFgsFunction(),
 			"huaweicloud_cdn_domain_v1":               cdn.ResourceCdnDomain(),
 			"huaweicloud_scm_certificate":             ccm.ResourceCertificateImport(),
 
