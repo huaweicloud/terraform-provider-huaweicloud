@@ -12,6 +12,7 @@ Manages the function resource within HuaweiCloud.
 
 ~> Since version `1.73.1`, the requests of the function resource will send these parameters:
    <br>`enable_dynamic_memory`
+   <br>`is_stateful_function`
    <br>For the regions that do not support this parameter, please use the lower version to deploy this resource.
 
 ## Example Usage
@@ -206,6 +207,7 @@ resource "huaweicloud_fgs_function" "test" {
   func_code             = base64encode(var.function_codes)
   functiongraph_version = "v2"
   enable_dynamic_memory = true
+  is_stateful_function  = true
 }
 ```
 
@@ -385,6 +387,9 @@ The following arguments are supported:
   -> If the `gpu_memory` and `gpu_type` configured, the `runtime` must be set to **Custom** or **Custom Image**.
 
 * `enable_dynamic_memory` - (Optional, Bool) Specifies whether the dynamic memory configuration is enabled.  
+  Defaults to **false**.
+
+* `is_stateful_function` - (Optional, Bool) Specifies whether the function is a stateful function.  
   Defaults to **false**.
 
 <a name="function_func_mounts"></a>

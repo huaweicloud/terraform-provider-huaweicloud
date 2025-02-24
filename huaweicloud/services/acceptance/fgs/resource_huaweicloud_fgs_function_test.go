@@ -82,6 +82,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withBase64Code, "tags.key", "value"),
 					resource.TestCheckResourceAttr(withBase64Code, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttr(withBase64Code, "enable_dynamic_memory", "true"),
+					resource.TestCheckResourceAttr(withBase64Code, "is_stateful_function", "true"),
 					resource.TestCheckResourceAttrSet(withBase64Code, "urn"),
 					resource.TestCheckResourceAttrSet(withBase64Code, "version"),
 					// Check the function which the code context is not base64 encoded.
@@ -105,6 +106,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withTextCode, "tags.key", "value"),
 					resource.TestCheckResourceAttr(withTextCode, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttr(withTextCode, "enable_dynamic_memory", "true"),
+					resource.TestCheckResourceAttr(withTextCode, "is_stateful_function", "true"),
 					resource.TestCheckResourceAttrSet(withTextCode, "urn"),
 					resource.TestCheckResourceAttrSet(withTextCode, "version"),
 					// Check the function which the code file is storaged in the OBS bucket.
@@ -128,6 +130,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withObsStorage, "tags.key", "value"),
 					resource.TestCheckResourceAttr(withObsStorage, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttr(withObsStorage, "enable_dynamic_memory", "true"),
+					resource.TestCheckResourceAttr(withObsStorage, "is_stateful_function", "true"),
 					resource.TestCheckResourceAttrSet(withObsStorage, "urn"),
 					resource.TestCheckResourceAttrSet(withObsStorage, "version"),
 					// Check the function which is build via an SWR image.
@@ -155,6 +158,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withCustomImage, "tags.key", "value"),
 					resource.TestCheckResourceAttr(withCustomImage, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttr(withCustomImage, "enable_dynamic_memory", "true"),
+					resource.TestCheckResourceAttr(withCustomImage, "is_stateful_function", "true"),
 					resource.TestCheckResourceAttrSet(withCustomImage, "urn"),
 					resource.TestCheckResourceAttrSet(withCustomImage, "version"),
 				),
@@ -182,6 +186,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withBase64Code, "tags.new_key", "value"),
 					resource.TestCheckResourceAttr(withBase64Code, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttr(withBase64Code, "enable_dynamic_memory", "false"),
+					resource.TestCheckResourceAttr(withBase64Code, "is_stateful_function", "false"),
 					resource.TestCheckResourceAttrSet(withBase64Code, "urn"),
 					resource.TestCheckResourceAttrSet(withBase64Code, "version"),
 					// Check the function which the code context is not base64 encoded.
@@ -204,6 +209,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withTextCode, "tags.new_key", "value"),
 					resource.TestCheckResourceAttr(withTextCode, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttr(withTextCode, "enable_dynamic_memory", "false"),
+					resource.TestCheckResourceAttr(withTextCode, "is_stateful_function", "false"),
 					resource.TestCheckResourceAttrSet(withTextCode, "urn"),
 					resource.TestCheckResourceAttrSet(withTextCode, "version"),
 					// Check the function which the code file is storaged in the OBS bucket.
@@ -226,6 +232,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withObsStorage, "tags.new_key", "value"),
 					resource.TestCheckResourceAttr(withObsStorage, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttr(withObsStorage, "enable_dynamic_memory", "false"),
+					resource.TestCheckResourceAttr(withObsStorage, "is_stateful_function", "false"),
 					resource.TestCheckResourceAttrSet(withObsStorage, "urn"),
 					resource.TestCheckResourceAttrSet(withObsStorage, "version"),
 					// Check the function which is build via an SWR image.
@@ -252,6 +259,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withCustomImage, "tags.new_key", "value"),
 					resource.TestCheckResourceAttr(withCustomImage, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttr(withCustomImage, "enable_dynamic_memory", "false"),
+					resource.TestCheckResourceAttr(withCustomImage, "is_stateful_function", "false"),
 					resource.TestCheckResourceAttrSet(withCustomImage, "urn"),
 					resource.TestCheckResourceAttrSet(withCustomImage, "version"),
 				),
@@ -374,6 +382,7 @@ resource "huaweicloud_fgs_function" "with_base64_code" {
   description           = "Created by terraform script"
   functiongraph_version = "v2"
   enable_dynamic_memory = true
+  is_stateful_function  = true
 
   user_data = jsonencode({
     "owner": "terraform"
@@ -403,6 +412,7 @@ resource "huaweicloud_fgs_function" "with_text_code" {
   description           = "Created by terraform script"
   functiongraph_version = "v2"
   enable_dynamic_memory = true
+  is_stateful_function  = true
 
   user_data = jsonencode({
     "owner": "terraform"
@@ -433,6 +443,7 @@ resource "huaweicloud_fgs_function" "with_obs_storage" {
   description           = "Created by terraform script"
   functiongraph_version = "v2"
   enable_dynamic_memory = true
+  is_stateful_function  = true
 
   user_data = jsonencode({
     "owner": "terraform"
@@ -462,6 +473,7 @@ resource "huaweicloud_fgs_function" "with_custom_image" {
   description           = "Created by terraform script"
   functiongraph_version = "v2"
   enable_dynamic_memory = true
+  is_stateful_function  = true
   vpc_id                = huaweicloud_vpc.test.id
   network_id            = huaweicloud_vpc_subnet.test.id
 
