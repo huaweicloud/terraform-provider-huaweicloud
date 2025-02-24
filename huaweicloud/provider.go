@@ -1631,6 +1631,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_cluster_restart":             css.ResourceCssClusterRestart(),
 			"huaweicloud_css_cluster_node_replace":        css.ResourceCssClusterNodeReplace(),
 			"huaweicloud_css_snapshot":                    css.ResourceCssSnapshot(),
+			"huaweicloud_css_snapshot_restore":            css.ResourceSnapshotRestore(),
 			"huaweicloud_css_thesaurus":                   css.ResourceCssthesaurus(),
 			"huaweicloud_css_configuration":               css.ResourceCssConfiguration(),
 			"huaweicloud_css_scan_task":                   css.ResourceScanTask(),
@@ -2466,7 +2467,6 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cdm_cluster_v1": cdm.ResourceCdmCluster(),
 			"huaweicloud_css_cluster_v1": css.ResourceCssCluster(),
-			"huaweicloud_css_restore":    css.ResourceCssRestore(),
 			"huaweicloud_dis_stream_v2":  dis.ResourceDisStream(),
 
 			"huaweicloud_organizations_organization":            organizations.ResourceOrganization(),
