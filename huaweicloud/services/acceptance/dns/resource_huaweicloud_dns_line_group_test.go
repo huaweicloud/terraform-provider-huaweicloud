@@ -2,62 +2,33 @@ package dns
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dns"
 )
 
-func getDNSLineGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getLineGroup(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
-	// Query DNS line group.
-	var (
-		getDNSLineGroupHttpUrl = "v2.1/linegroups/{linegroup_id}"
-		getDNSLineGroupProduct = "dns"
-	)
-	getDNSLineGroupClient, err := cfg.NewServiceClient(getDNSLineGroupProduct, region)
+	client, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DNS client: %s", err)
 	}
 
-	getDNSLineGroupPath := getDNSLineGroupClient.Endpoint + getDNSLineGroupHttpUrl
-	getDNSLineGroupPath = strings.ReplaceAll(getDNSLineGroupPath, "{linegroup_id}", state.Primary.ID)
-
-	getDNSLineGroupOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getDNSLineGroupResp, err := getDNSLineGroupClient.Request("GET", getDNSLineGroupPath, &getDNSLineGroupOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving DNS line group: %s", err)
-	}
-
-	getDNSLineGroupRespBody, err := utils.FlattenResponse(getDNSLineGroupResp)
-	if err != nil {
-		return nil, fmt.Errorf("error flatten DNS line group response: %s", err)
-	}
-	return getDNSLineGroupRespBody, nil
+	return dns.GetLineGroupById(client, state.Primary.ID)
 }
 
-func TestAccDNSLineGroup_basic(t *testing.T) {
-	var obj interface{}
+func TestAccLineGroup_basic(t *testing.T) {
+	var (
+		lineGroup interface{}
+		rName     = "huaweicloud_dns_line_group.test"
+		rc        = acceptance.InitResourceCheck(rName, &lineGroup, getLineGroup)
 
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dns_line_group.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDNSLineGroupResourceFunc,
+		name = acceptance.RandomAccResourceName()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -66,7 +37,7 @@ func TestAccDNSLineGroup_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDNSLineGroup_basic(name),
+				Config: testAccLineGroup_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
@@ -76,11 +47,11 @@ func TestAccDNSLineGroup_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testDNSLineGroup_basic_update(name),
+				Config: testAccLineGroup_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "description", "test description update"),
+					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "lines.#", "3"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 				),
@@ -94,7 +65,7 @@ func TestAccDNSLineGroup_basic(t *testing.T) {
 	})
 }
 
-func testDNSLineGroup_basic(name string) string {
+func testAccLineGroup_basic_step1(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_line_group" "test" {
   name        = "%s"
@@ -104,12 +75,11 @@ resource "huaweicloud_dns_line_group" "test" {
 `, name)
 }
 
-func testDNSLineGroup_basic_update(name string) string {
+func testAccLineGroup_basic_step2(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_line_group" "test" {
-  name        = "%s_update"
-  description = "test description update"
-  lines       = ["Dianxin_Beijing", "Dianxin_Jilin", "Dianxin_Zhejiang"]
+  name  = "%s_update"
+  lines = ["Dianxin_Beijing", "Dianxin_Jilin", "Dianxin_Zhejiang"]
 }
 `, name)
 }

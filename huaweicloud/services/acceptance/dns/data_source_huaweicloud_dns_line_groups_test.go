@@ -80,5 +80,5 @@ data "huaweicloud_dns_line_groups" "filter_not_found_name" {
 output "not_found_name" {
   value = length(data.huaweicloud_dns_line_groups.filter_not_found_name.groups) == 0
 }
-`, testDNSLineGroup_basic(name))
+`, testAccLineGroup_basic_step1(name))
 }
