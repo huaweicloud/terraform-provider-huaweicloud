@@ -903,21 +903,21 @@ func TestAccFunction_versions(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFunction_versions_step1(name),
+				Config: testAccFunction_versions_step1(functionScriptContentDefinition("Hello, world!"), name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "versions.#", "0"),
 				),
 			},
 			{
-				Config: testAccFunction_versions_step2(name),
+				Config: testAccFunction_versions_step2(functionScriptContentDefinition("Hi, world!"), name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "versions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "versions.#", "2"),
 				),
 			},
 			{
-				Config: testAccFunction_versions_step3(name),
+				Config: testAccFunction_versions_step3(functionScriptContentDefinition("Yo, world!"), name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "versions.#", "2"),
@@ -935,7 +935,22 @@ func TestAccFunction_versions(t *testing.T) {
 	})
 }
 
-func testAccFunction_versions_step1(name string) string {
+func functionScriptContentDefinition(msg string) string {
+	return fmt.Sprintf(`
+variable "script_content" {
+  type    = string
+  default = <<EOT
+def main():
+    print("%[1]s")
+
+if __name__ == "__main__":
+    main()
+EOT
+}
+`, msg)
+}
+
+func testAccFunction_versions_step1(funcScript, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -951,38 +966,11 @@ resource "huaweicloud_fgs_function" "test" {
   description           = "Created by terraform script"
   functiongraph_version = "v2"
 }
-`, functionScriptVariableDefinition, name)
+`, funcScript, name)
 }
 
-func testAccFunction_versions_step2(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_fgs_function" "test" {
-  name                  = "%[2]s"
-  memory_size           = 128
-  runtime               = "Python2.7"
-  timeout               = 3
-  app                   = "default"
-  handler               = "index.handler"
-  code_type             = "inline"
-  func_code             = base64encode(var.script_content)
-  description           = "Created by terraform script"
-  functiongraph_version = "v2"
-
-  versions {
-    name = "%[2]s"
-
-    aliases {
-      name        = "custom_alias"
-      description = "This is a description of the custom alias"
-    }
-  }
-}
-`, functionScriptVariableDefinition, name)
-}
-
-func testAccFunction_versions_step3(name string) string {
+// Before this configuration supplement, the func_code must be updated.
+func testAccFunction_versions_step2(funcScript, name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -1002,18 +990,59 @@ resource "huaweicloud_fgs_function" "test" {
     name = "latest"
 
     aliases {
-      name = "demo"
+      name        = "demo"
+      description = "This is a description of the alias demo under the version latest."
     }
   }
+  # The value of the parameter func_code must be modified before each custom version add.
   versions {
-    name = "%[2]s"
+    name = "v1.0"
 
     aliases {
-      name = "custom_alias_update"
+      name        = "v1_0-alias"
+      description = "This is a description of the alias v1_0-alias under the version v1.0."
     }
   }
 }
-`, functionScriptVariableDefinition, name)
+`, funcScript, name)
+}
+
+// Before this configuration supplement, the func_code must be updated.
+func testAccFunction_versions_step3(funcScript, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_function" "test" {
+  name                  = "%[2]s"
+  memory_size           = 128
+  runtime               = "Python2.7"
+  timeout               = 3
+  app                   = "default"
+  handler               = "index.handler"
+  code_type             = "inline"
+  func_code             = base64encode(var.script_content)
+  description           = "Created by terraform script"
+  functiongraph_version = "v2"
+
+  # The value of the parameter func_code must be modified before each custom version add.
+  versions {
+    name = "v1.0"
+
+    aliases {
+      name        = "v1_0-alias"
+      description = "This is a description of the alias v1_0-alias under the version v1.0."
+    }
+  }
+  versions {
+    name = "v2.0"
+
+    aliases {
+      name        = "v2_0-alias"
+      description = "This is a description of the alias v2_0-alias under the version v2.0."
+    }
+  }
+}
+`, funcScript, name)
 }
 
 func TestAccFunction_domain(t *testing.T) {
