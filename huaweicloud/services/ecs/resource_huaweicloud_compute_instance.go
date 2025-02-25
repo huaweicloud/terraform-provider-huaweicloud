@@ -3,6 +3,7 @@ package ecs
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -53,6 +54,7 @@ var (
 // @API ECS GET /v1/{project_id}/cloudservers/{server_id}
 // @API ECS GET /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}
 // @API ECS GET /v1/{project_id}/jobs/{job_id}
+// @API ECS POST /v1/{project_id}/cloudservers/{server_id}/changevpc
 // @API IMS GET /v2/cloudimages
 // @API EVS POST /v2.1/{project_id}/cloudvolumes/{volume_id}/action
 // @API EVS GET /v2/{project_id}/cloudvolumes/{volume_id}
@@ -166,7 +168,6 @@ func ResourceComputeInstance() *schema.Resource {
 						"uuid": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Computed:    true,
 							Description: "schema: Required",
 						},
@@ -185,7 +186,6 @@ func ResourceComputeInstance() *schema.Resource {
 						"fixed_ip_v4": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Computed: true,
 						},
 						"source_dest_check": {
@@ -1269,6 +1269,17 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if d.HasChanges("network.0.uuid", "network.0.fixed_ip_v4") {
+		vpcClient, err := cfg.NetworkingV1Client(region)
+		if err != nil {
+			return diag.Errorf("error creating networking client: %s", err)
+		}
+		err = updateInstanceNetwork(ctx, d, ecsClient, vpcClient, serverID)
+		if err != nil {
+			return diag.Errorf("error updating network of server (%s): %s", serverID, err)
+		}
+	}
+
 	return resourceComputeInstanceRead(ctx, d, meta)
 }
 
@@ -1310,6 +1321,85 @@ func updateInstanceMetaData(d *schema.ResourceData, client *golangsdk.ServiceCli
 	}
 
 	return nil
+}
+
+func updateInstanceNetwork(ctx context.Context, d *schema.ResourceData, client, vpcClient *golangsdk.ServiceClient, serverID string) error {
+	updateNetworkHttpUrl := "v1/{project_id}/cloudservers/{server_id}/changevpc"
+	updateNetworkPath := client.Endpoint + updateNetworkHttpUrl
+	updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{project_id}", client.ProjectID)
+	updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{server_id}", serverID)
+
+	vpcID, err := getVpcID(d, vpcClient)
+	if err != nil {
+		return err
+	}
+
+	updateNetworkOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateInstanceNetworkOpts(d, vpcID)),
+	}
+	updateNetworkResp, err := client.Request("POST", updateNetworkPath, &updateNetworkOpt)
+	if err != nil {
+		return fmt.Errorf("error udpating ECS network: %s", err)
+	}
+	updateNetworkRespBody, err := utils.FlattenResponse(updateNetworkResp)
+	if err != nil {
+		return err
+	}
+	jobID := utils.PathSearch("job_id", updateNetworkRespBody, "").(string)
+	if jobID == "" {
+		return errors.New("unable to find the job ID from the API response")
+	}
+
+	// Wait for job status become `SUCCESS`.
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      getJobRefreshFunc(client, jobID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for ECS network updated: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateInstanceNetworkOpts(d *schema.ResourceData, vpcID string) map[string]interface{} {
+	var ipAddress interface{}
+	networks := d.Get("network")
+
+	networkID := utils.PathSearch("[0].uuid", networks, nil)
+	if d.HasChange("network.0.fixed_ip_v4") {
+		ipAddress = utils.PathSearch("[0].fixed_ip_v4", networks, nil)
+	}
+
+	bodyParam := map[string]interface{}{
+		"vpc_id": vpcID,
+		"nic": map[string]interface{}{
+			"subnet_id":       networkID,
+			"ip_address":      utils.ValueIgnoreEmpty(ipAddress),
+			"security_groups": buildUpdateInstanceNetworkSecgroupOpts(d),
+		},
+	}
+
+	return bodyParam
+}
+
+func buildUpdateInstanceNetworkSecgroupOpts(d *schema.ResourceData) []map[string]interface{} {
+	secgroupIDs := d.Get("security_group_ids").(*schema.Set).List()
+	bodyParams := make([]map[string]interface{}, len(secgroupIDs))
+
+	for i, v := range secgroupIDs {
+		bodyParams[i] = map[string]interface{}{
+			"id": v,
+		}
+	}
+
+	return bodyParams
 }
 
 func resourceComputeInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
