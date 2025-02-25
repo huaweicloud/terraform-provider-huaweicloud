@@ -422,6 +422,18 @@ func Provider() *schema.Provider {
 				Description: descriptions["signing_algorithm"],
 				DefaultFunc: schema.EnvDefaultFunc("HW_SIGNING_ALGORITHM", ""),
 			},
+			"skip_check_website_type": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: descriptions["skip_check_website_type"],
+				DefaultFunc: schema.EnvDefaultFunc("SKIP_CHECK_WEBSITE_TYPE", false),
+			},
+			"skip_check_upgrade": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: descriptions["skip_check_upgrade"],
+				DefaultFunc: schema.EnvDefaultFunc("SKIP_CHECK_UPGRADE", false),
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -2638,6 +2650,10 @@ func init() {
 		"enable_force_new": "Whether to enable ForceNew",
 
 		"signing_algorithm": "The signing algorithm for authentication",
+
+		"skip_check_website_type": "Whether to skip website type check",
+
+		"skip_check_upgrade": "Whether to skip upgrade check",
 	}
 }
 
@@ -2766,7 +2782,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 	}
 
 	if conf.Cloud == defaultCloud {
-		if os.Getenv("SKIP_CHECK_WEBSITE_TYPE") != "true" {
+		if !d.Get("skip_check_website_type").(bool) {
 			if err := conf.SetWebsiteType(); err != nil {
 				log.Printf("[WARN] failed to get the website type: %s", err)
 			}
@@ -2789,7 +2805,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		conf.SetServiceEndpoint("cdn", cdnEndpoint)
 	}
 
-	return &conf, config.CheckUpgrade(Version)
+	return &conf, config.CheckUpgrade(d, Version)
 }
 
 func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error) {

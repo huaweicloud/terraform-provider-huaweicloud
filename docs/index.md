@@ -220,6 +220,10 @@ The following arguments are supported:
 
 * `regional` - (Optional) Whether the service endpoints are regional. The default value is `false`.
 
+* `skip_check_website_type` - (Optional) Whether to skip website type check. The default value is `false`.
+
+* `skip_check_upgrade` - (Optional) Whether to skip upgrade check. The default value is `false`.
+
 * `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints. The following
   endpoints support to be customized: autoscaling, ecs, ims, vpc, nat, evs, obs, sfs, cce, rds, dds, iam. An example
   provider configuration:
