@@ -337,10 +337,10 @@ func resourceCTSNotificationRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("name", name),
 		d.Set("notification_id", utils.PathSearch("notification_id", notification, nil)),
 		d.Set("smn_topic", utils.PathSearch("topic_id", notification, nil)),
-		d.Set("filter", flattenNotificationFilterNew(utils.PathSearch("filter", notification, nil))),
+		d.Set("filter", flattenNotificationFilter(utils.PathSearch("filter", notification, nil))),
 		d.Set("agency_name", utils.PathSearch("agency_name", notification, nil)),
-		d.Set("operations", flattenNotificationOperationsNew(operations)),
-		d.Set("operation_users", flattenNotificationUsersNew(notifyUserList)),
+		d.Set("operations", flattenNotificationOperations(operations)),
+		d.Set("operation_users", flattenNotificationUsers(notifyUserList)),
 		d.Set("operation_type", utils.PathSearch("operation_type", notification, nil)),
 		d.Set("status", status),
 		d.Set("enabled", status == "enabled"),
@@ -435,7 +435,7 @@ func convertNotificationStatus(enabled bool) string {
 	return "disabled"
 }
 
-func flattenNotificationUsersNew(users []interface{}) []map[string]interface{} {
+func flattenNotificationUsers(users []interface{}) []map[string]interface{} {
 	ret := make([]map[string]interface{}, len(users))
 	for i, v := range users {
 		ret[i] = map[string]interface{}{
@@ -447,7 +447,7 @@ func flattenNotificationUsersNew(users []interface{}) []map[string]interface{} {
 	return ret
 }
 
-func flattenNotificationOperationsNew(ops []interface{}) []map[string]interface{} {
+func flattenNotificationOperations(ops []interface{}) []map[string]interface{} {
 	ret := make([]map[string]interface{}, len(ops))
 	for i, v := range ops {
 		ret[i] = map[string]interface{}{
@@ -460,7 +460,7 @@ func flattenNotificationOperationsNew(ops []interface{}) []map[string]interface{
 	return ret
 }
 
-func flattenNotificationFilterNew(filter interface{}) []map[string]interface{} {
+func flattenNotificationFilter(filter interface{}) []map[string]interface{} {
 	if filter == nil {
 		return nil
 	}
