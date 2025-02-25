@@ -51,6 +51,11 @@ func TestAccDataRecordsets_basic(t *testing.T) {
 		dcByTags         = acceptance.InitDataSourceCheck(byTags)
 		byNotFoundTags   = "data.huaweicloud_dns_recordsets.filter_by_not_found_tags"
 		dcByNotFoundTags = acceptance.InitDataSourceCheck(byNotFoundTags)
+
+		bySortAsc    = "data.huaweicloud_dns_recordsets.filter_by_sort_asc"
+		dcBySortAsc  = acceptance.InitDataSourceCheck(bySortAsc)
+		bySortDesc   = "data.huaweicloud_dns_recordsets.filter_by_sort_desc"
+		dcBySortDesc = acceptance.InitDataSourceCheck(bySortDesc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -99,6 +104,10 @@ func TestAccDataRecordsets_basic(t *testing.T) {
 					resource.TestCheckOutput("is_tags_filter_useful", "true"),
 					dcByNotFoundTags.CheckResourceExists(),
 					resource.TestCheckOutput("tags_not_found_validation_pass", "true"),
+					// Check the sort results.
+					dcBySortAsc.CheckResourceExists(),
+					dcBySortDesc.CheckResourceExists(),
+					resource.TestCheckOutput("sort_filter_is_useful", "true"),
 					// Check attributes.
 					// The ID of the corresponding resource consists of zone ID and recordset ID.
 					resource.TestCheckResourceAttrSet(byRecordsetId, "recordsets.0.id"),
@@ -110,6 +119,10 @@ func TestAccDataRecordsets_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(byRecordsetId, "recordsets.0.records", rName, "records"),
 					resource.TestCheckResourceAttrPair(byRecordsetId, "recordsets.0.weight", rName, "weight"),
 					resource.TestCheckResourceAttrPair(byRecordsetId, "recordsets.0.description", rName, "description"),
+					resource.TestMatchResourceAttr(byRecordsetId, "recordsets.0.created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(byRecordsetId, "recordsets.0.updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					// This value is false when created by the Terraform script.
 					resource.TestCheckResourceAttr(byRecordsetId, "recordsets.0.default", "false"),
 				),
@@ -275,6 +288,30 @@ data "huaweicloud_dns_recordsets" "filter_by_not_found_tags" {
 output "tags_not_found_validation_pass" {
   value = length(data.huaweicloud_dns_recordsets.filter_by_not_found_tags.recordsets) == 0
 }
+
+# Sort ascending order using name as the sort field.
+data "huaweicloud_dns_recordsets" "filter_by_sort_asc" {
+  zone_id  = huaweicloud_dns_recordset.test.0.zone_id
+  sort_key = "name"
+  sort_dir = "asc"
+}
+
+# Sort descending order using name as the sort field.
+data "huaweicloud_dns_recordsets" "filter_by_sort_desc" {
+  zone_id  = huaweicloud_dns_recordset.test.0.zone_id
+  sort_key = "name"
+  sort_dir = "desc"
+}
+
+locals {
+  sort_desc_filter_result = data.huaweicloud_dns_recordsets.filter_by_sort_desc.recordsets
+  sort_asc_first_name     = try(data.huaweicloud_dns_recordsets.filter_by_sort_asc.recordsets[0].name, "")
+  sort_desc_last_name     = try(data.huaweicloud_dns_recordsets.filter_by_sort_desc.recordsets[length(local.sort_desc_filter_result) - 1].name, "")
+}
+
+output "sort_filter_is_useful" {
+  value = length(local.sort_desc_filter_result) > 0 && local.sort_asc_first_name == local.sort_desc_last_name
+}
 `)
 }
 
@@ -369,6 +406,11 @@ func TestAccDataRecordsets_private(t *testing.T) {
 		dcByTags         = acceptance.InitDataSourceCheck(byTags)
 		byNotFoundTags   = "data.huaweicloud_dns_recordsets.filter_by_not_found_tags"
 		dcByNotFoundTags = acceptance.InitDataSourceCheck(byNotFoundTags)
+
+		bySortAsc    = "data.huaweicloud_dns_recordsets.filter_by_sort_asc"
+		dcBySortAsc  = acceptance.InitDataSourceCheck(bySortAsc)
+		bySortDesc   = "data.huaweicloud_dns_recordsets.filter_by_sort_desc"
+		dcBySortDesc = acceptance.InitDataSourceCheck(bySortDesc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -412,6 +454,10 @@ func TestAccDataRecordsets_private(t *testing.T) {
 					resource.TestCheckOutput("is_tags_filter_useful", "true"),
 					dcByNotFoundTags.CheckResourceExists(),
 					resource.TestCheckOutput("tags_not_found_validation_pass", "true"),
+					// Check the sort results.
+					dcBySortAsc.CheckResourceExists(),
+					dcBySortDesc.CheckResourceExists(),
+					resource.TestCheckOutput("sort_filter_is_useful", "true"),
 					// Check attributes.
 					// The ID of the corresponding resource consists of zone ID and recordset ID.
 					resource.TestCheckResourceAttrSet(byRecordsetId, "recordsets.0.id"),
@@ -422,6 +468,10 @@ func TestAccDataRecordsets_private(t *testing.T) {
 					resource.TestCheckResourceAttrPair(byRecordsetId, "recordsets.0.ttl", rName, "ttl"),
 					resource.TestCheckResourceAttrPair(byRecordsetId, "recordsets.0.records", rName, "records"),
 					resource.TestCheckResourceAttrPair(byRecordsetId, "recordsets.0.description", rName, "description"),
+					resource.TestMatchResourceAttr(byRecordsetId, "recordsets.0.created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(byRecordsetId, "recordsets.0.updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					// This value is false when created by the Terraform script.
 					resource.TestCheckResourceAttr(byRecordsetId, "recordsets.0.default", "false"),
 				),
