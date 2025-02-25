@@ -1122,3 +1122,7 @@ func (c *Config) KooGalleryV1Client(region string) (*golangsdk.ServiceClient, er
 func (c *Config) VpnV5Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("vpn", region)
 }
+
+func (c *Config) StsClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("sts", region)
+}
