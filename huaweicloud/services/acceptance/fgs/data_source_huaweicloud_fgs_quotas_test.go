@@ -10,9 +10,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceQuotas_basic(t *testing.T) {
+func TestAccDataQuotas_basic(t *testing.T) {
 	var (
-		all = "data.huaweicloud_fgs_quotas.test"
+		all = "data.huaweicloud_fgs_quotas.all"
 		dc  = acceptance.InitDataSourceCheck(all)
 	)
 
@@ -23,10 +23,12 @@ func TestAccDataSourceQuotas_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceQuotas_basic(),
+				Config: testAccDataQuotas_basic(),
 				Check: resource.ComposeTestCheckFunc(
+					// Without filter parameters.
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(all, "quotas.#", regexp.MustCompile(`[1-9][0-9]*`)),
+					// Check the attributes.
 					resource.TestCheckResourceAttrSet(all, "quotas.0.type"),
 					resource.TestCheckResourceAttrSet(all, "quotas.0.limit"),
 					resource.TestCheckOutput("is_quota_fgs_func_num_used", "true"),
@@ -38,7 +40,7 @@ func TestAccDataSourceQuotas_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceQuotas_basic() string {
+func testAccDataQuotas_basic() string {
 	name := acceptance.RandomAccResourceName()
 
 	return fmt.Sprintf(`
@@ -71,12 +73,12 @@ resource "huaweicloud_fgs_function" "test" {
   func_code   = base64encode(jsonencode(var.js_script_content))
 }
 
-data "huaweicloud_fgs_quotas" "test" {
+data "huaweicloud_fgs_quotas" "all" {
   depends_on = [huaweicloud_fgs_function.test]
 }
 
 locals {
-  all_used_quota_types = [for _, v in data.huaweicloud_fgs_quotas.test.quotas: v.type if v.used > 0]
+  all_used_quota_types = [for _, v in data.huaweicloud_fgs_quotas.all.quotas: v.type if v.used > 0]
 }
 
 output "is_quota_fgs_func_num_used" {
@@ -84,7 +86,7 @@ output "is_quota_fgs_func_num_used" {
 }
 
 locals {
-  all_quotas_that_contains_unit = [for _, v in data.huaweicloud_fgs_quotas.test.quotas: v if v.unit != ""]
+  all_quotas_that_contains_unit = [for _, v in data.huaweicloud_fgs_quotas.all.quotas: v if v.unit != ""]
 }
 
 output "is_just_fgs_func_code_size_contains_unit" {

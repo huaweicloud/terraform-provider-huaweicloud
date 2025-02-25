@@ -61,7 +61,7 @@ func TestAccDataDependencies_basic(t *testing.T) {
 					// Filter by dependency runtime.
 					dcByRuntime.CheckResourceExists(),
 					resource.TestCheckOutput("is_runtime_filter_useful", "true"),
-					// Check attributes.
+					// Check the attributes.
 					// The behavior of the filter parameter 'name' is exact match.
 					resource.TestCheckResourceAttrPair(byName, "packages.0.id", base, "dependency_id"),
 					resource.TestCheckResourceAttrPair(byName, "packages.0.name", base, "name"),
@@ -91,6 +91,7 @@ func testAccDataDependencies_basic() string {
 	return fmt.Sprintf(`
 %[1]s
 
+# Without any filter parameter.
 data "huaweicloud_fgs_dependencies" "all" {}
 
 # Filter by dependency type.

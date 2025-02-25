@@ -14,7 +14,8 @@ import (
 
 func TestAccDataDependencyVersions_basic(t *testing.T) {
 	var (
-		rName                      = "huaweicloud_fgs_dependency_version.test"
+		base = "huaweicloud_fgs_dependency_version.test"
+
 		all                        = "data.huaweicloud_fgs_dependency_versions.all"
 		dcForAllDependencyVersions = acceptance.InitDataSourceCheck(all)
 
@@ -44,6 +45,7 @@ func TestAccDataDependencyVersions_basic(t *testing.T) {
 			{
 				Config: testAccDataDependencyVersions_basic(),
 				Check: resource.ComposeTestCheckFunc(
+					// Without filter parameters.
 					dcForAllDependencyVersions.CheckResourceExists(),
 					resource.TestMatchResourceAttr(all, "versions.#", regexp.MustCompile(`[1-9][0-9]*`)),
 					// Filter by version ID.
@@ -61,18 +63,18 @@ func TestAccDataDependencyVersions_basic(t *testing.T) {
 					resource.TestCheckOutput("is_runtime_filter_useful", "true"),
 					dcByNotFoundRuntime.CheckResourceExists(),
 					resource.TestCheckOutput("runtime_not_found_validation_pass", "true"),
-					// Check attributes.
-					dcByVersionId.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.id", rName, "version_id"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.version", rName, "version"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.dependency_id", rName, "dependency_id"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.dependency_name", rName, "name"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.runtime", rName, "runtime"),
+					// Check the attributes.
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.id", base, "version_id"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.version", base, "version"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.dependency_id", base, "dependency_id"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.dependency_name", base, "name"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.runtime", base, "runtime"),
+					// The link will be replaced with a new link which belongs to the FunctionGraph service.
 					resource.TestCheckResourceAttrSet(byVersionId, "versions.0.link"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.size", rName, "size"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.etag", rName, "etag"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.owner", rName, "owner"),
-					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.description", rName, "description"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.size", base, "size"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.etag", base, "etag"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.owner", base, "owner"),
+					resource.TestCheckResourceAttrPair(byVersionId, "versions.0.description", base, "description"),
 				),
 			},
 		},
@@ -138,7 +140,7 @@ data "huaweicloud_fgs_dependency_versions" "filter_by_version" {
 }
 
 data "huaweicloud_fgs_dependency_versions" "filter_by_not_found_version" {
-  # Query dependency versions using a not exist version ID after dependency version resource create.
+  # Query dependency versions using a not exist version number after dependency version resource create.
   depends_on = [
     huaweicloud_fgs_dependency_version.test,
   ]
@@ -162,18 +164,18 @@ output "version_not_found_validation_pass" {
 
 # Filter by runtime.
 locals {
-  runtime = huaweicloud_fgs_dependency_version.test.runtime
+  version_runtime = huaweicloud_fgs_dependency_version.test.runtime
 }
 
 data "huaweicloud_fgs_dependency_versions" "filter_by_runtime" {
   # The behavior of parameter 'runtime' of the resource is 'Required', means this parameter does not
   # have 'Know After Apply' behavior.
   dependency_id = huaweicloud_fgs_dependency_version.test.dependency_id
-  runtime       = local.runtime
+  runtime       = local.version_runtime
 }
 
 data "huaweicloud_fgs_dependency_versions" "filter_by_not_found_runtime" {
-  # Query dependency versions using a not exist version ID after dependency version resource create.
+  # Query dependency versions using a not exist version runtime after dependency version resource create.
   depends_on = [
     huaweicloud_fgs_dependency_version.test,
   ]
@@ -184,7 +186,7 @@ data "huaweicloud_fgs_dependency_versions" "filter_by_not_found_runtime" {
 
 locals {
   runtime_filter_result = [for v in data.huaweicloud_fgs_dependency_versions.filter_by_runtime.versions[*].runtime :
-    v == local.runtime]
+    v == local.version_runtime]
 }
 
 output "is_runtime_filter_useful" {

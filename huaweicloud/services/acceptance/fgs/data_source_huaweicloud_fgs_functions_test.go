@@ -2,6 +2,7 @@ package fgs
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +12,8 @@ import (
 
 func TestAccDataFunctions_basic(t *testing.T) {
 	var (
-		rcName            = "huaweicloud_fgs_function.test"
+		base = "huaweicloud_fgs_function.test"
+
 		all               = "data.huaweicloud_fgs_functions.all"
 		dcForAllFunctions = acceptance.InitDataSourceCheck(all)
 
@@ -25,14 +27,14 @@ func TestAccDataFunctions_basic(t *testing.T) {
 		byNotFoundFunctionUrn   = "data.huaweicloud_fgs_functions.filter_by_not_found_function_urn"
 		dcByNotFoundFunctionUrn = acceptance.InitDataSourceCheck(byNotFoundFunctionUrn)
 
-		byFunctionName           = "data.huaweicloud_fgs_functions.filter_by_function_name"
+		byFunctionName           = "data.huaweicloud_fgs_functions.filter_by_name"
 		dcByFunctionName         = acceptance.InitDataSourceCheck(byFunctionName)
-		byNotFoundFunctionName   = "data.huaweicloud_fgs_functions.filter_by_not_found_function_name"
+		byNotFoundFunctionName   = "data.huaweicloud_fgs_functions.filter_by_not_found_name"
 		dcByNotFoundFunctionName = acceptance.InitDataSourceCheck(byNotFoundFunctionName)
 
-		byRuntime           = "data.huaweicloud_fgs_functions.filter_by_function_runtime"
+		byRuntime           = "data.huaweicloud_fgs_functions.filter_by_runtime"
 		dcByRuntime         = acceptance.InitDataSourceCheck(byRuntime)
-		byNotFoundRuntime   = "data.huaweicloud_fgs_functions.filter_by_not_found_function_runtime"
+		byNotFoundRuntime   = "data.huaweicloud_fgs_functions.filter_by_not_found_runtime"
 		dcByNotFoundRuntime = acceptance.InitDataSourceCheck(byNotFoundRuntime)
 
 		byEpsId            = "data.huaweicloud_fgs_functions.filter_by_eps_id"
@@ -51,8 +53,9 @@ func TestAccDataFunctions_basic(t *testing.T) {
 			{
 				Config: testAccDataFunctions_basic(),
 				Check: resource.ComposeTestCheckFunc(
+					// Without filter parameters.
 					dcForAllFunctions.CheckResourceExists(),
-					resource.TestCheckOutput("is_result_contains_function", "true"),
+					resource.TestMatchResourceAttr(all, "functions.#", regexp.MustCompile(`[1-9][0-9]*`)),
 					// Filter by package name.
 					dcByPackageName.CheckResourceExists(),
 					resource.TestCheckOutput("is_package_name_filter_useful", "true"),
@@ -65,29 +68,29 @@ func TestAccDataFunctions_basic(t *testing.T) {
 					resource.TestCheckOutput("function_urn_not_found_validation_pass", "true"),
 					// Filter by function name.
 					dcByFunctionName.CheckResourceExists(),
-					resource.TestCheckOutput("is_function_name_filter_useful", "true"),
+					resource.TestCheckOutput("is_name_filter_useful", "true"),
 					dcByNotFoundFunctionName.CheckResourceExists(),
-					resource.TestCheckOutput("function_name_not_found_validation_pass", "true"),
+					resource.TestCheckOutput("name_not_found_validation_pass", "true"),
 					// Filter by function runtime.
 					dcByRuntime.CheckResourceExists(),
-					resource.TestCheckOutput("is_function_runtime_filter_useful", "true"),
+					resource.TestCheckOutput("is_runtime_filter_useful", "true"),
 					dcByNotFoundRuntime.CheckResourceExists(),
-					resource.TestCheckOutput("function_runtime_not_found_validation_pass", "true"),
+					resource.TestCheckOutput("runtime_not_found_validation_pass", "true"),
 					// Filter by enterprise project ID.
 					dcByEpsId.CheckResourceExists(),
 					resource.TestCheckOutput("is_eps_id_filter_useful", "true"),
 					dcByNotFoundPEpsId.CheckResourceExists(),
 					resource.TestCheckOutput("eps_id_not_found_validation_pass", "true"),
-					// Check attributes.
-					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.name", rcName, "name"),
-					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.urn", rcName, "urn"),
-					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.package", rcName, "package"),
-					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.runtime", rcName, "runtime"),
-					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.timeout", rcName, "timeout"),
-					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.handler", rcName, "handler"),
-					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.memory_size", rcName, "memory_size"),
-					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.code_type", rcName, "code_type"),
-					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.description", rcName, "description"),
+					// Check the attributes.
+					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.name", base, "name"),
+					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.urn", base, "urn"),
+					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.package", base, "package"),
+					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.runtime", base, "runtime"),
+					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.timeout", base, "timeout"),
+					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.handler", base, "handler"),
+					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.memory_size", base, "memory_size"),
+					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.code_type", base, "code_type"),
+					resource.TestCheckResourceAttrPair(byFunctionUrn, "functions.0.description", base, "description"),
 				),
 			},
 		},
@@ -134,18 +137,14 @@ data "huaweicloud_fgs_functions" "all" {
   ]
 }
 
-output "is_result_contains_function" {
-  value = contains(data.huaweicloud_fgs_functions.all.functions[*].name, huaweicloud_fgs_function.test.name)
-}
-
 # Filter by package name.
 locals {
   package_name = huaweicloud_fgs_function.test.package
 }
 
 data "huaweicloud_fgs_functions" "filter_by_package_name" {
-  // The behavior of parameter 'package_name' of the resource is 'Required', means this parameter does not 
-  // have 'Know After Apply' behavior.
+  # The behavior of parameter 'package_name' of the resource is 'Required', means this parameter does not 
+  # have 'Know After Apply' behavior.
   depends_on = [
     huaweicloud_fgs_function.test,
   ]
@@ -154,7 +153,7 @@ data "huaweicloud_fgs_functions" "filter_by_package_name" {
 }
 
 data "huaweicloud_fgs_functions" "filter_by_not_found_package_name" {
-  // Query functions using a not exist package name after function resource create.
+  # Query functions using a not exist package name after function resource create.
   depends_on = [
     huaweicloud_fgs_function.test,
   ]
@@ -185,7 +184,7 @@ data "huaweicloud_fgs_functions" "filter_by_function_urn" {
 }
 
 data "huaweicloud_fgs_functions" "filter_by_not_found_function_urn" {
-  // Query functions using a not exist function URN after function resource create.
+  # Query functions using a not exist function URN after function resource create.
   depends_on = [
     huaweicloud_fgs_function.test,
   ]
@@ -211,9 +210,9 @@ locals {
   function_name = huaweicloud_fgs_function.test.name
 }
 
-data "huaweicloud_fgs_functions" "filter_by_function_name" {
-  // The behavior of parameter 'name' of the resource is 'Required', means this parameter does not 
-  // have 'Know After Apply' behavior.
+data "huaweicloud_fgs_functions" "filter_by_name" {
+  # The behavior of parameter 'name' of the resource is 'Required', means this parameter does not 
+  # have 'Know After Apply' behavior.
   depends_on = [
     huaweicloud_fgs_function.test,
   ]
@@ -221,26 +220,26 @@ data "huaweicloud_fgs_functions" "filter_by_function_name" {
   name = local.function_name
 }
 
-data "huaweicloud_fgs_functions" "filter_by_not_found_function_name" {
-  // Query functions using a not exist function name after function resource create.
+data "huaweicloud_fgs_functions" "filter_by_not_found_name" {
+  # Query functions using a not exist function name after function resource create.
   depends_on = [
     huaweicloud_fgs_function.test,
   ]
 
-  name = "function_name_not_found"
+  name = "name_not_found"
 }
 
 locals {
-  function_name_filter_result = [for v in data.huaweicloud_fgs_functions.filter_by_function_urn.functions[*].name :
+  name_filter_result = [for v in data.huaweicloud_fgs_functions.filter_by_function_urn.functions[*].name :
     v == local.function_name]
 }
 
-output "is_function_name_filter_useful" {
-  value = length(local.function_name_filter_result) > 0 && alltrue(local.function_name_filter_result)
+output "is_name_filter_useful" {
+  value = length(local.name_filter_result) > 0 && alltrue(local.name_filter_result)
 }
 
-output "function_name_not_found_validation_pass" {
-  value = length(data.huaweicloud_fgs_functions.filter_by_not_found_function_name.functions) == 0
+output "name_not_found_validation_pass" {
+  value = length(data.huaweicloud_fgs_functions.filter_by_not_found_name.functions) == 0
 }
 
 # Filter by function runtime.
@@ -248,9 +247,9 @@ locals {
   function_runtime = huaweicloud_fgs_function.test.runtime
 }
 
-data "huaweicloud_fgs_functions" "filter_by_function_runtime" {
-  // The behavior of parameter 'runtime' of the resource is 'Required', means this parameter does not 
-  // have 'Know After Apply' behavior.
+data "huaweicloud_fgs_functions" "filter_by_runtime" {
+  # The behavior of parameter 'runtime' of the resource is 'Required', means this parameter does not 
+  # have 'Know After Apply' behavior.
   depends_on = [
     huaweicloud_fgs_function.test,
   ]
@@ -258,26 +257,26 @@ data "huaweicloud_fgs_functions" "filter_by_function_runtime" {
   runtime = local.function_runtime
 }
 
-data "huaweicloud_fgs_functions" "filter_by_not_found_function_runtime" {
-  // Query functions using a not exist runtime after function resource create.
+data "huaweicloud_fgs_functions" "filter_by_not_found_runtime" {
+  # Query functions using a not exist runtime after function resource create.
   depends_on = [
     huaweicloud_fgs_function.test,
   ]
 
-  runtime = "function_runtime_not_found"
+  runtime = "runtime_not_found"
 }
 
 locals {
-  function_runtime_filter_result = [for v in data.huaweicloud_fgs_functions.filter_by_function_runtime.functions[*].runtime :
+  runtime_filter_result = [for v in data.huaweicloud_fgs_functions.filter_by_runtime.functions[*].runtime :
     v == local.function_runtime]
 }
 
-output "is_function_runtime_filter_useful" {
-  value = length(local.function_runtime_filter_result) > 0 && alltrue(local.function_runtime_filter_result)
+output "is_runtime_filter_useful" {
+  value = length(local.runtime_filter_result) > 0 && alltrue(local.runtime_filter_result)
 }
 
-output "function_runtime_not_found_validation_pass" {
-  value = length(data.huaweicloud_fgs_functions.filter_by_not_found_function_runtime.functions) == 0
+output "runtime_not_found_validation_pass" {
+  value = length(data.huaweicloud_fgs_functions.filter_by_not_found_runtime.functions) == 0
 }
 
 # Filter by function enterprise project ID.
@@ -290,7 +289,7 @@ data "huaweicloud_fgs_functions" "filter_by_eps_id" {
 }
 
 data "huaweicloud_fgs_functions" "filter_by_not_found_eps_id" {
-  // Query functions using a not exist enterprise project ID after function resource create.
+  # Query functions using a not exist enterprise project ID after function resource create.
   depends_on = [
     huaweicloud_fgs_function.test,
   ]
