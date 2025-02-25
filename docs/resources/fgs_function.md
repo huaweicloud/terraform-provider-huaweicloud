@@ -121,6 +121,47 @@ resource "huaweicloud_fgs_function" "with_alias" {
       description = "This is a description of the alias v1_0-alias under the version v1.0."
     }
   }
+  versions {
+    name        = "v2.0"
+    description = "This is a description of the version v2.0."
+
+    aliases {
+      name        = "v2_0-alias"
+      description = "This is a description of the alias v2_0-alias under the version v2.0."
+
+      additional_version_weights = jsonencode({
+        "v1.0": 15
+      })
+    }
+  }
+  versions {
+    name        = "v3.0"
+    description = "This is a description of the version v2.0."
+
+    aliases {
+      name        = "v3_0-alias"
+      description = "This is a description of the alias v2_0-alias under the version v3.0."
+      additional_version_strategy = jsonencode({
+        "v2.0": {
+          "combine_type": "or",
+          "rules": [
+            {
+              "rule_type": "Header",
+              "param": "version",
+              "op": "=",
+              "value": "v2_value"
+            },
+            {
+              "rule_type": "Header",
+              "param": "Owner",
+              "op": "in",
+              "value": "terraform,administrator"
+            }
+          ]
+        }
+      })
+    }
+  }
 }
 ```
 
@@ -428,6 +469,14 @@ The `aliases` block supports:
   allowed. The name must start with a letter and end with a letter or digit.
 
 * `description` - (Optional, String) Specifies the description of the version alias.
+
+* `additional_version_weights` - (Optional, String) Specifies the percentage grayscale configuration of the version
+  alias, in JSON format.
+
+* `additional_version_strategy` - (Optional, String) Specifies the rule grayscale configuration of the version
+  alias, in JSON format.
+
+~> Only one of `additional_version_weights` and `additional_version_strategy` can be configured.
 
 <a name="function_reserved_instances"></a>
 The `reserved_instances` block supports:
