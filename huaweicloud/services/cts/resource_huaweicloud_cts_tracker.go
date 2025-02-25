@@ -2,7 +2,6 @@ package cts
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -400,16 +399,6 @@ func resourceCTSTrackerImportState(_ context.Context, d *schema.ResourceData, _ 
 	name := d.Id()
 	d.Set("name", name)
 	return []*schema.ResourceData{d}, nil
-}
-
-func formatValue(i interface{}) string {
-	jsonRaw, err := json.Marshal(i)
-	if err != nil {
-		log.Printf("[WARN] failed to marshal %#v: %s", i, err)
-		return ""
-	}
-
-	return strings.Trim(string(jsonRaw), `"`)
 }
 
 func createSystemTracker(d *schema.ResourceData, ctsClient *golangsdk.ServiceClient) (string, error) {
