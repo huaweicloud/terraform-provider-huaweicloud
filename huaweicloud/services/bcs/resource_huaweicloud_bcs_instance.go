@@ -21,7 +21,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/kafka"
 )
 
 // @API BCS POST /v2/{project_id}/blockchains
@@ -575,7 +575,7 @@ func resourceBCSInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"DELETING", "RUNNING"},
 			Target:     []string{"DELETED"},
-			Refresh:    dms.KafkaInstanceStateRefreshFunc(dmsClient, kafkaID),
+			Refresh:    kafka.KafkaInstanceStateRefreshFunc(dmsClient, kafkaID),
 			Timeout:    d.Timeout(schema.TimeoutDelete),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,
