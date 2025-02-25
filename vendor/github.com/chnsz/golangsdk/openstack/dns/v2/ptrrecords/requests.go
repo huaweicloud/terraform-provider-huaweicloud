@@ -22,7 +22,7 @@ type CreateOpts struct {
 	PtrName string `json:"ptrdname" required:"true"`
 
 	// Description of the ptr.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// TTL is the time to live of the ptr.
 	TTL int `json:"-"`

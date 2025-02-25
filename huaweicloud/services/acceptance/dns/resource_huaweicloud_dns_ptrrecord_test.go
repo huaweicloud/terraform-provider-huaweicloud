@@ -55,7 +55,7 @@ func TestAccDNSPtrRecord_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("update-%s", nameWithDotSuffix)),
-					resource.TestCheckResourceAttr(resourceName, "description", "ptr record updated"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "7000"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrPair(resourceName, "floatingip_id", "huaweicloud_vpc_eip.test", "id"),
@@ -96,7 +96,7 @@ func TestAccDNSPtrRecord_withEpsId(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", nameWithDotSuffix),
 					resource.TestCheckResourceAttr(resourceName, "description", "a ptr record"),
-					resource.TestCheckResourceAttr(resourceName, "ttl", "6000"),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "300"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttrPair(resourceName, "floatingip_id", "huaweicloud_vpc_eip.test", "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
@@ -144,7 +144,6 @@ func testAccDNSPtrRecord_update(ptrName string) string {
 
 resource "huaweicloud_dns_ptrrecord" "test" {
   name          = "update-%s"
-  description   = "ptr record updated"
   floatingip_id = huaweicloud_vpc_eip.test.id
   ttl           = 7000
 
@@ -163,7 +162,6 @@ resource "huaweicloud_dns_ptrrecord" "test" {
   name                  = "%s"
   description           = "a ptr record"
   floatingip_id         = huaweicloud_vpc_eip.test.id
-  ttl                   = 6000
   enterprise_project_id = "%s"
 }
 `, testAccDNSPtrRecord_base(), ptrName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
