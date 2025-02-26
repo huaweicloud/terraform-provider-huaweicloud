@@ -16,9 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceDNSCustomLines() *schema.Resource {
+func DataSourceCustomLines() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceDNSCustomLinesRead,
+		ReadContext: dataSourceCustomLinesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -108,7 +108,7 @@ func newCustomLinesDSWrapper(d *schema.ResourceData, meta interface{}) *CustomLi
 	}
 }
 
-func dataSourceDNSCustomLinesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceCustomLinesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newCustomLinesDSWrapper(d, meta)
 	listCustomLineRst, err := wrapper.ListCustomLine()
 	if err != nil {
