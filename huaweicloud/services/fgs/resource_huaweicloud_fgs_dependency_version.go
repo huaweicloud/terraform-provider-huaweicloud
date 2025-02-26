@@ -269,7 +269,8 @@ func resourceDependencyVersionDelete(_ context.Context, d *schema.ResourceData, 
 func getDependencyVersions(client *golangsdk.ServiceClient, dependId string) ([]interface{}, error) {
 	var (
 		httpUrl = "v2/{project_id}/fgs/dependencies/{depend_id}/version?maxitems=100"
-		marker  = 0
+		marker  float64
+		result  = make([]interface{}, 0)
 	)
 
 	listPath := client.Endpoint + httpUrl
@@ -282,9 +283,8 @@ func getDependencyVersions(client *golangsdk.ServiceClient, dependId string) ([]
 		},
 	}
 
-	result := make([]interface{}, 0)
 	for {
-		listPathWithMarker := fmt.Sprintf("%s&&marker=%v", listPath, marker)
+		listPathWithMarker := fmt.Sprintf("%s&marker=%v", listPath, marker)
 		requestResp, err := client.Request("GET", listPathWithMarker, &listOpt)
 		if err != nil {
 			return nil, fmt.Errorf("error querying dependency package versions: %s", err)
@@ -298,7 +298,13 @@ func getDependencyVersions(client *golangsdk.ServiceClient, dependId string) ([]
 			break
 		}
 		result = append(result, dependencies...)
-		marker += len(dependencies)
+		// In this API, marker has the same meaning as offset.
+		nextMarker := utils.PathSearch("next_marker", respBody, float64(0)).(float64)
+		if nextMarker == marker || nextMarker == 0 {
+			// Make sure the next marker value is correct, not the previous marker or zero (in the last page).
+			break
+		}
+		marker = nextMarker
 	}
 
 	return result, nil
