@@ -382,11 +382,9 @@ The following arguments are supported:
 
 The `network` block supports:
 
-* `uuid` - (Required, String, ForceNew) Specifies the network UUID to attach to the instance.
-  Changing this creates a new instance.
+* `uuid` - (Required, String) Specifies the network UUID to attach to the instance.
 
-* `fixed_ip_v4` - (Optional, String, ForceNew) Specifies a fixed IPv4 address to be used on this network.
-  Changing this creates a new instance.
+* `fixed_ip_v4` - (Optional, String) Specifies a fixed IPv4 address to be used on this network.
 
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether the IPv6 function is enabled for the nic.
   Defaults to false. Changing this creates a new instance.
@@ -397,6 +395,8 @@ The `network` block supports:
 
 * `access_network` - (Optional, Bool) Specifies if this network should be used for provisioning access.
   Accepts true or false. Defaults to false.
+
+  ~> The `uuid` and `fixed_ip_v4` can be updated when there is only one network block.
 
 The `data_disks` block supports:
 
