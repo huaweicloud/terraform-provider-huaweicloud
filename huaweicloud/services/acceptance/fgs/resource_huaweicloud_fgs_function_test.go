@@ -917,7 +917,14 @@ func TestAccFunction_versions(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccFunction_versions_step3(functionScriptContentDefinition("Yo, world!"), name),
+				Config: testAccFunction_versions_step3(functionScriptContentDefinition("Hi, world!"), name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "versions.#", "1"),
+				),
+			},
+			{
+				Config: testAccFunction_versions_step4(functionScriptContentDefinition("Yo, world!"), name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "versions.#", "2"),
@@ -996,7 +1003,8 @@ resource "huaweicloud_fgs_function" "test" {
   }
   # The value of the parameter func_code must be modified before each custom version add.
   versions {
-    name = "v1.0"
+    name        = "v1.0"
+    description = "This is a description of the version v1.0. (Prepare to update)"
 
     aliases {
       name        = "v1_0-alias"
@@ -1007,7 +1015,7 @@ resource "huaweicloud_fgs_function" "test" {
 `, funcScript, name)
 }
 
-// Before this configuration supplement, the func_code must be updated.
+// Delete the alias configuration and recreate the version A.
 func testAccFunction_versions_step3(funcScript, name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -1026,7 +1034,39 @@ resource "huaweicloud_fgs_function" "test" {
 
   # The value of the parameter func_code must be modified before each custom version add.
   versions {
-    name = "v1.0"
+    name        = "v1.0"
+    description = "This is a description of the version v1.0."
+
+    aliases {
+      name        = "v1_0-alias"
+      description = "This is a description of the alias v1_0-alias under the version v1.0."
+    }
+  }
+}
+`, funcScript, name)
+}
+
+// Before this configuration supplement, the func_code must be updated.
+func testAccFunction_versions_step4(funcScript, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_function" "test" {
+  name                  = "%[2]s"
+  memory_size           = 128
+  runtime               = "Python2.7"
+  timeout               = 3
+  app                   = "default"
+  handler               = "index.handler"
+  code_type             = "inline"
+  func_code             = base64encode(var.script_content)
+  description           = "Created by terraform script"
+  functiongraph_version = "v2"
+
+  # The value of the parameter func_code must be modified before each custom version add.
+  versions {
+    name        = "v1.0"
+    description = "This is a description of the version v1.0."
 
     aliases {
       name        = "v1_0-alias"
@@ -1034,7 +1074,8 @@ resource "huaweicloud_fgs_function" "test" {
     }
   }
   versions {
-    name = "v2.0"
+    name        = "v2.0"
+    description = "This is a description of the version v2.0."
 
     aliases {
       name        = "v2_0-alias"

@@ -113,7 +113,8 @@ resource "huaweicloud_fgs_function" "with_alias" {
   }
   # The value of the parameter func_code must be modified before each custom version add.
   versions {
-    name = "v1.0"
+    name        = "v1.0"
+    description = "This is a description of the version v1.0."
 
     aliases {
       name        = "v1_0-alias"
@@ -408,13 +409,18 @@ The `versions` block supports:
   The valid length is limited from `1` to `42` characters, only letters, digits, underscores (_), hyphens (-) and
   periods (.) are allowed. The name must start and end with a letter or digit.
 
+* `description` - (Optional, String) Specifies the description of the version.
+
+  -> The **latest** version does not support configuration through this parameter, the root parameter `description` is
+  the correct configuration parameter.
+
 * `aliases` - (Optional, List) Specifies the aliases management for specified version.  
-  The [aliases](#function_aliases) structure is documented below.
+  The [aliases](#function_versions_aliases) structure is documented below.
 
   -> 1. A version can configure at most **one** alias.
      <br>2. A function can have a maximum of `10` aliases.
 
-<a name="function_aliases"></a>
+<a name="function_versions_aliases"></a>
 The `aliases` block supports:
 
 * `name` - (Required, String) Specifies the name of the version alias.  
