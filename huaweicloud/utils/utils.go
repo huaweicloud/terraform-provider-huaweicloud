@@ -567,3 +567,23 @@ func IsUUID(uuid string) bool {
 	match, _ := regexp.MatchString(pattern, uuid)
 	return match
 }
+
+// FilterMapWithSameKey using to filter the value of `filterMap` by the key of `rawMap`, and return the filtered map.
+// Example:
+// Parameters rawMap = {"a":"b"}, filterMap = {"a":"d"}; Return {"a":"d"}
+// Parameters rawMap = {"a":"b"}, filterMap = {"a":"d", "m":"n"}; Return {"a":"d"}
+// Parameters rawMap = {"a":"b", "c":"d"}, filterMap = {"a":"d", "m":"n"}; Return {"a":"d"}
+// Parameters rawMap = {"a":"b", "c":"d"}, filterMap = {"a":"d", "c":"a", "m":"n"}; Return {"a":"d", "c":"a"}
+// Parameters rawMap = {"a":"b"}, filterMap = {}; Return {}
+// Parameters rawMap = {}, filterMap = {"m":"n"}; Return {}
+// Parameters rawMap = {}, filterMap = {}; Return {}
+func FilterMapWithSameKey(rawMap, filterMap map[string]interface{}) map[string]interface{} {
+	rst := make(map[string]interface{})
+	for rawKey := range rawMap {
+		if filterValue, ok := filterMap[rawKey]; ok {
+			rst[rawKey] = filterValue
+		}
+	}
+
+	return rst
+}
