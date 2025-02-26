@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceFunctionEvents_basic(t *testing.T) {
+func TestAccDataFunctionEvents_basic(t *testing.T) {
 	var (
 		all = "data.huaweicloud_fgs_function_events.test"
 		dc  = acceptance.InitDataSourceCheck(all)
@@ -23,10 +23,11 @@ func TestAccDataSourceFunctionEvents_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFunctionEvents_basic(),
+				Config: testAccDataFunctionEvents_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(all, "events.#", "1"),
+					// Check the attributes.
 					resource.TestCheckResourceAttrPair(all, "events.0.id", "huaweicloud_fgs_function_event.test", "id"),
 					resource.TestCheckResourceAttrPair(all, "events.0.name", "huaweicloud_fgs_function_event.test", "name"),
 					resource.TestMatchResourceAttr(all, "events.0.updated_at",
@@ -37,8 +38,9 @@ func TestAccDataSourceFunctionEvents_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceFunctionEvents_base() string {
+func testAccDataFunctionEvents_basic() string {
 	name := acceptance.RandomAccResourceName()
+
 	return fmt.Sprintf(`
 variable "js_script_content" {
   default = <<EOT
@@ -74,17 +76,14 @@ resource "huaweicloud_fgs_function_event" "test" {
   name         = "%[1]s"
   content      = base64encode(jsonencode({"foo": "bar"}))
 }
-`, name)
-}
-
-func testAccDataSourceFunctionEvents_basic() string {
-	return fmt.Sprintf(`
-%[1]s
 
 data "huaweicloud_fgs_function_events" "test" {
-  depends_on = [huaweicloud_fgs_function_event.test]
+  depends_on = [
+	# Query function events after function event create.
+    huaweicloud_fgs_function_event.test
+  ]
 
   function_urn = huaweicloud_fgs_function.test.urn
 }
-`, testAccDataSourceFunctionEvents_base())
+`, name)
 }
