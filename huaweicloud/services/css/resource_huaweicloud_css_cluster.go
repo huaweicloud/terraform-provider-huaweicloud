@@ -240,8 +240,9 @@ func ResourceCssCluster() *schema.Resource {
 							Required: true,
 						},
 						"whitelist": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
 						},
 						"public_ip": {
 							Type:     schema.TypeString,
@@ -284,8 +285,9 @@ func ResourceCssCluster() *schema.Resource {
 							Required: true,
 						},
 						"whitelist": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:             schema.TypeString,
+							DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+							Optional:         true,
 						},
 						"public_ip": {
 							Type:     schema.TypeString,
@@ -951,9 +953,9 @@ func flattenKibana(publicKibana interface{}) []interface{} {
 
 	result := map[string]interface{}{
 		"bandwidth":         int(utils.PathSearch("eipSize", publicKibana, float64(0)).(float64)),
-		"whitelist_enabled": utils.PathSearch("EnableWhiteList", elbWhiteListResp, nil),
-		"whitelist":         utils.PathSearch("WhiteList", elbWhiteListResp, nil),
-		"public_ip":         utils.PathSearch("PublicKibanaIp", publicKibana, nil),
+		"whitelist_enabled": utils.PathSearch("enableWhiteList", elbWhiteListResp, nil),
+		"whitelist":         utils.PathSearch("whiteList", elbWhiteListResp, nil),
+		"public_ip":         utils.PathSearch("publicKibanaIp", publicKibana, nil),
 	}
 	return []interface{}{result}
 }
@@ -969,7 +971,7 @@ func flattenPublicAccess(clusterDetail interface{}) []interface{} {
 	result := map[string]interface{}{
 		"bandwidth":         bandwidth,
 		"whitelist_enabled": utils.PathSearch("enableWhiteList", elbWhiteList, nil),
-		"whitelist":         utils.PathSearch("ehiteList", elbWhiteList, nil),
+		"whitelist":         utils.PathSearch("whiteList", elbWhiteList, nil),
 		"public_ip":         publicIp,
 	}
 	return []interface{}{result}
