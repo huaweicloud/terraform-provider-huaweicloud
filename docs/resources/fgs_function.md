@@ -87,7 +87,7 @@ resource "huaweicloud_fgs_function" "by_swr_image" {
 }
 ```
 
-### Create function with an alias for latest version
+### Create function with a custom version and an alias for the latest version
 
 ```hcl
 variable "function_name" {}
@@ -107,7 +107,17 @@ resource "huaweicloud_fgs_function" "with_alias" {
     name = "latest"
 
     aliases {
-      name = "demo"
+      name        = "demo"
+      description = "This is a description of the alias demo under the version latest."
+    }
+  }
+  # The value of the parameter func_code must be modified before each custom version add.
+  versions {
+    name = "v1.0"
+
+    aliases {
+      name        = "v1_0-alias"
+      description = "This is a description of the alias v1_0-alias under the version v1.0."
     }
   }
 }
@@ -326,6 +336,9 @@ The following arguments are supported:
 * `versions` - (Optional, List) Specifies the versions management of the function.  
   The [versions](#function_versions) structure is documented below.
 
+  -> The value of the parameter `func_code`, `code_url` or `func_filename` must be modified before each custom version
+     add.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the function.
 
 * `log_group_id` - (Optional, String) Specifies the LTS group ID for collecting logs.
@@ -391,17 +404,22 @@ The `custom_image` block supports:
 <a name="function_versions"></a>
 The `versions` block supports:
 
-* `name` - (Required, String) Specifies the version name.
+* `name` - (Required, String) Specifies the version name.  
+  The valid length is limited from `1` to `42` characters, only letters, digits, underscores (_), hyphens (-) and
+  periods (.) are allowed. The name must start and end with a letter or digit.
 
 * `aliases` - (Optional, List) Specifies the aliases management for specified version.  
   The [aliases](#function_aliases) structure is documented below.
 
-  -> A version can configure at most **one** alias.
+  -> 1. A version can configure at most **one** alias.
+     <br>2. A function can have a maximum of `10` aliases.
 
 <a name="function_aliases"></a>
 The `aliases` block supports:
 
-* `name` - (Required, String) Specifies the name of the version alias.
+* `name` - (Required, String) Specifies the name of the version alias.  
+  The valid length is limited from `1` to `63` characters, only letters, digits, underscores (_) and hyphens (-) are
+  allowed. The name must start with a letter and end with a letter or digit.
 
 * `description` - (Optional, String) Specifies the description of the version alias.
 
