@@ -2,7 +2,8 @@
 subcategory: "Cloud Trace Service (CTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cts_notifications"
-description: ""
+description: |-
+  Use this data source to get the list of CTS key event notifications within HuaweiCloud.
 ---
 
 # huaweicloud_cts_notifications
