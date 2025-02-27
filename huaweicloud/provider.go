@@ -803,7 +803,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_floating_ptrrecords": dns.DataSourceFloatingPtrrecords(),
 			"huaweicloud_dns_line_groups":         dns.DataSourceLineGroups(),
 			"huaweicloud_dns_nameservers":         dns.DataSourceNameservers(),
-			"huaweicloud_dns_quotas":              dns.DataSourceDNSQuotas(),
+			"huaweicloud_dns_quotas":              dns.DataSourceQuotas(),
 			"huaweicloud_dns_recordsets":          dns.DataSourceRecordsets(),
 			"huaweicloud_dns_zones":               dns.DataSourceZones(),
 
