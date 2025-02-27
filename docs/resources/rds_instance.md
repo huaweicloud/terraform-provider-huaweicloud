@@ -307,6 +307,8 @@ The following arguments are supported:
 * `seconds_level_monitoring_interval` - (Optional, Int) Specifies the seconds level monitoring interval. Valid values:
   `1`, `5`. It is mandatory when `seconds_level_monitoring_enabled` is **true**.
 
+* `minor_version_auto_upgrade_enabled` - (Optional, Bool) Specifies whether to enable minor version auto upgrade.
+
 * `private_dns_name_prefix` - (Optional, String) Specifies the prefix of the private domain name. The value contains
   `8` to `64` characters. Only uppercase letters, lowercase letters, and digits are allowed.
 

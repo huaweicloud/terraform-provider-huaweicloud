@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -50,6 +51,7 @@ type ctxType string
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/msdtc/hosts
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/tde-status
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/second-level-monitor
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/db-auto-upgrade
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/name
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/failover/mode
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/collations
@@ -59,6 +61,8 @@ type ctxType string
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/readonly-status
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/modify-dns
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/second-level-monitor
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/slowlog-sensitization/{status}
+// @API RDS PUT /v3/{project_id}/instances/{instance_id}/db-auto-upgrade
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/port
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ip
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/security-group
@@ -381,6 +385,11 @@ func ResourceRdsInstance() *schema.Resource {
 				Computed:     true,
 				RequiredWith: []string{"seconds_level_monitoring_enabled"},
 			},
+			"minor_version_auto_upgrade_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 			"slow_log_show_original_status": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -695,6 +704,12 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if d.Get("minor_version_auto_upgrade_enabled").(bool) {
+		if err = updateAutoUpgradeSwitchOption(d, client); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
@@ -735,8 +750,8 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	client, err := cfg.RdsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
@@ -751,51 +766,52 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		return nil
 	}
 
-	log.Printf("[DEBUG] Retrieved RDS instance (%s): %#v", instanceID, instance)
-	d.Set("region", instance.Region)
-	d.Set("name", instance.Name)
-	d.Set("description", instance.Alias)
-	d.Set("status", instance.Status)
-	d.Set("created", instance.Created)
-	d.Set("ha_replication_mode", instance.Ha.ReplicationMode)
-	d.Set("vpc_id", instance.VpcId)
-	d.Set("subnet_id", instance.SubnetId)
-	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("flavor", instance.FlavorRef)
-	d.Set("time_zone", instance.TimeZone)
-	d.Set("collation", instance.Collation)
-	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
-	d.Set("switch_strategy", instance.SwitchStrategy)
-	d.Set("charging_mode", instance.ChargeInfo.ChargeMode)
-	d.Set("ssl_enable", instance.EnableSsl)
-	d.Set("private_dns_names", instance.PrivateDnsNames)
-	d.Set("tags", utils.TagsToMap(instance.Tags))
+	mErr := multierror.Append(nil,
+		d.Set("region", instance.Region),
+		d.Set("name", instance.Name),
+		d.Set("description", instance.Alias),
+		d.Set("status", instance.Status),
+		d.Set("created", instance.Created),
+		d.Set("ha_replication_mode", instance.Ha.ReplicationMode),
+		d.Set("vpc_id", instance.VpcId),
+		d.Set("subnet_id", instance.SubnetId),
+		d.Set("security_group_id", instance.SecurityGroupId),
+		d.Set("flavor", instance.FlavorRef),
+		d.Set("time_zone", instance.TimeZone),
+		d.Set("collation", instance.Collation),
+		d.Set("enterprise_project_id", instance.EnterpriseProjectId),
+		d.Set("switch_strategy", instance.SwitchStrategy),
+		d.Set("charging_mode", instance.ChargeInfo.ChargeMode),
+		d.Set("ssl_enable", instance.EnableSsl),
+		d.Set("private_dns_names", instance.PrivateDnsNames),
+		d.Set("tags", utils.TagsToMap(instance.Tags)),
+	)
 
 	publicIps := make([]interface{}, len(instance.PublicIps))
 	for i, v := range instance.PublicIps {
 		publicIps[i] = v
 	}
-	d.Set("public_ips", publicIps)
+	mErr = multierror.Append(mErr, d.Set("public_ips", publicIps))
 
 	if len(instance.PrivateDnsNames) > 0 {
 		privateDNSNamePrefix := strings.Split(instance.PrivateDnsNames[0], ".")[0]
-		d.Set("private_dns_name_prefix", privateDNSNamePrefix)
+		mErr = multierror.Append(mErr, d.Set("private_dns_name_prefix", privateDNSNamePrefix))
 	}
 
 	privateIps := make([]string, len(instance.PrivateIps))
 	for i, v := range instance.PrivateIps {
 		privateIps[i] = v
 	}
-	d.Set("private_ips", privateIps)
+	mErr = multierror.Append(mErr, d.Set("private_ips", privateIps))
 	// If the creation of the RDS instance is failed, the length of the private IP list will be zero.
 	if len(privateIps) > 0 {
-		d.Set("fixed_ip", privateIps[0])
+		mErr = multierror.Append(mErr, d.Set("fixed_ip", privateIps[0]))
 	}
 
 	maintainWindow := strings.Split(instance.MaintenanceWindow, "-")
 	if len(maintainWindow) == 2 {
-		d.Set("maintain_begin", maintainWindow[0])
-		d.Set("maintain_end", maintainWindow[1])
+		mErr = multierror.Append(mErr, d.Set("maintain_begin", maintainWindow[0]))
+		mErr = multierror.Append(mErr, d.Set("maintain_end", maintainWindow[1]))
 	}
 
 	volume := map[string]interface{}{
@@ -812,9 +828,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		volume["limit_size"] = resp.LimitSize
 		volume["trigger_threshold"] = resp.TriggerThreshold
 	}
-	if err := d.Set("volume", []map[string]interface{}{volume}); err != nil {
-		return diag.Errorf("error saving volume to RDS instance (%s): %s", instanceID, err)
-	}
+	mErr = multierror.Append(mErr, d.Set("volume", []map[string]interface{}{volume}))
 
 	dbList := make([]map[string]interface{}, 1)
 	database := map[string]interface{}{
@@ -827,9 +841,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		database["password"] = d.Get("db.0.password")
 	}
 	dbList[0] = database
-	if err := d.Set("db", dbList); err != nil {
-		return diag.Errorf("error saving data base to RDS instance (%s): %s", instanceID, err)
-	}
+	mErr = multierror.Append(mErr, d.Set("db", dbList))
 
 	// if the instance is stopped, then the backup strategy can not be acquired
 	if instance.Status != "SHUTDOWN" {
@@ -844,9 +856,7 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 			"keep_days":  instance.BackupStrategy.KeepDays,
 			"period":     backupStrategy.Period,
 		}
-		if err := d.Set("backup_strategy", backup); err != nil {
-			return diag.Errorf("error saving backup strategy to RDS instance (%s): %s", instanceID, err)
-		}
+		mErr = multierror.Append(mErr, d.Set("backup_strategy", backup))
 	}
 
 	nodes := make([]map[string]interface{}, len(instance.Nodes))
@@ -859,44 +869,44 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 			"availability_zone": v.AvailabilityZone,
 		}
 	}
-	if err := d.Set("nodes", nodes); err != nil {
-		return diag.Errorf("error saving nodes to RDS instance (%s): %s", instanceID, err)
-	}
+	mErr = multierror.Append(mErr, d.Set("nodes", nodes))
 
 	if isMySQLDatabase(d) {
 		binlogRetentionHours, err := instances.GetBinlogRetentionHours(client, instanceID).Extract()
 		if err != nil {
-			return diag.Errorf("error getting RDS binlog retention hours: %s", err)
+			log.Printf("[WARN] error getting RDS binlog retention hours: %s", err)
 		}
-		d.Set("binlog_retention_hours", binlogRetentionHours.BinlogRetentionHours)
+		mErr = multierror.Append(mErr, d.Set("binlog_retention_hours", binlogRetentionHours.BinlogRetentionHours))
 	}
 
 	if isSQLServerDatabase(d) && instance.Status != "SHUTDOWN" {
 		msdtcHosts, err := instances.GetMsdtcHosts(client, instanceID)
 		if err != nil {
-			return diag.Errorf("error getting RDS msdtc hosts: %s", err)
+			log.Printf("[WARN] error getting RDS msdtc hosts: %s", err)
+		} else {
+			hosts := make([]map[string]interface{}, 0, len(msdtcHosts))
+			for _, msdtcHost := range msdtcHosts {
+				hosts = append(hosts, map[string]interface{}{
+					"id":        msdtcHost.Id,
+					"ip":        msdtcHost.Host,
+					"host_name": msdtcHost.HostName,
+				})
+			}
+			mErr = multierror.Append(mErr, d.Set("msdtc_hosts", hosts))
 		}
-		hosts := make([]map[string]interface{}, 0, len(msdtcHosts))
-		for _, msdtcHost := range msdtcHosts {
-			hosts = append(hosts, map[string]interface{}{
-				"id":        msdtcHost.Id,
-				"ip":        msdtcHost.Host,
-				"host_name": msdtcHost.HostName,
-			})
-		}
-		d.Set("msdtc_hosts", hosts)
 	}
 
 	if isSQLServerDatabase(d) {
 		tdeStatus, err := instances.GetTdeStatus(client, instanceID).Extract()
 		if err != nil {
-			return diag.Errorf("error getting TDE of the instance: %s", err)
+			log.Printf("[WARN] error getting TDE of the instance: %s", err)
+		} else {
+			tdeEnabled := false
+			if tdeStatus.TdeStatus == "open" {
+				tdeEnabled = true
+			}
+			mErr = multierror.Append(mErr, d.Set("tde_enabled", tdeEnabled))
 		}
-		tdeEnabled := false
-		if tdeStatus.TdeStatus == "open" {
-			tdeEnabled = true
-		}
-		d.Set("tde_enabled", tdeEnabled)
 	}
 
 	if isMySQLDatabase(d) {
@@ -904,12 +914,17 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 		if err != nil {
 			log.Printf("[WARN] fetching RDS seconds level monitoring failed: %s", err)
 		} else {
-			d.Set("seconds_level_monitoring_enabled", secondsLevelMonitoring.SwitchOption)
-			d.Set("seconds_level_monitoring_interval", secondsLevelMonitoring.Interval)
+			mErr = multierror.Append(mErr, d.Set("seconds_level_monitoring_enabled", secondsLevelMonitoring.SwitchOption))
+			mErr = multierror.Append(mErr, d.Set("seconds_level_monitoring_interval", secondsLevelMonitoring.Interval))
 		}
 	}
 
-	return setRdsInstanceParameters(ctx, d, client, instanceID)
+	mErr = multierror.Append(mErr, setAutoUpgradeSwitchOption(d, client))
+
+	diagErr := setRdsInstanceParameters(ctx, d, client, instanceID)
+	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
+
+	return resErr
 }
 
 func setRdsInstanceParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
@@ -969,6 +984,31 @@ func setRdsInstanceParameters(ctx context.Context, d *schema.ResourceData, clien
 		return diagnostics
 	}
 	return nil
+}
+
+func setAutoUpgradeSwitchOption(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/db-auto-upgrade"
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		log.Printf("[WARN] error retrieving RDS instance(%s) auto upgrade switch option: %s", d.Id(), err)
+		return nil
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		log.Printf("[WARN] error flatten get RDS instance(%s) auto upgrade switch option response: %s", d.Id(), err)
+		return nil
+	}
+	return d.Set("minor_version_auto_upgrade_enabled", utils.PathSearch("switch_option", getRespBody, nil))
 }
 
 func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1123,6 +1163,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if err = updateSlowLogShowOriginalStatus(ctx, d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = updateAutoUpgradeSwitchOption(d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -2254,6 +2298,38 @@ func updateSlowLogShowOriginalStatus(ctx context.Context, d *schema.ResourceData
 	}
 
 	return nil
+}
+
+func updateAutoUpgradeSwitchOption(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	if !d.HasChange("minor_version_auto_upgrade_enabled") {
+		return nil
+	}
+
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/db-auto-upgrade"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = buildAutoUpgradeSwitchOptionBodyParams(d)
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating RDS instance (%s) auto upgrade switch option: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func buildAutoUpgradeSwitchOptionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"switch_option": d.Get("minor_version_auto_upgrade_enabled"),
+	}
+	return bodyParams
 }
 
 func updatePowerAction(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, powerAction string) error {
