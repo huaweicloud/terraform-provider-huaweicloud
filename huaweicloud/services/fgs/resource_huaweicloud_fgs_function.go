@@ -25,7 +25,6 @@ import (
 // @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/config-max-instance
 // @API FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/config
 // @API FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/versions
-// @API FunctionGraph GET /v2/{project_id}/fgs/functions/reservedinstances
 // @API FunctionGraph POST /v2/{project_id}/fgs/functions/{function_urn}/tags/create
 // @API FunctionGraph DELETE /v2/{project_id}/fgs/functions/{function_urn}/tags/delete
 // @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/code
