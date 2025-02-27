@@ -40,6 +40,9 @@ func TestAccFunction_basic(t *testing.T) {
 
 		withCustomImage   = "huaweicloud_fgs_function.with_custom_image"
 		rcWithCustomImage = acceptance.InitResourceCheck(withCustomImage, &obj, getFunction)
+
+		withDeprecatedParams   = "huaweicloud_fgs_function.with_deprecated_params"
+		rcWithDeprecatedParams = acceptance.InitResourceCheck(withDeprecatedParams, &obj, getFunction)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -55,6 +58,8 @@ func TestAccFunction_basic(t *testing.T) {
 			rcWithBase64Code.CheckResourceDestroy(),
 			rcWithTextCode.CheckResourceDestroy(),
 			rcWithObsStorage.CheckResourceDestroy(),
+			rcWithCustomImage.CheckResourceDestroy(),
+			rcWithDeprecatedParams.CheckResourceDestroy(),
 		),
 
 		Steps: []resource.TestStep{
@@ -114,6 +119,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withObsStorage, "app", "default"),
 					resource.TestCheckResourceAttr(withObsStorage, "handler", "index.handler"),
 					resource.TestCheckResourceAttr(withObsStorage, "code_type", "obs"),
+					resource.TestCheckResourceAttr(withObsStorage, "agency", acceptance.HW_FGS_AGENCY_NAME),
 					resource.TestCheckResourceAttr(withObsStorage, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(withObsStorage, "concurrency_num", "1"),
 					resource.TestCheckResourceAttr(withObsStorage, "depend_list.#", "1"),
@@ -136,6 +142,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withCustomImage, "app", "default"),
 					resource.TestCheckResourceAttr(withCustomImage, "handler", "-"),
 					resource.TestCheckResourceAttr(withCustomImage, "code_type", "Custom-Image-Swr"),
+					resource.TestCheckResourceAttr(withCustomImage, "agency", acceptance.HW_FGS_AGENCY_NAME),
 					resource.TestCheckResourceAttr(withCustomImage, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttrPair(withCustomImage, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(withCustomImage, "network_id", "huaweicloud_vpc_subnet.test", "id"),
@@ -153,7 +160,22 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withCustomImage, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttrSet(withCustomImage, "urn"),
 					resource.TestCheckResourceAttrSet(withCustomImage, "version"),
+					rcWithDeprecatedParams.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withDeprecatedParams, "package", "default"),
+					resource.TestCheckResourceAttr(withDeprecatedParams, "xrole", acceptance.HW_FGS_AGENCY_NAME),
 				),
+			},
+			{
+				ResourceName:      withDeprecatedParams,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"func_code",
+					"app", // Recommand parameter setting by default.
+					"package",
+					"agency", // Recommand parameter setting by default.
+					"xrole",
+				},
 			},
 			{
 				Config: testAccFunction_basic_step2(name, "Python3.6"),
@@ -468,6 +490,18 @@ resource "huaweicloud_fgs_function" "with_custom_image" {
     foo = "bar"
     key = "value"
   }
+}
+
+resource "huaweicloud_fgs_function" "with_deprecated_params" {
+  name        = "%[2]s-deprecated-params"
+  memory_size = 128
+  runtime     = "%[3]s"
+  timeout     = 3
+  package     = "default"
+  handler     = "index.handler"
+  code_type   = "inline"
+  func_code   = base64encode(var.script_content)
+  xrole       = "%[4]s"
 }
 `, zipFileUploadResourcesConfig(name, runtime), name, runtime,
 		acceptance.HW_FGS_AGENCY_NAME,
