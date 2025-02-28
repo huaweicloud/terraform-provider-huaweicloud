@@ -116,3 +116,50 @@ func TestAccFunction_IsUUID(t *testing.T) {
 		t.Logf("The processing result of IsUUID method meets expectation: %s", Green(expected[i]))
 	}
 }
+
+func TestAccFunction_FilterMapWithSameKey(t *testing.T) {
+	var (
+		rawArray = []map[string]interface{}{
+			{"a": "b"},
+			{"a": "b"},
+			{"a": "b", "c": "d"},
+			{"a": "b", "c": "d"},
+			{"a": "b"},
+			{},
+			{},
+		}
+
+		filterArray = []map[string]interface{}{
+			{"a": "d"},
+			{"a": "d", "m": "n"},
+			{"a": "d", "m": "n"},
+			{"a": "d", "c": "a", "m": "n"},
+			{},
+			{"m": "n"},
+			{},
+		}
+
+		expectedArray = []map[string]interface{}{
+			{"a": "d"},
+			{"a": "d"},
+			{"a": "d"},
+			{"a": "d", "c": "a"},
+			{},
+			{},
+			{},
+		}
+	)
+
+	for i := 0; i < 7; i++ {
+		rawMap := rawArray[i]
+		filterMap := filterArray[i]
+		expectedMap := expectedArray[i]
+		result := FilterMapWithSameKey(rawMap, filterMap)
+
+		if !reflect.DeepEqual(result, expectedMap) {
+			t.Fatalf("The processing result of the function 'FilterMapWithSameKey' is not as expected, want '%v', "+
+				"but got '%v'", Green(expectedMap), Yellow(result))
+		}
+		t.Logf("The processing result of `FilterMapWithSameKey` method meets expectation: %s", Green(expectedMap))
+	}
+}

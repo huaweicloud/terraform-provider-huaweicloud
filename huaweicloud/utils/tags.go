@@ -110,6 +110,14 @@ func FlattenTagsToMap(tags interface{}) map[string]interface{} {
 	return nil
 }
 
+// FlattenSameKeyTagsToMap using to flatten remote tag list and filter tag map with same key.
+// Parameters:
+// + d         : It is required that there is a `tags` field of map type in the parameter.
+// + remoteTags: It is required that the parameter is a tag list, for example: [{"key":"key1","value":"value1"}].
+func FlattenSameKeyTagsToMap(d *schema.ResourceData, remoteTags interface{}) map[string]interface{} {
+	return FilterMapWithSameKey(d.Get("tags").(map[string]interface{}), FlattenTagsToMap(remoteTags))
+}
+
 // ExpandResourceTags returns the tags for the given map of data.
 func ExpandResourceTags(tagmap map[string]interface{}) []tags.ResourceTag {
 	var taglist []tags.ResourceTag
