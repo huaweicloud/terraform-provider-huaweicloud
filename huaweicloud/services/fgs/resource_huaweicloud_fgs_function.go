@@ -1516,6 +1516,22 @@ func flattenReservedInstances(reservedInstances []interface{}) []map[string]inte
 	return result
 }
 
+func setFunctionFieldApp(d *schema.ResourceData, app string) error {
+	// If the deprecated parameter package is not set, saving value to the parameter app.
+	if _, ok := d.GetOk("package"); !ok {
+		return d.Set("app", app)
+	}
+	return d.Set("package", app)
+}
+
+func setFunctionFieldAgency(d *schema.ResourceData, agency string) error {
+	// If the deprecated parameter xrole is not set, saving value to the parameter agency.
+	if _, ok := d.GetOk("xrole"); !ok {
+		return d.Set("agency", agency)
+	}
+	return d.Set("xrole", agency)
+}
+
 func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg                   = meta.(*config.Config)
@@ -1541,7 +1557,7 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("timeout", utils.PathSearch("timeout", function, nil)),
 		d.Set("memory_size", utils.PathSearch("memory_size", function, nil)),
 		// Optional parameters but required in documentation.
-		d.Set("app", utils.PathSearch("package", function, nil)),
+		setFunctionFieldApp(d, utils.PathSearch("package", function, "").(string)),
 		d.Set("handler", utils.PathSearch("handler", function, nil)),
 		d.Set("code_type", utils.PathSearch("code_type", function, nil)),
 		// Optional parameters.
@@ -1550,7 +1566,7 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("code_url", utils.PathSearch("code_url", function, nil)),
 		d.Set("code_filename", utils.PathSearch("code_filename", function, nil)),
 		d.Set("user_data", utils.PathSearch("user_data", function, nil)),
-		d.Set("agency", utils.PathSearch("xrole", function, nil)),
+		setFunctionFieldAgency(d, utils.PathSearch("xrole", function, "").(string)),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", function, nil)),
 		d.Set("custom_image", flattenFgsCustomImage(utils.PathSearch("custom_image",
 			function, make(map[string]interface{})).(map[string]interface{}))),
