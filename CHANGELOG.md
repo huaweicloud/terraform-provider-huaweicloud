@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 1.73.0 (February 28, 2025)
+
+* **New Resource:**
+  + `huaweicloud_ces_metric_data_add` [GH-6290]
+  + `huaweicloud_css_snapshot_restore` [GH-6403]
+
+* **New Data Source:**
+  + `huaweicloud_aom_access_codes` [GH-6411]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance: add uuid and fixed_ip_v4 update support [GH-6410]
+
 ## 1.72.3 (February 20, 2025)
 
 ENHANCEMENTS:
