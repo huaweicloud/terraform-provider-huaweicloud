@@ -3,6 +3,7 @@ package dns
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -52,6 +53,9 @@ func ResourceDNSResolverRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+					return strings.TrimSuffix(oldVal, ".") == strings.TrimSuffix(newVal, ".")
+				},
 			},
 			"endpoint_id": {
 				Type:     schema.TypeString,
@@ -59,7 +63,7 @@ func ResourceDNSResolverRule() *schema.Resource {
 				ForceNew: true,
 			},
 			"ip_addresses": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -110,6 +114,23 @@ func ResourceDNSResolverRule() *schema.Resource {
 	}
 }
 
+func buildIpAddresses(ipAddresses *schema.Set) []resolverrule.IPAddress {
+	rest := make([]resolverrule.IPAddress, 0)
+	for _, v := range ipAddresses.List() {
+		ipAddress := v.(map[string]interface{})
+		ip := ipAddress["ip"].(string)
+		if ip == "" {
+			continue
+		}
+
+		rest = append(rest, resolverrule.IPAddress{
+			IP: ip,
+		})
+	}
+
+	return rest
+}
+
 func resourceDNSResolverRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -118,19 +139,11 @@ func resourceDNSResolverRuleCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
 
-	ipAddressList := d.Get("ip_addresses").([]interface{})
-	ipAddresses := make([]resolverrule.IPAddress, len(ipAddressList))
-	for i, a := range ipAddressList {
-		address := a.(map[string]interface{})
-		ipAddresses[i] = resolverrule.IPAddress{
-			IP: address["ip"].(string),
-		}
-	}
 	opts := resolverrule.CreateOpts{
 		Name:        d.Get("name").(string),
 		DomainName:  d.Get("domain_name").(string),
 		EndpointID:  d.Get("endpoint_id").(string),
-		IPAddresses: ipAddresses,
+		IPAddresses: buildIpAddresses(d.Get("ip_addresses").(*schema.Set)),
 	}
 	rule, err := resolverrule.Create(dnsClient, opts).Extract()
 	if err != nil {
@@ -209,19 +222,9 @@ func resourceDNSResolverRuleUpdate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
 
-	name := d.Get("name").(string)
-	address := d.Get("ip_addresses").([]interface{})
-	ipAddressList := make([]resolverrule.IPAddress, len(address))
-	for i, a := range address {
-		addr := a.(map[string]interface{})
-		ipAddressList[i] = resolverrule.IPAddress{
-			IP: addr["ip"].(string),
-		}
-	}
-
 	opts := resolverrule.UpdateOpts{
-		Name:        name,
-		IPAddresses: ipAddressList,
+		Name:        d.Get("name").(string),
+		IPAddresses: buildIpAddresses(d.Get("ip_addresses").(*schema.Set)),
 	}
 	_, err = resolverrule.Update(dnsClient, d.Id(), opts).Extract()
 	if err != nil {
