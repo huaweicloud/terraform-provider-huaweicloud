@@ -1984,6 +1984,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_product":                  iotda.ResourceProduct(),
 			"huaweicloud_iotda_space":                    iotda.ResourceSpace(),
 			"huaweicloud_iotda_upgrade_package":          iotda.ResourceUpgradePackage(),
+			"huaweicloud_iotda_device_policy":            iotda.ResourceDevicePolicy(),
 
 			"huaweicloud_kms_data_encrypt_decrypt": dew.ResourceKmsDataEncryptDecrypt(),
 			"huaweicloud_kms_key":                  dew.ResourceKmsKey(),
