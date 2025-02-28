@@ -66,6 +66,7 @@ func ResourceDNSPtrRecord() *schema.Resource {
 			"ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -92,7 +93,7 @@ func resourceDNSPtrRecordCreate(ctx context.Context, d *schema.ResourceData, met
 
 	createOpts := ptrrecords.CreateOpts{
 		PtrName:             d.Get("name").(string),
-		Description:         d.Get("description").(string),
+		Description:         utils.String(d.Get("description").(string)),
 		TTL:                 d.Get("ttl").(int),
 		Tags:                getPtrRecordsTagList(d),
 		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
@@ -198,7 +199,7 @@ func resourceDNSPtrRecordUpdate(ctx context.Context, d *schema.ResourceData, met
 	if d.HasChanges("name", "description", "ttl") {
 		updateOpts := ptrrecords.CreateOpts{
 			PtrName:     d.Get("name").(string),
-			Description: d.Get("description").(string),
+			Description: utils.String(d.Get("description").(string)),
 			TTL:         d.Get("ttl").(int),
 		}
 
