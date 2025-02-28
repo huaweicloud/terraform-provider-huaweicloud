@@ -18,9 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceFloatingPtrrecords() *schema.Resource {
+func DataSourceFloatingPtrRecords() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceFloatingPtrrecordsRead,
+		ReadContext: dataSourceFloatingPtrRecordsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -126,7 +126,7 @@ func newFloatingPtrrecordsDSWrapper(d *schema.ResourceData, meta interface{}) *F
 	}
 }
 
-func dataSourceFloatingPtrrecordsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceFloatingPtrRecordsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newFloatingPtrrecordsDSWrapper(d, meta)
 	lisPtrRecRst, err := wrapper.ListPtrRecords()
 	if err != nil {

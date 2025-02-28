@@ -802,7 +802,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_messages":                    dms.DataSourceDmsRocketMQMessages(),
 
 			"huaweicloud_dns_custom_lines":        dns.DataSourceDNSCustomLines(),
-			"huaweicloud_dns_floating_ptrrecords": dns.DataSourceFloatingPtrrecords(),
+			"huaweicloud_dns_floating_ptrrecords": dns.DataSourceFloatingPtrRecords(),
 			"huaweicloud_dns_line_groups":         dns.DataSourceLineGroups(),
 			"huaweicloud_dns_nameservers":         dns.DataSourceNameservers(),
 			"huaweicloud_dns_quotas":              dns.DataSourceDNSQuotas(),

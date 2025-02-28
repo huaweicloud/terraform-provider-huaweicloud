@@ -106,7 +106,7 @@ func TestAccDNSPtrRecord_withEpsId(t *testing.T) {
 	})
 }
 
-func testAccDNSPtrRecord_base() string {
+func testAccPtrRecord_base() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
   publicip {
@@ -135,7 +135,7 @@ resource "huaweicloud_dns_ptrrecord" "test" {
     key = "value"
   }
 }
-`, testAccDNSPtrRecord_base(), ptrName)
+`, testAccPtrRecord_base(), ptrName)
 }
 
 func testAccDNSPtrRecord_update(ptrName string) string {
@@ -151,7 +151,7 @@ resource "huaweicloud_dns_ptrrecord" "test" {
     foo = "bar"
   }
 }
-`, testAccDNSPtrRecord_base(), ptrName)
+`, testAccPtrRecord_base(), ptrName)
 }
 
 func testAccDNSPtrRecord_withEpsId(ptrName string) string {
@@ -164,5 +164,5 @@ resource "huaweicloud_dns_ptrrecord" "test" {
   floatingip_id         = huaweicloud_vpc_eip.test.id
   enterprise_project_id = "%s"
 }
-`, testAccDNSPtrRecord_base(), ptrName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccPtrRecord_base(), ptrName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
