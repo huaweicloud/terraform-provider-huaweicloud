@@ -92,13 +92,34 @@ func testAccDataFunctionTriggers_basic() string {
 	randUUID, _ := uuid.GenerateUUID()
 
 	return fmt.Sprintf(`
-%[1]s
+variable "function_code_content" {
+  type    = string
+  default = <<EOT
+def main():  
+    print("Hello, World!")  
+
+if __name__ == "__main__":  
+    main()
+EOT
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name         = "%[1]s"
+  memory_size  = 128
+  runtime      = "Python2.7"
+  timeout      = 3
+  handler      = "index.handler"
+  app          = "default"
+  description  = "fuction test"
+  code_type    = "inline"
+  func_code    = base64encode(var.function_code_content)
+}
 
 resource "huaweicloud_fgs_function_trigger" "test" {
   function_urn = huaweicloud_fgs_function.test.urn
   type         = "TIMER"
   event_data   = jsonencode({
-    "name": "%[2]s_rate",
+    "name": "%[1]s_rate",
     "schedule_type": "Rate",
     "user_event": "Created by acc test",
     "schedule": "3m"
@@ -131,7 +152,7 @@ data "huaweicloud_fgs_function_triggers" "filter_by_not_found_trigger_id" {
   ]
 
   function_urn = huaweicloud_fgs_function.test.urn
-  trigger_id   = "%[3]s"
+  trigger_id   = "%[2]s"
 }
 
 locals {
@@ -256,5 +277,5 @@ locals {
 output "is_end_time_filter_useful" {
   value = length(local.end_time_filter_result) > 0 && alltrue(local.end_time_filter_result)
 }
-`, testAccDataFunctions_base(name), name, randUUID)
+`, name, randUUID)
 }

@@ -58,7 +58,8 @@ The following arguments are supported:
 
   -> For more available values, please refer to the [documentation table 3](https://support.huaweicloud.com/intl/en-us/api-functiongraph/functiongraph_06_0122.html#section2).
 
-* `event_data` - (Required, String) Specifies the detailed configuration of the function trigger event.  
+* `event_data` - (Required, String) Specifies the detailed configuration of the function trigger event, in JSON
+  format.  
   For various types of trigger parameter configurations, please refer to the
   [documentation](https://support.huaweicloud.com/intl/en-us/api-functiongraph/functiongraph_06_0122.html#functiongraph_06_0122__request_TriggerEventDataRequestBody).
 
