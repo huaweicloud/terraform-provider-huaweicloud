@@ -26,7 +26,6 @@ import (
 // @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/config-max-instance
 // @API FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/config
 // @API FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/versions
-// @API FunctionGraph GET /v2/{project_id}/fgs/functions/reservedinstances
 // @API FunctionGraph POST /v2/{project_id}/fgs/functions/{function_urn}/tags/create
 // @API FunctionGraph DELETE /v2/{project_id}/fgs/functions/{function_urn}/tags/delete
 // @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/code
@@ -997,53 +996,22 @@ func createFunctionTags(client *golangsdk.ServiceClient, functionUrn string, tag
 }
 
 func getFunctionVersionUrn(client *golangsdk.ServiceClient, functionUrn string, qualifierName string) (string, error) {
-	httpUrl := "v2/{project_id}/fgs/functions/{function_urn}/versions"
-
-	// The query parameter 'marker' and 'maxitems' are not available.
-	listPath := client.Endpoint + httpUrl
-	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listPath = strings.ReplaceAll(listPath, "{function_urn}", functionUrn)
-	listOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-	requestResp, err := client.Request("GET", listPath, &listOpt)
-	if err != nil {
-		return "", fmt.Errorf("failed to query the function versions: %s", err)
-	}
-	respBody, err := utils.FlattenResponse(requestResp)
+	versions, err := getFunctionVersions(client, functionUrn)
 	if err != nil {
 		return "", err
 	}
 
-	return utils.PathSearch(fmt.Sprintf("versions[?version=='%s']|[0].func_urn", qualifierName), respBody, "").(string), nil
+	return utils.PathSearch(fmt.Sprintf("[?version=='%s']|[0].func_urn", qualifierName), versions, "").(string), nil
 }
 
 func getFunctionAliasUrn(client *golangsdk.ServiceClient, functionUrn string, qualifierName string) (string, error) {
-	httpUrl := "v2/{project_id}/fgs/functions/{function_urn}/aliases"
-
-	listPath := client.Endpoint + httpUrl
-	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listPath = strings.ReplaceAll(listPath, "{function_urn}", functionUrn)
-	listOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-	requestResp, err := client.Request("GET", listPath, &listOpt)
-	if err != nil {
-		return "", fmt.Errorf("failed to query the function aliases: %s", err)
-	}
-	respBody, err := utils.FlattenResponse(requestResp)
+	aliases, err := getFunctionAliases(client, functionUrn)
 	if err != nil {
 		return "", err
 	}
 
 	// There will be no aliases with the same name even between different versions.
-	return utils.PathSearch(fmt.Sprintf("[?name=='%s']|[0].alias_urn", qualifierName), respBody, "").(string), nil
+	return utils.PathSearch(fmt.Sprintf("[?name=='%s']|[0].alias_urn", qualifierName), aliases, "").(string), nil
 }
 
 func getReservedInstanceUrn(client *golangsdk.ServiceClient, functionUrn, qualifierType, qualifierName string) (string, error) {
@@ -1332,6 +1300,7 @@ func flattenFuncionMounts(mounts []interface{}) []map[string]interface{} {
 func getFunctionVersions(client *golangsdk.ServiceClient, functionUrn string) ([]interface{}, error) {
 	httpUrl := "v2/{project_id}/fgs/functions/{function_urn}/versions"
 
+	// The query parameter 'marker' and 'maxitems' are not available.
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{function_urn}", functionUrn)
