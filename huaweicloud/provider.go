@@ -1762,7 +1762,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_migration_task":       dms.ResourceDmsRocketmqMigrationTask(),
 
 			"huaweicloud_dns_custom_line":             dns.ResourceCustomLine(),
-			"huaweicloud_dns_ptrrecord":               dns.ResourceDNSPtrRecord(),
+			"huaweicloud_dns_ptrrecord":               dns.ResourcePtrRecord(),
 			"huaweicloud_dns_recordset":               dns.ResourceDNSRecordset(),
 			"huaweicloud_dns_zone":                    dns.ResourceDNSZone(),
 			"huaweicloud_dns_endpoint_assignment":     dns.ResourceEndpointAssignment(),
@@ -2404,7 +2404,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_volume_attach_v2":        ecs.ResourceComputeVolumeAttach(),
 			"huaweicloud_compute_floatingip_associate_v2": ecs.ResourceComputeEIPAssociate(),
 
-			"huaweicloud_dns_ptrrecord_v2": dns.ResourceDNSPtrRecord(),
+			"huaweicloud_dns_ptrrecord_v2": dns.ResourcePtrRecord(),
 			"huaweicloud_dns_recordset_v2": dns.ResourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone_v2":      dns.ResourceDNSZone(),
 
