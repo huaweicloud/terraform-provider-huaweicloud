@@ -10,6 +10,12 @@ description: |-
 
 Manages the function resource within HuaweiCloud.
 
+~> Since version `1.73.1`, the requests of the function resource will send these parameters:
+   <br>`enable_dynamic_memory`
+   <br>`is_stateful_function`
+   <br>`network_controller`
+   <br>For the regions that do not support this parameter, please use the lower version to deploy this resource.
+
 ## Example Usage
 
 ### With base64 func code
@@ -234,6 +240,45 @@ resource "huaweicloud_fgs_function" "test" {
 }
 ```
 
+### With advanced configurations
+
+```hcl
+variable "function_name" {}
+variable "function_codes" {}
+variable "agency_name" {}
+variable "trigger_access_vpc_ids" {
+  type = list(string)
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name                  = var.function_name
+  app                   = "default"
+  agency                = var.agency_name
+  description           = "fuction test"
+  handler               = "test.handler"
+  memory_size           = 128
+  timeout               = 3
+  runtime               = "Python2.7"
+  code_type             = "inline"
+  func_code             = base64encode(var.function_codes)
+  functiongraph_version = "v2"
+  enable_dynamic_memory = true
+  is_stateful_function  = true
+
+  network_controller {
+    disable_public_network = true
+
+    dynamic "trigger_access_vpcs" {
+      for_each = var.trigger_access_vpc_ids
+
+      content {
+        vpc_id = trigger_access_vpcs.value
+      }
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -412,6 +457,15 @@ The following arguments are supported:
 
   -> If the `gpu_memory` and `gpu_type` configured, the `runtime` must be set to **Custom** or **Custom Image**.
 
+* `enable_dynamic_memory` - (Optional, Bool) Specifies whether the dynamic memory configuration is enabled.  
+  Defaults to **false**.
+
+* `is_stateful_function` - (Optional, Bool) Specifies whether the function is a stateful function.  
+  Defaults to **false**.
+
+* `network_controller` - (Optional, List) Specifies the network configuration of the function.  
+  The [network_controller](#function_network_controller) structure is documented below.
+
 <a name="function_func_mounts"></a>
 The `func_mounts` block supports:
 
@@ -553,6 +607,19 @@ The `metric_configs` block supports:
   The valid value is range from `0` to `1,000`.
 
   -> The number of reserved instances must be greater than or equal to the number of reserved instances in the basic configuration.
+
+<a name="function_network_controller"></a>
+The `network_controller` block supports:
+
+* `trigger_access_vpcs` - (Required, List) Specifies the configuration of the VPCs that can trigger the function.  
+  The [trigger_access_vpcs](#function_network_controller_trigger_access_vpcs) structure is documented below.
+
+* `disable_public_network` - (Optional, Bool) Specifies whether to disable the public network access.
+
+<a name="function_network_controller_trigger_access_vpcs"></a>
+The `trigger_access_vpcs` block supports:
+
+* `vpc_id` - (Required, String) Specifies the ID of the VPC that can trigger the function.
 
 ## Attribute Reference
 

@@ -86,6 +86,11 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withBase64Code, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(withBase64Code, "tags.key", "value"),
 					resource.TestCheckResourceAttr(withBase64Code, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(withBase64Code, "enable_dynamic_memory", "true"),
+					resource.TestCheckResourceAttr(withBase64Code, "is_stateful_function", "true"),
+					resource.TestCheckResourceAttr(withBase64Code, "network_controller.#", "1"),
+					resource.TestCheckResourceAttr(withBase64Code, "network_controller.0.trigger_access_vpcs.#", "2"),
+					resource.TestCheckResourceAttr(withBase64Code, "network_controller.0.disable_public_network", "true"),
 					resource.TestCheckResourceAttrSet(withBase64Code, "urn"),
 					resource.TestCheckResourceAttrSet(withBase64Code, "version"),
 					// Check the function which the code context is not base64 encoded.
@@ -108,6 +113,11 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withTextCode, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(withTextCode, "tags.key", "value"),
 					resource.TestCheckResourceAttr(withTextCode, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(withTextCode, "enable_dynamic_memory", "true"),
+					resource.TestCheckResourceAttr(withTextCode, "is_stateful_function", "true"),
+					resource.TestCheckResourceAttr(withTextCode, "network_controller.#", "1"),
+					resource.TestCheckResourceAttr(withTextCode, "network_controller.0.trigger_access_vpcs.#", "2"),
+					resource.TestCheckResourceAttr(withTextCode, "network_controller.0.disable_public_network", "true"),
 					resource.TestCheckResourceAttrSet(withTextCode, "urn"),
 					resource.TestCheckResourceAttrSet(withTextCode, "version"),
 					// Check the function which the code file is storaged in the OBS bucket.
@@ -131,6 +141,11 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withObsStorage, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(withObsStorage, "tags.key", "value"),
 					resource.TestCheckResourceAttr(withObsStorage, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(withObsStorage, "enable_dynamic_memory", "true"),
+					resource.TestCheckResourceAttr(withObsStorage, "is_stateful_function", "true"),
+					resource.TestCheckResourceAttr(withObsStorage, "network_controller.#", "1"),
+					resource.TestCheckResourceAttr(withObsStorage, "network_controller.0.trigger_access_vpcs.#", "2"),
+					resource.TestCheckResourceAttr(withObsStorage, "network_controller.0.disable_public_network", "true"),
 					resource.TestCheckResourceAttrSet(withObsStorage, "urn"),
 					resource.TestCheckResourceAttrSet(withObsStorage, "version"),
 					// Check the function which is build via an SWR image.
@@ -158,6 +173,11 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withCustomImage, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(withCustomImage, "tags.key", "value"),
 					resource.TestCheckResourceAttr(withCustomImage, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(withCustomImage, "enable_dynamic_memory", "true"),
+					resource.TestCheckResourceAttr(withCustomImage, "is_stateful_function", "true"),
+					resource.TestCheckResourceAttr(withCustomImage, "network_controller.#", "1"),
+					resource.TestCheckResourceAttr(withCustomImage, "network_controller.0.trigger_access_vpcs.#", "2"),
+					resource.TestCheckResourceAttr(withCustomImage, "network_controller.0.disable_public_network", "true"),
 					resource.TestCheckResourceAttrSet(withCustomImage, "urn"),
 					resource.TestCheckResourceAttrSet(withCustomImage, "version"),
 					rcWithDeprecatedParams.CheckResourceExists(),
@@ -199,6 +219,11 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withBase64Code, "tags.foo", "baar"),
 					resource.TestCheckResourceAttr(withBase64Code, "tags.new_key", "value"),
 					resource.TestCheckResourceAttr(withBase64Code, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(withBase64Code, "enable_dynamic_memory", "false"),
+					resource.TestCheckResourceAttr(withBase64Code, "is_stateful_function", "false"),
+					resource.TestCheckResourceAttr(withBase64Code, "network_controller.#", "1"),
+					resource.TestCheckResourceAttr(withBase64Code, "network_controller.0.trigger_access_vpcs.#", "2"),
+					resource.TestCheckResourceAttr(withBase64Code, "network_controller.0.disable_public_network", "false"),
 					resource.TestCheckResourceAttrSet(withBase64Code, "urn"),
 					resource.TestCheckResourceAttrSet(withBase64Code, "version"),
 					// Check the function which the code context is not base64 encoded.
@@ -220,6 +245,11 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withTextCode, "tags.foo", "baar"),
 					resource.TestCheckResourceAttr(withTextCode, "tags.new_key", "value"),
 					resource.TestCheckResourceAttr(withTextCode, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(withTextCode, "enable_dynamic_memory", "false"),
+					resource.TestCheckResourceAttr(withTextCode, "is_stateful_function", "false"),
+					resource.TestCheckResourceAttr(withTextCode, "network_controller.#", "1"),
+					resource.TestCheckResourceAttr(withTextCode, "network_controller.0.trigger_access_vpcs.#", "2"),
+					resource.TestCheckResourceAttr(withTextCode, "network_controller.0.disable_public_network", "false"),
 					resource.TestCheckResourceAttrSet(withTextCode, "urn"),
 					resource.TestCheckResourceAttrSet(withTextCode, "version"),
 					// Check the function which the code file is storaged in the OBS bucket.
@@ -241,6 +271,11 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withObsStorage, "tags.foo", "baar"),
 					resource.TestCheckResourceAttr(withObsStorage, "tags.new_key", "value"),
 					resource.TestCheckResourceAttr(withObsStorage, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(withObsStorage, "enable_dynamic_memory", "false"),
+					resource.TestCheckResourceAttr(withObsStorage, "is_stateful_function", "false"),
+					resource.TestCheckResourceAttr(withObsStorage, "network_controller.#", "1"),
+					resource.TestCheckResourceAttr(withObsStorage, "network_controller.0.trigger_access_vpcs.#", "2"),
+					resource.TestCheckResourceAttr(withObsStorage, "network_controller.0.disable_public_network", "false"),
 					resource.TestCheckResourceAttrSet(withObsStorage, "urn"),
 					resource.TestCheckResourceAttrSet(withObsStorage, "version"),
 					// Check the function which is build via an SWR image.
@@ -266,6 +301,11 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withCustomImage, "tags.foo", "baar"),
 					resource.TestCheckResourceAttr(withCustomImage, "tags.new_key", "value"),
 					resource.TestCheckResourceAttr(withCustomImage, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(withCustomImage, "enable_dynamic_memory", "false"),
+					resource.TestCheckResourceAttr(withCustomImage, "is_stateful_function", "false"),
+					resource.TestCheckResourceAttr(withCustomImage, "network_controller.#", "1"),
+					resource.TestCheckResourceAttr(withCustomImage, "network_controller.0.trigger_access_vpcs.#", "2"),
+					resource.TestCheckResourceAttr(withCustomImage, "network_controller.0.disable_public_network", "false"),
 					resource.TestCheckResourceAttrSet(withCustomImage, "urn"),
 					resource.TestCheckResourceAttrSet(withCustomImage, "version"),
 				),
@@ -376,6 +416,13 @@ func testAccFunction_basic_step1(name, runtime string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+resource "huaweicloud_vpc" "trigger_access" {
+  count = 3
+
+  name = format("%[2]s-trigger-%%d", count.index)
+  cidr = "192.168.0.0/16"
+}
+
 resource "huaweicloud_fgs_function" "with_base64_code" {
   name                  = "%[2]s-base64-code"
   memory_size           = 128
@@ -387,6 +434,8 @@ resource "huaweicloud_fgs_function" "with_base64_code" {
   func_code             = base64encode(var.script_content)
   description           = "Created by terraform script"
   functiongraph_version = "v2"
+  enable_dynamic_memory = true
+  is_stateful_function  = true
 
   user_data = jsonencode({
     "owner": "terraform"
@@ -394,6 +443,18 @@ resource "huaweicloud_fgs_function" "with_base64_code" {
   encrypted_user_data = jsonencode({
     "owner": "terraform"
   })
+
+  network_controller {
+    disable_public_network = true
+
+    dynamic "trigger_access_vpcs" {
+      for_each = slice(huaweicloud_vpc.trigger_access[*].id, 0, 2)
+
+      content {
+        vpc_id = trigger_access_vpcs.value
+      }
+    }
+  }
 
   # Update the runtime value will trigger the dependency version change.
   depend_list = [huaweicloud_fgs_dependency_version.test.version_id]
@@ -415,6 +476,8 @@ resource "huaweicloud_fgs_function" "with_text_code" {
   func_code             = var.script_content
   description           = "Created by terraform script"
   functiongraph_version = "v2"
+  enable_dynamic_memory = true
+  is_stateful_function  = true
 
   user_data = jsonencode({
     "owner": "terraform"
@@ -422,6 +485,18 @@ resource "huaweicloud_fgs_function" "with_text_code" {
   encrypted_user_data = jsonencode({
     "owner": "terraform"
   })
+
+  network_controller {
+    disable_public_network = true
+
+    dynamic "trigger_access_vpcs" {
+      for_each = slice(huaweicloud_vpc.trigger_access[*].id, 0, 2)
+
+      content {
+        vpc_id = trigger_access_vpcs.value
+      }
+    }
+  }
 
   # Update the runtime value will trigger the dependency version change.
   depend_list = [huaweicloud_fgs_dependency_version.test.version_id]
@@ -444,6 +519,8 @@ resource "huaweicloud_fgs_function" "with_obs_storage" {
   agency                = "%[4]s"
   description           = "Created by terraform script"
   functiongraph_version = "v2"
+  enable_dynamic_memory = true
+  is_stateful_function  = true
 
   user_data = jsonencode({
     "owner": "terraform"
@@ -451,6 +528,18 @@ resource "huaweicloud_fgs_function" "with_obs_storage" {
   encrypted_user_data = jsonencode({
     "owner": "terraform"
   })
+
+  network_controller {
+    disable_public_network = true
+
+    dynamic "trigger_access_vpcs" {
+      for_each = slice(huaweicloud_vpc.trigger_access[*].id, 0, 2)
+
+      content {
+        vpc_id = trigger_access_vpcs.value
+      }
+    }
+  }
 
   # Update the runtime value will trigger the dependency version change.
   depend_list = [huaweicloud_fgs_dependency_version.test.version_id]
@@ -472,6 +561,8 @@ resource "huaweicloud_fgs_function" "with_custom_image" {
   agency                = "%[4]s"
   description           = "Created by terraform script"
   functiongraph_version = "v2"
+  enable_dynamic_memory = true
+  is_stateful_function  = true
   vpc_id                = huaweicloud_vpc.test.id
   network_id            = huaweicloud_vpc_subnet.test.id
 
@@ -485,6 +576,18 @@ resource "huaweicloud_fgs_function" "with_custom_image" {
   encrypted_user_data = jsonencode({
     "owner": "terraform"
   })
+
+  network_controller {
+    disable_public_network = true
+
+    dynamic "trigger_access_vpcs" {
+      for_each = slice(huaweicloud_vpc.trigger_access[*].id, 0, 2)
+
+      content {
+        vpc_id = trigger_access_vpcs.value
+      }
+    }
+  }
 
   tags = {
     foo = "bar"
@@ -513,6 +616,13 @@ func testAccFunction_basic_step2(name, runtime string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+resource "huaweicloud_vpc" "trigger_access" {
+  count = 3
+
+  name = format("%[2]s-trigger-%%d", count.index)
+  cidr = "192.168.0.0/16"
+}
+
 resource "huaweicloud_fgs_function" "with_base64_code" {
   name                  = "%[2]s-base64-code"
   memory_size           = 256
@@ -534,6 +644,16 @@ resource "huaweicloud_fgs_function" "with_base64_code" {
     "owner": "terraform",
     "usage": "acceptance test"
   })
+
+  network_controller {
+    dynamic "trigger_access_vpcs" {
+      for_each = slice(huaweicloud_vpc.trigger_access[*].id, 1, 3)
+
+      content {
+        vpc_id = trigger_access_vpcs.value
+      }
+    }
+  }
 
   # Update the runtime value will trigger the dependency version change.
   depend_list = [huaweicloud_fgs_dependency_version.test.version_id]
@@ -565,6 +685,16 @@ resource "huaweicloud_fgs_function" "with_text_code" {
     "owner": "terraform",
     "usage": "acceptance test"
   })
+
+  network_controller {
+    dynamic "trigger_access_vpcs" {
+      for_each = slice(huaweicloud_vpc.trigger_access[*].id, 1, 3)
+
+      content {
+        vpc_id = trigger_access_vpcs.value
+      }
+    }
+  }
 
   # Update the runtime value will trigger the dependency version change.
   depend_list = [huaweicloud_fgs_dependency_version.test.version_id]
@@ -599,6 +729,16 @@ resource "huaweicloud_fgs_function" "with_obs_storage" {
     "owner": "terraform",
     "usage": "acceptance test"
   })
+
+  network_controller {
+    dynamic "trigger_access_vpcs" {
+      for_each = slice(huaweicloud_vpc.trigger_access[*].id, 1, 3)
+
+      content {
+        vpc_id = trigger_access_vpcs.value
+      }
+    }
+  }
 
   # Update the runtime value will trigger the dependency version change.
   depend_list = [huaweicloud_fgs_dependency_version.test.version_id]
@@ -640,6 +780,16 @@ resource "huaweicloud_fgs_function" "with_custom_image" {
     "owner": "terraform",
     "usage": "acceptance test"
   })
+
+  network_controller {
+    dynamic "trigger_access_vpcs" {
+      for_each = slice(huaweicloud_vpc.trigger_access[*].id, 1, 3)
+
+      content {
+        vpc_id = trigger_access_vpcs.value
+      }
+    }
+  }
 
   tags = {
     foo     = "baar"
