@@ -383,6 +383,49 @@ func getTaskGroupDstSecretKey(conf *config.Config, dstNode map[string]interface{
 	return "", fmt.Errorf("unable to find secret_key")
 }
 
+func buildTaskGroupSourceCdnOpts(rawSourceCdn []interface{}) (*omsmodel.SourceCdnReq, error) {
+	if len(rawSourceCdn) != 1 {
+		return nil, nil
+	}
+	sourceCdn := rawSourceCdn[0].(map[string]interface{})
+
+	sourceCdnOpts := omsmodel.SourceCdnReq{
+		Domain:            sourceCdn["domain"].(string),
+		AuthenticationKey: utils.String(sourceCdn["authentication_key"].(string)),
+	}
+
+	if sourceCdn["protocol"].(string) == "http" {
+		sourceCdnOpts.Protocol = omsmodel.GetSourceCdnReqProtocolEnum().HTTP
+	} else {
+		sourceCdnOpts.Protocol = omsmodel.GetSourceCdnReqProtocolEnum().HTTPS
+	}
+
+	var authenticationType omsmodel.SourceCdnReqAuthenticationType
+	if err := authenticationType.UnmarshalJSON([]byte(sourceCdn["authentication_type"].(string))); err != nil {
+		return nil, fmt.Errorf("error parsing the argument authentication_type: %s", err)
+	}
+
+	return &sourceCdnOpts, nil
+}
+
+func buildTaskGroupBandwidthPolicyOpts(rawBandwidthPolicy []interface{}) *[]omsmodel.BandwidthPolicyDto {
+	if len(rawBandwidthPolicy) < 1 {
+		return nil
+	}
+
+	bandwidthPolicyOpts := make([]omsmodel.BandwidthPolicyDto, len(rawBandwidthPolicy))
+	for i, rawPolicy := range rawBandwidthPolicy {
+		policy := rawPolicy.(map[string]interface{})
+		bandwidthPolicyOpts[i] = omsmodel.BandwidthPolicyDto{
+			MaxBandwidth: int64(policy["max_bandwidth"].(int) * 1024 * 1024),
+			Start:        policy["start"].(string),
+			End:          policy["end"].(string),
+		}
+	}
+
+	return &bandwidthPolicyOpts
+}
+
 func buildTaskGroupCreateOpts(conf *config.Config, d *schema.ResourceData) (*omsmodel.CreateTaskGroupReq, error) {
 	var taskType omsmodel.CreateTaskGroupReqTaskType
 	if err := taskType.UnmarshalJSON([]byte(d.Get("type").(string))); err != nil {
@@ -394,7 +437,7 @@ func buildTaskGroupCreateOpts(conf *config.Config, d *schema.ResourceData) (*oms
 		return nil, err
 	}
 
-	sourceCdn, err := buildSourceCdnOpts(d.Get("source_cdn").([]interface{}))
+	sourceCdn, err := buildTaskGroupSourceCdnOpts(d.Get("source_cdn").([]interface{}))
 	if err != nil {
 		return nil, err
 	}
@@ -415,7 +458,7 @@ func buildTaskGroupCreateOpts(conf *config.Config, d *schema.ResourceData) (*oms
 		EnableFailedObjectRecording: utils.Bool(d.Get("enable_failed_object_recording").(bool)),
 		EnableKms:                   d.Get("enable_kms").(bool),
 		TaskType:                    &taskType,
-		BandwidthPolicy:             buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{})),
+		BandwidthPolicy:             buildTaskGroupBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{})),
 		SourceCdn:                   sourceCdn,
 		MigrateSince:                migrateSinceOpt,
 		EnableRequesterPays:         utils.Bool(d.Get("enable_requester_pays").(bool)),
@@ -674,7 +717,7 @@ func resourceMigrationTaskGroupUpdate(ctx context.Context, d *schema.ResourceDat
 
 	groupID := d.Id()
 	if d.HasChange("bandwidth_policy") {
-		updateBandwidthPolicyOpts := buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{}))
+		updateBandwidthPolicyOpts := buildTaskGroupBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{}))
 		updateTaskGroupRequest := &omsmodel.UpdateTaskGroupRequest{
 			GroupId: groupID,
 			Body: &omsmodel.UpdateBandwidthPolicyReq{

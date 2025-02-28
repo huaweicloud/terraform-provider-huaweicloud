@@ -256,7 +256,7 @@ func buildCreateOpts(d *schema.ResourceData, region string) (omsmodel.CreateSync
 		AppId:                   utils.StringIgnoreEmpty(d.Get("app_id").(string)),
 	}
 
-	sourceCdn, err := buildSourceCdnOpts(d.Get("source_cdn").([]interface{}))
+	sourceCdn, err := buildTaskGroupSourceCdnOpts(d.Get("source_cdn").([]interface{}))
 	if err != nil {
 		return omsmodel.CreateSyncTaskReq{}, err
 	}
