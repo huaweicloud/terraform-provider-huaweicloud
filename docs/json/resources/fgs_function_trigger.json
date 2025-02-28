@@ -12,7 +12,7 @@
               },
               "event_data": {
                 "type": "string",
-                "description": "The detailed configuration of the function trigger.",
+                "description": "The detailed configuration of the function trigger event, in JSON format.",
                 "required": true
               },
               "function_urn": {

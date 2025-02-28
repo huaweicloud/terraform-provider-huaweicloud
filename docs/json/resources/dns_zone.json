@@ -36,13 +36,20 @@
                 "required": true,
                 "forcenew": true
               },
+              "proxy_pattern": {
+                "type": "string",
+                "description": "The recursive resolution proxy mode for subdomains of the private zone.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
               },
               "status": {
                 "type": "string",
-                "description": "Specifies the status of the public zone.",
+                "description": "The status of the zone.",
                 "optional": true,
                 "computed": true
               },
@@ -75,7 +82,8 @@
                     },
                     "router_region": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     }
                   }
                 },

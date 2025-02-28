@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_inspector_website_scan_tasks": {
+          "block": {
+            "attributes": {
+              "domain_id": {
+                "type": "string",
+                "description": "Specifies the website domain ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "cve_check": "bool",
+                      "domain_name": "string",
+                      "end_time": "string",
+                      "high": "number",
+                      "hint": "number",
+                      "low": "number",
+                      "malicious_code": "bool",
+                      "malicious_link": "bool",
+                      "middle": "number",
+                      "pack_num": "number",
+                      "picture_check": "bool",
+                      "port_scan": "bool",
+                      "progress": "number",
+                      "reason": "string",
+                      "safe_level": "string",
+                      "scan_mode": "string",
+                      "schedule_status": "string",
+                      "score": "number",
+                      "start_time": "string",
+                      "task_id": "string",
+                      "task_name": "string",
+                      "task_period": "string",
+                      "task_status": "string",
+                      "task_type": "string",
+                      "text_check": "bool",
+                      "timer": "string",
+                      "trigger_time": "string",
+                      "url": "string",
+                      "weak_pwd_scan": "bool"
+                    }
+                  ]
+                ],
+                "description": "Indicates the tasks list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsInspector",
+            "name": "CodeArts Inspector",
+            "catalog": "CodeArts",
+            "name_cn": "漏洞管理服务",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

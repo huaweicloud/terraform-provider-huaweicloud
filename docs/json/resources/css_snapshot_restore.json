@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_css_snapshot_restore": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "indices": {
+                "type": "string",
+                "description": "Name of an index to be restored.",
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "rename_pattern": {
+                "type": "string",
+                "description": "Rule for defining the indexes to be restored.",
+                "optional": true
+              },
+              "rename_replacement": {
+                "type": "string",
+                "description": "Rule for renaming an index.",
+                "optional": true
+              },
+              "snapshot_id": {
+                "type": "string",
+                "description": "Specifies the ID of the snapshot to be restored.",
+                "required": true
+              },
+              "source_cluster_id": {
+                "type": "string",
+                "description": "Specifies the source cluster ID.",
+                "required": true
+              },
+              "target_cluster_id": {
+                "type": "string",
+                "description": "Specifies the target cluster ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

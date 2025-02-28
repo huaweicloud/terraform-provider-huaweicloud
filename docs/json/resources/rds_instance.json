@@ -24,8 +24,7 @@
               "charging_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "collation": {
                 "type": "string",
@@ -82,6 +81,11 @@
                 "optional": true,
                 "computed": true
               },
+              "minor_version_auto_upgrade_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "name": {
                 "type": "string",
                 "required": true
@@ -108,13 +112,11 @@
               },
               "period": {
                 "type": "number",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "period_unit": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "power_action": {
                 "type": "string",

@@ -2,35 +2,32 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_account": {
+        "huaweicloud_gaussdb_opengauss_plugins": {
           "block": {
             "attributes": {
-              "current_project_id": {
-                "type": "string",
-                "computed": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "name": {
-                "type": "string",
+              "plugins": {
+                "type": [
+                  "list",
+                  "string"
+                ],
                 "computed": true
               },
-              "user_id": {
-                "type": "string",
-                "computed": true
-              },
-              "username": {
+              "region": {
                 "type": "string",
                 "computed": true
               }
             }
           },
           "product": {
-            "short": "Terraform",
-            "name": "Terraform",
-            "catalog": "Terraform"
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
           }
         }
       }

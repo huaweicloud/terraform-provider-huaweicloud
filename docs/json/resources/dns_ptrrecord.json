@@ -45,7 +45,8 @@
               },
               "ttl": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             }
           },

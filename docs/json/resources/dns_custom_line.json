@@ -8,8 +8,7 @@
               "description": {
                 "type": "string",
                 "description": "Specifies the custom line description. A maximum of 255 characters are allowed.",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -17,7 +16,7 @@
               },
               "ip_segments": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "description": "Specifies the IP address range.",

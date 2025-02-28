@@ -30,6 +30,7 @@
                   [
                     "object",
                     {
+                      "created_at": "string",
                       "default": "bool",
                       "description": "string",
                       "id": "string",
@@ -42,6 +43,7 @@
                       "status": "string",
                       "ttl": "number",
                       "type": "string",
+                      "updated_at": "string",
                       "weight": "number",
                       "zone_id": "string",
                       "zone_name": "string"
@@ -58,6 +60,16 @@
               "search_mode": {
                 "type": "string",
                 "description": "Specifies the query criteria search mode.",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "The sorting mode for the list of the recordsets to be queried.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "The sorting field for the list of the recordsets to be queried.",
                 "optional": true
               },
               "status": {
