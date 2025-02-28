@@ -45,6 +45,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "09:00"),
 					resource.TestCheckResourceAttr(resourceName, "private_dns_name_prefix", "terraformTest"),
+					resource.TestCheckResourceAttr(resourceName, "minor_version_auto_upgrade_enabled", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_dns_names.0"),
 				),
 			},
@@ -66,6 +67,7 @@ func TestAccRdsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "15:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "17:00"),
 					resource.TestCheckResourceAttr(resourceName, "private_dns_name_prefix", "terraformTestUpdate"),
+					resource.TestCheckResourceAttr(resourceName, "minor_version_auto_upgrade_enabled", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "db.0.password"),
 				),
 			},
@@ -579,18 +581,19 @@ func testAccRdsInstance_basic(name string) string {
 %[1]s
 
 resource "huaweicloud_rds_instance" "test" {
-  name                          = "%[2]s"
-  description                   = "test_description"
-  flavor                        = "rds.pg.n1.large.2"
-  availability_zone             = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id             = huaweicloud_networking_secgroup.test.id
-  subnet_id                     = data.huaweicloud_vpc_subnet.test.id
-  vpc_id                        = data.huaweicloud_vpc.test.id
-  time_zone                     = "UTC+08:00"
-  maintain_begin                = "06:00"
-  maintain_end                  = "09:00"
-  private_dns_name_prefix       = "terraformTest"
-  slow_log_show_original_status = "on"
+  name                               = "%[2]s"
+  description                        = "test_description"
+  flavor                             = "rds.pg.n1.large.2"
+  availability_zone                  = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id                  = huaweicloud_networking_secgroup.test.id
+  subnet_id                          = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                             = data.huaweicloud_vpc.test.id
+  time_zone                          = "UTC+08:00"
+  maintain_begin                     = "06:00"
+  maintain_end                       = "09:00"
+  private_dns_name_prefix            = "terraformTest"
+  slow_log_show_original_status      = "on"
+  minor_version_auto_upgrade_enabled = true
 
   db {
     type     = "PostgreSQL"
@@ -625,18 +628,19 @@ resource "huaweicloud_networking_secgroup" "test_update" {
 }
 
 resource "huaweicloud_rds_instance" "test" {
-  name                          = "%[2]s-update"
-  flavor                        = "rds.pg.n1.large.2"
-  availability_zone             = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id             = huaweicloud_networking_secgroup.test_update.id
-  subnet_id                     = data.huaweicloud_vpc_subnet.test.id
-  vpc_id                        = data.huaweicloud_vpc.test.id
-  time_zone                     = "UTC+08:00"
-  fixed_ip                      = "192.168.0.230"
-  maintain_begin                = "15:00"
-  maintain_end                  = "17:00"
-  private_dns_name_prefix       = "terraformTestUpdate"
-  slow_log_show_original_status = "off"
+  name                               = "%[2]s-update"
+  flavor                             = "rds.pg.n1.large.2"
+  availability_zone                  = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id                  = huaweicloud_networking_secgroup.test_update.id
+  subnet_id                          = data.huaweicloud_vpc_subnet.test.id
+  vpc_id                             = data.huaweicloud_vpc.test.id
+  time_zone                          = "UTC+08:00"
+  fixed_ip                           = "192.168.0.230"
+  maintain_begin                     = "15:00"
+  maintain_end                       = "17:00"
+  private_dns_name_prefix            = "terraformTestUpdate"
+  slow_log_show_original_status      = "off"
+  minor_version_auto_upgrade_enabled = false
 
   db {
     password = "Huangwei!120521"
