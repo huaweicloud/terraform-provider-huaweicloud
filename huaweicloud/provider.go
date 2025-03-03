@@ -1998,6 +1998,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_access_credential":        iotda.ResourceAccessCredential(),
 			"huaweicloud_iotda_amqp":                     iotda.ResourceAmqp(),
 			"huaweicloud_iotda_batchtask":                iotda.ResourceBatchTask(),
+			"huaweicloud_iotda_custom_authentication":    iotda.ResourceCustomAuthentication(),
 			"huaweicloud_iotda_dataforwarding_rule":      iotda.ResourceDataForwardingRule(),
 			"huaweicloud_iotda_data_flow_control_policy": iotda.ResourceDataFlowControlPolicy(),
 			"huaweicloud_iotda_data_backlog_policy":      iotda.ResourceDataBacklogPolicy(),
