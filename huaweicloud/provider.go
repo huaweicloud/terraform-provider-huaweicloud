@@ -2174,6 +2174,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_primary_standby_switch":       rds.ResourceRdsInstanceSwitch(),
 			"huaweicloud_rds_database_logs_shrinking":      rds.ResourceRdsDbLogsShrinking(),
 			"huaweicloud_rds_extend_log_link":              rds.ResourceRdsExtendLogLink(),
+			"huaweicloud_rds_instant_task_delete":          rds.ResourceRdsInstantTaskDelete(),
 
 			"huaweicloud_rgc_account": rgc.ResourceAccount(),
 
