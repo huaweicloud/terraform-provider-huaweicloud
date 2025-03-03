@@ -1660,6 +1660,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dc_virtual_interface":          dc.ResourceVirtualInterface(),
 			"huaweicloud_dc_virtual_interface_accepter": dc.ResourceInterfaceAccepter(),
 			"huaweicloud_dc_hosted_connect":             dc.ResourceHostedConnect(),
+			"huaweicloud_dc_global_gateway":             dc.ResourceDcGlobalGateway(),
 
 			"huaweicloud_dcs_instance":         dcs.ResourceDcsInstance(),
 			"huaweicloud_dcs_backup":           dcs.ResourceDcsBackup(),
