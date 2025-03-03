@@ -381,9 +381,8 @@ The following arguments are supported:
 * `initializer_timeout` - (Optional, Int) Specifies the maximum duration the function can be initialized, in seconds.  
   The valid value is range from `1` to `300`.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the
-  function belongs.  
-  Changing this will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the
+  function belongs.
 
 * `vpc_id` - (Optional, String) Specifies the ID of the VPC to which the function belongs.
 
