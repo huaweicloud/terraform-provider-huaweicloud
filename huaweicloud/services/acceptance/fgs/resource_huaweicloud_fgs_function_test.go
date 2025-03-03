@@ -904,6 +904,8 @@ func TestAccFunction_logConfig(t *testing.T) {
 					// In some regions (such as 'cn-north-4'), the FunctionGraph service automatically binds the groups
 					// and streams created by FunctionGraph to functions that do not have LTS set.
 					resource.TestCheckResourceAttrSet(createWithoutLtsParams, "log_group_id"),
+					// When a parameter is not configured in the ReadContext phase and has never been configured in the
+					// script, its value in tfstate is null after creation.
 					resource.TestCheckNoResourceAttr(createWithoutLtsParams, "log_group_name"),
 					resource.TestCheckResourceAttrSet(createWithoutLtsParams, "log_stream_id"),
 					resource.TestCheckNoResourceAttr(createWithoutLtsParams, "log_stream_name"),
@@ -946,15 +948,26 @@ func TestAccFunction_logConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rcCreateWithLtsParams.CheckResourceExists(),
 					resource.TestCheckResourceAttr(createWithLtsParams, "functiongraph_version", "v1"),
-					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_group_id",
-						"huaweicloud_lts_group.test.1", "id"),
-					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_group_name",
-						"huaweicloud_lts_group.test.1", "group_name"),
-					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_stream_id",
-						"huaweicloud_lts_stream.test.1", "id"),
-					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_stream_name",
-						"huaweicloud_lts_stream.test.1", "stream_name"),
+					// When a parameter is not configured in the ReadContext phase and has been configured in the
+					// script, its value in tfstate is the corresponding null value instead of null after it is changed
+					// to null or empty value.
+					resource.TestCheckResourceAttr(createWithLtsParams, "log_group_id", ""),
+					resource.TestCheckResourceAttr(createWithLtsParams, "log_group_name", ""),
+					resource.TestCheckResourceAttr(createWithLtsParams, "log_stream_id", ""),
+					resource.TestCheckResourceAttr(createWithLtsParams, "log_stream_name", ""),
 					resource.TestCheckResourceAttr(createWithLtsParams, "lts_custom_tag.%", "0"),
+					rcCreateWithoutLtsParams.CheckResourceExists(),
+					resource.TestCheckResourceAttr(createWithoutLtsParams, "functiongraph_version", "v1"),
+					// When a parameter is not configured in the ReadContext phase and has been configured in the
+					// script, its value in tfstate is the corresponding null value instead of null after it is changed
+					// to null or empty value.
+					resource.TestCheckResourceAttr(createWithoutLtsParams, "log_group_id", ""),
+					resource.TestCheckResourceAttr(createWithoutLtsParams, "log_group_name", ""),
+					resource.TestCheckResourceAttr(createWithoutLtsParams, "log_stream_id", ""),
+					resource.TestCheckResourceAttr(createWithoutLtsParams, "log_stream_name", ""),
+					resource.TestCheckResourceAttr(createWithoutLtsParams, "lts_custom_tag.%", "2"),
+					resource.TestCheckResourceAttr(createWithoutLtsParams, "lts_custom_tag.foo", "bar"),
+					resource.TestCheckResourceAttr(createWithoutLtsParams, "lts_custom_tag.key", "value"),
 				),
 			},
 		},
@@ -1088,11 +1101,24 @@ resource "huaweicloud_fgs_function" "create_with_lts_params" {
   func_code             = base64encode(var.script_content)
   description           = "Created by terraform script"
   functiongraph_version = "v1"
+}
 
-  log_group_id    = huaweicloud_lts_group.test[1].id
-  log_stream_id   = huaweicloud_lts_stream.test[1].id
-  log_group_name  = huaweicloud_lts_group.test[1].group_name
-  log_stream_name = huaweicloud_lts_stream.test[1].stream_name
+resource "huaweicloud_fgs_function" "create_without_lts_params" {
+  name                  = "%[2]s_without_lts_params"
+  memory_size           = 128
+  runtime               = "Python2.7"
+  timeout               = 3
+  app                   = "default"
+  handler               = "index.handler"
+  code_type             = "inline"
+  func_code             = base64encode(var.script_content)
+  description           = "Created by terraform script"
+  functiongraph_version = "v1"
+
+  lts_custom_tag = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testAccFunction_logConfig_base(name), name)
 }

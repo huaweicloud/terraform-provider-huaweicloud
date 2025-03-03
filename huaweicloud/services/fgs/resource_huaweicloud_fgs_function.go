@@ -403,7 +403,6 @@ func ResourceFgsFunction() *schema.Resource {
 			"log_group_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Computed:     true,
 				RequiredWith: []string{"log_group_id"},
 				Description:  `The LTS group name for collecting logs.`,
 			},
@@ -417,7 +416,6 @@ func ResourceFgsFunction() *schema.Resource {
 			"log_stream_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Computed:     true,
 				RequiredWith: []string{"log_group_id"},
 				Description:  `The LTS stream name for collecting logs.`,
 			},
@@ -677,19 +675,29 @@ func buildFunctionCodeConfig(funcCode string) map[string]interface{} {
 
 func buildFunctionLogConfig(d *schema.ResourceData) map[string]interface{} {
 	// If the LTS log parameters is not configured (in the creation phase), the service will automatically create an
-	// LTS stream (group will also be created) and associate it with the function.
+	// LTS stream (group will also be created) and associate it with the function (some regions not have this logic,
+	// such as 'cn-east-3').
 	// So, the tfstate records will always have the log group ID and the log stream ID.
 	groupName, ok := d.GetOk("log_group_name") // Only log group name and the log stream name are specified by users.
-	if !ok {
-		return nil
+	if ok {
+		return map[string]interface{}{
+			"group_id":    d.Get("log_group_id"),
+			"group_name":  groupName,
+			"stream_id":   d.Get("log_stream_id"),
+			"stream_name": d.Get("log_stream_name"),
+		}
+	} else if !d.IsNewResource() {
+		// In the update logic, if you need to turn off log management, the LTS parameters need to be explicitly
+		// declared as empty strings instead of null.
+		return map[string]interface{}{
+			"group_id":    "",
+			"group_name":  "",
+			"stream_id":   "",
+			"stream_name": "",
+		}
 	}
 
-	return map[string]interface{}{
-		"group_id":    d.Get("log_group_id"),
-		"group_name":  groupName,
-		"stream_id":   d.Get("log_stream_id"),
-		"stream_name": utils.ValueIgnoreEmpty(d.Get("log_stream_name")),
-	}
+	return nil
 }
 
 func buildNetworkControllerTriggerAccessVpcs(triggerAccessVpcs []interface{}) []map[string]interface{} {
