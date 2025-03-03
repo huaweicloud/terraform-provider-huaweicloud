@@ -473,6 +473,8 @@ var (
 
 	HW_IOTDA_ACCESS_ADDRESS      = os.Getenv("HW_IOTDA_ACCESS_ADDRESS")
 	HW_IOTDA_BATCHTASK_FILE_PATH = os.Getenv("HW_IOTDA_BATCHTASK_FILE_PATH")
+	HW_IOTDA_SIGNING_PUBLIC_KEY  = os.Getenv("HW_IOTDA_SIGNING_PUBLIC_KEY")
+	HW_IOTDA_SIGNING_TOKEN       = os.Getenv("HW_IOTDA_SIGNING_TOKEN")
 
 	HW_DWS_MUTIL_AZS               = os.Getenv("HW_DWS_MUTIL_AZS")
 	HW_DWS_CLUSTER_ID              = os.Getenv("HW_DWS_CLUSTER_ID")
@@ -2476,6 +2478,20 @@ func TestAccPreCheckHWIOTDAAccessAddress(t *testing.T) {
 func TestAccPreCheckIOTDABatchTaskFilePath(t *testing.T) {
 	if HW_IOTDA_BATCHTASK_FILE_PATH == "" {
 		t.Skip("HW_IOTDA_BATCHTASK_FILE_PATH must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckIOTDASigningPublicKey(t *testing.T) {
+	if HW_IOTDA_SIGNING_PUBLIC_KEY == "" {
+		t.Skip("HW_IOTDA_SIGNING_PUBLIC_KEY must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckIOTDASigningToken(t *testing.T) {
+	if HW_IOTDA_SIGNING_TOKEN == "" {
+		t.Skip("HW_IOTDA_SIGNING_TOKEN must be set for the acceptance test")
 	}
 }
 
