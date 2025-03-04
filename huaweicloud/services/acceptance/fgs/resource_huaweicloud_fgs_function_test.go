@@ -10,7 +10,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 )
 
@@ -1358,35 +1357,73 @@ resource "huaweicloud_fgs_function" "test" {
 `, funcScript, name)
 }
 
-func TestAccFunction_domain(t *testing.T) {
+func TestAccFunction_network(t *testing.T) {
 	var (
 		obj interface{}
 
-		name         = acceptance.RandomAccResourceName()
-		resourceName = "huaweicloud_fgs_function.test"
+		name = acceptance.RandomAccResourceName()
 
-		rc = acceptance.InitResourceCheck(resourceName, &obj, getFunction)
+		createWithNetwork   = "huaweicloud_fgs_function.create_with_network"
+		rcCreateWithNetwork = acceptance.InitResourceCheck(createWithNetwork, &obj, getFunction)
+
+		createWithoutNetwork   = "huaweicloud_fgs_function.create_without_network"
+		rcCreateWithoutNetwork = acceptance.InitResourceCheck(createWithoutNetwork, &obj, getFunction)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckFgsAgency(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcCreateWithNetwork.CheckResourceDestroy(),
+			rcCreateWithoutNetwork.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFunction_domain_step1(name),
+				Config: testAccFunction_network_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
+					rcCreateWithNetwork.CheckResourceExists(),
+					resource.TestCheckResourceAttr(createWithNetwork, "name", name+"_with_network"),
+					resource.TestCheckResourceAttr(createWithNetwork, "agency", acceptance.HW_FGS_AGENCY_NAME),
+					resource.TestCheckResourceAttrPair(createWithNetwork, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(createWithNetwork, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrSet(createWithNetwork, "dns_list"),
+					resource.TestCheckResourceAttrSet(createWithNetwork, "peering_cidr"),
+					rcCreateWithoutNetwork.CheckResourceExists(),
+					resource.TestCheckResourceAttr(createWithoutNetwork, "name", name+"_without_network"),
+					resource.TestCheckResourceAttr(createWithoutNetwork, "agency", ""),
+					resource.TestCheckResourceAttr(createWithoutNetwork, "vpc_id", ""),
+					resource.TestCheckResourceAttr(createWithoutNetwork, "network_id", ""),
+					resource.TestCheckResourceAttr(createWithoutNetwork, "dns_list", ""),
+					resource.TestCheckResourceAttr(createWithoutNetwork, "peering_cidr", ""),
 				),
 			},
 			{
-				Config: testAccFunction_domain_step2(name),
+				Config: testAccFunction_network_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
+					rcCreateWithNetwork.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(createWithNetwork, "dns_list"),
+					resource.TestCheckResourceAttrSet(createWithNetwork, "peering_cidr"),
+					rcCreateWithoutNetwork.CheckResourceExists(),
+					resource.TestCheckResourceAttr(createWithoutNetwork, "agency", acceptance.HW_FGS_AGENCY_NAME),
+					resource.TestCheckResourceAttrPair(createWithoutNetwork, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttrPair(createWithoutNetwork, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrSet(createWithoutNetwork, "dns_list"),
+					resource.TestCheckResourceAttrSet(createWithoutNetwork, "peering_cidr"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      createWithNetwork,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"func_code",
+				},
+			},
+			{
+				ResourceName:      createWithoutNetwork,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
@@ -1397,11 +1434,47 @@ func TestAccFunction_domain(t *testing.T) {
 	})
 }
 
-func testAccFunction_domain_base(name string) string {
+func testAccFunction_network_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-%[2]s
+variable "base_cidr" {
+  default = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[2]s"
+  cidr = cidrsubnet(var.base_cidr, 4, 0)
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id     = huaweicloud_vpc.test.id
+  name       = "%[2]s"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 2, 0)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 2, 0), 1)
+}
+
+resource "huaweicloud_vpc" "source" {
+  count = 3
+
+  name = format("%[2]s_peering_source_%%d", count.index)
+  cidr = cidrsubnet(cidrsubnet(var.base_cidr, 4, 1), 2, count.index)
+}
+
+resource "huaweicloud_vpc" "target" {
+  count = 3
+
+  name = format("%[2]s_peering_target_%%d", count.index)
+  cidr = cidrsubnet(cidrsubnet(var.base_cidr, 4, 2), 2, count.index)
+}
+
+resource "huaweicloud_vpc_peering_connection" "test" {
+  count = 3
+
+  name        = format("%[2]s_peering_connection_%%d", count.index)
+  vpc_id      = huaweicloud_vpc.source[count.index].id
+  peer_vpc_id = huaweicloud_vpc.target[count.index].id
+}
 
 resource "huaweicloud_dns_zone" "test" {
   count = 3
@@ -1413,15 +1486,15 @@ resource "huaweicloud_dns_zone" "test" {
     router_id = huaweicloud_vpc.test.id
   }
 }
-`, functionScriptVariableDefinition, common.TestVpc(name))
+`, functionScriptVariableDefinition, name)
 }
 
-func testAccFunction_domain_step1(name string) string {
+func testAccFunction_network_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_fgs_function" "test" {
-  name        = "%[2]s"
+resource "huaweicloud_fgs_function" "create_with_network" {
+  name        = "%[2]s_with_network"
   memory_size = 128
   runtime     = "Python2.7"
   timeout     = 3
@@ -1432,22 +1505,35 @@ resource "huaweicloud_fgs_function" "test" {
   description = "Created by terraform script"
 
   # VPC access and DNS configuration
-  agency     = "function_all_trust" # Allow VPC and DNS permissions for FunctionGraph service
+  agency     = "%[3]s" # Allow VPC and DNS permissions for FunctionGraph service
   vpc_id     = huaweicloud_vpc.test.id
   network_id = huaweicloud_vpc_subnet.test.id
   dns_list   = jsonencode(
     [for v in slice(huaweicloud_dns_zone.test[*], 0, 2) : tomap({id=v.id, domain_name=v.name})]
   )
-}
-`, testAccFunction_domain_base(name), name)
+  peering_cidr = join(";", slice(huaweicloud_vpc.target[*].cidr, 0, 2))
 }
 
-func testAccFunction_domain_step2(name string) string {
+resource "huaweicloud_fgs_function" "create_without_network" {
+  name        = "%[2]s_without_network"
+  memory_size = 128
+  runtime     = "Python2.7"
+  timeout     = 3
+  app         = "default"
+  handler     = "index.handler"
+  code_type   = "inline"
+  func_code   = base64encode(var.script_content)
+  description = "Created by terraform script"
+}
+`, testAccFunction_network_base(name), name, acceptance.HW_FGS_AGENCY_NAME)
+}
+
+func testAccFunction_network_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_fgs_function" "test" {
-  name        = "%[2]s"
+resource "huaweicloud_fgs_function" "create_with_network" {
+  name        = "%[2]s_with_network"
   memory_size = 128
   runtime     = "Python2.7"
   timeout     = 3
@@ -1458,14 +1544,36 @@ resource "huaweicloud_fgs_function" "test" {
   description = "Created by terraform script"
 
   # VPC access and DNS configuration
-  agency     = "function_all_trust" # Allow VPC and DNS permissions for FunctionGraph service
+  agency     = "%[3]s" # Allow VPC and DNS permissions for FunctionGraph service
   vpc_id     = huaweicloud_vpc.test.id
   network_id = huaweicloud_vpc_subnet.test.id
   dns_list   = jsonencode(
     [for v in slice(huaweicloud_dns_zone.test[*], 1, 3) : tomap({id=v.id, domain_name=v.name})]
   )
+  peering_cidr = join(";", slice(huaweicloud_vpc.target[*].cidr, 1, 3))
 }
-`, testAccFunction_domain_base(name), name)
+
+resource "huaweicloud_fgs_function" "create_without_network" {
+  name        = "%[2]s_without_network"
+  memory_size = 128
+  runtime     = "Python2.7"
+  timeout     = 3
+  app         = "default"
+  handler     = "index.handler"
+  code_type   = "inline"
+  func_code   = base64encode(var.script_content)
+  description = "Created by terraform script"
+
+  # VPC access and DNS configuration
+  agency     = "%[3]s" # Allow VPC and DNS permissions for FunctionGraph service
+  vpc_id     = huaweicloud_vpc.test.id
+  network_id = huaweicloud_vpc_subnet.test.id
+  dns_list   = jsonencode(
+    [for v in slice(huaweicloud_dns_zone.test[*], 0, 2) : tomap({id=v.id, domain_name=v.name})]
+  )
+  peering_cidr = join(";", slice(huaweicloud_vpc.target[*].cidr, 0, 2))
+}
+`, testAccFunction_network_base(name), name, acceptance.HW_FGS_AGENCY_NAME)
 }
 
 func TestAccFunction_reservedInstance(t *testing.T) {
