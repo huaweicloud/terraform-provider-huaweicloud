@@ -821,13 +821,20 @@ func TestAccFunction_withEpsId(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFunction_withEpsId(name),
+				Config: testAccFunction_withEpsId(name, "0"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					// Default value is v2. Some regions support only v1, the default value is v1.
+					resource.TestMatchResourceAttr(resourceName, "functiongraph_version", regexp.MustCompile(`v1|v2`)),
+				),
+			},
+			{
+				Config: testAccFunction_withEpsId(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
 						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					// Default value is v2. Some regions support only v1, the default value is v1.
-					resource.TestMatchResourceAttr(resourceName, "functiongraph_version", regexp.MustCompile(`v1|v2`)),
 				),
 			},
 			{
@@ -842,8 +849,7 @@ func TestAccFunction_withEpsId(t *testing.T) {
 	})
 }
 
-func testAccFunction_withEpsId(name string) string {
-	//nolint:revive
+func testAccFunction_withEpsId(name, epsId string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -859,8 +865,7 @@ resource "huaweicloud_fgs_function" "test" {
   enterprise_project_id = "%[3]s"
   description           = "Created by terraform script"
 }
-`, functionScriptVariableDefinition,
-		name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, functionScriptVariableDefinition, name, epsId)
 }
 
 func TestAccFunction_logConfig(t *testing.T) {
