@@ -63,6 +63,11 @@
                 "optional": true,
                 "computed": true
               },
+              "enable_dynamic_memory": {
+                "type": "bool",
+                "description": "Whether the dynamic memory configuration is enabled.",
+                "optional": true
+              },
               "encrypted_user_data": {
                 "type": "string",
                 "description": "The key/value information defined to be encrypted for the function.",
@@ -118,6 +123,11 @@
                 "description": "The maximum duration the function can be initialized.",
                 "optional": true,
                 "computed": true
+              },
+              "is_stateful_function": {
+                "type": "bool",
+                "description": "Whether the function is a stateful function.",
+                "optional": true
               },
               "log_group_id": {
                 "type": "string",
@@ -286,6 +296,36 @@
                 },
                 "nesting_mode": "list"
               },
+              "network_controller": {
+                "block": {
+                  "attributes": {
+                    "disable_public_network": {
+                      "type": "bool",
+                      "description": "Whether to disable the public network access.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "trigger_access_vpcs": {
+                      "block": {
+                        "attributes": {
+                          "vpc_id": {
+                            "type": "string",
+                            "description": "The ID of the VPC that can trigger the function.",
+                            "required": true
+                          }
+                        },
+                        "description": "The configuration of the VPCs that can trigger the function."
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "The network configuration of the function."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "reserved_instances": {
                 "block": {
                   "attributes": {
@@ -389,6 +429,11 @@
               "versions": {
                 "block": {
                   "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "The description of the version.",
+                      "optional": true
+                    },
                     "name": {
                       "type": "string",
                       "description": "The version name.",
@@ -399,6 +444,16 @@
                     "aliases": {
                       "block": {
                         "attributes": {
+                          "additional_version_strategy": {
+                            "type": "string",
+                            "description": "The description of the version alias.",
+                            "optional": true
+                          },
+                          "additional_version_weights": {
+                            "type": "string",
+                            "description": "The percentage grayscale configuration of the version alias.",
+                            "optional": true
+                          },
                           "description": {
                             "type": "string",
                             "description": "The description of the version alias.",
