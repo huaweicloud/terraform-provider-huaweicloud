@@ -368,7 +368,7 @@ func buildDstNodeOpts(cfg *config.Config, rawDstNode []interface{}) (map[string]
 		"sk":             sk,
 		"security_token": securityToken,
 		"bucket":         dstNode["bucket"].(string),
-		"save_prefix":    utils.StringIgnoreEmpty(dstNode["save_prefix"].(string)),
+		"save_prefix":    utils.ValueIgnoreEmpty(dstNode["save_prefix"].(string)),
 	}
 
 	return dstNodeOpts, nil
@@ -430,7 +430,7 @@ func buildSourceCdnOpts(rawSourceCdn []interface{}) map[string]interface{} {
 
 	sourceCdnOpts := map[string]interface{}{
 		"domain":              sourceCdn["domain"].(string),
-		"authentication_key":  utils.String(sourceCdn["authentication_key"].(string)),
+		"authentication_key":  utils.ValueIgnoreEmpty(sourceCdn["authentication_key"].(string)),
 		"protocol":            sourceCdn["protocol"].(string),
 		"authentication_type": sourceCdn["authentication_type"].(string),
 	}
@@ -458,7 +458,7 @@ func buildcreateTaskBodyParams(d *schema.ResourceData, cfg *config.Config) (map[
 		"task_type":                      d.Get("type"),
 		"src_node":                       buildSrcNodeOpts(d.Get("source_object").([]interface{})),
 		"enable_kms":                     d.Get("enable_kms").(bool),
-		"description":                    utils.StringIgnoreEmpty(d.Get("description").(string)),
+		"description":                    utils.ValueIgnoreEmpty(d.Get("description").(string)),
 		"bandwidth_policy":               buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{})),
 		"smn_config":                     buildSmnConfigOpts(d.Get("smn_config").([]interface{})),
 		"enable_restore":                 d.Get("enable_restore"),
@@ -610,9 +610,9 @@ func hasErrorCode(err error, expectCode string) bool {
 	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
 		var response interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode := utils.PathSearch("errCode", response, nil)
+			errorCode := utils.PathSearch("error_code", response, nil)
 			if errorCode == nil {
-				log.Printf("[WARN] failed to parse errCode from response body")
+				log.Printf("[WARN] failed to parse error_code from response body")
 			}
 
 			if errorCode == expectCode {
@@ -776,9 +776,9 @@ func buildStartTaskBodyParams(cfg *config.Config, d *schema.ResourceData) (map[s
 	dstSecurityToken := getDstSecurityToken(cfg, dstNode)
 
 	startTaskReqOpt := map[string]interface{}{
-		"src_ak":             utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
-		"src_sk":             utils.StringIgnoreEmpty(srcNode["secret_key"].(string)),
-		"src_security_token": utils.StringIgnoreEmpty(srcNode["security_token"].(string)),
+		"src_ak":             utils.ValueIgnoreEmpty(srcNode["access_key"].(string)),
+		"src_sk":             utils.ValueIgnoreEmpty(srcNode["secret_key"].(string)),
+		"src_security_token": utils.ValueIgnoreEmpty(srcNode["security_token"].(string)),
 		"dst_ak":             dstAk,
 		"dst_sk":             dstSk,
 		"dst_security_token": dstSecurityToken,

@@ -238,6 +238,31 @@ func resourceMigrationSyncTaskCreate(ctx context.Context, d *schema.ResourceData
 	return resourceMigrationSyncTaskRead(ctx, d, meta)
 }
 
+func buildSyncTaskSourceCdnOpts(rawSourceCdn []interface{}) (*omsmodel.SourceCdnReq, error) {
+	if len(rawSourceCdn) != 1 {
+		return nil, nil
+	}
+	sourceCdn := rawSourceCdn[0].(map[string]interface{})
+
+	sourceCdnOpts := omsmodel.SourceCdnReq{
+		Domain:            sourceCdn["domain"].(string),
+		AuthenticationKey: utils.String(sourceCdn["authentication_key"].(string)),
+	}
+
+	if sourceCdn["protocol"].(string) == "http" {
+		sourceCdnOpts.Protocol = omsmodel.GetSourceCdnReqProtocolEnum().HTTP
+	} else {
+		sourceCdnOpts.Protocol = omsmodel.GetSourceCdnReqProtocolEnum().HTTPS
+	}
+
+	var authenticationType omsmodel.SourceCdnReqAuthenticationType
+	if err := authenticationType.UnmarshalJSON([]byte(sourceCdn["authentication_type"].(string))); err != nil {
+		return nil, fmt.Errorf("error parsing the argument authentication_type: %s", err)
+	}
+
+	return &sourceCdnOpts, nil
+}
+
 func buildCreateOpts(d *schema.ResourceData, region string) (omsmodel.CreateSyncTaskReq, error) {
 	createOpts := omsmodel.CreateSyncTaskReq{
 		SrcCloudType:            utils.StringIgnoreEmpty(d.Get("src_cloud_type").(string)),
@@ -256,7 +281,7 @@ func buildCreateOpts(d *schema.ResourceData, region string) (omsmodel.CreateSync
 		AppId:                   utils.StringIgnoreEmpty(d.Get("app_id").(string)),
 	}
 
-	sourceCdn, err := buildTaskGroupSourceCdnOpts(d.Get("source_cdn").([]interface{}))
+	sourceCdn, err := buildSyncTaskSourceCdnOpts(d.Get("source_cdn").([]interface{}))
 	if err != nil {
 		return omsmodel.CreateSyncTaskReq{}, err
 	}
