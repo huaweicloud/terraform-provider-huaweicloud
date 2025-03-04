@@ -145,12 +145,12 @@ func hostAccessConfigDeatilSchema(parent string) *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"paths": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Required: true,
 			},
 			"black_paths": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
 				Computed: true,
@@ -323,8 +323,8 @@ func buildHostAccessConfigDeatilRequestBody(rawParams interface{}) map[string]in
 		}
 
 		params := map[string]interface{}{
-			"paths":            utils.ValueIgnoreEmpty(raw["paths"]),
-			"black_paths":      utils.ValueIgnoreEmpty(raw["black_paths"]),
+			"paths":            utils.ValueIgnoreEmpty(raw["paths"].(*schema.Set).List()),
+			"black_paths":      utils.ValueIgnoreEmpty(raw["black_paths"].(*schema.Set).List()),
 			"format":           buildHostAccessConfigFormatRequestBody(raw),
 			"windows_log_info": buildHostAccessConfigWindowsLogInfoRequestBody(raw["windows_log_info"]),
 		}
