@@ -122,13 +122,13 @@ func cceAccessConfigDeatilSchema() *schema.Resource {
 				Description: `The type of the CCE access.`,
 			},
 			"paths": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				Description: `The collection paths.`,
 			},
 			"black_paths": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				Description: `The collection path blacklist.`,
@@ -314,8 +314,8 @@ func buildCceAccessConfigDeatilRequestBody(rawParams interface{}) map[string]int
 
 	params := map[string]interface{}{
 		"pathType":           raw["path_type"],
-		"paths":              utils.ValueIgnoreEmpty(raw["paths"]),
-		"black_paths":        utils.ValueIgnoreEmpty(raw["black_paths"]),
+		"paths":              utils.ValueIgnoreEmpty(raw["paths"].(*schema.Set).List()),
+		"black_paths":        utils.ValueIgnoreEmpty(raw["black_paths"].(*schema.Set).List()),
 		"format":             buildHostAccessConfigFormatRequestBody(raw),
 		"windows_log_info":   buildHostAccessConfigWindowsLogInfoRequestBody(raw["windows_log_info"]),
 		"stdout":             utils.ValueIgnoreEmpty(raw["stdout"]),
