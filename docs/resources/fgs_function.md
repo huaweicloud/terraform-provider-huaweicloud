@@ -466,6 +466,8 @@ The following arguments are supported:
 * `network_controller` - (Optional, List) Specifies the network configuration of the function.  
   The [network_controller](#function_network_controller) structure is documented below.
 
+* `lts_custom_tag` - (Optional, Map) Specifies the custom tags configuration that used to filter the LTS logs.
+
 <a name="function_func_mounts"></a>
 The `func_mounts` block supports:
 

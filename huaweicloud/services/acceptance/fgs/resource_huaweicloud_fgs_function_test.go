@@ -867,33 +867,107 @@ func TestAccFunction_logConfig(t *testing.T) {
 	var (
 		obj interface{}
 
-		name         = acceptance.RandomAccResourceName()
-		resourceName = "huaweicloud_fgs_function.test"
+		name = acceptance.RandomAccResourceName()
 
-		rc = acceptance.InitResourceCheck(resourceName, &obj, getFunction)
+		withLtsParams      = "huaweicloud_fgs_function.create_with_lts_params"
+		rcWithLtsParams    = acceptance.InitResourceCheck(withLtsParams, &obj, getFunction)
+		withoutLtsParams   = "huaweicloud_fgs_function.create_without_lts_params"
+		rcWithoutLtsParams = acceptance.InitResourceCheck(withoutLtsParams, &obj, getFunction)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcWithLtsParams.CheckResourceDestroy(),
+			rcWithoutLtsParams.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFunction_logConfig_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v1"),
-					resource.TestCheckResourceAttrSet(resourceName, "log_group_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "log_stream_id"),
+					rcWithLtsParams.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withLtsParams, "functiongraph_version", "v1"),
+					resource.TestCheckResourceAttrPair(withLtsParams, "log_group_id",
+						"huaweicloud_lts_group.test.0", "id"),
+					resource.TestCheckResourceAttrPair(withLtsParams, "log_group_name",
+						"huaweicloud_lts_group.test.0", "group_name"),
+					resource.TestCheckResourceAttrPair(withLtsParams, "log_stream_id",
+						"huaweicloud_lts_stream.test.0", "id"),
+					resource.TestCheckResourceAttrPair(withLtsParams, "log_stream_name",
+						"huaweicloud_lts_stream.test.0", "stream_name"),
+					resource.TestCheckResourceAttr(withLtsParams, "lts_custom_tag.%", "2"),
+					resource.TestCheckResourceAttr(withLtsParams, "lts_custom_tag.foo", "bar"),
+					resource.TestCheckResourceAttr(withLtsParams, "lts_custom_tag.key", "value"),
+					rcWithoutLtsParams.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withoutLtsParams, "functiongraph_version", "v1"),
+					// In some regions (such as 'cn-north-4'), the FunctionGraph service automatically binds the groups
+					// and streams created by FunctionGraph to functions that do not have LTS set.
+					resource.TestCheckResourceAttrSet(withoutLtsParams, "log_group_id"),
+					// When a parameter is not configured in the ReadContext phase and has never been configured in the
+					// script, its value in tfstate is null after creation.
+					resource.TestCheckNoResourceAttr(withoutLtsParams, "log_group_name"),
+					resource.TestCheckResourceAttrSet(withoutLtsParams, "log_stream_id"),
+					resource.TestCheckNoResourceAttr(withoutLtsParams, "log_stream_name"),
+					resource.TestCheckResourceAttr(withoutLtsParams, "lts_custom_tag.%", "0"),
 				),
 			},
 			{
 				Config: testAccFunction_logConfig_step2(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "functiongraph_version", "v1"),
-					resource.TestCheckResourceAttrSet(resourceName, "log_group_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "log_stream_id"),
+					rcWithLtsParams.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withLtsParams, "functiongraph_version", "v1"),
+					resource.TestCheckResourceAttrPair(withLtsParams, "log_group_id",
+						"huaweicloud_lts_group.test.1", "id"),
+					resource.TestCheckResourceAttrPair(withLtsParams, "log_group_name",
+						"huaweicloud_lts_group.test.1", "group_name"),
+					resource.TestCheckResourceAttrPair(withLtsParams, "log_stream_id",
+						"huaweicloud_lts_stream.test.1", "id"),
+					resource.TestCheckResourceAttrPair(withLtsParams, "log_stream_name",
+						"huaweicloud_lts_stream.test.1", "stream_name"),
+					resource.TestCheckResourceAttr(withLtsParams, "lts_custom_tag.%", "2"),
+					resource.TestCheckResourceAttr(withLtsParams, "lts_custom_tag.foo", "baar"),
+					resource.TestCheckResourceAttr(withLtsParams, "lts_custom_tag.new_key", "value"),
+					rcWithoutLtsParams.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withoutLtsParams, "functiongraph_version", "v1"),
+					resource.TestCheckResourceAttrPair(withoutLtsParams, "log_group_id",
+						"huaweicloud_lts_group.test.0", "id"),
+					resource.TestCheckResourceAttrPair(withoutLtsParams, "log_group_name",
+						"huaweicloud_lts_group.test.0", "group_name"),
+					resource.TestCheckResourceAttrPair(withoutLtsParams, "log_stream_id",
+						"huaweicloud_lts_stream.test.0", "id"),
+					resource.TestCheckResourceAttrPair(withoutLtsParams, "log_stream_name",
+						"huaweicloud_lts_stream.test.0", "stream_name"),
+					resource.TestCheckResourceAttr(withoutLtsParams, "lts_custom_tag.%", "2"),
+					resource.TestCheckResourceAttr(withoutLtsParams, "lts_custom_tag.foo", "bar"),
+					resource.TestCheckResourceAttr(withoutLtsParams, "lts_custom_tag.key", "value"),
+				),
+			},
+			{
+				Config: testAccFunction_logConfig_step3(name),
+				Check: resource.ComposeTestCheckFunc(
+					rcWithLtsParams.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withLtsParams, "functiongraph_version", "v1"),
+					// When a parameter is not configured in the ReadContext phase and has been configured in the
+					// script, its value in tfstate is the corresponding null value instead of null after it is changed
+					// to null or empty value.
+					resource.TestCheckResourceAttr(withLtsParams, "log_group_id", ""),
+					resource.TestCheckResourceAttr(withLtsParams, "log_group_name", ""),
+					resource.TestCheckResourceAttr(withLtsParams, "log_stream_id", ""),
+					resource.TestCheckResourceAttr(withLtsParams, "log_stream_name", ""),
+					resource.TestCheckResourceAttr(withLtsParams, "lts_custom_tag.%", "0"),
+					rcWithoutLtsParams.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withoutLtsParams, "functiongraph_version", "v1"),
+					// When a parameter is not configured in the ReadContext phase and has been configured in the
+					// script, its value in tfstate is the corresponding null value instead of null after it is changed
+					// to null or empty value.
+					resource.TestCheckResourceAttr(withoutLtsParams, "log_group_id", ""),
+					resource.TestCheckResourceAttr(withoutLtsParams, "log_group_name", ""),
+					resource.TestCheckResourceAttr(withoutLtsParams, "log_stream_id", ""),
+					resource.TestCheckResourceAttr(withoutLtsParams, "log_stream_name", ""),
+					resource.TestCheckResourceAttr(withoutLtsParams, "lts_custom_tag.%", "2"),
+					resource.TestCheckResourceAttr(withoutLtsParams, "lts_custom_tag.foo", "bar"),
+					resource.TestCheckResourceAttr(withoutLtsParams, "lts_custom_tag.key", "value"),
 				),
 			},
 		},
@@ -924,8 +998,8 @@ func testAccFunction_logConfig_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_fgs_function" "test" {
-  name                  = "%[2]s"
+resource "huaweicloud_fgs_function" "create_with_lts_params" {
+  name                  = "%[2]s_with_lts_params"
   memory_size           = 128
   runtime               = "Python2.7"
   timeout               = 3
@@ -940,6 +1014,23 @@ resource "huaweicloud_fgs_function" "test" {
   log_stream_id   = huaweicloud_lts_stream.test[0].id
   log_group_name  = huaweicloud_lts_group.test[0].group_name
   log_stream_name = huaweicloud_lts_stream.test[0].stream_name
+  lts_custom_tag = {
+    foo = "bar"
+    key = "value"
+  }
+}
+
+resource "huaweicloud_fgs_function" "create_without_lts_params" {
+  name                  = "%[2]s_without_lts_params"
+  memory_size           = 128
+  runtime               = "Python2.7"
+  timeout               = 3
+  app                   = "default"
+  handler               = "index.handler"
+  code_type             = "inline"
+  func_code             = base64encode(var.script_content)
+  description           = "Created by terraform script"
+  functiongraph_version = "v1"
 }
 `, testAccFunction_logConfig_base(name), name)
 }
@@ -948,8 +1039,8 @@ func testAccFunction_logConfig_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_fgs_function" "test" {
-  name                  = "%[2]s"
+resource "huaweicloud_fgs_function" "create_with_lts_params" {
+  name                  = "%[2]s_with_lts_params"
   memory_size           = 128
   runtime               = "Python2.7"
   timeout               = 3
@@ -964,6 +1055,70 @@ resource "huaweicloud_fgs_function" "test" {
   log_stream_id   = huaweicloud_lts_stream.test[1].id
   log_group_name  = huaweicloud_lts_group.test[1].group_name
   log_stream_name = huaweicloud_lts_stream.test[1].stream_name
+  lts_custom_tag = {
+    foo     = "baar"
+    new_key = "value"
+  }
+}
+
+resource "huaweicloud_fgs_function" "create_without_lts_params" {
+  name                  = "%[2]s_without_lts_params"
+  memory_size           = 128
+  runtime               = "Python2.7"
+  timeout               = 3
+  app                   = "default"
+  handler               = "index.handler"
+  code_type             = "inline"
+  func_code             = base64encode(var.script_content)
+  description           = "Created by terraform script"
+  functiongraph_version = "v1"
+
+  log_group_id    = huaweicloud_lts_group.test[0].id
+  log_stream_id   = huaweicloud_lts_stream.test[0].id
+  log_group_name  = huaweicloud_lts_group.test[0].group_name
+  log_stream_name = huaweicloud_lts_stream.test[0].stream_name
+
+  lts_custom_tag = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testAccFunction_logConfig_base(name), name)
+}
+
+func testAccFunction_logConfig_step3(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_function" "create_with_lts_params" {
+  name                  = "%[2]s_with_lts_params"
+  memory_size           = 128
+  runtime               = "Python2.7"
+  timeout               = 3
+  app                   = "default"
+  handler               = "index.handler"
+  code_type             = "inline"
+  func_code             = base64encode(var.script_content)
+  description           = "Created by terraform script"
+  functiongraph_version = "v1"
+}
+
+resource "huaweicloud_fgs_function" "create_without_lts_params" {
+  name                  = "%[2]s_without_lts_params"
+  memory_size           = 128
+  runtime               = "Python2.7"
+  timeout               = 3
+  app                   = "default"
+  handler               = "index.handler"
+  code_type             = "inline"
+  func_code             = base64encode(var.script_content)
+  description           = "Created by terraform script"
+  functiongraph_version = "v1"
+
+  lts_custom_tag = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testAccFunction_logConfig_base(name), name)
 }
