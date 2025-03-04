@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func getDNSPtrRecordResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getPtrRecord(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := c.DnsV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DNS client : %s", err)
@@ -22,12 +22,11 @@ func getDNSPtrRecordResourceFunc(c *config.Config, state *terraform.ResourceStat
 	return ptrrecords.Get(client, state.Primary.ID).Extract()
 }
 
-func TestAccDNSPtrRecord_basic(t *testing.T) {
+func TestAccPtrRecord_basic(t *testing.T) {
 	var (
-		obj interface{}
-
+		ptrRecord    interface{}
 		resourceName = "huaweicloud_dns_ptrrecord.test"
-		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDNSPtrRecordResourceFunc)
+		rc           = acceptance.InitResourceCheck(resourceName, &ptrRecord, getPtrRecord)
 
 		name              = fmt.Sprintf("acpttest-ptr-%s.com", acctest.RandString(5))
 		nameWithDotSuffix = fmt.Sprintf("%s.", name)
@@ -39,7 +38,7 @@ func TestAccDNSPtrRecord_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDNSPtrRecord_basic(name),
+				Config: testAccPtrRecord_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", nameWithDotSuffix),
@@ -47,11 +46,12 @@ func TestAccDNSPtrRecord_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ttl", "6000"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrPair(resourceName, "floatingip_id", "huaweicloud_vpc_eip.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
 			{
-				Config: testAccDNSPtrRecord_update(name),
+				Config: testAccPtrRecord_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("update-%s", nameWithDotSuffix)),
@@ -71,12 +71,11 @@ func TestAccDNSPtrRecord_basic(t *testing.T) {
 	})
 }
 
-func TestAccDNSPtrRecord_withEpsId(t *testing.T) {
+func TestAccPtrRecord_withEpsId(t *testing.T) {
 	var (
-		obj interface{}
-
+		ptrRecord    interface{}
 		resourceName = "huaweicloud_dns_ptrrecord.test"
-		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDNSPtrRecordResourceFunc)
+		rc           = acceptance.InitResourceCheck(resourceName, &ptrRecord, getPtrRecord)
 
 		name              = fmt.Sprintf("acpttest-ptr-%s.com", acctest.RandString(5))
 		nameWithDotSuffix = fmt.Sprintf("%s.", name)
@@ -91,7 +90,7 @@ func TestAccDNSPtrRecord_withEpsId(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDNSPtrRecord_withEpsId(name),
+				Config: testAccPtrRecord_withEpsId(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", nameWithDotSuffix),
@@ -102,12 +101,17 @@ func TestAccDNSPtrRecord_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
 
 func testAccPtrRecord_base() string {
-	return fmt.Sprintf(`
+	return `
 resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
@@ -118,10 +122,11 @@ resource "huaweicloud_vpc_eip" "test" {
     share_type  = "PER"
     charge_mode = "traffic"
   }
-}`)
+}
+`
 }
 
-func testAccDNSPtrRecord_basic(ptrName string) string {
+func testAccPtrRecord_basic_step1(ptrName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -138,7 +143,7 @@ resource "huaweicloud_dns_ptrrecord" "test" {
 `, testAccPtrRecord_base(), ptrName)
 }
 
-func testAccDNSPtrRecord_update(ptrName string) string {
+func testAccPtrRecord_basic_step2(ptrName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -154,7 +159,7 @@ resource "huaweicloud_dns_ptrrecord" "test" {
 `, testAccPtrRecord_base(), ptrName)
 }
 
-func testAccDNSPtrRecord_withEpsId(ptrName string) string {
+func testAccPtrRecord_withEpsId(ptrName string) string {
 	return fmt.Sprintf(`
 %s
 
