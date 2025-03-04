@@ -999,6 +999,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device_binding_groups":      iotda.DataSourceDeviceBindingGroups(),
 			"huaweicloud_iotda_amqps":                      iotda.DataSourceAMQPQueues(),
 			"huaweicloud_iotda_batchtasks":                 iotda.DataSourceBatchTasks(),
+			"huaweicloud_iotda_custom_authentications":     iotda.DataSourceCustomAuthentications(),
 			"huaweicloud_iotda_dataforwarding_rules":       iotda.DataSourceDataForwardingRules(),
 			"huaweicloud_iotda_data_flow_control_policies": iotda.DataSourceDataFlowControlPolicies(),
 			"huaweicloud_iotda_data_backlog_policies":      iotda.DataSourceDataBacklogPolicies(),
