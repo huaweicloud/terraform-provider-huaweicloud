@@ -1122,6 +1122,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_extend_log_files":                rds.DataSourceRdsExtendLogFiles(),
 			"huaweicloud_rds_extend_log_links":                rds.DataSourceRdsExtendLogLinks(),
 			"huaweicloud_rds_slow_log_files":                  rds.DataSourceRdsSlowLogFiles(),
+			"huaweicloud_rds_quotas":                          rds.DataSourceRdsQuotas(),
 
 			"huaweicloud_rms_policy_definitions":                       rms.DataSourcePolicyDefinitions(),
 			"huaweicloud_rms_assignment_package_templates":             rms.DataSourceTemplates(),
