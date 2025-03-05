@@ -54,6 +54,8 @@ var (
 	HW_IAM_V5                        = os.Getenv("HW_IAM_V5")
 	HW_RUNNER_PUBLIC_IP              = os.Getenv("HW_RUNNER_PUBLIC_IP")
 
+	HW_VPC_EIP_POOL_ENABLED = os.Getenv("HW_VPC_EIP_POOL_ENABLED")
+
 	HW_APIG_DEDICATED_INSTANCE_ID             = os.Getenv("HW_APIG_DEDICATED_INSTANCE_ID")
 	HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID = os.Getenv("HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID")
 
@@ -2781,6 +2783,13 @@ func TestAccPreCheckAsDataDiskImageId(t *testing.T) {
 func TestAccPreCheckVpcId(t *testing.T) {
 	if HW_VPC_ID == "" {
 		t.Skip("HW_VPC_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckVpcEipPoolEnabled(t *testing.T) {
+	if HW_VPC_EIP_POOL_ENABLED == "" {
+		t.Skip("HW_VPC_EIP_POOL_ENABLED must be set for the acceptance test")
 	}
 }
 
