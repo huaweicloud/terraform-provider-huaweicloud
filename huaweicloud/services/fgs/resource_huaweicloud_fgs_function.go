@@ -403,7 +403,6 @@ func ResourceFgsFunction() *schema.Resource {
 			"log_group_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Computed:     true,
 				RequiredWith: []string{"log_group_id"},
 				Description:  `The LTS group name for collecting logs.`,
 			},
@@ -417,7 +416,6 @@ func ResourceFgsFunction() *schema.Resource {
 			"log_stream_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Computed:     true,
 				RequiredWith: []string{"log_group_id"},
 				Description:  `The LTS stream name for collecting logs.`,
 			},
@@ -540,6 +538,13 @@ func ResourceFgsFunction() *schema.Resource {
 					},
 				},
 				Description: `The network configuration of the function.`,
+			},
+			"lts_custom_tag": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				// The custom tags can be set to empty, so computed behavior cannot be supported.
+				Description: `The custom tags configuration that used to filter the LTS logs.`,
 			},
 
 			// Deprecated parameters.
@@ -670,19 +675,29 @@ func buildFunctionCodeConfig(funcCode string) map[string]interface{} {
 
 func buildFunctionLogConfig(d *schema.ResourceData) map[string]interface{} {
 	// If the LTS log parameters is not configured (in the creation phase), the service will automatically create an
-	// LTS stream (group will also be created) and associate it with the function.
+	// LTS stream (group will also be created) and associate it with the function (some regions not have this logic,
+	// such as 'cn-east-3').
 	// So, the tfstate records will always have the log group ID and the log stream ID.
 	groupName, ok := d.GetOk("log_group_name") // Only log group name and the log stream name are specified by users.
-	if !ok {
-		return nil
+	if ok {
+		return map[string]interface{}{
+			"group_id":    d.Get("log_group_id"),
+			"group_name":  groupName,
+			"stream_id":   d.Get("log_stream_id"),
+			"stream_name": d.Get("log_stream_name"),
+		}
+	} else if !d.IsNewResource() {
+		// In the update logic, if you need to turn off log management, the LTS parameters need to be explicitly
+		// declared as empty strings instead of null.
+		return map[string]interface{}{
+			"group_id":    "",
+			"group_name":  "",
+			"stream_id":   "",
+			"stream_name": "",
+		}
 	}
 
-	return map[string]interface{}{
-		"group_id":    d.Get("log_group_id"),
-		"group_name":  groupName,
-		"stream_id":   d.Get("log_stream_id"),
-		"stream_name": utils.ValueIgnoreEmpty(d.Get("log_stream_name")),
-	}
+	return nil
 }
 
 func buildNetworkControllerTriggerAccessVpcs(triggerAccessVpcs []interface{}) []map[string]interface{} {
@@ -754,6 +769,7 @@ func buildCreateFunctionBodyParams(cfg *config.Config, d *schema.ResourceData) m
 		"enable_dynamic_memory": d.Get("enable_dynamic_memory"),
 		"is_stateful_function":  d.Get("is_stateful_function"),
 		"network_controller":    buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
+		"lts_custom_tag":        utils.ValueIgnoreEmpty(d.Get("lts_custom_tag")),
 	}
 }
 
@@ -877,6 +893,7 @@ func buildUpdateFunctionMetadataBodyParams(d *schema.ResourceData) map[string]in
 		"enable_dynamic_memory": d.Get("enable_dynamic_memory"),
 		"is_stateful_function":  d.Get("is_stateful_function"),
 		"network_controller":    buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
+		"lts_custom_tag":        d.Get("lts_custom_tag"),
 	}
 }
 
@@ -1598,6 +1615,7 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 			function, make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("gpu_type", utils.PathSearch("gpu_type", function, nil)),
 		d.Set("gpu_memory", utils.PathSearch("gpu_memory", function, nil)),
+		d.Set("lts_custom_tag", utils.PathSearch("lts_custom_tag", function, nil)),
 		d.Set("pre_stop_handler", utils.PathSearch("pre_stop_handler", function, nil)),
 		d.Set("pre_stop_timeout", utils.PathSearch("pre_stop_timeout", function, nil)),
 		d.Set("log_group_id", utils.PathSearch("log_group_id", function, nil)),
@@ -1669,7 +1687,7 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "dns_list", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image",
 		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name", "concurrency_num", "gpu_memory", "gpu_type",
-		"enable_dynamic_memory", "is_stateful_function", "network_controller") {
+		"enable_dynamic_memory", "is_stateful_function", "network_controller", "lts_custom_tag") {
 		err := updateFunctionMetadata(client, d, funcUrnWithoutVersion)
 		if err != nil {
 			return diag.FromErr(err)
