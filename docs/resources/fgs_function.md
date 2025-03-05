@@ -465,6 +465,10 @@ The following arguments are supported:
 * `network_controller` - (Optional, List) Specifies the network configuration of the function.  
   The [network_controller](#function_network_controller) structure is documented below.
 
+* `peering_cidr` - (Optional, String) Specifies the VPC cidr blocks used in the function code to detect whether it
+  conflicts with the VPC cidr blocks used by the service.  
+  The cidr blocks are separated by semicolons and cannot exceed `5`.
+
 <a name="function_func_mounts"></a>
 The `func_mounts` block supports:
 
