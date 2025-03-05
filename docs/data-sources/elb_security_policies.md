@@ -1,8 +1,9 @@
 ---
-subcategory: Dedicated Load Balance (Dedicated ELB)
+subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_security_policies"
-description: ""
+description: |-
+  Use this data source to get the list of ELB security policies.
 ---
 
 # huaweicloud_elb_security_policies

@@ -2,7 +2,8 @@
 subcategory: Dedicated Load Balance (Dedicated ELB)
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_ipgroups"
-description: ""
+description: |-
+  Use this data source to get the list of ELB IP groups.
 ---
 
 # huaweicloud_elb_ipgroups

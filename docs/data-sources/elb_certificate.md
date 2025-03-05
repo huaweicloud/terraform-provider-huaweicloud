@@ -2,12 +2,13 @@
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_certificate"
-description: ""
+description: |-
+  Use this data source to get the certificate in Dedicated Load Balance (Dedicated ELB).
 ---
 
 # huaweicloud_elb_certificate
 
-Use this data source to get the certificate in HuaweiCloud Dedicated Load Balance (Dedicated ELB).
+Use this data source to get the certificate in Dedicated Load Balance (Dedicated ELB).
 
 ## Example Usage
 
