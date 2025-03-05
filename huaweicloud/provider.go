@@ -710,6 +710,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dc_quotas":             dc.DataSourceDcQuotas(),
 			"huaweicloud_dc_virtual_gateways":   dc.DataSourceDCVirtualGateways(),
 			"huaweicloud_dc_virtual_interfaces": dc.DataSourceDCVirtualInterfaces(),
+			"huaweicloud_dc_global_gateways":    dc.DataSourceDcGlobalGateways(),
 
 			"huaweicloud_dcs_flavors":         dcs.DataSourceDcsFlavorsV2(),
 			"huaweicloud_dcs_maintainwindow":  dcs.DataSourceDcsMaintainWindow(),
