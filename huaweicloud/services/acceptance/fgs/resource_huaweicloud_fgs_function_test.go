@@ -160,6 +160,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withCustomImage, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttrPair(withCustomImage, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(withCustomImage, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(withCustomImage, "enable_auth_in_header", "false"),
 					resource.TestCheckResourceAttr(withCustomImage, "concurrency_num", "1"),
 					resource.TestCheckResourceAttr(withCustomImage, "custom_image.#", "1"),
 					resource.TestCheckResourceAttr(withCustomImage, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL),
@@ -288,6 +289,7 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withCustomImage, "description", "Updated by terraform script"),
 					resource.TestCheckResourceAttrPair(withCustomImage, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttrPair(withCustomImage, "network_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(withCustomImage, "enable_auth_in_header", "true"),
 					resource.TestCheckResourceAttr(withCustomImage, "concurrency_num", "500"),
 					resource.TestCheckResourceAttr(withCustomImage, "custom_image.#", "1"),
 					resource.TestCheckResourceAttr(withCustomImage, "custom_image.0.url", acceptance.HW_BUILD_IMAGE_URL_UPDATED),
@@ -763,6 +765,7 @@ resource "huaweicloud_fgs_function" "with_custom_image" {
   concurrency_num       = 500
   vpc_id                = huaweicloud_vpc.test.id
   network_id            = huaweicloud_vpc_subnet.test.id
+  enable_auth_in_header = true
 
   custom_image {
     url         = "%[6]s"
@@ -1905,4 +1908,137 @@ resource "huaweicloud_fgs_function" "test" {
   gpu_type    = "%[4]s"
 }
 `, functionScriptVariableDefinition, name, memory, acceptance.HW_FGS_GPU_TYPE)
+}
+
+func TestAccFunction_java(t *testing.T) {
+	var (
+		obj interface{}
+
+		name         = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_fgs_function.test"
+
+		rc = acceptance.InitResourceCheck(resourceName, &obj, getFunction)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckFgsAgency(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFunction_java_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "memory_size", "128"),
+					resource.TestCheckResourceAttr(resourceName, "runtime", "Java11"),
+					resource.TestCheckResourceAttr(resourceName, "timeout", "15"),
+					resource.TestCheckResourceAttr(resourceName, "app", "default"),
+					resource.TestCheckResourceAttr(resourceName, "handler", "com.huawei.demo.TriggerTests.apigTest"),
+					resource.TestCheckResourceAttr(resourceName, "code_type", "zip"),
+					resource.TestCheckResourceAttr(resourceName, "code_filename", "java-demo.zip"),
+					resource.TestCheckResourceAttr(resourceName, "enable_class_isolation", "true"),
+					resource.TestCheckResourceAttr(resourceName, "ephemeral_storage", "512"),
+					resource.TestCheckResourceAttr(resourceName, "heartbeat_handler", "com.huawei.demo.TriggerTests.heartBeat"),
+					resource.TestCheckResourceAttr(resourceName, "restore_hook_handler", "com.huawei.demo.TriggerTests.restoreHook"),
+					resource.TestCheckResourceAttr(resourceName, "restore_hook_timeout", "10"),
+				),
+			},
+			{
+				Config: testAccFunction_java_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enable_auth_in_header", "false"),
+					resource.TestCheckResourceAttr(resourceName, "enable_class_isolation", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ephemeral_storage", "10240"),
+					resource.TestCheckResourceAttr(resourceName, "heartbeat_handler", "com.huawei.demo.TriggerTests.heartBeat"),
+					resource.TestCheckResourceAttr(resourceName, "restore_hook_handler", "com.huawei.demo.TriggerTests.restoreHook"),
+					resource.TestCheckResourceAttr(resourceName, "restore_hook_timeout", "20"),
+				),
+			},
+			{
+				Config: testAccFunction_java_step3(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enable_auth_in_header", "false"),
+					resource.TestCheckResourceAttr(resourceName, "enable_class_isolation", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ephemeral_storage", "10240"),
+					resource.TestCheckResourceAttr(resourceName, "heartbeat_handler", ""),
+					resource.TestCheckResourceAttr(resourceName, "restore_hook_handler", ""),
+					resource.TestCheckResourceAttr(resourceName, "restore_hook_timeout", "0"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"func_code",
+				},
+			},
+		},
+	})
+}
+
+func testAccFunction_java_step1(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name          = "%[1]s"
+  memory_size   = 128
+  runtime       = "Java11"
+  timeout       = 15
+  app           = "default"
+  handler       = "com.huawei.demo.TriggerTests.apigTest"
+  code_type     = "zip"
+  code_filename = "java-demo.zip"
+  agency        = "%[2]s"
+
+  enable_class_isolation = true
+  ephemeral_storage      = 512
+  heartbeat_handler      = "com.huawei.demo.TriggerTests.heartBeat"
+  restore_hook_handler   = "com.huawei.demo.TriggerTests.restoreHook"
+  restore_hook_timeout   = 10
+}
+`, name, acceptance.HW_FGS_AGENCY_NAME)
+}
+
+func testAccFunction_java_step2(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name          = "%[1]s"
+  memory_size   = 128
+  runtime       = "Java11"
+  timeout       = 15
+  app           = "default"
+  handler       = "com.huawei.demo.TriggerTests.apigTest"
+  code_type     = "zip"
+  code_filename = "java-demo.zip"
+  agency        = "%[2]s"
+
+  enable_class_isolation = false
+  ephemeral_storage      = 10240
+  heartbeat_handler      = "com.huawei.demo.TriggerTests.heartBeat"
+  restore_hook_handler   = "com.huawei.demo.TriggerTests.restoreHook"
+  restore_hook_timeout   = 20
+}
+`, name, acceptance.HW_FGS_AGENCY_NAME)
+}
+
+func testAccFunction_java_step3(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name          = "%[1]s"
+  memory_size   = 128
+  runtime       = "Java11"
+  timeout       = 15
+  app           = "default"
+  handler       = "com.huawei.demo.TriggerTests.apigTest"
+  code_type     = "zip"
+  code_filename = "java-demo.zip"
+  agency        = "%[2]s"
+}
+`, name, acceptance.HW_FGS_AGENCY_NAME)
 }

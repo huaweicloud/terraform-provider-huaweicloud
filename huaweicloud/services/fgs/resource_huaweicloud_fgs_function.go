@@ -548,6 +548,47 @@ func ResourceFgsFunction() *schema.Resource {
 				Description: `The VPC CIDR blocks used in the function code to detect whether it conflicts with the VPC
 CIDR blocks used by the service.`,
 			},
+			"enable_auth_in_header": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				// The auth function can be closed, so computed behavior cannot be supported.
+				// And the default value (in the service API) is false.
+				Description: `Whether the authentication in the request header is enabled.`,
+			},
+			"enable_class_isolation": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				// The isolation function can be closed, so computed behavior cannot be supported.
+				// And the default value (in the service API) is false.
+				Description: `Whether the class isolation is enabled for the JAVA runtime functions.`,
+			},
+			"ephemeral_storage": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The size of the function ephemeral storage.`,
+			},
+			"heartbeat_handler": {
+				Type:     schema.TypeString,
+				Optional: true,
+				// The handler of heartbeat can be omitted, and if this parameter is not configured, the default value
+				// will not be returned. So, the computed behavior cannot be supported.
+				Description: `The heartbeat handler of the function.`,
+			},
+			"restore_hook_handler": {
+				Type:     schema.TypeString,
+				Optional: true,
+				// The handler of restore hook can be omitted, and if this parameter is not configured, the default
+				// value will not be returned. So, the computed behavior cannot be supported.
+				Description: `The restore hook handler of the function.`,
+			},
+			"restore_hook_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				// The timeout of restore hook can be omitted, and if this parameter is not configured, the default
+				// value will not be returned. So, the computed behavior cannot be supported.
+				Description: `The timeout of the function restore hook.`,
+			},
 
 			// Deprecated parameters.
 			"package": {
@@ -880,12 +921,18 @@ func buildUpdateFunctionMetadataBodyParams(cfg *config.Config, d *schema.Resourc
 		"func_vpc":            buildFunctionVpcConfig(d),
 		"func_mounts": buildFunctionMountConfig(d.Get("func_mounts").([]interface{}),
 			d.Get("mount_user_id").(int), d.Get("mount_user_group_id").(int)),
-		"strategy_config":       buildFunctionStrategyConfig(d.Get("concurrency_num").(int)),
-		"enable_dynamic_memory": d.Get("enable_dynamic_memory"),
-		"is_stateful_function":  d.Get("is_stateful_function"),
-		"network_controller":    buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
-		"enterprise_project_id": cfg.GetEnterpriseProjectID(d),
-		"peering_cidr":          d.Get("peering_cidr"),
+		"strategy_config":        buildFunctionStrategyConfig(d.Get("concurrency_num").(int)),
+		"enable_dynamic_memory":  d.Get("enable_dynamic_memory"),
+		"is_stateful_function":   d.Get("is_stateful_function"),
+		"network_controller":     buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
+		"enterprise_project_id":  cfg.GetEnterpriseProjectID(d),
+		"peering_cidr":           d.Get("peering_cidr"),
+		"enable_auth_in_header":  d.Get("enable_auth_in_header"),
+		"enable_class_isolation": d.Get("enable_class_isolation"),
+		"ephemeral_storage":      utils.ValueIgnoreEmpty(d.Get("ephemeral_storage")),
+		"heartbeat_handler":      d.Get("heartbeat_handler"),
+		"restore_hook_handler":   d.Get("restore_hook_handler"),
+		"restore_hook_timeout":   d.Get("restore_hook_timeout"),
 	}
 }
 
@@ -1205,7 +1252,8 @@ func resourceFunctionCreate(ctx context.Context, d *schema.ResourceData, meta in
 
 	// lintignore:R019
 	if d.HasChanges("vpc_id", "func_mounts", "app_agency", "initializer_handler", "initializer_timeout", "concurrency_num",
-		"peering_cidr") {
+		"peering_cidr", "enable_auth_in_header", "enable_class_isolation", "ephemeral_storage", "heartbeat_handler",
+		"restore_hook_handler", "restore_hook_timeout") {
 		err = updateFunctionMetadata(client, cfg, d, funcUrnWithoutVersion)
 		if err != nil {
 			return diag.FromErr(err)
@@ -1631,6 +1679,12 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("is_stateful_function", utils.PathSearch("is_stateful_function", function, nil)),
 		d.Set("network_controller", flattenFunctionNetworkController(utils.PathSearch("network_controller", function, nil))),
 		d.Set("peering_cidr", utils.PathSearch("peering_cidr", function, nil)),
+		d.Set("enable_auth_in_header", utils.PathSearch("enable_auth_in_header", function, nil)),
+		d.Set("enable_class_isolation", utils.PathSearch("enable_class_isolation", function, nil)),
+		d.Set("ephemeral_storage", utils.PathSearch("ephemeral_storage", function, nil)),
+		d.Set("heartbeat_handler", utils.PathSearch("heartbeat_handler", function, nil)),
+		d.Set("restore_hook_handler", utils.PathSearch("restore_hook_handler", function, nil)),
+		d.Set("restore_hook_timeout", utils.PathSearch("restore_hook_timeout", function, nil)),
 		// Attributes.
 		d.Set("urn", utils.PathSearch("func_urn", function, nil)),
 		d.Set("version", utils.PathSearch("version", function, nil)),
@@ -1680,7 +1734,9 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "dns_list", "mount_user_id", "mount_user_group_id", "func_mounts", "custom_image",
 		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name", "concurrency_num", "gpu_memory", "gpu_type",
-		"enable_dynamic_memory", "is_stateful_function", "network_controller", "enterprise_project_id", "peering_cidr") {
+		"enable_dynamic_memory", "is_stateful_function", "network_controller", "enterprise_project_id", "peering_cidr",
+		"enable_auth_in_header", "enable_class_isolation", "ephemeral_storage", "heartbeat_handler", "restore_hook_handler",
+		"restore_hook_timeout") {
 		err := updateFunctionMetadata(client, cfg, d, funcUrnWithoutVersion)
 		if err != nil {
 			return diag.FromErr(err)
