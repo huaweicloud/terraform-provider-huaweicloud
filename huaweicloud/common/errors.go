@@ -42,13 +42,9 @@ func ConvertExpected400ErrInto404Err(err error, errCodeKey string, specErrCodes 
 
 	errCode := utils.PathSearch(errCodeKey, apiError, nil)
 	if errCode == nil {
-		// 4xx means the client parsing was failed.
-		return golangsdk.ErrDefault400{
-			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
-					errCodeKey, apiError)),
-			},
-		}
+		log.Printf("[WARN] Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
+			errCodeKey, apiError)
+		return err
 	}
 
 	if len(specErrCodes) < 1 {
@@ -89,13 +85,9 @@ func ConvertExpected401ErrInto404Err(err error, errCodeKey string, specErrCodes 
 
 	errCode := utils.PathSearch(errCodeKey, apiError, nil)
 	if errCode == nil {
-		// 4xx means the client parsing was failed.
-		return golangsdk.ErrDefault400{
-			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
-					errCodeKey, apiError)),
-			},
-		}
+		log.Printf("[WARN] Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
+			errCodeKey, apiError)
+		return err
 	}
 
 	if len(specErrCodes) < 1 {
@@ -136,13 +128,9 @@ func ConvertExpected403ErrInto404Err(err error, errCodeKey string, specErrCodes 
 
 	errCode := utils.PathSearch(errCodeKey, apiError, nil)
 	if errCode == nil {
-		// 4xx means the client parsing was failed.
-		return golangsdk.ErrDefault400{
-			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
-					errCodeKey, apiError)),
-			},
-		}
+		log.Printf("[WARN] Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
+			errCodeKey, apiError)
+		return err
 	}
 
 	if len(specErrCodes) < 1 {
@@ -183,13 +171,9 @@ func ConvertExpected500ErrInto404Err(err error, errCodeKey string, specErrCodes 
 
 	errCode := utils.PathSearch(errCodeKey, apiError, nil)
 	if errCode == nil {
-		// 4xx means the client parsing was failed.
-		return golangsdk.ErrDefault400{
-			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
-					errCodeKey, apiError)),
-			},
-		}
+		log.Printf("[WARN] Unable to find the error code from the error body using given error code key (%s), the error is: %#v",
+			errCodeKey, apiError)
+		return err
 	}
 
 	if len(specErrCodes) < 1 {
