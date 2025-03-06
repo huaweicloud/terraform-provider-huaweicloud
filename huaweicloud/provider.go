@@ -706,11 +706,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_dbss_operation_logs":            dbss.DataSourceOperationLogs(),
 			"huaweicloud_dbss_rds_databases":             dbss.DataSourceDbssRdsDatabases(),
 
-			"huaweicloud_dc_connections":        dc.DataSourceDcConnections(),
-			"huaweicloud_dc_quotas":             dc.DataSourceDcQuotas(),
-			"huaweicloud_dc_virtual_gateways":   dc.DataSourceDCVirtualGateways(),
-			"huaweicloud_dc_virtual_interfaces": dc.DataSourceDCVirtualInterfaces(),
-			"huaweicloud_dc_global_gateways":    dc.DataSourceDcGlobalGateways(),
+			"huaweicloud_dc_connections":               dc.DataSourceDcConnections(),
+			"huaweicloud_dc_quotas":                    dc.DataSourceDcQuotas(),
+			"huaweicloud_dc_virtual_gateways":          dc.DataSourceDCVirtualGateways(),
+			"huaweicloud_dc_virtual_interfaces":        dc.DataSourceDCVirtualInterfaces(),
+			"huaweicloud_dc_global_gateways":           dc.DataSourceDcGlobalGateways(),
+			"huaweicloud_dc_global_gateway_peer_links": dc.DataSourceDcGlobalGatewayPeerLinks(),
 
 			"huaweicloud_dcs_flavors":         dcs.DataSourceDcsFlavorsV2(),
 			"huaweicloud_dcs_maintainwindow":  dcs.DataSourceDcsMaintainWindow(),
