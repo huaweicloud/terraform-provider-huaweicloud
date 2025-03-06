@@ -1,8 +1,9 @@
 ---
-subcategory: Dedicated Load Balance (Dedicated ELB)
+subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_logtanks"
-description: ""
+description: |-
+  Use this data source to get the list of ELB logtanks.
 ---
 
 # huaweicloud_elb_logtanks
