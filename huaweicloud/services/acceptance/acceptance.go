@@ -277,13 +277,14 @@ var (
 	HW_RF_VARIABLES_ARCHIVE_URI = os.Getenv("HW_RF_VARIABLES_ARCHIVE_URI")
 
 	// The direct connection ID (provider does not support direct connection resource).
-	HW_DC_DIRECT_CONNECT_ID    = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
-	HW_DC_RESOURCE_TENANT_ID   = os.Getenv("HW_DC_RESOURCE_TENANT_ID")
-	HW_DC_HOSTTING_ID          = os.Getenv("HW_DC_HOSTTING_ID")
-	HW_DC_TARGET_TENANT_VGW_ID = os.Getenv("HW_DC_TARGET_TENANT_VGW_ID")
-	HW_DC_VIRTUAL_INTERFACE_ID = os.Getenv("HW_DC_VIRTUAL_INTERFACE_ID")
-	HW_DC_ENABLE_FLAG          = os.Getenv("HW_DC_ENABLE_FLAG")
-	HW_DC_GLOBAL_GATEWAY_ID    = os.Getenv("HW_DC_GLOBAL_GATEWAY_ID")
+	HW_DC_DIRECT_CONNECT_ID               = os.Getenv("HW_DC_DIRECT_CONNECT_ID")
+	HW_DC_RESOURCE_TENANT_ID              = os.Getenv("HW_DC_RESOURCE_TENANT_ID")
+	HW_DC_HOSTTING_ID                     = os.Getenv("HW_DC_HOSTTING_ID")
+	HW_DC_TARGET_TENANT_VGW_ID            = os.Getenv("HW_DC_TARGET_TENANT_VGW_ID")
+	HW_DC_VIRTUAL_INTERFACE_ID            = os.Getenv("HW_DC_VIRTUAL_INTERFACE_ID")
+	HW_DC_ENABLE_FLAG                     = os.Getenv("HW_DC_ENABLE_FLAG")
+	HW_DC_GLOBAL_GATEWAY_ID               = os.Getenv("HW_DC_GLOBAL_GATEWAY_ID")
+	HW_DC_GLOBAL_GATEWAY_ID_HAS_PEER_LINK = os.Getenv("HW_DC_GLOBAL_GATEWAY_ID_HAS_PEER_LINK")
 
 	HW_DSC_INSTANCE_ID    = os.Getenv("HW_DSC_INSTANCE_ID")
 	HW_DSC_ALARM_TOPIC_ID = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
@@ -1684,6 +1685,13 @@ func TestAccPreCheckDcHostedConnection(t *testing.T) {
 func TestAccPreCheckDcGlobalGatewayID(t *testing.T) {
 	if HW_DC_GLOBAL_GATEWAY_ID == "" {
 		t.Skip("HW_DC_GLOBAL_GATEWAY_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcGlobalGatewayIDHasPeerLink(t *testing.T) {
+	if HW_DC_GLOBAL_GATEWAY_ID_HAS_PEER_LINK == "" {
+		t.Skip("HW_DC_GLOBAL_GATEWAY_ID_HAS_PEER_LINK must be set for this acceptance test")
 	}
 }
 
