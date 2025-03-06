@@ -266,7 +266,8 @@ var (
 	HW_IDENTITY_CENTER_IDENTITY_POLICY_ID        = os.Getenv("HW_IDENTITY_CENTER_IDENTITY_POLICY_ID")
 	HW_IDENTITY_CENTER_IDENTITY_POLICY_ID_UPDATE = os.Getenv("HW_IDENTITY_CENTER_IDENTITY_POLICY_ID_UPDATE")
 
-	HW_ER_TEST_ON = os.Getenv("HW_ER_TEST_ON") // Whether to run the ER related tests.
+	HW_ER_TEST_ON     = os.Getenv("HW_ER_TEST_ON")     // Whether to run the ER related tests.
+	HW_ER_INSTANCE_ID = os.Getenv("HW_ER_INSTANCE_ID") // Whether to run the ER related tests.
 
 	// The OBS address where the HCL/JSON template archive (No variables) is located.
 	HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI = os.Getenv("HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI")
@@ -282,6 +283,7 @@ var (
 	HW_DC_TARGET_TENANT_VGW_ID = os.Getenv("HW_DC_TARGET_TENANT_VGW_ID")
 	HW_DC_VIRTUAL_INTERFACE_ID = os.Getenv("HW_DC_VIRTUAL_INTERFACE_ID")
 	HW_DC_ENABLE_FLAG          = os.Getenv("HW_DC_ENABLE_FLAG")
+	HW_DC_GLOBAL_GATEWAY_ID    = os.Getenv("HW_DC_GLOBAL_GATEWAY_ID")
 
 	HW_DSC_INSTANCE_ID    = os.Getenv("HW_DSC_INSTANCE_ID")
 	HW_DSC_ALARM_TOPIC_ID = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
@@ -1650,6 +1652,13 @@ func TestAccPreCheckER(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckERInstanceID(t *testing.T) {
+	if HW_ER_INSTANCE_ID == "" {
+		t.Skip("HW_ER_INSTANCE_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckRfArchives(t *testing.T) {
 	if HW_RF_TEMPLATE_ARCHIVE_NO_VARS_URI == "" || HW_RF_TEMPLATE_ARCHIVE_URI == "" ||
 		HW_RF_VARIABLES_ARCHIVE_URI == "" {
@@ -1668,6 +1677,13 @@ func TestAccPreCheckDcDirectConnection(t *testing.T) {
 func TestAccPreCheckDcHostedConnection(t *testing.T) {
 	if HW_DC_RESOURCE_TENANT_ID == "" || HW_DC_HOSTTING_ID == "" {
 		t.Skip("HW_DC_RESOURCE_TENANT_ID, HW_DC_HOSTTING_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcGlobalGatewayID(t *testing.T) {
+	if HW_DC_GLOBAL_GATEWAY_ID == "" {
+		t.Skip("HW_DC_GLOBAL_GATEWAY_ID must be set for this acceptance test")
 	}
 }
 
