@@ -291,6 +291,7 @@ var (
 
 	HW_CES_START_TIME = os.Getenv("HW_CES_START_TIME")
 	HW_CES_END_TIME   = os.Getenv("HW_CES_END_TIME")
+	HW_CES_ALARM_RULE = os.Getenv("HW_CES_ALARM_RULE")
 
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID               = os.Getenv("HW_CFW_INSTANCE_ID")
@@ -1720,6 +1721,13 @@ func TestAccPreCheckDCVirtualInterfaceID(t *testing.T) {
 func TestAccPreCheckCesTimeRange(t *testing.T) {
 	if HW_CES_START_TIME == "" || HW_CES_END_TIME == "" {
 		t.Skip("HW_CES_START_TIME and HW_CES_END_TIME must be set for CES acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCesAlarmRuleWithTags(t *testing.T) {
+	if HW_CES_ALARM_RULE == "" {
+		t.Skip("HW_CES_ALARM_RULE must be set for CES acceptance tests")
 	}
 }
 
