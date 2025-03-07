@@ -1215,6 +1215,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_tms_resource_types": tms.DataSourceResourceTypes(),
 
+			"huaweicloud_vpc_bandwidth_limits":       eip.DataSourceBandwidthLimits(),
 			"huaweicloud_vpc_bandwidth":              eip.DataSourceBandWidth(),
 			"huaweicloud_vpc_bandwidths":             eip.DataSourceBandWidths(),
 			"huaweicloud_vpc_eip":                    eip.DataSourceVpcEip(),
