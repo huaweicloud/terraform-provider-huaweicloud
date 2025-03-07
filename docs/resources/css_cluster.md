@@ -117,7 +117,7 @@ The following arguments are supported:
   Only letters, digits, hyphens (-), and underscores (_) are allowed. The value must start with a letter.
   Changing this parameter will create a new resource.
 
-* `engine_type` - (Optional, String, ForceNew) Specifies the engine type. The valid value is **elasticsearch**.
+* `engine_type` - (Optional, String, ForceNew) Specifies the engine type. The valid value can be **elasticsearch** or **opensearch**.
   Defaults to **elasticsearch**. Changing this parameter will create a new resource.
 
 * `engine_version` - (Required, String, NonUpdatable) Specifies the engine version.
