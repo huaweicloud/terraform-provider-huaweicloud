@@ -105,11 +105,10 @@ func ResourceCssCluster() *schema.Resource {
 				ForceNew: true,
 			},
 			"engine_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      "elasticsearch",
-				ValidateFunc: validation.StringInSlice([]string{"elasticsearch", "logstash"}, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "elasticsearch",
 			},
 			"engine_version": {
 				Type:     schema.TypeString,
