@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: IoTDA
 paths:
-    /v5/iot/{project_id}/products:
+    /v5/iot/{project_id}/cetificates:
         GET:
             tag: IoTDA

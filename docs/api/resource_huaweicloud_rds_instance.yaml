@@ -60,6 +60,11 @@ paths:
             tag: RDS
         PUT:
             tag: RDS
+    /v3/{project_id}/instances/{instance_id}/db-auto-upgrade:
+        GET:
+            tag: RDS
+        PUT:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/disk-auto-expansion:
         GET:
             tag: RDS
@@ -78,6 +83,8 @@ paths:
         PUT:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/msdtc/host:
+        DELETE:
+            tag: RDS
         POST:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/msdtc/hosts:
@@ -106,6 +113,9 @@ paths:
     /v3/{project_id}/instances/{instance_id}/security-group:
         PUT:
             tag: RDS
+    /v3/{project_id}/instances/{instance_id}/slowlog-sensitization/{status}:
+        PUT:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/ssl:
         PUT:
             tag: RDS
@@ -114,6 +124,9 @@ paths:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/tde-status:
         GET:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/to-period:
+        POST:
             tag: RDS
     /v3/{project_id}/jobs:
         GET:

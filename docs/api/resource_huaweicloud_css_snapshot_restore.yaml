@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_css_snapshot_restore
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSS
+paths:
+    /v1.0/{project_id}/clusters:
+        GET:
+            tag: CSS
+    /v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/{snapshot_id}/restore:
+        POST:
+            tag: CSS

@@ -50,6 +50,3 @@ paths:
     /v2/{project_id}/fgs/functions/reservedinstanceconfigs:
         GET:
             tag: FunctionGraph
-    /v2/{project_id}/fgs/functions/reservedinstances:
-        GET:
-            tag: FunctionGraph
