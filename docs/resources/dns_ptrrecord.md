@@ -71,8 +71,14 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The PTR record resource can be imported using `id`, e.g.
+The PTR record resource can be imported using `id` (consists of the region and the EIP ID (`floatingip_id`)), e.g.
 
 ```bash
 $ terraform import huaweicloud_dns_ptrrecord.test <id>
+```
+
+You can also use `region` and `floatingip_id` instead of `id`, separated by a colon (:), e.g.
+
+```bash
+$ terraform import huaweicloud_dns_ptrrecord.test <region>:<floatingip_id>
 ```

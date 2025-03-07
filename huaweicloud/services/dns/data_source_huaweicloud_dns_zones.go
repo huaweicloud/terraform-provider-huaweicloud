@@ -30,7 +30,7 @@ func DataSourceZones() *schema.Resource {
 			"zone_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the zone type. The value can be **public** or **private**.`,
+				Description: `The zone type. The value can be **public** or **private**.`,
 			},
 			"zone_id": {
 				Type:        schema.TypeString,
@@ -40,27 +40,27 @@ func DataSourceZones() *schema.Resource {
 			"tags": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the resource tag.`,
+				Description: `The resource tag.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the zone name.`,
+				Description: `The zone name.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the zone status.`,
+				Description: `The zone status.`,
 			},
 			"search_mode": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the query criteria search mode.`,
+				Description: `The query criteria search mode.`,
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the enterprise project ID which the zone associated.`,
+				Description: `The enterprise project ID which the zone associated.`,
 			},
 			"router_id": {
 				Type:        schema.TypeString,

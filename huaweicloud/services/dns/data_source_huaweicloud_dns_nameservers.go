@@ -25,17 +25,17 @@ func DataSourceNameservers() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region in which to query the resource. If omitted, the provider-level region will be used.`,
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the type of the name server.`,
+				Description: `The type of the name server.`,
 			},
 			"server_region": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the region to which the name server belongs.`,
+				Description: `The region to which the name server belongs.`,
 			},
 			"nameservers": {
 				Type:        schema.TypeList,

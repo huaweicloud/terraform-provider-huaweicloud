@@ -36,42 +36,42 @@ func DataSourceRecordsets() *schema.Resource {
 			"zone_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the zone ID.`,
+				Description: `The zone ID.`,
 			},
 			"line_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the resolution line ID.`,
+				Description: `The resolution line ID.`,
 			},
 			"tags": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the resource tag.`,
+				Description: `The resource tag.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the status of the recordset to be queried.`,
+				Description: `The status of the recordset to be queried.`,
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the recordset type.`,
+				Description: `The recordset type.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the name of the recordset to be queried. Fuzzy matching will work.`,
+				Description: `The name of the recordset to be queried. Fuzzy matching will work.`,
 			},
 			"recordset_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the ID of the recordset to be queried. Fuzzy matching will work.`,
+				Description: `The ID of the recordset to be queried. Fuzzy matching will work.`,
 			},
 			"search_mode": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the query criteria search mode.`,
+				Description: `The query criteria search mode.`,
 			},
 			"sort_key": {
 				Type:        schema.TypeString,

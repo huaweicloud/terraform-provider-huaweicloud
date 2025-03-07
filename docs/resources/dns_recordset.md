@@ -99,7 +99,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID, consisting of the `zone_id` and the record set ID, separated by a slash.
+* `id` - The resource ID, consists of the `zone_id` and the record set ID, separated by a slash.
 
 * `zone_name` - The name of the zone to which the record set belongs.
 
