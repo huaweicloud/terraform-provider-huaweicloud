@@ -28,7 +28,6 @@ resource "huaweicloud_dns_endpoint" "test" {
   ip_addresses {
     subnet_id = var.subnet_id
   }
-
   ip_addresses {
     subnet_id = var.subnet_id
   }
@@ -40,18 +39,23 @@ resource "huaweicloud_dns_endpoint" "test" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the DNS endpoint. If omitted,
-  the `region` argument of the provider will be used. Changing this creates a new DNS endpoint.
+  the `region` argument of the provider will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the name of the DNS endpoint resource.
+* `name` - (Required, String) Specifies the name of the DNS endpoint.  
+  The name valid length is limited from `1` to `64` characters. Only Chinese and English characters, digits and
+  special characters (-._) are allowed.
 
-* `direction` - (Required, String, ForceNew) Specifies the direction of the endpoint. The value can be **inbound** or **outbound**.
-  Changing this creates a new DNS endpoint.
+* `direction` - (Required, String, ForceNew) Specifies the direction of the endpoint.  
+  Changing this parameter will create a new resource.  
+  The valid values are as follows:
+  + **inbound**
+  + **outbound**
 
-* `ip_addresses` - (Required, List) Specifies the IP address list of the DNS endpoint.
+* `ip_addresses` - (Required, List) Specifies the list of the IP addresses of the endpoint.  
   The valid length of the IP address list ranges form `2` to `6`.  
-  The [ip_address](#Address) structure is documented below.
+  The [ip_address](#endpoint_ip_addresses) structure is documented below.
 
-<a name="Address"></a>
+<a name="endpoint_ip_addresses"></a>
 The `ip_address` block supports:
 
 * `subnet_id` - (Required, String) Specifies the subnet ID of the IP address.
@@ -62,27 +66,32 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `vpc_id` - The VPC ID which the subnet belongs.
+* `vpc_id` - The ID of the VPC to which the subnet belongs.
 
 * `resolver_rule_count` - The number of resolver rules.
 
+-> The newly added resolver rules needs to wait until the next time `terraform refresh` command is executed before that value
+   can be refreshed.
+
 * `status` - The status of endpoint.
 
-* `created_at` - The created time.
+* `created_at` - The creation time of the endpoint.
 
-* `updated_at` - The last updated time.
+* `updated_at` - The latest update time of the endpoint.
 
-* `ip_addresses` - The IP address list of the DNS endpoint.
+* `ip_addresses` - The list of the IP addresses of the endpoint.
+  The [ip_addresses](#endpoint_ip_addresses_attr) structure is documented below.
 
+<a name="endpoint_ip_addresses_attr"></a>
 The `ip_address` block supports:
 
 * `ip_address_id` - The ID of the IP address.
 
 * `status` - The status of IP address.
 
-* `created_at` - The created time of the IP address.
+* `created_at` - The creation time of the IP address.
 
-* `updated_at` - The last updated time of the IP address.
+* `updated_at` - The latest update time of the IP address.
 
 ## Timeouts
 
