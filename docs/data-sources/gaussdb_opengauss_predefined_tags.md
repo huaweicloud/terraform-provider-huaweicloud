@@ -13,7 +13,7 @@ Use this data source to get the list of predefined tags.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_gaussdb_opengauss_tags" "test" {}
+data "huaweicloud_gaussdb_opengauss_predefined_tags" "test" {}
 ```
 
 ## Argument Reference
