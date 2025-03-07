@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.73.1 (March 7, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_css_cluster: remove engine_type validate to support opensearch cluster [GH-6474]
+
 ## 1.73.0 (February 28, 2025)
 
 * **New Resource:**
