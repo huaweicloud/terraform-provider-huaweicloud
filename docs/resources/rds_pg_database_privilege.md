@@ -20,7 +20,7 @@ variable "user_name_2" {}
 variable "schema_name_1" {}
 variable "schema_name_2" {}
 
-resource "huaweicloud_rds_mysql_database_privilege" "test" {
+resource "huaweicloud_rds_pg_database_privilege" "test" {
   instance_id = var.instance_id
   db_name     = var.db_name
 
