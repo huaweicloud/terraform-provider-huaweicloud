@@ -3,7 +3,6 @@ package lb
 import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/elb/v2/loadbalancers"
@@ -39,9 +38,6 @@ func DataSourceELBV2Loadbalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"ONLINE", "FROZEN",
-				}, true),
 			},
 			"description": {
 				Type:     schema.TypeString,

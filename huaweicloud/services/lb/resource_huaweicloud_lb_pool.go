@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v2/pools"
 
@@ -71,9 +70,6 @@ func ResourcePoolV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"TCP", "UDP", "HTTP",
-				}, false),
 			},
 
 			// One of loadbalancer_id or listener_id must be provided
@@ -98,9 +94,6 @@ func ResourcePoolV2() *schema.Resource {
 			"lb_method": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"ROUND_ROBIN", "LEAST_CONNECTIONS", "SOURCE_IP",
-				}, false),
 			},
 
 			"persistence": {
@@ -111,9 +104,6 @@ func ResourcePoolV2() *schema.Resource {
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"SOURCE_IP", "HTTP_COOKIE", "APP_COOKIE",
-							}, false),
 						},
 
 						"cookie_name": {
