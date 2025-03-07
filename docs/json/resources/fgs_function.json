@@ -78,8 +78,7 @@
                 "type": "string",
                 "description": "The ID of the enterprise project to which the function belongs.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "func_code": {
                 "type": "string",
@@ -185,6 +184,11 @@
               "network_id": {
                 "type": "string",
                 "description": "The network ID of subnet.",
+                "optional": true
+              },
+              "peering_cidr": {
+                "type": "string",
+                "description": "The VPC CIDR blocks used in the function code to detect whether it conflicts with the VPC\nCIDR blocks used by the service.",
                 "optional": true
               },
               "region": {

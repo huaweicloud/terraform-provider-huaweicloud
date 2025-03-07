@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_subnet_ip_availabilities": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "network_id": {
+                "type": "string",
+                "description": "Specifies the subnet ID.",
+                "required": true
+              },
+              "network_ip_availability": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "network_id": "string",
+                      "network_name": "string",
+                      "subnet_ip_availability": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cidr": "string",
+                            "ip_version": "number",
+                            "subnet_id": "string",
+                            "subnet_name": "string",
+                            "total_ips": "number",
+                            "used_ips": "number"
+                          }
+                        ]
+                      ],
+                      "total_ips": "number",
+                      "used_ips": "number"
+                    }
+                  ]
+                ],
+                "description": "The network IP address usage objects.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

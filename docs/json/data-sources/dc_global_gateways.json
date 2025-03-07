@@ -1,0 +1,144 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dc_global_gateways": {
+          "block": {
+            "attributes": {
+              "cloud_connection_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the cloud connection IDs.",
+                "optional": true
+              },
+              "enterprise_project_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the enterprise project IDs for querying instances.",
+                "optional": true
+              },
+              "fields": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of fields to be displayed.",
+                "optional": true
+              },
+              "gateways": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "address_family": "string",
+                      "available_peer_link_count": "number",
+                      "bgp_asn": "number",
+                      "created_time": "string",
+                      "current_peer_link_count": "number",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "global_center_network_id": "string",
+                      "id": "string",
+                      "locales": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "en_us": "string",
+                            "zh_cn": "string"
+                          }
+                        ]
+                      ],
+                      "location_name": "string",
+                      "name": "string",
+                      "reason": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the global DC gateways.",
+                "computed": true
+              },
+              "global_center_network_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the central network IDs.",
+                "optional": true
+              },
+              "global_gateway_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource IDs for querying instances.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource names for querying instances.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "site_network_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the site network IDs.",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting order of returned results.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting field.",
+                "optional": true
+              },
+              "statuses": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the statuses by which instances are filtered.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}
