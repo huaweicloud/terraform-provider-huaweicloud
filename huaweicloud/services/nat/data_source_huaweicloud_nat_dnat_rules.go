@@ -87,6 +87,16 @@ func DataSourceDnatRules() *schema.Resource {
 				Optional:    true,
 				Description: "The IP address of the global EIP associated with the DNAT rule.",
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The description of the DNAT rule.",
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The creation time of the DNAT rule.",
+			},
 			"rules": {
 				Type:        schema.TypeList,
 				Elem:        dnatRuleSchema(),
@@ -322,6 +332,12 @@ func buildListDnatRuleQueryParams(d *schema.ResourceData) string {
 	}
 	if v, ok := d.GetOk("external_service_port"); ok {
 		res = fmt.Sprintf("%s&external_service_port=%v", res, v)
+	}
+	if v, ok := d.GetOk("description"); ok {
+		res = fmt.Sprintf("%s&description=%v", res, v)
+	}
+	if v, ok := d.GetOk("created_at"); ok {
+		res = fmt.Sprintf("%s&created_at=%v", res, v)
 	}
 	if res != "" {
 		res = "?" + res[1:]
