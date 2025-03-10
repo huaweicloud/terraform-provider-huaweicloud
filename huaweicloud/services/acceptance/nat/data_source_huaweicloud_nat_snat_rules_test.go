@@ -28,6 +28,12 @@ func TestAccDatasourceSnatRules_basic(t *testing.T) {
 
 		byEipId   = "data.huaweicloud_nat_snat_rules.filter_by_floating_ip_id"
 		dcByEipId = acceptance.InitDataSourceCheck(byEipId)
+
+		byDescription   = "data.huaweicloud_nat_snat_rules.filter_by_description"
+		dcByDescription = acceptance.InitDataSourceCheck(byDescription)
+
+		byCreatedAt   = "data.huaweicloud_nat_snat_rules.filter_by_created_at"
+		dcByCreatedAt = acceptance.InitDataSourceCheck(byCreatedAt)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -38,6 +44,15 @@ func TestAccDatasourceSnatRules_basic(t *testing.T) {
 				Config: testAccDatasourceSnatRules_basic(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.subnet_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.source_type"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.description"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.status"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.floating_ip_address"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.created_at"),
+
 					dcByRuleId.CheckResourceExists(),
 					resource.TestCheckOutput("rule_id_filter_is_useful", "true"),
 
@@ -49,6 +64,12 @@ func TestAccDatasourceSnatRules_basic(t *testing.T) {
 
 					dcByEipId.CheckResourceExists(),
 					resource.TestCheckOutput("floating_ip_id_filter_is_useful", "true"),
+
+					dcByDescription.CheckResourceExists(),
+					resource.TestCheckOutput("description_filter_is_useful", "true"),
+
+					dcByCreatedAt.CheckResourceExists(),
+					resource.TestCheckOutput("created_at_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -85,6 +106,7 @@ resource "huaweicloud_nat_snat_rule" "test" {
   nat_gateway_id = huaweicloud_nat_gateway.test.id
   floating_ip_id = huaweicloud_vpc_eip.test.id
   subnet_id      = huaweicloud_vpc_subnet.test.id
+  description    = "tf test"
 }
 `, common.TestBaseNetwork(name), name)
 }
@@ -186,6 +208,52 @@ locals {
 
 output "floating_ip_id_filter_is_useful" {
   value = alltrue(local.floating_ip_id_filter_result) && length(local.floating_ip_id_filter_result) > 0
+}
+
+locals {
+  description = data.huaweicloud_nat_snat_rules.test.rules[0].description
+}
+
+data "huaweicloud_nat_snat_rules" "filter_by_description" {
+  depends_on = [
+    huaweicloud_nat_snat_rule.test
+  ]
+
+  description = local.description
+}
+
+locals {
+  description_filter_result = [
+    for v in data.huaweicloud_nat_snat_rules.filter_by_description.rules[*].description : 
+    v == local.description
+  ]
+}
+
+output "description_filter_is_useful" {
+  value = alltrue(local.description_filter_result) && length(local.description_filter_result) > 0
+}
+
+locals {
+  created_at = data.huaweicloud_nat_snat_rules.test.rules[0].created_at
+}
+
+data "huaweicloud_nat_snat_rules" "filter_by_created_at" {
+  depends_on = [
+    huaweicloud_nat_snat_rule.test
+  ]
+
+  created_at = local.created_at
+}
+
+locals {
+  created_at_filter_result = [
+    for v in data.huaweicloud_nat_snat_rules.filter_by_created_at.rules[*].created_at : 
+    v == local.created_at
+  ]
+}
+
+output "created_at_filter_is_useful" {
+  value = alltrue(local.created_at_filter_result) && length(local.created_at_filter_result) > 0
 }
 `, baseConfig)
 }
