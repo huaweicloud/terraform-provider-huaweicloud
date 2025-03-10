@@ -31,6 +31,10 @@ type Rule struct {
 	// + 0: VPC side.
 	// + 1: DC side.
 	SourceType int `json:"source_type"`
+	// The frozen EIP associated with the SNAT rule.
+	FreezedIpAddress string `json:"freezed_ip_address"`
+	// The creation time of the SNAT rule.
+	CreatedAt string `json:"created_at"`
 }
 
 type createResp struct {
