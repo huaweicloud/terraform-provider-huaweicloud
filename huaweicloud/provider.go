@@ -1786,7 +1786,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_endpoint_assignment":     dns.ResourceEndpointAssignment(),
 			"huaweicloud_dns_endpoint":                dns.ResourceDNSEndpoint(),
 			"huaweicloud_dns_resolver_rule":           dns.ResourceDNSResolverRule(),
-			"huaweicloud_dns_resolver_rule_associate": dns.ResourceDNSResolverRuleAssociate(),
+			"huaweicloud_dns_resolver_rule_associate": dns.ResourceResolverRuleAssociate(),
 			"huaweicloud_dns_line_group":              dns.ResourceLineGroup(),
 
 			"huaweicloud_drs_job":                        drs.ResourceDrsJob(),
