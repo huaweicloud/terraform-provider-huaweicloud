@@ -48,19 +48,19 @@ func ResourceLineGroup() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the line group name.`,
+				Description: `The line group name.`,
 			},
 			"lines": {
 				Type:        schema.TypeSet,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the lines.`,
+				Description: `The list of the resolution line IDs.`,
 				Set:         schema.HashString,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the line group description. A maximum of 255 characters are allowed.`,
+				Description: `The line group description.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -70,12 +70,12 @@ func ResourceLineGroup() *schema.Resource {
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Resource creation time.`,
+				Description: `The creation time of the line group.`,
 			},
 			"updated_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Resource update time.`,
+				Description: `The latest update time of the line group.`,
 			},
 		},
 	}

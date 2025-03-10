@@ -44,19 +44,22 @@ func ResourceDNSResolverRule() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"endpoint_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the DNS endpoint to which the resolver rule belongs.`,
+			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The resolver rule name.`,
 			},
 			"domain_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"endpoint_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The domain name.`,
 			},
 			"ip_addresses": {
 				Type:     schema.TypeList,
@@ -64,19 +67,23 @@ func ResourceDNSResolverRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ip": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The IP of the IP address.`,
 						},
 					},
 				},
+				Description: `The IP address list of the DNS resolver rule.`,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The status of the resolver rule.`,
 			},
 			"rule_type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The rule type of the resolver rule.`,
 			},
 			"vpcs": {
 				Type:     schema.TypeList,
@@ -84,27 +91,32 @@ func ResourceDNSResolverRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"vpc_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The VPC ID.`,
 						},
 						"vpc_region": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The region of the VPC.`,
 						},
 						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The status of the VPC.`,
 						},
 					},
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the resolver rule.`,
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The latest update time of the resolver rule.`,
 			},
 		},
 	}

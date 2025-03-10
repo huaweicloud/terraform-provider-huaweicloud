@@ -25,27 +25,27 @@ func DataSourceDNSCustomLines() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region in which to query the resource. If omitted, the provider-level region will be used.`,
 			},
 			"line_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specified the ID of the custom line. Fuzzy search is supported.`,
+				Description: `The ID of the custom line. Fuzzy search is supported.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specified the name of the custom line. Fuzzy search is supported.`,
+				Description: `The name of the custom line. Fuzzy search is supported.`,
 			},
 			"ip": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the IP address used to query custom line which is in the IP address range.`,
+				Description: `The IP address used to query custom line which is in the IP address range.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the status of the custom line.`,
+				Description: `The status of the custom line.`,
 			},
 			"lines": {
 				Type:        schema.TypeList,

@@ -43,20 +43,19 @@ resource "huaweicloud_dns_endpoint_assignment" "test" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
-  If omitted, the provider-level region will be used.
-  Changing this creates a new resource.
+  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the endpoint.  
   The name valid length is limited from `1` to `64` characters. Only Chinese and English characters, digits and
   special characters (-._) are allowed.
 
-* `direction` - (Required, String, ForceNew) Specifies the direction of the endpoint.
-  Changing this creates a new resource.  
+* `direction` - (Required, String, ForceNew) Specifies the direction of the endpoint.  
+  Changing this parameter will create a new resource.  
   The valid values are as follows:
   + **inbound**
   + **outbound**
   
-* `assignments` - (Required, List) Specifies the list of the IP addresses of the endpoint.
+* `assignments` - (Required, List) Specifies the list of the IP addresses of the endpoint.  
   The valid length of the `assignments` ranges from `2` to `6`.  
   The [assignments](#endpoint_assignments) structure is documented below.
 

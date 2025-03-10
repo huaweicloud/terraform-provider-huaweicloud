@@ -25,17 +25,17 @@ func DataSourceLineGroups() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region in which to query the resource. If omitted, the provider-level region will be used.`,
 			},
 			"line_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the ID of the line group. Fuzzy search is supported.`,
+				Description: `The ID of the line group. Fuzzy search is supported.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the name of the line group. Fuzzy search is supported.`,
+				Description: `The name of the line group. Fuzzy search is supported.`,
 			},
 			"groups": {
 				Type:        schema.TypeList,

@@ -48,7 +48,7 @@ func ResourceCustomLine() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the custom line name.`,
+				Description: `The custom line name.`,
 			},
 			"ip_segments": {
 				Type:        schema.TypeSet,
@@ -56,12 +56,12 @@ func ResourceCustomLine() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				MinItems:    1,
 				MaxItems:    50,
-				Description: `Specifies the IP address range.`,
+				Description: `The IP address range.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the custom line description. A maximum of 255 characters are allowed.`,
+				Description: `The custom line description.`,
 			},
 			"status": {
 				Type:        schema.TypeString,

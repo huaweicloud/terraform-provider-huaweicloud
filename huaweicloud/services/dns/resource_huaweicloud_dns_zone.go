@@ -63,11 +63,13 @@ func ResourceDNSZone() *schema.Resource {
 				DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
 					return strings.TrimSuffix(oldVal, ".") == strings.TrimSuffix(newVal, ".")
 				},
+				Description: `The name of the zone.`,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The email address of the administrator managing the zone.`,
 			},
 			"zone_type": {
 				Type:         schema.TypeString,
@@ -75,15 +77,18 @@ func ResourceDNSZone() *schema.Resource {
 				ForceNew:     true,
 				Default:      "public",
 				ValidateFunc: validation.StringInSlice([]string{"public", "private"}, false),
+				Description:  `The type of zone.`,
 			},
 			"ttl": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  300,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     300,
+				Description: `The time to live (TTL) of the zone.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the zone.`,
 			},
 			"router": {
 				Type:     schema.TypeSet,
@@ -91,22 +96,26 @@ func ResourceDNSZone() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"router_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The ID of the associated VPC.`,
 						},
 						"router_region": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `The region of the VPC.`,
 						},
 					},
+					Description: `The list of the router of the zone.`,
 				},
 			},
 			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The enterprise project ID of the zone.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -121,12 +130,13 @@ func ResourceDNSZone() *schema.Resource {
 				ForceNew:    true,
 				Description: `The recursive resolution proxy mode for subdomains of the private zone.`,
 			},
+			"tags": common.TagsSchema(`The key/value pairs to associate with the zone.`),
 			"masters": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The list of the masters of the DNS server.`,
 			},
-			"tags": common.TagsSchema(),
 		},
 	}
 }
