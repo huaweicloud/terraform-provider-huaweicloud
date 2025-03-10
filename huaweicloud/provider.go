@@ -587,6 +587,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ces_one_click_alarm_rules":            ces.DataSourceCesOneClickAlarmRules(),
 			"huaweicloud_ces_resource_groups":                  ces.DataSourceCesGroups(),
 			"huaweicloud_ces_resource_group_service_resources": ces.DataSourceCesGroupServiceResources(),
+			"huaweicloud_ces_quotas":                           ces.DataSourceCesQuotas(),
 
 			"huaweicloud_cfw_firewalls":                 cfw.DataSourceFirewalls(),
 			"huaweicloud_cfw_address_groups":            cfw.DataSourceCfwAddressGroups(),
