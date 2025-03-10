@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_snat_rules"
-description: ""
+description: |-
+  Use this data source to get the list of SNAT rules.
 ---
 
 # huaweicloud_nat_snat_rules
@@ -52,6 +53,11 @@ The following arguments are supported:
 * `global_eip_id` - (Optional, String) Specifies the ID of the global EIP associated with SNAT rule.
 
 * `global_eip_address` - (Optional, String) Specifies the IP of the global EIP associated with SNAT rule.
+
+* `description` - (Optional, String) Specifies the description of the SNAT rule.
+
+* `created_at` - (Optional, String) Specifies the creation time of the SNAT rule.
+  The format is **yyyy-mm-dd hh:mm:ss.SSSSSS**. e.g. **2024-12-20 15:03:04.000000**.
 
 ## Attribute Reference
 

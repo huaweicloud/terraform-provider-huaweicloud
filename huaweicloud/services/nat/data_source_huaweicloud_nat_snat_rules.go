@@ -77,6 +77,16 @@ func DataSourceSnatRules() *schema.Resource {
 				Optional:    true,
 				Description: "The IPs of the global EIP associated with SNAT rule.",
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The description of the SNAT rule.",
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The creation time of the SNAT rule.",
+			},
 			"rules": {
 				Type:        schema.TypeList,
 				Elem:        snatRuleSchema(),
@@ -288,6 +298,12 @@ func buildListSnatRuleQueryParams(d *schema.ResourceData) string {
 	}
 	if v, ok := d.GetOk("status"); ok {
 		res = fmt.Sprintf("%s&status=%v", res, v)
+	}
+	if v, ok := d.GetOk("description"); ok {
+		res = fmt.Sprintf("%s&description=%v", res, v)
+	}
+	if v, ok := d.GetOk("created_at"); ok {
+		res = fmt.Sprintf("%s&created_at=%v", res, v)
 	}
 	if res != "" {
 		res = "?" + res[1:]
