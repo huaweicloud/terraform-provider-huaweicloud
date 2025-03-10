@@ -1,7 +1,3 @@
-/*
- Copyright (c) Huawei Technologies Co., Ltd. 2021. All rights reserved.
-*/
-
 package lb
 
 import (
@@ -9,7 +5,6 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v2/certificates"
 
@@ -18,14 +13,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-const (
-	// ServerType the server certificate
-	ServerType = "server"
-	// ClientType the CA certificate
-	ClientType = "client"
-)
-
-// DataSourceLBCertificateV2 the data source of "huaweicloud_lb_certificate"
 // @API ELB GET /v2/{project_id}/elb/certificates
 func DataSourceLBCertificateV2() *schema.Resource {
 	return &schema.Resource{
@@ -44,10 +31,6 @@ func DataSourceLBCertificateV2() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  ServerType,
-				ValidateFunc: validation.StringInSlice([]string{
-					ServerType, ClientType,
-				}, false),
 			},
 			"domain": {
 				Type:     schema.TypeString,

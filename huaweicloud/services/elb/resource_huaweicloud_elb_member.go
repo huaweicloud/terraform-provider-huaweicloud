@@ -67,14 +67,6 @@ func ResourceMemberV3() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(int)
-					if value < 1 {
-						errors = append(errors, fmt.Errorf(
-							"only numbers greater than 0 are supported values for 'weight'"))
-					}
-					return
-				},
 			},
 
 			"subnet_id": {

@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v2/certificates"
 
@@ -62,9 +61,6 @@ func ResourceCertificateV2() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  "server",
-				ValidateFunc: validation.StringInSlice([]string{
-					"server", "client",
-				}, true),
 			},
 
 			"domain": {
