@@ -25,6 +25,8 @@ func ResourceImageMetadata() *schema.Resource {
 		UpdateContext: resourceImageMetadataUpdate,
 		DeleteContext: resourceImageMetadataDelete,
 
+		CustomizeDiff: config.FlexibleForceNew(imageMetadataNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
