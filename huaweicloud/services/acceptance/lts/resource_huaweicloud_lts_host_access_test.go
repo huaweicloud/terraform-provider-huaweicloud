@@ -76,7 +76,8 @@ func TestAccHostAccessConfig_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "access_config.0.paths.0", "/var/log/*"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.paths.#", "2"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.#", "2"),
 					resource.TestCheckResourceAttr(rName, "host_group_ids.#", "0"),
 					resource.TestCheckResourceAttr(rName, "access_type", "AGENT"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
@@ -93,6 +94,7 @@ func TestAccHostAccessConfig_basic(t *testing.T) {
 			{
 				Config: testHostAccessConfig_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rName, "access_config.0.paths.#", "1"),
 					resource.TestCheckResourceAttr(rName, "access_config.0.paths.0", "/var/log/*/*.log"),
 					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.0", "/var/log/*/a.log"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value-updated"),
@@ -208,7 +210,8 @@ resource "huaweicloud_lts_host_access" "test" {
   log_stream_id = huaweicloud_lts_stream.test.id
 
   access_config {
-    paths = ["/var/log/*"]
+    paths       = ["/var/temp", "/var/log/*"]
+    black_paths = ["/var/temp", "/var/log/*/a.log"]
 
     single_log_format {
       mode = "system"

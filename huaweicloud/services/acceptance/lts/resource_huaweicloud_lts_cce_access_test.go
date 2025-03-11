@@ -265,8 +265,8 @@ func TestAccCceAccessConfig_hostFile(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "access_type", "K8S_CCE"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.paths.0", "/var"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.0", "/var/a.log"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.paths.#", "2"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.#", "2"),
 					resource.TestCheckResourceAttr(rName, "access_config.0.path_type", "host_file"),
 				),
 			},
@@ -278,8 +278,9 @@ func TestAccCceAccessConfig_hostFile(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "tags.key", "value-updated"),
 					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(rName, "access_type", "K8S_CCE"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.paths.#", "1"),
 					resource.TestCheckResourceAttr(rName, "access_config.0.paths.0", "/var/logs"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.0", "/var/logs/a.log"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.#", "0"),
 				),
 			},
 			{
@@ -508,8 +509,8 @@ resource "huaweicloud_lts_cce_access" "host_file" {
 
   access_config {
     path_type   = "host_file"
-    paths       = ["/var"]
-    black_paths = ["/var/a.log"]
+    paths       = ["/var", "/temp"]
+    black_paths = ["/var/temp.log", "/var/a.log"]
 
     single_log_format {
       mode = "system"
@@ -536,9 +537,8 @@ resource "huaweicloud_lts_cce_access" "host_file" {
   cluster_id     = "%[3]s"
 
   access_config {
-    path_type   = "host_file"
-    paths       = ["/var/logs"]
-    black_paths = ["/var/logs/a.log"]
+    path_type = "host_file"
+    paths     = ["/var/logs"]
 
     single_log_format {
       mode = "system"
