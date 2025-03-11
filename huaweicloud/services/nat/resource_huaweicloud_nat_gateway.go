@@ -106,7 +106,7 @@ func ResourcePublicGateway() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: "The private IP address of the NAT gateway.",
+				Description: "The IP address used for the NG port of the NAT gateway.",
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
@@ -115,14 +115,95 @@ func ResourcePublicGateway() *schema.Resource {
 				ForceNew:    true,
 				Description: "The enterprise project ID of the NAT gateway.",
 			},
+			"session_conf": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: "The session configuration of the NAT gateway.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"tcp_session_expire_time": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The TCP session expiration time.",
+						},
+						"udp_session_expire_time": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The UDP session expiration time.",
+						},
+						"icmp_session_expire_time": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The ICMP session expiration time.",
+						},
+						"tcp_time_wait_time": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The duration of TIME_WAIT state when TCP connection is closed.",
+						},
+					},
+				},
+			},
 			"tags": common.TagsSchema(),
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The current status of the NAT gateway.",
 			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The creation time of the NAT gateway.",
+			},
+			"billing_info": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The order information of the NAT gateway.",
+			},
+			"dnat_rules_limit": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The maximum number of DNAT rules on the NAT gateway.",
+			},
+			"snat_rule_public_ip_limit": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The maximum number of SNAT rules on the NAT gateway.",
+			},
+			"pps_max": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The number of packets that the NAT gateway can receive or send per second.",
+			},
+			"bps_max": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The bandwidth that the NAT gateway can receive or send per second.",
+			},
 		},
 	}
+}
+
+func buildSessionConfigBodyParams(sessionConfig []interface{}) map[string]interface{} {
+	if len(sessionConfig) == 0 {
+		return nil
+	}
+
+	rawSession := sessionConfig[0].(map[string]interface{})
+	sessionConfigParams := map[string]interface{}{
+		"tcp_session_expire_time":  utils.ValueIgnoreEmpty(rawSession["tcp_session_expire_time"]),
+		"udp_session_expire_time":  utils.ValueIgnoreEmpty(rawSession["udp_session_expire_time"]),
+		"icmp_session_expire_time": utils.ValueIgnoreEmpty(rawSession["icmp_session_expire_time"]),
+		"tcp_time_wait_time":       rawSession["tcp_time_wait_time"],
+	}
+
+	return sessionConfigParams
 }
 
 func buildPrepaidOptionsBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -148,6 +229,7 @@ func buildCreatePublicGatewayBodyParams(d *schema.ResourceData, cfg *config.Conf
 		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 		"ngport_ip_address":     utils.ValueIgnoreEmpty(d.Get("ngport_ip_address")),
 		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"session_conf":          buildSessionConfigBodyParams(d.Get("session_conf").([]interface{})),
 	}
 
 	if d.Get("charging_mode").(string) == "prePaid" {
@@ -312,6 +394,13 @@ func resourcePublicGatewayRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("ngport_ip_address", utils.PathSearch("nat_gateway.ngport_ip_address", respBody, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("nat_gateway.enterprise_project_id", respBody, nil)),
 		d.Set("status", utils.PathSearch("nat_gateway.status", respBody, nil)),
+		d.Set("session_conf", flattenGatewaySessionConfig(utils.PathSearch("nat_gateway.session_conf", respBody, nil))),
+		d.Set("created_at", utils.PathSearch("nat_gateway.created_at", respBody, nil)),
+		d.Set("billing_info", utils.PathSearch("nat_gateway.billing_info", respBody, nil)),
+		d.Set("dnat_rules_limit", utils.PathSearch("nat_gateway.dnat_rules_limit", respBody, nil)),
+		d.Set("snat_rule_public_ip_limit", utils.PathSearch("nat_gateway.snat_rule_public_ip_limit", respBody, nil)),
+		d.Set("pps_max", utils.PathSearch("nat_gateway.pps_max", respBody, nil)),
+		d.Set("bps_max", utils.PathSearch("nat_gateway.bps_max", respBody, nil)),
 		utils.SetResourceTagsToState(d, networkClient, "nat_gateways", d.Id()),
 	)
 
@@ -319,6 +408,21 @@ func resourcePublicGatewayRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error saving NAT gateway fields: %s", err)
 	}
 	return nil
+}
+
+func flattenGatewaySessionConfig(sessionConfig interface{}) []map[string]interface{} {
+	if sessionConfig == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"tcp_session_expire_time":  utils.PathSearch("tcp_session_expire_time", sessionConfig, nil),
+			"udp_session_expire_time":  utils.PathSearch("udp_session_expire_time", sessionConfig, nil),
+			"icmp_session_expire_time": utils.PathSearch("icmp_session_expire_time", sessionConfig, nil),
+			"tcp_time_wait_time":       utils.PathSearch("tcp_time_wait_time", sessionConfig, nil),
+		},
+	}
 }
 
 func buildUpdatePublicGatewayBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -332,6 +436,15 @@ func buildUpdatePublicGatewayBodyParams(d *schema.ResourceData) map[string]inter
 	}
 }
 
+func buildUpdateSessionConfigBodyParams(d *schema.ResourceData) map[string]interface{} {
+	sessionConfParams := map[string]interface{}{
+		"session_conf": buildSessionConfigBodyParams(d.Get("session_conf").([]interface{})),
+	}
+	return map[string]interface{}{
+		"nat_gateway": sessionConfParams,
+	}
+}
+
 func resourcePublicGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg          = meta.(*config.Config)
@@ -340,19 +453,37 @@ func resourcePublicGatewayUpdate(ctx context.Context, d *schema.ResourceData, me
 		chargingMode = d.Get("charging_mode").(string)
 	)
 
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating NAT v2 client: %s", err)
+	}
+
+	updatePath := client.Endpoint + "v2/{project_id}/nat_gateways/{nat_gateway_id}"
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{nat_gateway_id}", d.Id())
+
 	// Due to API limitations, the prepaid NAT gateway does not support editing.
 	if d.HasChanges("name", "spec", "description") && chargingMode != "prePaid" {
-		client, err := cfg.NewServiceClient(product, region)
-		if err != nil {
-			return diag.Errorf("error creating NAT v2 client: %s", err)
-		}
-
-		updatePath := client.Endpoint + "v2/{project_id}/nat_gateways/{nat_gateway_id}"
-		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-		updatePath = strings.ReplaceAll(updatePath, "{nat_gateway_id}", d.Id())
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			JSONBody:         utils.RemoveNil(buildUpdatePublicGatewayBodyParams(d)),
+		}
+
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating NAT gateway (%s): %s", d.Id(), err)
+		}
+
+		if err := waitingForPublicGatewayStatusActive(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.Errorf("error waiting for NAT gateway (%s) to become active in"+
+				" update operation: %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("session_conf") {
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         utils.RemoveNil(buildUpdateSessionConfigBodyParams(d)),
 		}
 
 		_, err = client.Request("PUT", updatePath, &updateOpt)
