@@ -46,7 +46,7 @@ The following arguments are supported:
 * `container_format` - (Optional, String) Specifies the minimum memory of the image, in MB unit.
   The default value is `0`, indicating that the memory is not restricted.
 
-* `disk_format` - (Optional, TypeString) Specifies whether to delete the associated CBR backup when deleting image.
+* `disk_format` - (Optional, String) Specifies whether to delete the associated CBR backup when deleting image.
   The value can be **true** or **false**.
 
 * `tags` - (Optional, List) Specifies the key/value pairs to associate with the image.
