@@ -27,9 +27,10 @@ func getDNSResolverRuleFunc(conf *config.Config, state *terraform.ResourceState)
 
 func TestAccDNSResolverRule_basic(t *testing.T) {
 	var (
-		obj   interface{}
-		name  = acceptance.RandomAccResourceName()
-		rName = "huaweicloud_dns_resolver_rule.test"
+		obj        interface{}
+		name       = acceptance.RandomAccResourceNameWithDash()
+		domainName = fmt.Sprintf("%s.", name)
+		rName      = "huaweicloud_dns_resolver_rule.test"
 	)
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -47,7 +48,7 @@ func TestAccDNSResolverRule_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "domain_name", "terraform.test.com."),
+					resource.TestCheckResourceAttr(rName, "domain_name", domainName),
 					resource.TestCheckResourceAttr(rName, "ip_addresses.#", "1"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(rName, "rule_type"),
@@ -64,16 +65,16 @@ func TestAccDNSResolverRule_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "domain_name", "terraform.test.com."),
-					resource.TestCheckResourceAttr(rName, "ip_addresses.#", "1"),
+					resource.TestCheckResourceAttr(rName, "domain_name", domainName),
+					resource.TestCheckResourceAttr(rName, "ip_addresses.#", "2"),
+					resource.TestCheckResourceAttrSet(rName, "ip_addresses.0.ip"),
+					resource.TestCheckResourceAttrSet(rName, "ip_addresses.1.ip"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(rName, "rule_type"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 					resource.TestCheckResourceAttrPair(rName, "endpoint_id",
 						"huaweicloud_dns_endpoint.test", "id"),
-					resource.TestCheckResourceAttrPair(rName, "ip_addresses.0.ip",
-						"huaweicloud_dns_endpoint.test", "ip_addresses.1.ip"),
 				),
 			},
 			{
@@ -113,12 +114,13 @@ resource "huaweicloud_dns_endpoint" "test" {
 
 func testDNSResolverRule_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_dns_resolver_rule" "test" {
-  name        = "%s"
-  domain_name = "terraform.test.com."
+  name        = "%[2]s"
+  domain_name = "%[2]s"
   endpoint_id = huaweicloud_dns_endpoint.test.id
+
   ip_addresses {
     ip = huaweicloud_dns_endpoint.test.ip_addresses[0].ip
   }
@@ -127,14 +129,18 @@ resource "huaweicloud_dns_resolver_rule" "test" {
 
 func testDNSResolverRule_basic_update(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_dns_resolver_rule" "test" {
-  name        = "%s_update"
-  domain_name = "terraform.test.com."
+  name        = "%[2]s_update"
+  domain_name = "%[2]s"
   endpoint_id = huaweicloud_dns_endpoint.test.id
-  ip_addresses {
-    ip = huaweicloud_dns_endpoint.test.ip_addresses[1].ip
+
+  dynamic "ip_addresses" {
+    for_each = huaweicloud_dns_endpoint.test.ip_addresses[*].ip
+    content {
+      ip = ip_addresses.value
+    }
   }
 }`, testDNSEndpoint(rName), rName)
 }
