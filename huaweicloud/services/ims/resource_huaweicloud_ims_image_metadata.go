@@ -16,7 +16,7 @@ import (
 var imageMetadataNonUpdatableParams = []string{"__os_version", "visibility", "name1", "protected", "container_format",
 	"disk_format", "tags", "min_ram", "min_disk"}
 
-// @API IMS POST POST /v2/images
+// @API IMS POST /v2/images
 // ResourceImageMetadata is a definition of the one-time action resource that used to manage image metadata.
 func ResourceImageMetadata() *schema.Resource {
 	return &schema.Resource{

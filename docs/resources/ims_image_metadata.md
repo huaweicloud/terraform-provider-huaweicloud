@@ -32,12 +32,12 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `__os_version` - (Required, String) Specifies the name of the image.
+* `__os_version` - (Optional, String) Specifies the name of the image.
   The valid length is limited from `1` to `128` characters.
   The first and last letters of the name cannot be spaces.
   The name can contain uppercase letters, lowercase letters, numbers, spaces, chinese, and special characters (-._).
 
-* `visibility` - (Required, String) Specifies the CBR instance backup ID used to create the image.
+* `visibility` - (Optional, String) Specifies the CBR instance backup ID used to create the image.
   Changing this parameter will create a new resource.
 
 * `name1` - (Optional, String) Specifies the description of the image.
