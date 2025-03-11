@@ -346,6 +346,47 @@ func createResourcePoolWaitingForScopesCompleted(ctx context.Context, d *schema.
 	return nil
 }
 
+func waitForDriverStatusCompleted(ctx context.Context, cfg *config.Config, region string, d *schema.ResourceData) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      driverStatusRefreshFunc(cfg, region, d),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		PollInterval: 10 * time.Second,
+		// In some cases, the following status changes may occur: Upgrading -> Running -> Creating -> Running
+		ContinuousTargetOccurence: 2,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func driverStatusRefreshFunc(cfg *config.Config, region string, d *schema.ResourceData) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		resourcePool, err := queryResourcePool(cfg, region, d)
+		if err != nil {
+			return resourcePool, "ERROR", err
+		}
+
+		// Cueerntly, only for GPU driver or NPU driver.
+		driverStatuses := utils.PathSearch("status.driver.*.state", resourcePool, make([]interface{}, 0)).([]interface{})
+		if len(driverStatuses) == 0 {
+			return "No matches found", "COMPLETED", nil
+		}
+
+		for _, status := range driverStatuses {
+			if status == "Abnormal" {
+				return resourcePool, "ERROR", fmt.Errorf("unexpect status (%s)", status)
+			}
+
+			if status != "Running" {
+				return resourcePool, "PENDING", nil
+			}
+		}
+
+		return resourcePool, "COMPLETED", nil
+	}
+}
+
 func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -422,6 +463,12 @@ func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.Resource
 	if err != nil {
 		return diag.Errorf("error waiting for the Modelarts resource pool (%s) creation to complete: %s", d.Id(), err)
 	}
+
+	err = waitForDriverStatusCompleted(ctx, cfg, region, d)
+	if err != nil {
+		return diag.Errorf("error waiting for the Modelarts resource pool (%s) driver status to become running: %s", d.Id(), err)
+	}
+
 	return resourceModelartsResourcePoolRead(ctx, d, meta)
 }
 
