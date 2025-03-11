@@ -38,7 +38,7 @@ func ResourceImageMetadata() *schema.Resource {
 			},
 			"visibility": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"name1": {
 				Type:     schema.TypeString,

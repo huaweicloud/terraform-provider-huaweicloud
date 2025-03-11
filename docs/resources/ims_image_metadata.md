@@ -38,7 +38,6 @@ The following arguments are supported:
   The name can contain uppercase letters, lowercase letters, numbers, spaces, chinese, and special characters (-._).
 
 * `visibility` - (Optional, String) Specifies the CBR instance backup ID used to create the image.
-  Changing this parameter will create a new resource.
 
 * `name1` - (Optional, String) Specifies the description of the image.
 
@@ -53,10 +52,8 @@ The following arguments are supported:
 * `tags` - (Optional, List) Specifies the key/value pairs to associate with the image.
 
 * `min_ram` - (Optional, Int) Specifies the enterprise project ID to which the IMS image belongs.
-  For enterprise users, if omitted, default enterprise project will be used.
 
 * `min_disk` - (Optional, Int) Specifies the enterprise project ID to which the IMS image belongs.
-  For enterprise users, if omitted, default enterprise project will be used.
 
 ## Attribute Reference
 
