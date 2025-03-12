@@ -699,6 +699,100 @@ var errorCodeRedirectRules = schema.Schema{
 	},
 }
 
+var requestUrlRewrite = schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"condition": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"match_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"priority": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"match_value": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"redirect_url": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"execution_mode": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"redirect_status_code": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"redirect_host": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
+var browserCacheRules = schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"condition": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"match_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"priority": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"match_value": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"cache_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"ttl": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"ttl_unit": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 var hsts = schema.Schema{
 	Type:     schema.TypeList,
 	Optional: true,
@@ -718,6 +812,30 @@ var hsts = schema.Schema{
 			"include_subdomains": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
+var sni = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"server_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -756,6 +874,35 @@ var accessAreaFilters = schema.Schema{
 				Optional:    true,
 				Computed:    true,
 				Description: "Specifies the IP addresses exception in access control, separated by commas.",
+			},
+		},
+	},
+}
+
+var clientCert = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"trusted_cert": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"hosts": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	},
@@ -929,7 +1076,11 @@ func ResourceCdnDomain() *schema.Resource {
 						"user_agent_filter":          &userAgentFilter,
 						"error_code_redirect_rules":  &errorCodeRedirectRules,
 						"hsts":                       &hsts,
+						"sni":                        &sni,
+						"request_url_rewrite":        &requestUrlRewrite,
+						"browser_cache_rules":        &browserCacheRules,
 						"access_area_filter":         &accessAreaFilters,
+						"client_cert":                &clientCert,
 					},
 				},
 			},
@@ -1820,6 +1971,88 @@ func flattenHstsAttributes(configResp interface{}) []map[string]interface{} {
 	return []map[string]interface{}{hstsAttrs}
 }
 
+func flattenSniAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.sni", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	hstsAttrs := map[string]interface{}{
+		"enabled":     analyseFunctionEnabledStatus(utils.PathSearch("status", curJson, "").(string)),
+		"server_name": utils.PathSearch("server_name", curJson, nil),
+		"status":      utils.PathSearch("status", curJson, nil),
+	}
+
+	return []map[string]interface{}{hstsAttrs}
+}
+
+func flattenRequestUrlRewriteAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.request_url_rewrite", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"condition":            flattenRequestUrlRewriteConditionAttributes(utils.PathSearch("condition", v, nil)),
+			"redirect_url":         utils.PathSearch("redirect_url", v, nil),
+			"execution_mode":       utils.PathSearch("execution_mode", v, nil),
+			"redirect_status_code": utils.PathSearch("redirect_status_code", v, nil),
+			"redirect_host":        utils.PathSearch("redirect_host", v, nil),
+		})
+	}
+	return rst
+}
+
+func flattenRequestUrlRewriteConditionAttributes(conditionResp interface{}) []interface{} {
+	if conditionResp == nil {
+		return nil
+	}
+
+	conditionAttribute := map[string]interface{}{
+		"match_type":  utils.PathSearch("match_type", conditionResp, nil),
+		"match_value": utils.PathSearch("match_value", conditionResp, nil),
+		"priority":    utils.PathSearch("priority", conditionResp, nil),
+	}
+
+	return []interface{}{conditionAttribute}
+}
+
+func flattenBrowserCacheRulesAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.browser_cache_rules", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"condition":  flattenBrowserCacheRulesConditionAttributes(utils.PathSearch("condition", v, nil)),
+			"cache_type": utils.PathSearch("cache_type", v, nil),
+			"ttl":        utils.PathSearch("ttl", v, nil),
+			"ttl_unit":   utils.PathSearch("ttl_unit", v, nil),
+		})
+	}
+	return rst
+}
+
+func flattenBrowserCacheRulesConditionAttributes(conditionResp interface{}) []interface{} {
+	if conditionResp == nil {
+		return nil
+	}
+
+	conditionAttribute := map[string]interface{}{
+		"match_type":  utils.PathSearch("match_type", conditionResp, nil),
+		"match_value": utils.PathSearch("match_value", conditionResp, nil),
+		"priority":    utils.PathSearch("priority", conditionResp, nil),
+	}
+
+	return []interface{}{conditionAttribute}
+}
+
 func flattenAccessAreaFiltersAttributes(configResp interface{}) []interface{} {
 	curJson := utils.PathSearch("configs.access_area_filter", configResp, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
@@ -1839,6 +2072,22 @@ func flattenAccessAreaFiltersAttributes(configResp interface{}) []interface{} {
 		})
 	}
 	return rst
+}
+
+func flattenClientCertAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.client_cert", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	hstsAttrs := map[string]interface{}{
+		"enabled":      analyseFunctionEnabledStatus(utils.PathSearch("status", curJson, "").(string)),
+		"trusted_cert": utils.PathSearch("trusted_cert", curJson, nil),
+		"hosts":        utils.PathSearch("hosts", curJson, nil),
+		"status":       utils.PathSearch("status", curJson, nil),
+	}
+
+	return []map[string]interface{}{hstsAttrs}
 }
 
 func flattenConfigAttributes(configResp interface{}, d *schema.ResourceData) []map[string]interface{} {
@@ -1880,7 +2129,11 @@ func flattenConfigAttributes(configResp interface{}, d *schema.ResourceData) []m
 		"user_agent_filter":             flattenUserAgentFilterAttributes(configResp),
 		"error_code_redirect_rules":     flattenErrorCodeRedirectRulesAttributes(configResp),
 		"hsts":                          flattenHstsAttributes(configResp),
+		"sni":                           flattenSniAttributes(configResp),
+		"request_url_rewrite":           flattenRequestUrlRewriteAttributes(configResp),
+		"browser_cache_rules":           flattenBrowserCacheRulesAttributes(configResp),
 		"access_area_filter":            flattenAccessAreaFiltersAttributes(configResp),
+		"client_cert":                   flattenClientCertAttributes(configResp),
 	}
 	return []map[string]interface{}{configsAttrs}
 }
@@ -2386,6 +2639,83 @@ func buildCdnDomainHstsOpts(rawHsts []interface{}) map[string]interface{} {
 	}
 }
 
+func buildCdnDomainSniOpts(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) != 1 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":      parseFunctionEnabledStatus(rawMap["enabled"].(bool)),
+		"server_name": utils.ValueIgnoreEmpty(rawMap["server_name"]),
+	}
+}
+
+func buildCdnDomainRequestUrlRewrite(rawArray []interface{}) interface{} {
+	if len(rawArray) < 1 {
+		// Define an empty array to clear all request url rewrite
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]map[string]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"condition":            buildRequestUrlRewriteCondition(rawMap["condition"].([]interface{})),
+			"redirect_url":         rawMap["redirect_url"],
+			"execution_mode":       rawMap["execution_mode"],
+			"redirect_status_code": utils.ValueIgnoreEmpty(rawMap["redirect_status_code"]),
+			"redirect_host":        utils.ValueIgnoreEmpty(rawMap["redirect_host"]),
+		})
+	}
+	return rst
+}
+
+func buildRequestUrlRewriteCondition(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"match_type":  rawMap["match_type"],
+		"match_value": utils.ValueIgnoreEmpty(rawMap["match_value"]),
+		"priority":    rawMap["priority"],
+	}
+}
+
+func buildCdnDomainBrowserCacheRules(rawArray []interface{}) interface{} {
+	if len(rawArray) < 1 {
+		// Define an empty array to clear all request url rewrite
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]map[string]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"condition":  buildBrowserCacheRulesCondition(rawMap["condition"].([]interface{})),
+			"cache_type": rawMap["cache_type"],
+			"ttl":        utils.ValueIgnoreEmpty(rawMap["ttl"]),
+			"ttl_unit":   utils.ValueIgnoreEmpty(rawMap["ttl_unit"]),
+		})
+	}
+	return rst
+}
+
+func buildBrowserCacheRulesCondition(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"match_type":  rawMap["match_type"],
+		"match_value": utils.ValueIgnoreEmpty(rawMap["match_value"]),
+		"priority":    rawMap["priority"],
+	}
+}
+
 func buildCdnDomainAccessAreaFilters(accessAreaFilters []interface{}) []interface{} {
 	if len(accessAreaFilters) < 1 {
 		// Define an empty array to clear all access area filters
@@ -2404,6 +2734,19 @@ func buildCdnDomainAccessAreaFilters(accessAreaFilters []interface{}) []interfac
 		})
 	}
 	return rst
+}
+
+func buildCdnDomainClientCertOpts(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) != 1 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":       parseFunctionEnabledStatus(rawMap["enabled"].(bool)),
+		"trusted_cert": utils.ValueIgnoreEmpty(rawMap["trusted_cert"]),
+		"hosts":        utils.ValueIgnoreEmpty(rawMap["hosts"]),
+	}
 }
 
 // nolint
@@ -2495,9 +2838,23 @@ func buildUpdateCdnDomainFullConfigsOpts(bodyParams map[string]interface{}, conf
 	if d.HasChange("configs.0.hsts") {
 		bodyParams["hsts"] = buildCdnDomainHstsOpts(configs["hsts"].([]interface{}))
 	}
+	if d.HasChange("configs.0.sni") {
+		bodyParams["sni"] = buildCdnDomainSniOpts(configs["sni"].([]interface{}))
+	}
+	if d.HasChange("configs.0.request_url_rewrite") {
+		requestUrlRewrite := configs["request_url_rewrite"].(*schema.Set).List()
+		bodyParams["request_url_rewrite"] = buildCdnDomainRequestUrlRewrite(requestUrlRewrite)
+	}
+	if d.HasChange("configs.0.browser_cache_rules") {
+		browserCacheRules := configs["browser_cache_rules"].(*schema.Set).List()
+		bodyParams["browser_cache_rules"] = buildCdnDomainBrowserCacheRules(browserCacheRules)
+	}
 	if d.HasChange("configs.0.access_area_filter") {
 		accessAreaFilters := configs["access_area_filter"].(*schema.Set).List()
 		bodyParams["access_area_filter"] = buildCdnDomainAccessAreaFilters(accessAreaFilters)
+	}
+	if d.HasChange("configs.0.client_cert") {
+		bodyParams["client_cert"] = buildCdnDomainClientCertOpts(configs["client_cert"].([]interface{}))
 	}
 }
 
