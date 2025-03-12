@@ -50,6 +50,7 @@ func TestAccLogstashCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 					resource.TestCheckResourceAttr(resourceName, "is_period", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone", "data.huaweicloud_availability_zones.test", "names.0"),
 				),
 			},
 			{
