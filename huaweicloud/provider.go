@@ -1051,6 +1051,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_nat_gateway":             nat.DataSourcePublicGateway(),
 			"huaweicloud_nat_gateways":            nat.DataSourcePublicGateways(),
+			"huaweicloud_nat_gateway_tags":        nat.DataSourceNatGatewayTags(),
 			"huaweicloud_nat_dnat_rules":          nat.DataSourceDnatRules(),
 			"huaweicloud_nat_private_dnat_rules":  nat.DataSourcePrivateDnatRules(),
 			"huaweicloud_nat_private_gateways":    nat.DataSourcePrivateGateways(),
