@@ -726,6 +726,10 @@ func (c *Config) CciV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cci", region)
 }
 
+func (c *Config) CciV2YangtseClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cciv2_yangtse", region)
+}
+
 func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("fgs", region)
 }

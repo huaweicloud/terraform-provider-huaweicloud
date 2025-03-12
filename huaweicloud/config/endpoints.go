@@ -225,6 +225,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "CCI",
 	},
+	"cciv2_yangtse": {
+		Name:             "cci",
+		Version:          "apis/yangtse/v2",
+		WithOutProjectID: true,
+		Product:          "CCI",
+	},
 	"ucs": {
 		Name:             "ucs",
 		Version:          "v1",
