@@ -52,8 +52,15 @@ func TestAccPublicGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "spec", string(nat.PublicSpecTypeSmall)),
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttr(rName, "ngport_ip_address", "192.168.0.101"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.tcp_session_expire_time", "1000"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.udp_session_expire_time", "400"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.icmp_session_expire_time", "20"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.tcp_time_wait_time", "10"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "dnat_rules_limit"),
+					resource.TestCheckResourceAttrSet(rName, "snat_rule_public_ip_limit"),
 				),
 			},
 			{
@@ -64,6 +71,10 @@ func TestAccPublicGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "spec", string(nat.PublicSpecTypeMedium)),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "ngport_ip_address", "192.168.0.101"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.tcp_session_expire_time", "900"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.udp_session_expire_time", "300"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.icmp_session_expire_time", "10"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.tcp_time_wait_time", "5"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "baaar"),
 					resource.TestCheckResourceAttr(rName, "tags.newkey", "value"),
 				),
@@ -89,6 +100,13 @@ resource "huaweicloud_nat_gateway" "test" {
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
 
+  session_conf {
+    tcp_session_expire_time  = 1000
+    udp_session_expire_time  = 400
+    icmp_session_expire_time = 20
+    tcp_time_wait_time       = 10
+  }
+
   tags = {
     foo = "bar"
     key = "value"
@@ -107,6 +125,13 @@ resource "huaweicloud_nat_gateway" "test" {
   ngport_ip_address = "192.168.0.101"
   vpc_id            = huaweicloud_vpc.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
+
+  session_conf {
+    tcp_session_expire_time  = 900
+    udp_session_expire_time  = 300
+    icmp_session_expire_time = 10
+    tcp_time_wait_time       = 5
+  }
 
   tags = {
     foo    = "baaar"
@@ -147,8 +172,15 @@ func TestAccPublicGateway_prepaid(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttr(rName, "ngport_ip_address", "192.168.0.101"),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.tcp_session_expire_time", "800"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.udp_session_expire_time", "200"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.icmp_session_expire_time", "100"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.tcp_time_wait_time", "50"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(rName, "billing_info"),
+					resource.TestCheckResourceAttrSet(rName, "pps_max"),
+					resource.TestCheckResourceAttrSet(rName, "bps_max"),
 				),
 			},
 			{
@@ -160,6 +192,10 @@ func TestAccPublicGateway_prepaid(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttr(rName, "ngport_ip_address", "192.168.0.101"),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.tcp_session_expire_time", "900"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.udp_session_expire_time", "400"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.icmp_session_expire_time", "30"),
+					resource.TestCheckResourceAttr(rName, "session_conf.0.tcp_time_wait_time", "0"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "baaar"),
 					resource.TestCheckResourceAttr(rName, "tags.newkey", "value"),
 				),
@@ -192,6 +228,13 @@ resource "huaweicloud_nat_gateway" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   enterprise_project_id = "0"
 
+  session_conf {
+    tcp_session_expire_time  = 800
+    udp_session_expire_time  = 200
+    icmp_session_expire_time = 100
+    tcp_time_wait_time       = 50
+  }
+
   charging_mode = "prePaid"
   period_unit   = "month"
   period        = "1"
@@ -217,6 +260,13 @@ resource "huaweicloud_nat_gateway" "test" {
   vpc_id                = huaweicloud_vpc.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
   enterprise_project_id = "0"
+
+  session_conf {
+    tcp_session_expire_time  = 900
+    udp_session_expire_time  = 400
+    icmp_session_expire_time = 30
+    tcp_time_wait_time       = 0
+  }
 
   charging_mode = "prePaid"
   period_unit   = "month"

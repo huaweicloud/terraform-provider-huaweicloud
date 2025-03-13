@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_gateway"
-description: ""
+description: |-
+  Manages a gateway resource of the **public** NAT within HuaweiCloud.
 ---
 
 # huaweicloud_nat_gateway
@@ -98,7 +99,7 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled. This parameter is only valid when
   `charging_mode` is set to **prePaid**. Valid values are **true** and **false**. Defaults to **false**.
 
-* `ngport_ip_address` - (Optional, String, ForceNew) Specifies the private IP address of the NAT gateway.
+* `ngport_ip_address` - (Optional, String, ForceNew) Specifies the IP address used for the NG port of the NAT gateway.
   The IP address must be one of the IP addresses of the VPC subnet associated with the NAT gateway.
   If not spacified, it will be automatically allocated.
   Changing this will creates a new resource.
@@ -108,6 +109,24 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the NAT gateway.
 
+* `session_conf` - (Optional, List) Specifies the session configuration of the NAT gateway.
+  The [session_conf](#nat_session_conf) structure is documented below.
+
+<a name="nat_session_conf"></a>
+The `session_conf` block supports:
+
+* `tcp_session_expire_time` - (Optional, Int) Specifies the TCP session expiration time, in seconds.
+  The valid value from `40` to `7,200`, default value is `900`.
+
+* `udp_session_expire_time` - (Optional, Int) Specifies the UDP session expiration time, in seconds.
+  The valid value from `40` to `7,200`, default value is `300`.
+
+* `icmp_session_expire_time` - (Optional, Int) Specifies the ICMP session expiration time, in seconds.
+  The valid value from `10` to `7,200`, default value is `10`.
+
+* `tcp_time_wait_time` - (Optional, Int) Specifies the duration of TIME_WAIT state when TCP connection is closed,
+  in seconds. The valid value from `0` to `1,800`, default value is `5`.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -115,6 +134,19 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID in UUID format.
 
 * `status` - The current status of the NAT gateway.
+
+* `created_at` - The creation time of the NAT gateway.
+
+* `billing_info` - The order information of the NAT gateway.
+  When the `charging_mode` is set to **prePaid**, this parameter is available.
+
+* `dnat_rules_limit` - The maximum number of DNAT rules on the NAT gateway. Defaults to `200`.
+
+* `snat_rule_public_ip_limit` - The maximum number of SNAT rules on the NAT gateway. Defaults to `20`.
+
+* `pps_max` - The number of packets that the NAT gateway can receive or send per second.
+
+* `bps_max` - The bandwidth that the NAT gateway can receive or send per second, unit is MB.
 
 ## Timeouts
 
