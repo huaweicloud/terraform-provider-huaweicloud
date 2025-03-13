@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -82,14 +81,8 @@ func ResourcePublicGateway() *schema.Resource {
 				Description: "The NAT gateway name.",
 			},
 			"spec": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					string(PublicSpecTypeSmall),
-					string(PublicSpecTypeMedium),
-					string(PublicSpecTypeLarge),
-					string(PublicSpecTypeExtraLarge),
-				}, false),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The specification of the NAT gateway.",
 			},
 			"charging_mode": common.SchemaChargingMode(nil),
