@@ -1990,6 +1990,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ims_obs_system_image":        ims.ResourceObsSystemImage(),
 			"huaweicloud_ims_obs_iso_image":           ims.ResourceObsIsoImage(),
 			"huaweicloud_ims_image_export":            ims.ResourceImageExport(),
+			"huaweicloud_ims_image_metadata":          ims.ResourceImageMetadata(),
 			"huaweicloud_images_image_copy":           ims.ResourceImsImageCopy(),
 			"huaweicloud_images_image_share":          ims.ResourceImsImageShare(),
 			"huaweicloud_images_image_share_accepter": ims.ResourceImsImageShareAccepter(),
