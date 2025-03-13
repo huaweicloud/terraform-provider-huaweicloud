@@ -3,6 +3,7 @@ package cts
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
@@ -14,15 +15,20 @@ func TestAccDataSourceCtsTraces_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceNameWithDash()
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
+	currentTime := time.Now().UTC()
+	currentTimeString := currentTime.Format("2006-01-02 15:04:05")
+
+	laterTime := currentTime.Add(3 * time.Minute)
+	laterTimeString := laterTime.Format("2006-01-02 15:04:05")
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCtsTimeRange(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceCtsTraces_basic(rName),
+				Config: testDataSourceCtsTraces_basic(rName, currentTimeString, laterTimeString),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "traces.0.trace_id"),
@@ -34,6 +40,7 @@ func TestAccDataSourceCtsTraces_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSource, "traces.0.service_type"),
 					resource.TestCheckResourceAttrSet(dataSource, "traces.0.resource_id"),
 					resource.TestCheckResourceAttrSet(dataSource, "traces.0.record_time"),
+					resource.TestCheckResourceAttrSet(dataSource, "traces.0.operation_id"),
 					resource.TestCheckOutput("is_default_filter_useful", "true"),
 					resource.TestCheckOutput("is_id_filter_useful", "true"),
 					resource.TestCheckOutput("is_resource_type_filter_useful", "true"),
@@ -44,7 +51,7 @@ func TestAccDataSourceCtsTraces_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceCtsTraces_basic(name string) string {
+func testDataSourceCtsTraces_basic(name, from, to string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -122,7 +129,7 @@ output "is_trace_rating_filter_useful" {
     [for v in data.huaweicloud_cts_traces.filter_by_trace_rating.traces[*] : v.trace_rating == local.trace_rating]
   )
 }
-`, testDataSourceCtsTraces_base(name), acceptance.HW_CTS_START_TIME, acceptance.HW_CTS_END_TIME)
+`, testDataSourceCtsTraces_base(name), from, to)
 }
 
 func testDataSourceCtsTraces_base(name string) string {
