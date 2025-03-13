@@ -78,6 +78,16 @@ func TestAccDeviceAsyncCommand_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 				),
 			},
+			{
+				Config: testAccDeviceAsyncCommand_custom(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "device_id", "huaweicloud_iotda_device.test", "id"),
+					resource.TestCheckResourceAttr(rName, "send_strategy", "immediately"),
+					resource.TestCheckResourceAttrSet(rName, "sent_time"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+				),
+			},
 		},
 	})
 }
@@ -144,6 +154,17 @@ resource "huaweicloud_iotda_device_async_command" "test" {
   paras = {
     (huaweicloud_iotda_product.test.services.0.commands.0.paras.0.name) = "tf-acc"
   }
+}
+`, testAccDeviceAsyncCommand_base(name))
+}
+
+func testAccDeviceAsyncCommand_custom(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_iotda_device_async_command" "test" {
+  device_id     = huaweicloud_iotda_device.test.id
+  send_strategy = "immediately"
 }
 `, testAccDeviceAsyncCommand_base(name))
 }
