@@ -34,6 +34,405 @@ const (
 	ClusterStatusUnavailable = "303"
 )
 
+var cssClusterSchema = map[string]*schema.Schema{
+	"region": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ForceNew: true,
+	},
+	"name": {
+		Type:     schema.TypeString,
+		Required: true,
+		ForceNew: true,
+	},
+	"engine_type": {
+		Type:     schema.TypeString,
+		Optional: true,
+		ForceNew: true,
+		Default:  "elasticsearch",
+	},
+	"engine_version": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"security_mode": {
+		Type:     schema.TypeBool,
+		Optional: true,
+	},
+	"password": {
+		Type:      schema.TypeString,
+		Sensitive: true,
+		Optional:  true,
+	},
+	"https_enabled": {
+		Type:         schema.TypeBool,
+		Optional:     true,
+		Computed:     true,
+		ForceNew:     true,
+		RequiredWith: []string{"security_mode"},
+	},
+	"ess_node_config": {
+		Type:          schema.TypeList,
+		Optional:      true,
+		MaxItems:      1,
+		ExactlyOneOf:  []string{"node_config", "ess_node_config"},
+		ConflictsWith: []string{"expect_node_num"},
+		Computed:      true,
+		Elem:          essOrColdNodeSchema(),
+		Description:   "schema: Required",
+	},
+	"master_node_config": {
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem:     masterOrClientNodeSchema(),
+	},
+	"client_node_config": {
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem:     masterOrClientNodeSchema(),
+	},
+	"cold_node_config": {
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem:     essOrColdNodeSchema(),
+	},
+	"availability_zone": {
+		Type:             schema.TypeString,
+		Optional:         true,
+		RequiredWith:     []string{"vpc_id", "subnet_id", "security_group_id"},
+		Computed:         true,
+		DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+		Description:      "schema: Required",
+	},
+	"vpc_id": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		ForceNew:    true,
+		Computed:    true,
+		Description: "schema: Required",
+	},
+	"subnet_id": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		ForceNew:    true,
+		Computed:    true,
+		Description: "schema: Required",
+	},
+	"security_group_id": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		Computed:    true,
+		Description: "schema: Required",
+	},
+	"backup_strategy": {
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"start_time": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+				"keep_days": {
+					Type:     schema.TypeInt,
+					Optional: true,
+					Default:  7,
+				},
+				"prefix": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Default:  "snapshot",
+				},
+				"bucket": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+				"backup_path": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+				"agency": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+			},
+		},
+	},
+	"public_access": {
+		Type:         schema.TypeList,
+		Optional:     true,
+		MaxItems:     1,
+		RequiredWith: []string{"password"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"bandwidth": {
+					Type:     schema.TypeInt,
+					Required: true,
+				},
+				"whitelist_enabled": {
+					Type:     schema.TypeBool,
+					Required: true,
+				},
+				"whitelist": {
+					Type:             schema.TypeString,
+					Optional:         true,
+					DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+				},
+				"public_ip": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+			},
+		},
+	},
+	"vpcep_endpoint": { // none query API
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"endpoint_with_dns_name": { // auto create private domain name
+					Type:     schema.TypeBool,
+					Required: true,
+				},
+				"whitelist": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+				},
+			},
+		},
+	},
+	"kibana_public_access": {
+		Type:         schema.TypeList,
+		Optional:     true,
+		MaxItems:     1,
+		RequiredWith: []string{"password"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"bandwidth": { // Mbit/s
+					Type:     schema.TypeInt,
+					Required: true,
+				},
+				"whitelist_enabled": {
+					Type:     schema.TypeBool,
+					Required: true,
+				},
+				"whitelist": {
+					Type:             schema.TypeString,
+					DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+					Optional:         true,
+				},
+				"public_ip": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+			},
+		},
+	},
+	"tags": common.TagsSchema(),
+	"enterprise_project_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	// charging_mode, period_unit and period only support changing post-paid to pre-paid billing mode.
+	"charging_mode": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ValidateFunc: validation.StringInSlice([]string{
+			"prePaid", "postPaid",
+		}, false),
+	},
+	"period_unit": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		RequiredWith: []string{"period"},
+		ValidateFunc: validation.StringInSlice([]string{
+			"month", "year",
+		}, false),
+	},
+	"period": {
+		Type:         schema.TypeInt,
+		Optional:     true,
+		RequiredWith: []string{"period_unit"},
+	},
+	"auto_renew": common.SchemaAutoRenewUpdatable(nil),
+	"expect_node_num": {
+		Type:       schema.TypeInt,
+		Optional:   true,
+		Deprecated: "please use ess_node_config.instance_number instead",
+		Computed:   true,
+	},
+	"node_config": {
+		Type:          schema.TypeList,
+		Optional:      true,
+		Computed:      true,
+		ForceNew:      true,
+		Deprecated:    "please use ess_node_config instead",
+		ConflictsWith: []string{"master_node_config", "client_node_config", "cold_node_config", "availability_zone"},
+		MaxItems:      1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"flavor": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+				"volume": {
+					Type:     schema.TypeList,
+					Required: true,
+					ForceNew: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"size": {
+								Type:     schema.TypeInt,
+								Required: true,
+							},
+							"volume_type": {
+								Type:     schema.TypeString,
+								Required: true,
+								ForceNew: true,
+							},
+						},
+					},
+				},
+				"network_info": {
+					Type:     schema.TypeList,
+					Required: true,
+					ForceNew: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"security_group_id": {
+								Type:     schema.TypeString,
+								Required: true,
+								ForceNew: true,
+							},
+							"subnet_id": {
+								Type:     schema.TypeString,
+								Required: true,
+								ForceNew: true,
+							},
+							"vpc_id": {
+								Type:     schema.TypeString,
+								Required: true,
+								ForceNew: true,
+							},
+						},
+					},
+				},
+				"availability_zone": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+			},
+		},
+	},
+	"nodes": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"name": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"type": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"availability_zone": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"status": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"spec_code": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"ip": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"resource_id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+			},
+		},
+	},
+	"endpoint": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"status": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"vpcep_endpoint_id": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"vpcep_ip": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"created_at": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"updated_at": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"bandwidth_resource_id": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"is_period": {
+		Type:     schema.TypeBool,
+		Computed: true,
+	},
+	"backup_available": {
+		Type:     schema.TypeBool,
+		Computed: true,
+	},
+	"disk_encrypted": {
+		Type:     schema.TypeBool,
+		Computed: true,
+	},
+	"created": {
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: "schema: Deprecated; use created_at instead",
+	},
+	"enable_force_new": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+		Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+	},
+}
+
 var clusterNonUpdatableParams = []string{"engine_version", "availability_zone"}
 
 // @API CSS POST /v1.0/{project_id}/clusters/{cluster_id}/role_extend
@@ -90,405 +489,9 @@ func ResourceCssCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(clusterNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(clusterNonUpdatableParams, cssClusterSchema),
 
-		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"engine_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "elasticsearch",
-			},
-			"engine_version": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"security_mode": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"password": {
-				Type:      schema.TypeString,
-				Sensitive: true,
-				Optional:  true,
-			},
-			"https_enabled": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"security_mode"},
-			},
-			"ess_node_config": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				MaxItems:      1,
-				ExactlyOneOf:  []string{"node_config", "ess_node_config"},
-				ConflictsWith: []string{"expect_node_num"},
-				Computed:      true,
-				Elem:          essOrColdNodeSchema(),
-				Description:   "schema: Required",
-			},
-			"master_node_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     masterOrClientNodeSchema(),
-			},
-			"client_node_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     masterOrClientNodeSchema(),
-			},
-			"cold_node_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     essOrColdNodeSchema(),
-			},
-			"availability_zone": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				RequiredWith: []string{"vpc_id", "subnet_id", "security_group_id"},
-				Computed:     true,
-				Description:  "schema: Required",
-			},
-			"vpc_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
-				Description: "schema: Required",
-			},
-			"subnet_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
-				Description: "schema: Required",
-			},
-			"security_group_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "schema: Required",
-			},
-			"backup_strategy": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"start_time": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"keep_days": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  7,
-						},
-						"prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "snapshot",
-						},
-						"bucket": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"backup_path": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"agency": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"public_access": {
-				Type:         schema.TypeList,
-				Optional:     true,
-				MaxItems:     1,
-				RequiredWith: []string{"password"},
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"bandwidth": {
-							Type:     schema.TypeInt,
-							Required: true,
-						},
-						"whitelist_enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"whitelist": {
-							Type:             schema.TypeString,
-							Optional:         true,
-							DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
-						},
-						"public_ip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"vpcep_endpoint": { // none query API
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"endpoint_with_dns_name": { // auto create private domain name
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"whitelist": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
-			"kibana_public_access": {
-				Type:         schema.TypeList,
-				Optional:     true,
-				MaxItems:     1,
-				RequiredWith: []string{"password"},
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"bandwidth": { // Mbit/s
-							Type:     schema.TypeInt,
-							Required: true,
-						},
-						"whitelist_enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"whitelist": {
-							Type:             schema.TypeString,
-							DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
-							Optional:         true,
-						},
-						"public_ip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"tags": common.TagsSchema(),
-			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			// charging_mode, period_unit and period only support changing post-paid to pre-paid billing mode.
-			"charging_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid", "postPaid",
-				}, false),
-			},
-			"period_unit": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				RequiredWith: []string{"period"},
-				ValidateFunc: validation.StringInSlice([]string{
-					"month", "year",
-				}, false),
-			},
-			"period": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				RequiredWith: []string{"period_unit"},
-			},
-			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
-			"expect_node_num": {
-				Type:       schema.TypeInt,
-				Optional:   true,
-				Deprecated: "please use ess_node_config.instance_number instead",
-				Computed:   true,
-			},
-			"node_config": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				Deprecated:    "please use ess_node_config instead",
-				ConflictsWith: []string{"master_node_config", "client_node_config", "cold_node_config", "availability_zone"},
-				MaxItems:      1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"flavor": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"volume": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"size": {
-										Type:     schema.TypeInt,
-										Required: true,
-									},
-									"volume_type": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-								},
-							},
-						},
-						"network_info": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"security_group_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-									"subnet_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-									"vpc_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-								},
-							},
-						},
-						"availability_zone": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-					},
-				},
-			},
-			"nodes": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"availability_zone": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"spec_code": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"ip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"resource_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"endpoint": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"vpcep_endpoint_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"vpcep_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"bandwidth_resource_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"is_period": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"backup_available": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"disk_encrypted": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"created": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "schema: Deprecated; use created_at instead",
-			},
-			"enable_force_new": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
-				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
-			},
-		},
+		Schema: cssClusterSchema,
 	}
 }
 
