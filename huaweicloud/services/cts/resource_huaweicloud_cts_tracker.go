@@ -124,6 +124,38 @@ func ResourceCTSTracker() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"create_time": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"detail": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"domain_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"stream_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"log_group_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"log_topic_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_authorized_bucket": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -304,6 +336,14 @@ func resourceCTSTrackerRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("type", utils.PathSearch("tracker_type", ctsTracker, nil)),
 		d.Set("status", status),
 		d.Set("enabled", status == "enabled"),
+		d.Set("create_time", utils.PathSearch("create_time", ctsTracker, nil)),
+		d.Set("detail", utils.PathSearch("detail", ctsTracker, nil)),
+		d.Set("domain_id", utils.PathSearch("domain_id", ctsTracker, nil)),
+		d.Set("group_id", utils.PathSearch("group_id", ctsTracker, nil)),
+		d.Set("stream_id", utils.PathSearch("stream_id", ctsTracker, nil)),
+		d.Set("log_group_name", utils.PathSearch("lts.log_group_name", ctsTracker, nil)),
+		d.Set("log_topic_name", utils.PathSearch("lts.log_topic_name", ctsTracker, nil)),
+		d.Set("is_authorized_bucket", utils.PathSearch("obs_info.is_authorized_bucket", ctsTracker, false)),
 	)
 
 	if bucketName != "" {
