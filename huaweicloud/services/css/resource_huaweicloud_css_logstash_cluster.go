@@ -331,6 +331,7 @@ func buildlogstashClusterCreateParameters(d *schema.ResourceData, conf *config.C
 				"size":        d.Get("node_config.0.volume.0.size"),
 				"volume_type": d.Get("node_config.0.volume.0.volume_type"),
 			},
+			"availability_zone": utils.ValueIgnoreEmpty(d.Get("availability_zone")),
 		},
 		"instanceNum": d.Get("node_config.0.instance_number"),
 	}
