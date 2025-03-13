@@ -53,6 +53,8 @@ func TestAccPublicSnatRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(rName, "floating_ip_id", "huaweicloud_vpc_eip.test.0", "id"),
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttr(rName, "freezed_ip_address", ""),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
 				),
 			},
 			{

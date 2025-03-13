@@ -124,6 +124,16 @@ func ResourcePublicSnatRule() *schema.Resource {
 				Computed:    true,
 				Description: "The status of the SNAT rule.",
 			},
+			"freezed_ip_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The frozen EIP associated with the SNAT rule.",
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The creation time of the SNAT rule.",
+			},
 
 			// deprecated
 			"network_id": {
@@ -241,6 +251,8 @@ func resourcePublicSnatRuleRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("cidr", resp.Cidr),
 		d.Set("status", resp.Status),
 		d.Set("description", resp.Description),
+		d.Set("freezed_ip_address", resp.FreezedIpAddress),
+		d.Set("created_at", resp.CreatedAt),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving public SNAT rule fields: %s", err)
