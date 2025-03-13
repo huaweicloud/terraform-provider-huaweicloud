@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_gateways"
-description: ""
+description: |-
+  Use this data source to get the list of NAT gateways.
 ---
 
 # huaweicloud_nat_gateways
@@ -115,6 +116,6 @@ The `session_conf` block supports:
 
 * `udp_session_expire_time` - The UDP session expiration time, in seconds.
 
-* `icpm_session_expire_time` - The ICPM session expiration time, in seconds.
+* `icmp_session_expire_time` - The ICMP session expiration time, in seconds.
 
 * `tcp_time_wait_time` - The duration of TIME_WAIT state when TCP connection is closed, in seconds.

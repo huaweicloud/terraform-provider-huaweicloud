@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product NAT
-// ---------------------------------------------------------------
-
 package nat
 
 import (
@@ -153,10 +148,10 @@ func gatewayPublicGatewaysSchema() *schema.Resource {
 							Computed:    true,
 							Description: "The UDP session expiration time, in seconds.",
 						},
-						"icpm_session_expire_time": {
+						"icmp_session_expire_time": {
 							Type:        schema.TypeInt,
 							Computed:    true,
-							Description: "The ICPM session expiration time, in seconds.",
+							Description: "The ICMP session expiration time, in seconds.",
 						},
 						"tcp_time_wait_time": {
 							Type:        schema.TypeInt,
@@ -287,7 +282,7 @@ func flattenSessionConfig(sessionConfig interface{}) []map[string]interface{} {
 		{
 			"tcp_session_expire_time":  utils.PathSearch("tcp_session_expire_time", sessionConfig, nil),
 			"udp_session_expire_time":  utils.PathSearch("udp_session_expire_time", sessionConfig, nil),
-			"icpm_session_expire_time": utils.PathSearch("icpm_session_expire_time", sessionConfig, nil),
+			"icmp_session_expire_time": utils.PathSearch("icmp_session_expire_time", sessionConfig, nil),
 			"tcp_time_wait_time":       utils.PathSearch("tcp_time_wait_time", sessionConfig, nil),
 		},
 	}
