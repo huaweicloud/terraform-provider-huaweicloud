@@ -94,13 +94,17 @@ func ResourceDeviceAsyncCommand() *schema.Resource {
 }
 
 func buildDeviceAsyncCommandBodyParams(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
+	asyncCommandParams := map[string]interface{}{
 		"service_id":    utils.ValueIgnoreEmpty(d.Get("service_id")),
 		"command_name":  utils.ValueIgnoreEmpty(d.Get("name")),
-		"paras":         utils.ValueIgnoreEmpty(d.Get("paras")),
 		"expire_time":   utils.ValueIgnoreEmpty(d.Get("expire_time")),
 		"send_strategy": d.Get("send_strategy"),
 	}
+
+	asyncCommandParams = utils.RemoveNil(asyncCommandParams)
+	asyncCommandParams["paras"] = d.Get("paras")
+
+	return asyncCommandParams
 }
 
 func resourceDeviceAsyncCommandCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -123,7 +127,7 @@ func resourceDeviceAsyncCommandCreate(ctx context.Context, d *schema.ResourceDat
 
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildDeviceAsyncCommandBodyParams(d)),
+		JSONBody:         buildDeviceAsyncCommandBodyParams(d),
 	}
 
 	resp, err := client.Request("POST", createPath, &createOpt)
