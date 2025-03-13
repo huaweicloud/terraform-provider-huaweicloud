@@ -161,6 +161,11 @@ func DataSourceNotifications() *schema.Resource {
 							Computed:    true,
 							Description: "The creation time of the CTS key event notification.",
 						},
+						"agency_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The cloud service agency name.",
+						},
 					},
 				},
 				Description: "All CTS key event notifications that match the filter parameters.",
@@ -265,11 +270,12 @@ func flattenAllNotifications(d *schema.ResourceData, notifications []interface{}
 		createTime := utils.PathSearch("create_time", notification, float64(0)).(float64)
 
 		notificationMap := map[string]interface{}{
-			"id":         actualNotificationId,
-			"name":       name,
-			"topic_id":   actualTopicId,
-			"filter":     flattenNotificationFilter(filter),
-			"created_at": utils.FormatTimeStampRFC3339(int64(createTime)/1000, false),
+			"id":          actualNotificationId,
+			"name":        name,
+			"topic_id":    actualTopicId,
+			"filter":      flattenNotificationFilter(filter),
+			"created_at":  utils.FormatTimeStampRFC3339(int64(createTime)/1000, false),
+			"agency_name": utils.PathSearch("agency_name", notification, nil),
 		}
 
 		operations := utils.PathSearch("operations", notification, make([]interface{}, 0)).([]interface{})

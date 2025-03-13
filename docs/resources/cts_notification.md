@@ -135,6 +135,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The notification status, the value can be **enabled** or **disabled**.
 
+* `created_at` - The creation time of the notification.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
