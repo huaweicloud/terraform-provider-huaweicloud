@@ -53,19 +53,14 @@ resource "huaweicloud_rds_instance" "test" {
 }
 
 resource "huaweicloud_rds_pg_account" "test" {
-  count = 2
+  count = 4
 
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s_${count.index}"
-  password    = "Test@123456789"
+  password    = "Test@159357"
 }
 
 resource "huaweicloud_rds_pg_database" "test" {
-  depends_on = [
-    huaweicloud_rds_pg_account.test[0],
-    huaweicloud_rds_pg_account.test[1],
-  ]
-
   instance_id   = huaweicloud_rds_instance.test.id
   name          = "%[2]s"
   owner         = "root"
@@ -120,12 +115,12 @@ resource "huaweicloud_rds_pg_database_privilege" "test" {
   db_name     = huaweicloud_rds_pg_database.test.name
 
   users {
-    name        = huaweicloud_rds_pg_account.test[0].name
+    name        = huaweicloud_rds_pg_account.test[2].name
     readonly    = false
     schema_name = "public"
   }
   users {
-    name        = huaweicloud_rds_pg_account.test[1].name
+    name        = huaweicloud_rds_pg_account.test[3].name
     readonly    = true
     schema_name = "public"
   }
