@@ -74,6 +74,11 @@ func resourceNodeExtendParamsSchema(conflictList []string) *schema.Schema {
 					Optional: true,
 					ForceNew: true,
 				},
+				"security_reinforcement_type": {
+					Type:     schema.TypeString,
+					Optional: true,
+					ForceNew: true,
+				},
 				"market_type": {
 					Type:     schema.TypeString,
 					Optional: true,
@@ -148,18 +153,19 @@ func buildResourceNodeExtendParams(extendParamsRaw []interface{}) map[string]int
 
 	if extendParams, ok := extendParamsRaw[0].(map[string]interface{}); ok {
 		res := map[string]interface{}{
-			"maxPods":               utils.ValueIgnoreEmpty(extendParams["max_pods"]),
-			"dockerBaseSize":        utils.ValueIgnoreEmpty(extendParams["docker_base_size"]),
-			"alpha.cce/preInstall":  utils.ValueIgnoreEmpty(utils.TryBase64EncodeString(extendParams["preinstall"].(string))),
-			"alpha.cce/postInstall": utils.ValueIgnoreEmpty(utils.TryBase64EncodeString(extendParams["postinstall"].(string))),
-			"alpha.cce/NodeImageID": utils.ValueIgnoreEmpty(extendParams["node_image_id"]),
-			"nicMultiqueue":         utils.ValueIgnoreEmpty(extendParams["node_multi_queue"]),
-			"nicThreshold":          utils.ValueIgnoreEmpty(extendParams["nic_threshold"]),
-			"agency_name":           utils.ValueIgnoreEmpty(extendParams["agency_name"]),
-			"kubeReservedMem":       utils.ValueIgnoreEmpty(extendParams["kube_reserved_mem"]),
-			"systemReservedMem":     utils.ValueIgnoreEmpty(extendParams["system_reserved_mem"]),
-			"marketType":            utils.ValueIgnoreEmpty(extendParams["market_type"]),
-			"spotPrice":             utils.ValueIgnoreEmpty(extendParams["spot_price"]),
+			"maxPods":                   utils.ValueIgnoreEmpty(extendParams["max_pods"]),
+			"dockerBaseSize":            utils.ValueIgnoreEmpty(extendParams["docker_base_size"]),
+			"alpha.cce/preInstall":      utils.ValueIgnoreEmpty(utils.TryBase64EncodeString(extendParams["preinstall"].(string))),
+			"alpha.cce/postInstall":     utils.ValueIgnoreEmpty(utils.TryBase64EncodeString(extendParams["postinstall"].(string))),
+			"alpha.cce/NodeImageID":     utils.ValueIgnoreEmpty(extendParams["node_image_id"]),
+			"nicMultiqueue":             utils.ValueIgnoreEmpty(extendParams["node_multi_queue"]),
+			"nicThreshold":              utils.ValueIgnoreEmpty(extendParams["nic_threshold"]),
+			"agency_name":               utils.ValueIgnoreEmpty(extendParams["agency_name"]),
+			"kubeReservedMem":           utils.ValueIgnoreEmpty(extendParams["kube_reserved_mem"]),
+			"systemReservedMem":         utils.ValueIgnoreEmpty(extendParams["system_reserved_mem"]),
+			"marketType":                utils.ValueIgnoreEmpty(extendParams["market_type"]),
+			"spotPrice":                 utils.ValueIgnoreEmpty(extendParams["spot_price"]),
+			"securityReinforcementType": utils.ValueIgnoreEmpty(extendParams["security_reinforcement_type"]),
 		}
 
 		return res
