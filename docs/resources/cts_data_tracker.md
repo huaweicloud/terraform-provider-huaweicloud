@@ -73,6 +73,14 @@ In addition to all arguments above, the following attributes are exported:
 * `transfer_enabled` - Whether traces will be transferred.
 * `status` - The tracker status, the value can be **enabled**, **disabled** or **error**.
 * `agency_name` - The cloud service delegation name.
+* `create_time` - The creation time of the tracker.
+* `detail` - It indicates the cause of the abnormal status.
+* `domain_id` - The Account ID.
+* `group_id` - The LTS log group ID.
+* `stream_id` - The LTS log stream ID.
+* `log_group_name` - The name of the log group that CTS creates in LTS.
+* `log_topic_name` - The name of the log topic that CTS creates in LTS.
+* `is_authorized_bucket` - Whether CTS has been granted permissions to perform operations on the OBS bucket.
 
 ## Timeouts
 

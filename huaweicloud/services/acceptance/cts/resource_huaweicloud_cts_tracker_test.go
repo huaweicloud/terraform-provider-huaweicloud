@@ -36,6 +36,12 @@ func TestAccCTSTracker_keepTracker(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "is_sort_by_service", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrSet(resourceName, "agency_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
+					resource.TestCheckResourceAttrSet(resourceName, "group_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "stream_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "log_group_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "log_topic_name"),
 				),
 			},
 			{
