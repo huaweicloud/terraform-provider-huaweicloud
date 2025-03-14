@@ -1580,13 +1580,6 @@ func TestAccPreCheckCCConnectionRouteRegionName(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckCtsTimeRange(t *testing.T) {
-	if HW_CTS_START_TIME == "" || HW_CTS_END_TIME == "" {
-		t.Skip("HW_CTS_START_TIME and HW_CTS_END_TIME must be set for CTS acceptance tests")
-	}
-}
-
-// lintignore:AT003
 func TestAccPreCheckWorkspaceADDomainNames(t *testing.T) {
 	if len(strings.Split(HW_WORKSPACE_AD_DOMAIN_NAMES, ",")) != 2 {
 		t.Skip(`The Workspace AD service need domain name configurations for both master and standby servers, plesse config them in the

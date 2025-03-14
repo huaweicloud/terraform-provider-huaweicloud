@@ -129,6 +129,10 @@ The `traces` block supports:
 
 * `trace_name` - The trace name.
 
+* `read_only` - Whether a user request is read-only.
+
+* `operation_id` - The operation ID of the trace.
+
 <a name="traces_user_struct"></a>
 The `user` block supports:
 
