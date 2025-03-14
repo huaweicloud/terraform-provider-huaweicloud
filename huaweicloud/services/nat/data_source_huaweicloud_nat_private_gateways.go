@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product NAT
-// ---------------------------------------------------------------
-
 package nat
 
 import (
@@ -68,6 +63,12 @@ func DataSourcePrivateGateways() *schema.Resource {
 				Optional:    true,
 				Description: "The ID of the enterprise project to which the private NAT gateways belong.",
 			},
+			"description": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The description of the private NAT gateway.",
+			},
 			"tags": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -131,6 +132,16 @@ func gatewayGatewaysSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The ID of the subnet to which the private NAT gateway belongs.",
+			},
+			"ngport_ip_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The IP address of the NG port of the private NAT gateway.",
+			},
+			"rule_max": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The maximum number of rules of the private NAT gateway.",
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
@@ -219,6 +230,8 @@ func flattenListGatewaysResponseBodyGateways(resp []interface{}) []interface{} {
 			"updated_at":            utils.PathSearch("updated_at", v, nil),
 			"vpc_id":                utils.PathSearch("downlink_vpcs[0].vpc_id", v, nil),
 			"subnet_id":             utils.PathSearch("downlink_vpcs[0].virsubnet_id", v, nil),
+			"ngport_ip_address":     utils.PathSearch("downlink_vpcs[0].ngport_ip_address", v, nil),
+			"rule_max":              utils.PathSearch("rule_max", v, nil),
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
 			"tags":                  utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
 		})
@@ -248,6 +261,7 @@ func filterListGatewaysResponseByTags(all []interface{}, d *schema.ResourceData)
 func buildListGatewaysQueryParams(d *schema.ResourceData, cfg *config.Config) string {
 	res := ""
 	epsID := cfg.GetEnterpriseProjectID(d)
+	descriptionList := d.Get("description").([]interface{})
 
 	if v, ok := d.GetOk("gateway_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
@@ -266,6 +280,11 @@ func buildListGatewaysQueryParams(d *schema.ResourceData, cfg *config.Config) st
 	}
 	if v, ok := d.GetOk("subnet_id"); ok {
 		res = fmt.Sprintf("%s&virsubnet_id=%v", res, v)
+	}
+	if len(descriptionList) > 0 {
+		for _, v := range descriptionList {
+			res = fmt.Sprintf("%s&description=%v", res, v)
+		}
 	}
 	if epsID != "" {
 		res = fmt.Sprintf("%s&enterprise_project_id=%s", res, epsID)

@@ -53,6 +53,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the private NAT
   gateways belong.
 
+* `description` - (Optional, List) Specifies the description of the private NAT gateway.  
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate the private NAT gateways.
 
 ## Attribute Reference
@@ -96,6 +98,10 @@ The `gateways` block supports:
 * `vpc_id` - The ID of the VPC to which the private NAT gateway belongs.
 
 * `subnet_id` - The ID of the subnet to which the private NAT gateway belongs.
+
+* `ngport_ip_address` - The IP address of the NG port of the private NAT gateway.
+
+* `rule_max` - The maximum number of rules of the private NAT gateway.
 
 * `enterprise_project_id` - The ID of the enterprise project to which the private NAT gateway belongs.
 
