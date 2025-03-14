@@ -71,6 +71,7 @@ resource "huaweicloud_cdn_domain" "test" {
 variable "domain_name" {}
 variable "origin_server" {}
 variable "ip_or_domain" {}
+variable "ca_certificate_body" {}
 
 resource "huaweicloud_cdn_domain" "test" {
   name         = var.domain_name
@@ -167,6 +168,40 @@ resource "huaweicloud_cdn_domain" "test" {
       ua_list = [
         "t1*",
       ]
+    }
+
+    sni {
+      enabled     = true
+      server_name = "backup.all.cn.com"
+    }
+
+    request_url_rewrite {
+      execution_mode = "break"
+      redirect_url   = "/test/index.html"
+
+      condition {
+        match_type  = "catalog"
+        match_value = "/test/folder/1"
+        priority    = 10
+      }
+    }
+
+    browser_cache_rules {
+      cache_type = "ttl"
+      ttl        = 30
+      ttl_unit   = "m"
+
+      condition {
+        match_type  = "file_extension"
+        match_value = ".jpg,.zip,.gz"
+        priority    = 2
+      }
+    }
+
+    client_cert {
+      enabled      = true
+      hosts        = "demo1.com.cn|demo2.com.cn|demo3.com.cn"
+      trusted_cert = var.ca_certificate_body
     }
     
     remote_auth {
@@ -453,12 +488,32 @@ The `configs` block support:
 
   -> This field can only be used when the HTTPS certificate is enabled.
 
+* `sni` - (Optional, List) Specifies the origin SNI settings. If your origin server is bound to multiple domains and
+  CDN visits the origin server using HTTPS, set the Server Name Indication (SNI) to specify the domain to be accessed.
+  The [sni](#sni_object) structure is documented below.
+
+  -> 1. The origin method must be HTTPS or the protocol can be configured for origin SNI.
+  <br/>2. When the service type is whole site acceleration, source SNI configuration is not supported.
+  <br/>3. Domain names with special configurations in the backend do not support origin SNI configuration.
+  <br/>4. CDN node carries SNI information by default when a CDN node uses the HTTPS protocol to return to the source.
+  If you do not configure the origin SNI, the origin HOST will be used as the SNI address by default.
+
+* `request_url_rewrite` - (Optional, List) Specifies the request url rewrite settings. Set access URL rewrite rules to
+  redirect user requests to the URLs of cached resources.
+  The [request_url_rewrite](#request_url_rewrite_object) structure is documented below.
+
+* `browser_cache_rules` - (Optional, List) Specifies the browser cache expiration settings.
+  The [browser_cache_rules](#browser_cache_rules_object) structure is documented below.
+
 * `access_area_filter` - (Optional, List) Specifies the geographic access control rules.
   The [access_area_filter](#access_area_filter_object) structure is documented below.
 
   -> 1. Before using this field, you need to submit a work order to activate this function.
   <br/>2. CDN periodically updates the IP address library. The locations of IP address that are not in the library
   cannot be identified. CDN allows requests from such IP addresses and returns resources to the users.
+
+* `client_cert` - (Optional, List) Specifies the client certificate configuration.
+  The [client_cert](#client_cert_object) structure is documented below.
 
 <a name="https_settings_object"></a>
 The `https_settings` block support:
@@ -907,6 +962,110 @@ The `hsts` block support:
 * `include_subdomains` - (Optional, String) Specifies whether subdomain names are included.
   The options are **on** (included) and **off** (not included). This field is required when enable HSTS settings.
 
+<a name="sni_object"></a>
+The `sni` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable SNI settings.
+
+* `server_name` - (Optional, String) Specifies the origin server domain name that the CDN node needs to access when
+  returning to the source.
+
+  -> 1. This file is required when enable SNI settings. <br/>2. Wildcard domain names are not supported.
+  Only digital, "-", ".", and uppercase and lowercase English characters are supported.
+
+<a name="request_url_rewrite_object"></a>
+The `request_url_rewrite` block support:
+
+* `condition` - (Required, List) Specifies matching condition.
+  The [condition](#request_url_rewrite_condition_object) structure is documented below.
+
+* `redirect_url` - (Required, String) Specifies the redirect URL. The redirected URL starts with a forward slash (/)
+  and does not contain the http:// header or domain name. Example: **/test/index.html**.
+
+* `execution_mode` - (Required, String) Specifies the execution mode. Valid values are:
+  + **redirect**: If the requested URL matches the current rule, the request will be redirected to the target path.
+    After the current rule is executed, if there are other configured rules, the remaining rules will continue to be matched.
+  + **break**: If the requested URL matches the current rule, the request will be rewritten to the target path.
+    After the current rule is executed, if there are other configured rules, the remaining rules will no longer be matched.
+    The redirection host and redirection status code are not supported at this time, and the status code `200` is returned.
+
+* `redirect_status_code` - (Optional, Int) Specifies the redirect status code. Supports `301`, `302`, `303`, and `307`.
+
+* `redirect_host` - (Optional, String) Specifies the domain name to redirect client requests.
+
+  -> 1. The current domain name will be used by default.
+  <br/>2. This field supports a character length of `1`-`255` and must start with http:// or https://.
+
+<a name="request_url_rewrite_condition_object"></a>
+The `condition` block support:
+
+* `match_type` - (Required, String) Specifies the match type. Valid values are:
+  + **catalog**: The files in the specified directory need to execute the access URL rewriting rules.
+  + **full_path**: The file under a certain full path needs to execute the access URL rewriting rule.
+
+* `priority` - (Required, Int) Specifies the access URL rewrite rule priority. The value ranges from `1` to `100`.
+  The larger the value, the higher the priority.
+  The priority setting is unique. It does not support setting the same priority for multiple rules.
+
+* `match_value` - (Optional, String) Specifies the match value.
+  + The field value is directory path when `match_type` is set to **catalog**. The value requires "/" as the first
+    character and "," as the separator, such as **/test/folder01,/test/folder02**.
+    The total number of directory paths entered should not exceed `20`.
+  + The field value is full path when `match_type` is set to **full_path**. The value requires "/" as the first
+    character, and supports matching specific files in the specified directory, or files with wildcards "*".
+    A single full-path cache rule only supports configuring one full path, such as **/test/index.html** or ***/test/*.jpg**.
+
+<a name="browser_cache_rules_object"></a>
+The `browser_cache_rules` block support:
+
+* `condition` - (Required, List) Specifies matching condition.
+  The [condition](#browser_cache_rules_condition_object) structure is documented below.
+
+* `cache_type` - (Required, String) Specifies the cache validation type. Valid values are:
+  + **follow_origin**: Follow the origin site's cache policy, i.e. the Cache-Control header settings.
+  + **ttl**: The browser cache follows the expiration time set by the current rules.
+  + **never**: The browser does not cache resources.
+
+* `ttl` - (Optional, Int) Specifies the cache expiration time, maximum supported is `365` days.
+
+  -> This field is required when the `cache_type` is set to **ttl**.
+
+* `ttl_unit` - (Optional, String) Specifies the cache expiration time unit. Valid values are:
+  + **s**: seconds.
+  + **m**: minutes.
+  + **h**: hours.
+  + **d**: days.
+
+  -> This field is required when the `cache_type` is set to **ttl**.
+
+<a name="browser_cache_rules_condition_object"></a>
+The `condition` block support:
+
+* `match_type` - (Required, String) Specifies the match type. Valid values are:
+  + **all**: Match all files.
+  + **file_extension**: Match by file suffix.
+  + **catalog**: Match by directory.
+  + **full_path**: Full path matching.
+  + **home_page**: Match by homepage.
+
+* `priority` - (Required, Int) Specifies the priority of the browser cache. The value ranges from `1` to `100`.
+  The larger the value, the higher the priority.
+  The priority setting is unique and does not support setting the same priority for multiple rules.
+
+* `match_value` - (Optional, String) Specifies the cache match settings.
+  + When `match_type` is set to **all**, this field does not need to be configured.
+  + When `match_type` is set to **file_extension**, this field value is the file suffix. The first character of the
+    value is "." and separated by "," such as **.jpg,.zip,.exe**. The total number of file name suffixes entered should
+    not exceed `20`.
+  + When `match_type` is set to **catalog**, the value of this field is a directory. The value must start with "/" and
+    be separated by "," such as **/test/folder01,/test/folder02**. The total number of directory paths entered must not
+    exceed `20`.
+  + When `match_type` is set to **full_path**, the value of this field is a full path. The value must start with "/".
+    It supports matching specific files in the specified directory or files with a wildcard "*".
+    The position of "*" must be after the last "/" and cannot end with "*". Only one full path can be configured in a
+    single full path cache rule, such as **/test/index.html** or ***/test/*.jpg**.
+  + When `match_type` is set to **home_page**, this field does not need to be configured.
+
 <a name="access_area_filter_object"></a>
 The `access_area_filter` block support:
 
@@ -933,6 +1092,18 @@ The `access_area_filter` block support:
     for example, **/test/a.txt,/test/b.txt**. Up to `100` paths can be entered.
 
 * `exception_ip` - (Optional, String) Specifies the IP addresses exception in access control, separated by commas.
+
+<a name="client_cert_object"></a>
+The `client_cert` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable client cert settings.
+
+* `trusted_cert` - (Optional, String) Specifies the client CA certificate content, only supports PEM format.
+
+* `hosts` - (Optional, String) Specifies the domain name specified in the client CA certificate.
+
+  -> 1. CDN will allow all client requests that hold the CA certificate by default.
+  <br/>2. A maximum of `100` domain names can be configured. Multiple domain names can be separated by “,” or “|”.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
@@ -996,20 +1167,24 @@ In addition to all arguments above, the following attributes are exported:
 * `cname` - The CNAME of the acceleration domain name.
 
 * `domain_status` - The status of the acceleration domain name. The available values are
-  'online', 'offline', 'configuring', 'configure_failed', 'checking', 'check_failed' and 'deleting.'
+  **online**, **offline**, **configuring**, **configure_failed**, **checking**, **check_failed** and **deleting**.
 
-* `configs/https_settings/https_status` - The status of the https. The available values are 'on' and 'off'.
+* `configs/https_settings/https_status` - The status of the https. The available values are **on** and **off**.
 
-* `configs/https_settings/http2_status` - The status of the http 2.0. The available values are 'on' and 'off'.
+* `configs/https_settings/http2_status` - The status of the http 2.0. The available values are **on** and **off**.
 
-* `configs/url_signing/status` - The status of the url_signing. The available values are 'on' and 'off'.
+* `configs/sni/status` - The status of the SNI. The available values are **on** and **off**.
+
+* `configs/client_cert/status` - The status of the client cert. The available values are **on** and **off**.
+
+* `configs/url_signing/status` - The status of the url_signing. The available values are **on** and **off**.
 
 * `configs/url_signing/inherit_config/status` - The status of the authentication inheritance.
   The valid values are **on** and **off**.
 
-* `configs/force_redirect/status` - The status of the force redirect. The available values are 'on' and 'off'.
+* `configs/force_redirect/status` - The status of the force redirect. The available values are **on** and **off**.
 
-* `configs/compress/status` - The status of the compress. The available values are 'on' and 'off'.
+* `configs/compress/status` - The status of the compress. The available values are **on** and **off**.
 
 ## Timeouts
 

@@ -145,6 +145,7 @@ var (
 	HW_CCM_PRIVATE_CA_ID               = os.Getenv("HW_CCM_PRIVATE_CA_ID")
 	HW_CCM_SSL_CERTIFICATE_ID          = os.Getenv("HW_CCM_SSL_CERTIFICATE_ID")
 	HW_CCM_ENABLE_FLAG                 = os.Getenv("HW_CCM_ENABLE_FLAG")
+	HW_CCM_CA_CERTIFICATE_PATH         = os.Getenv("HW_CCM_CA_CERTIFICATE_PATH")
 
 	HW_CPH_OBS_OBJECT_PATH = os.Getenv("HW_CPH_OBS_OBJECT_PATH")
 	HW_CPH_OBS_BUCKET_NAME = os.Getenv("HW_CPH_OBS_BUCKET_NAME")
@@ -1500,6 +1501,13 @@ func TestAccPreCheckCCMPrivateCaID(t *testing.T) {
 func TestAccPreCheckCCMEnableFlag(t *testing.T) {
 	if HW_CCM_ENABLE_FLAG == "" {
 		t.Skip("Skip the CCM acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCCMCaCertificate(t *testing.T) {
+	if HW_CCM_CA_CERTIFICATE_PATH == "" {
+		t.Skip("HW_CCM_CA_CERTIFICATE_PATH must be set for acceptance test.")
 	}
 }
 
