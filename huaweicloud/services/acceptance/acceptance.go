@@ -341,6 +341,8 @@ var (
 	HW_IMS_BACKUP_ID = os.Getenv("HW_IMS_BACKUP_ID")
 	// The image file url in the OBS bucket
 	HW_IMS_IMAGE_URL = os.Getenv("HW_IMS_IMAGE_URL")
+	// The image metadata ID
+	HW_IMS_IMAGE_METADATA_ID = os.Getenv("HW_IMS_IMAGE_METADATA_ID")
 	// The shared backup ID wants to accept.
 	HW_SHARED_BACKUP_ID = os.Getenv("HW_SHARED_BACKUP_ID")
 
@@ -2980,5 +2982,12 @@ func TestAccPrecheckCphObsBucketName(t *testing.T) {
 func TestAccPrecheckSmnSubscribedTopicUrn(t *testing.T) {
 	if HW_SMN_SUBSCRIBED_TOPIC_URN == "" {
 		t.Skip("HW_SMN_SUBSCRIBED_TOPIC_URN must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckIMSImageMetadataID(t *testing.T) {
+	if HW_IMS_IMAGE_METADATA_ID == "" {
+		t.Skip("HW_IMS_IMAGE_METADATA_ID must be set for the acceptance test")
 	}
 }
