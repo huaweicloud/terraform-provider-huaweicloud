@@ -236,6 +236,7 @@ var (
 	HW_WORKSPACE_OU_NAME                           = os.Getenv("HW_WORKSPACE_OU_NAME")
 	HW_WORKSPACE_APP_FILE_NAME                     = os.Getenv("HW_WORKSPACE_APP_FILE_NAME")
 	HW_WORKSPACE_USER_NAMES                        = os.Getenv("HW_WORKSPACE_USER_NAMES")
+	HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID             = os.Getenv("HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID")
 
 	HW_FGS_AGENCY_NAME         = os.Getenv("HW_FGS_AGENCY_NAME")
 	HW_FGS_APP_AGENCY_NAME     = os.Getenv("HW_FGS_APP_AGENCY_NAME")
@@ -1631,6 +1632,13 @@ func TestAccPrecheckWorkspaceUserNames(t *testing.T) {
 func TestAccPreCheckWorkspaceOUName(t *testing.T) {
 	if HW_WORKSPACE_OU_NAME == "" {
 		t.Skip("HW_WORKSPACE_OU_NAME must be set for Workspace service acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkspaceDesktopPoolImageId(t *testing.T) {
+	if HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID == "" {
+		t.Skip("HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID must be set for Workspace desktop pool acceptance tests.")
 	}
 }
 
