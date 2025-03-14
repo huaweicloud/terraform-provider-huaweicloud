@@ -292,9 +292,10 @@ var (
 	HW_DSC_INSTANCE_ID    = os.Getenv("HW_DSC_INSTANCE_ID")
 	HW_DSC_ALARM_TOPIC_ID = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
 
-	HW_CES_START_TIME = os.Getenv("HW_CES_START_TIME")
-	HW_CES_END_TIME   = os.Getenv("HW_CES_END_TIME")
-	HW_CES_ALARM_RULE = os.Getenv("HW_CES_ALARM_RULE")
+	HW_CES_ALARM_TEMPLATE_ID = os.Getenv("HW_CES_ALARM_TEMPLATE_ID")
+	HW_CES_START_TIME        = os.Getenv("HW_CES_START_TIME")
+	HW_CES_END_TIME          = os.Getenv("HW_CES_END_TIME")
+	HW_CES_ALARM_RULE        = os.Getenv("HW_CES_ALARM_RULE")
 
 	// The CFW instance ID
 	HW_CFW_INSTANCE_ID               = os.Getenv("HW_CFW_INSTANCE_ID")
@@ -1719,6 +1720,13 @@ func TestAccPreCheckDCVirtualInterfaceID(t *testing.T) {
 func TestAccPreCheckCesTimeRange(t *testing.T) {
 	if HW_CES_START_TIME == "" || HW_CES_END_TIME == "" {
 		t.Skip("HW_CES_START_TIME and HW_CES_END_TIME must be set for CES acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCesAlarmTemplateAssociatedWithAlarmRules(t *testing.T) {
+	if HW_CES_ALARM_TEMPLATE_ID == "" {
+		t.Skip("HW_CES_ALARM_TEMPLATE_ID must be set for CES acceptance tests")
 	}
 }
 
