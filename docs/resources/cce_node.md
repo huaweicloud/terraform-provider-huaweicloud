@@ -323,7 +323,14 @@ The following arguments are supported:
 
 * `storage` - (Optional, List, ForceNew) Specifies the disk initialization management parameter.
   If omitted, disks are managed based on the DockerLVMConfigOverride parameter in extendParam.
-  This parameter is supported for clusters of v1.15.11 and later. Changing this parameter will create a new resource.
+  This parameter is supported for clusters of v1.15.11 and later.
+  If the node has both local and EVS disks attached,
+  this parameter must be specified, or it may result in unexpected disk partitions.
+  If you want to change the value range of a data disk to **20** to **32768**, this parameter must be specified.
+  If you want to use the shared disk space (with the runtime and Kubernetes partitions cancelled),
+  this parameter must be specified.
+  If you want to store system components in the system disk, this parameter must be specified.
+  Changing this parameter will create a new resource.
 
   + `selectors` - (Required, List, ForceNew) Specifies the disk selection.
     Matched disks are managed according to match labels and storage type. Structure is documented below.
@@ -452,6 +459,9 @@ The `extend_params` block supports:
 
 * `system_reserved_mem` - (Optional, Int, ForceNew) Specifies the reserved node memory, which is reserved
   value for system components. Changing this parameter will create a new resource.
+
+* `security_reinforcement_type` - (Optional, String, ForceNew) Specifies the security reinforcement type.
+  The value can be: **null** or **cybersecurity**. Changing this parameter will create a new resource.
 
 The `selectors` block supports:
 
