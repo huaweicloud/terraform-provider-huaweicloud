@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccDatasourceCTSNotifications_basic(t *testing.T) {
-	defaultDataSourceName := "data.huaweicloud_cts_notifications.test"
+	defaultDataSourceName := "data.huaweicloud_cts_notifications.filter_by_name"
 	dc := acceptance.InitDataSourceCheck(defaultDataSourceName)
 	name := acceptance.RandomAccResourceName()
 	baseConfig := testAccDatasourceCTSNotifications_base(name)
@@ -23,6 +23,7 @@ func TestAccDatasourceCTSNotifications_basic(t *testing.T) {
 				Config: testAccDatasourceCTSNotifications_basic(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(defaultDataSourceName, "notifications.0.agency_name", "cts_admin_trust"),
 					resource.TestCheckResourceAttrSet(defaultDataSourceName, "notifications.0.name"),
 					resource.TestCheckResourceAttrSet(defaultDataSourceName, "notifications.0.operation_type"),
 					resource.TestCheckResourceAttrSet(defaultDataSourceName, "notifications.0.status"),
@@ -49,6 +50,7 @@ resource "huaweicloud_cts_notification" "notify" {
   name           = "%[1]s_1"
   operation_type = "complete"
   smn_topic      = huaweicloud_smn_topic.topic_1.id
+  agency_name    = "cts_admin_trust"
   
   filter {
     condition = "AND"

@@ -75,6 +75,8 @@ The `notifications` block supports:
 
 * `created_at` - The creation time of the CTS key event notification.
 
+* `agency_name` - The cloud service agency name.
+
 <a name="Notifications_Operations"></a>
 The `operations` block supports:
 

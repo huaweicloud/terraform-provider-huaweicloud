@@ -140,6 +140,10 @@ func ResourceCTSNotification() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -332,6 +336,7 @@ func resourceCTSNotificationRead(_ context.Context, d *schema.ResourceData, meta
 	operations := utils.PathSearch("operations", notification, make([]interface{}, 0)).([]interface{})
 	notifyUserList := utils.PathSearch("notify_user_list", notification, make([]interface{}, 0)).([]interface{})
 	status := utils.PathSearch("status", notification, "").(string)
+	createTime := utils.PathSearch("create_time", notification, float64(0)).(float64)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", name),
@@ -344,6 +349,7 @@ func resourceCTSNotificationRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("operation_type", utils.PathSearch("operation_type", notification, nil)),
 		d.Set("status", status),
 		d.Set("enabled", status == "enabled"),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(createTime)/1000, false)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

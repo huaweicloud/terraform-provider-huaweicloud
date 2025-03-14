@@ -78,6 +78,7 @@ func TestAccCTSNotification_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "agency_name", "cts_admin_trust"),
 					resource.TestCheckResourceAttrPair(resourceName, "smn_topic",
 						"huaweicloud_smn_topic.topic_1", "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 				),
 			},
 			{
