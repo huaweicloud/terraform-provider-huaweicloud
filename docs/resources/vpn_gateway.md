@@ -245,6 +245,14 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) The enterprise project ID.
 
+* `certificate` - (Optional, List) The GM certificate of the **GM** flavor gateway.
+  The [object](#Gateway_certificate) structure is documented below.
+
+* `tags` - (Optional, Map) Specifies the tags of the VPN gateway.
+
+* `delete_eip_on_termination` - (Optional, Bool) Whether to delete the EIP when the VPN gateway is deleted.
+  Defaults to **true**.
+
 <a name="Gateway_CreateRequestEip"></a>
 The `eip1` or `eip2` block supports:
 
@@ -274,15 +282,7 @@ The `eip1` or `eip2` block supports:
   ~> You can use `id` to specify an existing EIP or use `type`, `bandwidth_name`, `bandwidth_size` and `charge_mode` to
     create a new EIP.
 
-* `certificate` - (Optional, List) The GM certificate of the **GM** flavor gateway.
-  The [object](#Gateway_certificate_attr) structure is documented below.
-
-* `tags` - (Optional, Map) Specifies the tags of the VPN gateway.
-
-* `delete_eip_on_termination` - (Optional, Bool) Whether to delete the EIP when the VPN gateway is deleted.
-  Defaults to **true**.
-
-<a name="Gateway_certificate_attr"></a>
+<a name="Gateway_certificate"></a>
 The `certificate` block supports:
 
 * `name` - (Required, String) The name of the gateway certificate.
@@ -321,6 +321,9 @@ In addition to all arguments above, the following attributes are exported:
 * `eip2` - The master 2 IP in active-active VPN gateway or the slave IP in active-standby VPN gateway.
   The [object](#Gateway_GetResponseEip) structure is documented below.
 
+* `certificate` - The GM certificate of the **GM** flavor gateway.
+  The [object](#Gateway_certificate_attr) structure is documented below.
+
 <a name="Gateway_GetResponseEip"></a>
 The `eip1` or `eip2` block supports:
 
@@ -329,9 +332,6 @@ The `eip1` or `eip2` block supports:
 * `ip_address` - The public IP address.
 
 * `ip_version` - The public IP version.
-
-* `certificate` - The GM certificate of the **GM** flavor gateway.
-  The [object](#Gateway_certificate_attr) structure is documented below.
 
 <a name="Gateway_certificate_attr"></a>
 The `certificate` block supports:
