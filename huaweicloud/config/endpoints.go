@@ -219,6 +219,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "CCI",
 	},
+	"cciv2": {
+		Name:             "cci",
+		Version:          "apis/cci/v2",
+		WithOutProjectID: true,
+		Product:          "CCI",
+	},
 	"cciv1_bata": {
 		Name:             "cci",
 		Version:          "apis/networking.cci.io/v1beta1",
