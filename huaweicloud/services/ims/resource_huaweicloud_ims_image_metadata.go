@@ -25,7 +25,6 @@ var imageMetadataNonUpdatableParams = []string{"__os_version", "visibility", "na
 // @API IMS POST /v2/images
 // @API IMS GET /v2/cloudimages
 // @API IMS DELETE /v2/images/{image_id}
-// @API IMS GET /v1/{project_id}/jobs/{job_id}
 func ResourceImageMetadata() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceImageMetadataCreate,
