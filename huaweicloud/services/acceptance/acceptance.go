@@ -307,6 +307,7 @@ var (
 	HW_CFW_PREDEFINED_ADDRESS_GROUP2 = os.Getenv("HW_CFW_PREDEFINED_ADDRESS_GROUP2")
 	HW_CFW_IPS_CUSTOM_RULE           = os.Getenv("HW_CFW_IPS_CUSTOM_RULE")
 
+	HW_CTS_KMS_ID     = os.Getenv("HW_CTS_KMS_ID")
 	HW_CTS_START_TIME = os.Getenv("HW_CTS_START_TIME")
 	HW_CTS_END_TIME   = os.Getenv("HW_CTS_END_TIME")
 
@@ -1576,6 +1577,13 @@ func TestAccPreCheckCCConnectionRouteProjectID(t *testing.T) {
 func TestAccPreCheckCCConnectionRouteRegionName(t *testing.T) {
 	if HW_REGION_NAME_1 == "" || HW_REGION_NAME_2 == "" {
 		t.Skip("HW_REGION_NAME_1, HW_REGION_NAME_2 must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCtsKmsId(t *testing.T) {
+	if HW_CTS_KMS_ID == "" {
+		t.Skip("HW_CTS_KMS_ID must be set for CTS acceptance tests")
 	}
 }
 
