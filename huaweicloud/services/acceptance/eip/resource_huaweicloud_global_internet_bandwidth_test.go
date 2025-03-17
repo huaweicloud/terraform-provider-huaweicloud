@@ -93,6 +93,7 @@ func testAccInternetBandwidth_basic(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_global_eip_pools" "all" {
   access_site = "cn-north-beijing"
+  ip_version  = 4
 }
 
 resource "huaweicloud_global_internet_bandwidth" "test" {
@@ -114,6 +115,7 @@ func testAccInternetBandwidth_update(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_global_eip_pools" "all" {
   access_site = "cn-north-beijing"
+  ip_version  = 4
 }
 
 resource "huaweicloud_global_internet_bandwidth" "test" {
