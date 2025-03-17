@@ -1833,6 +1833,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_elb_l7rule":                       elb.ResourceL7RuleV3(),
 			"huaweicloud_elb_listener":                     elb.ResourceListenerV3(),
 			"huaweicloud_elb_loadbalancer":                 elb.ResourceLoadBalancerV3(),
+			"huaweicloud_elb_loadbalancer_copy":            elb.ResourceLoadBalancerCopy(),
 			"huaweicloud_elb_monitor":                      elb.ResourceMonitorV3(),
 			"huaweicloud_elb_ipgroup":                      elb.ResourceIpGroupV3(),
 			"huaweicloud_elb_pool":                         elb.ResourcePoolV3(),
