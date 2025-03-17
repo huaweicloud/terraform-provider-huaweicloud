@@ -2244,7 +2244,7 @@ func buildCdnDomainHTTPSOpts(rawHTTPS []interface{}) map[string]interface{} {
 	}
 
 	https := rawHTTPS[0].(map[string]interface{})
-	return map[string]interface{}{
+	rst := map[string]interface{}{
 		"https_status":         buildCdnDomainHTTPSStatusOpts(https["https_enabled"].(bool)),
 		"certificate_name":     utils.ValueIgnoreEmpty(https["certificate_name"]),
 		"certificate_value":    utils.ValueIgnoreEmpty(https["certificate_body"]),
@@ -2252,10 +2252,16 @@ func buildCdnDomainHTTPSOpts(rawHTTPS []interface{}) map[string]interface{} {
 		"certificate_source":   https["certificate_source"],
 		"scm_certificate_id":   utils.ValueIgnoreEmpty(https["scm_certificate_id"]),
 		"certificate_type":     utils.ValueIgnoreEmpty(https["certificate_type"]),
-		"http2_status":         utils.ValueIgnoreEmpty(buildCdnDomainHTTP2StatusOpts(https["http2_enabled"].(bool))),
 		"tls_version":          utils.ValueIgnoreEmpty(https["tls_version"]),
 		"ocsp_stapling_status": utils.ValueIgnoreEmpty(https["ocsp_stapling_status"]),
 	}
+
+	// The API restriction field "http2_status" is only configurable if HTTPS is enabled.
+	if https["https_enabled"].(bool) {
+		rst["http2_status"] = utils.ValueIgnoreEmpty(buildCdnDomainHTTP2StatusOpts(https["http2_enabled"].(bool)))
+	}
+
+	return rst
 }
 
 func buildCdnDomainOriginRequestHeaderOpts(rawOriginRequestHeader []interface{}) []interface{} {
