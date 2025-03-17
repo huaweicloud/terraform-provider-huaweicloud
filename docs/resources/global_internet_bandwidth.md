@@ -40,7 +40,14 @@ The following arguments are supported:
 * `access_site` - (Required, String, ForceNew) Specifies the access site name.
   Changing this creates a new resource.
 
-* `charge_mode` - (Required, String) Specifies the charge mode, for example, **95peak_guar**.
+* `charge_mode` - (Required, String) Specifies the charge mode.
+  Value can be as follows:
+  + **bandwidth**: billed by bandwidth
+  + **traffic**: billed by traffic
+  + **95peak_plus_1000**: billed by enhanced 95
+  + **95peak_bidirection**: billed by bidirectional traditional 95
+  + **95peak_guar**: billed by traditional 95 with guaranteed minimum
+  + **95peak_avr**: 95 peak average billing
 
 * `isp` - (Required, String, ForceNew) Specifies the internet service provider of the global internet bandwidth.
   Changing this creates a new resource.
