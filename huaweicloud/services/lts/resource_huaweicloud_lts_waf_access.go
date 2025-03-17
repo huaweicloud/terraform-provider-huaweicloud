@@ -59,6 +59,7 @@ func ResourceWAFAccess() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Computed:    true,
 				Description: `Specifies the enterprise project ID.`,
 			},
 		},
@@ -246,12 +247,8 @@ func buildDeleteWAFAccessBodyParams() map[string]interface{} {
 	}
 	return bodyParams
 }
-
 func resourceWAFAccessImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
 	[]*schema.ResourceData, error) {
-	// `0` means default enterprise project.
-	if d.Id() == "0" {
-		return []*schema.ResourceData{d}, nil
-	}
-	return []*schema.ResourceData{d}, d.Set("enterprise_project_id", d.Id())
+	mErr := multierror.Append(d.Set("enterprise_project_id", d.Id()))
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
