@@ -247,8 +247,17 @@ func buildDeleteWAFAccessBodyParams() map[string]interface{} {
 	}
 	return bodyParams
 }
+
 func resourceWAFAccessImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
 	[]*schema.ResourceData, error) {
-	mErr := multierror.Append(d.Set("enterprise_project_id", d.Id()))
+	var mErr *multierror.Error
+	importId := d.Id()
+	// `0` means default enterprise project.
+	// The non-default enterprise project ID format is a 32-bit UUID with hyphens.
+	// The resource ID format is a 32-bit UUID without hyphens.
+	if utils.IsUUIDWithHyphens(importId) || importId == "0" {
+		mErr = multierror.Append(d.Set("enterprise_project_id", d.Id()))
+	}
+
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

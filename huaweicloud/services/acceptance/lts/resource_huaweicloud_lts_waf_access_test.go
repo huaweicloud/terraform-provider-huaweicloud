@@ -108,6 +108,13 @@ func TestAccWAFAccess_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "lts_access_stream_id", ""),
 				),
 			},
+			// Use resource ID to import.
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Use enterprise project ID to import.
 			{
 				ResourceName:            rName,
 				ImportState:             true,
