@@ -10,11 +10,14 @@ description: |-
 
 Manages the function resource within HuaweiCloud.
 
-~> Since version `1.73.1`, the requests of the function resource will send these parameters:
-   <br>`enable_dynamic_memory`
-   <br>`is_stateful_function`
-   <br>`network_controller`
-   <br>For the regions that do not support this parameter, please use the lower version to deploy this resource.
+~> Since version `1.73.1`, the requests of the function resource will send these parameters:<br>
+   `enable_dynamic_memory`<br>
+   `is_stateful_function`<br>
+   `network_controller`<br>
+   Since version `1.74.0`, the requests of the function resource will send these parameters:<br>
+   `enable_auth_in_header`<br>
+   `enable_class_isolation`<br>
+   For the regions that do not support this parameter, please use the lower version to deploy this resource.
 
 ## Example Usage
 
@@ -279,6 +282,31 @@ resource "huaweicloud_fgs_function" "test" {
 }
 ```
 
+### Create function with Java runtime and corresponding configuration
+
+```hcl
+variable "function_name" {}
+variable "agency_name" {}
+
+resource "huaweicloud_fgs_function" "test" {
+  name          = var.function_name
+  memory_size   = 128
+  runtime       = "Java11"
+  timeout       = 15
+  app           = "default"
+  handler       = "com.huawei.demo.TriggerTests.apigTest"
+  code_type     = "zip"
+  code_filename = "java-demo.zip"
+  agency        = var.agency_name
+
+  enable_class_isolation = true
+  ephemeral_storage      = 512
+  heartbeat_handler      = "com.huawei.demo.TriggerTests.heartBeat"
+  restore_hook_handler   = "com.huawei.demo.TriggerTests.restoreHook"
+  restore_hook_timeout   = 10
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -468,6 +496,35 @@ The following arguments are supported:
 * `peering_cidr` - (Optional, String) Specifies the VPC cidr blocks used in the function code to detect whether it
   conflicts with the VPC cidr blocks used by the service.  
   The cidr blocks are separated by semicolons and cannot exceed `5`.
+
+* `enable_auth_in_header` - (Optional, Bool) Specifies whether the authentication in the request header is enabled.  
+  Defaults to **false**.
+
+* `enable_class_isolation` - (Optional, Bool) Specifies whether the class isolation is enabled for the JAVA runtime
+  functions.  
+  Defaults to **false**.
+
+  ~> Enabes class isolation can support Kafka dumping and improve class loading efficiency, but it may also cause some
+     compatibility issues.
+
+* `ephemeral_storage` - (Optional, Int) Specifies the size of the function ephemeral storage.  
+  The valid values are as follows:
+  + **512**
+  + **10240**
+
+  Defaults to `512`. Only custom image or http runtime supported.
+
+* `heartbeat_handler` - (Optional, String) Specifies the heartbeat handler of the function.  
+  The rule is **xx.xx**, such as **com.huawei.demo.TriggerTests.heartBeat**, it must contain periods (.).
+  The heartbeat function entry must be in the same file as the function execution entry.
+
+* `restore_hook_handler` - (Optional, String) Specifies the restore hook handler of the function.
+
+* `restore_hook_timeout` - (Optional, Int) Specifies the timeout of the function restore hook.  
+  The function will be forcibly stopped if the time is end.
+  The valid value is range from `1` to `300`, the unit is seconds (s).
+
+  -> Only Java runtime supports the configurations of the heartbeat and restore hook.
 
 <a name="function_func_mounts"></a>
 The `func_mounts` block supports:
