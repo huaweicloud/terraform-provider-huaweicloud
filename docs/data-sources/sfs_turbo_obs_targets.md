@@ -2,7 +2,8 @@
 subcategory: "SFS Turbo"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_turbo_obs_targets"
-description: ""
+description: |-
+  Use this data source to get the list of the OBS targets.
 ---
 
 # huaweicloud_sfs_turbo_obs_targets
