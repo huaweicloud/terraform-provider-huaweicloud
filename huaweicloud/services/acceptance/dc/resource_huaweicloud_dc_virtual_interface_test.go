@@ -2,30 +2,43 @@ package dc
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/dc/v3/interfaces"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getVirtualInterfaceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.DcV3Client(acceptance.HW_REGION_NAME)
+	client, err := conf.NewServiceClient("dc", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating DC v3 client: %s", err)
+		return nil, fmt.Errorf("error creating DC client: %s", err)
 	}
 
-	return interfaces.Get(client, state.Primary.ID)
+	requestPath := client.Endpoint + "v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{interfaceId}", state.Primary.ID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving DC virtual interface: %s", err)
+	}
+	return utils.FlattenResponse(resp)
 }
 
 func TestAccVirtualInterface_basic(t *testing.T) {
 	var (
-		vif interfaces.VirtualInterface
+		vif interface{}
 
 		rName      = "huaweicloud_dc_virtual_interface.test"
 		name       = acceptance.RandomAccResourceName()
@@ -136,7 +149,7 @@ func TestAccVirtualInterface_basic(t *testing.T) {
 
 func TestAccVirtualInterface_acrossTenant(t *testing.T) {
 	var (
-		vif interfaces.VirtualInterface
+		vif interface{}
 
 		rName = "huaweicloud_dc_virtual_interface.test"
 		name  = acceptance.RandomAccResourceName()
