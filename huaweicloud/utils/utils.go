@@ -562,8 +562,16 @@ func ConvertMemoryUnit(memory interface{}, diffLevel int) int {
 
 // IsUUID is a method used to determine whether a string is in UUID format.
 func IsUUID(uuid string) bool {
-	// Using regular expressions to match UUID formats, with or without underscores.
+	// Using regular expressions to match UUID formats, with or without hyphens.
 	pattern := "[0-9a-fA-F]{8}(-?[0-9a-fA-F]{4}){3}-?[0-9a-fA-F]{12}"
+	match, _ := regexp.MatchString(pattern, uuid)
+	return match
+}
+
+// IsUUIDWithHyphens is a method used to determine whether a string is in UUID format with hyphens.
+func IsUUIDWithHyphens(uuid string) bool {
+	// Use regular expression to match UUID format with hyphens.
+	pattern := "[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}"
 	match, _ := regexp.MatchString(pattern, uuid)
 	return match
 }
