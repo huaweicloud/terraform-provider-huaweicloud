@@ -847,6 +847,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_evs_volume_types":       evs.DataSourceEvsVolumeTypes(),
 			"huaweicloud_evs_volume_transfers":   evs.DataSourceEvsVolumeTransfers(),
 			"huaweicloud_evs_tags":               evs.DataSourceEvsTags(),
+			"huaweicloud_evs_quotas":             evs.DataSourceEvsQuotas(),
 
 			"huaweicloud_fgs_applications":          fgs.DataSourceApplications(),
 			"huaweicloud_fgs_application_templates": fgs.DataSourceApplicationTemplates(),
