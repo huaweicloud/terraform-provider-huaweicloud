@@ -554,6 +554,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_node_pool":              cce.DataSourceCCENodePoolV3(),
 			"huaweicloud_cce_charts":                 cce.DataSourceCCECharts(),
 			"huaweicloud_cce_cluster_configurations": cce.DataSourceClusterConfigurations(),
+			"huaweicloud_cce_addons":                 cce.DataSourceCceAddons(),
 
 			"huaweicloud_cci_namespaces": cci.DataSourceCciNamespaces(),
 
