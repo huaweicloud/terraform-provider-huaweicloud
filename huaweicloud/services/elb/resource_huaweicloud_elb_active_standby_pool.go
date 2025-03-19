@@ -61,6 +61,13 @@ func ResourceActiveStandbyPool() *schema.Resource {
 				MaxItems: 1,
 				Elem:     activeStandbyHealthMonitorRefSchema(),
 			},
+			"lb_algorithm": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Default:     "ROUND_ROBIN",
+				Description: "schema: Required",
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -123,6 +130,11 @@ func ResourceActiveStandbyPool() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"quic_cid_hash_strategy": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     activeStandbyQuicCidHashStrategyRefSchema(),
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -183,6 +195,50 @@ func activeStandbyMemberRefSchema() *schema.Resource {
 				Computed: true,
 			},
 			"ip_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     activeStandbyMemberStatusRefSchema(),
+			},
+			"reason": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     activeStandbyMemberReasonRefSchema(),
+			},
+		},
+	}
+}
+
+func activeStandbyMemberStatusRefSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"listener_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"operating_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func activeStandbyMemberReasonRefSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"reason_code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"expected_response": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"healthcheck_response": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -257,6 +313,21 @@ func activeStandbyHealthMonitorRefSchema() *schema.Resource {
 			},
 			"id": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func activeStandbyQuicCidHashStrategyRefSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"len": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"offset": {
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 		},
@@ -346,6 +417,7 @@ func resourceActiveStandbyPoolRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("protocol", utils.PathSearch("pool.protocol", getActiveStandbyPoolBody, nil)),
 		d.Set("description", utils.PathSearch("pool.description", getActiveStandbyPoolBody, nil)),
 		d.Set("name", utils.PathSearch("pool.name", getActiveStandbyPoolBody, nil)),
+		d.Set("lb_algorithm", utils.PathSearch("pool.lb_algorithm", getActiveStandbyPoolBody, nil)),
 		d.Set("loadbalancer_id", utils.PathSearch("pool.loadbalancers|[0].id", getActiveStandbyPoolBody, nil)),
 		d.Set("listener_id", utils.PathSearch("pool.listeners|[0].id", getActiveStandbyPoolBody, nil)),
 		d.Set("type", utils.PathSearch("pool.type", getActiveStandbyPoolBody, nil)),
@@ -356,6 +428,7 @@ func resourceActiveStandbyPoolRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("ip_version", utils.PathSearch("pool.ip_version", getActiveStandbyPoolBody, nil)),
 		d.Set("connection_drain_enabled", utils.PathSearch("pool.connection_drain.enable", getActiveStandbyPoolBody, nil)),
 		d.Set("connection_drain_timeout", utils.PathSearch("pool.connection_drain.timeout", getActiveStandbyPoolBody, nil)),
+		d.Set("quic_cid_hash_strategy", flattenActiveStandbyQuicCidHashStrategy(getActiveStandbyPoolBody)),
 		d.Set("created_at", utils.PathSearch("pool.created_at", getActiveStandbyPoolBody, nil)),
 		d.Set("updated_at", utils.PathSearch("pool.updated_at", getActiveStandbyPoolBody, nil)),
 	)
@@ -418,8 +491,48 @@ func flattenActiveStandbyPoolMembers(resp interface{}) []interface{} {
 			"instance_id":      utils.PathSearch("instance_id", v, nil),
 			"operating_status": utils.PathSearch("operating_status", v, nil),
 			"ip_version":       utils.PathSearch("ip_version", v, nil),
+			"status":           flattenActiveStandbyPoolMemberStatus(v),
+			"reason":           flattenActiveStandbyPoolMemberReason(v),
 		})
 	}
+	return rst
+}
+
+func flattenActiveStandbyPoolMemberStatus(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
+	}
+	curJson := utils.PathSearch("status", resp, make([]interface{}, 0))
+	if curJson == nil {
+		return nil
+	}
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"listener_id":      utils.PathSearch("listener_id", v, nil),
+			"operating_status": utils.PathSearch("operating_status", v, nil),
+		})
+	}
+	return rst
+}
+
+func flattenActiveStandbyPoolMemberReason(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	curJson := utils.PathSearch("reason", resp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, 1)
+	rst = append(rst, map[string]interface{}{
+		"reason_code":          utils.PathSearch("reason_code", curJson, nil),
+		"expected_response":    utils.PathSearch("expected_response", curJson, nil),
+		"healthcheck_response": utils.PathSearch("healthcheck_response", curJson, nil),
+	})
 	return rst
 }
 
@@ -444,6 +557,21 @@ func flattenActiveStandbyPoolHealthMonitor(resp interface{}) []interface{} {
 			"timeout":          utils.PathSearch("timeout", curJson, nil),
 			"delay":            utils.PathSearch("delay", curJson, nil),
 			"id":               utils.PathSearch("id", curJson, nil),
+		},
+	}
+	return rst
+}
+
+func flattenActiveStandbyQuicCidHashStrategy(resp interface{}) []interface{} {
+	curJson := utils.PathSearch("pool.quic_cid_hash_strategy", resp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rst := []interface{}{
+		map[string]interface{}{
+			"len":    utils.PathSearch("len", curJson, nil),
+			"offset": utils.PathSearch("offset", curJson, nil),
 		},
 	}
 	return rst
@@ -505,7 +633,7 @@ func resourceElbPoolRefreshFunc(elbClient *golangsdk.ServiceClient, poolID strin
 
 func buildCreateActiveStandbyPoolBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"lb_algorithm":     "ROUND_ROBIN",
+		"lb_algorithm":     d.Get("lb_algorithm"),
 		"protocol":         d.Get("protocol"),
 		"name":             utils.ValueIgnoreEmpty(d.Get("name")),
 		"loadbalancer_id":  utils.ValueIgnoreEmpty(d.Get("loadbalancer_id")),
