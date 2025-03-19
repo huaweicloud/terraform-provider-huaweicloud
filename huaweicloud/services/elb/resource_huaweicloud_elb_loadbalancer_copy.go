@@ -181,6 +181,7 @@ func ResourceLoadBalancerCopy() *schema.Resource {
 			"deletion_protection_enable": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"true", "false",
 				}, false),
