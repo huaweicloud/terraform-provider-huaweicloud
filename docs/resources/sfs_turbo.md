@@ -2,12 +2,13 @@
 subcategory: "SFS Turbo"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_turbo"
-description: ""
+description: |-
+  Manages a SFS Turbo resource within HuaweiCloud.
 ---
 
 # huaweicloud_sfs_turbo
 
-Provides a Shared File System (SFS) Turbo resource.
+Manages a SFS Turbo resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -201,10 +202,10 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-SFS Turbo can be imported using the `id`, e.g.
+The resource can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_sfs_turbo 1e3d5306-24c9-4316-9185-70e9787d71ab
+$ terraform import huaweicloud_sfs_turbo.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to payment attributes missing from

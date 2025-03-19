@@ -2,7 +2,8 @@
 subcategory: "SFS Turbo"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_turbo_obs_target"
-description: ""
+description: |-
+  Manages an OBS target resource under the SFS Turbo within HuaweiCloud.
 ---
 
 # huaweicloud_sfs_turbo_obs_target
