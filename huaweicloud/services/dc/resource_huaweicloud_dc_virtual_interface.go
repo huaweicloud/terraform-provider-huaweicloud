@@ -86,6 +86,14 @@ func ResourceVirtualInterface() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The CIDR list of remote subnets.",
 			},
+			// The field `service_ep_group` was not tested because the test condition was missing.
+			"service_ep_group": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The subnets that access Internet services through a connection.",
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -97,6 +105,13 @@ func ResourceVirtualInterface() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: "The service type of the virtual interface.",
+			},
+			"gateway_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The ID of the gateway associated with the virtual interface.",
 			},
 			"local_gateway_v4_ip": {
 				Type:         schema.TypeString,
@@ -191,10 +206,50 @@ func ResourceVirtualInterface() *schema.Resource {
 				Computed:    true,
 				Description: "The current status of the virtual interface.",
 			},
+			"bgp_route_limit": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The BGP route configuration.",
+			},
+			"ies_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The edge site ID.",
+			},
+			"lgw_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the local gateway, which is used in IES scenarios.",
+			},
+			"priority": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The priority of a virtual interface.",
+			},
+			"rate_limit": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Whether rate limiting is enabled on a virtual interface.",
+			},
+			"reason": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The error information if the status of a line is Error.",
+			},
+			"route_limit": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The remote subnet route configurations of the virtual interface.",
+			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The creation time of the virtual interface.",
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The latest update time of the virtual interface.",
 			},
 			"vif_peers": {
 				Type:        schema.TypeList,
@@ -202,8 +257,57 @@ func ResourceVirtualInterface() *schema.Resource {
 				Elem:        vifPeersSchema(),
 				Description: "The peer information of the virtual interface.",
 			},
+			"extend_attribute": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        extendAttributeSchema(),
+				Description: "The extended parameter information.",
+			},
 		},
 	}
+}
+
+func extendAttributeSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"ha_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The availability detection type of the virtual interface.`,
+			},
+			"ha_mode": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The availability detection mode.`,
+			},
+			"detect_multiplier": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The number of detection retries.`,
+			},
+			"min_rx_interval": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The interval for receiving detection packets.`,
+			},
+			"min_tx_interval": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The interval for sending detection packets.`,
+			},
+			"remote_disclaim": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The remote identifier of the static BFD session.`,
+			},
+			"local_disclaim": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The local identifier of the static BFD session.`,
+			},
+		},
+	}
+	return &sc
 }
 
 func vifPeersSchema() *schema.Resource {
@@ -300,6 +404,12 @@ func vifPeersSchema() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The remote subnet list, which records the CIDR blocks used in the on-premises data center.`,
 			},
+			"service_ep_group": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The list of public network addresses that can be accessed by the on-premises data center.`,
+			},
 		},
 	}
 	return &sc
@@ -331,10 +441,12 @@ func buildCreateVirtualInterfaceBodyParams(d *schema.ResourceData, cfg *config.C
 		"vlan":                  d.Get("vlan"),
 		"bandwidth":             d.Get("bandwidth"),
 		"remote_ep_group":       d.Get("remote_ep_group"),
+		"service_ep_group":      utils.ValueIgnoreEmpty(d.Get("service_ep_group")),
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 		"direct_connect_id":     utils.ValueIgnoreEmpty(d.Get("direct_connect_id")),
 		"service_type":          utils.ValueIgnoreEmpty(d.Get("service_type")),
+		"gateway_id":            utils.ValueIgnoreEmpty(d.Get("gateway_id")),
 		"local_gateway_v4_ip":   utils.ValueIgnoreEmpty(d.Get("local_gateway_v4_ip")),
 		"remote_gateway_v4_ip":  utils.ValueIgnoreEmpty(d.Get("remote_gateway_v4_ip")),
 		"address_family":        utils.ValueIgnoreEmpty(d.Get("address_family")),
@@ -440,10 +552,12 @@ func resourceVirtualInterfaceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("vlan", utils.PathSearch("vlan", interfaceResp, nil)),
 		d.Set("bandwidth", utils.PathSearch("bandwidth", interfaceResp, nil)),
 		d.Set("remote_ep_group", utils.PathSearch("remote_ep_group", interfaceResp, nil)),
+		d.Set("service_ep_group", utils.PathSearch("service_ep_group", interfaceResp, nil)),
 		d.Set("name", utils.PathSearch("name", interfaceResp, nil)),
 		d.Set("description", utils.PathSearch("description", interfaceResp, nil)),
 		d.Set("direct_connect_id", utils.PathSearch("direct_connect_id", interfaceResp, nil)),
 		d.Set("service_type", utils.PathSearch("service_type", interfaceResp, nil)),
+		d.Set("gateway_id", utils.PathSearch("gateway_id", interfaceResp, nil)),
 		d.Set("local_gateway_v4_ip", utils.PathSearch("local_gateway_v4_ip", interfaceResp, nil)),
 		d.Set("remote_gateway_v4_ip", utils.PathSearch("remote_gateway_v4_ip", interfaceResp, nil)),
 		d.Set("address_family", utils.PathSearch("address_family", interfaceResp, nil)),
@@ -458,11 +572,38 @@ func resourceVirtualInterfaceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("device_id", utils.PathSearch("device_id", interfaceResp, nil)),
 		d.Set("status", utils.PathSearch("status", interfaceResp, nil)),
 		d.Set("created_at", utils.PathSearch("create_time", interfaceResp, nil)),
+		d.Set("updated_at", utils.PathSearch("update_time", interfaceResp, nil)),
+		d.Set("bgp_route_limit", utils.PathSearch("bgp_route_limit", interfaceResp, nil)),
+		d.Set("ies_id", utils.PathSearch("ies_id", interfaceResp, nil)),
+		d.Set("lgw_id", utils.PathSearch("lgw_id", interfaceResp, nil)),
+		d.Set("priority", utils.PathSearch("priority", interfaceResp, nil)),
+		d.Set("rate_limit", utils.PathSearch("rate_limit", interfaceResp, nil)),
+		d.Set("reason", utils.PathSearch("reason", interfaceResp, nil)),
+		d.Set("route_limit", utils.PathSearch("route_limit", interfaceResp, nil)),
 		d.Set("vif_peers", flattenVifPeersAttribute(utils.PathSearch("vif_peers", interfaceResp, make([]interface{}, 0)).([]interface{}))),
+		d.Set("extend_attribute", flattenExtendAttribute(utils.PathSearch("extend_attribute", interfaceResp, nil))),
 		utils.SetResourceTagsToState(d, client, "dc-vif", d.Id()),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenExtendAttribute(extendResp interface{}) []interface{} {
+	if extendResp == nil {
+		return nil
+	}
+
+	extendAttribute := map[string]interface{}{
+		"ha_type":           utils.PathSearch("ha_type", extendResp, nil),
+		"ha_mode":           utils.PathSearch("ha_mode", extendResp, nil),
+		"detect_multiplier": utils.PathSearch("detect_multiplier", extendResp, nil),
+		"min_rx_interval":   utils.PathSearch("min_rx_interval", extendResp, nil),
+		"min_tx_interval":   utils.PathSearch("min_tx_interval", extendResp, nil),
+		"remote_disclaim":   utils.PathSearch("remote_disclaim", extendResp, nil),
+		"local_disclaim":    utils.PathSearch("local_disclaim", extendResp, nil),
+	}
+
+	return []interface{}{extendAttribute}
 }
 
 func flattenVifPeersAttribute(peersArray []interface{}) []interface{} {
@@ -491,6 +632,7 @@ func flattenVifPeersAttribute(peersArray []interface{}) []interface{} {
 			"vif_id":            utils.PathSearch("vif_id", v, nil),
 			"receive_route_num": utils.PathSearch("receive_route_num", v, nil),
 			"remote_ep_group":   utils.PathSearch("remote_ep_group", v, nil),
+			"service_ep_group":  utils.PathSearch("service_ep_group", v, nil),
 		})
 	}
 	return rst
@@ -498,10 +640,11 @@ func flattenVifPeersAttribute(peersArray []interface{}) []interface{} {
 
 func buildUpdateVirtualInterfaceBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":            utils.ValueIgnoreEmpty(d.Get("name")),
-		"description":     d.Get("description"),
-		"bandwidth":       utils.ValueIgnoreEmpty(d.Get("bandwidth")),
-		"remote_ep_group": utils.ValueIgnoreEmpty(d.Get("remote_ep_group")),
+		"name":             utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":      d.Get("description"),
+		"bandwidth":        utils.ValueIgnoreEmpty(d.Get("bandwidth")),
+		"remote_ep_group":  utils.ValueIgnoreEmpty(d.Get("remote_ep_group")),
+		"service_ep_group": utils.ValueIgnoreEmpty(d.Get("service_ep_group")),
 	}
 
 	return map[string]interface{}{
@@ -587,7 +730,7 @@ func resourceVirtualInterfaceUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating DC client: %s", err)
 	}
 
-	if d.HasChanges("name", "description", "bandwidth", "remote_ep_group") {
+	if d.HasChanges("name", "description", "bandwidth", "remote_ep_group", "service_ep_group") {
 		requestPath := client.Endpoint + "v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}"
 		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
 		requestPath = strings.ReplaceAll(requestPath, "{interfaceId}", d.Id())
