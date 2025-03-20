@@ -34,6 +34,7 @@ func getSearchCriteriaResourceFunc(cfg *config.Config, state *terraform.Resource
 	getSearchCriteriaPath = strings.ReplaceAll(getSearchCriteriaPath, "{project_id}", getSearchCriteriaClient.ProjectID)
 	getSearchCriteriaPath = strings.ReplaceAll(getSearchCriteriaPath, "{group_id}", groupID)
 	getSearchCriteriaPath = strings.ReplaceAll(getSearchCriteriaPath, "{topic_id}", streamID)
+	getSearchCriteriaPath = fmt.Sprintf("%s?search_type=%s", getSearchCriteriaPath, state.Primary.Attributes["type"])
 
 	getSearchCriteriaOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -59,21 +60,23 @@ func getSearchCriteriaResourceFunc(cfg *config.Config, state *terraform.Resource
 }
 
 func TestAccSearchCriteria_basic(t *testing.T) {
-	var obj interface{}
+	var (
+		name = acceptance.RandomAccResourceName()
 
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_lts_search_criteria.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getSearchCriteriaResourceFunc,
+		searchCriteria      interface{}
+		rName               = "huaweicloud_lts_search_criteria.test"
+		withVisualization   = "huaweicloud_lts_search_criteria.visualization_log"
+		rc                  = acceptance.InitResourceCheck(rName, &searchCriteria, getSearchCriteriaResourceFunc)
+		withVisualizationRc = acceptance.InitResourceCheck(withVisualization, &searchCriteria, getSearchCriteriaResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rc.CheckResourceDestroy(),
+			withVisualizationRc.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
 				Config: testSearchCriteria_basic(name),
@@ -82,10 +85,18 @@ func TestAccSearchCriteria_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "criteria", "context:test"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "type", "ORIGINALLOG"),
+					withVisualizationRc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withVisualization, "type", "VISUALIZATION"),
 				),
 			},
 			{
 				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: resourceSearchCriteriaImportState(rName),
+			},
+			{
+				ResourceName:      withVisualization,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: resourceSearchCriteriaImportState(rName),
@@ -113,6 +124,14 @@ resource "huaweicloud_lts_search_criteria" "test" {
   criteria = "context:test"
   name     = "%[1]s"
   type 	   = "ORIGINALLOG"
+}
+
+resource "huaweicloud_lts_search_criteria" "visualization_log" {
+  log_group_id  = huaweicloud_lts_group.test.id
+  log_stream_id = huaweicloud_lts_stream.test.id
+  criteria      = "context:test"
+  name          = "%[1]s_visual"
+  type 	        = "VISUALIZATION"
 }
 `, name)
 }
