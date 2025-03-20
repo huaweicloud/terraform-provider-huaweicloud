@@ -233,7 +233,7 @@ func resourceAccountRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getAccountHttpUrl := "v1/organizations/accounts/{account_id}"
+	getAccountHttpUrl := "v1/organizations/accounts/{account_id}?with_register_contact_info=true"
 	getAccountPath := getAccountClient.Endpoint + getAccountHttpUrl
 	getAccountPath = strings.ReplaceAll(getAccountPath, "{account_id}", d.Id())
 
