@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.73.2 (March 21, 2025)
+
+* **New Data Source:**
+  + `huaweicloud_cce_addons` [GH-6540]
+
 ## 1.73.1 (March 7, 2025)
 
 ENHANCEMENTS:
