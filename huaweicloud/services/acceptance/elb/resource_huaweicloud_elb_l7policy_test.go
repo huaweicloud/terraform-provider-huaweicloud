@@ -2,24 +2,44 @@ package elb
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/elb/v3/l7policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getELBl7PolicyResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	lbClient, err := c.ElbV3Client(acceptance.HW_REGION_NAME)
+func getELBl7PolicyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/elb/l7policies/{l7policy_id}"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating ELB client: %s", err)
+		return nil, err
 	}
 
-	return l7policies.Get(lbClient, state.Primary.ID).Extract()
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{l7policy_id}", state.Primary.ID)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
 }
 
 func TestAccElbV3L7Policy_basic(t *testing.T) {
@@ -73,6 +93,10 @@ func TestAccElbV3L7Policy_basic(t *testing.T) {
 						"redirect_pools_extend_config.0.traffic_limit_config.0.per_source_ip_qps", "10"),
 					resource.TestCheckResourceAttr(resourceName,
 						"redirect_pools_extend_config.0.traffic_limit_config.0.burst", "20"),
+					resource.TestCheckResourceAttrSet(resourceName, "enterprise_project_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "provisioning_status"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			{

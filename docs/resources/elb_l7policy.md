@@ -325,7 +325,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `provisioning_status` - The provisioning status of the forwarding policy.
 
-* `created_at` - The create time of the L7 policy.
+* `enterprise_project_id` - The ID of the enterprise project.
+
+* `created_at` - The creation time of the L7 policy.
 
 * `updated_at` - The update time of the L7 policy.
 
