@@ -69,6 +69,15 @@ The following arguments are supported:
 * `healthmonitor` - (Required, List, ForceNew) Specifies the health check configured for the active-standby pool.
   The [healthmonitor](#ELB_healthmonitor) structure is documented below. Changing this parameter will create a new resource.
 
+* `lb_algorithm` - (Required, String, ForceNew) Specifies the load balancing algorithm used by the load balancer to route
+  requests to backend servers in the associated backend server group. Value options:
+  + **ROUND_ROBIN**: weighted round robin.
+  + **LEAST_CONNECTIONS**: weighted least connections.
+  + **SOURCE_IP**: source IP hash.
+  + **QUIC_CID**: connection ID.
+
+  Defaults to **ROUND_ROBIN**.
+
 * `type` - (Optional, String, ForceNew) Specifies the type of the active-standby pool. Value options:
   + **instance**: Any type of backend servers can be added. `vpc_id` must be mandatory.
   + **ip**: Only IP as backend servers can be added. `vpc_id` cannot be specified.
@@ -235,6 +244,9 @@ In addition to all arguments above, the following attributes are exported:
 * `healthmonitor` - The health check configured for the active-standby pool.
   The [healthmonitor](#ELB_healthmonitorResp) structure is documented below.
 
+* `quic_cid_hash_strategy` - The multi-path distribution configuration based on destination connection IDs.
+  The [quic_cid_hash_strategy](#ELB_quiccidhashstrategyResp) structure is documented below.
+
 * `created_at` - The create time of the active-standby pool.
 
 * `updated_at` - The update time of the active-standby pool.
@@ -252,10 +264,67 @@ The `members` block supports:
 
 * `operating_status` - The health status of the member.
 
+* `reason` - Why health check fails.
+  The [reason](#ELB_member_reasonResp) structure is documented below.
+
+* `status` - The health status of the backend server if `listener_id` under status is specified. If `listener_id` under
+  status is not specified, operating_status of member takes precedence.
+  The [status](#ELB_member_statusResp) structure is documented below.
+
+<a name="ELB_member_reasonResp"></a>
+The `reason` block supports:
+
+* `reason_code` - The code of the health check failures. The value can be:
+  + **CONNECT_TIMEOUT**: The connection with the backend server times out during a health check.
+  + **CONNECT_REFUSED**: The load balancer rejects connections with the backend server during a health check.
+  + **CONNECT_FAILED**: The load balancer fails to establish connections with the backend server during a health check.
+  + **CONNECT_INTERRUPT**: The load balancer is disconnected from the backend server during a health check.
+  + **SSL_HANDSHAKE_ERROR**: The SSL handshakes with the backend server fail during a health check.
+  + **RECV_RESPONSE_FAILED**: The load balancer fails to receive responses from the backend server during a health check.
+  + **RECV_RESPONSE_TIMEOUT**: The load balancer does not receive responses from the backend server within the timeout
+    duration during a health check.
+  + **SEND_REQUEST_FAILED**: The load balancer fails to send a health check request to the backend server during a health
+    check.
+  + **SEND_REQUEST_TIMEOUT**: The load balancer fails to send a health check request to the backend server within the
+    timeout duration.
+  + **RESPONSE_FORMAT_ERROR**: The load balancer receives invalid responses from the backend server during a health check.
+  + **RESPONSE_MISMATCH**: The response code received from the backend server is different from the preset code.
+
+* `expected_response` - The expected HTTP status code. This parameter will take effect only when `type` is set to **HTTP**,
+  **HTTPS** or **GRPC**.
+  + A specific status code. If `type` is set to **GRPC**, the status code ranges from **0** to **99**. If `type` is set
+    to other values, the status code ranges from **200** to **599**.
+  + A list of status codes that are separated with commas (,). A maximum of five status codes are supported.
+  + A status code range. Different ranges are separated with commas (,). A maximum of five ranges are supported.
+
+* `healthcheck_response` - The returned HTTP status code in the response. This parameter will take effect only when `type`
+  is set to **HTTP**, **HTTPS** or **GRPC**.
+  + A specific status code. If type is set to **GRPC**, the status code ranges from **0** to **99**. If `type` is set to
+    other values, the status code ranges from **200** to **599**.
+
+<a name="ELB_member_statusResp"></a>
+The `status` block supports:
+
+* `listener_id` - The ID of the listener associated with the backend server.
+
+* `operating_status` - The health status of the backend server. The value can be:
+  + **ONLINE**: The backend server is running normally.
+  + **NO_MONITOR**: No health check is configured for the backend server group to which the backend server belongs.
+  + **OFFLINE**: The cloud server used as the backend server is stopped or does not exist.
+
 <a name="ELB_healthmonitorResp"></a>
 The `healthmonitor` block supports:
 
 * `id` - The health check ID.
+
+<a name="ELB_quiccidhashstrategyResp"></a>
+The `quic_cid_hash_strategy` block supports:
+
+* `len` - The length of the hash factor in the connection ID, in byte. This parameter is valid only when `lb_algorithm`
+  is **QUIC_CID**. Value range: **1** to **20**.
+
+* `offset` - The start position in the connection ID as the hash factor, in byte. This parameter is valid only when
+  `lb_algorithm` is **QUIC_CID**. Value range: **0** to **19**.
 
 ## Timeouts
 
