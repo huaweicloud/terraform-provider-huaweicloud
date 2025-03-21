@@ -302,12 +302,14 @@
                     "address": {
                       "type": "string",
                       "description": "The address of the external access.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "forward_port": {
                       "type": "number",
                       "description": "The forward port of the external access.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "protocol": {
                       "type": "string",

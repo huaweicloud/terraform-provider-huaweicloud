@@ -11,6 +11,11 @@
                 "optional": true,
                 "forcenew": true
               },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the SNAT rule.",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "The description of the SNAT rule.",
@@ -25,6 +30,11 @@
                 "type": "string",
                 "description": "The IDs of floating IPs connected by SNAT rule.",
                 "optional": true,
+                "computed": true
+              },
+              "freezed_ip_address": {
+                "type": "string",
+                "description": "The frozen EIP associated with the SNAT rule.",
                 "computed": true
               },
               "global_eip_address": {

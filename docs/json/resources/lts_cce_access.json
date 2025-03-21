@@ -92,7 +92,7 @@
                   "attributes": {
                     "black_paths": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "description": "The collection path blacklist.",
@@ -187,7 +187,7 @@
                     },
                     "paths": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "description": "The collection paths.",

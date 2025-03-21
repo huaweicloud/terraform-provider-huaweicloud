@@ -11,17 +11,17 @@
               },
               "line_id": {
                 "type": "string",
-                "description": "Specifies the resolution line ID.",
+                "description": "The resolution line ID.",
                 "optional": true
               },
               "name": {
                 "type": "string",
-                "description": "Specifies the name of the recordset to be queried. Fuzzy matching will work.",
+                "description": "The name of the recordset to be queried. Fuzzy matching will work.",
                 "optional": true
               },
               "recordset_id": {
                 "type": "string",
-                "description": "Specifies the ID of the recordset to be queried. Fuzzy matching will work.",
+                "description": "The ID of the recordset to be queried. Fuzzy matching will work.",
                 "optional": true
               },
               "recordsets": {
@@ -59,7 +59,7 @@
               },
               "search_mode": {
                 "type": "string",
-                "description": "Specifies the query criteria search mode.",
+                "description": "The query criteria search mode.",
                 "optional": true
               },
               "sort_dir": {
@@ -74,22 +74,22 @@
               },
               "status": {
                 "type": "string",
-                "description": "Specifies the status of the recordset to be queried.",
+                "description": "The status of the recordset to be queried.",
                 "optional": true
               },
               "tags": {
                 "type": "string",
-                "description": "Specifies the resource tag.",
+                "description": "The resource tag.",
                 "optional": true
               },
               "type": {
                 "type": "string",
-                "description": "Specifies the recordset type.",
+                "description": "The recordset type.",
                 "optional": true
               },
               "zone_id": {
                 "type": "string",
-                "description": "Specifies the zone ID.",
+                "description": "The zone ID.",
                 "required": true
               }
             }

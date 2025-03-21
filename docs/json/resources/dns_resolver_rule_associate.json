@@ -15,15 +15,18 @@
               },
               "resolver_rule_id": {
                 "type": "string",
+                "description": "The DNS resolver rule ID.",
                 "required": true,
                 "forcenew": true
               },
               "status": {
                 "type": "string",
+                "description": "The status of the resolver rule association.",
                 "computed": true
               },
               "vpc_id": {
                 "type": "string",
+                "description": "The VPC ID to associate.",
                 "required": true,
                 "forcenew": true
               }

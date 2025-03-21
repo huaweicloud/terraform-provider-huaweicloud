@@ -296,6 +296,11 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "security_reinforcement_type": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "system_reserved_mem": {
                       "type": "number",
                       "optional": true,

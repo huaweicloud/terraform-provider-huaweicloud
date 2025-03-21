@@ -9,6 +9,10 @@
                 "type": "string",
                 "optional": true
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "enabled": {
                 "type": "bool",
                 "optional": true,

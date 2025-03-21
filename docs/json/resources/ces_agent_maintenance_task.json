@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ces_agent_maintenance_task": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the server ID.",
+                "optional": true
+              },
+              "invocation_id": {
+                "type": "string",
+                "description": "Specifies the task ID.",
+                "optional": true
+              },
+              "invocation_target": {
+                "type": "string",
+                "description": "Specifies the task object. Only **telescope** is supported.",
+                "optional": true,
+                "default": "telescope"
+              },
+              "invocation_type": {
+                "type": "string",
+                "description": "Specifies the task type.",
+                "required": true
+              },
+              "invocations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "number",
+                      "current_version": "string",
+                      "elastic_ips": [
+                        "list",
+                        "string"
+                      ],
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "instance_type": "string",
+                      "intranet_ips": [
+                        "list",
+                        "string"
+                      ],
+                      "invocation_id": "string",
+                      "invocation_status": "string",
+                      "invocation_target": "string",
+                      "invocation_type": "string",
+                      "target_version": "string",
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "description": "The result of the agent maintenance task.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the version number.",
+                "optional": true
+              },
+              "version_type": {
+                "type": "string",
+                "description": "Specifies the version the agent will be upgraded to.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

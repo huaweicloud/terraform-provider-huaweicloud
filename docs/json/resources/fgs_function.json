@@ -63,6 +63,16 @@
                 "optional": true,
                 "computed": true
               },
+              "enable_auth_in_header": {
+                "type": "bool",
+                "description": "Whether the authentication in the request header is enabled.",
+                "optional": true
+              },
+              "enable_class_isolation": {
+                "type": "bool",
+                "description": "Whether the class isolation is enabled for the JAVA runtime functions.",
+                "optional": true
+              },
               "enable_dynamic_memory": {
                 "type": "bool",
                 "description": "Whether the dynamic memory configuration is enabled.",
@@ -77,6 +87,12 @@
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The ID of the enterprise project to which the function belongs.",
+                "optional": true,
+                "computed": true
+              },
+              "ephemeral_storage": {
+                "type": "number",
+                "description": "The size of the function ephemeral storage.",
                 "optional": true,
                 "computed": true
               },
@@ -106,6 +122,11 @@
                 "type": "string",
                 "description": "The entry point of the function.",
                 "required": true
+              },
+              "heartbeat_handler": {
+                "type": "string",
+                "description": "The heartbeat handler of the function.",
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -195,6 +216,16 @@
                 "type": "string",
                 "description": "The region where the function is located.",
                 "computed": true
+              },
+              "restore_hook_handler": {
+                "type": "string",
+                "description": "The restore hook handler of the function.",
+                "optional": true
+              },
+              "restore_hook_timeout": {
+                "type": "number",
+                "description": "The timeout of the function restore hook.",
+                "optional": true
               },
               "runtime": {
                 "type": "string",

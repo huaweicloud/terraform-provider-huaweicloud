@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_bandwidth_limits": {
+          "block": {
+            "attributes": {
+              "charge_mode": {
+                "type": "string",
+                "description": "Specifies the bandwidth charge mode.",
+                "optional": true
+              },
+              "eip_bandwidth_limits": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "charge_mode": "string",
+                      "ext_limit": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "max_ingress_size": "number",
+                            "min_ingress_size": "number",
+                            "ratio_95peak": "number"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "max_size": "number",
+                      "min_size": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the bandwidth limit list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

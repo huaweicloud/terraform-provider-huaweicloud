@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_loadbalancer_feature_configurations": {
+          "block": {
+            "attributes": {
+              "features": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "feature": "string",
+                      "type": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Specifies the load balancer feature information list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "description": "Specifies the load balancer ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

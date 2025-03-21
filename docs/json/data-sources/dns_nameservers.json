@@ -36,17 +36,17 @@
               },
               "region": {
                 "type": "string",
-                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "description": "The region in which to query the resource. If omitted, the provider-level region will be used.",
                 "computed": true
               },
               "server_region": {
                 "type": "string",
-                "description": "Specifies the region to which the name server belongs.",
+                "description": "The region to which the name server belongs.",
                 "optional": true
               },
               "type": {
                 "type": "string",
-                "description": "Specifies the type of the name server.",
+                "description": "The type of the name server.",
                 "optional": true
               }
             }

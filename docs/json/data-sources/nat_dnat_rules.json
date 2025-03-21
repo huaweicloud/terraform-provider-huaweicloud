@@ -5,6 +5,16 @@
         "huaweicloud_nat_dnat_rules": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the DNAT rule.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the DNAT rule.",
+                "optional": true
+              },
               "external_service_port": {
                 "type": "string",
                 "description": "The port of the EIP associated with the DNAT rule belongs.",

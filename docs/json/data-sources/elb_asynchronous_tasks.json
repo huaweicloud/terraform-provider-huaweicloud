@@ -1,0 +1,108 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_asynchronous_tasks": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "description": "Specifies the time when the task started, in the format of **yyyy-MM-dd'T'HH:mm:ss**.",
+                "optional": true
+              },
+              "error_code": {
+                "type": "string",
+                "description": "Specifies the error code of the task.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "Specifies the task ID.",
+                "optional": true
+              },
+              "job_type": {
+                "type": "string",
+                "description": "Specifies the task type.",
+                "optional": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "begin_time": "string",
+                      "end_time": "string",
+                      "error_code": "string",
+                      "error_msg": "string",
+                      "job_id": "string",
+                      "job_type": "string",
+                      "project_id": "string",
+                      "resource_id": "string",
+                      "status": "string",
+                      "sub_jobs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "begin_time": "string",
+                            "end_time": "string",
+                            "entities": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "resource_id": "string",
+                                  "resource_type": "string"
+                                }
+                              ]
+                            ],
+                            "error_code": "string",
+                            "error_msg": "string",
+                            "job_id": "string",
+                            "job_type": "string",
+                            "project_id": "string",
+                            "resource_id": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the task list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the resource ID.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the task status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

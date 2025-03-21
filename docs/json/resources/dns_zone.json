@@ -7,15 +7,18 @@
             "attributes": {
               "description": {
                 "type": "string",
+                "description": "The description of the zone.",
                 "optional": true
               },
               "email": {
                 "type": "string",
+                "description": "The email address of the administrator managing the zone.",
                 "optional": true,
                 "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The enterprise project ID of the zone.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
@@ -29,10 +32,12 @@
                   "set",
                   "string"
                 ],
+                "description": "The list of the masters of the DNS server.",
                 "computed": true
               },
               "name": {
                 "type": "string",
+                "description": "The name of the zone.",
                 "required": true,
                 "forcenew": true
               },
@@ -58,15 +63,18 @@
                   "map",
                   "string"
                 ],
+                "description": "The key/value pairs to associate with the zone.",
                 "optional": true
               },
               "ttl": {
                 "type": "number",
+                "description": "The time to live (TTL) of the zone.",
                 "optional": true,
                 "default": 300
               },
               "zone_type": {
                 "type": "string",
+                "description": "The type of zone.",
                 "optional": true,
                 "forcenew": true,
                 "default": "public"
@@ -78,10 +86,12 @@
                   "attributes": {
                     "router_id": {
                       "type": "string",
+                      "description": "The ID of the associated VPC.",
                       "required": true
                     },
                     "router_region": {
                       "type": "string",
+                      "description": "The region of the VPC.",
                       "optional": true,
                       "computed": true
                     }

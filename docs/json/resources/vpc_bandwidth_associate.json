@@ -26,13 +26,40 @@
               },
               "eip_id": {
                 "type": "string",
-                "required": true
+                "optional": true
+              },
+              "fixed_ip": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
+              "ip_version": {
+                "type": "number",
+                "computed": true
+              },
+              "network_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "port_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "public_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ip_type": {
+                "type": "string",
+                "computed": true
+              },
+              "public_ipv6": {
                 "type": "string",
                 "computed": true
               },

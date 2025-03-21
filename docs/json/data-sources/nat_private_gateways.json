@@ -5,6 +5,14 @@
         "huaweicloud_nat_private_gateways": {
           "block": {
             "attributes": {
+              "description": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The description of the private NAT gateway.",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The ID of the enterprise project to which the private NAT gateways belong.",
@@ -26,6 +34,8 @@
                       "enterprise_project_id": "string",
                       "id": "string",
                       "name": "string",
+                      "ngport_ip_address": "string",
+                      "rule_max": "number",
                       "spec": "string",
                       "status": "string",
                       "subnet_id": "string",

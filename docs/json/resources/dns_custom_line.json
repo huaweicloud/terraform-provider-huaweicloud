@@ -7,7 +7,7 @@
             "attributes": {
               "description": {
                 "type": "string",
-                "description": "Specifies the custom line description. A maximum of 255 characters are allowed.",
+                "description": "The custom line description.",
                 "optional": true
               },
               "id": {
@@ -19,12 +19,12 @@
                   "set",
                   "string"
                 ],
-                "description": "Specifies the IP address range.",
+                "description": "The IP address range.",
                 "required": true
               },
               "name": {
                 "type": "string",
-                "description": "Specifies the custom line name.",
+                "description": "The custom line name.",
                 "required": true
               },
               "region": {

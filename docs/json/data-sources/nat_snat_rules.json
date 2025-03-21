@@ -10,6 +10,16 @@
                 "description": "The CIDR block to which the SNAT rule belongs.",
                 "optional": true
               },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the SNAT rule.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the SNAT rule.",
+                "optional": true
+              },
               "floating_ip_address": {
                 "type": "string",
                 "description": "The IP of the EIP associated with SNAT rule.",

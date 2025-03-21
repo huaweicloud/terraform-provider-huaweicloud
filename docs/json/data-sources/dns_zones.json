@@ -7,7 +7,7 @@
             "attributes": {
               "enterprise_project_id": {
                 "type": "string",
-                "description": "Specifies the enterprise project ID which the zone associated.",
+                "description": "The enterprise project ID which the zone associated.",
                 "optional": true
               },
               "id": {
@@ -16,7 +16,7 @@
               },
               "name": {
                 "type": "string",
-                "description": "Specifies the zone name.",
+                "description": "The zone name.",
                 "optional": true
               },
               "region": {
@@ -30,7 +30,7 @@
               },
               "search_mode": {
                 "type": "string",
-                "description": "Specifies the query criteria search mode.",
+                "description": "The query criteria search mode.",
                 "optional": true
               },
               "sort_dir": {
@@ -45,12 +45,12 @@
               },
               "status": {
                 "type": "string",
-                "description": "Specifies the zone status.",
+                "description": "The zone status.",
                 "optional": true
               },
               "tags": {
                 "type": "string",
-                "description": "Specifies the resource tag.",
+                "description": "The resource tag.",
                 "optional": true
               },
               "zone_id": {
@@ -60,7 +60,7 @@
               },
               "zone_type": {
                 "type": "string",
-                "description": "Specifies the zone type. The value can be **public** or **private**.",
+                "description": "The zone type. The value can be **public** or **private**.",
                 "required": true
               },
               "zones": {

@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_eip_common_pools": {
+          "block": {
+            "attributes": {
+              "common_pools": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "allow_share_bandwidth_types": [
+                        "list",
+                        "string"
+                      ],
+                      "available": "number",
+                      "id": "string",
+                      "name": "string",
+                      "public_border_group": "string",
+                      "status": "string",
+                      "type": "string",
+                      "used": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the common pools.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the common pool name.",
+                "optional": true
+              },
+              "public_border_group": {
+                "type": "string",
+                "description": "Specifies whether the common pool is at the center or at the edge.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}
