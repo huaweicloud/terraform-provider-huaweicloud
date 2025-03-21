@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ims_image_metadata
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IMS
+paths:
+    /v2/cloudimages:
+        GET:
+            tag: IMS
+    /v2/images:
+        POST:
+            tag: IMS
+    /v2/images/{image_id}:
+        DELETE:
+            tag: IMS

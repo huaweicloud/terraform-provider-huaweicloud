@@ -12,5 +12,7 @@ paths:
         GET:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/db_privilege:
+        DELETE:
+            tag: RDS
         POST:
             tag: RDS
