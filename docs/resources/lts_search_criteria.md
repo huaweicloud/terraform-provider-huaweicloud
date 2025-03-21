@@ -50,9 +50,6 @@ The following arguments are supported:
   **ORIGINALLOG** (for raw logs) and **VISUALIZATION** (for visualized logs). Changing this parameter will create a new
   resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID. Changing this parameter
-  will create a new resource.
-
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
