@@ -2,7 +2,8 @@
 subcategory: "Auto Scaling"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_as_bandwidth_policy"
-description: ""
+description: |-
+  Manages an AS bandwidth scaling policy resource within HuaweiCloud.
 ---
 
 # huaweicloud_as_bandwidth_policy
@@ -105,6 +106,12 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the AS policy.
   The value can contain 0 to 256 characters.
 
+* `action` - (Optional, String) Specifies identification of operation the AS bandwidth policy.
+  After the AS bandwidth policy created, the status is inservice, indicates the AS bandwidth policy is enabled.
+  The valid values are as follows:
+  - **resume**: Indicates enable the AS bandwidth policy.
+  - **pause**: Indicates disable the AS bandwidth policy.
+
 * `scaling_policy_action` - (Optional, List) Specifies the scaling action of the AS policy.
   The [object](#ASBandWidthPolicy_ScalingPolicyAction) structure is documented below.
 
@@ -170,10 +177,36 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The AS policy status. The value can be **INSERVICE**, **PAUSED** and **EXECUTING**.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 2 minutes.
+* `update` - Default is 2 minutes.
+
 ## Import
 
 The bandwidth scaling policies can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_as_bandwidth_policy.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_as_bandwidth_policy.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason.
+The missing attributes include: `action`.
+It is generally recommended running `terraform plan` after importing the resource.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to
+align with the resource. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_as_bandwidth_policy" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      action,
+    ]
+  }
+}
 ```
