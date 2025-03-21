@@ -161,7 +161,7 @@ func resourceComponentActionCreate(ctx context.Context, d *schema.ResourceData, 
 
 	err = doActionComponent(ctx, client, d, componentId, buildCreateComponentActionBodyParams(d), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error operating (%s) the component (%s): %s", d.Get("action").(string), componentId, err)
+		return diag.Errorf("error operating the component (%s): %s", componentId, err)
 	}
 	d.SetId(componentId)
 
@@ -186,7 +186,7 @@ func resourceComponentActionUpdate(ctx context.Context, d *schema.ResourceData, 
 
 	err = doActionComponent(ctx, client, d, componentId, buildCreateComponentActionBodyParams(d), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
-		return diag.Errorf("unable to operate (%s) the component (%s): %s", d.Get("action").(string), componentId, err)
+		return diag.Errorf("unable to operate the component (%s): %s", componentId, err)
 	}
 
 	return resourceComponentActionRead(ctx, d, meta)
