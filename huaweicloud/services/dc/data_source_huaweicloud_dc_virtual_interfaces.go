@@ -201,8 +201,107 @@ func virtualInterfaceSchema() *schema.Resource {
 			"vif_peers": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        vifPeersSchema(),
+				Elem:        datasourceVifPeersSchema(),
 				Description: "The peer information of the virtual interface.",
+			},
+		},
+	}
+	return &sc
+}
+
+func datasourceVifPeersSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The VIF peer resource ID.`,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the virtual interface peer.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The description of the virtual interface peer.`,
+			},
+			"address_family": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The address family type of the virtual interface, which can be IPv4 or IPv6.`,
+			},
+			"local_gateway_ip": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The address of the virtual interface peer used on the cloud.`,
+			},
+			"remote_gateway_ip": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The address of the virtual interface peer used in the on-premises data center.`,
+			},
+			"route_mode": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The routing mode, which can be static or bgp.`,
+			},
+			"bgp_asn": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The ASN of the BGP peer.`,
+			},
+			"bgp_md5": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The MD5 password of the BGP peer.`,
+			},
+			"device_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the device that the virtual interface peer belongs to.`,
+			},
+			"enable_bfd": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether to enable BFD.`,
+			},
+			"enable_nqa": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether to enable NQA.`,
+			},
+			"bgp_route_limit": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The BGP route configuration.`,
+			},
+			"bgp_status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The BGP protocol status of the virtual interface peer.`,
+			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The status of the virtual interface peer.`,
+			},
+			"vif_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the virtual interface corresponding to the virtual interface peer.`,
+			},
+			"receive_route_num": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The number of received BGP routes if BGP routing is used.`,
+			},
+			"remote_ep_group": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The remote subnet list, which records the CIDR blocks used in the on-premises data center.`,
 			},
 		},
 	}
