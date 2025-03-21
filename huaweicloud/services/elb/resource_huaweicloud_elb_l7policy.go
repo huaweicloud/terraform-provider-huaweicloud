@@ -3,6 +3,7 @@ package elb
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -11,10 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/elb/v3/l7policies"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API ELB POST /v3/{project_id}/elb/l7policies
@@ -115,6 +115,10 @@ func ResourceL7PolicyV3() *schema.Resource {
 				Elem:     fixedResponseConfigSchema(),
 				MaxItems: 1,
 				Optional: true,
+				Computed: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"provisioning_status": {
@@ -395,453 +399,498 @@ func trafficLimitConfigSchema() *schema.Resource {
 
 func resourceL7PolicyV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/elb/l7policies"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	action := d.Get("action").(string)
-	createOpts := l7policies.CreateOpts{
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Action:      l7policies.Action(action),
-		Priority:    int32(d.Get("priority").(int)),
-		ListenerID:  d.Get("listener_id").(string),
-	}
-	if action == "REDIRECT_TO_POOL" {
-		createOpts.RedirectPoolID = d.Get("redirect_pool_id").(string)
-		createOpts.RedirectPoolsConfig = buildRedirectPoolsConfig(d)
-		createOpts.RedirectPoolsStickySessionConfig = buildRedirectPoolsStickySessionConfig(d)
-		createOpts.RedirectPoolsExtendConfig = buildRedirectPoolsExtendConfig(d)
-	} else if action == "REDIRECT_TO_LISTENER" {
-		createOpts.RedirectListenerID = d.Get("redirect_listener_id").(string)
-	} else if action == "REDIRECT_TO_URL" {
-		createOpts.RedirectUrlConfig = buildRedirectUrlConfig(d)
-	} else {
-		createOpts.FixedResponseConfig = buildFixedResponseConfig(d)
-	}
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 
-	l7Policy, err := l7policies.Create(elbClient, createOpts).Extract()
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	createOpt.JSONBody = utils.RemoveNil(buildCreateL7PolicyBodyParams(d))
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating L7 Policy: %s", err)
+		return diag.Errorf("error creating ELB L7 policy: %s", err)
 	}
 
-	timeout := d.Timeout(schema.TimeoutCreate)
+	createARespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.Errorf("error retrieving ELB L7 policy: %s", err)
+	}
+	policyId := utils.PathSearch("l7policy.id", createARespBody, "").(string)
+	if policyId == "" {
+		return diag.Errorf("error creating ELB L7 policy: ID is not found in API response")
+	}
+
+	d.SetId(policyId)
+
 	// Wait for L7 Policy to become active before continuing
-	err = waitForElbV3Policy(ctx, elbClient, l7Policy.ID, "ACTIVE", nil, timeout)
+	err = waitForL7Policy(ctx, client, policyId, "ACTIVE", nil, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(l7Policy.ID)
-
 	return resourceL7PolicyV3Read(ctx, d, meta)
 }
+func buildCreateL7PolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                                 utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":                          utils.ValueIgnoreEmpty(d.Get("description")),
+		"action":                               d.Get("action"),
+		"priority":                             utils.ValueIgnoreEmpty(d.Get("priority")),
+		"listener_id":                          d.Get("listener_id"),
+		"redirect_pool_id":                     utils.ValueIgnoreEmpty(d.Get("redirect_pool_id")),
+		"redirect_pools_config":                buildRedirectPoolsConfig(d),
+		"redirect_pools_sticky_session_config": buildRedirectPoolsStickySessionConfig(d),
+		"redirect_pools_extend_config":         buildRedirectPoolsExtendConfig(d),
+		"redirect_listener_id":                 utils.ValueIgnoreEmpty(d.Get("redirect_listener_id")),
+		"redirect_url_config":                  buildRedirectUrlConfig(d),
+		"fixed_response_config":                buildFixedResponseConfig(d),
+	}
+	return map[string]interface{}{"l7policy": bodyParams}
+}
 
-func buildRedirectPoolsConfig(d *schema.ResourceData) []*l7policies.RedirectPoolsConfig {
-	var redirectPoolsConfig []*l7policies.RedirectPoolsConfig
-	redirectPoolsConfigRaw := d.Get("redirect_pools_config").(*schema.Set).List()
-	for _, redirectPoolConfigRaw := range redirectPoolsConfigRaw {
-		v := redirectPoolConfigRaw.(map[string]interface{})
-		redirectPoolsConfig = append(redirectPoolsConfig, &l7policies.RedirectPoolsConfig{
-			PoolId: v["pool_id"].(string),
-			Weight: v["weight"].(int),
-		})
+func buildRedirectPoolsConfig(d *schema.ResourceData) []map[string]interface{} {
+	rawRedirectPoolsConfig := d.Get("redirect_pools_config").(*schema.Set)
+	if rawRedirectPoolsConfig.Len() == 0 {
+		return nil
+	}
+
+	redirectPoolsConfig := make([]map[string]interface{}, 0, rawRedirectPoolsConfig.Len())
+	for _, rawConfig := range rawRedirectPoolsConfig.List() {
+		if v, ok := rawConfig.(map[string]interface{}); ok {
+			redirectPoolsConfig = append(redirectPoolsConfig, map[string]interface{}{
+				"pool_id": v["pool_id"],
+				"weight":  utils.ValueIgnoreEmpty(v["weight"]),
+			})
+		}
 	}
 	return redirectPoolsConfig
 }
 
-func buildRedirectPoolsStickySessionConfig(d *schema.ResourceData) *l7policies.RedirectPoolsStickySessionConfig {
-	var redirectPoolsStickySessionConfig *l7policies.RedirectPoolsStickySessionConfig
-	redirectPoolsStickySessionConfigRaw := d.Get("redirect_pools_sticky_session_config").([]interface{})
-	if len(redirectPoolsStickySessionConfigRaw) == 1 {
-		if v, ok := redirectPoolsStickySessionConfigRaw[0].(map[string]interface{}); ok {
-			redirectPoolsStickySessionConfig = &l7policies.RedirectPoolsStickySessionConfig{
-				Enable:  v["enable"].(bool),
-				Timeout: v["timeout"].(int),
+func buildRedirectPoolsStickySessionConfig(d *schema.ResourceData) map[string]interface{} {
+	if rawConfig, ok := d.GetOk("redirect_pools_sticky_session_config"); ok {
+		if v, ok := rawConfig.([]interface{})[0].(map[string]interface{}); ok {
+			params := map[string]interface{}{
+				"enable":  v["enable"].(bool),
+				"timeout": v["timeout"].(int),
 			}
+			return params
 		}
 	}
-	return redirectPoolsStickySessionConfig
+	return nil
 }
 
-func buildRedirectPoolsExtendConfig(d *schema.ResourceData) *l7policies.RedirectPoolsExtendConfig {
-	var redirectPoolsExtendConfig *l7policies.RedirectPoolsExtendConfig
-	redirectPoolsExtendConfigRaw := d.Get("redirect_pools_extend_config").([]interface{})
-	if len(redirectPoolsExtendConfigRaw) == 1 {
-		if v, ok := redirectPoolsExtendConfigRaw[0].(map[string]interface{}); ok {
-			redirectPoolsExtendConfig = &l7policies.RedirectPoolsExtendConfig{
-				RewriteUrlEnable:    v["rewrite_url_enabled"].(bool),
-				RewriteUrlConfig:    buildRewriteUrlConfig(v["rewrite_url_config"]),
-				InsertHeadersConfig: buildInsertHeadersConfig(v["insert_headers_config"]),
-				RemoveHeadersConfig: buildRemoveHeadersConfig(v["remove_headers_config"]),
-				TrafficLimitConfig:  buildTrafficLimitConfig(v["traffic_limit_config"]),
+func buildRedirectPoolsExtendConfig(d *schema.ResourceData) map[string]interface{} {
+	if rawConfig, ok := d.GetOk("redirect_pools_extend_config"); ok {
+		if v, ok := rawConfig.([]interface{})[0].(map[string]interface{}); ok {
+			params := map[string]interface{}{
+				"rewrite_url_enable":    v["rewrite_url_enabled"].(bool),
+				"rewrite_url_config":    buildRewriteUrlConfig(v["rewrite_url_config"]),
+				"insert_headers_config": buildInsertHeadersConfig(v["insert_headers_config"]),
+				"remove_headers_config": buildRemoveHeadersConfig(v["remove_headers_config"]),
+				"traffic_limit_config":  buildTrafficLimitConfig(v["traffic_limit_config"]),
 			}
+			return params
 		}
 	}
-	return redirectPoolsExtendConfig
+	return nil
 }
 
-func buildRewriteUrlConfig(data interface{}) *l7policies.RewriteUrlConfig {
-	var rewriteUrlConfig *l7policies.RewriteUrlConfig
+func buildRewriteUrlConfig(data interface{}) map[string]interface{} {
 	rewriteUrlConfigRaw := data.([]interface{})
 	if len(rewriteUrlConfigRaw) == 1 {
 		if v, ok := rewriteUrlConfigRaw[0].(map[string]interface{}); ok {
-			rewriteUrlConfig = &l7policies.RewriteUrlConfig{
-				Host:  v["host"].(string),
-				Path:  v["path"].(string),
-				Query: v["query"].(string),
+			params := map[string]interface{}{
+				"host":  v["host"].(string),
+				"path":  v["path"].(string),
+				"query": v["query"].(string),
 			}
+			return params
 		}
 	}
-	return rewriteUrlConfig
+	return nil
 }
 
-func buildInsertHeadersConfig(data interface{}) *l7policies.InsertHeadersConfig {
-	var insertHeadersConfig *l7policies.InsertHeadersConfig
+func buildInsertHeadersConfig(data interface{}) map[string]interface{} {
 	insertHeadersConfigRaw := data.([]interface{})
 	if len(insertHeadersConfigRaw) == 1 {
 		if v, ok := insertHeadersConfigRaw[0].(map[string]interface{}); ok {
-			insertHeadersConfig = &l7policies.InsertHeadersConfig{
-				Configs: buildInsertHeaderConfig(v["configs"]),
+			params := map[string]interface{}{
+				"configs": buildInsertHeaderConfig(v["configs"]),
 			}
+			return params
 		}
 	}
-	return insertHeadersConfig
+	return nil
 }
 
-func buildInsertHeaderConfig(data interface{}) []*l7policies.InsertHeaderConfig {
-	var insertHeaderConfigs []*l7policies.InsertHeaderConfig
-	insertHeaderConfigsRaw := data.(*schema.Set).List()
-	for _, insertHeaderConfigRaw := range insertHeaderConfigsRaw {
-		v := insertHeaderConfigRaw.(map[string]interface{})
-		insertHeaderConfigs = append(insertHeaderConfigs, &l7policies.InsertHeaderConfig{
-			Key:       v["key"].(string),
-			ValueType: v["value_type"].(string),
-			Value:     v["value"].(string),
-		})
+func buildInsertHeaderConfig(data interface{}) []map[string]interface{} {
+	insertHeaderConfigsRaw := data.(*schema.Set)
+	if insertHeaderConfigsRaw.Len() == 0 {
+		return nil
 	}
+
+	insertHeaderConfigs := make([]map[string]interface{}, 0, insertHeaderConfigsRaw.Len())
+	for _, rawConfig := range insertHeaderConfigsRaw.List() {
+		if v, ok := rawConfig.(map[string]interface{}); ok {
+			insertHeaderConfigs = append(insertHeaderConfigs, map[string]interface{}{
+				"key":        v["key"].(string),
+				"value":      v["value"].(string),
+				"value_type": v["value_type"].(string),
+			})
+		}
+	}
+
 	return insertHeaderConfigs
 }
 
-func buildRemoveHeadersConfig(data interface{}) *l7policies.RemoveHeadersConfig {
-	var removeHeadersConfig *l7policies.RemoveHeadersConfig
+func buildRemoveHeadersConfig(data interface{}) map[string]interface{} {
 	removeHeadersConfigRaw := data.([]interface{})
 	if len(removeHeadersConfigRaw) == 1 {
 		if v, ok := removeHeadersConfigRaw[0].(map[string]interface{}); ok {
-			removeHeadersConfig = &l7policies.RemoveHeadersConfig{
-				Configs: buildRemoveHeaderConfig(v["configs"]),
+			params := map[string]interface{}{
+				"configs": buildRemoveHeaderConfig(v["configs"]),
 			}
+			return params
 		}
 	}
-	return removeHeadersConfig
+	return nil
 }
 
-func buildRemoveHeaderConfig(data interface{}) []*l7policies.RemoveHeaderConfig {
-	var removeHeaderConfigs []*l7policies.RemoveHeaderConfig
-	removeHeaderConfigsRaw := data.(*schema.Set).List()
-	for _, removeHeaderConfigRaw := range removeHeaderConfigsRaw {
-		v := removeHeaderConfigRaw.(map[string]interface{})
-		removeHeaderConfigs = append(removeHeaderConfigs, &l7policies.RemoveHeaderConfig{
-			Key: v["key"].(string),
-		})
+func buildRemoveHeaderConfig(data interface{}) []map[string]interface{} {
+	removeHeaderConfigsRaw := data.(*schema.Set)
+	if removeHeaderConfigsRaw.Len() == 0 {
+		return nil
 	}
+
+	removeHeaderConfigs := make([]map[string]interface{}, 0, removeHeaderConfigsRaw.Len())
+	for _, rawConfig := range removeHeaderConfigsRaw.List() {
+		if v, ok := rawConfig.(map[string]interface{}); ok {
+			removeHeaderConfigs = append(removeHeaderConfigs, map[string]interface{}{
+				"key": v["key"].(string),
+			})
+		}
+	}
+
 	return removeHeaderConfigs
 }
 
-func buildTrafficLimitConfig(data interface{}) *l7policies.TrafficLimitConfig {
-	var trafficLimitConfig *l7policies.TrafficLimitConfig
+func buildTrafficLimitConfig(data interface{}) map[string]interface{} {
 	trafficLimitConfigRaw := data.([]interface{})
 	if len(trafficLimitConfigRaw) == 1 {
 		if v, ok := trafficLimitConfigRaw[0].(map[string]interface{}); ok {
-			trafficLimitConfig = &l7policies.TrafficLimitConfig{
-				Qps:            v["qps"].(int),
-				PerSourceIpQps: v["per_source_ip_qps"].(int),
-				Burst:          v["burst"].(int),
+			params := map[string]interface{}{
+				"qps":               v["qps"].(int),
+				"per_source_ip_qps": v["per_source_ip_qps"].(int),
+				"burst":             v["burst"].(int),
 			}
+			return params
 		}
 	}
-	return trafficLimitConfig
+
+	return nil
 }
 
-func buildRedirectUrlConfig(d *schema.ResourceData) *l7policies.RedirectUrlConfig {
-	var redirectUrlConfig *l7policies.RedirectUrlConfig
-	redirectUrlConfigRaw := d.Get("redirect_url_config").([]interface{})
-	if len(redirectUrlConfigRaw) == 1 {
-		if v, ok := redirectUrlConfigRaw[0].(map[string]interface{}); ok {
-			redirectUrlConfig = &l7policies.RedirectUrlConfig{
-				Protocol:            v["protocol"].(string),
-				Host:                v["host"].(string),
-				Port:                v["port"].(string),
-				Path:                v["path"].(string),
-				Query:               v["query"].(string),
-				StatusCode:          v["status_code"].(string),
-				InsertHeadersConfig: buildInsertHeadersConfig(v["insert_headers_config"]),
-				RemoveHeadersConfig: buildRemoveHeadersConfig(v["remove_headers_config"]),
+func buildRedirectUrlConfig(d *schema.ResourceData) map[string]interface{} {
+	if redirectUrlConfigRaw, ok := d.GetOk("redirect_url_config"); ok {
+		if v, ok := redirectUrlConfigRaw.([]interface{})[0].(map[string]interface{}); ok {
+			params := map[string]interface{}{
+				"protocol":              v["protocol"].(string),
+				"host":                  v["host"].(string),
+				"port":                  v["port"].(string),
+				"path":                  v["path"].(string),
+				"query":                 v["query"].(string),
+				"status_code":           v["status_code"].(string),
+				"insert_headers_config": buildInsertHeadersConfig(v["insert_headers_config"]),
+				"remove_headers_config": buildRemoveHeadersConfig(v["remove_headers_config"]),
 			}
+			return params
 		}
 	}
-	return redirectUrlConfig
+	return nil
 }
 
-func buildFixedResponseConfig(d *schema.ResourceData) *l7policies.FixedResponseConfig {
-	var fixedResponseConfig *l7policies.FixedResponseConfig
-	fixedResponseConfigRaw := d.Get("fixed_response_config").([]interface{})
-	if len(fixedResponseConfigRaw) == 1 {
-		if v, ok := fixedResponseConfigRaw[0].(map[string]interface{}); ok {
-			fixedResponseConfig = &l7policies.FixedResponseConfig{
-				StatusCode:          v["status_code"].(string),
-				ContentType:         v["content_type"].(string),
-				MessageBody:         v["message_body"].(string),
-				InsertHeadersConfig: buildInsertHeadersConfig(v["insert_headers_config"]),
-				RemoveHeadersConfig: buildRemoveHeadersConfig(v["remove_headers_config"]),
-				TrafficLimitConfig:  buildTrafficLimitConfig(v["traffic_limit_config"]),
+func buildFixedResponseConfig(d *schema.ResourceData) map[string]interface{} {
+	if fixedResponseConfigRaw, ok := d.GetOk("fixed_response_config"); ok {
+		if v, ok := fixedResponseConfigRaw.([]interface{})[0].(map[string]interface{}); ok {
+			params := map[string]interface{}{
+				"status_code":           v["status_code"].(string),
+				"content_type":          v["content_type"].(string),
+				"message_body":          v["message_body"].(string),
+				"insert_headers_config": buildInsertHeadersConfig(v["insert_headers_config"]),
+				"remove_headers_config": buildRemoveHeadersConfig(v["remove_headers_config"]),
+				"traffic_limit_config":  buildTrafficLimitConfig(v["traffic_limit_config"]),
 			}
+			return params
 		}
 	}
-	return fixedResponseConfig
+	return nil
 }
 
 func resourceL7PolicyV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	var (
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	l7Policy, err := l7policies.Get(elbClient, d.Id()).Extract()
+	l7Policy, err := getL7Policy(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "L7 Policy")
+		return common.CheckDeletedDiag(d, err, "error retrieving ELB L7 policy")
 	}
 
-	mErr := multierror.Append(nil,
-		d.Set("description", l7Policy.Description),
-		d.Set("name", l7Policy.Name),
-		d.Set("action", l7Policy.Action),
-		d.Set("priority", l7Policy.Priority),
-		d.Set("listener_id", l7Policy.ListenerID),
-		d.Set("redirect_pool_id", l7Policy.RedirectPoolID),
-		d.Set("redirect_listener_id", l7Policy.RedirectListenerID),
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("l7policy.name", l7Policy, nil)),
+		d.Set("description", utils.PathSearch("l7policy.description", l7Policy, nil)),
+		d.Set("action", utils.PathSearch("l7policy.action", l7Policy, nil)),
+		d.Set("priority", utils.PathSearch("l7policy.priority", l7Policy, nil)),
+		d.Set("listener_id", utils.PathSearch("l7policy.listener_id", l7Policy, nil)),
+		d.Set("redirect_pool_id", utils.PathSearch("l7policy.redirect_pool_id", l7Policy, nil)),
+		d.Set("redirect_listener_id", utils.PathSearch("l7policy.redirect_listener_id", l7Policy, nil)),
 		d.Set("redirect_pools_config", flattenRedirectPoolsConfig(l7Policy)),
 		d.Set("redirect_pools_sticky_session_config", flattenRedirectPoolsStickySessionConfig(l7Policy)),
 		d.Set("redirect_pools_extend_config", flattenRedirectPoolsExtendConfig(l7Policy)),
 		d.Set("redirect_url_config", flattenRedirectUrlConfig(l7Policy)),
 		d.Set("fixed_response_config", flattenFixedResponseConfig(l7Policy)),
-		d.Set("region", cfg.GetRegion(d)),
-		d.Set("created_at", l7Policy.CreatedAt),
-		d.Set("updated_at", l7Policy.UpdatedAt),
-		d.Set("provisioning_status", l7Policy.ProvisioningStatus),
+		d.Set("created_at", utils.PathSearch("l7policy.created_at", l7Policy, nil)),
+		d.Set("updated_at", utils.PathSearch("l7policy.updated_at", l7Policy, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("l7policy.enterprise_project_id", l7Policy, nil)),
+		d.Set("provisioning_status", utils.PathSearch("l7policy.provisioning_status", l7Policy, nil)),
 	)
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting Dedicated ELB l7policy fields: %s", err)
-	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenRedirectPoolsConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
-	var redirectPoolsConfig []map[string]interface{}
-	if l7policy.RedirectPoolsConfig != nil {
-		redirectPoolsConfig = make([]map[string]interface{}, 0, len(l7policy.RedirectPoolsConfig))
-		for _, redirectPoolConfig := range l7policy.RedirectPoolsConfig {
-			redirectPoolsConfig = append(redirectPoolsConfig, map[string]interface{}{
-				"pool_id": redirectPoolConfig.PoolId,
-				"weight":  redirectPoolConfig.Weight,
-			})
-		}
+func flattenRedirectPoolsConfig(l7policy interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("l7policy.redirect_pools_config", l7policy, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) < 1 {
+		return nil
 	}
-	return redirectPoolsConfig
+
+	rst := make([]map[string]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"pool_id": utils.PathSearch("pool_id", v, nil),
+			"weight":  utils.PathSearch("weight", v, nil),
+		})
+	}
+	return rst
 }
 
-func flattenRedirectPoolsStickySessionConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
-	var redirectPoolsStickySessionConfig []map[string]interface{}
-	if l7policy.RedirectPoolsStickySessionConfig != nil {
-		redirectPoolsStickySessionConfig = make([]map[string]interface{}, 1)
-		params := make(map[string]interface{})
-		params["enable"] = l7policy.RedirectPoolsStickySessionConfig.Enable
-		params["timeout"] = l7policy.RedirectPoolsStickySessionConfig.Timeout
-		redirectPoolsStickySessionConfig[0] = params
+func flattenRedirectPoolsStickySessionConfig(l7policy interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("l7policy.redirect_pools_sticky_session_config", l7policy, nil)
+	if curJson == nil {
+		return nil
 	}
-	return redirectPoolsStickySessionConfig
+
+	rst := []map[string]interface{}{
+		{
+			"enable":  utils.PathSearch("enable", curJson, nil),
+			"timeout": utils.PathSearch("timeout", curJson, nil),
+		},
+	}
+	return rst
 }
 
-func flattenRedirectPoolsExtendConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
-	var redirectPoolsExtendConfig []map[string]interface{}
-	if l7policy.RedirectPoolsExtendConfig != nil {
-		redirectPoolsExtendConfig = make([]map[string]interface{}, 1)
-		params := make(map[string]interface{})
-		params["rewrite_url_enabled"] = l7policy.RedirectPoolsExtendConfig.RewriteUrlEnable
-		params["rewrite_url_config"] = flattenRewriteUrlConfig(l7policy)
-		params["insert_headers_config"] = flattenInsertHeadersConfig(l7policy.RedirectPoolsExtendConfig.InsertHeadersConfig)
-		params["remove_headers_config"] = flattenRemoveHeadersConfig(l7policy.RedirectPoolsExtendConfig.RemoveHeadersConfig)
-		params["traffic_limit_config"] = flattenTrafficLimitConfig(l7policy.RedirectPoolsExtendConfig.TrafficLimitConfig)
-		redirectPoolsExtendConfig[0] = params
+func flattenRedirectPoolsExtendConfig(l7policy interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("l7policy.redirect_pools_extend_config", l7policy, nil)
+	if curJson == nil {
+		return nil
 	}
-	return redirectPoolsExtendConfig
+
+	rst := []map[string]interface{}{
+		{
+			"rewrite_url_enabled":   utils.PathSearch("rewrite_url_enable", curJson, nil),
+			"rewrite_url_config":    flattenRewriteUrlConfig(curJson),
+			"insert_headers_config": flattenInsertHeadersConfig(curJson),
+			"remove_headers_config": flattenRemoveHeadersConfig(curJson),
+			"traffic_limit_config":  flattenTrafficLimitConfig(curJson),
+		},
+	}
+	return rst
 }
 
-func flattenRewriteUrlConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
-	var rewriteUrlConfig []map[string]interface{}
-	if l7policy.RedirectPoolsExtendConfig.RewriteUrlConfig != nil {
-		rewriteUrlConfig = make([]map[string]interface{}, 1)
-		params := make(map[string]interface{})
-		params["host"] = l7policy.RedirectPoolsExtendConfig.RewriteUrlConfig.Host
-		params["path"] = l7policy.RedirectPoolsExtendConfig.RewriteUrlConfig.Path
-		params["query"] = l7policy.RedirectPoolsExtendConfig.RewriteUrlConfig.Query
-		rewriteUrlConfig[0] = params
+func flattenRewriteUrlConfig(cfg interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("rewrite_url_config", cfg, nil)
+	if curJson == nil {
+		return nil
 	}
-	return rewriteUrlConfig
+
+	rst := []map[string]interface{}{
+		{
+			"host":  utils.PathSearch("host", curJson, nil),
+			"path":  utils.PathSearch("path", curJson, nil),
+			"query": utils.PathSearch("query", curJson, nil),
+		},
+	}
+	return rst
 }
 
-func flattenInsertHeadersConfig(cfg *l7policies.InsertHeadersConfig) []map[string]interface{} {
-	var insertHeadersConfig []map[string]interface{}
-	if cfg != nil {
-		insertHeadersConfig = make([]map[string]interface{}, 1)
-		params := make(map[string]interface{})
-		params["configs"] = flattenInsertHeaderConfigs(cfg.Configs)
-		insertHeadersConfig[0] = params
+func flattenInsertHeadersConfig(cfg interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("insert_headers_config", cfg, nil)
+	if curJson == nil {
+		return nil
 	}
-	return insertHeadersConfig
+
+	rst := []map[string]interface{}{
+		{
+			"configs": flattenInsertHeaderConfigs(curJson),
+		},
+	}
+	return rst
 }
 
-func flattenInsertHeaderConfigs(insertHeaderConfigs []*l7policies.InsertHeaderConfig) []map[string]interface{} {
-	var configs []map[string]interface{}
-	if len(insertHeaderConfigs) > 0 {
-		configs = make([]map[string]interface{}, 0, len(insertHeaderConfigs))
-		for _, v := range insertHeaderConfigs {
-			configs = append(configs, map[string]interface{}{
-				"key":        v.Key,
-				"value_type": v.ValueType,
-				"value":      v.Value,
-			})
-		}
+func flattenInsertHeaderConfigs(insertHeaderConfigs interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs", insertHeaderConfigs, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) < 1 {
+		return nil
 	}
-	return configs
+
+	rst := make([]map[string]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"key":        utils.PathSearch("key", v, nil),
+			"value":      utils.PathSearch("value", v, nil),
+			"value_type": utils.PathSearch("value_type", v, nil),
+		})
+	}
+	return rst
 }
 
-func flattenRemoveHeadersConfig(cfg *l7policies.RemoveHeadersConfig) []map[string]interface{} {
-	var removeHeadersConfig []map[string]interface{}
-	if cfg != nil {
-		removeHeadersConfig = make([]map[string]interface{}, 1)
-		params := make(map[string]interface{})
-		params["configs"] = flattenRemoveHeaderConfigs(cfg.Configs)
-		removeHeadersConfig[0] = params
+func flattenRemoveHeadersConfig(cfg interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("remove_headers_config", cfg, nil)
+	if curJson == nil {
+		return nil
 	}
-	return removeHeadersConfig
+
+	rst := []map[string]interface{}{
+		{
+			"configs": flattenRemoveHeaderConfigs(curJson),
+		},
+	}
+	return rst
 }
 
-func flattenRemoveHeaderConfigs(removeHeaderConfigs []*l7policies.RemoveHeaderConfig) []map[string]interface{} {
-	var configs []map[string]interface{}
-	if len(removeHeaderConfigs) > 0 {
-		configs = make([]map[string]interface{}, 0, len(removeHeaderConfigs))
-		for _, v := range removeHeaderConfigs {
-			configs = append(configs, map[string]interface{}{
-				"key": v.Key,
-			})
-		}
+func flattenRemoveHeaderConfigs(removeHeaderConfigs interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs", removeHeaderConfigs, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) < 1 {
+		return nil
 	}
-	return configs
+
+	rst := make([]map[string]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"key": utils.PathSearch("key", v, nil),
+		})
+	}
+	return rst
 }
 
-func flattenTrafficLimitConfig(cfg *l7policies.TrafficLimitConfig) []map[string]interface{} {
-	var trafficLimitConfig []map[string]interface{}
-	if cfg != nil {
-		trafficLimitConfig = make([]map[string]interface{}, 1)
-		params := make(map[string]interface{})
-		params["qps"] = cfg.Qps
-		params["per_source_ip_qps"] = cfg.PerSourceIpQps
-		params["burst"] = cfg.Burst
-		trafficLimitConfig[0] = params
+func flattenTrafficLimitConfig(cfg interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("traffic_limit_config", cfg, nil)
+	if curJson == nil {
+		return nil
 	}
-	return trafficLimitConfig
+
+	rst := []map[string]interface{}{
+		{
+			"qps":               utils.PathSearch("qps", curJson, nil),
+			"per_source_ip_qps": utils.PathSearch("per_source_ip_qps", curJson, nil),
+			"burst":             utils.PathSearch("burst", curJson, nil),
+		},
+	}
+	return rst
 }
 
-func flattenRedirectUrlConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
-	var redirectUrlConfig []map[string]interface{}
-	if l7policy.RedirectUrlConfig != nil {
-		redirectUrlConfig = make([]map[string]interface{}, 1)
-		params := make(map[string]interface{})
-		params["protocol"] = l7policy.RedirectUrlConfig.Protocol
-		params["host"] = l7policy.RedirectUrlConfig.Host
-		params["port"] = l7policy.RedirectUrlConfig.Port
-		params["path"] = l7policy.RedirectUrlConfig.Path
-		params["query"] = l7policy.RedirectUrlConfig.Query
-		params["status_code"] = l7policy.RedirectUrlConfig.StatusCode
-		params["insert_headers_config"] = flattenInsertHeadersConfig(l7policy.RedirectUrlConfig.InsertHeadersConfig)
-		params["remove_headers_config"] = flattenRemoveHeadersConfig(l7policy.RedirectUrlConfig.RemoveHeadersConfig)
-		redirectUrlConfig[0] = params
+func flattenRedirectUrlConfig(l7policy interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("l7policy.redirect_url_config", l7policy, nil)
+	if curJson == nil {
+		return nil
 	}
-	return redirectUrlConfig
+
+	rst := []map[string]interface{}{
+		{
+			"protocol":              utils.PathSearch("protocol", curJson, nil),
+			"host":                  utils.PathSearch("host", curJson, nil),
+			"port":                  utils.PathSearch("port", curJson, nil),
+			"path":                  utils.PathSearch("path", curJson, nil),
+			"query":                 utils.PathSearch("query", curJson, nil),
+			"status_code":           utils.PathSearch("status_code", curJson, nil),
+			"insert_headers_config": flattenInsertHeadersConfig(curJson),
+			"remove_headers_config": flattenRemoveHeadersConfig(curJson),
+		},
+	}
+	return rst
 }
 
-func flattenFixedResponseConfig(l7policy *l7policies.L7Policy) []map[string]interface{} {
-	var fixedResponseConfig []map[string]interface{}
-	if l7policy.FixedResponseConfig != nil {
-		fixedResponseConfig = make([]map[string]interface{}, 1)
-		params := make(map[string]interface{})
-		params["status_code"] = l7policy.FixedResponseConfig.StatusCode
-		params["content_type"] = l7policy.FixedResponseConfig.ContentType
-		params["message_body"] = l7policy.FixedResponseConfig.MessageBody
-		params["insert_headers_config"] = flattenInsertHeadersConfig(l7policy.FixedResponseConfig.InsertHeadersConfig)
-		params["remove_headers_config"] = flattenRemoveHeadersConfig(l7policy.FixedResponseConfig.RemoveHeadersConfig)
-		params["traffic_limit_config"] = flattenTrafficLimitConfig(l7policy.FixedResponseConfig.TrafficLimitConfig)
-		fixedResponseConfig[0] = params
+func flattenFixedResponseConfig(l7policy interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("l7policy.fixed_response_config", l7policy, nil)
+	if curJson == nil {
+		return nil
 	}
-	return fixedResponseConfig
+
+	rst := []map[string]interface{}{
+		{
+			"status_code":           utils.PathSearch("status_code", curJson, nil),
+			"content_type":          utils.PathSearch("content_type", curJson, nil),
+			"message_body":          utils.PathSearch("message_body", curJson, nil),
+			"insert_headers_config": flattenInsertHeadersConfig(curJson),
+			"remove_headers_config": flattenRemoveHeadersConfig(curJson),
+			"traffic_limit_config":  flattenTrafficLimitConfig(curJson),
+		},
+	}
+	return rst
 }
 
 func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/elb/l7policies/{l7policy_id}"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	var updateOpts l7policies.UpdateOpts
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{l7policy_id}", d.Id())
 
-	if d.HasChange("name") {
-		name := d.Get("name").(string)
-		updateOpts.Name = &name
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	if d.HasChange("priority") {
-		priority := d.Get("priority").(int)
-		updateOpts.Priority = int32(priority)
-	}
-	if d.HasChange("description") {
-		description := d.Get("description").(string)
-		updateOpts.Description = &description
-	}
-	if d.HasChange("redirect_pool_id") {
-		redirectPoolID := d.Get("redirect_pool_id").(string)
-		updateOpts.RedirectPoolID = &redirectPoolID
-	}
-	if d.HasChange("redirect_pools_config") {
-		updateOpts.RedirectPoolsConfig = buildRedirectPoolsConfig(d)
-	}
-	if d.HasChange("redirect_pools_sticky_session_config") {
-		updateOpts.RedirectPoolsStickySessionConfig = buildRedirectPoolsStickySessionConfig(d)
-	}
-	if d.HasChange("redirect_pools_extend_config") {
-		updateOpts.RedirectPoolsExtendConfig = buildRedirectPoolsExtendConfig(d)
-	}
-	if d.HasChange("redirect_listener_id") {
-		redirectListenerID := d.Get("redirect_listener_id").(string)
-		updateOpts.RedirectListenerID = &redirectListenerID
-	}
-	if d.HasChange("redirect_url_config") {
-		updateOpts.RedirectUrlConfig = buildRedirectUrlConfig(d)
-	}
-	if d.HasChange("fixed_response_config") {
-		updateOpts.FixedResponseConfig = buildFixedResponseConfig(d)
-	}
-
-	_, err = l7policies.Update(elbClient, d.Id(), updateOpts).Extract()
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateL7PolicyBodyParams(d))
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("unable to update L7 Policy %s: %s", d.Id(), err)
+		return diag.Errorf("error updating ELB L7 policy: %s", err)
 	}
 
-	timeout := d.Timeout(schema.TimeoutUpdate)
-	err = waitForElbV3Policy(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
+	err = waitForL7Policy(ctx, client, d.Id(), "ACTIVE", nil, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -849,20 +898,49 @@ func resourceL7PolicyV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceL7PolicyV3Read(ctx, d, meta)
 }
 
+func buildUpdateL7PolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                                 d.Get("name"),
+		"description":                          d.Get("description"),
+		"priority":                             d.Get("priority"),
+		"redirect_pool_id":                     utils.ValueIgnoreEmpty(d.Get("redirect_pool_id")),
+		"redirect_pools_config":                buildRedirectPoolsConfig(d),
+		"redirect_pools_sticky_session_config": buildRedirectPoolsStickySessionConfig(d),
+		"redirect_pools_extend_config":         buildRedirectPoolsExtendConfig(d),
+		"redirect_listener_id":                 utils.ValueIgnoreEmpty(d.Get("redirect_listener_id")),
+		"redirect_url_config":                  buildRedirectUrlConfig(d),
+		"fixed_response_config":                buildFixedResponseConfig(d),
+	}
+	return map[string]interface{}{"l7policy": bodyParams}
+}
+
 func resourceL7PolicyV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/elb/l7policies/{l7policy_id}"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	err = l7policies.Delete(elbClient, d.Id()).ExtractErr()
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error deleting L7 Policy")
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{l7policy_id}", d.Id())
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	timeout := d.Timeout(schema.TimeoutDelete)
-	err = waitForElbV3Policy(ctx, elbClient, d.Id(), "DELETED", nil, timeout)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error deleting ELB L7 Policy")
+	}
+
+	err = waitForL7Policy(ctx, client, d.Id(), "DELETED", nil, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -870,12 +948,12 @@ func resourceL7PolicyV3Delete(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-func waitForElbV3Policy(ctx context.Context, elbClient *golangsdk.ServiceClient, id string, target string,
+func waitForL7Policy(ctx context.Context, client *golangsdk.ServiceClient, id string, target string,
 	pending []string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{target},
 		Pending:      pending,
-		Refresh:      resourceElbV3PolicyRefreshFunc(elbClient, id),
+		Refresh:      resourceL7PolicyRefreshFunc(client, id),
 		Timeout:      timeout,
 		Delay:        5 * time.Second,
 		PollInterval: 3 * time.Second,
@@ -888,22 +966,44 @@ func waitForElbV3Policy(ctx context.Context, elbClient *golangsdk.ServiceClient,
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("error: policy %s not found: %s", id, err)
+				return fmt.Errorf("error: L7 policy %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("error waiting for policy %s to become %s: %s", id, target, err)
+		return fmt.Errorf("error waiting for L7 policy %s to become %s: %s", id, target, err)
 	}
 
 	return nil
 }
 
-func resourceElbV3PolicyRefreshFunc(elbClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func resourceL7PolicyRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		policy, err := l7policies.Get(elbClient, id).Extract()
+		policy, err := getL7Policy(client, id)
 		if err != nil {
 			return nil, "", err
 		}
 
-		return policy, policy.ProvisioningStatus, nil
+		status := utils.PathSearch("l7policy.provisioning_status", policy, "")
+		return policy, status.(string), nil
 	}
+}
+
+func getL7Policy(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/elb/l7policies/{l7policy_id}"
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{l7policy_id}", id)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
 }
