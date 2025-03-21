@@ -65,6 +65,9 @@ func ResourceSearchCriteria() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
+				Description: utils.SchemaDesc("The enterprise project ID.",
+					utils.SchemaDescInput{Internal: true},
+				),
 			},
 		},
 	}
