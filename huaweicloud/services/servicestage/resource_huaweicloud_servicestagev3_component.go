@@ -280,7 +280,7 @@ func ResourceV3Component() *schema.Resource {
 				Description: `The configuration of the deploy strategy.`,
 			},
 			// Most of the strategy configuration inputs for component deployment and upgrades have been changed from
-			// deploy_strategy to update_strategy now, but for this parameter configuration, service does not return.
+			// deploy_strategy to update_strategy now.
 			"update_strategy": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1229,6 +1229,12 @@ func flattenV3ExternalAccesses(accesses []interface{}) []map[string]interface{} 
 
 	result := make([]map[string]interface{}, 0, len(accesses))
 	for _, access := range accesses {
+		protocol := utils.PathSearch("protocol", access, "").(string)
+		lowercaseProtocol := strings.ToLower(protocol)
+		// Only external accesses of protocol http or https can be defined manually.
+		if lowercaseProtocol != "http" && lowercaseProtocol != "https" {
+			continue
+		}
 		result = append(result, map[string]interface{}{
 			"protocol":     utils.PathSearch("protocol", access, nil),
 			"address":      utils.PathSearch("address", access, nil),
