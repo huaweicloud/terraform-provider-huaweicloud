@@ -575,6 +575,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_analytics":           cdn.DataSourceCdnAnalytics(),
 
 			"huaweicloud_ces_agent_dimensions":                  ces.DataSourceCesAgentDimensions(),
+			"huaweicloud_ces_agent_statuses":                    ces.DataSourceCesAgentStatuses(),
 			"huaweicloud_ces_alarm_templates":                   ces.DataSourceCesAlarmTemplates(),
 			"huaweicloud_ces_alarm_template_association_alarms": ces.DataSourceCesAlarmTemplateAssociationAlarms(),
 			"huaweicloud_ces_alarmrules":                        ces.DataSourceCesAlarmRules(),
