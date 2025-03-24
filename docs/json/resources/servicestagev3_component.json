@@ -116,6 +116,11 @@
                 "optional": true,
                 "computed": true
               },
+              "update_strategy": {
+                "type": "string",
+                "description": "The configuration of the update strategy, in JSON format.",
+                "optional": true
+              },
               "updated_at": {
                 "type": "string",
                 "description": "The latest update time of the component, in RFC3339 format.",
