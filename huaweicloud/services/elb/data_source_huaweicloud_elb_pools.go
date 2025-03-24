@@ -420,23 +420,6 @@ func flattenPoolMembers(resp interface{}) []interface{} {
 	return rst
 }
 
-func flattenPoolPersistence(resp interface{}) []interface{} {
-	var rst []interface{}
-	curJson := utils.PathSearch("session_persistence", resp, make(map[string]interface{})).(map[string]interface{})
-	if len(curJson) < 1 {
-		return nil
-	}
-
-	rst = []interface{}{
-		map[string]interface{}{
-			"type":        utils.PathSearch("type", curJson, nil),
-			"cookie_name": utils.PathSearch("cookie_name", curJson, nil),
-			"timeout":     utils.PathSearch("persistence_timeout", curJson, nil),
-		},
-	}
-	return rst
-}
-
 func buildListPoolsQueryParams(d *schema.ResourceData) string {
 	res := ""
 	if v, ok := d.GetOk("pool_id"); ok {
