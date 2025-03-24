@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.73.3 (March 24, 2025)
+
+* **New Data Source:**
+  + `huaweicloud_ims_tags` [GH-6559]
+
 ## 1.73.2 (March 21, 2025)
 
 * **New Data Source:**
