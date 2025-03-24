@@ -239,6 +239,8 @@ The following arguments are supported:
 * `deploy_strategy` - (Optional, List) Specifies the configuration of the deploy strategy.  
   The [deploy_strategy](#servicestage_v3_component_deploy_strategy) structure is documented below.
 
+* `update_strategy` - (Optional, String) Specifies the configuration of the update strategy, in JSON format.
+
 * `command` - (Optional, String) Specifies the start commands of the component, in JSON format.  
   For the keys, please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/api-servicestage/servicestage_06_0076.html#servicestage_06_0076__table856311795212).
 

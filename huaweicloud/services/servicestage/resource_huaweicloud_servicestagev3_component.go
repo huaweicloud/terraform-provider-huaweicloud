@@ -279,6 +279,14 @@ func ResourceV3Component() *schema.Resource {
 				},
 				Description: `The configuration of the deploy strategy.`,
 			},
+			// Most of the strategy configuration inputs for component deployment and upgrades have been changed from
+			// deploy_strategy to update_strategy now.
+			"update_strategy": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsJSON,
+				Description:  `The configuration of the update strategy, in JSON format.`,
+			},
 			"command": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -849,6 +857,7 @@ func buildV3ComponentCreateBodyParams(d *schema.ResourceData) map[string]interfa
 		"envs":              utils.ValueIgnoreEmpty(buildV3ComponentEnvVariables(d.Get("envs").(*schema.Set))),
 		"storages":          utils.ValueIgnoreEmpty(buildV3ComponentStorages(d.Get("storages").(*schema.Set))),
 		"deploy_strategy":   utils.ValueIgnoreEmpty(buildV3ComponentDeployStrategy(d.Get("deploy_strategy").([]interface{}))),
+		"update_strategy":   utils.StringToJson(d.Get("update_strategy").(string)),
 		"command":           utils.StringToJson(d.Get("command").(string)),
 		"post_start":        utils.ValueIgnoreEmpty(buildV3ComponentLifecycle(d.Get("post_start").([]interface{}))),
 		"pre_stop":          utils.ValueIgnoreEmpty(buildV3ComponentLifecycle(d.Get("pre_stop").([]interface{}))),
@@ -1220,6 +1229,12 @@ func flattenV3ExternalAccesses(accesses []interface{}) []map[string]interface{} 
 
 	result := make([]map[string]interface{}, 0, len(accesses))
 	for _, access := range accesses {
+		protocol := utils.PathSearch("protocol", access, "").(string)
+		lowercaseProtocol := strings.ToLower(protocol)
+		// Only external accesses of protocol http or https can be defined manually.
+		if lowercaseProtocol != "http" && lowercaseProtocol != "https" {
+			continue
+		}
 		result = append(result, map[string]interface{}{
 			"protocol":     utils.PathSearch("protocol", access, nil),
 			"address":      utils.PathSearch("address", access, nil),
@@ -1267,6 +1282,7 @@ func resourceV3ComponentRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("storages", flattenV3ComponentStorages(utils.PathSearch("storages", respBody, make([]interface{}, 0)).([]interface{}))),
 		d.Set("deploy_strategy", flattenV3ComponentDeployStrategy(utils.PathSearch("deploy_strategy", respBody,
 			make(map[string]interface{})).(map[string]interface{}))),
+		d.Set("update_strategy", utils.JsonToString(utils.PathSearch("update_strategy", respBody, nil))),
 		d.Set("command", utils.JsonToString(utils.PathSearch("command", respBody, nil))),
 		d.Set("post_start", flattenV3ComponentLifecycle(utils.PathSearch("post_start", respBody,
 			make(map[string]interface{})).(map[string]interface{}))),
@@ -1322,6 +1338,7 @@ func buildV3ComponentUpdteBodyParams(d *schema.ResourceData) map[string]interfac
 		"envs":              utils.ValueIgnoreEmpty(buildV3ComponentEnvVariables(d.Get("envs").(*schema.Set))),
 		"storages":          utils.ValueIgnoreEmpty(buildV3ComponentStorages(d.Get("storages").(*schema.Set))),
 		"deploy_strategy":   utils.ValueIgnoreEmpty(buildV3ComponentDeployStrategy(d.Get("deploy_strategy").([]interface{}))),
+		"update_strategy":   utils.StringToJson(d.Get("update_strategy").(string)),
 		"command":           utils.StringToJson(d.Get("command").(string)),
 		"post_start":        utils.ValueIgnoreEmpty(buildV3ComponentLifecycle(d.Get("post_start").([]interface{}))),
 		"pre_stop":          utils.ValueIgnoreEmpty(buildV3ComponentLifecycle(d.Get("pre_stop").([]interface{}))),
