@@ -362,6 +362,13 @@ var (
 	// The SecMaster playbook instance ID
 	HW_SECMASTER_INSTANCE_ID = os.Getenv("HW_SECMASTER_INSTANCE_ID")
 
+	// The ID and product ID to create a SecMaster post paid order
+	HW_SECMASTER_ORDER_ID   = os.Getenv("HW_SECMASTER_ORDER_ID")
+	HW_SECMASTER_PRODUCT_ID = os.Getenv("HW_SECMASTER_PRODUCT_ID")
+
+	// The flag of whether to create a SecMaster workspace
+	HW_SECMASTER_WORKSPACE = os.Getenv("HW_SECMASTER_WORKSPACE")
+
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
 	HW_MODELARTS_USER_LOGIN_PASSWORD = os.Getenv("HW_MODELARTS_USER_LOGIN_PASSWORD")
 	HW_MODELARTS_DEVSERVER_FLAVOR    = os.Getenv("HW_MODELARTS_DEVSERVER_FLAVOR")
@@ -1929,6 +1936,20 @@ func TestAccPreCheckSecMasterInstanceID(t *testing.T) {
 func TestAccPreCheckSecMasterIndicatorTypeID(t *testing.T) {
 	if HW_SECMASTER_INDICATOR_TYPE_ID == "" {
 		t.Skip("HW_SECMASTER_INDICATOR_TYPE_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterPostPaidOrder(t *testing.T) {
+	if HW_SECMASTER_ORDER_ID == "" || HW_SECMASTER_PRODUCT_ID == "" {
+		t.Skip("HW_SECMASTER_ORDER_ID and HW_SECMASTER_PRODUCT_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterWorkspace(t *testing.T) {
+	if HW_SECMASTER_WORKSPACE == "" {
+		t.Skip("HW_SECMASTER_WORKSPACE must be set for SecMaster acceptance tests")
 	}
 }
 
