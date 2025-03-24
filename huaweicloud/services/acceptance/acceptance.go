@@ -93,7 +93,8 @@ var (
 	HW_WAF_INTERNATIONAL_FLAG  = os.Getenv("HW_WAF_INTERNATIONAL_FLAG")
 	HW_WAF_GROUP_FLAG          = os.Getenv("HW_WAF_GROUP_FLAG")
 
-	HW_ELB_CERT_ID = os.Getenv("HW_ELB_CERT_ID")
+	HW_ELB_CERT_ID         = os.Getenv("HW_ELB_CERT_ID")
+	HW_ELB_LOADBALANCER_ID = os.Getenv("HW_ELB_LOADBALANCER_ID")
 
 	HW_DBSS_INSATNCE_ID = os.Getenv("HW_DBSS_INSATNCE_ID")
 
@@ -574,6 +575,8 @@ var (
 	HW_SFS_FILE_SYSTEM_NAMES = os.Getenv("HW_SFS_FILE_SYSTEM_NAMES")
 
 	HW_SMN_SUBSCRIBED_TOPIC_URN = os.Getenv("HW_SMN_SUBSCRIBED_TOPIC_URN")
+
+	HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS = os.Getenv("HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -945,6 +948,13 @@ func TestAccPreCheckWafType(t *testing.T) {
 func TestAccPreCheckElbCertID(t *testing.T) {
 	if HW_ELB_CERT_ID == "" {
 		t.Skip("HW_ELB_CERT_ID must be set for this acceptance test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckElbLoadbalancerID(t *testing.T) {
+	if HW_ELB_LOADBALANCER_ID == "" {
+		t.Skip("HW_ELB_LOADBALANCER_ID must be set for this acceptance test")
 	}
 }
 
@@ -1977,11 +1987,19 @@ func TestAccPreCheckUpdateCertificateContent(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckCertificateBase(t *testing.T) {
+	if HW_CERTIFICATE_CONTENT == "" || HW_CERTIFICATE_PRIVATE_KEY == "" {
+		t.Skip("HW_CERTIFICATE_CONTENT and HW_CERTIFICATE_PRIVATE_KEY must be set for simple acceptance tests of SSL " +
+			"certificate resource")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckCertificateWithoutRootCA(t *testing.T) {
-	if HW_CERTIFICATE_CONTENT == "" || HW_CERTIFICATE_PRIVATE_KEY == "" ||
-		HW_NEW_CERTIFICATE_CONTENT == "" || HW_NEW_CERTIFICATE_PRIVATE_KEY == "" {
-		t.Skip("HW_CERTIFICATE_CONTENT, HW_CERTIFICATE_PRIVATE_KEY, HW_NEW_CERTIFICATE_CONTENT and " +
-			"HW_NEW_CERTIFICATE_PRIVATE_KEY must be set for simple acceptance tests of SSL certificate resource")
+	TestAccPreCheckCertificateBase(t)
+	if HW_NEW_CERTIFICATE_CONTENT == "" || HW_NEW_CERTIFICATE_PRIVATE_KEY == "" {
+		t.Skip("HW_NEW_CERTIFICATE_CONTENT and HW_NEW_CERTIFICATE_PRIVATE_KEY must be set for simple acceptance " +
+			"tests of SSL certificate resource")
 	}
 }
 
@@ -3043,5 +3061,12 @@ func TestAccPrecheckSmnSubscribedTopicUrn(t *testing.T) {
 func TestAccPreCheckIMSImageMetadataID(t *testing.T) {
 	if HW_IMS_IMAGE_METADATA_ID == "" {
 		t.Skip("HW_IMS_IMAGE_METADATA_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckServiceStageJarPkgStorageURLs(t *testing.T, n int) {
+	if len(strings.Split(HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS, ",")) < n {
+		t.Skipf("at least %d URLs for HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS must be set, separated by a comma (,)", n)
 	}
 }
