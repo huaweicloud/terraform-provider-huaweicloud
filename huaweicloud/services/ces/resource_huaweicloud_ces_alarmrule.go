@@ -171,10 +171,19 @@ func ResourceAlarmRule() *schema.Resource {
 				},
 			},
 
+			"alarm_template_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"alarm_template_id", "condition"},
+			},
+
 			"condition": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Set:      resourceConditionHash,
+				Type:         schema.TypeSet,
+				Optional:     true,
+				Computed:     true,
+				Set:          resourceConditionHash,
+				ExactlyOneOf: []string{"alarm_template_id", "condition"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"period": {
@@ -530,6 +539,7 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 		Namespace:             namespace,
 		ResourceGroupID:       d.Get("resource_group_id").(string),
 		Resources:             resources,
+		AlarmTemplateID:       d.Get("alarm_template_id").(string),
 		Policies:              buildPoliciesOpts(d, metricName),
 		Type:                  d.Get("alarm_type").(string),
 		AlarmNotifications:    buildNotificationsOpts(d, "alarm_actions"),
@@ -638,6 +648,7 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 	mErr = multierror.Append(mErr,
 		d.Set("notification_begin_time", rV2.NotificationBeginTime),
 		d.Set("notification_end_time", rV2.NotificationEndTime),
+		d.Set("alarm_template_id", rV2.AlarmTemplateID),
 		d.Set("condition", conditions),
 		d.Set("metric", flattenMetric(dimensions, metricName, rV2.Namespace)),
 		d.Set("alarm_level", alarmLevel),

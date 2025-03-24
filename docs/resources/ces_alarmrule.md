@@ -155,6 +155,40 @@ resource "huaweicloud_ces_alarmrule" "test" {
 }
 ```
 
+### Alarm rule using the alarm template
+
+```hcl
+variable "topic_urn" {}
+variable "alarm_template_id" {}
+variable "instance_id" {}
+
+resource "huaweicloud_ces_alarmrule" "test" {
+  alarm_name           = "rule-test"
+  alarm_enabled        = true
+  alarm_action_enabled = true
+  alarm_type           = "MULTI_INSTANCE"
+  alarm_template_id    = var.alarm_template_id
+
+  metric {
+    namespace = "SYS.ECS"
+  }
+
+  resources {
+    dimensions {
+      name  = "instance_id"
+      value = var.instance_id
+    }
+  }
+
+  alarm_actions {
+    type              = "notification"
+    notification_list = [
+      var.topic_urn
+    ]
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -168,7 +202,13 @@ The following arguments are supported:
 * `metric` - (Required, List, ForceNew) Specifies the alarm metrics. The structure is described below. Changing this
   creates a new resource.
 
-* `condition` - (Required, List) Specifies the alarm triggering condition. The structure is described below.
+* `alarm_template_id` - (Optional, String, ForceNew) Specifies the ID of the alarm template.
+  When using `alarm_template_id`, the fields `alarm_name`, `alarm_description`, `alarm_action_enabled`, `alarm_actions`
+  and `ok_actions` cannot be updated.
+  Changing this creates a new resource.
+
+* `condition` - (Optional, List) Specifies the alarm triggering condition.
+  The [condition](#Condition) structure is documented below.
 
 * `resources` - (Optional, List) Specifies the list of the resources to add into the alarm rule.
   The structure is described below.
@@ -219,6 +259,7 @@ The `dimensions` block supports:
 * `value` - (Optional, String) Specifies the dimension value. The value can be a string of 1 to 64 characters
   that must start with a letter or a number and contain only letters, digits, underscores (_), and hyphens (-).
 
+<a name="Condition"></a>
 The `condition` block supports:
 
 * `period` - (Required, Int) Specifies the alarm checking period in seconds. The value can be 0, 1, 300, 1200, 3600, 14400,
