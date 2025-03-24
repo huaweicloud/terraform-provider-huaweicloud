@@ -2012,6 +2012,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ims_image_metadata":           ims.ResourceImageMetadata(),
 			"huaweicloud_ims_image_registration":       ims.ResourceImageRegistration(),
 			"huaweicloud_ims_quickimport_system_image": ims.ResourceQuickImportSystemImage(),
+			"huaweicloud_ims_quickimport_data_image":   ims.ResourceQuickImportDataImage(),
 			"huaweicloud_images_image_copy":            ims.ResourceImsImageCopy(),
 			"huaweicloud_images_image_share":           ims.ResourceImsImageShare(),
 			"huaweicloud_images_image_share_accepter":  ims.ResourceImsImageShareAccepter(),
