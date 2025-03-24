@@ -83,6 +83,7 @@ func TestAccWAFAccess_basic(t *testing.T) {
 						"huaweicloud_lts_stream.streamA1", "id"),
 					resource.TestCheckResourceAttrPair(rName, "lts_access_stream_id",
 						"huaweicloud_lts_stream.streamA2", "id"),
+					resource.TestCheckNoResourceAttr(rName, "enterprise_project_id"),
 				),
 			},
 			{
@@ -107,11 +108,19 @@ func TestAccWAFAccess_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "lts_access_stream_id", ""),
 				),
 			},
+			// Use resource ID to import.
 			{
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testWAFAccessImportState(rName),
+			},
+			// Use enterprise project ID to import.
+			{
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdFunc:       testWAFAccessImportState(rName),
+				ImportStateVerifyIgnore: []string{"enterprise_project_id"},
 			},
 		},
 	})
@@ -138,7 +147,7 @@ func TestAccWAFAccess_withEpsId(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testWAFAccess_withEpsId(name),
+				Config: testWAFAccess_withEpsId(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id",
@@ -283,7 +292,7 @@ resource "huaweicloud_lts_waf_access" "test" {
 `, testWAFAccess_base(name))
 }
 
-func testWAFAccess_withEpsId(name string) string {
+func testWAFAccess_withEpsId(name, epsId string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -297,7 +306,7 @@ resource "huaweicloud_lts_waf_access" "test" {
     huaweicloud_waf_dedicated_instance.test
   ]
 }
-`, testWAFAccess_epsId(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testWAFAccess_epsId(name, epsId), epsId)
 }
 
 func testWAFAccessImportState(name string) resource.ImportStateIdFunc {
@@ -314,4 +323,42 @@ func testWAFAccessImportState(name string) resource.ImportStateIdFunc {
 		}
 		return epsId, nil
 	}
+}
+
+// Only one LTS log access resource can be created under one enterprise project ID.
+func TestAccWAFAccess_withDefaultEpsId(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
+
+		wafAccess interface{}
+		rName     = "huaweicloud_lts_waf_access.test"
+		rc        = acceptance.InitResourceCheck(rName, &wafAccess, getWAFAccessResourceFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testWAFAccess_withEpsId(name, "0"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "lts_group_id",
+						"huaweicloud_lts_group.groupA", "id"),
+					resource.TestCheckResourceAttrPair(rName, "lts_attack_stream_id",
+						"huaweicloud_lts_stream.streamA1", "id"),
+					resource.TestCheckResourceAttrPair(rName, "lts_access_stream_id",
+						"huaweicloud_lts_stream.streamA2", "id"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testWAFAccessImportState(rName),
+			},
+		},
+	})
 }

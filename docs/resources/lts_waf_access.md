@@ -43,8 +43,9 @@ The following arguments are supported:
 
 -> The fields `lts_attack_stream_id` and `lts_access_stream_id` must be specified as different log streams.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID. If not specified, the
-  default enterprise project will be used. The default enterprise project ID is **0**.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.  
+  This parameter is only valid for enterprise users. If not specified, the default enterprise project will be used.
+  The default enterprise project ID is **0**.  
 
   Changing this parameter will create a new resource.
 
@@ -56,8 +57,14 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The LTS access WAF logs configuration can be imported using the `enterprise_project_id`, e.g.
+For enterprise users, The resource can be imported using the `enterprise_project_id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_lts_waf_access.test <enterprise_project_id>
+```
+
+For non-enterprise users, The resource can be imported using the `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_lts_waf_access.test <id>
 ```
