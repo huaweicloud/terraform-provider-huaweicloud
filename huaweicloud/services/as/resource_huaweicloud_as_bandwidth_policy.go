@@ -1,16 +1,14 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product AS
-// ---------------------------------------------------------------
-
 package as
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -24,6 +22,7 @@ import (
 // @API AS POST /autoscaling-api/v2/{project_id}/scaling_policy
 // @API AS GET /autoscaling-api/v2/{project_id}/scaling_policy/{id}
 // @API AS PUT /autoscaling-api/v2/{project_id}/scaling_policy/{id}
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_policy/{scaling_policy_id}/action
 func ResourceASBandWidthPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceASBandWidthPolicyCreate,
@@ -32,6 +31,11 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 		DeleteContext: resourceASPolicyDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(2 * time.Minute),
+			Update: schema.DefaultTimeout(2 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -76,6 +80,11 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the description of the AS policy.`,
+			},
+			"action": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies identification of operation the AS bandwidth policy.`,
 			},
 			"scaling_policy_action": {
 				Type:     schema.TypeList,
@@ -207,6 +216,14 @@ func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData
 	}
 	d.SetId(policyId)
 
+	action := d.Get("action").(string)
+	if action == "pause" {
+		err := updateBandwidthPolicyStatus(ctx, client, d.Timeout(schema.TimeoutCreate), d.Id(), action)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceASBandWidthPolicyRead(ctx, d, meta)
 }
 
@@ -264,7 +281,6 @@ func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, me
 		conf                      = meta.(*config.Config)
 		region                    = conf.GetRegion(d)
 		mErr                      *multierror.Error
-		getBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
 		getBandwidthPolicyProduct = "autoscaling"
 	)
 
@@ -273,22 +289,10 @@ func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating AS bandwidth policy client: %s", err)
 	}
 
-	getBandwidthPolicyPath := client.Endpoint + getBandwidthPolicyHttpUrl
-	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{project_id}", client.ProjectID)
-	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{id}", d.Id())
-	getBandwidthPolicyOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getBandwidthPolicyResp, err := client.Request("GET", getBandwidthPolicyPath, &getBandwidthPolicyOpt)
+	respBody, err := GetBandwidthPolicy(client, d.Id())
 	if err != nil {
 		// When the resource does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving AS bandwidth policy")
-	}
-
-	respBody, err := utils.FlattenResponse(getBandwidthPolicyResp)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	mErr = multierror.Append(
@@ -346,6 +350,17 @@ func flattenGetBandwidthPolicyResponseBodyScheduledPolicy(resp interface{}) []in
 }
 
 func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg                          = meta.(*config.Config)
+		region                       = cfg.GetRegion(d)
+		updateBandwidthPolicyProduct = "autoscaling"
+	)
+
+	client, err := cfg.NewServiceClient(updateBandwidthPolicyProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating AS bandwidth policy client: %s", err)
+	}
+
 	updateBandwidthPolicyChanges := []string{
 		"scaling_policy_name",
 		"scaling_policy_type",
@@ -360,17 +375,7 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 
 	if d.HasChanges(updateBandwidthPolicyChanges...) {
 		// updateBandwidthPolicy: update the AS bandwidth scaling policy
-		var (
-			conf                         = meta.(*config.Config)
-			region                       = conf.GetRegion(d)
-			updateBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
-			updateBandwidthPolicyProduct = "autoscaling"
-		)
-		client, err := conf.NewServiceClient(updateBandwidthPolicyProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating AS bandwidth policy client: %s", err)
-		}
-
+		updateBandwidthPolicyHttpUrl := "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
 		updateBandwidthPolicyPath := client.Endpoint + updateBandwidthPolicyHttpUrl
 		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{project_id}", client.ProjectID)
 		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{id}", d.Id())
@@ -384,6 +389,15 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 			return diag.Errorf("error updating AS bandwidth policy: %s", err)
 		}
 	}
+
+	if d.HasChange("action") {
+		action := d.Get("action").(string)
+		err := updateBandwidthPolicyStatus(ctx, client, d.Timeout(schema.TimeoutUpdate), d.Id(), action)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceASBandWidthPolicyRead(ctx, d, meta)
 }
 
@@ -434,4 +448,91 @@ func buildUpdateBandwidthPolicyScheduledPolicyChildBody(d *schema.ResourceData) 
 	}
 
 	return params
+}
+
+func GetBandwidthPolicy(client *golangsdk.ServiceClient, policyId string) (interface{}, error) {
+	httpUrl := "autoscaling-api/v2/{project_id}/scaling_policy/{scaling_policy_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{scaling_policy_id}", policyId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func updateBandwidthPolicyStatus(ctx context.Context, client *golangsdk.ServiceClient, t time.Duration,
+	policyId, action string) error {
+	updateStatusHttpUrl := "autoscaling-api/v1/{project_id}/scaling_policy/{scaling_policy_id}/action"
+	updateStatusPath := client.Endpoint + updateStatusHttpUrl
+	updateStatusPath = strings.ReplaceAll(updateStatusPath, "{project_id}", client.ProjectID)
+	updateStatusPath = strings.ReplaceAll(updateStatusPath, "{scaling_policy_id}", policyId)
+
+	updatePolicyStatusOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"action": action,
+		},
+		OkCodes: []int{
+			200, 201, 204,
+		},
+	}
+
+	_, err := client.Request("POST", updateStatusPath, &updatePolicyStatusOpt)
+	if err != nil {
+		return fmt.Errorf("error updating AS bandwidth policy status: %s", err)
+	}
+
+	err = waitingForBandWidthPolicyStatusCompleted(ctx, client, t, policyId, action)
+	if err != nil {
+		return fmt.Errorf("error waiting for the AS bandwidth policy status update to complete: %s", err)
+	}
+
+	return nil
+}
+
+func waitingForBandWidthPolicyStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, t time.Duration,
+	policyId, action string) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      waitBandwidthPolicyStatusRefreshFunc(client, policyId, action),
+		Timeout:      t,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func waitBandwidthPolicyStatusRefreshFunc(client *golangsdk.ServiceClient, policyId, action string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		respBody, err := GetBandwidthPolicy(client, policyId)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+
+		policyStatus := utils.PathSearch("scaling_policy.policy_status", respBody, "").(string)
+
+		if action == "resume" {
+			if policyStatus == "INSERVICE" {
+				return respBody, "COMPLETED", nil
+			}
+		}
+
+		if action == "pause" {
+			if policyStatus == "PAUSED" {
+				return respBody, "COMPLETED", nil
+			}
+		}
+
+		return respBody, "PENDING", nil
+	}
 }
