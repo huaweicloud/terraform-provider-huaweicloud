@@ -1515,6 +1515,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_endpoint_whitelist":             apig.ResourceEndpointWhiteList(),
 
 			"huaweicloud_as_configuration":           as.ResourceASConfiguration(),
+			"huaweicloud_as_execute_policy":          as.ResourceExecutePolicy(),
 			"huaweicloud_as_group":                   as.ResourceASGroup(),
 			"huaweicloud_as_lifecycle_hook":          as.ResourceASLifecycleHook(),
 			"huaweicloud_as_instance_attach":         as.ResourceASInstanceAttach(),
