@@ -296,6 +296,22 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"elb_virsubnet_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"frozen_scene": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"operating_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"public_border_group": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"gw_flavor_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -499,6 +515,10 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("protection_status", lb.ProtectionStatus),
 		d.Set("protection_reason", lb.ProtectionReason),
 		d.Set("charge_mode", lb.ChargeMode),
+		d.Set("elb_virsubnet_type", lb.ElbVirsubnetType),
+		d.Set("frozen_scene", lb.FrozenScene),
+		d.Set("operating_status", lb.OperatingStatus),
+		d.Set("public_border_group", lb.PublicBorderGroup),
 		d.Set("guaranteed", lb.Guaranteed),
 		d.Set("created_at", lb.CreatedAt),
 		d.Set("updated_at", lb.UpdatedAt),

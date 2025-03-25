@@ -133,6 +133,9 @@ type LoadBalancer struct {
 	// Charge Mode
 	ChargeMode string `json:"charge_mode"`
 
+	// Public Border Group
+	PublicBorderGroup string `json:"public_border_group"`
+
 	// Creation time
 	CreatedAt string `json:"created_at"`
 
