@@ -490,6 +490,8 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_as_activity_logs":       as.DataSourceActivityLogs(),
 			"huaweicloud_as_configurations":      as.DataSourceASConfigurations(),
+			"huaweicloud_as_group_quotas":        as.DataSourceAsGroupQuotas(),
+			"huaweicloud_as_group_tags":          as.DataSourceAsGroupTags(),
 			"huaweicloud_as_groups":              as.DataSourceASGroups(),
 			"huaweicloud_as_hook_instances":      as.DataSourceAsHookInstances(),
 			"huaweicloud_as_instances":           as.DataSourceASInstances(),
@@ -499,7 +501,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_policies":            as.DataSourceASPolicies(),
 			"huaweicloud_as_policy_execute_logs": as.DataSourcePolicyExecuteLogs(),
 			"huaweicloud_as_quotas":              as.DataSourceAsQuotas(),
-			"huaweicloud_as_group_quotas":        as.DataSourceAsGroupQuotas(),
 
 			"huaweicloud_asm_meshes": asm.DataSourceAsmMeshes(),
 
