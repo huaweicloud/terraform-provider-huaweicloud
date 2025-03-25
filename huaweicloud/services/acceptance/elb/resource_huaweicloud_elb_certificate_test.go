@@ -66,6 +66,8 @@ func TestAccElbV3Certificate_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "server"),
 					resource.TestCheckResourceAttr(resourceName, "domain", "www.elb.com"),
 					resource.TestCheckResourceAttr(resourceName, "description", "terraform test certificate"),
+					resource.TestCheckResourceAttrSet(resourceName, "fingerprint"),
+					resource.TestCheckResourceAttrSet(resourceName, "subject_alternative_names.#"),
 				),
 			},
 			{
