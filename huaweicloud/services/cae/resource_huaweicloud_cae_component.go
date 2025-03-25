@@ -154,6 +154,16 @@ func ResourceComponent() *schema.Resource {
 				},
 				Description: `The list of configurations of the component.`,
 			},
+			"available_replica": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The number of available instances under the component.`,
+			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The current status of the component.`,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -342,7 +352,7 @@ func resourceComponentCreate(ctx context.Context, d *schema.ResourceData, meta i
 			}
 		}
 
-		err = doActionComponent(ctx, client, d, componentId, buildDeployOrConfigureComponentBodyParams("deploy"), d.Timeout(schema.TimeoutUpdate))
+		err = doActionComponent(ctx, client, d, componentId, buildActionComponentBodyParams("deploy", d), d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.Errorf("unable to deploy the component (%s): %s", componentId, err)
 		}
@@ -416,6 +426,8 @@ func resourceComponentRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("environment_id", utils.PathSearch("spec.env_id", componentRespBody, nil)),
 		d.Set("metadata", flattenMetadata(d.Get("metadata.0.annotations"), utils.PathSearch("metadata", componentRespBody, nil))),
 		d.Set("spec", flattenSpec(d.Get("spec.0.build.0.parameters"), utils.PathSearch("spec", componentRespBody, nil))),
+		d.Set("available_replica", utils.PathSearch("spec.available_replica", componentRespBody, 0)),
+		d.Set("status", utils.PathSearch("spec.status", componentRespBody, "")),
 		d.Set("created_at", utils.PathSearch("metadata.created_at", componentRespBody, nil)),
 		d.Set("updated_at", utils.PathSearch("metadata.updated_at", componentRespBody, nil)),
 	)
@@ -546,14 +558,28 @@ func updateComponentConfigurations(client *golangsdk.ServiceClient, environmentI
 	return err
 }
 
-func buildDeployOrConfigureComponentBodyParams(action string) map[string]interface{} {
-	return map[string]interface{}{
+func buildActionComponentBodyParams(action string, d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
 		"api_version": "v1",
 		"kind":        "Action",
 		"metadata": map[string]interface{}{
-			"name": action,
+			"name":        action,
+			"annotations": d.Get("metadata.0.annotations"),
 		},
 	}
+
+	if d.HasChange("spec") {
+		spec := buildSpec(d.Get("spec.0").(map[string]interface{}))
+		// The `action` corresponding to `replica` is "scale". Currently, this resource does not need to be connected.
+		delete(spec, "replica")
+		// If `resource_limit` is not changed, the interface will report an error, so we need to ignore it.
+		if !d.HasChange("spec.0.resource_limit") {
+			delete(spec, "resource_limit")
+		}
+		params["spec"] = spec
+	}
+
+	return params
 }
 
 func doActionComponent(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, componentId string,
@@ -615,7 +641,11 @@ func resourceComponentUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	if d.HasChanges("metadata", "spec") {
+	// 1. It is allowed to modify `metadata` and `spec` before deploying the component, so first determine whether they have changed,
+	//    then determine `configurations`, and finally determine `action`.
+	// 2. Deployed components cannot modify metadata and spec parameters, but they can be modified by upgrading.
+	// 3. The `created` means the component is not deployed.
+	if d.HasChanges("metadata", "spec") && d.Get("status").(string) == "created" {
 		updatePath := client.Endpoint + httpUrl
 		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 		updatePath = strings.ReplaceAll(updatePath, "{application_id}", applicationId)
@@ -633,16 +663,17 @@ func resourceComponentUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	if d.HasChanges("action", "configurations") {
-		if d.HasChange("configurations") {
-			err := updateComponentConfigurations(client, environmentId, applicationId, componentId, d.Get("configurations").(*schema.Set))
-			if err != nil {
-				return diag.Errorf("error updating configurations of the component (%s): %s", componentId, err)
-			}
+	if d.HasChange("configurations") {
+		err := updateComponentConfigurations(client, environmentId, applicationId, componentId, d.Get("configurations").(*schema.Set))
+		if err != nil {
+			return diag.Errorf("error updating configurations of the component (%s): %s", componentId, err)
 		}
+	}
 
-		action := d.Get("action").(string)
-		err = doActionComponent(ctx, client, d, componentId, buildDeployOrConfigureComponentBodyParams(action), d.Timeout(schema.TimeoutUpdate))
+	// Allow multiple upgrades without changing the action.
+	if val, ok := d.GetOk("action"); ok {
+		action := val.(string)
+		err = doActionComponent(ctx, client, d, componentId, buildActionComponentBodyParams(action, d), d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.Errorf("unable to %s the component (%s): %s", action, componentId, err)
 		}
@@ -663,6 +694,14 @@ func resourceComponentDelete(ctx context.Context, d *schema.ResourceData, meta i
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating CAE client: %s", err)
+	}
+
+	// If there are available instances under the component, the component must be stopped before it can be deleted.
+	if d.Get("available_replica").(int) > 0 {
+		err = doActionComponent(ctx, client, d, componentId, buildActionComponentBodyParams("stop", d), d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return diag.Errorf("unable to stop the component (%s): %s", componentId, err)
+		}
 	}
 
 	deletePath := client.Endpoint + httpUrl

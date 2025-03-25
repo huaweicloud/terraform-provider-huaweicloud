@@ -116,6 +116,7 @@ The following arguments are supported:
   The valid values are as follows:
   + **deploy**: Deploy component. Only valid for undeployed component.
   + **configure**: Configurations of effesctive component. Only valid for deployed component.
+  + **upgrade**: Upgrade component. Only valid for deployed component.
 
 * `configurations` - (Optional, List) Specifies the list of configurations of the component.  
   The [configurations](#component_configurations) structure is documented below.  
@@ -230,6 +231,14 @@ The `configurations` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
+* `available_replica` - The number of available instances under the component.
+
+* `status` - The current status of the component.
+  + **running**
+  + **paused**
+  + **notReady**: The component deployed but not ready.
+  + **created**: The component was not deployed.
 
 * `created_at` - The creation time of the component.
 
