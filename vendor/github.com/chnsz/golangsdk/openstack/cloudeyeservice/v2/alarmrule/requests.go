@@ -35,7 +35,7 @@ type CreateOpts struct {
 	Namespace             string             `json:"namespace" required:"true"`
 	ResourceGroupID       string             `json:"resource_group_id,omitempty"`
 	Resources             [][]DimensionOpts  `json:"resources" required:"true"`
-	Policies              []PolicyOpts       `json:"policies" required:"true"`
+	Policies              []PolicyOpts       `json:"policies,omitempty"`
 	Type                  string             `json:"type" required:"true"`
 	AlarmNotifications    []NotificationOpts `json:"alarm_notifications,omitempty"`
 	OkNotifications       []NotificationOpts `json:"ok_notifications,omitempty"`
