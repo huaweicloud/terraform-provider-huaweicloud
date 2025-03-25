@@ -2,24 +2,44 @@ package elb
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/elb/v3/pools"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getELBPoolResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	elbClient, err := cfg.ElbV3Client(acceptance.HW_REGION_NAME)
+	var (
+		httpUrl = "v3/{project_id}/elb/pools/{pool_id}"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating ELB client: %s", err)
+		return nil, err
 	}
-	return pools.Get(elbClient, state.Primary.ID).Extract()
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{pool_id}", state.Primary.ID)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(getResp)
 }
 
 func TestAccElbV3Pool_basic(t *testing.T) {
@@ -55,6 +75,9 @@ func TestAccElbV3Pool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.type", "APP_COOKIE"),
 					resource.TestCheckResourceAttr(resourceName, "persistence.0.cookie_name", "testCookie"),
 					resource.TestCheckResourceAttr(resourceName, "minimum_healthy_member_count", "1"),
+					resource.TestCheckResourceAttr(resourceName, "public_border_group", "center"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			{
@@ -407,6 +430,7 @@ resource "huaweicloud_elb_pool" "test" {
   vpc_id      = huaweicloud_vpc.test.id
   description = "test pool description"
 
+  public_border_group          = "center"
   minimum_healthy_member_count = 1
 
   persistence {
@@ -435,6 +459,7 @@ resource "huaweicloud_elb_pool" "test" {
   protection_status = "consoleProtection"
   protection_reason = "test protection reason"
 
+  public_border_group          = "center"
   minimum_healthy_member_count = 0
 
   persistence {
