@@ -289,3 +289,42 @@ func SuppressObjectDiffs() schema.SchemaDiffSuppressFunc {
 		return ContainsAllKeyValues(consoleVal, newScriptVal) && len(FindDecreaseKeys(originVal, newScriptVal)) < 1
 	}
 }
+
+// TakeObjectsDifferent is a method that used to recursively get the complement of object A (objA) compared to
+// object B (objB) (including nested differences).
+// In Math, it means A-B, also A\B or {x | x∈A，x∉B}.
+func TakeObjectsDifferent(objA, objB map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	for key, valueA := range objA {
+		valueB, exists := objB[key]
+
+		// The key in objA does not exist in objB
+		if !exists {
+			result[key] = valueA
+			continue
+		}
+
+		// Try recursively processing nested map.
+		if subMapA, okA := valueA.(map[string]interface{}); okA {
+			if subMapB, okB := valueB.(map[string]interface{}); okB {
+				// Both sides are maps, recursive comparison.
+				subDiff := TakeObjectsDifferent(subMapA, subMapB)
+				if len(subDiff) > 0 {
+					result[key] = subDiff
+				}
+			} else {
+				// The value of objA is a map but the value of objB is not (type inconsistency).
+				result[key] = valueA
+			}
+			continue
+		}
+
+		// Handling non-map types or inconsistent types.
+		if !reflect.DeepEqual(valueA, valueB) {
+			result[key] = valueA
+		}
+	}
+
+	return result
+}
