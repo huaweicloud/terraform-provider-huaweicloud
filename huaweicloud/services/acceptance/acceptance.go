@@ -200,6 +200,10 @@ var (
 	HW_LTS_ENABLE_FLAG                 = os.Getenv("HW_LTS_ENABLE_FLAG")
 	HW_LTS_STRUCT_CONFIG_TEMPLATE_ID   = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID")
 	HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME = os.Getenv("HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME")
+	// Two Kafka instance IDs must be set, separated by a comma (,).
+	// It consists of the Kafka instance ID connected via encrypted and the Kafka instance ID connected via plain text
+	HW_LTS_KAFKA_INSTANCE_IDS      = os.Getenv("HW_LTS_KAFKA_INSTANCE_IDS")
+	HW_LTS_KAFKA_INSTANCE_PASSWORD = os.Getenv("HW_LTS_KAFKA_INSTANCE_PASSWORD")
 
 	HW_LIVE_STREAMING_DOMAIN_NAME          = os.Getenv("HW_LIVE_STREAMING_DOMAIN_NAME")
 	HW_LIVE_INGEST_RTMP_DOMAIN_NAME        = os.Getenv("HW_LIVE_INGEST_RTMP_DOMAIN_NAME")
@@ -2106,6 +2110,22 @@ func TestAccPreCheckLtsStructConfigCustom(t *testing.T) {
 	if HW_LTS_STRUCT_CONFIG_TEMPLATE_ID == "" || HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME == "" {
 		t.Skip("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID and HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME must be" +
 			" set for LTS struct config custom acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLtsKafkaInstanceIds(t *testing.T) {
+	if len(strings.Split(HW_LTS_KAFKA_INSTANCE_IDS, ",")) != 2 {
+		t.Skip(`The Kafka instance is registered to LTS acceptance tests must set the Kafka instance IDs, plesse config them
+in the HW_LTS_KAFKA_INSTANCE_IDS environment variable, and IDs consist of encrypted instance ID and plaintext instance ID,
+separated by a commas (,)`)
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLtsKafkaInstancePsw(t *testing.T) {
+	if HW_LTS_KAFKA_INSTANCE_PASSWORD == "" {
+		t.Skip("HW_LTS_KAFKA_INSTANCE_PASSWORD must be set for the encrypted access Kafka instance to be registered to the LTS acceptance test")
 	}
 }
 
