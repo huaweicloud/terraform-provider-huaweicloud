@@ -20,9 +20,21 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var v3ComponentNotFoundCodes = []string{
-	"SVCSTG.00100401",
-}
+var (
+	v3ComponentNotFoundCodes = []string{
+		"SVCSTG.00100401",
+	}
+
+	componentJsonParamKeys = []string{
+		"source",
+		"build",
+		"command",
+		"tomcat_opts",
+		"deploy_strategy.0.rolling_release",
+		"deploy_strategy.0.gray_release",
+		"update_strategy",
+	}
+)
 
 // @API ServiceStage POST /v3/{project_id}/cas/applications/{application_id}/components
 // @API ServiceStage GET /v3/{project_id}/cas/jobs/{job_id}
@@ -109,10 +121,11 @@ func ResourceV3Component() *schema.Resource {
 				Description: "The configuration of the runtime stack.",
 			},
 			"source": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringIsJSON,
-				Description:  `The source configuration of the component, in JSON format.`,
+				Type:             schema.TypeString,
+				Required:         true,
+				ValidateFunc:     validation.StringIsJSON,
+				DiffSuppressFunc: utils.SuppressObjectDiffs(),
+				Description:      `The source configuration of the component, in JSON format.`,
 			},
 			"version": {
 				Type:        schema.TypeString,
@@ -157,10 +170,11 @@ func ResourceV3Component() *schema.Resource {
 				Description: `The description of the component.`,
 			},
 			"build": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringIsJSON,
-				Description:  `The build configuration of the component, in JSON format.`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ValidateFunc:     validation.StringIsJSON,
+				DiffSuppressFunc: utils.SuppressObjectDiffs(),
+				Description:      `The build configuration of the component, in JSON format.`,
 			},
 			"limit_cpu": {
 				Type:        schema.TypeFloat,
@@ -262,18 +276,42 @@ func ResourceV3Component() *schema.Resource {
 							Description: `The deploy type.`,
 						},
 						"rolling_release": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.StringIsJSON,
-							Description:  `The rolling release parameters, in JSON format.`,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ValidateFunc:     validation.StringIsJSON,
+							DiffSuppressFunc: utils.SuppressObjectDiffs(),
+							Description:      `The rolling release parameters, in JSON format.`,
 						},
 						"gray_release": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.StringIsJSON,
-							Description:  `The gray release parameters, in JSON format.`,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ValidateFunc:     validation.StringIsJSON,
+							DiffSuppressFunc: utils.SuppressObjectDiffs(),
+							Description:      `The gray release parameters, in JSON format.`,
+						},
+						"rolling_release_origin": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The script configuration value of this change is also the original value used for comparison with
+the new value next time the change is made. The corresponding parameter name is 'deploy_strategy.0.rolling_release'.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"gray_release_origin": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The script configuration value of this change is also the original value used for comparison with
+the new value next time the change is made. The corresponding parameter name is 'deploy_strategy.0.gray_release'.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 					},
 				},
@@ -282,17 +320,19 @@ func ResourceV3Component() *schema.Resource {
 			// Most of the strategy configuration inputs for component deployment and upgrades have been changed from
 			// deploy_strategy to update_strategy now.
 			"update_strategy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringIsJSON,
-				Description:  `The configuration of the update strategy, in JSON format.`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ValidateFunc:     validation.StringIsJSON,
+				Description:      `The configuration of the update strategy, in JSON format.`,
+				DiffSuppressFunc: utils.SuppressObjectDiffs(),
 			},
 			"command": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringIsJSON,
-				Description:  `The start commands of the component, in JSON format.`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ValidateFunc:     validation.StringIsJSON,
+				DiffSuppressFunc: utils.SuppressObjectDiffs(),
+				Description:      `The start commands of the component, in JSON format.`,
 			},
 			"post_start": {
 				Type:        schema.TypeList,
@@ -336,11 +376,12 @@ func ResourceV3Component() *schema.Resource {
 				Description: `The JVM parameters of the component.`,
 			},
 			"tomcat_opts": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringIsJSON,
-				Description:  `The configuration of the tomcat server.`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ValidateFunc:     validation.StringIsJSON,
+				DiffSuppressFunc: utils.SuppressObjectDiffs(),
+				Description:      `The configuration of the tomcat server.`,
 			},
 			"logs": {
 				Type:     schema.TypeSet,
@@ -465,6 +506,61 @@ func ResourceV3Component() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The latest update time of the component, in RFC3339 format.`,
+			},
+			"source_origin": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+ the new value next time the change is made. The corresponding parameter name is 'source'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			"build_origin": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+ the new value next time the change is made. The corresponding parameter name is 'build'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			"update_strategy_origin": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+ the new value next time the change is made. The corresponding parameter name is 'update_strategy'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			"command_origin": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+ the new value next time the change is made. The corresponding parameter name is 'command'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
+			"tomcat_opts_origin": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+ the new value next time the change is made. The corresponding parameter name is 'tomcat_opts'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -980,6 +1076,14 @@ func resourceV3ComponentCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
+	// If the request is successful, obtain the values ​​of all JSON parameters first and save them to the
+	// corresponding '_origin' attributes for subsequent determination and construction of the request body during
+	// next updates.
+	err = utils.RefreshObjectParamOriginValues(d, componentJsonParamKeys)
+	if err != nil {
+		return diag.Errorf("unable to refresh the origin values: %s", err)
+	}
+
 	return resourceV3ComponentRead(ctx, d, meta)
 }
 
@@ -1076,16 +1180,18 @@ func flattenV3ComponentStorages(storages []interface{}) []interface{} {
 	return result
 }
 
-func flattenV3ComponentDeployStrategy(strategy map[string]interface{}) []map[string]interface{} {
+func flattenV3ComponentDeployStrategy(d *schema.ResourceData, strategy map[string]interface{}) []map[string]interface{} {
 	if len(strategy) < 1 {
 		return nil
 	}
 
 	return []map[string]interface{}{
 		{
-			"type":            utils.PathSearch("type", strategy, nil),
-			"rolling_release": utils.JsonToString(utils.PathSearch("rolling_release", strategy, nil)),
-			"gray_release":    utils.JsonToString(utils.PathSearch("gray_release", strategy, nil)),
+			"type":                   utils.PathSearch("type", strategy, nil),
+			"rolling_release":        utils.JsonToString(utils.PathSearch("rolling_release", strategy, nil)),
+			"gray_release":           utils.JsonToString(utils.PathSearch("gray_release", strategy, nil)),
+			"rolling_release_origin": d.Get("deploy_strategy.0.rolling_release_origin"),
+			"gray_release_origin":    d.Get("deploy_strategy.0.gray_release_origin"),
 		},
 	}
 }
@@ -1280,7 +1386,7 @@ func resourceV3ComponentRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("envs", flattenV3ComponentEnvVariables(utils.PathSearch("envs[?!inner]", respBody, make([]interface{}, 0)).([]interface{}))),
 		d.Set("replica", utils.PathSearch("replica", respBody, nil)),
 		d.Set("storages", flattenV3ComponentStorages(utils.PathSearch("storages", respBody, make([]interface{}, 0)).([]interface{}))),
-		d.Set("deploy_strategy", flattenV3ComponentDeployStrategy(utils.PathSearch("deploy_strategy", respBody,
+		d.Set("deploy_strategy", flattenV3ComponentDeployStrategy(d, utils.PathSearch("deploy_strategy", respBody,
 			make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("update_strategy", utils.JsonToString(utils.PathSearch("update_strategy", respBody, nil))),
 		d.Set("command", utils.JsonToString(utils.PathSearch("command", respBody, nil))),
@@ -1435,6 +1541,15 @@ func resourceV3ComponentUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
+	// If the request is successful, obtain the values ​​of all JSON parameters first and save them to the
+	// corresponding '_origin' attributes for subsequent determination and construction of the request body during
+	// next updates.
+	err = utils.RefreshObjectParamOriginValues(d, componentJsonParamKeys)
+	if err != nil {
+		return diag.Errorf("unable to refresh the origin values: %s", err)
+	}
+
 	return resourceV3ComponentRead(ctx, d, meta)
 }
 
