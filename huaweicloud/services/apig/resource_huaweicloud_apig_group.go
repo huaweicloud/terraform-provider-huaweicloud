@@ -640,7 +640,7 @@ func resourceGroupDelete(_ context.Context, d *schema.ResourceData, meta interfa
 
 	err = apigroups.Delete(client, instanceId, d.Id()).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting group from the instance (%s): %s", instanceId, err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting group from the instance (%s)", instanceId))
 	}
 
 	return nil
