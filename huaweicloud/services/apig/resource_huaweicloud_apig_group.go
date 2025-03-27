@@ -114,25 +114,50 @@ func ResourceApigGroupV2() *schema.Resource {
 			"url_domains": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				MaxItems: 5,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
+							Description: utils.SchemaDesc(
+								`The associated domain name.`,
+								utils.SchemaDescInput{
+									Computed: true,
+								},
+							),
 						},
 						"min_ssl_version": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+							Description: utils.SchemaDesc(
+								`The minimum SSL protocol version.`,
+								utils.SchemaDescInput{
+									Computed: true,
+								},
+							),
 						},
 						"is_http_redirect_to_https": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
+							Description: utils.SchemaDesc(
+								`Whether to enable redirection from HTTP to HTTPS.`,
+								utils.SchemaDescInput{
+									Computed: true,
+								},
+							),
 						},
 					},
 				},
+				Description: utils.SchemaDesc(
+					`The associated domain information of the group.`,
+					utils.SchemaDescInput{
+						Computed: true,
+					},
+				),
 			},
 			"domain_access_enabled": {
 				Type:        schema.TypeBool,

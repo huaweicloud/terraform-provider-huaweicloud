@@ -20,21 +20,12 @@ Use this resource to associate a domain name with an API group.
 
 ```hcl
 variable "instance_id" {}
+variable "group_id" {}
 variable "domain_name" {}
-
-resource "huaweicloud_apig_group" "test" {
-  ...
-
-  lifecycle {
-    ignore_changes = [
-      url_domains,
-    ]
-  }
-}
 
 resource "huaweicloud_apig_group_domain_associate" "test" {
   instance_id = var.instance_id
-  group_id    = huaweicloud_apig_group.test.id
+  group_id    = var.group_id
   url_domain  = var.domain_name
 
   min_ssl_version           = "TLSv1.1"
