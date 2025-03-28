@@ -1623,6 +1623,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ces_dashboard_widget":       ces.ResourceDashboardWidget(),
 			"huaweicloud_ces_event_report":           ces.ResourceCesEventReport(),
 			"huaweicloud_ces_metric_data_add":        ces.ResourceMetricDataAdd(),
+			"huaweicloud_ces_notification_mask":      ces.ResourceNotificationMask(),
 			"huaweicloud_ces_one_click_alarm":        ces.ResourceOneClickAlarm(),
 			"huaweicloud_ces_resource_group":         ces.ResourceResourceGroup(),
 
