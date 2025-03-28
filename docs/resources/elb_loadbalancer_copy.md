@@ -142,6 +142,24 @@ In addition to all arguments above, the following attributes are exported:
 
 * `vpc_id` - Indicates the ID of the VPC where the load balancer resides.
 
+* `elb_virsubnet_type` - Indicates the type of the subnet on the downstream plane. The value can be:
+  + **ipv4**: IPv4 subnet
+  + **dualstack**: subnet that supports IPv4/IPv6 dual stack
+
+* `frozen_scene` - Indicates the scenario where the load balancer is frozen. Multiple values are separated using commas (,).
+  The value can be:
+  + **POLICE**: The load balancer is frozen due to security reasons.
+  + **ILLEGAL**: The load balancer is frozen due to violation of laws and regulations.
+  + **VERIFY**: Your account has not completed real-name authentication.
+  + **PARTNER**: The load balancer is frozen by the partner.
+  + **ARREAR**: Your account is in arrears.
+
+* `operating_status` - Indicates the operating status of the load balancer. The value can be:
+  + **ONLINE**: indicates that the load balancer is running normally.
+  + **FROZEN**: indicates that the load balancer is frozen.
+
+* `public_border_group` - Indicates the AZ group to which the load balancer belongs.
+
 * `charge_mode` - Indicates the billing mode. The value can be:
   + **flavor**: Billed by the specifications you will select.
   + **lcu**: Billed by LCU usage.
