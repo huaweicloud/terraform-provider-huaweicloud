@@ -113,6 +113,8 @@ The following arguments are supported:
 
 * `ip_group` - (Optional, String) Specifies the ip group id for the listener.
 
+* `ip_group_enable` - (Optional, String) Specifies whether access control is enabled. Value options: **true** and **false**.
+
 * `server_certificate` - (Optional, String) Specifies the ID of the server certificate used by the listener. This
   parameter is mandatory when protocol is set to **HTTPS**.
 
@@ -176,6 +178,16 @@ The following arguments are supported:
 * `quic_listener_id` - (Optional, String) Specifies the ID of the QUIC listener. If it is set, HTTPS listener will be
   upgraded to QUIC listener. This parameter is valid only when protocol is set to **HTTPS**.
 
+* `enable_quic_upgrade` - (Optional, String) Specifies whether to enable QUIC upgrade. Value options: **true** and **false**.
+
+* `max_connection` - (Optional, Int) Specifies the maximum number of concurrent connections that a listener can handle per
+  second. **0** to **1000000**. Defaults to **0**, indicating that the number is not limited. If the value is greater than
+  the number defined in the load balancer specifications, the latter is used as the limit.
+
+* `cps` - (Optional, Int) Specifies the maximum number of new connections that a listener can handle per second.
+  Value range: **0** to **1000000**. Defaults to **0**, indicating that the number is not limited. If the value is greater
+  than the number defined in the load balancer specifications, the latter is used as the limit.
+
 <a name="ELB_port_ranges"></a>
 The `port_ranges` block supports:
 
@@ -189,7 +201,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The unique ID of the listener.
 
-* `created_at` - The create time of the listener.
+* `enterprise_project_id` - The ID of the enterprise project.
+
+* `created_at` - The creation time of the listener.
 
 * `updated_at` - The update time of the listener.
 
@@ -206,7 +220,7 @@ This resource provides the following timeouts configuration options:
 ELB listener can be imported using the listener ID, e.g.
 
 ```bash
-$ terraform import huaweicloud_elb_listener.listener_1 5c20fdad-7288-11eb-b817-0255ac10158b
+$ terraform import huaweicloud_elb_listener.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -215,7 +229,7 @@ running `terraform plan` after importing a listener. You can then decide if chan
 or the resource definition should be updated to align with the listener. Also you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_elb_listener" "listener_1" {
+resource "huaweicloud_elb_listener" "test" {
     ...
   lifecycle {
     ignore_changes = [

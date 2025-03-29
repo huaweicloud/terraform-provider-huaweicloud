@@ -68,8 +68,12 @@ func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "charge_mode", "lcu"),
 					resource.TestCheckResourceAttr(resourceName, "guaranteed", "true"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttr(resourceName, "waf_failure_action", "discard"),
+					resource.TestCheckResourceAttrSet(resourceName, "elb_virsubnet_type"),
+					resource.TestCheckResourceAttrSet(resourceName, "operating_status"),
+					resource.TestCheckResourceAttrSet(resourceName, "public_border_group"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			{

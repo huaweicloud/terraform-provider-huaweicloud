@@ -269,6 +269,28 @@ In addition to all arguments above, the following attributes are exported:
 
 * `ipv6_eip_id` - The ipv6 eip id of the load balancer.
 
+* `ipv6_eip_id` - The type of the subnet on the downstream plane. The value can be:
+  + **ipv4**: IPv4 subnet
+  + **dualstack**: subnet that supports IPv4/IPv6 dual stack
+
+* `elb_virsubnet_type` - The type of the subnet on the downstream plane. The value can be:
+  + **ipv4**: IPv4 subnet
+  + **dualstack**: subnet that supports IPv4/IPv6 dual stack
+
+* `frozen_scene` - The scenario where the load balancer is frozen. Multiple values are separated using commas (,).
+  The value can be:
+  + **POLICE**: The load balancer is frozen due to security reasons.
+  + **ILLEGAL**: The load balancer is frozen due to violation of laws and regulations.
+  + **VERIFY**: Your account has not completed real-name authentication.
+  + **PARTNER**: The load balancer is frozen by the partner.
+  + **ARREAR**: Your account is in arrears.
+
+* `operating_status` - The operating status of the load balancer. The value can be:
+  + **ONLINE**: indicates that the load balancer is running normally.
+  + **FROZEN**: indicates that the load balancer is frozen.
+
+* `public_border_group` - The AZ group to which the load balancer belongs.
+
 * `charge_mode` - Indicates the billing mode. The value can be one of the following:
   + **flavor**: Billed by the specifications you will select.
   + **lcu**: Billed by LCU usage.
