@@ -501,6 +501,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_policies":            as.DataSourceASPolicies(),
 			"huaweicloud_as_policy_execute_logs": as.DataSourcePolicyExecuteLogs(),
 			"huaweicloud_as_quotas":              as.DataSourceAsQuotas(),
+			"huaweicloud_asv2_policies":          as.DataSourceAsv2Policies(),
 
 			"huaweicloud_asm_meshes": asm.DataSourceAsmMeshes(),
 
