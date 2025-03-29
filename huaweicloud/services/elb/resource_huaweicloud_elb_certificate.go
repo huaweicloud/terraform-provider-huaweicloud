@@ -292,7 +292,7 @@ func resourceCertificateV3Delete(_ context.Context, d *schema.ResourceData, meta
 	}
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting ELB certificate: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting ELB certificate")
 	}
 
 	return nil
