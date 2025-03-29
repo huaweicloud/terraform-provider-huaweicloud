@@ -489,6 +489,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_throttling_policies":                apig.DataSourceThrottlingPolicies(),
 
 			"huaweicloud_as_activity_logs":       as.DataSourceActivityLogs(),
+			"huaweicloud_asv2_activity_logs":     as.DataSourceAsv2ActivityLogs(),
 			"huaweicloud_as_configurations":      as.DataSourceASConfigurations(),
 			"huaweicloud_as_group_quotas":        as.DataSourceAsGroupQuotas(),
 			"huaweicloud_as_group_tags":          as.DataSourceAsGroupTags(),
