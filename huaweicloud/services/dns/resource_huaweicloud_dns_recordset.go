@@ -75,7 +75,7 @@ func ResourceDNSRecordset() *schema.Resource {
 				Description: `The type of the record set.`,
 			},
 			"records": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				MinItems:    1,
 				Required:    true,
@@ -233,7 +233,7 @@ func buildCreateDNSRecordsetBodyParams(d *schema.ResourceData) map[string]interf
 		"type":        utils.ValueIgnoreEmpty(d.Get("type")),
 		"status":      utils.ValueIgnoreEmpty(d.Get("status")),
 		"ttl":         utils.ValueIgnoreEmpty(d.Get("ttl")),
-		"records":     utils.ValueIgnoreEmpty(d.Get("records")),
+		"records":     utils.ValueIgnoreEmpty(d.Get("records").(*schema.Set).List()),
 		"line":        utils.ValueIgnoreEmpty(d.Get("line_id")),
 		"tags":        utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 		"weight":      utils.ValueIgnoreEmpty(d.Get("weight")),
@@ -435,7 +435,7 @@ func buildUpdateDNSRecordsetBodyParams(d *schema.ResourceData) map[string]interf
 		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"type":        utils.ValueIgnoreEmpty(d.Get("type")),
 		"ttl":         utils.ValueIgnoreEmpty(d.Get("ttl")),
-		"records":     utils.ValueIgnoreEmpty(d.Get("records")),
+		"records":     utils.ValueIgnoreEmpty(d.Get("records").(*schema.Set).List()),
 		"weight":      utils.ValueIgnoreEmpty(d.Get("weight")),
 	}
 	return bodyParams
