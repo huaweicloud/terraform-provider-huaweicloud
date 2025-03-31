@@ -192,12 +192,12 @@ func ResourceAPI() *schema.Resource {
 						"location": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: utils.SuppressCaseDiffs,
+							DiffSuppressFunc: utils.SuppressCaseDiffs(),
 						},
 						"type": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: utils.SuppressCaseDiffs,
+							DiffSuppressFunc: utils.SuppressCaseDiffs(),
 						},
 						"required": {
 							Type:     schema.TypeBool,
@@ -226,7 +226,7 @@ func ResourceAPI() *schema.Resource {
 						"location": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: utils.SuppressCaseDiffs,
+							DiffSuppressFunc: utils.SuppressCaseDiffs(),
 						},
 						"value": {
 							Type:     schema.TypeString,
@@ -236,7 +236,7 @@ func ResourceAPI() *schema.Resource {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Default:          "REQUEST",
-							DiffSuppressFunc: utils.SuppressCaseDiffs,
+							DiffSuppressFunc: utils.SuppressCaseDiffs(),
 							ValidateFunc: validation.StringInSlice([]string{
 								"REQUEST", "CONSTANT", "SYSTEM",
 							}, true),

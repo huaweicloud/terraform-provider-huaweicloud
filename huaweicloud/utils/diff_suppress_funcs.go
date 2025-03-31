@@ -16,6 +16,20 @@ import (
 	awspolicy "github.com/jen20/awspolicyequivalence"
 )
 
+// ComposeAnySchemaDiffSuppressFunc allows parameters to determine multiple Diff methods.
+// When any method (SchemaDiffSuppressFunc) returns true, this compose function will return true.
+// It will only return false when all methods (SchemaDiffSuppressFunc) return false.
+func ComposeAnySchemaDiffSuppressFunc(fs ...schema.SchemaDiffSuppressFunc) schema.SchemaDiffSuppressFunc {
+	return func(k, o, n string, d *schema.ResourceData) bool {
+		for _, f := range fs {
+			if f(k, o, n, d) {
+				return true
+			}
+		}
+		return false
+	}
+}
+
 func SuppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
 	equivalent, err := awspolicy.PoliciesAreEquivalent(old, new)
 	if err != nil {
@@ -30,9 +44,12 @@ func SuppressDiffAll(k, old, new string, d *schema.ResourceData) bool {
 	return true
 }
 
-// Suppress changes if we get a string with or without cases
-func SuppressCaseDiffs(k, old, new string, d *schema.ResourceData) bool {
-	return strings.ToLower(old) == strings.ToLower(new)
+// The SuppressCaseDiffs method compares the old and new values ​​of the current parameter to determine if their
+// contents are consistent while ignoring the case format.
+func SuppressCaseDiffs() schema.SchemaDiffSuppressFunc {
+	return func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+		return strings.EqualFold(oldVal, newVal)
+	}
 }
 
 // Suppress changes if we get a computed min_disk_gb if value is unspecified (default 0)

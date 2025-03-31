@@ -74,7 +74,7 @@ func ResourceConnection() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				Description:      `The connection type. The value can be **policy**, **static** or **bgp**.`,
-				DiffSuppressFunc: utils.SuppressCaseDiffs,
+				DiffSuppressFunc: utils.SuppressCaseDiffs(),
 			},
 			"customer_gateway_id": {
 				Type:        schema.TypeString,

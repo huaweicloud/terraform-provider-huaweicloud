@@ -261,9 +261,9 @@ func schemaServiceGroupConfigUnitConfig() *schema.Resource {
 						"source": {
 							Type:     schema.TypeString,
 							Required: true,
-							DiffSuppressFunc: composeAnySchemaDiffSuppressFunc(
+							DiffSuppressFunc: utils.ComposeAnySchemaDiffSuppressFunc(
 								suppressV2ServiceUpgradeParamDiffs(),
-								suppressCaseDiffs(),
+								utils.SuppressCaseDiffs(),
 							),
 							Description: `The image type of the group unit.`,
 						},
@@ -289,9 +289,9 @@ func schemaServiceGroupConfigUnitConfig() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				DiffSuppressFunc: composeAnySchemaDiffSuppressFunc(
+				DiffSuppressFunc: utils.ComposeAnySchemaDiffSuppressFunc(
 					suppressV2ServiceUpgradeParamDiffs(),
-					suppressCaseDiffs(),
+					utils.SuppressCaseDiffs(),
 				),
 				Description: `The role of the group unit.`,
 			},
@@ -307,7 +307,7 @@ func schemaServiceGroupConfigUnitConfig() *schema.Resource {
 							Type:     schema.TypeFloat,
 							Optional: true,
 							Computed: true,
-							DiffSuppressFunc: composeAnySchemaDiffSuppressFunc(
+							DiffSuppressFunc: utils.ComposeAnySchemaDiffSuppressFunc(
 								suppressV2ServiceUpgradeParamDiffs(),
 								suppressV2ServiceFloatValuesDiffs(),
 							),
@@ -324,7 +324,7 @@ func schemaServiceGroupConfigUnitConfig() *schema.Resource {
 							Type:     schema.TypeFloat,
 							Optional: true,
 							Computed: true,
-							DiffSuppressFunc: composeAnySchemaDiffSuppressFunc(
+							DiffSuppressFunc: utils.ComposeAnySchemaDiffSuppressFunc(
 								suppressV2ServiceUpgradeParamDiffs(),
 								suppressV2ServiceFloatValuesDiffs(),
 							),
@@ -554,21 +554,6 @@ func schemaServiceUnitConfigHealth() *schema.Resource {
 func isHistoryServiceVersion(historyVersions map[string]interface{}, targetVersion string) bool {
 	_, isExist := historyVersions[targetVersion]
 	return isExist
-}
-
-func composeAnySchemaDiffSuppressFunc(fs ...schema.SchemaDiffSuppressFunc) schema.SchemaDiffSuppressFunc {
-	return func(k, o, n string, d *schema.ResourceData) bool {
-		for _, f := range fs {
-			if f(k, o, n, d) {
-				return true
-			}
-		}
-		return false
-	}
-}
-
-func suppressCaseDiffs() schema.SchemaDiffSuppressFunc {
-	return utils.SuppressCaseDiffs
 }
 
 func suppressV2ServiceUpgradeParamDiffs() schema.SchemaDiffSuppressFunc {
