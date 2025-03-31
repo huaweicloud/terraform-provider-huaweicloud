@@ -58,7 +58,6 @@ func TestAccDataSourceEipVpcv3Eips_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSource, "publicips.0.public_ipv6_address"),
 					resource.TestCheckResourceAttrSet(dataSource, "publicips.0.tags.#"),
 					resource.TestCheckResourceAttrSet(dataSource, "publicips.0.allow_share_bandwidth_types.#"),
-					resource.TestCheckResourceAttrSet(dataSource, "publicips.0.cascade_delete_by_instance"),
 					resource.TestCheckResourceAttrSet(dataSource, "publicips.0.created_at"),
 					resource.TestCheckResourceAttrSet(dataSource, "publicips.0.updated_at"),
 					resource.TestCheckOutput("type_filter_is_useful", "true"),

@@ -291,61 +291,6 @@ func DataSourceEipVpcv3Eips() *schema.Resource {
 							Computed:    true,
 							Description: `Indicates the order information of the EIP.`,
 						},
-						"profile": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: `Indicates the public network IP metadata of the EIP.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"local_network_port": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `Indicates the port ID of the 5_xxx network to which the public IP address is attached.`,
-									},
-									"standalone": {
-										Type:        schema.TypeBool,
-										Computed:    true,
-										Description: `Indicates whether the public IP address is created with the VM.`,
-									},
-									"notify_status": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `Indicates the cloud service identifies the progress of creating a public IP address.`,
-									},
-									"ecs_id": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `Indicates the ID of the ECS purchased together with the public IP address.`,
-									},
-									"create_time": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `Indicates the public IP address creation time.`,
-									},
-									"create_source": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `Indicates the the resource type with which the IP address is purchased.`,
-									},
-									"lock_status": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `Indicates the public IP address locking status.`,
-									},
-									"freezed_status": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `Indicates the public IP address frozen status.`,
-									},
-									"bandwith_info": {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: `Indicates the bandwidth info bound to the public IP address.`,
-										Elem:        publicipsProfileBandwithInfoElem(),
-									},
-								},
-							},
-						},
 						"vnic": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -479,16 +424,6 @@ func DataSourceEipVpcv3Eips() *schema.Resource {
 							Computed:    true,
 							Description: `Indicates the EIP or IPv6 port address.`,
 						},
-						"associate_instance_metadata": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Indicates the higher-level ownership of the instance.`,
-						},
-						"associate_mode": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Indicates the pass-through mode of the EIP.`,
-						},
 						"public_ipv6_address": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -523,35 +458,6 @@ func DataSourceEipVpcv3Eips() *schema.Resource {
 						},
 					},
 				},
-			},
-		},
-	}
-}
-
-// publicipsProfileBandwithInfoElem
-// The Elem of "publicips.profile.bandwith_info"
-func publicipsProfileBandwithInfoElem() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"bandwidth_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the bandwidth ID.`,
-			},
-			"bandwidth_name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the bandwidth name.`,
-			},
-			"bandwidth_number": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `Indicates the bandwidth size.`,
-			},
-			"bandwidth_type": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the bandwidth type.`,
 			},
 		},
 	}
@@ -664,21 +570,6 @@ func (w *Vpcv3EipsDSWrapper) listPublicipsToSchema(body *gjson.Result) error {
 					"publicip_pool_name":    publicips.Get("publicip_pool_name").Value(),
 					"project_id":            publicips.Get("project_id").Value(),
 					"billing_info":          publicips.Get("billing_info").Value(),
-					"profile": schemas.SliceToList(publicips.Get("profile"),
-						func(profile gjson.Result) any {
-							return map[string]any{
-								"local_network_port": profile.Get("local_network_port").Value(),
-								"standalone":         profile.Get("standalone").Value(),
-								"notify_status":      profile.Get("notify_status").Value(),
-								"ecs_id":             profile.Get("ecs_id").Value(),
-								"create_time":        profile.Get("create_time").Value(),
-								"create_source":      profile.Get("create_source").Value(),
-								"lock_status":        profile.Get("lock_status").Value(),
-								"freezed_status":     profile.Get("freezed_status").Value(),
-								"bandwith_info":      w.setPubProBanInfo(profile),
-							}
-						},
-					),
 					"vnic": schemas.SliceToList(publicips.Get("vnic"),
 						func(vnic gjson.Result) any {
 							return map[string]any{
@@ -714,8 +605,6 @@ func (w *Vpcv3EipsDSWrapper) listPublicipsToSchema(body *gjson.Result) error {
 					"associate_instance_id":       publicips.Get("associate_instance_id").Value(),
 					"lock_status":                 publicips.Get("lock_status").Value(),
 					"public_ip_address":           publicips.Get("public_ip_address").Value(),
-					"associate_instance_metadata": publicips.Get("associate_instance_metadata").Value(),
-					"associate_mode":              publicips.Get("associate_mode").Value(),
 					"public_ipv6_address":         publicips.Get("public_ipv6_address").Value(),
 					"tags":                        schemas.SliceToStrList(publicips.Get("tags")),
 					"allow_share_bandwidth_types": schemas.SliceToStrList(publicips.Get("allow_share_bandwidth_types")),
@@ -727,15 +616,4 @@ func (w *Vpcv3EipsDSWrapper) listPublicipsToSchema(body *gjson.Result) error {
 		)),
 	)
 	return mErr.ErrorOrNil()
-}
-
-func (*Vpcv3EipsDSWrapper) setPubProBanInfo(profile gjson.Result) any {
-	return schemas.SliceToList(profile.Get("bandwith_info"), func(bandwithInfo gjson.Result) any {
-		return map[string]any{
-			"bandwidth_id":     bandwithInfo.Get("bandwidth_id").Value(),
-			"bandwidth_name":   bandwithInfo.Get("bandwidth_name").Value(),
-			"bandwidth_number": bandwithInfo.Get("bandwidth_number").Value(),
-			"bandwidth_type":   bandwithInfo.Get("bandwidth_type").Value(),
-		}
-	})
 }

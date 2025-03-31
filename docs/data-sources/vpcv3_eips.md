@@ -25,8 +25,8 @@ The following arguments are supported:
 
 * `type` - (Optional, List) Specifies the type of the EIP.
   Value options:
-  + **EIP**: EIP 
-  + **DUALSTACK**: dual-stack IPv6 
+  + **EIP**: EIP
+  + **DUALSTACK**: dual-stack IPv6
   + **DUALSTACK_SUBNET**: Dual-stack subnet
 
 * `alias` - (Optional, List) Specifies the alias of the EIP.
@@ -144,10 +144,6 @@ The `publicips` block supports:
 
 * `billing_info` - Indicates the order information of the EIP.
 
-* `profile` - Indicates the public network IP metadata of the EIP.
-
-  The [profile](#publicips_profile_struct) structure is documented below.
-
 * `vnic` - Indicates the port information when a public IP address is bound to a port instance.
 
   The [vnic](#publicips_vnic_struct) structure is documented below.
@@ -168,10 +164,6 @@ The `publicips` block supports:
 
 * `public_ip_address` - Indicates the EIP or IPv6 port address.
 
-* `associate_instance_metadata` - Indicates the higher-level ownership of the instance.
-
-* `associate_mode` - Indicates the pass-through mode of the EIP.
-
 * `public_ipv6_address` - Indicates the public IP v6 address of the EIP.
 
 * `tags` - Indicates the tags of the EIP.
@@ -183,40 +175,6 @@ The `publicips` block supports:
 * `created_at` - Indicates the creation time.
 
 * `updated_at` - Indicates the update time.
-
-<a name="publicips_profile_struct"></a>
-The `profile` block supports:
-
-* `local_network_port` - Indicates the port ID of the 5_xxx network to which the public IP address is attached.
-
-* `standalone` - Indicates whether the public IP address is created with the VM.
-
-* `notify_status` - Indicates the cloud service identifies the progress of creating a public IP address.
-
-* `ecs_id` - Indicates the ID of the ECS purchased together with the public IP address.
-
-* `create_time` - Indicates the public IP address creation time.
-
-* `create_source` - Indicates the the resource type with which the IP address is purchased.
-
-* `lock_status` - Indicates the public IP address locking status.
-
-* `freezed_status` - Indicates the public IP address frozen status.
-
-* `bandwith_info` - Indicates the bandwidth info bound to the public IP address.
-
-  The [bandwith_info](#profile_bandwith_info_struct) structure is documented below.
-
-<a name="profile_bandwith_info_struct"></a>
-The `bandwith_info` block supports:
-
-* `bandwidth_id` - Indicates the bandwidth ID.
-
-* `bandwidth_name` - Indicates the bandwidth name.
-
-* `bandwidth_number` - Indicates the bandwidth size.
-
-* `bandwidth_type` - Indicates the bandwidth type.
 
 <a name="publicips_vnic_struct"></a>
 The `vnic` block supports:
