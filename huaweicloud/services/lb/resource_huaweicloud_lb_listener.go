@@ -122,6 +122,14 @@ func ResourceListener() *schema.Resource {
 				Optional: true,
 			},
 			"tags": common.TagsSchema(),
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"tenant_id": {
 				Type:       schema.TypeString,
 				Optional:   true,
@@ -309,6 +317,8 @@ func resourceListenerV2Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("tenant_id", utils.PathSearch("listener.tenant_id", getRespBody, nil)),
 		d.Set("admin_state_up", utils.PathSearch("listener.admin_state_up", getRespBody, nil)),
 		d.Set("connection_limit", utils.PathSearch("listener.connection_limit", getRespBody, nil)),
+		d.Set("created_at", utils.PathSearch("listener.created_at", getRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("listener.updated_at", getRespBody, nil)),
 	)
 
 	// fetch tags

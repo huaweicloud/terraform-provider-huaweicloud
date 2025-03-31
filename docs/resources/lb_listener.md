@@ -94,6 +94,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The unique ID for the listener.
 
+* `created_at` - The creation time of the listener.
+
+* `updated_at` - The update time of the listener.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
