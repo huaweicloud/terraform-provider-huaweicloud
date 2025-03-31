@@ -91,7 +91,7 @@ func TestAccDNSRecordset_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "description", "a recordset description"),
 					resource.TestCheckResourceAttr(rName, "status", "ENABLE"),
 					resource.TestCheckResourceAttr(rName, "ttl", "300"),
-					resource.TestCheckResourceAttr(rName, "records.0", "10.1.0.0"),
+					resource.TestCheckResourceAttr(rName, "records.#", "2"),
 					resource.TestCheckResourceAttr(rName, "line_id", "Dianxin_Shanxi"),
 					resource.TestCheckResourceAttr(rName, "weight", "3"),
 					resource.TestCheckResourceAttr(rName, "tags.key1", "value1"),
@@ -277,7 +277,7 @@ resource "huaweicloud_dns_recordset" "test" {
   description = "a recordset description"
   status      = "ENABLE"
   ttl         = 300
-  records     = ["10.1.0.0"]
+  records     = ["10.1.0.0", "9.1.0.0"]
   line_id     = "Dianxin_Shanxi"
   weight      = 3
 
