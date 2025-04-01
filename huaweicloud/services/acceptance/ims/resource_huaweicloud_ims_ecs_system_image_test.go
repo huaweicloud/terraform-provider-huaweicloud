@@ -9,35 +9,53 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getImsImageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.ImageV2Client(acceptance.HW_REGION_NAME)
+func getEcsSystemImageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "ims"
+		httpUrl = "v2/cloudimages"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IMS v2 client: %s", err)
+		return nil, fmt.Errorf("error creating IMS client: %s", err)
 	}
 
-	imageList, err := ims.GetImageList(client, state.Primary.ID)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving IMS ECS system images: %s", err)
+	getPath := client.Endpoint + httpUrl
+	getPath += fmt.Sprintf("?id=%s", state.Primary.ID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	if len(imageList) < 1 {
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving IMS ECS system image: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	image := utils.PathSearch("images[0]", getRespBody, nil)
+	// If the list API return empty, then return `404` error code.
+	if image == nil {
 		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return imageList[0], nil
+	return image, nil
 }
 
 func TestAccEcsSystemImage_basic(t *testing.T) {
 	var (
-		image        cloudimages.Image
+		image        interface{}
 		rName        = acceptance.RandomAccResourceName()
 		rNameUpdate  = rName + "-update"
 		resourceName = "huaweicloud_ims_ecs_system_image.test"
@@ -48,7 +66,7 @@ func TestAccEcsSystemImage_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&image,
-		getImsImageResourceFunc,
+		getEcsSystemImageResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{

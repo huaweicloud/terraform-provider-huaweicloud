@@ -3,6 +3,7 @@ package ims
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -13,15 +14,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/imageservice/v2/images"
-	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
-	"github.com/chnsz/golangsdk/openstack/ims/v2/tags"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API IMS POST /v2/cloudimages/action
@@ -36,7 +34,7 @@ func ResourceEcsSystemImage() *schema.Resource {
 		CreateContext: resourceEcsSystemImageCreate,
 		ReadContext:   resourceEcsSystemImageRead,
 		UpdateContext: resourceEcsSystemImageUpdate,
-		DeleteContext: resourceImageDelete,
+		DeleteContext: resourceEcsSystemImageDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -129,34 +127,56 @@ func ResourceEcsSystemImage() *schema.Resource {
 	}
 }
 
+func buildCreateEcsSystemImageBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                  d.Get("name"),
+		"instance_id":           d.Get("instance_id"),
+		"description":           d.Get("description"),
+		"max_ram":               utils.ValueIgnoreEmpty(d.Get("max_ram")),
+		"min_ram":               utils.ValueIgnoreEmpty(d.Get("min_ram")),
+		"image_tags":            utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(d.Get("enterprise_project_id")),
+	}
+
+	return bodyParams
+}
+
 func resourceEcsSystemImageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg        = meta.(*config.Config)
-		region     = cfg.GetRegion(d)
-		createResp *cloudimages.JobResponse
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "ims"
+		httpUrl = "v2/cloudimages/action"
 	)
 
-	client, err := cfg.ImageV2Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating IMS v2 client: %s", err)
+		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
-	imageTags := buildCreateImageTagsParam(d)
-	createOpts := &cloudimages.CreateByServerOpts{
-		Name:                d.Get("name").(string),
-		Description:         d.Get("description").(string),
-		InstanceId:          d.Get("instance_id").(string),
-		MaxRam:              d.Get("max_ram").(int),
-		MinRam:              d.Get("min_ram").(int),
-		ImageTags:           imageTags,
-		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+	createPath := client.Endpoint + httpUrl
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(buildCreateEcsSystemImageBodyParams(d)),
 	}
-	createResp, err = cloudimages.CreateImageByServer(client, createOpts).ExtractJobResponse()
+
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating IMS ECS system image: %s", err)
 	}
 
-	imageId, err := waitForCreateImageCompleted(client, d, createResp.JobID)
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	jobId := utils.PathSearch("job_id", createRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("error creating IMS ECS system image: job ID is not found in API response")
+	}
+
+	imageId, err := waitForCreateEcsSystemImageJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for IMS ECS system image to complete: %s", err)
 	}
@@ -166,105 +186,154 @@ func resourceEcsSystemImageCreate(ctx context.Context, d *schema.ResourceData, m
 	return resourceEcsSystemImageRead(ctx, d, meta)
 }
 
-func buildCreateImageTagsParam(d *schema.ResourceData) []cloudimages.ImageTag {
-	var imageTags []cloudimages.ImageTag
+func waitForCreateEcsSystemImageJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
+	timeout time.Duration) (string, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"PENDING"},
+		Target:     []string{"COMPLETED"},
+		Refresh:    ecsSystemImageJobStatusRefreshFunc(jobId, client),
+		Timeout:    timeout,
+		Delay:      10 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
 
-	rawTags := d.Get("tags").(map[string]interface{})
-	for key, val := range rawTags {
-		imageTag := cloudimages.ImageTag{
-			Key:   key,
-			Value: val.(string),
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error waiting for IMS ECS system image job (%s) to succeed: %s", jobId, err)
+	}
+
+	return getEcsSystemImageIdByJobId(client, jobId)
+}
+
+func ecsSystemImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
+		getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+		getPath = strings.ReplaceAll(getPath, "{job_id}", fmt.Sprintf("%v", jobId))
+		getOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
 		}
-		imageTags = append(imageTags, imageTag)
-	}
 
-	return imageTags
+		getResp, err := client.Request("GET", getPath, &getOpt)
+		if err != nil {
+			return getResp, "ERROR", fmt.Errorf("error retrieving IMS ECS system image job: %s", err)
+		}
+
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return getRespBody, "ERROR", err
+		}
+
+		status := utils.PathSearch("status", getRespBody, "").(string)
+		if status == "SUCCESS" {
+			return "SUCCESS", "COMPLETED", nil
+		}
+
+		if status == "FAIL" {
+			return getRespBody, "COMPLETED", errors.New("the ECS system image creation job execution failed")
+		}
+
+		if status == "" {
+			return getRespBody, "ERROR", errors.New("status field is not found in API response")
+		}
+
+		return getRespBody, "PENDING", nil
+	}
 }
 
-func waitForCreateImageCompleted(client *golangsdk.ServiceClient, d *schema.ResourceData, jobId string) (string, error) {
-	err := cloudimages.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), jobId)
+func getEcsSystemImageIdByJobId(client *golangsdk.ServiceClient, jobId string) (string, error) {
+	getPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{job_id}", fmt.Sprintf("%v", jobId))
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return "", fmt.Errorf("error retrieving IMS ECS system image job: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
 		return "", err
 	}
 
-	imageId, err := cloudimages.GetJobEntity(client, jobId, "image_id")
-	if err != nil {
-		return "", err
+	imageId := utils.PathSearch("entities.image_id", getRespBody, "").(string)
+	if imageId == "" {
+		return "", errors.New("the image ID is not found in API response")
 	}
 
-	v, ok := imageId.(string)
-	if !ok {
-		return "", fmt.Errorf("an unexpected conversion error occurred with image_id")
-	}
-
-	return v, nil
+	return imageId, nil
 }
 
-func resourceEcsSystemImageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		mErr   *multierror.Error
-	)
-
-	client, err := cfg.ImageV2Client(region)
-	if err != nil {
-		return diag.Errorf("error creating IMS v2 client: %s", err)
-	}
-
-	imageList, err := GetImageList(client, d.Id())
-	if err != nil {
-		return diag.Errorf("error retrieving IMS ECS system images: %s", err)
-	}
-
-	// If the list API return empty, then process `CheckDeleted` logic.
-	if len(imageList) < 1 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "IMS ECS system image")
-	}
-
-	image := imageList[0]
-	imageTags := flattenImageTags(d, client)
-	mErr = multierror.Append(
-		d.Set("region", region),
-		d.Set("name", image.Name),
-		d.Set("instance_id", flattenSpecificValueFormDataOrigin(image.DataOrigin, "instance")),
-		d.Set("description", image.Description),
-		d.Set("max_ram", flattenMaxRAM(image.MaxRam)),
-		d.Set("min_ram", image.MinRam),
-		d.Set("tags", imageTags),
-		d.Set("enterprise_project_id", image.EnterpriseProjectID),
-		d.Set("status", image.Status),
-		d.Set("visibility", image.Visibility),
-		d.Set("image_size", image.ImageSize),
-		d.Set("min_disk", image.MinDisk),
-		d.Set("disk_format", image.DiskFormat),
-		d.Set("data_origin", image.DataOrigin),
-		d.Set("os_version", image.OsVersion),
-		d.Set("active_at", image.ActiveAt),
-		d.Set("created_at", image.CreatedAt.Format(time.RFC3339)),
-		d.Set("updated_at", image.UpdatedAt.Format(time.RFC3339)),
-	)
-
-	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func GetImageList(client *golangsdk.ServiceClient, imageId string) ([]cloudimages.Image, error) {
+func getEcsSystemImage(client *golangsdk.ServiceClient, imageId string) (interface{}, error) {
 	// If the `enterprise_project_id` is not filled, the list API will query images under all enterprise projects.
 	// So there's no need to fill `enterprise_project_id` here.
-	listOpts := &cloudimages.ListOpts{
-		ID: imageId,
+	getPath := client.Endpoint + "v2/cloudimages"
+	getPath += fmt.Sprintf("?id=%s", imageId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	allPages, err := cloudimages.List(client, listOpts).AllPages()
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving IMS ECS system image: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
 		return nil, err
 	}
 
-	allImages, err := cloudimages.ExtractImages(allPages)
+	return utils.PathSearch("images[0]", getRespBody, nil), nil
+}
+
+func resourceEcsSystemImageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "ims"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("unable to extract images: %s", err)
+		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
-	return allImages, nil
+	image, err := getEcsSystemImage(client, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	// If the list API return empty, then process `CheckDeleted` logic.
+	if image == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving IMS ECS system image")
+	}
+
+	dataOrigin := utils.PathSearch("__data_origin", image, "").(string)
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("name", image, nil)),
+		d.Set("instance_id", flattenSpecificValueFormDataOrigin(dataOrigin, "instance")),
+		d.Set("description", utils.PathSearch("__description", image, nil)),
+		d.Set("max_ram", flattenMaxRAM(utils.PathSearch("max_ram", image, "").(string))),
+		d.Set("min_ram", utils.PathSearch("min_ram", image, nil)),
+		d.Set("tags", flattenIMSImageTags(client, d.Id())),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", image, nil)),
+		d.Set("status", utils.PathSearch("status", image, nil)),
+		d.Set("visibility", utils.PathSearch("visibility", image, nil)),
+		d.Set("image_size", utils.PathSearch("__image_size", image, nil)),
+		d.Set("min_disk", utils.PathSearch("min_disk", image, nil)),
+		d.Set("disk_format", utils.PathSearch("disk_format", image, nil)),
+		d.Set("data_origin", dataOrigin),
+		d.Set("os_version", utils.PathSearch("__os_version", image, nil)),
+		d.Set("active_at", utils.PathSearch("active_at", image, nil)),
+		d.Set("created_at", utils.PathSearch("created_at", image, nil)),
+		d.Set("updated_at", utils.PathSearch("updated_at", image, nil)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func flattenSpecificValueFormDataOrigin(dataOrigin, serverType string) string {
@@ -290,126 +359,101 @@ func flattenMaxRAM(maxRAMStr string) int {
 	return maxRAM
 }
 
-func flattenImageTags(d *schema.ResourceData, client *golangsdk.ServiceClient) map[string]string {
-	tagList, err := tags.Get(client, d.Id()).Extract()
-	if err == nil {
-		tagMap := make(map[string]string)
-		for _, val := range tagList.Tags {
-			tagMap[val.Key] = val.Value
-		}
-
-		return tagMap
-	}
-	log.Printf("[WARN] failed fetch image tags: %s", err)
-
-	return nil
-}
-
-func convertTagMapToTags(tagMap map[string]interface{}) []tags.Tag {
-	var tagList []tags.Tag
-
-	for k, v := range tagMap {
-		tag := tags.Tag{
-			Key:   k,
-			Value: v.(string),
-		}
-		tagList = append(tagList, tag)
-	}
-
-	return tagList
-}
-
 func resourceEcsSystemImageUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-	)
-
-	client, err := cfg.ImageV2Client(region)
-	if err != nil {
-		return diag.Errorf("error creating IMS v2 client: %s", err)
-	}
-
-	err = updateImage(ctx, cfg, client, d)
-	if err != nil {
-		return diag.Errorf("error updating IMS ECS system image: %s", err)
-	}
-
-	return resourceEcsSystemImageRead(ctx, d, meta)
-}
-
-func updateImage(ctx context.Context, cfg *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	var (
-		imageId = d.Id()
+		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
+		product = "ims"
+		httpUrl = "v2/cloudimages/{image_id}"
+		imageId = d.Id()
 	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating IMS client: %s", err)
+	}
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{image_id}", imageId)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
 
 	if d.HasChange("name") {
-		updateOpts := make(cloudimages.UpdateOpts, 0)
-		nameOpt := cloudimages.UpdateImageProperty{
-			Op:    cloudimages.ReplaceOp,
-			Name:  "name",
-			Value: d.Get("name").(string),
+		bodyParams := []map[string]interface{}{
+			{
+				"op":    "replace",
+				"path":  "/name",
+				"value": d.Get("name"),
+			},
 		}
-		updateOpts = append(updateOpts, nameOpt)
-		_, err := cloudimages.Update(client, imageId, updateOpts).Extract()
+
+		updateOpt.JSONBody = bodyParams
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
 		if err != nil {
-			return fmt.Errorf("failed update name: %s", err)
+			return diag.Errorf("error updating IMS ECS system image name field: %s", err)
 		}
 	}
 
 	if d.HasChange("description") {
-		updateOpts := make(cloudimages.UpdateOpts, 0)
-		descriptionOpt := cloudimages.UpdateImageProperty{
-			Op:    cloudimages.ReplaceOp,
-			Name:  "__description",
-			Value: d.Get("description").(string),
+		bodyParams := []map[string]interface{}{
+			{
+				"op":    "replace",
+				"path":  "/__description",
+				"value": d.Get("description"),
+			},
 		}
-		updateOpts = append(updateOpts, descriptionOpt)
-		_, err := cloudimages.Update(client, imageId, updateOpts).Extract()
+
+		updateOpt.JSONBody = bodyParams
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
 		if err != nil {
-			err = dealUpdateDescriptionErr(d, client, err)
+			err = processUpdateDescriptionError(d, client, err)
 			if err != nil {
-				return err
+				return diag.Errorf("error updating IMS ECS system image description field: %s", err)
 			}
 		}
 	}
 
 	if d.HasChange("max_ram") {
-		updateOpts := make(cloudimages.UpdateOpts, 0)
-		maxRAMOpt := cloudimages.UpdateImageProperty{
-			Op:    cloudimages.ReplaceOp,
-			Name:  "max_ram",
-			Value: strconv.Itoa(d.Get("max_ram").(int)),
+		bodyParams := []map[string]interface{}{
+			{
+				"op":    "replace",
+				"path":  "/max_ram",
+				"value": d.Get("max_ram"),
+			},
 		}
-		updateOpts = append(updateOpts, maxRAMOpt)
-		_, err := cloudimages.Update(client, imageId, updateOpts).Extract()
+
+		updateOpt.JSONBody = bodyParams
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
 		if err != nil {
-			err = dealUpdateMaxRAMErr(d, client, err)
+			err = processUpdateMaxRAMError(d, client, err)
 			if err != nil {
-				return err
+				return diag.Errorf("error updating IMS ECS system image max_ram field: %s", err)
 			}
 		}
 	}
 
 	if d.HasChange("min_ram") {
-		updateOpts := make(cloudimages.UpdateOpts, 0)
-		minRAMOpt := cloudimages.UpdateImageProperty{
-			Op:    cloudimages.ReplaceOp,
-			Name:  "min_ram",
-			Value: d.Get("min_ram").(int),
+		bodyParams := []map[string]interface{}{
+			{
+				"op":    "replace",
+				"path":  "/min_ram",
+				"value": d.Get("min_ram"),
+			},
 		}
-		updateOpts = append(updateOpts, minRAMOpt)
-		_, err := cloudimages.Update(client, imageId, updateOpts).Extract()
+
+		updateOpt.JSONBody = bodyParams
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
 		if err != nil {
-			return fmt.Errorf("failed update min_ram: %s", err)
+			return diag.Errorf("error updating IMS ECS system image min_ram field: %s", err)
 		}
 	}
 
 	if d.HasChange("tags") {
-		err := updateImageTags(client, d)
+		err = updateIMSImageTags(client, d)
 		if err != nil {
-			return err
+			return diag.Errorf("error updating IMS ECS system image tags field: %s", err)
 		}
 	}
 
@@ -421,69 +465,47 @@ func updateImage(ctx context.Context, cfg *config.Config, client *golangsdk.Serv
 			ProjectId:    client.ProjectID,
 		}
 		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
-	return nil
-}
-
-func updateImageTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	var (
-		oRaw, nRaw = d.GetChange("tags")
-		oMap       = oRaw.(map[string]interface{})
-		nMap       = nRaw.(map[string]interface{})
-		imageId    = d.Id()
-	)
-
-	// Remove old tags
-	if len(oMap) > 0 {
-		deleteOpts := tags.BatchOpts{Action: tags.ActionDelete, Tags: convertTagMapToTags(oMap)}
-		deleteTags := tags.BatchAction(client, imageId, deleteOpts)
-		if deleteTags.Err != nil {
-			return fmt.Errorf("faild delete old tags: %s", deleteTags.Err)
-		}
-	}
-
-	// Create new tags
-	if len(nMap) > 0 {
-		createOpts := tags.BatchOpts{Action: tags.ActionCreate, Tags: convertTagMapToTags(nMap)}
-		createTags := tags.BatchAction(client, imageId, createOpts)
-		if createTags.Err != nil {
-			return fmt.Errorf("faild create new tags: %s", createTags.Err)
-		}
-	}
-
-	return nil
+	return resourceEcsSystemImageRead(ctx, d, meta)
 }
 
 // If the `description` parameter is not set when creating the image or has been removed, it will cause error if you
 // change it directly, and it is needed to add it first.
-func dealUpdateDescriptionErr(d *schema.ResourceData, client *golangsdk.ServiceClient, err error) error {
+func processUpdateDescriptionError(d *schema.ResourceData, client *golangsdk.ServiceClient, err error) error {
 	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
 		var apiError interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return jsonErr
 		}
-		errorCode, errorCodeErr := jmespath.Search("error.code", apiError)
-		if errorCodeErr != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
-		}
+
+		errorCode := utils.PathSearch("error.code", apiError, "").(string)
 		if errorCode != "IMG.0035" {
 			return err
 		}
-		updateOpts := make(cloudimages.UpdateOpts, 0)
-		description := cloudimages.UpdateImageProperty{
-			Op:    cloudimages.AddOp,
-			Name:  "__description",
-			Value: d.Get("description").(string),
-		}
-		updateOpts = append(updateOpts, description)
 
-		_, err = cloudimages.Update(client, d.Id(), updateOpts).Extract()
+		updateBodyParams := []map[string]interface{}{
+			{
+				"op":    "add",
+				"path":  "/__description",
+				"value": d.Get("description"),
+			},
+		}
+		updatePath := client.Endpoint + "v2/cloudimages/{image_id}"
+		updatePath = strings.ReplaceAll(updatePath, "{image_id}", d.Id())
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+			JSONBody:         updateBodyParams,
+		}
+
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
 		if err != nil {
 			return fmt.Errorf("failed update description: %s", err)
 		}
+
 		return nil
 	}
 
@@ -492,31 +514,34 @@ func dealUpdateDescriptionErr(d *schema.ResourceData, client *golangsdk.ServiceC
 
 // If the `max_ram` parameter is not set when creating the image or has been removed, it will cause error if you
 // change it directly, and it is needed to add it first.
-func dealUpdateMaxRAMErr(d *schema.ResourceData, client *golangsdk.ServiceClient, err error) error {
+func processUpdateMaxRAMError(d *schema.ResourceData, client *golangsdk.ServiceClient, err error) error {
 	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
 		var apiError interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return jsonErr
 		}
 
-		errorCode, errorCodeErr := jmespath.Search("error.code", apiError)
-		if errorCodeErr != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
-		}
-
+		errorCode := utils.PathSearch("error.code", apiError, "").(string)
 		if errorCode != "IMG.0035" {
 			return err
 		}
 
-		updateOpts := make(cloudimages.UpdateOpts, 0)
-		description := cloudimages.UpdateImageProperty{
-			Op:    cloudimages.AddOp,
-			Name:  "max_ram",
-			Value: d.Get("max_ram").(int),
+		updateBodyParams := []map[string]interface{}{
+			{
+				"op":    "add",
+				"path":  "/max_ram",
+				"value": d.Get("max_ram"),
+			},
 		}
-		updateOpts = append(updateOpts, description)
+		updatePath := client.Endpoint + "v2/cloudimages/{image_id}"
+		updatePath = strings.ReplaceAll(updatePath, "{image_id}", d.Id())
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+			JSONBody:         updateBodyParams,
+		}
 
-		_, err = cloudimages.Update(client, d.Id(), updateOpts).Extract()
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
 		if err != nil {
 			return fmt.Errorf("failed update max_ram: %s", err)
 		}
@@ -527,58 +552,65 @@ func dealUpdateMaxRAMErr(d *schema.ResourceData, client *golangsdk.ServiceClient
 	return fmt.Errorf("failed update max_ram field: %s", err)
 }
 
-// The other image resources can also use this deletion function, so it is named `resourceImageDelete`.
-func resourceImageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceEcsSystemImageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		imageId = d.Id()
+		product = "ims"
+		httpUrl = "v2/images/{image_id}"
 	)
 
-	client, err := cfg.ImageV2Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating IMS v2 client: %s", err)
+		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
 	// Before deleting, call the query API first, if the query result is empty, then process `CheckDeleted` logic.
-	imageList, err := GetImageList(client, imageId)
+	image, err := getEcsSystemImage(client, d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if len(imageList) < 1 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "IMS image")
+	if image == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "IMS ECS system image")
 	}
 
-	if err = images.Delete(client, imageId).Err; err != nil {
-		return diag.Errorf("error deleting IMS image: %s", err)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{image_id}", d.Id())
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return diag.Errorf("error deleting IMS ECS system image: %s", err)
 	}
 
 	// Because the delete API always return `204` status code,
 	// so we need to call the list query API to check if the image has been successfully deleted.
-	err = waitForDeleteImageCompleted(ctx, client, d)
+	err = waitForEcsSystemImageDeleted(ctx, client, d)
 	if err != nil {
-		return diag.Errorf("error waiting for IMS image deleted: %s", err)
+		return diag.Errorf("error waiting for IMS ECS system image to be deleted: %s", err)
 	}
 
 	return nil
 }
 
-func waitForDeleteImageCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func waitForEcsSystemImageDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			listResp, err := GetImageList(client, d.Id())
+			image, err := getEcsSystemImage(client, d.Id())
 			if err != nil {
-				return nil, "ERROR", nil
+				return nil, "ERROR", err
 			}
 
-			if len(listResp) < 1 {
-				return "success", "COMPLETED", nil
+			if image == nil {
+				return "SUCCESS", "COMPLETED", nil
 			}
 
-			return listResp, "PENDING", nil
+			return image, "PENDING", nil
 		},
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
