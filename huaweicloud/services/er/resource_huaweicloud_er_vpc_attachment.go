@@ -199,7 +199,7 @@ func updateVpcAttachmentBasicInfo(ctx context.Context, client *golangsdk.Service
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      vpcAttachmentStatusRefreshFunc(client, instanceId, attachmentId, []string{"available"}),
+		Refresh:      vpcAttachmentStatusRefreshFunc(client, instanceId, attachmentId, []string{"available", "initiating_request"}),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
