@@ -130,7 +130,7 @@ func resourceVpcAttachmentCreate(ctx context.Context, d *schema.ResourceData, me
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      vpcAttachmentStatusRefreshFunc(client, instanceId, d.Id(), []string{"available"}),
+		Refresh:      vpcAttachmentStatusRefreshFunc(client, instanceId, d.Id(), []string{"available", "initiating_request"}),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
