@@ -69,6 +69,8 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "connection_limit", "-1"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			{
