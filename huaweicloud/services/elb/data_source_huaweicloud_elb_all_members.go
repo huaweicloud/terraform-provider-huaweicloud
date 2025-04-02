@@ -144,6 +144,11 @@ func DataSourceElbAllMembers() *schema.Resource {
 							Computed:    true,
 							Description: `Indicates the IP version supported by the backend server.`,
 						},
+						"instance_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Indicates the ID of the instance associated with the backend server.`,
+						},
 						"pool_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -329,6 +334,7 @@ func (w *AllMembersDSWrapper) listAllMembersToSchema(body *gjson.Result) error {
 					"weight":           members.Get("weight").Value(),
 					"operating_status": members.Get("operating_status").Value(),
 					"ip_version":       members.Get("ip_version").Value(),
+					"instance_id":      members.Get("instance_id").Value(),
 					"pool_id":          members.Get("pool_id").Value(),
 					"loadbalancer_id":  members.Get("loadbalancer_id").Value(),
 					"project_id":       members.Get("project_id").Value(),
