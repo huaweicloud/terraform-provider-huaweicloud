@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_private_snat_rules"
-description: ""
+description: |-
+  Use this data source to get the list of private SNAT rules.
 ---
 
 # huaweicloud_nat_private_snat_rules
@@ -42,6 +43,8 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the private SNAT
   rules belong.
+
+* `description` - (Optional, List) Specifies the description of the private SNAT rule.
 
 ## Attribute Reference
 
