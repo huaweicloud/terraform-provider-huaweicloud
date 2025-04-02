@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.73.4 (April 2, 2025)
+
+* **New Resource:**
+  + `huaweicloud_secmaster_workflow_action` [GH-6595]
+
 ## 1.73.3 (March 24, 2025)
 
 * **New Data Source:**
