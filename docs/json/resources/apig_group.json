@@ -98,19 +98,21 @@
                   "attributes": {
                     "is_http_redirect_to_https": {
                       "type": "bool",
-                      "optional": true,
+                      "description": "Whether to enable redirection from HTTP to HTTPS.",
                       "computed": true
                     },
                     "min_ssl_version": {
                       "type": "string",
-                      "optional": true,
+                      "description": "The minimum SSL protocol version.",
                       "computed": true
                     },
                     "name": {
                       "type": "string",
-                      "required": true
+                      "description": "The associated domain name.",
+                      "computed": true
                     }
-                  }
+                  },
+                  "description": "schema:{\"Computed\":true};The associated domain information of the group."
                 },
                 "nesting_mode": "set",
                 "max_items": 5

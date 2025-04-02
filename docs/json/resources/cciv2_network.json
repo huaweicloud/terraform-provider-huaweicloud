@@ -1,0 +1,142 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cciv2_network": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the annotations of the CCI network.",
+                "optional": true,
+                "computed": true
+              },
+              "api_version": {
+                "type": "string",
+                "description": "The API version of the CCI network.",
+                "computed": true
+              },
+              "creation_timestamp": {
+                "type": "string",
+                "description": "The creation timestamp of the namespace.",
+                "computed": true
+              },
+              "finalizers": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The finalizers of the namespace.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_families": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IP families of the CCI network.",
+                "optional": true
+              },
+              "kind": {
+                "type": "string",
+                "description": "The kind of the CCI network.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the CCI network.",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the namespace.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_version": {
+                "type": "string",
+                "description": "The resource version of the namespace.",
+                "computed": true
+              },
+              "security_group_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the security group IDs of the CCI network.",
+                "optional": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "last_transition_time": "string",
+                            "message": "string",
+                            "reason": "string",
+                            "status": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "subnet_attrs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "network_id": "string",
+                            "subnet_v4_id": "string",
+                            "subnet_v6_id": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The status of the namespace.",
+                "computed": true
+              },
+              "uid": {
+                "type": "string",
+                "description": "The uid of the namespace.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "subnets": {
+                "block": {
+                  "attributes": {
+                    "subnet_id": {
+                      "type": "string",
+                      "description": "Specifies the subnet ID of the CCI network.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the subnets of the CCI network."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

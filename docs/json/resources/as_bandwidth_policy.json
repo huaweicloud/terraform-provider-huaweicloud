@@ -5,6 +5,11 @@
         "huaweicloud_as_bandwidth_policy": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies identification of operation the AS bandwidth policy.",
+                "optional": true
+              },
               "alarm_id": {
                 "type": "string",
                 "description": "Specifies the alarm rule ID.",

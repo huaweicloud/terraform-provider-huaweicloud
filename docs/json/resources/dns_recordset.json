@@ -29,7 +29,7 @@
               },
               "records": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "description": "The list of the records of the record set.",

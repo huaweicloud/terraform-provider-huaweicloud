@@ -20,9 +20,25 @@
                 "description": "The type of the backend instance to which the private DNAT rules belong.",
                 "optional": true
               },
+              "description": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The description of the private DNAT rule.",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The ID of the enterprise project to which the private DNAT rules belong.",
+                "optional": true
+              },
+              "external_ip_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The transit IP address used to the private DNAT rule.",
                 "optional": true
               },
               "gateway_id": {

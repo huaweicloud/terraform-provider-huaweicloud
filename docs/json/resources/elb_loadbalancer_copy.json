@@ -52,6 +52,10 @@
                 "type": "string",
                 "optional": true
               },
+              "elb_virsubnet_type": {
+                "type": "string",
+                "computed": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
@@ -60,6 +64,10 @@
               "force_delete": {
                 "type": "bool",
                 "optional": true
+              },
+              "frozen_scene": {
+                "type": "string",
+                "computed": true
               },
               "gw_flavor_id": {
                 "type": "string",
@@ -120,6 +128,10 @@
                 "optional": true,
                 "computed": true
               },
+              "operating_status": {
+                "type": "string",
+                "computed": true
+              },
               "period": {
                 "type": "number",
                 "optional": true
@@ -135,6 +147,10 @@
               "protection_status": {
                 "type": "string",
                 "optional": true,
+                "computed": true
+              },
+              "public_border_group": {
+                "type": "string",
                 "computed": true
               },
               "region": {

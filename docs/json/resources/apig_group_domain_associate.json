@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_group_domain_associate": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "description": "The ID of the group to associate with the domain name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ingress_http_port": {
+                "type": "number",
+                "description": "The HTTP protocol inbound access port bound to the domain name.",
+                "optional": true,
+                "computed": true
+              },
+              "ingress_https_port": {
+                "type": "number",
+                "description": "The HTTPS protocol inbound access port bound to the domain name.",
+                "optional": true,
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the group belongs.",
+                "required": true
+              },
+              "is_http_redirect_to_https": {
+                "type": "bool",
+                "description": "Whether to enable redirection from HTTP to HTTPS.",
+                "optional": true
+              },
+              "min_ssl_version": {
+                "type": "string",
+                "description": "The minimum SSL protocol version.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the APIG group and domain are located.",
+                "computed": true
+              },
+              "url_domain": {
+                "type": "string",
+                "description": "The associated domain name.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

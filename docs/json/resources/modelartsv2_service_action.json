@@ -1,0 +1,33 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelartsv2_service_action": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "The action type.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the service is located.",
+                "computed": true
+              },
+              "service_id": {
+                "type": "string",
+                "description": "The service ID to be operated.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

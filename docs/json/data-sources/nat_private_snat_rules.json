@@ -10,6 +10,14 @@
                 "description": "The CIDR block of the private SNAT rule.",
                 "optional": true
               },
+              "description": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The description of the private SNAT rule.",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The ID of the enterprise project to which the private SNAT rules belong.",

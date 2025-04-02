@@ -27,6 +27,11 @@
                 "type": "string",
                 "computed": true
               },
+              "alarm_template_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "alarm_type": {
                 "type": "string",
                 "optional": true,
@@ -123,8 +128,7 @@
                     }
                   }
                 },
-                "nesting_mode": "set",
-                "min_items": 1
+                "nesting_mode": "set"
               },
               "metric": {
                 "block": {

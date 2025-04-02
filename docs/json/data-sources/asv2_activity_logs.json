@@ -1,0 +1,231 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_asv2_activity_logs": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time that complies with UTC for querying scaling action logs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_id": {
+                "type": "string",
+                "description": "Specifies the scaling action log ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "scaling_activity_log": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "desire_value": "number",
+                      "end_time": "string",
+                      "id": "string",
+                      "instance_added_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_details": "string",
+                            "failed_reason": "string",
+                            "instance_config": "string",
+                            "instance_id": "string",
+                            "instance_name": "string"
+                          }
+                        ]
+                      ],
+                      "instance_deleted_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_details": "string",
+                            "failed_reason": "string",
+                            "instance_config": "string",
+                            "instance_id": "string",
+                            "instance_name": "string"
+                          }
+                        ]
+                      ],
+                      "instance_failed_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_details": "string",
+                            "failed_reason": "string",
+                            "instance_config": "string",
+                            "instance_id": "string",
+                            "instance_name": "string"
+                          }
+                        ]
+                      ],
+                      "instance_removed_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_details": "string",
+                            "failed_reason": "string",
+                            "instance_config": "string",
+                            "instance_id": "string",
+                            "instance_name": "string"
+                          }
+                        ]
+                      ],
+                      "instance_standby_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_details": "string",
+                            "failed_reason": "string",
+                            "instance_config": "string",
+                            "instance_id": "string",
+                            "instance_name": "string"
+                          }
+                        ]
+                      ],
+                      "instance_value": "number",
+                      "lb_bind_failed_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_details": "string",
+                            "failed_reason": "string",
+                            "lbaas_listener": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "listener_id": "string",
+                                  "pool_id": "string",
+                                  "protocol_port": "number",
+                                  "weight": "number"
+                                }
+                              ]
+                            ],
+                            "listener": "string"
+                          }
+                        ]
+                      ],
+                      "lb_bind_success_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_details": "string",
+                            "failed_reason": "string",
+                            "lbaas_listener": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "listener_id": "string",
+                                  "pool_id": "string",
+                                  "protocol_port": "number",
+                                  "weight": "number"
+                                }
+                              ]
+                            ],
+                            "listener": "string"
+                          }
+                        ]
+                      ],
+                      "lb_unbind_failed_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_details": "string",
+                            "failed_reason": "string",
+                            "lbaas_listener": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "listener_id": "string",
+                                  "pool_id": "string",
+                                  "protocol_port": "number",
+                                  "weight": "number"
+                                }
+                              ]
+                            ],
+                            "listener": "string"
+                          }
+                        ]
+                      ],
+                      "lb_unbind_success_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_details": "string",
+                            "failed_reason": "string",
+                            "lbaas_listener": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "listener_id": "string",
+                                  "pool_id": "string",
+                                  "protocol_port": "number",
+                                  "weight": "number"
+                                }
+                              ]
+                            ],
+                            "listener": "string"
+                          }
+                        ]
+                      ],
+                      "scaling_value": "number",
+                      "start_time": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The scaling action logs.",
+                "computed": true
+              },
+              "scaling_group_id": {
+                "type": "string",
+                "description": "Specifies the AS group ID.",
+                "required": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time that complies with UTC for querying scaling action logs.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the scaling action.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the types of the scaling actions to be queried.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

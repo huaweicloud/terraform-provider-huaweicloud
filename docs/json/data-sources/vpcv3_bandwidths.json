@@ -1,0 +1,165 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpcv3_bandwidths": {
+          "block": {
+            "attributes": {
+              "admin_state": {
+                "type": "string",
+                "description": "Specifies the status of the bandwidth.",
+                "optional": true
+              },
+              "bandwidth_type": {
+                "type": "string",
+                "description": "Specifies the type of the bandwidth.",
+                "optional": true
+              },
+              "billing_info": {
+                "type": "string",
+                "description": "Specifies the charging information of the bandwidth.",
+                "optional": true
+              },
+              "charge_mode": {
+                "type": "string",
+                "description": "Specifies the charging of the bandwidth.",
+                "optional": true
+              },
+              "eip_bandwidths": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "admin_state": "string",
+                      "bandwidth_rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "egress_guarented_size": "number",
+                            "egress_size": "number",
+                            "id": "string",
+                            "name": "string",
+                            "publicip_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "ip_version": "number",
+                                  "publicip_address": "string",
+                                  "publicip_id": "string",
+                                  "publicip_type": "string",
+                                  "publicipv6_address": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "bandwidth_type": "string",
+                      "billing_info": "string",
+                      "created_at": "string",
+                      "enable_bandwidth_rules": "bool",
+                      "id": "string",
+                      "ingress_size": "number",
+                      "name": "string",
+                      "project_id": "string",
+                      "public_border_group": "string",
+                      "publicip_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ip_version": "number",
+                            "publicip_address": "string",
+                            "publicip_id": "string",
+                            "publicip_type": "string",
+                            "publicipv6_address": "string"
+                          }
+                        ]
+                      ],
+                      "ratio_95peak_plus": "number",
+                      "rule_quota": "number",
+                      "size": "number",
+                      "tags": [
+                        "list",
+                        "string"
+                      ],
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of bandwidths.",
+                "computed": true
+              },
+              "enable_bandwidth_rules": {
+                "type": "string",
+                "description": "Specifies whether bandwidth groups are enabled.",
+                "optional": true
+              },
+              "fields": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the display fields of the bandwidth.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ingress_size": {
+                "type": "string",
+                "description": "Specifies the cloud access size.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the bandwidth.",
+                "optional": true
+              },
+              "name_like": {
+                "type": "string",
+                "description": "Specifies the fuzzy query name.",
+                "optional": true
+              },
+              "public_border_group": {
+                "type": "string",
+                "description": "Specifies the border group of the bandwidth.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "rule_quota": {
+                "type": "number",
+                "description": "Specifies the rule value of the bandwidth.",
+                "optional": true
+              },
+              "size": {
+                "type": "string",
+                "description": "Specifies the size of the bandwidth.",
+                "optional": true
+              },
+              "tags": {
+                "type": "string",
+                "description": "Specifies the tag of the bandwidth.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the bandwidth.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

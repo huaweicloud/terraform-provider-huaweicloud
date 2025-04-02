@@ -8,8 +8,7 @@
               "any_port_enable": {
                 "type": "bool",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "connection_drain_enabled": {
                 "type": "bool",
@@ -33,6 +32,10 @@
                 "type": "string",
                 "optional": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -40,8 +43,7 @@
               "ip_version": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "lb_method": {
                 "type": "string",
@@ -50,14 +52,12 @@
               "listener_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "loadbalancer_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "minimum_healthy_member_count": {
                 "type": "number",
@@ -83,8 +83,12 @@
               },
               "protocol": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
+              },
+              "public_border_group": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",

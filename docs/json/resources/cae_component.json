@@ -15,6 +15,11 @@
                 "required": true,
                 "forcenew": true
               },
+              "available_replica": {
+                "type": "number",
+                "description": "The number of available instances under the component.",
+                "computed": true
+              },
               "created_at": {
                 "type": "string",
                 "computed": true
@@ -30,6 +35,11 @@
               },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the component.",
                 "computed": true
               },
               "updated_at": {
