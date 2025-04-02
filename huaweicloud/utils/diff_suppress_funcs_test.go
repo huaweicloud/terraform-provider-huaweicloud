@@ -123,3 +123,46 @@ func TestDiffSuppressFunc_FindDecreaseKeys(t *testing.T) {
 
 	t.Logf("All processing results of the FindDecreaseKeys method meets expectation")
 }
+
+func TestDiffSuppressFunc_TakeObjectsDifferent(t *testing.T) {
+	var (
+		diffCacls = []map[string]interface{}{
+			{
+				"A": map[string]interface{}{
+					"Aa": "aa_aa",
+					"Ab": "aa_bb",
+				},
+				"B": map[string]interface{}{
+					"Ba": true,
+					"Bb": 123,
+				},
+				"C": "cc",
+			},
+			{
+				"A": map[string]interface{}{
+					"Ab": "aa_bb",
+				},
+				"B": map[string]interface{}{
+					"Ba": true,
+					"Bb": 123,
+					"Bc": "bb_cc",
+				},
+				"D": "dd",
+			},
+			{
+				"A": map[string]interface{}{
+					"Aa": "aa_aa",
+				},
+				"C": "cc",
+			},
+		}
+	)
+
+	testOutput := utils.TakeObjectsDifferent(diffCacls[0], diffCacls[1])
+	if !reflect.DeepEqual(testOutput, diffCacls[2]) {
+		t.Fatalf("The processing result of the TakeObjectsDifferent method is not as expected, want %s, but got %s",
+			utils.Green(diffCacls[2]), utils.Yellow(testOutput))
+	}
+
+	t.Logf("All processing results of the TakeObjectsDifferent method meets expectation")
+}

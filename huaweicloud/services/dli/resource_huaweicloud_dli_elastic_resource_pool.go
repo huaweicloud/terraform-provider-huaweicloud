@@ -55,7 +55,7 @@ func ResourceElasticResourcePool() *schema.Resource {
 				ForceNew:    true,
 				Description: `The name of the elastic resource pool.`,
 				// The server will automatically convert uppercase letters to lowercase letters.
-				DiffSuppressFunc: utils.SuppressCaseDiffs,
+				DiffSuppressFunc: utils.SuppressCaseDiffs(),
 			},
 			"max_cu": {
 				Type:        schema.TypeInt,

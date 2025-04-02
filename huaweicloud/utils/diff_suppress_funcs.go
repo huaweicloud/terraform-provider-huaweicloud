@@ -16,6 +16,20 @@ import (
 	awspolicy "github.com/jen20/awspolicyequivalence"
 )
 
+// ComposeAnySchemaDiffSuppressFunc allows parameters to determine multiple Diff methods.
+// When any method (SchemaDiffSuppressFunc) returns true, this compose function will return true.
+// It will only return false when all methods (SchemaDiffSuppressFunc) return false.
+func ComposeAnySchemaDiffSuppressFunc(fs ...schema.SchemaDiffSuppressFunc) schema.SchemaDiffSuppressFunc {
+	return func(k, o, n string, d *schema.ResourceData) bool {
+		for _, f := range fs {
+			if f(k, o, n, d) {
+				return true
+			}
+		}
+		return false
+	}
+}
+
 func SuppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
 	equivalent, err := awspolicy.PoliciesAreEquivalent(old, new)
 	if err != nil {
@@ -30,9 +44,12 @@ func SuppressDiffAll(k, old, new string, d *schema.ResourceData) bool {
 	return true
 }
 
-// Suppress changes if we get a string with or without cases
-func SuppressCaseDiffs(k, old, new string, d *schema.ResourceData) bool {
-	return strings.ToLower(old) == strings.ToLower(new)
+// The SuppressCaseDiffs method compares the old and new values ​​of the current parameter to determine if their
+// contents are consistent while ignoring the case format.
+func SuppressCaseDiffs() schema.SchemaDiffSuppressFunc {
+	return func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+		return strings.EqualFold(oldVal, newVal)
+	}
 }
 
 // Suppress changes if we get a computed min_disk_gb if value is unspecified (default 0)
@@ -288,4 +305,43 @@ func SuppressObjectDiffs() schema.SchemaDiffSuppressFunc {
 
 		return ContainsAllKeyValues(consoleVal, newScriptVal) && len(FindDecreaseKeys(originVal, newScriptVal)) < 1
 	}
+}
+
+// TakeObjectsDifferent is a method that used to recursively get the complement of object A (objA) compared to
+// object B (objB) (including nested differences).
+// In Math, it means A-B, also A\B or {x | x∈A，x∉B}.
+func TakeObjectsDifferent(objA, objB map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	for key, valueA := range objA {
+		valueB, exists := objB[key]
+
+		// The key in objA does not exist in objB
+		if !exists {
+			result[key] = valueA
+			continue
+		}
+
+		// Try recursively processing nested map.
+		if subMapA, okA := valueA.(map[string]interface{}); okA {
+			if subMapB, okB := valueB.(map[string]interface{}); okB {
+				// Both sides are maps, recursive comparison.
+				subDiff := TakeObjectsDifferent(subMapA, subMapB)
+				if len(subDiff) > 0 {
+					result[key] = subDiff
+				}
+			} else {
+				// The value of objA is a map but the value of objB is not (type inconsistency).
+				result[key] = valueA
+			}
+			continue
+		}
+
+		// Handling non-map types or inconsistent types.
+		if !reflect.DeepEqual(valueA, valueB) {
+			result[key] = valueA
+		}
+	}
+
+	return result
 }
