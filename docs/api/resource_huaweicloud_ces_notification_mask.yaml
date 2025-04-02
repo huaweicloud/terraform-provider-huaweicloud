@@ -1,0 +1,25 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ces_notification_mask
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CES
+paths:
+    /v2/{project_id}/notification-masks:
+        PUT:
+            tag: CES
+    /v2/{project_id}/notification-masks/{notification_mask_id}:
+        PUT:
+            tag: CES
+    /v2/{project_id}/notification-masks/{notification_mask_id}/resources:
+        GET:
+            tag: CES
+    /v2/{project_id}/notification-masks/batch-delete:
+        POST:
+            tag: CES
+    /v2/{project_id}/notification-masks/batch-query:
+        POST:
+            tag: CES

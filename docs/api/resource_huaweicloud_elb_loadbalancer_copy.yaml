@@ -25,9 +25,6 @@ paths:
             tag: BSS
         POST:
             tag: BSS
-    /v2/orders/subscriptions/resources/unsubscribe:
-        POST:
-            tag: BSS
     /v2/orders/suscriptions/resources/query:
         POST:
             tag: BSS

@@ -11,6 +11,9 @@ paths:
     /autoscaling-api/v1/{project_id}/scaling_policy/{id}:
         DELETE:
             tag: AS
+    /autoscaling-api/v1/{project_id}/scaling_policy/{scaling_policy_id}/action:
+        POST:
+            tag: AS
     /autoscaling-api/v2/{project_id}/scaling_policy:
         POST:
             tag: AS
