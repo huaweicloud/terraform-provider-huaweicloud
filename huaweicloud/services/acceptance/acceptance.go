@@ -428,7 +428,8 @@ var (
 
 	HW_KOOGALLERY_ASSET = os.Getenv("HW_KOOGALLERY_ASSET")
 
-	HW_CCI_NAMESPACE = os.Getenv("HW_CCI_NAMESPACE")
+	HW_CCI_NAMESPACE               = os.Getenv("HW_CCI_NAMESPACE")
+	HW_CCI_SECRET_DOCKERCONFIGJSON = os.Getenv("HW_CCI_SECRET_DOCKERCONFIGJSON")
 
 	HW_CC_GLOBAL_GATEWAY_ID  = os.Getenv("HW_CC_GLOBAL_GATEWAY_ID")
 	HW_CC_PEER_DOMAIN_ID     = os.Getenv("HW_CC_PEER_DOMAIN_ID")
@@ -2304,6 +2305,13 @@ func TestAccPrecheckKooGallery(t *testing.T) {
 func TestAccPreCheckCCINamespace(t *testing.T) {
 	if HW_CCI_NAMESPACE == "" {
 		t.Skip("This environment does not support CCI Namespace tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCCISecretDockerconfigjson(t *testing.T) {
+	if HW_CCI_SECRET_DOCKERCONFIGJSON == "" {
+		t.Skip("This environment does not support CCI Secret tests")
 	}
 }
 
