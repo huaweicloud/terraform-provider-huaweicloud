@@ -42,7 +42,6 @@ var loadBalancerCopyNonUpdatableParams = []string{
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
-// @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
 func ResourceLoadBalancerCopy() *schema.Resource {
@@ -224,6 +223,22 @@ func ResourceLoadBalancerCopy() *schema.Resource {
 				Computed: true,
 			},
 			"vpc_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"elb_virsubnet_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"frozen_scene": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"operating_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"public_border_group": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -431,6 +446,11 @@ func resourceLoadBalancerCopyRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("created_at", utils.PathSearch("loadbalancer.created_at", getRespBody, nil)),
 		d.Set("updated_at", utils.PathSearch("loadbalancer.updated_at", getRespBody, nil)),
 		d.Set("waf_failure_action", utils.PathSearch("loadbalancer.waf_failure_action", getRespBody, nil)),
+		d.Set("vpc_id", utils.PathSearch("loadbalancer.vpc_id", getRespBody, nil)),
+		d.Set("elb_virsubnet_type", utils.PathSearch("loadbalancer.elb_virsubnet_type", getRespBody, nil)),
+		d.Set("frozen_scene", utils.PathSearch("loadbalancer.frozen_scene", getRespBody, nil)),
+		d.Set("operating_status", utils.PathSearch("loadbalancer.operating_status", getRespBody, nil)),
+		d.Set("public_border_group", utils.PathSearch("loadbalancer.public_border_group", getRespBody, nil)),
 		d.Set("deletion_protection_enable", strconv.FormatBool(
 			utils.PathSearch("loadbalancer.deletion_protection_enable", getRespBody, false).(bool))),
 	)
