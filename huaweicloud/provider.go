@@ -1596,6 +1596,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cci_pvc":          cci.ResourcePersistentVolumeClaimV1(),
 			"huaweicloud_cciv2_namespace":  cci.ResourceNamespace(),
 			"huaweicloud_cciv2_network":    cci.ResourceV2Network(),
+			"huaweicloud_cciv2_secret":     cci.ResourceV2Secret(),
 
 			"huaweicloud_ccm_certificate":                ccm.ResourceCCMCertificate(),
 			"huaweicloud_ccm_certificate_apply":          ccm.ResourceCertificateApply(),
