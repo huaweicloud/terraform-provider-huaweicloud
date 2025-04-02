@@ -1,5 +1,5 @@
 ---
-subcategory: "huaweicloud_elb_quota_details"
+subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_asynchronous_tasks"
 description: |-
