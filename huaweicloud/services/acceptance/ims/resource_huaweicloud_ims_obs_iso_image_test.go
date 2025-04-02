@@ -6,11 +6,34 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
 )
+
+// This method is being used by other resources and will be deleted in the future.
+func getImsImageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.ImageV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating IMS v2 client: %s", err)
+	}
+
+	imageList, err := ims.GetImageList(client, state.Primary.ID)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving IMS images: %s", err)
+	}
+
+	if len(imageList) < 1 {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return imageList[0], nil
+}
 
 func TestAccObsIsoImage_basic(t *testing.T) {
 	var (
