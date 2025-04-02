@@ -77,6 +77,18 @@ func DataSourcePrivateDnatRules() *schema.Resource {
 				Optional:    true,
 				Description: "The ID of the enterprise project to which the private DNAT rules belong.",
 			},
+			"description": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The description of the private DNAT rule.",
+			},
+			"external_ip_address": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The transit IP address used to the private DNAT rule.",
+			},
 			"rules": {
 				Type:        schema.TypeList,
 				Elem:        dnatRulesSchema(),
@@ -275,6 +287,8 @@ func filterListDnatRulesResponseBody(all []interface{}, d *schema.ResourceData) 
 func buildListDnatRulesQueryParams(d *schema.ResourceData, cfg *config.Config) string {
 	res := ""
 	epsID := cfg.GetEnterpriseProjectID(d)
+	descriptionList := d.Get("description").([]interface{})
+	externalIpAddresses := d.Get("external_ip_address").([]interface{})
 
 	if v, ok := d.GetOk("rule_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
@@ -293,6 +307,16 @@ func buildListDnatRulesQueryParams(d *schema.ResourceData, cfg *config.Config) s
 	}
 	if v, ok := d.GetOk("backend_private_ip"); ok {
 		res = fmt.Sprintf("%s&private_ip_address=%v", res, v)
+	}
+	if len(descriptionList) > 0 {
+		for _, v := range descriptionList {
+			res = fmt.Sprintf("%s&description=%v", res, v)
+		}
+	}
+	if len(externalIpAddresses) > 0 {
+		for _, v := range externalIpAddresses {
+			res = fmt.Sprintf("%s&external_ip_address=%v", res, v)
+		}
 	}
 	if epsID != "" {
 		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, epsID)

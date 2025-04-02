@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_private_dnat_rules"
-description: ""
+description: |-
+  Use this data source to get the list of private DNAT rules.
 ---
 
 # huaweicloud_nat_private_dnat_rules
@@ -61,6 +62,10 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the private DNAT
   rules belong.
+
+* `description` - (Optional, List) Specifies the description of the private DNAT rule.
+
+* `external_ip_address` - (Optional, List) Specifies the transit IP address used to the private DNAT rule.
 
 ## Attribute Reference
 

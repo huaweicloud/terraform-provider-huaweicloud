@@ -62,6 +62,12 @@ func DataSourcePrivateSnatRules() *schema.Resource {
 				Optional:    true,
 				Description: "The ID of the enterprise project to which the private SNAT rules belong.",
 			},
+			"description": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The description of the private SNAT rule.",
+			},
 			"rules": {
 				Type:        schema.TypeList,
 				Elem:        snatRulesSchema(),
@@ -215,6 +221,7 @@ func flattenListSnatRuleResponseBody(resp interface{}) []interface{} {
 func buildListSnatRulesQueryParams(d *schema.ResourceData, cfg *config.Config) string {
 	res := ""
 	epsID := cfg.GetEnterpriseProjectID(d)
+	descriptionList := d.Get("description").([]interface{})
 
 	if v, ok := d.GetOk("rule_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
@@ -233,6 +240,11 @@ func buildListSnatRulesQueryParams(d *schema.ResourceData, cfg *config.Config) s
 	}
 	if v, ok := d.GetOk("transit_ip_address"); ok {
 		res = fmt.Sprintf("%s&transit_ip_address=%v", res, v)
+	}
+	if len(descriptionList) > 0 {
+		for _, v := range descriptionList {
+			res = fmt.Sprintf("%s&description=%v", res, v)
+		}
 	}
 	if epsID != "" {
 		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, epsID)
