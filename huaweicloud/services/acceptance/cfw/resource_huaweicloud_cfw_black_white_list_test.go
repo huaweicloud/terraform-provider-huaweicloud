@@ -98,7 +98,7 @@ func TestAccBlackWhiteList_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "protocol", "-1"),
 					resource.TestCheckResourceAttr(rName, "port", ""),
 					resource.TestCheckResourceAttr(rName, "address_type", "0"),
-					resource.TestCheckResourceAttr(rName, "address", "2.2.2.2"),
+					resource.TestCheckResourceAttr(rName, "address", "2.2.2.0/24"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 				),
 			},
@@ -139,7 +139,7 @@ resource "huaweicloud_cfw_black_white_list" "test" {
   direction    = 1
   protocol     = -1
   address_type = 0
-  address      = "2.2.2.2"
+  address      = "2.2.2.0/24"
   description  = ""
 }
 `, testAccDatasourceFirewalls_basic())
@@ -149,7 +149,7 @@ func buildGetBlackWhiteListQueryParams(state *terraform.ResourceState) string {
 	res := "?offset=0&limit=10"
 	res = fmt.Sprintf("%s&object_id=%v", res, state.Primary.Attributes["object_id"])
 	res = fmt.Sprintf("%s&list_type=%v", res, state.Primary.Attributes["list_type"])
-	res = fmt.Sprintf("%s&address=%v", res, state.Primary.Attributes["address"])
+	res = fmt.Sprintf("%s&address=%v", res, strings.Split(state.Primary.Attributes["address"], "/")[0])
 
 	return res
 }

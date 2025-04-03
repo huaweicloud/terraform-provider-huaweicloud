@@ -231,7 +231,7 @@ func buildGetBlackWhiteListQueryParams(d *schema.ResourceData) string {
 	res := "?offset=0&limit=10"
 	res = fmt.Sprintf("%s&object_id=%v", res, d.Get("object_id"))
 	res = fmt.Sprintf("%s&list_type=%v", res, d.Get("list_type"))
-	res = fmt.Sprintf("%s&address=%v", res, d.Get("address"))
+	res = fmt.Sprintf("%s&address=%v", res, strings.Split(d.Get("address").(string), "/")[0])
 
 	return res
 }
