@@ -27,12 +27,15 @@ func TestAccDatasourceMonitors_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "monitors.0.id"),
 					resource.TestCheckResourceAttrSet(rName, "monitors.0.interval"),
 					resource.TestCheckResourceAttrSet(rName, "monitors.0.status_code"),
+					resource.TestCheckResourceAttrSet(rName, "monitors.0.http_method"),
 					resource.TestCheckResourceAttrSet(rName, "monitors.0.max_retries"),
 					resource.TestCheckResourceAttrSet(rName, "monitors.0.port"),
 					resource.TestCheckResourceAttrSet(rName, "monitors.0.pool_id"),
 					resource.TestCheckResourceAttrSet(rName, "monitors.0.timeout"),
 					resource.TestCheckResourceAttrSet(rName, "monitors.0.protocol"),
 					resource.TestCheckResourceAttrSet(rName, "monitors.0.url_path"),
+					resource.TestCheckResourceAttrSet(rName, "monitors.0.created_at"),
+					resource.TestCheckResourceAttrSet(rName, "monitors.0.updated_at"),
 					resource.TestCheckOutput("domain_name_filter_is_useful", "true"),
 					resource.TestCheckOutput("monitor_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("pool_id_filter_is_useful", "true"),
@@ -40,6 +43,7 @@ func TestAccDatasourceMonitors_basic(t *testing.T) {
 					resource.TestCheckOutput("max_retries_filter_is_useful", "true"),
 					resource.TestCheckOutput("timeout_filter_is_useful", "true"),
 					resource.TestCheckOutput("status_code_filter_is_useful", "true"),
+					resource.TestCheckOutput("http_method_filter_is_useful", "true"),
 					resource.TestCheckOutput("url_path_filter_is_useful", "true"),
 					resource.TestCheckOutput("protocol_filter_is_useful", "true"),
 				),
@@ -139,6 +143,18 @@ data "huaweicloud_elb_monitors" "status_code_filter" {
 output "status_code_filter_is_useful" {
   value = length(data.huaweicloud_elb_monitors.status_code_filter.monitors) > 0 && alltrue(
   [for v in data.huaweicloud_elb_monitors.status_code_filter.monitors[*].status_code :v == local.status_code]
+  )
+}
+
+locals {
+  http_method = data.huaweicloud_elb_monitors.test.monitors[0].http_method
+}
+data "huaweicloud_elb_monitors" "http_method_filter" {
+  http_method =  data.huaweicloud_elb_monitors.test.monitors[0].http_method
+}
+output "http_method_filter_is_useful" {
+  value = length(data.huaweicloud_elb_monitors.http_method_filter.monitors) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_monitors.http_method_filter.monitors[*].http_method :v == local.http_method]
   )
 }
 
