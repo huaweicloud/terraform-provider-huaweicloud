@@ -513,10 +513,12 @@ resource "huaweicloud_cce_node" "test" {
   }
 
   // Assign EIP
-  iptype="5_bgp"
-  bandwidth_charge_mode="traffic"
-  sharetype= "PER"
-  bandwidth_size= 100
+  iptype                = "5_bgp"
+  bandwidth_charge_mode = "traffic"
+  sharetype             = "PER"
+  bandwidth_size        = 100
+
+  enable_force_new = true
 }
 `, testAccNode_Base(rName), rName)
 }
@@ -559,6 +561,8 @@ resource "huaweicloud_cce_node" "test" {
 
   // Assign existing EIP
   eip_id = huaweicloud_vpc_eip.test.id
+
+  enable_force_new = true
 }
 `, testAccNode_Base(rName), rName)
 }

@@ -139,7 +139,7 @@ func ResourceNodeAttach() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"storage": resourceNodeStorageUpdatableSchema(),
+			"storage": resourceNodeStorageSchema(),
 			"taints": {
 				Type:     schema.TypeList,
 				Optional: true,
