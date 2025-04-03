@@ -1082,6 +1082,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_secgroup":       vpc.DataSourceNetworkingSecGroup(),
 			"huaweicloud_networking_secgroups":      vpc.DataSourceNetworkingSecGroups(),
 			"huaweicloud_networking_secgroup_rules": vpc.DataSourceNetworkingSecGroupRules(),
+			"huaweicloud_networking_secgroup_tags":  vpc.DataSourceVpcNetworkingSecgroupTags(),
 
 			"huaweicloud_mapreduce_versions": mrs.DataSourceMrsVersions(),
 
