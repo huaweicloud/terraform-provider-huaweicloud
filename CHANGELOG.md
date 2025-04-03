@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 1.73.5 (April 3, 2025)
+
+* **New Data Source:**
+  + `huaweicloud_networking_secgroup_tags` [GH-6611]
+
+BUG FIXES:
+
+* resource/huaweicloud_cfw_black_white_list: fix address issue [GH-6608]
+
 ## 1.73.4 (April 2, 2025)
 
 * **New Resource:**
