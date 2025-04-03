@@ -37,6 +37,10 @@ func DataSourceElbIpGroups() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"ip_address": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -66,6 +70,10 @@ func ipgroupsSchema() *schema.Resource {
 				Computed: true,
 			},
 			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -127,7 +135,7 @@ func dataSourceElbIpGroupsRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 	listIpGroupsPath := listIpGroupsClient.Endpoint + listIpGroupsHttpUrl
 	listIpGroupsPath = strings.ReplaceAll(listIpGroupsPath, "{project_id}", listIpGroupsClient.ProjectID)
-	listIpGroupsQueryParams := buildListIpGroupsQueryParams(d)
+	listIpGroupsQueryParams := buildListIpGroupsQueryParams(d, cfg.GetEnterpriseProjectID(d))
 	listIpGroupsPath += listIpGroupsQueryParams
 	listIpGroupsResp, err := pagination.ListAllItems(
 		listIpGroupsClient,
@@ -162,7 +170,7 @@ func dataSourceElbIpGroupsRead(_ context.Context, d *schema.ResourceData, meta i
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildListIpGroupsQueryParams(d *schema.ResourceData) string {
+func buildListIpGroupsQueryParams(d *schema.ResourceData, enterpriseProjectId string) string {
 	res := ""
 	if v, ok := d.GetOk("ipgroup_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
@@ -175,6 +183,9 @@ func buildListIpGroupsQueryParams(d *schema.ResourceData) string {
 	}
 	if v, ok := d.GetOk("ip_address"); ok {
 		res = fmt.Sprintf("%s&ip_list=%v", res, v)
+	}
+	if enterpriseProjectId != "" {
+		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, enterpriseProjectId)
 	}
 	if res != "" {
 		res = "?" + res[1:]
@@ -194,14 +205,15 @@ func flattenListIpGroupsBody(resp interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"id":          utils.PathSearch("id", v, nil),
-			"name":        utils.PathSearch("name", v, nil),
-			"description": utils.PathSearch("description", v, nil),
-			"project_id":  utils.PathSearch("project_id", v, nil),
-			"listeners":   utils.PathSearch("listeners", v, nil),
-			"ip_list":     utils.PathSearch("ip_list", v, nil),
-			"created_at":  utils.PathSearch("created_at", v, nil),
-			"updated_at":  utils.PathSearch("updated_at", v, nil),
+			"id":                    utils.PathSearch("id", v, nil),
+			"name":                  utils.PathSearch("name", v, nil),
+			"description":           utils.PathSearch("description", v, nil),
+			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
+			"project_id":            utils.PathSearch("project_id", v, nil),
+			"listeners":             utils.PathSearch("listeners", v, nil),
+			"ip_list":               utils.PathSearch("ip_list", v, nil),
+			"created_at":            utils.PathSearch("created_at", v, nil),
+			"updated_at":            utils.PathSearch("updated_at", v, nil),
 		})
 	}
 	return rst

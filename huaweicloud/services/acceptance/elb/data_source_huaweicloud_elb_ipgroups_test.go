@@ -26,6 +26,7 @@ func TestAccDatasourceIpGroups_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "ipgroups.0.name"),
 					resource.TestCheckResourceAttrSet(rName, "ipgroups.0.id"),
 					resource.TestCheckResourceAttrSet(rName, "ipgroups.0.description"),
+					resource.TestCheckResourceAttrSet(rName, "ipgroups.0.enterprise_project_id"),
 					resource.TestCheckResourceAttrSet(rName, "ipgroups.0.project_id"),
 					resource.TestCheckResourceAttrSet(rName, "ipgroups.0.ip_list.0.ip"),
 					resource.TestCheckResourceAttrSet(rName, "ipgroups.0.created_at"),
@@ -71,10 +72,10 @@ output "ipgroup_id_filter_is_useful" {
 }
 
 locals {
-  ip_address = huaweicloud_elb_ipgroup.test.ip_list[0].ip
+  ip_address = tolist(huaweicloud_elb_ipgroup.test.ip_list)[0].ip
 }
 data "huaweicloud_elb_ipgroups" "ip_address_filter" {
-  ip_address = huaweicloud_elb_ipgroup.test.ip_list[0].ip
+  ip_address = tolist(huaweicloud_elb_ipgroup.test.ip_list)[0].ip
 }
 output "ip_address_filter_is_useful" {
   value = length(data.huaweicloud_elb_ipgroups.ip_address_filter.ipgroups) > 0 && alltrue(
@@ -94,5 +95,17 @@ output "description_filter_is_useful" {
   )  
 }
 
+locals {
+  enterprise_project_id = huaweicloud_elb_ipgroup.test.enterprise_project_id
+}
+data "huaweicloud_elb_ipgroups" "enterprise_project_id_filter" {
+  enterprise_project_id = huaweicloud_elb_ipgroup.test.enterprise_project_id
+}
+output "enterprise_project_id_filter_is_useful" {
+  value = length(data.huaweicloud_elb_ipgroups.enterprise_project_id_filter.ipgroups) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_ipgroups.enterprise_project_id_filter.ipgroups[*].enterprise_project_id :
+  v == local.enterprise_project_id]
+  )  
+}
 `, testAccElbV3IpGroupConfig_basic(name), name)
 }
