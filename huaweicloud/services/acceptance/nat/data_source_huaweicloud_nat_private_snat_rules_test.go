@@ -50,6 +50,15 @@ func TestAccDatasourcePrivateSnatRules_basic(t *testing.T) {
 				Config: testAccDatasourcePrivateSnatRules_basic(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.gateway_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.subnet_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.status"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.transit_ip_associations.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.transit_ip_associations.0.transit_ip_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.transit_ip_associations.0.transit_ip_address"),
+
 					dcBySnatId.CheckResourceExists(),
 					resource.TestCheckOutput("rule_id_filter_is_useful", "true"),
 
