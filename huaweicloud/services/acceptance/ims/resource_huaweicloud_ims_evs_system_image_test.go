@@ -6,15 +6,56 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
+	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+func getEvsSystemImageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "ims"
+		httpUrl = "v2/cloudimages"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating IMS client: %s", err)
+	}
+
+	getPath := client.Endpoint + httpUrl
+	getPath += fmt.Sprintf("?id=%s", state.Primary.ID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving IMS EVS system image: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	image := utils.PathSearch("images[0]", getRespBody, nil)
+	// If the list API return empty, then return `404` error code.
+	if image == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return image, nil
+}
 
 func TestAccEvsSystemImage_basic(t *testing.T) {
 	var (
-		image        cloudimages.Image
+		image        interface{}
 		rName        = acceptance.RandomAccResourceName()
 		rNameUpdate  = rName + "-update"
 		resourceName = "huaweicloud_ims_evs_system_image.test"
@@ -25,7 +66,7 @@ func TestAccEvsSystemImage_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&image,
-		getImsImageResourceFunc,
+		getEvsSystemImageResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -108,6 +149,42 @@ func TestAccEvsSystemImage_basic(t *testing.T) {
 	})
 }
 
+func testAccEvsSystemImage_base(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%[2]s"
+  image_name         = "Ubuntu 18.04 server 64bit"
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%[2]s"
+  volume_type       = "GPSSD"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  server_id         = huaweicloud_compute_instance.test.id
+  size              = 100
+  charging_mode     = "postPaid"
+}
+`, common.TestBaseNetwork(rName), rName)
+}
+
 func testAccEvsSystemImage_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -126,7 +203,7 @@ resource "huaweicloud_ims_evs_system_image" "test" {
     key = "value"
   }
 }
-`, testAccEvsDataImage_base(rName), rName)
+`, testAccEvsSystemImage_base(rName), rName)
 }
 
 func testAccEvsSystemImage_update1(rName, rNameUpdate, migrateEpsId string, maxRAM, minRAM int) string {
@@ -148,7 +225,7 @@ resource "huaweicloud_ims_evs_system_image" "test" {
     key2 = "value2"
   }
 }
-`, testAccEvsDataImage_base(rName), rNameUpdate, migrateEpsId, maxRAM, minRAM)
+`, testAccEvsSystemImage_base(rName), rNameUpdate, migrateEpsId, maxRAM, minRAM)
 }
 
 func testAccEvsSystemImage_update2(rName, rNameUpdate, defaultEpsId string, maxRAM, minRAM int) string {
@@ -170,5 +247,5 @@ resource "huaweicloud_ims_evs_system_image" "test" {
     key2 = "value2"
   }
 }
-`, testAccEvsDataImage_base(rName), rNameUpdate, defaultEpsId, maxRAM, minRAM)
+`, testAccEvsSystemImage_base(rName), rNameUpdate, defaultEpsId, maxRAM, minRAM)
 }
