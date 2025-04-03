@@ -70,12 +70,18 @@ The `rules` block supports:
 
 * `status` - The status of the private SNAT rule.
 
-* `transit_ip_id` - The ID of the transit IP associated with the private SNAT rule.
-
-* `transit_ip_address` - The IP address of the transit IP associated with the private SNAT rule.
+* `transit_ip_associations` - The transit IP list associate with the private SNAT rule.
+  The [transit_ip_associations](#rules_transit_ip_associations) structure is documented below.
 
 * `created_at` - The creation time of the private SNAT rule.
 
 * `updated_at` - The latest update time of the private SNAT rule.
 
 * `enterprise_project_id` - The ID of the enterprise project to which the private SNAT rule belongs.
+
+<a name="rules_transit_ip_associations"></a>
+The `transit_ip_associations` block supports:
+
+* `transit_ip_id` - The ID of the transit IP associated with the private SNAT rule.
+
+* `transit_ip_address` - The IP address of the transit IP associated with the private SNAT rule.

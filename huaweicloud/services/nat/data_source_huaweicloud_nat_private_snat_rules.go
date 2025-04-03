@@ -111,15 +111,21 @@ func snatRulesSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The status of the private SNAT rule.",
 			},
+			// Deprecated
 			"transit_ip_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The ID of the transit IP associated with the private SNAT rule.",
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The ID of the transit IP associated with the private SNAT rule`, utils.SchemaDescInput{Deprecated: true},
+				),
 			},
+			// Deprecated
 			"transit_ip_address": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The IP address of the transit IP associated with the private SNAT rule.",
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The IP address of the transit IP associated with the private SNAT rule`, utils.SchemaDescInput{Deprecated: true},
+				),
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -135,6 +141,25 @@ func snatRulesSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The ID of the enterprise project to which the private SNAT rule belongs.",
+			},
+			"transit_ip_associations": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The transit IP list associate with the private SNAT rule.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"transit_ip_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the transit IP associated with the private SNAT rule.`,
+						},
+						"transit_ip_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The IP address of the transit IP associated with the private SNAT rule.`,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -202,19 +227,38 @@ func flattenListSnatRuleResponseBody(resp interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"id":                    utils.PathSearch("id", v, nil),
-			"gateway_id":            utils.PathSearch("gateway_id", v, nil),
-			"cidr":                  utils.PathSearch("cidr", v, nil),
-			"subnet_id":             utils.PathSearch("virsubnet_id", v, nil),
-			"description":           utils.PathSearch("description", v, nil),
-			"status":                utils.PathSearch("status", v, nil),
-			"transit_ip_id":         utils.PathSearch("transit_ip_associations[0].transit_ip_id", v, nil),
-			"transit_ip_address":    utils.PathSearch("transit_ip_associations[0].transit_ip_address", v, nil),
-			"created_at":            utils.PathSearch("created_at", v, nil),
-			"updated_at":            utils.PathSearch("updated_at", v, nil),
-			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
+			"id":                      utils.PathSearch("id", v, nil),
+			"gateway_id":              utils.PathSearch("gateway_id", v, nil),
+			"cidr":                    utils.PathSearch("cidr", v, nil),
+			"subnet_id":               utils.PathSearch("virsubnet_id", v, nil),
+			"description":             utils.PathSearch("description", v, nil),
+			"status":                  utils.PathSearch("status", v, nil),
+			"transit_ip_id":           utils.PathSearch("transit_ip_associations[0].transit_ip_id", v, nil),
+			"transit_ip_address":      utils.PathSearch("transit_ip_associations[0].transit_ip_address", v, nil),
+			"transit_ip_associations": flattenTransitIpList(utils.PathSearch("transit_ip_associations", v, make([]interface{}, 0))),
+			"created_at":              utils.PathSearch("created_at", v, nil),
+			"updated_at":              utils.PathSearch("updated_at", v, nil),
+			"enterprise_project_id":   utils.PathSearch("enterprise_project_id", v, nil),
 		})
 	}
+	return rst
+}
+
+func flattenTransitIpList(transitIpAssociations interface{}) []map[string]interface{} {
+	rawArray := transitIpAssociations.([]interface{})
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rst := make([]map[string]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		params := map[string]interface{}{
+			"transit_ip_id":      utils.PathSearch("transit_ip_id", v, nil),
+			"transit_ip_address": utils.PathSearch("transit_ip_address", v, nil),
+		}
+		rst[i] = params
+	}
+
 	return rst
 }
 
