@@ -35,6 +35,7 @@ func TestAccDataSourceElbAllMembers_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSource, "members.0.weight"),
 					resource.TestCheckResourceAttrSet(dataSource, "members.0.operating_status"),
 					resource.TestCheckResourceAttrSet(dataSource, "members.0.ip_version"),
+					resource.TestCheckResourceAttrSet(dataSource, "members.0.instance_id"),
 					resource.TestCheckResourceAttrSet(dataSource, "members.0.pool_id"),
 					resource.TestCheckResourceAttrSet(dataSource, "members.0.loadbalancer_id"),
 					resource.TestCheckResourceAttrSet(dataSource, "members.0.project_id"),
