@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.73.6 (April 7, 2025)
+
+ENHANCEMENTS:
+
+* make v5 assume role duration configurable [GH-6616]
+
 ## 1.73.5 (April 3, 2025)
 
 * **New Data Source:**
