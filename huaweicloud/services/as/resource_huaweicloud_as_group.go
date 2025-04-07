@@ -111,6 +111,10 @@ func ResourceASGroup() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"listener_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -243,6 +247,26 @@ func ResourceASGroup() *schema.Resource {
 				Computed: true,
 			},
 			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"scaling_configuration_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"activity_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"detail": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_scaling": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -602,6 +626,11 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("networks", flattenNetworks(asg.Networks)),
 		d.Set("security_groups", flattenSecurityGroups(asg.SecurityGroups)),
 		d.Set("lbaas_listeners", flattenLBaaSListeners(asg.LBaaSListeners)),
+		d.Set("scaling_configuration_name", asg.ConfigurationName),
+		d.Set("detail", asg.Detail),
+		d.Set("is_scaling", asg.IsScaling),
+		d.Set("activity_type", asg.ActivityType),
+		d.Set("create_time", asg.CreateTime),
 	)
 
 	// save group tags
@@ -653,6 +682,7 @@ func flattenLBaaSListeners(listeners []groups.LBaaSListener) []map[string]interf
 			"protocol_port":    item.ProtocolPort,
 			"weight":           item.Weight,
 			"protocol_version": item.ProtocolVersion,
+			"listener_id":      item.ListenerID,
 		}
 	}
 	return res

@@ -2,7 +2,8 @@
 subcategory: "Auto Scaling"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_as_groups"
-description: ""
+description: |-
+  Use this data source to get a list of AS groups.
 ---
 
 # huaweicloud_as_groups
@@ -120,6 +121,10 @@ The `lbaas_listeners` block supports:
 
 * `weight` - The weight, which determines the portion of requests a backend ECS processes
   compared to other backend ECSs added to the same listener.
+
+* `protocol_version` - The version of IP addresses of backend servers to be bound with the ELB.
+
+* `listener_id` - The ID of the listener associate with the ELB.
 
 <a name="network_object"></a>
 The `networks` block supports:
