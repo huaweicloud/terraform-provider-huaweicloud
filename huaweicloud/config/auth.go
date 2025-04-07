@@ -361,9 +361,9 @@ func buildClientByAgencyV5(c *Config) error {
 		"agency_urn":          agencyUrn,
 		"agency_session_name": c.AssumeRoleAgency,
 	}
-    if c.AssumeRoleDuration != 0 {
-        createAssumeOpts["duration_seconds"] = c.AssumeRoleDuration
-    }
+	if c.AssumeRoleDuration != 0 {
+		createAssumeOpts["duration_seconds"] = c.AssumeRoleDuration
+	}
 	createAssumeOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(createAssumeOpts),
