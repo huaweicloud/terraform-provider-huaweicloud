@@ -60,6 +60,7 @@ type Config struct {
 	AssumeRoleAgency    string
 	AssumeRoleDomain    string
 	AssumeRoleDomainID  string
+	AssumeRoleDuration  int
 	Cloud               string
 	MaxRetries          int
 	TerraformVersion    string

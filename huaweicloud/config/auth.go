@@ -358,9 +358,11 @@ func buildClientByAgencyV5(c *Config) error {
 	createAssumePath := client.Endpoint + createAssumeHttpUrl
 	agencyUrn := "iam::" + c.AssumeRoleDomainID + ":agency:" + c.AssumeRoleAgency
 	createAssumeOpts := map[string]interface{}{
-		"duration_seconds":    assumeRoleDuration,
 		"agency_urn":          agencyUrn,
 		"agency_session_name": c.AssumeRoleAgency,
+	}
+	if c.AssumeRoleDuration != 0 {
+		createAssumeOpts["duration_seconds"] = c.AssumeRoleDuration
 	}
 	createAssumeOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,

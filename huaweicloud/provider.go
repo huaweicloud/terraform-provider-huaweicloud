@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -243,7 +244,7 @@ func Provider() *schema.Provider {
 						},
 						"domain_name": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: descriptions["assume_role_domain_name"],
 							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_DOMAIN_NAME", nil),
 						},
@@ -252,6 +253,12 @@ func Provider() *schema.Provider {
 							Optional:    true,
 							Description: descriptions["assume_role_domain_id"],
 							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_DOMAIN_ID", nil),
+						},
+						"duration": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: descriptions["assume_role_duration"],
+							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_DURATION", nil),
 						},
 					},
 				},
@@ -2713,6 +2720,8 @@ func init() {
 
 		"assume_role_domain_id": "The id of domain for v5 assume role.",
 
+		"assume_role_duration": "The duration for v5 assume role.",
+
 		"cloud": "The endpoint of cloud provider, defaults to myhuaweicloud.com",
 
 		"endpoints": "The custom endpoints used to override the default endpoint URL.",
@@ -2776,16 +2785,28 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		delegatedAgencyName := os.Getenv("HW_ASSUME_ROLE_AGENCY_NAME")
 		delegatedDomianName := os.Getenv("HW_ASSUME_ROLE_DOMAIN_NAME")
 		delegatedDomianID := os.Getenv("HW_ASSUME_ROLE_DOMAIN_ID")
-		if delegatedAgencyName != "" && delegatedDomianName != "" {
+		delegatedDurationStr := os.Getenv("HW_ASSUME_ROLE_DURATION")
+		var delegatedDuration int
+		if delegatedDurationStr != "" {
+			var err error
+			delegatedDuration, err = strconv.Atoi(delegatedDurationStr)
+			if err != nil {
+				log.Printf("Error converting HW_ASSUME_ROLE_DURATION to int: %v", err)
+				delegatedDuration = 0 // or some default value
+			}
+		}
+		if delegatedAgencyName != "" {
 			conf.AssumeRoleAgency = delegatedAgencyName
 			conf.AssumeRoleDomain = delegatedDomianName
 			conf.AssumeRoleDomainID = delegatedDomianID
+			conf.AssumeRoleDuration = delegatedDuration
 		}
 	} else {
 		assumeRole := assumeRoleList[0].(map[string]interface{})
 		conf.AssumeRoleAgency = assumeRole["agency_name"].(string)
 		conf.AssumeRoleDomain = assumeRole["domain_name"].(string)
 		conf.AssumeRoleDomainID = assumeRole["domain_id"].(string)
+		conf.AssumeRoleDuration = assumeRole["duration"].(int)
 	}
 
 	conf.Region = d.Get("region").(string)
