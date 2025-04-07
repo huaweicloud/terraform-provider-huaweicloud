@@ -11,60 +11,49 @@
               },
               "availability_zone": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "bandwidth_charge_mode": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "bandwidth_size": {
                 "type": "number",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "charging_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "cluster_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "dedicated_host_id": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "ecs_group_id": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "eip_id": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "fixed_ip": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "flavor_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -76,13 +65,11 @@
                   "string"
                 ],
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "iptype": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "key_pair": {
                 "type": "string",
@@ -93,8 +80,7 @@
                   "map",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "name": {
                 "type": "string",
@@ -104,8 +90,7 @@
               "os": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "password": {
                 "type": "string",
@@ -114,13 +99,11 @@
               },
               "period": {
                 "type": "number",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "period_unit": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "private_ip": {
                 "type": "string",
@@ -142,8 +125,7 @@
               "runtime": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "server_id": {
                 "type": "string",
@@ -151,8 +133,7 @@
               },
               "sharetype": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "status": {
                 "type": "string",
@@ -161,8 +142,7 @@
               "subnet_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "tags": {
                 "type": [
@@ -179,8 +159,7 @@
                     "dss_pool_id": {
                       "type": "string",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "extend_params": {
                       "type": [
@@ -188,105 +167,86 @@
                         "string"
                       ],
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "iops": {
                       "type": "number",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "kms_key_id": {
                       "type": "string",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "size": {
                       "type": "number",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "throughput": {
                       "type": "number",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "volumetype": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   },
                   "description": "schema:{\"Required\":true};"
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               },
               "extend_params": {
                 "block": {
                   "attributes": {
                     "agency_name": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "docker_base_size": {
                       "type": "number",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "kube_reserved_mem": {
                       "type": "number",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "max_pods": {
                       "type": "number",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "nic_threshold": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "node_image_id": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "node_multi_queue": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "postinstall": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "preinstall": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "security_reinforcement_type": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "system_reserved_mem": {
                       "type": "number",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     }
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "extension_nics": {
@@ -294,26 +254,22 @@
                   "attributes": {
                     "subnet_id": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               },
               "hostname_config": {
                 "block": {
                   "attributes": {
                     "type": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "root_volume": {
@@ -322,8 +278,7 @@
                     "dss_pool_id": {
                       "type": "string",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "extend_params": {
                       "type": [
@@ -331,41 +286,34 @@
                         "string"
                       ],
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "iops": {
                       "type": "number",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "kms_key_id": {
                       "type": "string",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "size": {
                       "type": "number",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "throughput": {
                       "type": "number",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "volumetype": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
               },
@@ -377,21 +325,18 @@
                         "attributes": {
                           "cce_managed": {
                             "type": "bool",
-                            "optional": true,
-                            "forcenew": true
+                            "optional": true
                           },
                           "name": {
                             "type": "string",
-                            "required": true,
-                            "forcenew": true
+                            "required": true
                           },
                           "selector_names": {
                             "type": [
                               "list",
                               "string"
                             ],
-                            "required": true,
-                            "forcenew": true
+                            "required": true
                           }
                         },
                         "block_types": {
@@ -400,39 +345,32 @@
                               "attributes": {
                                 "lvm_lv_type": {
                                   "type": "string",
-                                  "optional": true,
-                                  "forcenew": true
+                                  "optional": true
                                 },
                                 "lvm_path": {
                                   "type": "string",
-                                  "optional": true,
-                                  "forcenew": true
+                                  "optional": true
                                 },
                                 "name": {
                                   "type": "string",
-                                  "required": true,
-                                  "forcenew": true
+                                  "required": true
                                 },
                                 "runtime_lv_type": {
                                   "type": "string",
-                                  "optional": true,
-                                  "forcenew": true
+                                  "optional": true
                                 },
                                 "size": {
                                   "type": "string",
-                                  "required": true,
-                                  "forcenew": true
+                                  "required": true
                                 }
                               }
                             },
                             "nesting_mode": "list",
-                            "forcenew": true,
                             "min_items": 1
                           }
                         }
                       },
                       "nesting_mode": "list",
-                      "forcenew": true,
                       "min_items": 1
                     },
                     "selectors": {
@@ -440,50 +378,41 @@
                         "attributes": {
                           "match_label_count": {
                             "type": "string",
-                            "optional": true,
-                            "forcenew": true
+                            "optional": true
                           },
                           "match_label_metadata_cmkid": {
                             "type": "string",
-                            "optional": true,
-                            "forcenew": true
+                            "optional": true
                           },
                           "match_label_metadata_encrypted": {
                             "type": "string",
-                            "optional": true,
-                            "forcenew": true
+                            "optional": true
                           },
                           "match_label_size": {
                             "type": "string",
-                            "optional": true,
-                            "forcenew": true
+                            "optional": true
                           },
                           "match_label_volume_type": {
                             "type": "string",
-                            "optional": true,
-                            "forcenew": true
+                            "optional": true
                           },
                           "name": {
                             "type": "string",
-                            "required": true,
-                            "forcenew": true
+                            "required": true
                           },
                           "type": {
                             "type": "string",
                             "optional": true,
-                            "forcenew": true,
                             "default": "evs"
                           }
                         }
                       },
                       "nesting_mode": "list",
-                      "forcenew": true,
                       "min_items": 1
                     }
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "max_items": 1
               },
               "taints": {
@@ -491,23 +420,19 @@
                   "attributes": {
                     "effect": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "key": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "value": {
                       "type": "string",
-                      "optional": true,
-                      "forcenew": true
+                      "optional": true
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               }
             }
           },
