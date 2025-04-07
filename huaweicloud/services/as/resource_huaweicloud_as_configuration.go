@@ -541,7 +541,7 @@ func flattenInstanceConfig(instanceConfig configurations.InstanceConfig, d *sche
 			"ecs_group_id":           instanceConfig.ServerGroupID,
 			"tenancy":                instanceConfig.Tenancy,
 			"dedicated_host_id":      instanceConfig.DedicatedHostID,
-			"user_data":              instanceConfig.UserData,
+			"user_data":              d.Get("instance_config.0.user_data"),
 			"admin_pass":             d.Get("instance_config.0.admin_pass"),
 			"metadata":               d.Get("instance_config.0.metadata"),
 			"disk":                   flattenInstanceDisks(instanceConfig.Disk),
