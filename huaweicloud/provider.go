@@ -2784,7 +2784,16 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		delegatedAgencyName := os.Getenv("HW_ASSUME_ROLE_AGENCY_NAME")
 		delegatedDomianName := os.Getenv("HW_ASSUME_ROLE_DOMAIN_NAME")
 		delegatedDomianID := os.Getenv("HW_ASSUME_ROLE_DOMAIN_ID")
-		delegatedDuration := os.Getenv("HW_ASSUME_ROLE_DURATION")
+		delegatedDurationStr := os.Getenv("HW_ASSUME_ROLE_DURATION")
+		var delegatedDuration int
+		if delegatedDurationStr != "" {
+			var err error
+			delegatedDuration, err = strconv.Atoi(delegatedDurationStr)
+			if err != nil {
+				log.Printf("Error converting HW_ASSUME_ROLE_DURATION to int: %v", err)
+				delegatedDuration = 0 // or some default value
+			}
+		}
 		if delegatedAgencyName != "" {
 			conf.AssumeRoleAgency = delegatedAgencyName
 			conf.AssumeRoleDomain = delegatedDomianName
