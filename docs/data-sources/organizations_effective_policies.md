@@ -13,7 +13,12 @@ Use this data source to get the effective policies of a specific type for the sp
 ## Example Usage
 
 ```hcl
-data "huaweicloud_organizations_effective_policies" "test"{}
+variable "entity_id" {}
+
+data "huaweicloud_organizations_effective_policies" "test"{
+  entity_id   = var.entity_id
+  policy_type = "tag_policy"
+}
 ```
 
 ## Argument Reference
