@@ -28,12 +28,38 @@ import (
 // @API CCE PUT /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}
 // @API CCE DELETE /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}
 
+var nodePoolNonUpdatableParams = []string{
+	"cluster_id", "flavor_id", "type",
+	"root_volume", "root_volume.*.size", "root_volume.*.volumetype", "root_volume.*.extend_params", "root_volume.*.kms_key_id",
+	"root_volume.*.dss_pool_id", "root_volume.*.iops", "root_volume.*.throughput", "root_volume.*.hw_passthrough", "root_volume.*.extend_param",
+	"data_volumes", "data_volumes.*.size", "data_volumes.*.volumetype", "data_volumes.*.extend_params", "data_volumes.*.kms_key_id",
+	"data_volumes.*.dss_pool_id", "data_volumes.*.iops", "data_volumes.*.throughput", "data_volumes.*.hw_passthrough",
+	"data_volumes.*.extend_param",
+	"availability_zone", "key_pair", "password",
+	"storage", "storage.*.selectors", "storage.*.selectors.*.name", "storage.*.selectors.*.type", "storage.*.selectors.*.match_label_size",
+	"storage.*.selectors.*.match_label_volume_type", "storage.*.selectors.*.match_label_metadata_encrypted",
+	"storage.*.selectors.*.match_label_metadata_cmkid", "storage.*.selectors.*.match_label_count",
+	"storage.*.groups", "storage.*.groups.*.name", "storage.*.groups.*.cce_managed", "storage.*.groups.*.selector_names",
+	"storage.*.groups.*.virtual_spaces",
+	"storage.*.groups.*.virtual_spaces.*.name", "storage.*.groups.*.virtual_spaces.*.size", "storage.*.groups.*.virtual_spaces.*.lvm_lv_type",
+	"storage.*.groups.*.virtual_spaces.*.lvm_path", "storage.*.groups.*.virtual_spaces.*.runtime_lv_type",
+	"charging_mode", "period_unit", "period", "auto_renew", "runtime",
+	"extend_params", "extend_params.*.max_pods", "extend_params.*.docker_base_size", "extend_params.*.preinstall",
+	"extend_params.*.postinstall", "extend_params.*.node_image_id", "extend_params.*.node_multi_queue", "extend_params.*.nic_threshold",
+	"extend_params.*.agency_name", "extend_params.*.kube_reserved_mem", "extend_params.*.system_reserved_mem",
+	"extend_params.*.security_reinforcement_type", "extend_params.*.market_type", "extend_params.*.spot_price",
+	"security_groups", "pod_security_groups", "ecs_group_id", "hostname_config", "hostname_config.*.type",
+	"max_pods", "preinstall", "postinstall", "extend_param",
+}
+
 func ResourceNodePool() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodePoolCreate,
 		ReadContext:   resourceNodePoolRead,
 		UpdateContext: resourceNodePoolUpdate,
 		DeleteContext: resourceNodePoolDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(nodePoolNonUpdatableParams),
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceNodePoolImport,
@@ -62,17 +88,14 @@ func ResourceNodePool() *schema.Resource {
 			"cluster_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"flavor_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"labels": { // (k8s_tags)
@@ -85,7 +108,6 @@ func ResourceNodePool() *schema.Resource {
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Default:  "random",
 			},
 			"os": {
@@ -96,13 +118,11 @@ func ResourceNodePool() *schema.Resource {
 			"key_pair": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"password", "key_pair"},
 			},
 			"password": {
 				Type:      schema.TypeString,
 				Optional:  true,
-				ForceNew:  true,
 				Sensitive: true,
 			},
 			"storage": resourceNodeStorageSchema(),
@@ -127,21 +147,20 @@ func ResourceNodePool() *schema.Resource {
 			},
 			"tags": common.TagsSchema(),
 			// charge info: charging_mode, period_unit, period, auto_renew
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenew(nil),
+			"charging_mode": schemaChargingMode(nil),
+			"period_unit":   schemaPeriodUnit(nil),
+			"period":        schemaPeriod(nil),
+			"auto_renew":    schemaAutoRenewComputed(nil),
 
 			"runtime": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"docker", "containerd",
 				}, false),
 			},
-			"extend_params": resourceNodeExtendParamsSchema([]string{
+			"extend_params": resourceNodePoolExtendParamsSchema([]string{
 				"max_pods", "preinstall", "postinstall", "extend_param",
 			}),
 			"subnet_id": {
@@ -177,14 +196,12 @@ func ResourceNodePool() *schema.Resource {
 			"security_groups": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"pod_security_groups": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -192,7 +209,6 @@ func ResourceNodePool() *schema.Resource {
 			"ecs_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"initialized_conditions": {
 				Type:     schema.TypeList,
@@ -219,14 +235,12 @@ func ResourceNodePool() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -237,6 +251,12 @@ func ResourceNodePool() *schema.Resource {
 				Computed: true,
 			},
 			"extension_scale_groups": resourceExtensionScaleGroupsSchema(),
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 			"current_node_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -254,28 +274,24 @@ func ResourceNodePool() *schema.Resource {
 			"max_pods": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
 			},
 			"preinstall": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				StateFunc:   utils.DecodeHashAndHexEncode,
 				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
 			},
 			"postinstall": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				StateFunc:   utils.DecodeHashAndHexEncode,
 				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
 			},
 			"extend_param": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "schema: Deprecated; This parameter has been replaced by the 'extend_params' parameter.",
 			},
@@ -606,7 +622,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	// The following parameters are not returned:
-	// password, extend_params, taints, initial_node_count, pod_security_groups
+	// password, initial_node_count, pod_security_groups
 	// extension_scale_groups not save, because the order of groups will change and computed not working in TypeSet
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -638,10 +654,17 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("enterprise_project_id", s.Spec.NodeTemplate.ServerEnterpriseProjectID),
 		d.Set("subnet_id", s.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetId),
 		d.Set("subnet_list", s.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetList),
+		d.Set("extend_params", flattenExtendParams(s.Spec.NodeTemplate.ExtendParam)),
+		d.Set("taints", flattenResourceNodeTaints(s.Spec.NodeTemplate.Taints)),
 	)
 
 	if s.Spec.NodeTemplate.BillingMode != 0 {
-		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
+		mErr = multierror.Append(mErr,
+			d.Set("charging_mode", "prePaid"),
+			d.Set("period_unit", utils.PathSearch("periodType", s.Spec.NodeTemplate.ExtendParam, nil)),
+			d.Set("period", utils.PathSearch("periodNum", s.Spec.NodeTemplate.ExtendParam, nil)),
+			d.Set("auto_renew", utils.PathSearch("isAutoRenew", s.Spec.NodeTemplate.ExtendParam, nil)),
+		)
 	}
 
 	if s.Spec.NodeTemplate.RunTime != nil {

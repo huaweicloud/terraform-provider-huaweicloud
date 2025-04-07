@@ -84,7 +84,7 @@ func TestAccNodePool_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccNodePoolImportStateIdFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
-					"initial_node_count", "extend_params",
+					"initial_node_count", "extend_params", "enable_force_new",
 				},
 			},
 		},
@@ -153,6 +153,12 @@ resource "huaweicloud_cce_node_pool" "test" {
 #! /bin/bash
 date
 EOF
+  }
+
+  lifecycle {
+    ignore_changes = [
+      extend_params
+    ]
   }
 }
 `, baseConfig, name)
@@ -253,6 +259,8 @@ resource "huaweicloud_cce_node_pool" "test" {
 date
 EOF
   }
+
+  enable_force_new = true
 
   lifecycle {
     ignore_changes = [
@@ -990,7 +998,7 @@ func TestAccNodePool_extensionScaleGroups(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccNodePoolImportStateIdFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
-					"initial_node_count", "extend_params", "extension_scale_groups",
+					"initial_node_count", "extension_scale_groups",
 				},
 			},
 		},

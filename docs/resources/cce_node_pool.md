@@ -260,46 +260,42 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the CCE pool resource. If omitted, the
   provider-level region will be used. Changing this creates a new CCE node pool resource.
 
-* `cluster_id` - (Required, String, ForceNew) Specifies the cluster ID.
-  Changing this parameter will create a new resource.
+* `cluster_id` - (Required, String, NonUpdatable) Specifies the cluster ID.
 
 * `name` - (Required, String) Specifies the node pool name.
 
 * `initial_node_count` - (Required, Int) Specifies the initial number of expected nodes in the node pool.
   This parameter can be also used to manually scale the node count afterwards.
 
-* `flavor_id` - (Required, String, ForceNew) Specifies the flavor ID. Changing this parameter will create a new
-  resource.
+* `flavor_id` - (Required, String, NonUpdatable) Specifies the flavor ID.
 
-* `type` - (Optional, String, ForceNew) Specifies the node pool type. Possible values are: **vm** and **ElasticBMS**.
+* `type` - (Optional, String, NonUpdatable) Specifies the node pool type. Possible values are: **vm** and **ElasticBMS**.
 
-* `availability_zone` - (Optional, String, ForceNew) Specifies the name of the available partition (AZ). Default value
-  is random to create nodes in a random AZ in the node pool. Changing this parameter will create a new resource.
+* `availability_zone` - (Optional, String, NonUpdatable) Specifies the name of the available partition (AZ). Default value
+  is random to create nodes in a random AZ in the node pool.
 
 * `os` - (Optional, String) Specifies the operating system of the node.
   The value can be **EulerOS 2.9** and **CentOS 7.6** e.g. For more details,
   please see [documentation](https://support.huaweicloud.com/intl/en-us/api-cce/node-os.html).
   This parameter is required when the `node_image_id` in `extend_params` is not specified.
 
-* `key_pair` - (Optional, String, ForceNew) Specifies the key pair name when logging in to select the key pair mode.
-  This parameter and `password` are alternative. Changing this parameter will create a new resource.
+* `key_pair` - (Optional, String, NonUpdatable) Specifies the key pair name when logging in to select the key pair mode.
+  This parameter and `password` are alternative.
 
-* `password` - (Optional, String, ForceNew) Specifies the root password when logging in to select the password mode.
+* `password` - (Optional, String, NonUpdatable) Specifies the root password when logging in to select the password mode.
   The password consists of 8 to 26 characters and must contain at least three of following: uppercase letters,
   lowercase letters, digits, special characters(!@$%^-_=+[{}]:,./?~#*).
   This parameter can be plain or salted and is alternative to `key_pair`.
-  Changing this parameter will create a new resource.
 
 * `subnet_id` - (Optional, String) Specifies the ID of the subnet to which the NIC belongs.
 
 * `subnet_list` - (Optional, List) Specifies the ID list of the subnet to which the NIC belongs.
 
-* `ecs_group_id` - (Optional, String, ForceNew) Specifies the ECS group ID. If specified, the node will be created under
-  the cloud server group. Changing this parameter will create a new resource.
+* `ecs_group_id` - (Optional, String, NonUpdatable) Specifies the ECS group ID. If specified, the node will be created under
+  the cloud server group.
 
-* `extend_params` - (Optional, List, ForceNew) Specifies the extended parameters.
+* `extend_params` - (Optional, List, NonUpdatable) Specifies the extended parameters.
   The [object](#extend_params) structure is documented below.
-  Changing this parameter will create a new resource.
 
 * `scall_enable` - (Optional, Bool) Specifies whether to enable auto scaling.
   If Autoscaler is enabled, install the autoscaler add-on to use the auto scaling feature.
@@ -313,13 +309,13 @@ The following arguments are supported:
 * `priority` - (Optional, Int) Specifies the weight of the node pool.
   A node pool with a higher weight has a higher priority during scaling.
 
-* `security_groups` - (Optional, List, ForceNew) Specifies the list of custom security group IDs for the node pool.
+* `security_groups` - (Optional, List, NonUpdatable) Specifies the list of custom security group IDs for the node pool.
   If specified, the nodes will be put in these security groups. When specifying a security group, do not modify
   the rules of the port on which CCE running depends. For details, see
   [documentation](https://support.huaweicloud.com/intl/en-us/cce_faq/cce_faq_00265.html).
 
-* `pod_security_groups` - (Optional, List, ForceNew) Specifies the list of security group IDs for the pod.
-  Only supported in CCE Turbo clusters of v1.19 and above. Changing this parameter will create a new resource.
+* `pod_security_groups` - (Optional, List, NonUpdatable) Specifies the list of security group IDs for the pod.
+  Only supported in CCE Turbo clusters of v1.19 and above.
 
 * `initialized_conditions` - (Optional, List) Specifies the custom initialization flags.
 
@@ -327,28 +323,26 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the tags of a VM node, key/value pair format.
 
-* `root_volume` - (Required, List, ForceNew) Specifies the configuration of the system disk.
-  The structure is described below. Changing this parameter will create a new resource.
+* `root_volume` - (Required, List, NonUpdatable) Specifies the configuration of the system disk.
+  The structure is described below.
 
-* `data_volumes` - (Required, List, ForceNew) Specifies the configuration of the data disks.
-  The structure is described below. Changing this parameter will create a new resource.
+* `data_volumes` - (Required, List, NonUpdatable) Specifies the configuration of the data disks.
+  The structure is described below.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CCE node pool. Valid values are
-  *prePaid* and *postPaid*, defaults to *postPaid*. Changing this parameter will create a new resource.
+* `charging_mode` - (Optional, String, NonUpdatable) Specifies the charging mode of the CCE node pool. Valid values are
+  *prePaid* and *postPaid*, defaults to *postPaid*.
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the CCE node pool.
+* `period_unit` - (Optional, String, NonUpdatable) Specifies the charging period unit of the CCE node pool.
   Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
-  Changing this parameter will create a new resource.
 
-* `period` - (Optional, Int, ForceNew) Specifies the charging period of the CCE node pool. If `period_unit` is set to
+* `period` - (Optional, Int, NonUpdatable) Specifies the charging period of the CCE node pool. If `period_unit` is set to
   *month*, the value ranges from 1 to 9. If `period_unit` is set to *year*, the value ranges from 1 to 3. This parameter
-  is mandatory if `charging_mode` is set to *prePaid*. Changing this parameter will create a new resource.
+  is mandatory if `charging_mode` is set to *prePaid*.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Valid values are "true" and "false".
-  Changing this parameter will create a new resource.
+* `auto_renew` - (Optional, String, NonUpdatable) Specifies whether auto renew is enabled. Valid values are "true" and "false".
 
-* `runtime` - (Optional, String, ForceNew) Specifies the runtime of the CCE node pool. Valid values are *docker* and
-  *containerd*. Changing this creates a new resource.
+* `runtime` - (Optional, String, NonUpdatable) Specifies the runtime of the CCE node pool. Valid values are *docker* and
+  *containerd*.
 
 * `taints` - (Optional, List) Specifies the taints configuration of the nodes to set anti-affinity.
   The structure is described below.
@@ -365,15 +359,14 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the node pool.
   If updated, the new value will apply only to new nodes.
 
-* `hostname_config` - (Optional, List, ForceNew) Specifies the hostname config of the kubernetes node,
+* `hostname_config` - (Optional, List, NonUpdatable) Specifies the hostname config of the kubernetes node,
   which is supported by clusters of v1.23.6-r0 to v1.25 or clusters of v1.25.2-r0 or later versions.
   The [object](#hostname_config) structure is documented below.
-  Changing this parameter will create a new resource.
 
 * `extension_scale_groups` - (Optional, List) Specifies the configurations of extended scaling groups in the node pool.
   The [object](#extension_scale_groups) structure is documented below.
 
-* `storage` - (Optional, List, ForceNew) Specifies the disk initialization management parameter.
+* `storage` - (Optional, List, NonUpdatable) Specifies the disk initialization management parameter.
   If omitted, disks are managed based on the DockerLVMConfigOverride parameter in extendParam.
   This parameter is supported for clusters of v1.15.11 and later.
   If the node has both local and EVS disks attached,
@@ -382,55 +375,47 @@ The following arguments are supported:
   If you want to use the shared disk space (with the runtime and Kubernetes partitions cancelled),
   this parameter must be specified.
   If you want to store system components in the system disk, this parameter must be specified.
-  Changing this parameter will create a new resource.
 
-  + `selectors` - (Required, List, ForceNew) Specifies the disk selection.
+  + `selectors` - (Required, List, NonUpdatable) Specifies the disk selection.
     Matched disks are managed according to match labels and storage type. Structure is documented below.
-    Changing this parameter will create a new resource.
-  + `groups` - (Required, List, ForceNew) Specifies the storage group consists of multiple storage devices.
+
+  + `groups` - (Required, List, NonUpdatable) Specifies the storage group consists of multiple storage devices.
     This is used to divide storage space. Structure is documented below.
-    Changing this parameter will create a new resource.
 
 The `root_volume` block supports:
 
-* `size` - (Required, Int, ForceNew) Specifies the disk size in GB. Changing this parameter will create a new resource.
+* `size` - (Required, Int, NonUpdatable) Specifies the disk size in GB.
 
-* `volumetype` - (Required, String, ForceNew) Specifies the disk type. Changing this parameter will create a new resource.
+* `volumetype` - (Required, String, NonUpdatable) Specifies the disk type.
 
-* `extend_params` - (Optional, Map, ForceNew) Specifies the disk expansion parameters.
-  Changing this parameter will create a new resource.
+* `extend_params` - (Optional, Map, NonUpdatable) Specifies the disk expansion parameters.
 
-* `kms_key_id` - (Optional, String, ForceNew) Specifies the KMS key ID. This is used to encrypt the volume.
-  Changing this parameter will create a new resource.
+* `kms_key_id` - (Optional, String, NonUpdatable) Specifies the KMS key ID. This is used to encrypt the volume.
 
-* `dss_pool_id` - (Optional, String, ForceNew) Specifies the DSS pool ID. This field is used only for dedicated storage.
-  Changing this parameter will create a new resource.
+* `dss_pool_id` - (Optional, String, NonUpdatable) Specifies the DSS pool ID. This field is used only for dedicated storage.
 
-* `iops` - (Optional, Int, ForceNew) Specifies the iops of the disk,
+* `iops` - (Optional, Int, NonUpdatable) Specifies the iops of the disk,
   required when `volumetype` is **GPSSD2** or **ESSD2**.
   
-* `throughput` - (Optional, Int, ForceNew) Specifies the throughput of the disk in MiB/s,
+* `throughput` - (Optional, Int, NonUpdatable) Specifies the throughput of the disk in MiB/s,
   required when `volumetype` is **GPSSD2**.
 
 The `data_volumes` block supports:
 
-* `size` - (Required, Int, ForceNew) Specifies the disk size in GB. Changing this parameter will create a new resource.
+* `size` - (Required, Int, NonUpdatable) Specifies the disk size in GB.
 
-* `volumetype` - (Required, String, ForceNew) Specifies the disk type. Changing this parameter will create a new resource.
+* `volumetype` - (Required, String, NonUpdatable) Specifies the disk type.
 
-* `extend_params` - (Optional, Map, ForceNew) Specifies the disk expansion parameters.
-  Changing this parameter will create a new resource.
+* `extend_params` - (Optional, Map, NonUpdatable) Specifies the disk expansion parameters.
 
-* `kms_key_id` - (Optional, String, ForceNew) Specifies the KMS key ID. This is used to encrypt the volume.
-  Changing this parameter will create a new resource.
+* `kms_key_id` - (Optional, String, NonUpdatable) Specifies the KMS key ID. This is used to encrypt the volume.
 
-* `dss_pool_id` - (Optional, String, ForceNew) Specifies the DSS pool ID. This field is used only for dedicated storage.
-  Changing this parameter will create a new resource.
+* `dss_pool_id` - (Optional, String, NonUpdatable) Specifies the DSS pool ID. This field is used only for dedicated storage.
 
-* `iops` - (Optional, Int, ForceNew) Specifies the iops of the disk,
+* `iops` - (Optional, Int, NonUpdatable) Specifies the iops of the disk,
   required when `volumetype` is **GPSSD2** or **ESSD2**.
   
-* `throughput` - (Optional, Int, ForceNew) Specifies the throughput of the disk in MiB/s,
+* `throughput` - (Optional, Int, NonUpdatable) Specifies the throughput of the disk in MiB/s,
   required when `volumetype` is **GPSSD2**.
 
   -> You need to create an agency (EVSAccessKMS) when disk encryption is used in the current project for the first time ever.
@@ -449,94 +434,97 @@ The `taints` block supports:
 <a name="extend_params"></a>
 The `extend_params` block supports:
 
-* `max_pods` - (Optional, Int, ForceNew) Specifies the maximum number of instances a node is allowed to create.
-  Changing this parameter will create a new resource.
+* `max_pods` - (Optional, Int, NonUpdatable) Specifies the maximum number of instances a node is allowed to create.
 
-* `docker_base_size` - (Optional, Int, ForceNew) Specifies the available disk space of a single container on a node,
-  in GB. Changing this parameter will create a new resource.
+* `docker_base_size` - (Optional, Int, NonUpdatable) Specifies the available disk space of a single container on a node,
+  in GB.
 
-* `preinstall` - (Optional, String, ForceNew) Specifies the script to be executed before installation.
-  The input value can be a Base64 encoded string or not. Changing this parameter will create a new resource.
+* `preinstall` - (Optional, String, NonUpdatable) Specifies the script to be executed before installation.
+  The input value can be a Base64 encoded string or not.
 
-* `postinstall` - (Optional, String, ForceNew) Specifies the script to be executed after installation.
-  The input value can be a Base64 encoded string or not. Changing this parameter will create a new resource.
+* `postinstall` - (Optional, String, NonUpdatable) Specifies the script to be executed after installation.
+  The input value can be a Base64 encoded string or not.
 
-* `node_image_id` - (Optional, String, ForceNew) Specifies the image ID to create the node.
-  Changing this parameter will create a new resource.
+* `node_image_id` - (Optional, String, NonUpdatable) Specifies the image ID to create the node.
 
-* `node_multi_queue` - (Optional, String, ForceNew) Specifies the number of ENI queues.
-  Example setting: **"[{\"queue\":4}]"**. Changing this parameter will create a new resource.
+* `node_multi_queue` - (Optional, String, NonUpdatable) Specifies the number of ENI queues.
+  Example setting: **"[{\"queue\":4}]"**.
 
-* `nic_threshold` - (Optional, String, ForceNew) Specifies the ENI pre-binding thresholds.
-  Example setting: **"0.3:0.6"**. Changing this parameter will create a new resource.
+* `nic_threshold` - (Optional, String, NonUpdatable) Specifies the ENI pre-binding thresholds.
+  Example setting: **"0.3:0.6"**.
 
-* `agency_name` - (Optional, String, ForceNew) Specifies the agency name.
-  Changing this parameter will create a new resource.
+* `agency_name` - (Optional, String, NonUpdatable) Specifies the agency name.
 
-* `kube_reserved_mem` - (Optional, Int, ForceNew) Specifies the reserved node memory, which is reserved for
-  Kubernetes-related components. Changing this parameter will create a new resource.
+* `kube_reserved_mem` - (Optional, Int, NonUpdatable) Specifies the reserved node memory, which is reserved for
+  Kubernetes-related components.
 
-* `system_reserved_mem` - (Optional, Int, ForceNew) Specifies the reserved node memory, which is reserved
-  value for system components. Changing this parameter will create a new resource.
+* `system_reserved_mem` - (Optional, Int, NonUpdatable) Specifies the reserved node memory, which is reserved
+  value for system components.
 
-* `security_reinforcement_type` - (Optional, String, ForceNew) Specifies the security reinforcement type.
-  The value can be: **null** or **cybersecurity**. Changing this parameter will create a new resource.
+* `security_reinforcement_type` - (Optional, String, NonUpdatable) Specifies the security reinforcement type.
+  The value can be: **null** or **cybersecurity**.
 
 The `selectors` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the selector name, used as the index of `selector_names` in storage group.
-  The name of each selector must be unique. Changing this parameter will create a new resource.
-* `type` - (Optional, String, ForceNew) Specifies the storage type. Currently, only **evs (EVS volumes)** is supported.
-  The default value is **evs**. Changing this parameter will create a new resource.
-* `match_label_size` - (Optional, String, ForceNew) Specifies the matched disk size. If omitted,
-  the disk size is not limited. Example: 100. Changing this parameter will create a new resource.
-* `match_label_volume_type` - (Optional, String, ForceNew) Specifies the EVS disk type. Currently,
+* `name` - (Required, String, NonUpdatable) Specifies the selector name, used as the index of `selector_names`
+  in storage group. The name of each selector must be unique.
+
+* `type` - (Optional, String, NonUpdatable) Specifies the storage type. Currently, only **evs (EVS volumes)** is supported.
+  The default value is **evs**.
+
+* `match_label_size` - (Optional, String, NonUpdatable) Specifies the matched disk size. If omitted,
+  the disk size is not limited. Example: 100.
+
+* `match_label_volume_type` - (Optional, String, NonUpdatable) Specifies the EVS disk type. Currently,
   **SSD**, **GPSSD**, and **SAS** are supported. If omitted, the disk type is not limited.
-  Changing this parameter will create a new resource.
-* `match_label_metadata_encrypted` - (Optional, String, ForceNew) Specifies the disk encryption identifier.
+
+* `match_label_metadata_encrypted` - (Optional, String, NonUpdatable) Specifies the disk encryption identifier.
   Values can be: **0** indicates that the disk is not encrypted and **1** indicates that the disk is encrypted.
-  If omitted, whether the disk is encrypted is not limited. Changing this parameter will create a new resource.
-* `match_label_metadata_cmkid` - (Optional, String, ForceNew) Specifies the customer master key ID of an encrypted
-  disk. Changing this parameter will create a new resource.
-* `match_label_count` - (Optional, String, ForceNew) Specifies the number of disks to be selected. If omitted,
-  all disks of this type are selected. Changing this parameter will create a new resource.
+  If omitted, whether the disk is encrypted is not limited.
+
+* `match_label_metadata_cmkid` - (Optional, String, NonUpdatable) Specifies the customer master key ID of an encrypted
+  disk.
+
+* `match_label_count` - (Optional, String, NonUpdatable) Specifies the number of disks to be selected. If omitted,
+  all disks of this type are selected.
 
 The `groups` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the name of a virtual storage group. Each group name must be unique.
-  Changing this parameter will create a new resource.
-* `cce_managed` - (Optional, Bool, ForceNew) Specifies the whether the storage space is for **kubernetes** and
-  **runtime** components. Only one group can be set to true. The default value is **false**.
-  Changing this parameter will create a new resource.
-* `selector_names` - (Required, List, ForceNew) Specifies the list of names of selectors to match.
-  This parameter corresponds to name in `selectors`. A group can match multiple selectors,
-  but a selector can match only one group. Changing this parameter will create a new resource.
-* `virtual_spaces` - (Required, List, ForceNew) Specifies the detailed management of space configuration in a group.
-  Changing this parameter will create a new resource.
+* `name` - (Required, String, NonUpdatable) Specifies the name of a virtual storage group. Each group name must be unique.
 
-  + `name` - (Required, String, ForceNew) Specifies the virtual space name. Currently, only **kubernetes**, **runtime**,
-    and **user** are supported. Changing this parameter will create a new resource.
-  + `size` - (Required, String, ForceNew) Specifies the size of a virtual space. Only an integer percentage is supported.
+* `cce_managed` - (Optional, Bool, NonUpdatable) Specifies the whether the storage space is for **kubernetes** and
+  **runtime** components. Only one group can be set to true. The default value is **false**.
+
+* `selector_names` - (Required, List, NonUpdatable) Specifies the list of names of selectors to match.
+  This parameter corresponds to name in `selectors`. A group can match multiple selectors,
+  but a selector can match only one group.
+
+* `virtual_spaces` - (Required, List, NonUpdatable) Specifies the detailed management of space configuration in a group.
+
+  + `name` - (Required, String, NonUpdatable) Specifies the virtual space name. Currently, only **kubernetes**, **runtime**,
+    and **user** are supported.
+
+  + `size` - (Required, String, NonUpdatable) Specifies the size of a virtual space. Only an integer percentage is supported.
     Example: 90%. Note that the total percentage of all virtual spaces in a group cannot exceed 100%.
-    Changing this parameter will create a new resource.
-  + `lvm_lv_type` - (Optional, String, ForceNew) Specifies the LVM write mode, values can be **linear** and **striped**.
-    This parameter takes effect only in **kubernetes** and **user** configuration. Changing this parameter will create
-    a new resource.
-  + `lvm_path` - (Optional, String, ForceNew) Specifies the absolute path to which the disk is attached.
-    This parameter takes effect only in **user** configuration. Changing this parameter will create a new resource.
-  + `runtime_lv_type` - (Optional, String, ForceNew) Specifies the LVM write mode, values can be **linear** and **striped**.
-    This parameter takes effect only in **runtime** configuration. Changing this parameter will create a new resource.
+
+  + `lvm_lv_type` - (Optional, String, NonUpdatable) Specifies the LVM write mode, values can be **linear** and **striped**.
+    This parameter takes effect only in **kubernetes** and **user** configuration.
+
+  + `lvm_path` - (Optional, String, NonUpdatable) Specifies the absolute path to which the disk is attached.
+    This parameter takes effect only in **user** configuration.
+
+  + `runtime_lv_type` - (Optional, String, NonUpdatable) Specifies the LVM write mode, values can be **linear** and **striped**.
+    This parameter takes effect only in **runtime** configuration.
 
 <a name="hostname_config"></a>
 The `hostname_config` block supports:
 
-* `type` - (Required, String, ForceNew) Specifies the hostname type of the kubernetes node.
+* `type` - (Required, String, NonUpdatable) Specifies the hostname type of the kubernetes node.
   The value can be:
   + **privateIp**: The Kubernetes node is named after its IP address.
   + **cceNodeName**: The Kubernetes node is named after the CCE node.
   
   If `hostname_config` not specified, the default value is **privateIp**.
-  Changing this parameter will create a new resource.
 
   ~>For a node which is configured using cceNodeName, the name is the same as the Kubernetes node name and the ECS name.
     The node name cannot be changed. If the ECS name is changed on the ECS console, the node name will retain unchanged
