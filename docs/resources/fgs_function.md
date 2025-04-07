@@ -526,6 +526,10 @@ The following arguments are supported:
 
   -> Only Java runtime supports the configurations of the heartbeat and restore hook.
 
+* `lts_custom_tag` - (Optional, Map) Specifies the custom tags configuration that used to filter the LTS logs.
+
+  -> This parameter is only supported by the `v2` version of the function.
+
 <a name="function_func_mounts"></a>
 The `func_mounts` block supports:
 

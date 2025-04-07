@@ -589,6 +589,14 @@ CIDR blocks used by the service.`,
 				// value will not be returned. So, the computed behavior cannot be supported.
 				Description: `The timeout of the function restore hook.`,
 			},
+			"lts_custom_tag": {
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: utils.SuppressMapDiffs(),
+				// The custom tags can be set to empty, so computed behavior cannot be supported.
+				Description: `The custom tags configuration that used to filter the LTS logs.`,
+			},
 
 			// Deprecated parameters.
 			"package": {
@@ -614,6 +622,18 @@ CIDR blocks used by the service.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The version of the function.`,
+			},
+			"lts_custom_tag_origin": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+ the new value next time the change is made. The corresponding parameter name is 'lts_custom_tag'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -802,6 +822,7 @@ func buildCreateFunctionBodyParams(cfg *config.Config, d *schema.ResourceData) m
 		"enable_dynamic_memory": d.Get("enable_dynamic_memory"),
 		"is_stateful_function":  d.Get("is_stateful_function"),
 		"network_controller":    buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
+		"lts_custom_tag":        utils.ValueIgnoreEmpty(d.Get("lts_custom_tag")),
 	}
 }
 
@@ -933,6 +954,7 @@ func buildUpdateFunctionMetadataBodyParams(cfg *config.Config, d *schema.Resourc
 		"heartbeat_handler":      d.Get("heartbeat_handler"),
 		"restore_hook_handler":   d.Get("restore_hook_handler"),
 		"restore_hook_timeout":   d.Get("restore_hook_timeout"),
+		"lts_custom_tag":         utils.ValueIgnoreEmpty(d.Get("lts_custom_tag")),
 	}
 }
 
@@ -1231,8 +1253,11 @@ func updateFunctionReservedInstances(client *golangsdk.ServiceClient, d *schema.
 
 func resourceFunctionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
+		cfg                             = meta.(*config.Config)
+		region                          = cfg.GetRegion(d)
+		functionMetadataObjectParamKeys = []string{
+			"lts_custom_tag",
+		}
 	)
 
 	client, err := cfg.NewServiceClient("fgs", region)
@@ -1253,11 +1278,19 @@ func resourceFunctionCreate(ctx context.Context, d *schema.ResourceData, meta in
 	// lintignore:R019
 	if d.HasChanges("vpc_id", "func_mounts", "app_agency", "initializer_handler", "initializer_timeout", "concurrency_num",
 		"peering_cidr", "enable_auth_in_header", "enable_class_isolation", "ephemeral_storage", "heartbeat_handler",
-		"restore_hook_handler", "restore_hook_timeout") {
+		"restore_hook_handler", "restore_hook_timeout", "lts_custom_tag") {
 		err = updateFunctionMetadata(client, cfg, d, funcUrnWithoutVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
+	}
+	// If the request is successful, obtain the values of all JSON|object parameters first and save them to the
+	// corresponding '_origin' attributes for subsequent determination and construction of the request body during
+	// next updates.
+	// And whether corresponding parameters are changed, the origin values must be refreshed.
+	err = utils.RefreshObjectParamOriginValues(d, functionMetadataObjectParamKeys)
+	if err != nil {
+		return diag.Errorf("unable to refresh the origin values: %s", err)
 	}
 
 	if d.HasChange("depend_list") {
@@ -1656,6 +1689,7 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 			function, make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("gpu_type", utils.PathSearch("gpu_type", function, nil)),
 		d.Set("gpu_memory", utils.PathSearch("gpu_memory", function, nil)),
+		d.Set("lts_custom_tag", utils.PathSearch("lts_custom_tag", function, nil)),
 		d.Set("pre_stop_handler", utils.PathSearch("pre_stop_handler", function, nil)),
 		d.Set("pre_stop_timeout", utils.PathSearch("pre_stop_timeout", function, nil)),
 		d.Set("log_group_id", utils.PathSearch("log_group_id", function, nil)),
@@ -1712,9 +1746,12 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 
 func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg                   = meta.(*config.Config)
-		region                = cfg.GetRegion(d)
-		funcUrnWithoutVersion = parseFunctionUrnWithoutVersion(d.Id())
+		cfg                             = meta.(*config.Config)
+		region                          = cfg.GetRegion(d)
+		funcUrnWithoutVersion           = parseFunctionUrnWithoutVersion(d.Id())
+		functionMetadataObjectParamKeys = []string{
+			"lts_custom_tag",
+		}
 	)
 
 	client, err := cfg.NewServiceClient("fgs", region)
@@ -1736,11 +1773,19 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name", "concurrency_num", "gpu_memory", "gpu_type",
 		"enable_dynamic_memory", "is_stateful_function", "network_controller", "enterprise_project_id", "peering_cidr",
 		"enable_auth_in_header", "enable_class_isolation", "ephemeral_storage", "heartbeat_handler", "restore_hook_handler",
-		"restore_hook_timeout") {
+		"restore_hook_timeout", "lts_custom_tag") {
 		err := updateFunctionMetadata(client, cfg, d, funcUrnWithoutVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
+	}
+	// If the request is successful, obtain the values ​​of all JSON|object parameters first and save them to the
+	// corresponding '_origin' attributes for subsequent determination and construction of the request body during
+	// next updates.
+	// And whether corresponding parameters are changed, the origin values must be refreshed.
+	err = utils.RefreshObjectParamOriginValues(d, functionMetadataObjectParamKeys)
+	if err != nil {
+		return diag.Errorf("unable to refresh the origin values: %s", err)
 	}
 
 	if d.HasChange("max_instance_num") {
