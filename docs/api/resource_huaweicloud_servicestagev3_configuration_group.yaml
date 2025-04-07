@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_servicestagev3_configuration_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ServiceStage
+paths:
+    /v3/{project_id}/cas/config-groups:
+        POST:
+            tag: ServiceStage
+    /v3/{project_id}/cas/config-groups/{config_group_id}:
+        DELETE:
+            tag: ServiceStage
+        GET:
+            tag: ServiceStage
