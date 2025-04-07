@@ -2,16 +2,17 @@ package ims
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -30,7 +31,7 @@ func ResourceEvsDataImage() *schema.Resource {
 		CreateContext: resourceEvsDataImageCreate,
 		ReadContext:   resourceEvsDataImageRead,
 		UpdateContext: resourceEvsDataImageUpdate,
-		DeleteContext: resourceImageDelete,
+		DeleteContext: resourceEvsDataImageDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -113,37 +114,58 @@ func ResourceEvsDataImage() *schema.Resource {
 	}
 }
 
+func buildCreateEvsDataImageBodyParams(d *schema.ResourceData) map[string]interface{} {
+	dataImageParams := map[string]interface{}{
+		"name":        d.Get("name"),
+		"volume_id":   d.Get("volume_id"),
+		"description": d.Get("description"),
+		"image_tags":  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+	}
+
+	bodyParams := map[string]interface{}{
+		"data_images":           []interface{}{dataImageParams},
+		"enterprise_project_id": utils.ValueIgnoreEmpty(d.Get("enterprise_project_id")),
+	}
+
+	return bodyParams
+}
+
 func resourceEvsDataImageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "ims"
+		httpUrl = "v2/cloudimages/action"
 	)
 
-	client, err := cfg.ImageV2Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating IMS v2 client: %s", err)
+		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
-	tags := buildCreateTagsParam(d)
-	dataImageOpts := []cloudimages.DataImage{
-		{
-			Name:        d.Get("name").(string),
-			VolumeId:    d.Get("volume_id").(string),
-			Description: d.Get("description").(string),
-			Tags:        tags,
-		},
-	}
-	createOpts := &cloudimages.CreateDataImageByServerOpts{
-		DataImages:          dataImageOpts,
-		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+	createPath := client.Endpoint + httpUrl
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(buildCreateEvsDataImageBodyParams(d)),
 	}
 
-	createResp, err := cloudimages.CreateDataImageByServer(client, createOpts).ExtractJobResponse()
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating IMS EVS data image: %s", err)
 	}
 
-	imageId, err := waitForCreateDataImageCompleted(client, d, createResp.JobID)
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	jobId := utils.PathSearch("job_id", createRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("error creating IMS EVS data image: job ID is not found in API response")
+	}
+
+	imageId, err := waitForCreateEvsDataImageJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for IMS EVS data image to complete: %s", err)
 	}
@@ -153,90 +175,149 @@ func resourceEvsDataImageCreate(ctx context.Context, d *schema.ResourceData, met
 	return resourceEvsDataImageRead(ctx, d, meta)
 }
 
-func waitForCreateDataImageCompleted(client *golangsdk.ServiceClient, d *schema.ResourceData, jobId string) (string, error) {
-	err := cloudimages.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), jobId)
-	if err != nil {
-		return "", err
+func waitForCreateEvsDataImageJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
+	timeout time.Duration) (string, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      evsDataImageJobStatusRefreshFunc(jobId, client),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
-	getJobPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
-	getJobPath = strings.ReplaceAll(getJobPath, "{project_id}", client.ProjectID)
-	getJobPath = strings.ReplaceAll(getJobPath, "{job_id}", jobId)
-	getJobOpt := golangsdk.RequestOpts{
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error waiting for IMS EVS data image job (%s) to succeed: %s", jobId, err)
+	}
+
+	return getEvsDataImageIdByJobId(client, jobId)
+}
+
+func evsDataImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
+		getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+		getPath = strings.ReplaceAll(getPath, "{job_id}", fmt.Sprintf("%v", jobId))
+		getOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+
+		getResp, err := client.Request("GET", getPath, &getOpt)
+		if err != nil {
+			return getResp, "ERROR", fmt.Errorf("error retrieving IMS EVS data image job: %s", err)
+		}
+
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return getRespBody, "ERROR", err
+		}
+
+		status := utils.PathSearch("status", getRespBody, "").(string)
+		if status == "SUCCESS" {
+			return "SUCCESS", "COMPLETED", nil
+		}
+
+		if status == "FAIL" {
+			return getRespBody, "COMPLETED", errors.New("the EVS data image creation job execution failed")
+		}
+
+		if status == "" {
+			return getRespBody, "ERROR", errors.New("status field is not found in API response")
+		}
+
+		return getRespBody, "PENDING", nil
+	}
+}
+
+func getEvsDataImageIdByJobId(client *golangsdk.ServiceClient, jobId string) (string, error) {
+	getPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{job_id}", fmt.Sprintf("%v", jobId))
+	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	getJobResp, err := client.Request("GET", getJobPath, &getJobOpt)
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return "", fmt.Errorf("error retrieving IMS job, %s", err)
+		return "", fmt.Errorf("error retrieving IMS EVS data image job: %s", err)
 	}
 
-	getJobRespBody, err := utils.FlattenResponse(getJobResp)
+	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
 		return "", err
 	}
 
-	imageId := utils.PathSearch("entities.sub_jobs_result[0].entities.image_id", getJobRespBody, "").(string)
+	imageId := utils.PathSearch("entities.sub_jobs_result[0].entities.image_id", getRespBody, "").(string)
 	if imageId == "" {
-		return "", fmt.Errorf("the image_id is not found in API response")
+		return "", errors.New("the image ID is not found in API response")
 	}
 
 	return imageId, nil
 }
 
-func buildCreateTagsParam(d *schema.ResourceData) []string {
-	rawTags := d.Get("tags").(map[string]interface{})
-	var tagStrings []string
-	for key, val := range rawTags {
-		tagStrings = append(tagStrings, fmt.Sprintf("%s.%s", key, val))
+func getEvsDataImage(client *golangsdk.ServiceClient, imageId string) (interface{}, error) {
+	// If the `enterprise_project_id` is not filled, the list API will query images under all enterprise projects.
+	// So there's no need to fill `enterprise_project_id` here.
+	getPath := client.Endpoint + "v2/cloudimages"
+	getPath += fmt.Sprintf("?id=%s", imageId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	return tagStrings
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving IMS EVS data image: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.PathSearch("images[0]", getRespBody, nil), nil
 }
 
 func resourceEvsDataImageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		mErr   *multierror.Error
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "ims"
 	)
 
-	client, err := cfg.ImageV2Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating IMS v2 client: %s", err)
+		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
-	imageList, err := GetImageList(client, d.Id())
+	image, err := getEvsDataImage(client, d.Id())
 	if err != nil {
-		return diag.Errorf("error retrieving IMS EVS data images: %s", err)
+		return diag.FromErr(err)
 	}
 
 	// If the list API return empty, then process `CheckDeleted` logic.
-	if len(imageList) < 1 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "IMS EVS data image")
+	if image == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving IMS EVS data image")
 	}
 
-	image := imageList[0]
-	imageTags := flattenImageTags(d, client)
-
-	mErr = multierror.Append(
+	dataOrigin := utils.PathSearch("__data_origin", image, "").(string)
+	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", image.Name),
-		d.Set("volume_id", flattenSpecificValueFormDataOrigin(image.DataOrigin, "volume")),
-		d.Set("description", image.Description),
-		d.Set("tags", imageTags),
-		d.Set("enterprise_project_id", image.EnterpriseProjectID),
-		d.Set("status", image.Status),
-		d.Set("visibility", image.Visibility),
-		d.Set("image_size", image.ImageSize),
-		d.Set("min_disk", image.MinDisk),
-		d.Set("os_type", image.OsType),
-		d.Set("disk_format", image.DiskFormat),
-		d.Set("data_origin", image.DataOrigin),
-		d.Set("active_at", image.ActiveAt),
-		d.Set("created_at", image.CreatedAt.Format(time.RFC3339)),
-		d.Set("updated_at", image.UpdatedAt.Format(time.RFC3339)),
+		d.Set("name", utils.PathSearch("name", image, nil)),
+		d.Set("volume_id", flattenSpecificValueFormDataOrigin(dataOrigin, "volume")),
+		d.Set("description", utils.PathSearch("__description", image, nil)),
+		d.Set("tags", flattenIMSImageTags(client, d.Id())),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", image, nil)),
+		d.Set("status", utils.PathSearch("status", image, nil)),
+		d.Set("visibility", utils.PathSearch("visibility", image, nil)),
+		d.Set("image_size", utils.PathSearch("__image_size", image, nil)),
+		d.Set("min_disk", utils.PathSearch("min_disk", image, nil)),
+		d.Set("os_type", utils.PathSearch("__os_type", image, nil)),
+		d.Set("disk_format", utils.PathSearch("disk_format", image, nil)),
+		d.Set("data_origin", dataOrigin),
+		d.Set("active_at", utils.PathSearch("active_at", image, nil)),
+		d.Set("created_at", utils.PathSearch("created_at", image, nil)),
+		d.Set("updated_at", utils.PathSearch("updated_at", image, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -244,19 +325,148 @@ func resourceEvsDataImageRead(_ context.Context, d *schema.ResourceData, meta in
 
 func resourceEvsDataImageUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "ims"
+		httpUrl = "v2/cloudimages/{image_id}"
+		imageId = d.Id()
 	)
 
-	client, err := cfg.ImageV2Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating IMS v2 client: %s", err)
+		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
-	err = updateImage(ctx, cfg, client, d)
-	if err != nil {
-		return diag.Errorf("error updating IMS EVS data image: %s", err)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{image_id}", imageId)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	if d.HasChange("name") {
+		bodyParams := []map[string]interface{}{
+			{
+				"op":    "replace",
+				"path":  "/name",
+				"value": d.Get("name"),
+			},
+		}
+
+		updateOpt.JSONBody = bodyParams
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating IMS EVS data image name field: %s", err)
+		}
+	}
+
+	if d.HasChange("description") {
+		bodyParams := []map[string]interface{}{
+			{
+				"op":    "replace",
+				"path":  "/__description",
+				"value": d.Get("description"),
+			},
+		}
+
+		updateOpt.JSONBody = bodyParams
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
+		if err != nil {
+			err = processUpdateDescriptionError(d, client, err)
+			if err != nil {
+				return diag.Errorf("error updating IMS EVS data image description field: %s", err)
+			}
+		}
+	}
+
+	if d.HasChange("tags") {
+		err = updateIMSImageTags(client, d)
+		if err != nil {
+			return diag.Errorf("error updating IMS EVS data image tags field: %s", err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := config.MigrateResourceOpts{
+			ResourceId:   imageId,
+			ResourceType: "images",
+			RegionId:     region,
+			ProjectId:    client.ProjectID,
+		}
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceEvsDataImageRead(ctx, d, meta)
+}
+
+func resourceEvsDataImageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "ims"
+		httpUrl = "v2/images/{image_id}"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating IMS client: %s", err)
+	}
+
+	// Before deleting, call the query API first, if the query result is empty, then process `CheckDeleted` logic.
+	image, err := getEvsDataImage(client, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if image == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "IMS EVS data image")
+	}
+
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{image_id}", d.Id())
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return diag.Errorf("error deleting IMS EVS data image: %s", err)
+	}
+
+	// Because the delete API always return `204` status code,
+	// so we need to call the list query API to check if the image has been successfully deleted.
+	err = waitForEvsDataImageDeleted(ctx, client, d)
+	if err != nil {
+		return diag.Errorf("error waiting for IMS EVS data image to be deleted: %s", err)
+	}
+
+	return nil
+}
+
+func waitForEvsDataImageDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			image, err := getEvsDataImage(client, d.Id())
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			if image == nil {
+				return "SUCCESS", "COMPLETED", nil
+			}
+
+			return image, "PENDING", nil
+		},
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+
+	return err
 }
