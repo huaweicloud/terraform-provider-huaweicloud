@@ -39,6 +39,9 @@ linters-settings:
     # SAxxxx checks in https://staticcheck.io/docs/configuration/options/#checks
     # Default: ["*"]
     checks: ["all"]
+  gocritic:
+    disabled-checks:
+      - unnamedResult
   gosimple:
     # Sxxxx checks in https://staticcheck.io/docs/configuration/options/#checks
     # Default: ["*"]
