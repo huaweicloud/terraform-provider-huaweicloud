@@ -63,10 +63,13 @@ func TestAccASConfiguration_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_config.0.metadata"},
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"instance_config.0.metadata",
+					"instance_config.0.user_data",
+				},
 			},
 		},
 	})
@@ -121,7 +124,7 @@ func TestAccASConfiguration_spot_ecsPassword(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_config.0.metadata"},
+				ImportStateVerifyIgnore: []string{"instance_config.0.metadata", "instance_config.0.user_data"},
 			},
 		},
 	})
@@ -208,6 +211,7 @@ func TestAccASConfiguration_instance(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"instance_config.0.instance_id",
+					"instance_config.0.user_data",
 				},
 			},
 		},

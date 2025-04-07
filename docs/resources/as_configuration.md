@@ -408,15 +408,20 @@ $ terraform import huaweicloud_as_configuration.test 18518c8a-9d15-416b-8add-2ee
 ```
 
 Note that the imported state may not be identical to your resource definition, due to `instance_config.0.instance_id`,
-`instance_config.0.admin_pass`, and `instance_config.0.metadata` are missing from the API response.
-You can ignore changes after importing an AS configuration as below.
+`instance_config.0.admin_pass`, `instance_config.0.user_data`, and `instance_config.0.metadata` are missing from the
+API response. You can ignore changes after importing an AS configuration as below.
 
 ```hcl
 resource "huaweicloud_as_configuration" "test" {
   ...
 
   lifecycle {
-    ignore_changes = [ instance_config.0.instance_id, instance_config.0.admin_pass, instance_config.0.metadata ]
+    ignore_changes = [
+      instance_config.0.instance_id,
+      instance_config.0.admin_pass,
+      instance_config.0.user_data,
+      instance_config.0.metadata,
+    ]
   }
 }
 ```
