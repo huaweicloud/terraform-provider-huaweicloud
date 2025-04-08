@@ -56,6 +56,9 @@ func TestAccEvsSnapshot_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "metadata.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "metadata.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "size"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			{
