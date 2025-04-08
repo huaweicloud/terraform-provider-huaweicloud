@@ -189,12 +189,12 @@ func resourceEcsSystemImageCreate(ctx context.Context, d *schema.ResourceData, m
 func waitForCreateEcsSystemImageJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
 	timeout time.Duration) (string, error) {
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"PENDING"},
-		Target:     []string{"COMPLETED"},
-		Refresh:    ecsSystemImageJobStatusRefreshFunc(jobId, client),
-		Timeout:    timeout,
-		Delay:      10 * time.Second,
-		MinTimeout: 10 * time.Second,
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      ecsSystemImageJobStatusRefreshFunc(jobId, client),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
 	_, err := stateConf.WaitForStateContext(ctx)
@@ -612,9 +612,9 @@ func waitForEcsSystemImageDeleted(ctx context.Context, client *golangsdk.Service
 
 			return image, "PENDING", nil
 		},
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
 	}
 
 	_, err := stateConf.WaitForStateContext(ctx)
