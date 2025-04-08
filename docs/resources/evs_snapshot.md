@@ -62,6 +62,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `size` - The size of the snapshot in GB.
 
+* `created_at` - The time when the snapshot was created.
+
+* `updated_at` - The time when the snapshot was updated.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
