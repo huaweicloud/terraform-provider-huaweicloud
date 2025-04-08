@@ -224,8 +224,20 @@ func FindDecreaseKeys(objA, objB map[string]interface{}) map[string]interface{} 
 	return result
 }
 
-// SuppressObjectDiffs is a method that determines whether a parameter triggers a change based on the comparison between
-// the server return value, the old value of the script, and the new value of the script.
+// SuppressObjectDiffs is a method that make the JSON string type parameter ignore the changes made on the console and
+// only allow the local script to take effect.
+func SuppressObjectDiffs() schema.SchemaDiffSuppressFunc {
+	return func(paramKey, o, n string, d *schema.ResourceData) bool {
+		if !strings.HasSuffix(paramKey, ".%") || !strings.HasSuffix(paramKey, ".#") {
+			log.Printf("[DEBUG] The current change object is not of type object.")
+			return false
+		}
+		return diffObjectParam(paramKey, o, n, d)
+	}
+}
+
+// diffObjectParam is used to check whether the parameters of the current object or JSON object type have been modified
+// other than those changed in the console.
 // The following three scenarios will determine whether the parameter has changed (method return false):
 //  1. The new value of the script adds some keys compared to the server return value (which must include keys that do
 //     not exist in the value returned by the server).
@@ -286,24 +298,33 @@ func FindDecreaseKeys(objA, objB map[string]interface{}) map[string]interface{} 
 //		"C": "cc",	->		"C": "cc"
 //		"D": "dd"		}
 //	}
-func SuppressObjectDiffs() schema.SchemaDiffSuppressFunc {
-	return func(paramKey, _, _ string, d *schema.ResourceData) bool {
-		var (
-			consoleVal, newScriptVal, originVal map[string]interface{}
+func diffObjectParam(paramKey, _, _ string, d *schema.ResourceData) bool {
+	var (
+		consoleVal, newScriptVal, originVal map[string]interface{}
 
-			originParamKey           = fmt.Sprintf("%s_origin", paramKey)
-			oldParamVal, newParamVal = d.GetChange(paramKey)
-		)
+		originParamKey           = fmt.Sprintf("%s_origin", paramKey)
+		oldParamVal, newParamVal = d.GetChange(paramKey)
+	)
 
-		// After refresh phase, the value from the service side will be stored in the tfstate, and as old value in the
-		// next d.GetChange() method returns.
-		consoleVal = TryMapValueAnalysis(oldParamVal)
-		newScriptVal = TryMapValueAnalysis(newParamVal)
-		// The script value of the last update (if it has) is used as a reference for the historical value of this
-		// change.
-		originVal = TryMapValueAnalysis(d.Get(originParamKey))
+	// After refresh phase, the value from the service side will be stored in the tfstate, and as old value in the
+	// next d.GetChange() method returns.
+	consoleVal = TryMapValueAnalysis(oldParamVal)
+	newScriptVal = TryMapValueAnalysis(newParamVal)
+	// The script value of the last update (if it has) is used as a reference for the historical value of this
+	// change.
+	originVal = TryMapValueAnalysis(d.Get(originParamKey))
 
-		return ContainsAllKeyValues(consoleVal, newScriptVal) && len(FindDecreaseKeys(originVal, newScriptVal)) < 1
+	return ContainsAllKeyValues(consoleVal, newScriptVal) && len(FindDecreaseKeys(originVal, newScriptVal)) < 1
+}
+
+func SuppressMapDiffs() schema.SchemaDiffSuppressFunc {
+	return func(paramKey, o, n string, d *schema.ResourceData) bool {
+		if strings.HasSuffix(paramKey, ".%") {
+			paramKey = paramKey[:len(paramKey)-2]
+			return diffObjectParam(paramKey, o, n, d)
+		}
+		log.Printf("[DEBUG] The current change object is not of type map.")
+		return false
 	}
 }
 
