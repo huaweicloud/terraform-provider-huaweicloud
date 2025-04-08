@@ -94,6 +94,8 @@ The `members` block supports:
 
 * `ip_version` - Indicates the IP version supported by the backend server.
 
+* `instance_id` - Indicates the ID of the instance associated with the backend server.
+
 * `pool_id` - Indicates the ID of the backend server group to which the backend server belongs.
 
 * `loadbalancer_id` - Indicates the ID of the load balancer with which the backend server is associated.
