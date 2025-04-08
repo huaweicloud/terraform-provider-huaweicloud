@@ -1085,11 +1085,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_nat_private_transit_ips":     nat.DataSourcePrivateTransitIps(),
 			"huaweicloud_nat_snat_rules":              nat.DataSourceSnatRules(),
 
-			"huaweicloud_networking_port":           vpc.DataSourceNetworkingPortV2(),
-			"huaweicloud_networking_secgroup":       vpc.DataSourceNetworkingSecGroup(),
-			"huaweicloud_networking_secgroups":      vpc.DataSourceNetworkingSecGroups(),
-			"huaweicloud_networking_secgroup_rules": vpc.DataSourceNetworkingSecGroupRules(),
-			"huaweicloud_networking_secgroup_tags":  vpc.DataSourceVpcNetworkingSecgroupTags(),
+			"huaweicloud_networking_port":              vpc.DataSourceNetworkingPortV2(),
+			"huaweicloud_networking_secgroup":          vpc.DataSourceNetworkingSecGroup(),
+			"huaweicloud_networking_secgroups":         vpc.DataSourceNetworkingSecGroups(),
+			"huaweicloud_networking_secgroups_by_tags": vpc.DataSourceNetworkingSecGroupsByTags(),
+			"huaweicloud_networking_secgroup_rules":    vpc.DataSourceNetworkingSecGroupRules(),
+			"huaweicloud_networking_secgroup_tags":     vpc.DataSourceVpcNetworkingSecgroupTags(),
 
 			"huaweicloud_mapreduce_versions": mrs.DataSourceMrsVersions(),
 
