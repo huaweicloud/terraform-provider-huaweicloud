@@ -7,26 +7,25 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/nat/v3/snats"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/nat"
 )
 
 func getPrivateSnatRuleResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.NatV3Client(acceptance.HW_REGION_NAME)
+	region := acceptance.HW_REGION_NAME
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	return snats.Get(client, state.Primary.ID)
+	return nat.GetPrivateSnatRule(client, state.Primary.ID)
 }
 
 func TestAccPrivateSnatRule_basic(t *testing.T) {
 	var (
-		obj snats.Rule
-
+		obj   interface{}
 		rName = "huaweicloud_nat_private_snat_rule.test"
 		name  = acceptance.RandomAccResourceNameWithDash()
 	)
@@ -144,7 +143,7 @@ resource "huaweicloud_nat_private_snat_rule" "test" {
 
 func TestAccPrivateSnatRule_cidr(t *testing.T) {
 	var (
-		obj snats.Rule
+		obj interface{}
 
 		rName = "huaweicloud_nat_private_snat_rule.test"
 		name  = acceptance.RandomAccResourceNameWithDash()

@@ -2,13 +2,13 @@ package nat
 
 import (
 	"context"
-	"log"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/nat/v3/snats"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -93,94 +93,168 @@ func ResourcePrivateSnatRule() *schema.Resource {
 	}
 }
 
+func buildCreatePrivateSnatRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	snatRuleBodyParams := map[string]interface{}{
+		"gateway_id":     d.Get("gateway_id"),
+		"transit_ip_ids": []string{d.Get("transit_ip_id").(string)},
+		"cidr":           utils.ValueIgnoreEmpty(d.Get("cidr")),
+		"virsubnet_id":   utils.ValueIgnoreEmpty(d.Get("subnet_id")),
+		"description":    utils.ValueIgnoreEmpty(d.Get("description")),
+	}
+
+	return map[string]interface{}{
+		"snat_rule": snatRuleBodyParams,
+	}
+}
+
 func resourcePrivateSnatRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.NatV3Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/snat-rules"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	opts := snats.CreateOpts{
-		GatewayId:    d.Get("gateway_id").(string),
-		TransitIpIds: []string{d.Get("transit_ip_id").(string)},
-		Cidr:         d.Get("cidr").(string),
-		SubnetId:     d.Get("subnet_id").(string),
-		Description:  d.Get("description").(string),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreatePrivateSnatRuleBodyParams(d)),
 	}
 
-	log.Printf("[DEBUG] The create options of the SNAT rule (Private NAT) is: %#v", opts)
-	resp, err := snats.Create(client, opts)
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating SNAT rule (Private NAT): %s", err)
+		return diag.Errorf("error creating private SNAT rule: %s", err)
 	}
-	d.SetId(resp.ID)
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	ruleId := utils.PathSearch("snat_rule.id", respBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("error creating private SNAT rule: ID is not found in API response")
+	}
+
+	d.SetId(ruleId)
 
 	return resourcePrivateSnatRuleRead(ctx, d, meta)
 }
 
+func GetPrivateSnatRule(client *golangsdk.ServiceClient, ruleId string) (interface{}, error) {
+	httpUrl := "v3/{project_id}/private-nat/snat-rules/{snat_rule_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{snat_rule_id}", ruleId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
 func resourcePrivateSnatRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NatV3Client(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	resp, err := snats.Get(client, d.Id())
+	respBody, err := GetPrivateSnatRule(client, d.Id())
 	if err != nil {
 		// If the private SNAT rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving private SNAT rule")
 	}
-	mErr := multierror.Append(nil,
+
+	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("gateway_id", resp.GatewayId),
-		d.Set("transit_ip_id", utils.PathSearch("[0].ID", resp.TransitIpAssociations, nil)),
-		d.Set("description", resp.Description),
-		d.Set("subnet_id", resp.SubnetId),
-		d.Set("cidr", resp.Cidr),
-		d.Set("created_at", resp.CreatedAt),
-		d.Set("updated_at", resp.UpdatedAt),
-		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
-		d.Set("transit_ip_address", utils.PathSearch("[0].Address", resp.TransitIpAssociations, nil)),
+		d.Set("gateway_id", utils.PathSearch("snat_rule.gateway_id", respBody, nil)),
+		d.Set("transit_ip_id", utils.PathSearch("snat_rule.transit_ip_associations[0].transit_ip_id", respBody, nil)),
+		d.Set("description", utils.PathSearch("snat_rule.description", respBody, nil)),
+		d.Set("subnet_id", utils.PathSearch("snat_rule.virsubnet_id", respBody, nil)),
+		d.Set("cidr", utils.PathSearch("snat_rule.cidr", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("snat_rule.created_at", respBody, nil)),
+		d.Set("updated_at", utils.PathSearch("snat_rule.updated_at", respBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("snat_rule.enterprise_project_id", respBody, nil)),
+		d.Set("transit_ip_address", utils.PathSearch("snat_rule.transit_ip_associations[0].transit_ip_address", respBody, nil)),
 	)
 
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving resource fields of the private SNAT rule: %s", err)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func buildUpdatePrivateSnatRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	snatRuleBodyParams := map[string]interface{}{
+		"transit_ip_ids": []string{d.Get("transit_ip_id").(string)},
+		"description":    d.Get("description"),
 	}
-	return nil
+
+	return map[string]interface{}{
+		"snat_rule": snatRuleBodyParams,
+	}
 }
 
 func resourcePrivateSnatRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NatV3Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/snat-rules/{snat_rule_id}"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	ruleId := d.Id()
-	opts := snats.UpdateOpts{
-		TransitIpIds: []string{d.Get("transit_ip_id").(string)},
-		Description:  utils.String(d.Get("description").(string)),
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{snat_rule_id}", d.Id())
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildUpdatePrivateSnatRuleBodyParams(d),
 	}
 
-	_, err = snats.Update(client, ruleId, opts)
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("error updating private SNAT rule (%s): %s", ruleId, err)
+		return diag.Errorf("error updating private SNAT rule (%s): %s", d.Id(), err)
 	}
 
 	return resourcePrivateSnatRuleRead(ctx, d, meta)
 }
 
 func resourcePrivateSnatRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.NatV3Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/snat-rules/{snat_rule_id}"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	ruleId := d.Id()
-	err = snats.Delete(client, ruleId)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{snat_rule_id}", d.Id())
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
 		// If the private SNAT rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error deleting private SNAT rule")
