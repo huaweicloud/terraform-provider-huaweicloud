@@ -1287,6 +1287,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_traffic_mirror_filters":      vpc.DataSourceVpcTrafficMirrorFilters(),
 			"huaweicloud_vpc_traffic_mirror_sessions":     vpc.DataSourceVpcTrafficMirrorSessions(),
 			"huaweicloud_vpcs":                            vpc.DataSourceVpcs(),
+			"huaweicloud_vpcs_by_tags":                    vpc.DataSourceVpcsByTags(),
 			"huaweicloud_vpc_quotas":                      vpc.DataSourceVpcQuotas(),
 			"huaweicloud_vpc_subnet_ip_availabilities":    vpc.DataSourceVpcSubnetIpAvailabilities(),
 
