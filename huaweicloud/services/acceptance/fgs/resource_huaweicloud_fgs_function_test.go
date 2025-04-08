@@ -2042,3 +2042,85 @@ resource "huaweicloud_fgs_function" "test" {
 }
 `, name, acceptance.HW_FGS_AGENCY_NAME)
 }
+
+func TestAccFunction_framework(t *testing.T) {
+	var (
+		obj interface{}
+
+		name = acceptance.RandomAccResourceName()
+
+		frameworkV1   = "huaweicloud_fgs_function.framework_v1"
+		rcFrameworkV1 = acceptance.InitResourceCheck(frameworkV1, &obj, getFunction)
+		frameworkV2   = "huaweicloud_fgs_function.framework_v2"
+		rcFrameworkV2 = acceptance.InitResourceCheck(frameworkV2, &obj, getFunction)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckFgsAgency(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcFrameworkV1.CheckResourceDestroy(),
+			rcFrameworkV2.CheckResourceDestroy(),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFunction_framework_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rcFrameworkV1.CheckResourceExists(),
+					resource.TestCheckResourceAttr(frameworkV1, "functiongraph_version", "v1"),
+					rcFrameworkV2.CheckResourceExists(),
+					resource.TestCheckResourceAttr(frameworkV2, "functiongraph_version", "v2"),
+				),
+			},
+			{
+				ResourceName:      frameworkV1,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"func_code",
+				},
+			},
+			{
+				ResourceName:      frameworkV2,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"func_code",
+				},
+			},
+		},
+	})
+}
+
+func testAccFunction_framework_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_fgs_function" "framework_v1" {
+  name                  = "%[2]s_framework_v1"
+  memory_size           = 128
+  runtime               = "Python2.7"
+  timeout               = 3
+  app                   = "default"
+  handler               = "index.handler"
+  code_type             = "inline"
+  func_code             = base64encode(var.script_content)
+  functiongraph_version = "v1"
+}
+
+resource "huaweicloud_fgs_function" "framework_v2" {
+  name                  = "%[2]s_framework_v2"
+  memory_size           = 128
+  runtime               = "Python2.7"
+  timeout               = 3
+  app                   = "default"
+  handler               = "index.handler"
+  code_type             = "inline"
+  func_code             = base64encode(var.script_content)
+  functiongraph_version = "v2"
+}
+`, functionScriptVariableDefinition, name)
+}
