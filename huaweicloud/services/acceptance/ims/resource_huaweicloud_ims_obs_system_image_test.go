@@ -6,16 +6,55 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
+	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// This test case tests the creation of an ECS system image through an external image file in the OBS bucket.
+func getObsSystemImageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "ims"
+		httpUrl = "v2/cloudimages"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating IMS client: %s", err)
+	}
+
+	getPath := client.Endpoint + httpUrl
+	getPath += fmt.Sprintf("?id=%s", state.Primary.ID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving IMS OBS system image: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	image := utils.PathSearch("images[0]", getRespBody, nil)
+	// If the list API return empty, then return `404` error code.
+	if image == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return image, nil
+}
+
 func TestAccObsSystemImage_basic(t *testing.T) {
 	var (
-		image        cloudimages.Image
+		image        interface{}
 		rName        = acceptance.RandomAccResourceName()
 		rNameUpdate  = rName + "-update"
 		resourceName = "huaweicloud_ims_obs_system_image.test"
@@ -26,7 +65,7 @@ func TestAccObsSystemImage_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&image,
-		getImsImageResourceFunc,
+		getObsSystemImageResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -208,10 +247,9 @@ resource "huaweicloud_ims_obs_system_image" "test" {
 `, testAccObsSystemImage_base(rName), rNameUpdate, acceptance.HW_IMS_IMAGE_URL, defaultEpsId, maxRAM, minRAM)
 }
 
-// This test case tests the creation of an BMS system image through an external image file in the OBS bucket.
 func TestAccObsSystemImage_withBMSType(t *testing.T) {
 	var (
-		image        cloudimages.Image
+		image        interface{}
 		rName        = acceptance.RandomAccResourceName()
 		rNameUpdate  = rName + "-update"
 		resourceName = "huaweicloud_ims_obs_system_image.test"
@@ -222,7 +260,7 @@ func TestAccObsSystemImage_withBMSType(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&image,
-		getImsImageResourceFunc,
+		getObsSystemImageResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
