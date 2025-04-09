@@ -49,7 +49,8 @@ The following arguments are supported:
 * `gateway_id` - (Required, String, ForceNew) Specifies the private NAT gateway ID to which the SNAT rule belongs.  
   Changing this will create a new resource.
 
-* `transit_ip_id` - (Required, String) Specifies the ID of the transit IP associated with SNAT rule.
+* `transit_ip_ids` - (Required, List) Specifies the IDs of the transit IPs associated with the private SNAT rule.
+  The maximum of `20` transit IPs can be bound, and the transit IPs must belong the same transit subnet.
 
 * `cidr` - (Optional, String, ForceNew) Specifies the CIDR block of the match rule.  
   Changing this will create a new resource.  
@@ -74,14 +75,40 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated_at` - The latest update time of the SNAT rule.
 
-* `transit_ip_address` - The address of the transit IP.
+* `transit_ip_associations` - The transit IP list associate with the private SNAT rule.
+  The [transit_ip_associations](#snat_transit_ip_associations) structure is documented below.
 
 * `enterprise_project_id` - The ID of the enterprise project to which the private SNAT rule belongs.
 
+<a name="snat_transit_ip_associations"></a>
+The `transit_ip_associations` block supports:
+
+* `transit_ip_id` - The ID of the transit IP associated with the private SNAT rule.
+
+* `transit_ip_address` - The IP address of the transit IP associated with the private SNAT rule.
+
 ## Import
 
-SNAT rules can be imported using their `id`, e.g.
+The private SNAT rule can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_nat_private_snat_rule.test df9b61e9-79c1-4a75-bfab-736e224ced71
+$ terraform import huaweicloud_nat_private_snat_rule.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `transit_ip_ids`.
+It is generally recommended running `terraform plan` after importing a resource.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to align
+with the resource. Also, you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_nat_private_snat_rule" "test" {
+  ...
+  
+  lifecycle {
+    ignore_changes = [
+      transit_ip_ids,
+    ]
+  }
+}
 ```
