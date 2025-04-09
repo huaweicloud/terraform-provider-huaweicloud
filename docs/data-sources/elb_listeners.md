@@ -53,7 +53,7 @@ The following arguments are supported:
 
 * `member_device_id` - (Optional, String) Specifies the ID of the cloud server that serves as a backend server.
 
-* `member_instance_id` - (Optional, String) Specifies the backend server ID
+* `member_instance_id` - (Optional, String) Specifies the backend server ID.
 
 * `response_timeout` - (Optional, Int) Specifies the response timeout for the listener.
 
