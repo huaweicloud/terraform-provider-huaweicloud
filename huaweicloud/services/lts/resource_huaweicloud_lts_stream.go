@@ -207,7 +207,7 @@ func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	streamResult := utils.PathSearch(fmt.Sprintf("log_streams|[?log_stream_id=='%s']|[0]", streamId), respBody, nil)
 	if streamResult == nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to find log stream by its ID (%s)", streamId))
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, fmt.Sprintf("unable to find log stream by its ID (%s)", streamId))
 	}
 
 	mErr := multierror.Append(nil,
