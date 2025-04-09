@@ -13,7 +13,7 @@ github.com/apparentlymart/go-cidr/cidr
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 ## explicit; go 1.16
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20250326033804-8ff7eb8d7e38
+# github.com/chnsz/golangsdk v0.0.0-20250409090204-a0f4175a596e
 ## explicit; go 1.14
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/auth
@@ -166,7 +166,6 @@ github.com/chnsz/golangsdk/openstack/elb/v2/monitors
 github.com/chnsz/golangsdk/openstack/elb/v2/pools
 github.com/chnsz/golangsdk/openstack/elb/v2/whitelists
 github.com/chnsz/golangsdk/openstack/elb/v3/certificates
-github.com/chnsz/golangsdk/openstack/elb/v3/flavors
 github.com/chnsz/golangsdk/openstack/elb/v3/l7policies
 github.com/chnsz/golangsdk/openstack/elb/v3/listeners
 github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers
@@ -256,7 +255,6 @@ github.com/chnsz/golangsdk/openstack/nat/v2/gateways
 github.com/chnsz/golangsdk/openstack/nat/v2/snats
 github.com/chnsz/golangsdk/openstack/nat/v3/dnats
 github.com/chnsz/golangsdk/openstack/nat/v3/gateways
-github.com/chnsz/golangsdk/openstack/nat/v3/snats
 github.com/chnsz/golangsdk/openstack/nat/v3/transitips
 github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths
 github.com/chnsz/golangsdk/openstack/networking/v1/eips

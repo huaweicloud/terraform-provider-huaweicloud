@@ -42,6 +42,7 @@ type InstanceConfig struct {
 	FlavorRef            string `json:"flavorRef"`
 	ImageRef             string `json:"imageRef"`
 	SSHKey               string `json:"key_name"`
+	KeyFingerprint       string `json:"key_fingerprint"`
 	InstanceName         string `json:"instance_name"`
 	InstanceID           string `json:"instance_id"`
 	AdminPass            string `json:"adminPass"`
