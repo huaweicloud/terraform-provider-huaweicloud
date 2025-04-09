@@ -59,6 +59,8 @@ The following arguments are supported:
   + A list of values that are separated with commas (,), for example, **200**, **202**
   + A value range, for example, **200**-**204**
 
+* `http_method` - (Optional, String)  Specifies the HTTP method. Value options: **GET**, **HEAD**, **POST**.
+
 * `url_path` - (Optional, String) Specifies the HTTP request path for the health check. The value must start with a slash
   (/), and the default value is **/**. This parameter is available only when type is set to **HTTP**.
 
@@ -86,6 +88,8 @@ The `monitors` block supports:
 
 * `status_code` - The expected HTTP status code.
 
+* `http_method` - The HTTP method
+
 * `max_retries` - The number of consecutive health checks when the health check result of a backend server changes from
   **OFFLINE** to **ONLINE**.
 
@@ -101,3 +105,7 @@ The `monitors` block supports:
 * `protocol` - The health check protocol.
 
 * `url_path` - The HTTP request path for the health check.
+
+* `created_at` - The time when the health check was configured.
+
+* `updated_at` - The time when the health check was updated.
