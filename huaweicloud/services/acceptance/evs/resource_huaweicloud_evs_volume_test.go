@@ -314,7 +314,6 @@ data "huaweicloud_networking_secgroup" "test" {
 resource "huaweicloud_compute_instance" "test" {
   name                = "%s"
   description         = "terraform test"
-  hostname            = "hostname-test"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
@@ -730,7 +729,6 @@ data "huaweicloud_networking_secgroup" "test" {
 resource "huaweicloud_compute_instance" "test" {
   name                = "%s"
   description         = "terraform test"
-  hostname            = "hostname-test"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
