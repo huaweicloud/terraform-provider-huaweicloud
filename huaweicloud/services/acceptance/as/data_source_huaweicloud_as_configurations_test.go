@@ -40,8 +40,10 @@ func TestAccDataSourceASConfiguration_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "configurations.0.instance_config.0.flavor_priority_policy"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "configurations.0.instance_config.0.image"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "configurations.0.instance_config.0.key_name"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "configurations.0.scaling_configuration_id"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "configurations.0.scaling_configuration_name"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "configurations.0.status"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "configurations.0.create_time"),
 
 					dcByName.CheckResourceExists(),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),

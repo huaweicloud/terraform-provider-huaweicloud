@@ -279,10 +279,18 @@ func ResourceASConfiguration() *schema.Resource {
 							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"key_fingerprint": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
 			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -479,6 +487,7 @@ func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("scaling_configuration_name", asConfig.Name),
 		d.Set("instance_config", flattenInstanceConfig(asConfig.InstanceConfig, d)),
 		d.Set("status", normalizeConfigurationStatus(asConfig.ScalingGroupID)),
+		d.Set("create_time", asConfig.CreateTime),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -548,6 +557,7 @@ func flattenInstanceConfig(instanceConfig configurations.InstanceConfig, d *sche
 			"public_ip":              flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
 			"security_group_ids":     flattenSecurityGroupIDs(instanceConfig.SecurityGroups),
 			"personality":            flattenInstancePersonality(instanceConfig.Personality),
+			"key_fingerprint":        instanceConfig.KeyFingerprint,
 		},
 	}
 }

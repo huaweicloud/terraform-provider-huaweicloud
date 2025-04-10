@@ -60,6 +60,7 @@ func TestAccASConfiguration_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.public_ip.0.eip.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "instance_config.0.security_group_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(resourceName, "instance_config.0.user_data"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
 			},
 			{
