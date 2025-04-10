@@ -2,6 +2,7 @@ package ims
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -223,4 +224,52 @@ func resourceCbrWholeImageUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	return resourceCbrWholeImageRead(ctx, d, meta)
+}
+
+// This method will be removed in the next PR.
+func resourceWholeImageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		imageId = d.Id()
+	)
+
+	client, err := cfg.ImageV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating IMS v2 client: %s", err)
+	}
+
+	// Before deleting, call the query API first, if the query result is empty, then process `CheckDeleted` logic.
+	imageList, err := GetImageList(client, imageId)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if len(imageList) < 1 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "IMS whole image")
+	}
+
+	// For the whole image, need to use `delete_backup` to control whether to delete backup when deleting image.
+	deletePath := client.Endpoint + "v2/images/{image_id}"
+	deletePath = strings.ReplaceAll(deletePath, "{image_id}", imageId)
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"delete_backup": d.Get("is_delete_backup").(bool),
+		},
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return diag.Errorf("error deleting IMS whole image: %s", err)
+	}
+
+	// Because the delete API always return `204` status code,
+	// so we need to call the list query API to check if the image has been successfully deleted.
+	err = waitForDeleteImageCompleted(ctx, client, d)
+	if err != nil {
+		return diag.Errorf("error waiting for IMS whole image deleted: %s", err)
+	}
+
+	return nil
 }
