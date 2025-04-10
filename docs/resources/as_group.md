@@ -2,7 +2,8 @@
 subcategory: "Auto Scaling"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_as_group"
-description: ""
+description: |-
+  Manages an AS group resource within HuaweiCloud.
 ---
 
 # huaweicloud_as_group
@@ -254,6 +255,8 @@ The `lbaas_listeners` block supports:
   <br/>3. If you add two or more load balancers whose pool_id, protocol_port, and protocol_version settings are totally
   same, deduplication will be performed.
 
+* `listener_id` - The ID of the listener assocaite with the ELB.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -265,6 +268,16 @@ In addition to all arguments above, the following attributes are exported:
 * `current_instance_number` - The number of current instances in the AS group.
 
 * `instances` - The instances IDs of the AS group.
+
+* `scaling_configuration_name` - The name of the AS configuration to which the AS group belongs.
+
+* `detail` - The details about the AS group. If a scaling action fails, this parameter is used to record errors.
+
+* `is_scaling` - The scaling flag of the AS group.
+
+* `activity_type` - The scaling activity type of the AS group.
+
+* `create_time` - The creation time of the AS group.
 
 ## Timeouts
 

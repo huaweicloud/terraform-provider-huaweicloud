@@ -239,6 +239,16 @@ func groupDataSourceLBaasListenersSchema() *schema.Resource {
 				Description: "The weight, which determines the portion of requests a backend " +
 					"ECS processes compared to other backend ECSs added to the same listener.",
 			},
+			"listener_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the listener associate with the ELB.",
+			},
+			"protocol_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The version of IP addresses of backend servers to be bound with the ELB.",
+			},
 		},
 	}
 }
@@ -289,9 +299,11 @@ func flattenDataSourceLBaaSListeners(listeners []groups.LBaaSListener) []map[str
 	res := make([]map[string]interface{}, len(listeners))
 	for i, item := range listeners {
 		res[i] = map[string]interface{}{
-			"pool_id":       item.PoolID,
-			"protocol_port": item.ProtocolPort,
-			"weight":        item.Weight,
+			"pool_id":          item.PoolID,
+			"protocol_port":    item.ProtocolPort,
+			"weight":           item.Weight,
+			"protocol_version": item.ProtocolVersion,
+			"listener_id":      item.ListenerID,
 		}
 	}
 	return res
