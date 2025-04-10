@@ -42,6 +42,9 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs of the log stream.
 
+* `is_favorite` - (Optional, Bool) Specifies whether to favorite the log stream.  
+  Defaults to **false**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
