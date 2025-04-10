@@ -6,15 +6,55 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
+	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+func getObsDataImageResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "ims"
+		httpUrl = "v2/cloudimages"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating IMS client: %s", err)
+	}
+
+	getPath := client.Endpoint + httpUrl
+	getPath += fmt.Sprintf("?id=%s", state.Primary.ID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving IMS OBS data image: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	image := utils.PathSearch("images[0]", getRespBody, nil)
+	// If the list API return empty, then return `404` error code.
+	if image == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return image, nil
+}
 
 func TestAccObsDataImage_basic(t *testing.T) {
 	var (
-		image        cloudimages.Image
+		image        interface{}
 		rName        = acceptance.RandomAccResourceName()
 		rNameUpdate  = rName + "-update"
 		resourceName = "huaweicloud_ims_obs_data_image.test"
@@ -25,7 +65,7 @@ func TestAccObsDataImage_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&image,
-		getImsImageResourceFunc,
+		getObsDataImageResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
