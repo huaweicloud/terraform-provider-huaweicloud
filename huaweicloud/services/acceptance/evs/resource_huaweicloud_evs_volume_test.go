@@ -49,7 +49,7 @@ func TestAccEvsVolume_postPaidWithoutServer(t *testing.T) {
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttr(resourceName, "cascade", "false"),
 					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
-					resource.TestCheckResourceAttr(resourceName, "device_type", "VBD"),
+					resource.TestCheckResourceAttr(resourceName, "device_type", "SCSI"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "multiattach", "false"),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -70,7 +70,7 @@ func TestAccEvsVolume_postPaidWithoutServer(t *testing.T) {
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttr(resourceName, "cascade", "false"),
 					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
-					resource.TestCheckResourceAttr(resourceName, "device_type", "VBD"),
+					resource.TestCheckResourceAttr(resourceName, "device_type", "SCSI"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "multiattach", "false"),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_update", name)),
@@ -91,7 +91,7 @@ func TestAccEvsVolume_postPaidWithoutServer(t *testing.T) {
 						"data.huaweicloud_availability_zones.test", "names.0"),
 					resource.TestCheckResourceAttr(resourceName, "cascade", "false"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "device_type", "VBD"),
+					resource.TestCheckResourceAttr(resourceName, "device_type", "SCSI"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "multiattach", "false"),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_update", name)),
@@ -128,7 +128,7 @@ resource "huaweicloud_evs_volume" "test" {
   volume_type           = "GPSSD2"
   iops                  = 3000
   throughput            = 125
-  device_type           = "VBD"
+  device_type           = "SCSI"
   multiattach           = false
   enterprise_project_id = "%s"
 
@@ -152,7 +152,7 @@ resource "huaweicloud_evs_volume" "test" {
   volume_type           = "GPSSD2"
   iops                  = 4000
   throughput            = 150
-  device_type           = "VBD"
+  device_type           = "SCSI"
   multiattach           = false
   enterprise_project_id = "%s"
 
@@ -175,7 +175,7 @@ resource "huaweicloud_evs_volume" "test" {
   volume_type           = "GPSSD2"
   iops                  = 4000
   throughput            = 150
-  device_type           = "VBD"
+  device_type           = "SCSI"
   multiattach           = false
   enterprise_project_id = "%s"
 }

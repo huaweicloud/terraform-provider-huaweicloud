@@ -344,7 +344,7 @@ func GetVolumeDetail(client *golangsdk.ServiceClient, volumeID string) (interfac
 
 	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error querying EVS volume detail: %s", err)
+		return nil, err
 	}
 
 	return utils.FlattenResponse(resp)
@@ -482,80 +482,76 @@ func evsJobRefreshFunc(c *golangsdk.ServiceClient, jobId string) resource.StateR
 	}
 }
 
-func setEvsVolumeDeviceType(d *schema.ResourceData, resp *cloudvolumes.Volume) error {
-	if resp.Metadata.HwPassthrough == "true" {
-		return d.Set("device_type", "SCSI")
-	}
-	return d.Set("device_type", "VBD")
-}
-
-func setEvsVolumeImageId(d *schema.ResourceData, resp *cloudvolumes.Volume) error {
-	if value, ok := resp.ImageMetadata["image_id"]; ok {
-		return d.Set("image_id", value)
-	}
-	return nil
-}
-
-func setEvsVolumeAttachment(d *schema.ResourceData, resp *cloudvolumes.Volume) error {
-	attachments := make([]map[string]interface{}, len(resp.Attachments))
-	for i, attachment := range resp.Attachments {
-		attachments[i] = make(map[string]interface{})
-		attachments[i]["id"] = attachment.AttachmentID
-		attachments[i]["instance_id"] = attachment.ServerID
-		attachments[i]["device"] = attachment.Device
-	}
-	log.Printf("[DEBUG] The relevant attach information for EVS volume is: %v", attachments)
-	return d.Set("attachment", attachments)
-}
-
-func setEvsVolumeChargingInfo(d *schema.ResourceData, resp *cloudvolumes.Volume) error {
-	if resp.Metadata.OrderID != "" {
+func setVolumeChargingMode(d *schema.ResourceData, meta interface{}) error {
+	if utils.PathSearch("volume.metadata.orderID", meta, "").(string) != "" {
 		return d.Set("charging_mode", "prePaid")
 	}
 	return nil
 }
 
-func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	evsV2Client, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating block storage v2 client: %s", err)
+func flattenVolumeDeviceType(respBody interface{}) interface{} {
+	if utils.PathSearch("volume.metadata.\"hw:passthrough\"", respBody, "").(string) == "true" {
+		return "SCSI"
 	}
 
-	resp, err := cloudvolumes.Get(evsV2Client, d.Id()).Extract()
+	return "VBD"
+}
+
+func flattenVolumeAttachment(respBody interface{}) interface{} {
+	attachments := utils.PathSearch("volume.attachments", respBody, make([]interface{}, 0)).([]interface{})
+	result := make([]map[string]interface{}, len(attachments))
+	for i, attachment := range attachments {
+		result[i] = map[string]interface{}{
+			"id":          utils.PathSearch("attachment_id", attachment, nil),
+			"instance_id": utils.PathSearch("server_id", attachment, nil),
+			"device":      utils.PathSearch("device", attachment, nil),
+		}
+	}
+
+	return result
+}
+
+func resourceEvsVolumeRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "evs"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating EVS client: %s", err)
+	}
+
+	respBody, err := GetVolumeDetail(client, d.Id())
 	if err != nil {
 		// When the resource does not exist, calling the query API will return a `404` status code.
-		return common.CheckDeletedDiag(d, err, "EVS volume")
+		return common.CheckDeletedDiag(d, err, "error retrieving EVS volume")
 	}
 
-	log.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), resp)
 	mErr := multierror.Append(
-		d.Set("name", resp.Name),
-		d.Set("size", resp.Size),
-		d.Set("description", resp.Description),
-		d.Set("availability_zone", resp.AvailabilityZone),
-		d.Set("snapshot_id", resp.SnapshotID),
-		d.Set("volume_type", resp.VolumeType),
-		d.Set("iops", resp.IOPS.TotalVal),
-		d.Set("throughput", resp.Throughput.TotalVal),
-		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
-		d.Set("region", cfg.GetRegion(d)),
-		d.Set("wwn", resp.WWN),
-		d.Set("multiattach", resp.Multiattach),
-		d.Set("tags", resp.Tags),
-		d.Set("dedicated_storage_id", resp.DedicatedStorageID),
-		d.Set("dedicated_storage_name", resp.DedicatedStorageName),
-		d.Set("status", resp.Status),
-		setEvsVolumeChargingInfo(d, resp),
-		setEvsVolumeDeviceType(d, resp),
-		setEvsVolumeImageId(d, resp),
-		setEvsVolumeAttachment(d, resp),
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("volume.name", respBody, nil)),
+		d.Set("size", utils.PathSearch("volume.size", respBody, nil)),
+		d.Set("description", utils.PathSearch("volume.description", respBody, nil)),
+		d.Set("availability_zone", utils.PathSearch("volume.availability_zone", respBody, nil)),
+		d.Set("snapshot_id", utils.PathSearch("volume.snapshot_id", respBody, nil)),
+		d.Set("volume_type", utils.PathSearch("volume.volume_type", respBody, nil)),
+		d.Set("iops", utils.PathSearch("volume.iops.total_val", respBody, nil)),
+		d.Set("throughput", utils.PathSearch("volume.throughput.total_val", respBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("volume.enterprise_project_id", respBody, nil)),
+		d.Set("wwn", utils.PathSearch("volume.wwn", respBody, nil)),
+		d.Set("multiattach", utils.PathSearch("volume.multiattach", respBody, nil)),
+		d.Set("tags", utils.PathSearch("volume.tags", respBody, nil)),
+		d.Set("dedicated_storage_id", utils.PathSearch("volume.dedicated_storage_id", respBody, nil)),
+		d.Set("dedicated_storage_name", utils.PathSearch("volume.dedicated_storage_name", respBody, nil)),
+		d.Set("status", utils.PathSearch("volume.status", respBody, nil)),
+		setVolumeChargingMode(d, respBody),
+		d.Set("device_type", flattenVolumeDeviceType(respBody)),
+		d.Set("image_id", utils.PathSearch("volume.volume_image_metadata.image_id", respBody, nil)),
+		d.Set("attachment", flattenVolumeAttachment(respBody)),
 	)
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting volume fields: %s", err)
-	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func modifyQoS(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, cfg config.Config) error {
