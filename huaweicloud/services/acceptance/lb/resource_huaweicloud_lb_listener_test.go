@@ -148,7 +148,6 @@ func testAccLBV2ListenerConfig_base(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "%s"
   description   = "created by acceptance test"
