@@ -197,17 +197,6 @@ func ResourceEvsVolume() *schema.Resource {
 	}
 }
 
-func buildBssParamParams(d *schema.ResourceData) *cloudvolumes.BssParam {
-	bssParams := &cloudvolumes.BssParam{
-		ChargingMode: d.Get("charging_mode").(string),
-		PeriodType:   d.Get("period_unit").(string),
-		PeriodNum:    d.Get("period").(int),
-		IsAutoRenew:  d.Get("auto_renew").(string),
-		IsAutoPay:    common.GetAutoPay(d),
-	}
-	return bssParams
-}
-
 func resourceVolumeAttachmentHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
@@ -217,128 +206,243 @@ func resourceVolumeAttachmentHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func validateParameter(d *schema.ResourceData) error {
+func buildVolumeMetadataBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"create_for_volume_id": "true",
+	}
+
+	if v, ok := d.GetOk("kms_id"); ok {
+		bodyParams["__system__cmkid"] = v
+		bodyParams["__system__encrypted"] = "1"
+	}
+
+	if d.Get("device_type").(string) == "SCSI" {
+		bodyParams["hw:passthrough"] = "true"
+	}
+
+	return bodyParams
+}
+
+func buildVolumeBodyParams(cfg *config.Config, d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"availability_zone":     d.Get("availability_zone"),
+		"volume_type":           d.Get("volume_type"),
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+		"size":                  utils.ValueIgnoreEmpty(d.Get("size")),
+		"backup_id":             utils.ValueIgnoreEmpty(d.Get("backup_id")),
+		"snapshot_id":           utils.ValueIgnoreEmpty(d.Get("snapshot_id")),
+		"imageRef":              utils.ValueIgnoreEmpty(d.Get("image_id")),
+		"iops":                  utils.ValueIgnoreEmpty(d.Get("iops")),
+		"throughput":            utils.ValueIgnoreEmpty(d.Get("throughput")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"tags":                  utils.ValueIgnoreEmpty(utils.ExpandToStringMap(d.Get("tags").(map[string]interface{}))),
+		"metadata":              utils.ValueIgnoreEmpty(buildVolumeMetadataBodyParams(d)),
+	}
+
+	if d.Get("multiattach").(bool) {
+		bodyParams["multiattach"] = true
+	}
+
+	return bodyParams
+}
+
+func buildBssParamBodyParams(d *schema.ResourceData) map[string]interface{} {
 	if v, ok := d.GetOk("charging_mode"); ok && v == "prePaid" {
-		if d.Get("volume_type").(string) == "ESSD2" {
-			return fmt.Errorf("`volume_type` cannot be set to ESSD2 in prepaid charging mode")
+		return map[string]interface{}{
+			"chargingMode": d.Get("charging_mode"),
+			"periodType":   utils.ValueIgnoreEmpty(d.Get("period_unit")),
+			"periodNum":    utils.ValueIgnoreEmpty(d.Get("period")),
+			"isAutoRenew":  utils.ValueIgnoreEmpty(d.Get("auto_renew")),
+			"isAutoPay":    utils.ValueIgnoreEmpty(common.GetAutoPay(d)),
 		}
 	}
+
 	return nil
 }
 
-func buildEvsVolumeCreateOpts(d *schema.ResourceData, cfg *config.Config) cloudvolumes.CreateOpts {
-	volumeOpts := cloudvolumes.VolumeOpts{
-		AvailabilityZone:    d.Get("availability_zone").(string),
-		VolumeType:          d.Get("volume_type").(string),
-		Name:                d.Get("name").(string),
-		Description:         d.Get("description").(string),
-		Size:                d.Get("size").(int),
-		BackupID:            d.Get("backup_id").(string),
-		SnapshotID:          d.Get("snapshot_id").(string),
-		ImageID:             d.Get("image_id").(string),
-		Multiattach:         d.Get("multiattach").(bool),
-		IOPS:                d.Get("iops").(int),
-		Throughput:          d.Get("throughput").(int),
-		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
-		Tags:                resourceContainerTags(d),
-	}
-	m := map[string]string{
-		"create_for_volume_id": "true",
-	}
-	if v, ok := d.GetOk("kms_id"); ok {
-		m["__system__cmkid"] = v.(string)
-		m["__system__encrypted"] = "1"
-	}
-	if d.Get("device_type").(string) == "SCSI" {
-		m["hw:passthrough"] = "true"
-	}
-	volumeOpts.Metadata = m
-
-	result := cloudvolumes.CreateOpts{
-		Volume:   volumeOpts,
-		ServerID: d.Get("server_id").(string),
-	}
-	if v, ok := d.GetOk("charging_mode"); ok && v == "prePaid" {
-		result.ChargeInfo = buildBssParamParams(d)
-	}
-
+func buildSchedulerBodyParams(d *schema.ResourceData) map[string]interface{} {
 	if v, ok := d.GetOk("dedicated_storage_id"); ok {
-		scheduler := cloudvolumes.SchedulerOpts{
-			StorageID: v.(string),
+		return map[string]interface{}{
+			"dedicated_storage_id": v,
 		}
-		result.Scheduler = &scheduler
 	}
-	return result
+
+	return nil
+}
+
+func buildCreateVolumeBodyParams(cfg *config.Config, d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"volume":                     buildVolumeBodyParams(cfg, d),
+		"server_id":                  utils.ValueIgnoreEmpty(d.Get("server_id")),
+		"bssParam":                   buildBssParamBodyParams(d),
+		"OS-SCH-HNT:scheduler_hints": buildSchedulerBodyParams(d),
+	}
+
+	return bodyParams
+}
+
+func getJobDetail(client *golangsdk.ServiceClient, jobID string) (interface{}, error) {
+	requestPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{job_id}", jobID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error querying EVS job detail: %s", err)
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func waitingForVolumeJobSuccess(ctx context.Context, client *golangsdk.ServiceClient, jobID string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			respBody, err := getJobDetail(client, jobID)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			status := utils.PathSearch("status", respBody, "").(string)
+			if status == "" {
+				return respBody, "ERROR", fmt.Errorf("status is not found in EVS job (%s) detail API response", jobID)
+			}
+
+			if status == "SUCCESS" {
+				return respBody, "COMPLETED", nil
+			}
+
+			if status == "FAIL" {
+				return respBody, status, fmt.Errorf("the EVS job (%s) status is FAIL, the fail reason is: %s",
+					jobID, utils.PathSearch("fail_reason", respBody, "").(string))
+			}
+
+			return respBody, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func GetVolumeDetail(client *golangsdk.ServiceClient, volumeID string) (interface{}, error) {
+	requestPath := client.Endpoint + "v2/{project_id}/cloudvolumes/{volume_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{volume_id}", volumeID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error querying EVS volume detail: %s", err)
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func waitingForEvsVolumeComplete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration) error {
+	errorStatuses := []string{"error", "error_restoring", "error_extending", "error_deleting", "error_rollbacking"}
+	successStatuses := []string{"available", "in-use"}
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			respBody, err := GetVolumeDetail(client, d.Id())
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			status := utils.PathSearch("volume.status", respBody, "").(string)
+			if status == "" {
+				return respBody, "ERROR", fmt.Errorf("status is not found in EVS volume (%s) detail API response", d.Id())
+			}
+
+			if utils.StrSliceContains(errorStatuses, status) {
+				return respBody, status, fmt.Errorf("unexpect status (%s)", status)
+			}
+
+			if utils.StrSliceContains(successStatuses, status) {
+				return respBody, "COMPLETED", nil
+			}
+
+			return respBody, "PENDING", nil
+		},
+		Timeout:                   timeout,
+		Delay:                     10 * time.Second,
+		PollInterval:              10 * time.Second,
+		ContinuousTargetOccurence: 2,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
 func resourceEvsVolumeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	// The v2 client is used to obtain the volume detail.
-	evsV2Client, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2.1/{project_id}/cloudvolumes"
+		product = "evs"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating block storage v2 client: %s", err)
-	}
-	// The v2.1 client is used to create the volume.
-	evsV21Client, err := cfg.BlockStorageV21Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating block storage v2.1 client: %s", err)
-	}
-	if err := validateParameter(d); err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating EVS client: %s", err)
 	}
 
-	opt := buildEvsVolumeCreateOpts(d, cfg)
-	log.Printf("[DEBUG] Create Options: %#v", opt)
-	job, err := cloudvolumes.Create(evsV21Client, opt).Extract()
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateVolumeBodyParams(cfg, d)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error creating EVS volume: %s", err)
 	}
-	if len(job.VolumeIDs) < 1 {
-		return diag.Errorf("the volume ID was not included in the response to the request to create the volume.")
-	}
-	d.SetId(job.VolumeIDs[0])
 
-	// If charging mode is PrePaid, wait for the order to be completed.
-	if job.OrderID != "" {
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	volumeID := utils.PathSearch("volume_ids|[0]", respBody, "").(string)
+	if volumeID == "" {
+		return diag.Errorf("error creating EVS volume: ID is not found in API response")
+	}
+	d.SetId(volumeID)
+
+	if orderID := utils.PathSearch("order_id", respBody, "").(string); orderID != "" {
 		bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
-		err = common.WaitOrderComplete(ctx, bssClient, job.OrderID, d.Timeout(schema.TimeoutCreate))
-		if err != nil {
+		if err = common.WaitOrderComplete(ctx, bssClient, orderID, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.Errorf("the order is not completed while creating EVS volume (%s): %v", d.Id(), err)
 		}
-		_, err = common.WaitOrderAllResourceComplete(ctx, bssClient, job.OrderID, d.Timeout(schema.TimeoutCreate))
-		if err != nil {
+		if _, err = common.WaitOrderAllResourceComplete(ctx, bssClient, orderID, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	// If charging mode is postPaid, wait for the job status to SUCCESS
-	if jobId := job.JobID; jobId != "" {
-		// The v1 client is used to query the EVS job detail.
-		evsV1Client, err := cfg.BlockStorageV1Client(cfg.GetRegion(d))
-		if err != nil {
-			return diag.Errorf("error creating EVS v1 client: %s", err)
-		}
-		if err = waitEvsJobSuccess(ctx, evsV1Client, jobId, d.Timeout(schema.TimeoutCreate)); err != nil {
-			return diag.Errorf("the job (%s) is not SUCCESS while creating EVS volume (%s): %s", jobId,
-				d.Id(), err)
+	if jobID := utils.PathSearch("job_id", respBody, "").(string); jobID != "" {
+		if err := waitingForVolumeJobSuccess(ctx, client, jobID, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.Errorf("error waiting for EVS volume (%s) job success: %s", d.Id(), err)
 		}
 	}
 
-	log.Printf("[DEBUG] Waiting for the EVS volume to become available or in-use, the volume ID is %s.", d.Id())
-	stateConf := &resource.StateChangeConf{
-		Pending:                   []string{"PENDING"},
-		Target:                    []string{"COMPLETED"},
-		Refresh:                   refreshVolumeStatusFunc(evsV2Client, d.Id()),
-		Timeout:                   d.Timeout(schema.TimeoutCreate),
-		Delay:                     3 * time.Second,
-		PollInterval:              5 * time.Second,
-		ContinuousTargetOccurence: 2,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
+	if err := waitingForEvsVolumeComplete(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for the creation of EVS volume (%s) to complete: %s", d.Id(), err)
 	}
 
@@ -721,14 +825,6 @@ func resourceEvsVolumeUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	return resourceEvsVolumeRead(ctx, d, meta)
-}
-
-func resourceContainerTags(d *schema.ResourceData) map[string]string {
-	m := make(map[string]string)
-	for key, val := range d.Get("tags").(map[string]interface{}) {
-		m[key] = val.(string)
-	}
-	return m
 }
 
 func resourceEvsVolumeDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
