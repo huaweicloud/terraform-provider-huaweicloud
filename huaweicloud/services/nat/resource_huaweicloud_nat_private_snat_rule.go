@@ -44,10 +44,26 @@ func ResourcePrivateSnatRule() *schema.Resource {
 				ForceNew:    true,
 				Description: "The private NAT gateway ID to which the SNAT rule belongs.",
 			},
+			// Deprecated
 			"transit_ip_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The ID of the transit IP associated with SNAT rule.",
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The ID of the transit IP associated with the private SNAT rule, used transit_ip_ids instead.`,
+					utils.SchemaDescInput{
+						Required:   true,
+						Deprecated: true},
+				),
+			},
+			"transit_ip_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: utils.SchemaDesc(`The IDs of the transit IPs associated with the private SNAT rule.`,
+					utils.SchemaDescInput{
+						Required: true},
+				),
 			},
 			"cidr": {
 				Type:         schema.TypeString,
@@ -79,24 +95,54 @@ func ResourcePrivateSnatRule() *schema.Resource {
 				Computed:    true,
 				Description: "The latest update time of the SNAT rule.",
 			},
+			// Deprecated
 			"transit_ip_address": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The address of the transit IP",
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The IP address of the transit IP associated with the private SNAT rule`, utils.SchemaDescInput{Deprecated: true},
+				),
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The ID of the enterprise project to which the private SNAT rule belongs.",
 			},
+			"transit_ip_associations": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The transit IP list associate with the private SNAT rule.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"transit_ip_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the transit IP associated with the private SNAT rule.`,
+						},
+						"transit_ip_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The IP address of the transit IP associated with the private SNAT rule.`,
+						},
+					},
+				},
+			},
 		},
 	}
+}
+
+func buildTransitIpIds(transitIpId string, transitIpIds []interface{}) []string {
+	if transitIpId != "" {
+		return []string{transitIpId}
+	}
+
+	return utils.ExpandToStringList(transitIpIds)
 }
 
 func buildCreatePrivateSnatRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 	snatRuleBodyParams := map[string]interface{}{
 		"gateway_id":     d.Get("gateway_id"),
-		"transit_ip_ids": []string{d.Get("transit_ip_id").(string)},
+		"transit_ip_ids": buildTransitIpIds(d.Get("transit_ip_id").(string), d.Get("transit_ip_ids").([]interface{})),
 		"cidr":           utils.ValueIgnoreEmpty(d.Get("cidr")),
 		"virsubnet_id":   utils.ValueIgnoreEmpty(d.Get("subnet_id")),
 		"description":    utils.ValueIgnoreEmpty(d.Get("description")),
@@ -191,14 +237,34 @@ func resourcePrivateSnatRuleRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("updated_at", utils.PathSearch("snat_rule.updated_at", respBody, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("snat_rule.enterprise_project_id", respBody, nil)),
 		d.Set("transit_ip_address", utils.PathSearch("snat_rule.transit_ip_associations[0].transit_ip_address", respBody, nil)),
+		d.Set("transit_ip_associations", flattenTransitIpAssociations(
+			utils.PathSearch("snat_rule.transit_ip_associations", respBody, make([]interface{}, 0)))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+func flattenTransitIpAssociations(transitIpAssociations interface{}) []map[string]interface{} {
+	rawArray := transitIpAssociations.([]interface{})
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rst := make([]map[string]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		params := map[string]interface{}{
+			"transit_ip_id":      utils.PathSearch("transit_ip_id", v, nil),
+			"transit_ip_address": utils.PathSearch("transit_ip_address", v, nil),
+		}
+		rst[i] = params
+	}
+
+	return rst
+}
+
 func buildUpdatePrivateSnatRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 	snatRuleBodyParams := map[string]interface{}{
-		"transit_ip_ids": []string{d.Get("transit_ip_id").(string)},
+		"transit_ip_ids": buildTransitIpIds(d.Get("transit_ip_id").(string), d.Get("transit_ip_ids").([]interface{})),
 		"description":    d.Get("description"),
 	}
 
