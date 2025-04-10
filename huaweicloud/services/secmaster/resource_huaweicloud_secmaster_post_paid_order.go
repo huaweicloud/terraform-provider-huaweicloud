@@ -2,10 +2,13 @@ package secmaster
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -36,6 +39,10 @@ func ResourcePostPaidOrder() *schema.Resource {
 		UpdateContext: resourcePostPaidOrderUpdate,
 		ReadContext:   resourcePostPaidOrderRead,
 		DeleteContext: resourcePostPaidOrderDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		CustomizeDiff: config.FlexibleForceNew(nonUpdatableParamsOrder),
 
@@ -99,6 +106,11 @@ func ResourcePostPaidOrder() *schema.Resource {
 					},
 				},
 			},
+			"limit": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -109,7 +121,7 @@ func ResourcePostPaidOrder() *schema.Resource {
 	}
 }
 
-func resourcePostPaidOrderCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePostPaidOrderCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -133,6 +145,7 @@ func resourcePostPaidOrderCreate(_ context.Context, d *schema.ResourceData, meta
 		"region_id":    region,
 		"domain_id":    cfg.DomainID,
 		"tags":         utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+		"limit":        utils.ValueIgnoreEmpty(d.Get("limit")),
 		"product_list": buildProductListParams(d),
 	}
 
@@ -148,6 +161,11 @@ func resourcePostPaidOrderCreate(_ context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 	d.SetId(id)
+
+	err = createPostPaidOrderWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.Errorf("error waiting for the SecMaster post paid order (%s) creation to complete: %s", d.Id(), err)
+	}
 
 	return nil
 }
@@ -198,4 +216,62 @@ func resourcePostPaidOrderDelete(_ context.Context, _ *schema.ResourceData, _ in
 			Summary:  errorMsg,
 		},
 	}
+}
+
+func createPostPaidOrderWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			cfg := meta.(*config.Config)
+			region := cfg.GetRegion(d)
+
+			var (
+				getSubscriptionsHttpUrl = "v1/{project_id}/subscriptions/version"
+				getSubscriptionsProduct = "secmaster"
+			)
+			getSubscriptionsClient, err := cfg.NewServiceClient(getSubscriptionsProduct, region)
+			if err != nil {
+				return nil, "ERROR", fmt.Errorf("error creating SecMaster client: %s", err)
+			}
+
+			getSubscriptionsPath := getSubscriptionsClient.Endpoint + getSubscriptionsHttpUrl
+			getSubscriptionsPath = strings.ReplaceAll(getSubscriptionsPath, "{project_id}", getSubscriptionsClient.ProjectID)
+
+			getSubscriptionsOpt := golangsdk.RequestOpts{
+				KeepResponseBody: true,
+				MoreHeaders: map[string]string{
+					"Content-Type": "application/json",
+					"X-Language":   "en-us",
+				},
+			}
+
+			getSubscriptionsResp, err := getSubscriptionsClient.Request("GET", getSubscriptionsPath, &getSubscriptionsOpt)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			getSubscriptionsRespBody, err := utils.FlattenResponse(getSubscriptionsResp)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+			csbVersion := utils.PathSearch(`csb_version`, getSubscriptionsRespBody, nil)
+			if csbVersion == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `csb_version`)
+			}
+
+			version := fmt.Sprintf("%v", csbVersion)
+
+			if version != "NA" {
+				return getSubscriptionsRespBody, "COMPLETED", nil
+			}
+
+			return getSubscriptionsRespBody, "PENDING", nil
+		},
+		Timeout:      t,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }

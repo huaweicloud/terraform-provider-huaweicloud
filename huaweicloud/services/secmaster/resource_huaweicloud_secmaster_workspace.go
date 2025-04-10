@@ -2,9 +2,12 @@ package secmaster
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -33,6 +36,10 @@ func ResourceWorkspace() *schema.Resource {
 		UpdateContext: resourceWorkspaceUpdate,
 		ReadContext:   resourceWorkspaceRead,
 		DeleteContext: resourceWorkspaceDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		CustomizeDiff: config.FlexibleForceNew(nonUpdatableParamsWorkspace),
 
@@ -82,7 +89,7 @@ func ResourceWorkspace() *schema.Resource {
 	}
 }
 
-func resourceWorkspaceCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWorkspaceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -100,7 +107,10 @@ func resourceWorkspaceCreate(_ context.Context, d *schema.ResourceData, meta int
 
 	createWorkspaceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json;charset=UTF-8"},
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+			"X-Language":   "en-us",
+		},
 	}
 
 	createOpts := map[string]interface{}{
@@ -134,6 +144,11 @@ func resourceWorkspaceCreate(_ context.Context, d *schema.ResourceData, meta int
 
 	d.SetId(id)
 
+	err = createWorkspaceWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.Errorf("error waiting for the SecMaster workspace (%s) creation to complete: %s", d.Id(), err)
+	}
+
 	return nil
 }
 
@@ -154,4 +169,50 @@ func resourceWorkspaceDelete(_ context.Context, _ *schema.ResourceData, _ interf
 			Summary:  errorMsg,
 		},
 	}
+}
+
+func createWorkspaceWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			cfg := meta.(*config.Config)
+			region := cfg.GetRegion(d)
+
+			var (
+				getWorkspaceHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/sa/guides?version=1"
+				getWorkspaceProduct = "secmaster"
+			)
+			getWorkspaceClient, err := cfg.NewServiceClient(getWorkspaceProduct, region)
+			if err != nil {
+				return nil, "ERROR", fmt.Errorf("error creating SecMaster client: %s", err)
+			}
+
+			getWorkspacePath := getWorkspaceClient.Endpoint + getWorkspaceHttpUrl
+			getWorkspacePath = strings.ReplaceAll(getWorkspacePath, "{project_id}", getWorkspaceClient.ProjectID)
+			getWorkspacePath = strings.ReplaceAll(getWorkspacePath, "{workspace_id}", d.Id())
+
+			getWorkspaceOpt := golangsdk.RequestOpts{
+				KeepResponseBody: true,
+				MoreHeaders: map[string]string{
+					"Content-Type": "application/json",
+					"X-Language":   "en-us",
+				},
+			}
+
+			getWorkspaceResp, err := getWorkspaceClient.Request("GET", getWorkspacePath, &getWorkspaceOpt)
+			if err != nil {
+				if _, ok := err.(golangsdk.ErrDefault400); ok {
+					return getWorkspaceResp, "PENDING", nil
+				}
+				return nil, "ERROR", err
+			}
+			return getWorkspaceResp, "COMPLETED", nil
+		},
+		Timeout:      t,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
