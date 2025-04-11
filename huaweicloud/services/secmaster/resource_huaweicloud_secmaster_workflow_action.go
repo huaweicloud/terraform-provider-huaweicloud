@@ -132,7 +132,10 @@ func resourceWorkflowActionCreate(_ context.Context, d *schema.ResourceData, met
 
 	createWorkflowActionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"X-Language":   "en-us",
+		},
 	}
 
 	playbookContext, err := bulidPlaybookContextBodyParams(d)
