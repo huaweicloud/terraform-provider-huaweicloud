@@ -1689,6 +1689,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cciv2_pod":                     cci.ResourceV2Pod(),
 			"huaweicloud_cciv2_persistent_volume_claim": cci.ResourceV2PersistentVolumeClaim(),
 			"huaweicloud_cci_pool_binding":              cci.ResourcePoolBinding(),
+			"huaweicloud_cciv2_hpa":                     cci.ResourceV2HPA(),
 
 			"huaweicloud_ccm_certificate":                ccm.ResourceCCMCertificate(),
 			"huaweicloud_ccm_certificate_apply":          ccm.ResourceCertificateApply(),
