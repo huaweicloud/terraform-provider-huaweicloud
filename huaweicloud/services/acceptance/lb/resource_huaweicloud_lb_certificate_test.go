@@ -276,6 +276,7 @@ resource "huaweicloud_lb_certificate" "certificate_client" {
   name        = "%s"
   description = "terraform CA certificate"
   type        = "client"
+  enterprise_project_id = "0"
 
   certificate = <<EOT
 -----BEGIN CERTIFICATE-----

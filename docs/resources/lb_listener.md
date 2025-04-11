@@ -69,7 +69,7 @@ The following arguments are supported:
   + **nonProtection (default)**: Modification protection is not enabled.
   + **consoleProtection**: Modification protection is enabled to avoid that resources are modified by accident on the console.
 
-* `protection_reason` - (Optional, String) Human-readable description for the listener. This parameter is valid only when
+* `protection_reason` - (Optional, String) The reason to enable modification protection. This parameter is valid only when
   `protection_status` is set to **consoleProtection**.
 
 * `tags` - (Optional, Map) Specifies the reason to enable modification protection.
