@@ -3,6 +3,7 @@ package as
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -103,6 +104,13 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 					"alarm_id",
 				},
 			},
+			"interval_alarm_actions": {
+				Type:        schema.TypeSet,
+				Elem:        bandWidthIntervalAlarmActions(),
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the alarm interval of the bandwidth policy.`,
+			},
 			"scaling_resource_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -113,8 +121,75 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 				Computed:    true,
 				Description: `the AS policy status.`,
 			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the bandwidth policy.`,
+			},
+			"meta_data": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The bandwidth policy additional information.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"metadata_bandwidth_share_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The bandwidth sharing type in the bandwidth policy.`,
+						},
+						"metadata_eip_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The EIP ID for the bandwidth in the bandwidth policy.`,
+						},
+						"metadata_eip_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The EIP IP address for the bandwidth in the bandwidth policy.`,
+						},
+					},
+				},
+			},
 		},
 	}
+}
+
+func bandWidthIntervalAlarmActions() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"lower_bound": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the lower limit of the value range.`,
+			},
+			"upper_bound": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the upper limit of the value range.`,
+			},
+			"operation": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the operation to be performed.`,
+			},
+			"size": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the operation size.`,
+			},
+			"limits": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the operation restrictions.`,
+			},
+		},
+	}
+	return &sc
 }
 
 func bandWidthPolicyActionSchema() *schema.Resource {
@@ -180,6 +255,38 @@ func bandWidthScheduledPolicySchema() *schema.Resource {
 	return &sc
 }
 
+func buildIntervalAlarmActionsBodyParams(d *schema.ResourceData) []map[string]interface{} {
+	intervalActions := d.Get("interval_alarm_actions").(*schema.Set).List()
+	if len(intervalActions) == 0 {
+		return nil
+	}
+
+	rst := make([]map[string]interface{}, 0, len(intervalActions))
+	for _, v := range intervalActions {
+		raw := v.(map[string]interface{})
+		params := map[string]interface{}{
+			"operation":   utils.ValueIgnoreEmpty(raw["operation"]),
+			"size":        utils.ValueIgnoreEmpty(raw["size"]),
+			"limits":      utils.ValueIgnoreEmpty(raw["limits"]),
+			"lower_bound": bulidIntervalThreshold(raw["lower_bound"].(string)),
+			"upper_bound": bulidIntervalThreshold(raw["upper_bound"].(string)),
+		}
+
+		rst = append(rst, params)
+	}
+
+	return rst
+}
+
+func bulidIntervalThreshold(str string) interface{} {
+	resp, err := strconv.Atoi(str)
+	if err != nil {
+		return nil
+	}
+
+	return resp
+}
+
 func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		conf                         = meta.(*config.Config)
@@ -229,15 +336,16 @@ func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData
 
 func buildCreateBandwidthPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"scaling_policy_name":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_name")),
-		"scaling_policy_type":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_type")),
-		"scaling_resource_id":   utils.ValueIgnoreEmpty(d.Get("bandwidth_id")),
-		"scaling_resource_type": "BANDWIDTH",
-		"alarm_id":              utils.ValueIgnoreEmpty(d.Get("alarm_id")),
-		"cool_down_time":        utils.ValueIgnoreEmpty(d.Get("cool_down_time")),
-		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-		"scaling_policy_action": buildCreateBandwidthPolicyScalingPolicyActionChildBody(d),
-		"scheduled_policy":      buildCreateBandwidthPolicyScheduledPolicyChildBody(d),
+		"scaling_policy_name":    utils.ValueIgnoreEmpty(d.Get("scaling_policy_name")),
+		"scaling_policy_type":    utils.ValueIgnoreEmpty(d.Get("scaling_policy_type")),
+		"scaling_resource_id":    utils.ValueIgnoreEmpty(d.Get("bandwidth_id")),
+		"scaling_resource_type":  "BANDWIDTH",
+		"alarm_id":               utils.ValueIgnoreEmpty(d.Get("alarm_id")),
+		"cool_down_time":         utils.ValueIgnoreEmpty(d.Get("cool_down_time")),
+		"description":            utils.ValueIgnoreEmpty(d.Get("description")),
+		"scaling_policy_action":  buildCreateBandwidthPolicyScalingPolicyActionChildBody(d),
+		"scheduled_policy":       buildCreateBandwidthPolicyScheduledPolicyChildBody(d),
+		"interval_alarm_actions": buildIntervalAlarmActionsBodyParams(d),
 	}
 	return bodyParams
 }
@@ -308,9 +416,55 @@ func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("status", utils.PathSearch("scaling_policy.policy_status", respBody, nil)),
 		d.Set("scaling_policy_action", flattenGetBandwidthPolicyResponseBodyScalingPolicyAction(respBody)),
 		d.Set("scheduled_policy", flattenGetBandwidthPolicyResponseBodyScheduledPolicy(respBody)),
+		d.Set("interval_alarm_actions", flattenIntervalActions(utils.PathSearch("scaling_policy.interval_alarm_actions", respBody, nil))),
+		d.Set("create_time", utils.PathSearch("scaling_policy.create_time", respBody, nil)),
+		d.Set("meta_data", flattenBandwidthMetaData(utils.PathSearch("scaling_policy.meta_data", respBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenIntervalActions(resp interface{}) []map[string]interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	rawArray := resp.([]interface{})
+	rst := make([]map[string]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		params := map[string]interface{}{
+			"lower_bound": flattenIntervalThreshold(utils.PathSearch("lower_bound", v, nil)),
+			"upper_bound": flattenIntervalThreshold(utils.PathSearch("upper_bound", v, nil)),
+			"operation":   utils.PathSearch("operation", v, nil),
+			"size":        utils.PathSearch("size", v, nil),
+			"limits":      utils.PathSearch("limits", v, nil),
+		}
+		rst[i] = params
+	}
+
+	return rst
+}
+
+func flattenIntervalThreshold(param interface{}) string {
+	if param == nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%v", param)
+}
+
+func flattenBandwidthMetaData(metaData interface{}) []map[string]interface{} {
+	if metaData == nil {
+		return nil
+	}
+
+	bandwidthMetaData := map[string]interface{}{
+		"metadata_bandwidth_share_type": utils.PathSearch("metadata_bandwidth_share_type", metaData, nil),
+		"metadata_eip_id":               utils.PathSearch("metadata_eip_id", metaData, nil),
+		"metadata_eip_address":          utils.PathSearch("metadata_eip_address", metaData, nil),
+	}
+
+	return []map[string]interface{}{bandwidthMetaData}
 }
 
 func flattenGetBandwidthPolicyResponseBodyScalingPolicyAction(resp interface{}) []interface{} {
@@ -371,6 +525,7 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 		"description",
 		"scaling_policy_action",
 		"scheduled_policy",
+		"interval_alarm_actions",
 	}
 
 	if d.HasChanges(updateBandwidthPolicyChanges...) {
@@ -403,15 +558,16 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 
 func buildUpdateBandwidthPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"scaling_policy_name":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_name")),
-		"scaling_policy_type":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_type")),
-		"scaling_resource_id":   utils.ValueIgnoreEmpty(d.Get("bandwidth_id")),
-		"scaling_resource_type": utils.ValueIgnoreEmpty(d.Get("scaling_resource_type")),
-		"alarm_id":              utils.ValueIgnoreEmpty(d.Get("alarm_id")),
-		"cool_down_time":        utils.ValueIgnoreEmpty(d.Get("cool_down_time")),
-		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-		"scaling_policy_action": buildUpdateBandwidthPolicyScalingPolicyActionChildBody(d),
-		"scheduled_policy":      buildUpdateBandwidthPolicyScheduledPolicyChildBody(d),
+		"scaling_policy_name":    utils.ValueIgnoreEmpty(d.Get("scaling_policy_name")),
+		"scaling_policy_type":    utils.ValueIgnoreEmpty(d.Get("scaling_policy_type")),
+		"scaling_resource_id":    utils.ValueIgnoreEmpty(d.Get("bandwidth_id")),
+		"scaling_resource_type":  utils.ValueIgnoreEmpty(d.Get("scaling_resource_type")),
+		"alarm_id":               utils.ValueIgnoreEmpty(d.Get("alarm_id")),
+		"cool_down_time":         utils.ValueIgnoreEmpty(d.Get("cool_down_time")),
+		"description":            utils.ValueIgnoreEmpty(d.Get("description")),
+		"scaling_policy_action":  buildUpdateBandwidthPolicyScalingPolicyActionChildBody(d),
+		"scheduled_policy":       buildUpdateBandwidthPolicyScheduledPolicyChildBody(d),
+		"interval_alarm_actions": buildIntervalAlarmActionsBodyParams(d),
 	}
 	return bodyParams
 }
