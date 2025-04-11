@@ -244,12 +244,17 @@ func waitForCreateObsSystemImageJobCompleted(ctx context.Context, client *golang
 		PollInterval: 10 * time.Second,
 	}
 
-	_, err := stateConf.WaitForStateContext(ctx)
+	getRespBody, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return "", fmt.Errorf("error waiting for IMS OBS system image job (%s) to succeed: %s", jobId, err)
 	}
 
-	return getObsSystemImageIdByJobId(client, jobId)
+	imageId := utils.PathSearch("entities.image_id", getRespBody, "").(string)
+	if imageId == "" {
+		return "", errors.New("the image ID is not found in API response")
+	}
+
+	return imageId, nil
 }
 
 func obsSystemImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
@@ -273,7 +278,7 @@ func obsSystemImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceC
 
 		status := utils.PathSearch("status", getRespBody, "").(string)
 		if status == "SUCCESS" {
-			return "SUCCESS", "COMPLETED", nil
+			return getRespBody, "COMPLETED", nil
 		}
 
 		if status == "FAIL" {
@@ -286,32 +291,6 @@ func obsSystemImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceC
 
 		return getRespBody, "PENDING", nil
 	}
-}
-
-func getObsSystemImageIdByJobId(client *golangsdk.ServiceClient, jobId string) (string, error) {
-	getPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{job_id}", fmt.Sprintf("%v", jobId))
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getResp, err := client.Request("GET", getPath, &getOpt)
-	if err != nil {
-		return "", fmt.Errorf("error retrieving IMS OBS system image job: %s", err)
-	}
-
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		return "", err
-	}
-
-	imageId := utils.PathSearch("entities.image_id", getRespBody, "").(string)
-	if imageId == "" {
-		return "", errors.New("the image ID is not found in API response")
-	}
-
-	return imageId, nil
 }
 
 func getObsSystemImage(client *golangsdk.ServiceClient, imageId string) (interface{}, error) {

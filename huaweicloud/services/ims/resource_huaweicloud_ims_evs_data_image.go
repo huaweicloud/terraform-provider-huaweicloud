@@ -186,12 +186,17 @@ func waitForCreateEvsDataImageJobCompleted(ctx context.Context, client *golangsd
 		PollInterval: 10 * time.Second,
 	}
 
-	_, err := stateConf.WaitForStateContext(ctx)
+	getRespBody, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		return "", fmt.Errorf("error waiting for IMS EVS data image job (%s) to succeed: %s", jobId, err)
 	}
 
-	return getEvsDataImageIdByJobId(client, jobId)
+	imageId := utils.PathSearch("entities.sub_jobs_result[0].entities.image_id", getRespBody, "").(string)
+	if imageId == "" {
+		return "", errors.New("the image ID is not found in API response")
+	}
+
+	return imageId, nil
 }
 
 func evsDataImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
@@ -215,7 +220,7 @@ func evsDataImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceCli
 
 		status := utils.PathSearch("status", getRespBody, "").(string)
 		if status == "SUCCESS" {
-			return "SUCCESS", "COMPLETED", nil
+			return getRespBody, "COMPLETED", nil
 		}
 
 		if status == "FAIL" {
@@ -228,32 +233,6 @@ func evsDataImageJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceCli
 
 		return getRespBody, "PENDING", nil
 	}
-}
-
-func getEvsDataImageIdByJobId(client *golangsdk.ServiceClient, jobId string) (string, error) {
-	getPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{job_id}", fmt.Sprintf("%v", jobId))
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getResp, err := client.Request("GET", getPath, &getOpt)
-	if err != nil {
-		return "", fmt.Errorf("error retrieving IMS EVS data image job: %s", err)
-	}
-
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		return "", err
-	}
-
-	imageId := utils.PathSearch("entities.sub_jobs_result[0].entities.image_id", getRespBody, "").(string)
-	if imageId == "" {
-		return "", errors.New("the image ID is not found in API response")
-	}
-
-	return imageId, nil
 }
 
 func getEvsDataImage(client *golangsdk.ServiceClient, imageId string) (interface{}, error) {
