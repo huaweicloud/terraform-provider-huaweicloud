@@ -130,6 +130,10 @@ func ResourceASPolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"create_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -270,6 +274,7 @@ func resourceASPolicyRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("scaling_policy_action", flattenPolicyAction(asPolicy.Action)),
 		d.Set("scheduled_policy", flattenSchedulePolicy(asPolicy.SchedulePolicy)),
 		d.Set("action", flattenActionAttribute(asPolicy.Status)),
+		d.Set("create_time", asPolicy.CreateTime),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
