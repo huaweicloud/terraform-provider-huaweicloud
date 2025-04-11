@@ -2,7 +2,8 @@
 subcategory: "Elastic Load Balance (ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lb_pools"
-description: ""
+description: |-
+  Use this data source to get the list of ELB pools.
 ---
 
 # huaweicloud_lb_pools
@@ -32,7 +33,13 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the ELB pool.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
+
 * `loadbalancer_id` - (Optional, String) Specifies the loadbalancer ID of the ELB pool.
+
+* `member_address` - (Optional, String)  Specifies the private IP address bound to the backend server.
+
+* `member_device_id` - (Optional, String) Specifies the ID of the cloud server that serves as a backend server.
 
 * `healthmonitor_id` - (Optional, String) Specifies the health monitor ID of the ELB pool.
 
@@ -65,6 +72,10 @@ The `pools` block supports:
 
 * `healthmonitor_id` - The health monitor ID of the LB pool.
 
+* `protection_status` - Whether modification protection is enabled.
+
+* `protection_reason` - The reason to enable modification protection.
+
 * `listeners` - The listener list. The [object](#elem_object) structure is documented below.
 
 * `loadbalancers` - The loadbalancer list. The [object](#elem_object) structure is documented below.
@@ -85,3 +96,5 @@ The `persistence` block supports:
 * `type` - The type of persistence mode.
 
 * `cookie_name` - The name of the cookie if persistence mode is set appropriately.
+
+* `timeout` - The sticky session timeout duration in minutes.
