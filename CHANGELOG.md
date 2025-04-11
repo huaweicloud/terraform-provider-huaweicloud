@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.73.7 (April 11, 2025)
+
+ENHANCEMENTS:
+
+* add waiting for logic for secmaster post_paid_order and workspace [GH-6647]
+
 ## 1.73.6 (April 7, 2025)
 
 ENHANCEMENTS:
