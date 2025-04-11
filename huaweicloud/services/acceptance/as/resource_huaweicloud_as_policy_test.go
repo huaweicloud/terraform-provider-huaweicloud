@@ -35,6 +35,7 @@ func TestAccASPolicy_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.operation", "ADD"),
 					resource.TestCheckResourceAttr(resourceName, "scaling_policy_action.0.instance_number", "1"),
 					resource.TestCheckResourceAttrPair(resourceName, "scaling_group_id", "huaweicloud_as_group.acc_as_group", "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
 			},
 			{
