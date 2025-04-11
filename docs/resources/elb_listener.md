@@ -59,8 +59,7 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Human-readable name for the listener.
 
-* `default_pool_id` - (Optional, String) The ID of the default pool with which the listener is associated. Changing this
-  creates a new listener.
+* `default_pool_id` - (Optional, String) The ID of the default pool with which the listener is associated.
 
 * `description` - (Optional, String) Human-readable description for the listener.
 
