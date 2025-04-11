@@ -127,7 +127,7 @@ func buildCreateIpGroupBodyParams(d *schema.ResourceData, cfg *config.Config) ma
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 		"ip_list":               buildCreateIpGroupIpList(d.Get("ip_list").(*schema.Set).List()),
-		"enterprise_project_id": cfg.GetEnterpriseProjectID(d),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	bodyParams := map[string]interface{}{
 		"ipgroup": params,

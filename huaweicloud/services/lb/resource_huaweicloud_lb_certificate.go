@@ -159,7 +159,7 @@ func buildCreateCertificateBodyParams(d *schema.ResourceData, cfg *config.Config
 		"protection_reason":     utils.ValueIgnoreEmpty(d.Get("protection_reason")),
 		"protection_status":     utils.ValueIgnoreEmpty(d.Get("protection_status")),
 		"source":                utils.ValueIgnoreEmpty(d.Get("source")),
-		"enterprise_project_id": cfg.GetEnterpriseProjectID(d),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	return bodyParams
 }

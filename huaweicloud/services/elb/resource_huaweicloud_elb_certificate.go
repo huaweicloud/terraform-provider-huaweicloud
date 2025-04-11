@@ -160,7 +160,7 @@ func buildCreateCertificateBodyParams(d *schema.ResourceData, cfg *config.Config
 		"enc_certificate":       utils.ValueIgnoreEmpty(d.Get("enc_certificate")),
 		"enc_private_key":       utils.ValueIgnoreEmpty(d.Get("enc_private_key")),
 		"scm_certificate_id":    utils.ValueIgnoreEmpty(d.Get("scm_certificate_id")),
-		"enterprise_project_id": cfg.GetEnterpriseProjectID(d),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	bodyParams := map[string]interface{}{
 		"certificate": params,
