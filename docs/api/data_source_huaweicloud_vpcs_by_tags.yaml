@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_vpcs_by_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPC
+paths:
+    /v2.0/{project_id}/vpcs/resource_instances/action:
+        POST:
+            tag: VPC
