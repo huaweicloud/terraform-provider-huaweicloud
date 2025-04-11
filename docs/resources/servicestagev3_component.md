@@ -204,11 +204,14 @@ The following arguments are supported:
 * `version` - (Required, String) Specifies the version of the component.  
   The format is **{number}.{number}.{number}** or **{number}.{number}.{number}.{number}**, e.g. **1.0.1**.
 
-* `replica` - (Required, Int, ForceNew) Specifies the replica number of the component.  
-  Changing this will create a new resource.
-
 * `refer_resources` - (Required, List) Specifies the configuration of the reference resources.  
   The [refer_resources](#servicestage_v3_component_refer_resources) structure is documented below.
+
+* `config_mode` - (Optional, String) Specifies the configuration mode of the component.
+  The valid values are as follows:
+  + **yaml**
+
+* `workload_content` - (Optional, String) Specifies the workload content of the component.
 
 * `description` - (Optional, String) Specifies the description of the component.  
   The value can contain a maximum of `128` characters.
@@ -217,6 +220,9 @@ The following arguments are supported:
 
 * `build` - (Optional, String) Specifies the build configuration of the component, in JSON format.  
   For the keys, please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/api-servicestage/servicestage_06_0076.html#servicestage_06_0076__en-us_topic_0220056060_table7559740).
+
+* `replica` - (Optional, Int, ForceNew) Specifies the replica number of the component.  
+  Changing this will create a new resource.
 
 * `limit_cpu` - (Optional, Float) Specifies the maximum number of the CPU limit.  
   The unit is **Core**.
@@ -516,7 +522,7 @@ $ terraform import huaweicloud_servicestagev3_component.test <application_id>/<i
 
 Note that the imported state may not be identical to your resource definition, due to attributes missing from the API
 response, security or some other reason.
-The missing attribute is `tags`.
+The missing attribute is `workload_content`, `tags`.
 It is generally recommended running `terraform plan` after importing resource.
 You can decide if changes should be applied to resource, or the definition should be updated to align with the resource.
 Also you can ignore changes as below.
@@ -527,7 +533,7 @@ resource "huaweicloud_servicestagev3_component" "test" {
 
   lifecycle {
     ignore_changes = [
-      tags,
+      workload_content, tags,
     ]
   }
 }

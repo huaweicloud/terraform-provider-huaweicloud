@@ -715,3 +715,204 @@ resource "huaweicloud_servicestagev3_component" "test" {
 		acceptance.HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS,
 		acceptance.HW_CSE_MICROSERVICE_ENGINE_ID)
 }
+
+func TestAccV3Component_yaml(t *testing.T) {
+	var (
+		component interface{}
+
+		resourceName = "huaweicloud_servicestagev3_component.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &component, getV3ComponentFunc)
+
+		name = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			// Make sure at least one of node exist.
+			acceptance.TestAccPreCheckCceClusterId(t)
+			// At least one of JAR package must be provided.
+			acceptance.TestAccPreCheckServiceStageJarPkgStorageURLs(t, 1)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccV3Component_yaml_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "application_id", "huaweicloud_servicestagev3_application.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "environment_id", "huaweicloud_servicestagev3_environment.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "version", "1.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "config_mode", "yaml"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
+					resource.TestCheckResourceAttr(resourceName, "limit_cpu", "0"),
+					resource.TestCheckResourceAttr(resourceName, "limit_memory", "0"),
+					resource.TestCheckResourceAttr(resourceName, "request_cpu", "0"),
+					resource.TestCheckResourceAttr(resourceName, "request_memory", "0"),
+					resource.TestCheckResourceAttr(resourceName, "replica", "2"),
+					resource.TestCheckResourceAttr(resourceName, "build", ""),
+					resource.TestCheckResourceAttrSet(resourceName, "source"),
+					resource.TestCheckResourceAttr(resourceName, "runtime_stack.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "runtime_stack.0.deploy_mode", "container"),
+					resource.TestCheckResourceAttr(resourceName, "runtime_stack.0.name", "Docker"),
+					resource.TestCheckResourceAttr(resourceName, "runtime_stack.0.type", "Docker"),
+					resource.TestCheckResourceAttr(resourceName, "runtime_stack.0.version", "1.0"),
+					resource.TestCheckResourceAttr(resourceName, "refer_resources.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "update_strategy"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestMatchResourceAttr(resourceName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccV3ComponentImportStateIdFunc(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"workload_content",
+					"tags",
+					"source_origin",
+					"build_origin",
+					"deploy_strategy.0.rolling_release_origin",
+					"command_origin",
+					"tomcat_opts_origin",
+					"update_strategy_origin",
+				},
+			},
+		},
+	})
+}
+
+func testAccV3Component_yaml_base(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_cce_clusters" "test" {
+  cluster_id = "%[1]s"
+}
+
+data "huaweicloud_servicestagev3_runtime_stacks" "test" {}
+
+locals {
+  docker_runtime_stack = try([for o in data.huaweicloud_servicestagev3_runtime_stacks.test.runtime_stacks:
+    o if o.type == "Docker" && o.deploy_mode == "container"][0], {})
+}
+
+resource "huaweicloud_servicestagev3_application" "test" {
+  name                  = "%[2]s"
+  enterprise_project_id = "0"
+}
+
+resource "huaweicloud_servicestagev3_environment" "test" {
+  name                  = "%[2]s"
+  vpc_id                = try(data.huaweicloud_cce_clusters.test.clusters[0].vpc_id, "")
+  enterprise_project_id = "0"
+}
+
+resource "huaweicloud_servicestagev3_environment_associate" "test" {
+  environment_id = huaweicloud_servicestagev3_environment.test.id
+
+  resources {
+    id   = try(data.huaweicloud_cce_clusters.test.clusters[0].id, "")
+    type = "cce"
+  }
+}
+`, acceptance.HW_CCE_CLUSTER_ID, name)
+}
+
+func testAccV3Component_yaml_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_servicestagev3_component" "test" {
+  name           = "%[2]s"
+  description    = "Created by terraform script"
+  version        = "1.0.1"
+  environment_id = huaweicloud_servicestagev3_environment.test.id
+  application_id = huaweicloud_servicestagev3_application.test.id
+
+  runtime_stack {
+    deploy_mode = try(local.docker_runtime_stack.deploy_mode, "container")
+    name        = try(local.docker_runtime_stack.name, "Docker")
+    type        = try(local.docker_runtime_stack.type, "Docker")
+    version     = try(local.docker_runtime_stack.version, "1.0")
+  }
+
+  source = jsonencode({
+    kind    = "image"
+    storage = "swr"
+    url     = try(element(split(",", "%[3]s"), 0), "")
+  })
+
+  refer_resources {
+    type       = "cce"
+    id         = try(data.huaweicloud_cce_clusters.test.clusters[0].id, "")
+    parameters = jsonencode({
+      type      = "VirtualMachine"
+      namespace = "default"
+    })
+  }
+
+  config_mode      = "yaml"
+  workload_content = jsonencode({
+    apiVersion = "apps/v1"
+    kind       = "Deployment"
+    metadata   = {
+      name      = "%[2]s"
+      namespace = "default"
+    }
+    spec = {
+      selector = {}
+      template = {
+        metadata = {}
+        spec = {
+          imagePullSecrets = [
+            {
+              name = "default-secret",
+            }
+          ]
+          terminationGracePeriodSeconds = 30
+          volumes                       = []
+          restartPolicy                 = "Always"
+          dnsPolicy                     = "ClusterFirst"
+          containers                    = [
+            {
+              image           = try(element(split(",", "%[3]s"), 0), "")
+              name            = "%[2]s"
+              imagePullPolicy = "Always"
+              resources       = {
+                requests = {
+                  cpu    = "0"
+                  memory = "0"
+                }
+                limits = {
+                  cpu    = "0"
+                  memory = "0"
+                }
+              }
+              ports = [
+                {
+                  containerPort = 8080,
+                  protocol      = "TCP"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+    strategy = {
+      type = "RollingUpdate"
+      rollingUpdate = {
+        maxSurge       = 0
+        maxUnavailable = 1
+      }
+    }
+    replicas = 2
+  })
+}
+`, testAccV3Component_yaml_base(name), name, acceptance.HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS)
+}

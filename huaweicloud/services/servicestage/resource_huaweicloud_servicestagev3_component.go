@@ -34,6 +34,18 @@ var (
 		"deploy_strategy.0.gray_release",
 		"update_strategy",
 	}
+
+	componentNonUpdatableParams = []string{
+		"application_id",
+		"environment_id",
+		"name",
+		"runtime_stack",
+		"runtime_stack.*.name",
+		"runtime_stack.*.type",
+		"runtime_stack.*.deploy_mode",
+		"runtime_stack.*.version",
+		"replica",
+	}
 )
 
 // @API ServiceStage POST /v3/{project_id}/cas/applications/{application_id}/components
@@ -52,6 +64,8 @@ func ResourceV3Component() *schema.Resource {
 			StateContext: resourceV3ComponentImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(componentNonUpdatableParams),
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Update: schema.DefaultTimeout(20 * time.Minute),
@@ -69,51 +83,43 @@ func ResourceV3Component() *schema.Resource {
 			"application_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The application ID to which the component belongs.`,
 			},
 			"environment_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The environment ID where the component is deployed.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `The name of the component.`,
 			},
 			"runtime_stack": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `The stack name.`,
 						},
 						"type": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `The stack type.`,
 						},
 						"deploy_mode": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `The deploy mode of the stack.`,
 						},
 						"version": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							ForceNew:    true,
 							Description: `The stack version.`,
 						},
 					},
@@ -131,12 +137,6 @@ func ResourceV3Component() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The version of the component.`,
-			},
-			"replica": {
-				Type:        schema.TypeInt,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The replica number of the component.`,
 			},
 			"refer_resources": {
 				Type:     schema.TypeSet,
@@ -163,6 +163,18 @@ func ResourceV3Component() *schema.Resource {
 				},
 				Description: `The configuration of the reference resources.`,
 			},
+			"config_mode": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The configuration mode of the component.`,
+			},
+			"workload_content": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The workload content of the component, in JSON format.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -176,29 +188,40 @@ func ResourceV3Component() *schema.Resource {
 				DiffSuppressFunc: utils.SuppressObjectDiffs(),
 				Description:      `The build configuration of the component, in JSON format.`,
 			},
+			"replica": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The replica number of the component.`,
+			},
 			"limit_cpu": {
 				Type:        schema.TypeFloat,
 				Optional:    true,
+				Computed:    true,
 				Description: `The maximum number of the CPU limit.`,
 			},
 			"limit_memory": {
 				Type:        schema.TypeFloat,
 				Optional:    true,
+				Computed:    true,
 				Description: `The maximum number of the memory limit.`,
 			},
 			"request_cpu": {
 				Type:        schema.TypeFloat,
 				Optional:    true,
+				Computed:    true,
 				Description: `The number of the CPU request resources.`,
 			},
 			"request_memory": {
 				Type:        schema.TypeFloat,
 				Optional:    true,
+				Computed:    true,
 				Description: `The number of the memory request resources.`,
 			},
 			"envs": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -209,6 +232,7 @@ func ResourceV3Component() *schema.Resource {
 						"value": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: `The value of the environment variable.`,
 						},
 					},
@@ -218,6 +242,7 @@ func ResourceV3Component() *schema.Resource {
 			"storages": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
@@ -267,6 +292,7 @@ func ResourceV3Component() *schema.Resource {
 			"deploy_strategy": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -337,6 +363,7 @@ the new value next time the change is made. The corresponding parameter name is 
 			"post_start": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				MaxItems:    1,
 				Elem:        componentLifecycleSchema(),
 				Description: `The post start configuration.`,
@@ -344,6 +371,7 @@ the new value next time the change is made. The corresponding parameter name is 
 			"pre_stop": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				MaxItems:    1,
 				Elem:        componentLifecycleSchema(),
 				Description: `The pre stop configuration.`,
@@ -351,6 +379,7 @@ the new value next time the change is made. The corresponding parameter name is 
 			"mesher": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -386,6 +415,7 @@ the new value next time the change is made. The corresponding parameter name is 
 			"logs": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"log_path": {
@@ -415,6 +445,7 @@ the new value next time the change is made. The corresponding parameter name is 
 			"custom_metric": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -440,18 +471,21 @@ the new value next time the change is made. The corresponding parameter name is 
 			"affinity": {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Elem:        componentAffinitySchema(),
 				Description: `The affinity configuration of the component.`,
 			},
 			"anti_affinity": {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Elem:        componentAffinitySchema(),
 				Description: `The anti-affinity configuration of the component.`,
 			},
 			"liveness_probe": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				MaxItems:    1,
 				Elem:        componentProbeSchema(),
 				Description: "The liveness probe configuration of the component.",
@@ -459,6 +493,7 @@ the new value next time the change is made. The corresponding parameter name is 
 			"readiness_probe": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				MaxItems:    1,
 				Elem:        componentProbeSchema(),
 				Description: "The readiness probe configuration of the component.",
@@ -466,6 +501,7 @@ the new value next time the change is made. The corresponding parameter name is 
 			"external_accesses": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"protocol": {
@@ -506,6 +542,13 @@ the new value next time the change is made. The corresponding parameter name is 
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The latest update time of the component, in RFC3339 format.`,
+			},
+			// Internal parameters/attributes.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 			"source_origin": {
 				Type:     schema.TypeString,
@@ -577,26 +620,31 @@ func componentLifecycleSchema() *schema.Resource {
 			"scheme": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The HTTP request type.`,
 			},
 			"host": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The host (IP) of the lifecycle configuration.`,
 			},
 			"port": {
 				Type:        schema.TypeInt,
 				Optional:    true,
+				Computed:    true,
 				Description: `The port number of the lifecycle configuration.`,
 			},
 			"path": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The request path of the lifecycle configuration.`,
 			},
 			"command": {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The command list of the lifecycle configuration.`,
 			},
@@ -940,16 +988,18 @@ func buildV3ComponentCreateBodyParams(d *schema.ResourceData) map[string]interfa
 		"runtime_stack":   utils.ValueIgnoreEmpty(buildV3ComponentRuntimeStackConfig(d.Get("runtime_stack").([]interface{}))),
 		"source":          utils.StringToJson(d.Get("source").(string)),
 		"version":         d.Get("version").(string),
-		"replica":         d.Get("replica").(int),
 		"refer_resources": utils.ValueIgnoreEmpty(buildV3ComponentReferResources(d.Get("refer_resources").(*schema.Set))),
 		// Optional parameters.
 		"environment_id":    d.Get("environment_id").(string),
+		"config_mode":       utils.ValueIgnoreEmpty(d.Get("config_mode")),
+		"workload_content":  utils.ValueIgnoreEmpty(d.Get("workload_content")),
 		"description":       utils.ValueIgnoreEmpty(d.Get("description")),
 		"build":             utils.StringToJson(d.Get("build").(string)),
-		"limit_cpu":         d.Get("limit_cpu").(float64),
-		"limit_memory":      d.Get("limit_memory").(float64),
-		"request_cpu":       d.Get("request_cpu").(float64),
-		"request_memory":    d.Get("request_memory").(float64),
+		"replica":           utils.ValueIgnoreEmpty(d.Get("replica").(int)),
+		"limit_cpu":         utils.ValueIgnoreEmpty(d.Get("limit_cpu").(float64)),
+		"limit_memory":      utils.ValueIgnoreEmpty(d.Get("limit_memory").(float64)),
+		"request_cpu":       utils.ValueIgnoreEmpty(d.Get("request_cpu").(float64)),
+		"request_memory":    utils.ValueIgnoreEmpty(d.Get("request_memory").(float64)),
 		"envs":              utils.ValueIgnoreEmpty(buildV3ComponentEnvVariables(d.Get("envs").(*schema.Set))),
 		"storages":          utils.ValueIgnoreEmpty(buildV3ComponentStorages(d.Get("storages").(*schema.Set))),
 		"deploy_strategy":   utils.ValueIgnoreEmpty(buildV3ComponentDeployStrategy(d.Get("deploy_strategy").([]interface{}))),
@@ -1375,6 +1425,7 @@ func resourceV3ComponentRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("runtime_stack", flattenV3ComponentRuntimeStackConfig(utils.PathSearch("runtime_stack", respBody,
 			make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("environment_id", utils.PathSearch("environment_id", respBody, nil)),
+		d.Set("config_mode", utils.PathSearch("config_mode", respBody, nil)),
 		d.Set("description", utils.PathSearch("description", respBody, nil)),
 		d.Set("source", utils.JsonToString(utils.PathSearch("source", respBody, nil))),
 		d.Set("build", utils.JsonToString(utils.PathSearch("build", respBody, nil))),
@@ -1429,7 +1480,6 @@ func buildV3ComponentUpdteBodyParams(d *schema.ResourceData) map[string]interfac
 		// Cannot be updated but the request body needs them.
 		"name":          d.Get("name").(string),
 		"runtime_stack": utils.ValueIgnoreEmpty(buildV3ComponentRuntimeStackConfig(d.Get("runtime_stack").([]interface{}))),
-		"replica":       d.Get("replica").(int),
 		// Required parameters
 		"source":          utils.StringToJson(d.Get("source").(string)),
 		"version":         d.Get("version").(string),
@@ -1437,6 +1487,7 @@ func buildV3ComponentUpdteBodyParams(d *schema.ResourceData) map[string]interfac
 		// Optional parameters.
 		"description":       d.Get("description").(string),
 		"build":             utils.StringToJson(d.Get("build").(string)),
+		"replica":           d.Get("replica").(int),
 		"limit_cpu":         d.Get("limit_cpu").(float64),
 		"limit_memory":      d.Get("limit_memory").(float64),
 		"request_cpu":       d.Get("request_cpu").(float64),
