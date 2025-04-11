@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestagev3_configuration": {
+          "block": {
+            "attributes": {
+              "components": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "application_id": "string",
+                      "component_id": "string",
+                      "component_name": "string",
+                      "environment_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the components associated with the configuration file.",
+                "computed": true
+              },
+              "config_group_id": {
+                "type": "string",
+                "description": "The ID of the configuration group to which the configuration file belongs.",
+                "required": true
+              },
+              "content": {
+                "type": "string",
+                "description": "The content of the configuration file.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the configuration file, in RFC3339 format.",
+                "computed": true
+              },
+              "creator": {
+                "type": "string",
+                "description": "The creator of the configuration file.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the configuration file.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the configuration file.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sensitive": {
+                "type": "bool",
+                "description": "Whether to enable data encryption.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the configuration file.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the configuration file, in RFC3339 format.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version of the configuration file.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

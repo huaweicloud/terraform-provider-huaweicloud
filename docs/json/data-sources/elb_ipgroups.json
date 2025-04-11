@@ -9,6 +9,10 @@
                 "type": "string",
                 "optional": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -29,6 +33,7 @@
                     {
                       "created_at": "string",
                       "description": "string",
+                      "enterprise_project_id": "string",
                       "id": "string",
                       "ip_list": [
                         "list",

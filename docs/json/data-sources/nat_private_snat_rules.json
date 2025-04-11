@@ -55,8 +55,16 @@
                       "id": "string",
                       "status": "string",
                       "subnet_id": "string",
-                      "transit_ip_address": "string",
-                      "transit_ip_id": "string",
+                      "transit_ip_associations": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "transit_ip_address": "string",
+                            "transit_ip_id": "string"
+                          }
+                        ]
+                      ],
                       "updated_at": "string"
                     }
                   ]

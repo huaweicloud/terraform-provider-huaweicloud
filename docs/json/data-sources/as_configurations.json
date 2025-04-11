@@ -11,20 +11,27 @@
                   [
                     "object",
                     {
+                      "create_time": "string",
                       "instance_config": [
                         "list",
                         [
                           "object",
                           {
                             "charging_mode": "string",
+                            "dedicated_host_id": "string",
                             "disk": [
                               "list",
                               [
                                 "object",
                                 {
+                                  "data_disk_image_id": "string",
+                                  "dedicated_storage_id": "string",
                                   "disk_type": "string",
+                                  "iops": "number",
                                   "kms_id": "string",
                                   "size": "number",
+                                  "snapshot_id": "string",
+                                  "throughput": "number",
                                   "volume_type": "string"
                                 }
                               ]
@@ -34,6 +41,7 @@
                             "flavor_priority_policy": "string",
                             "image": "string",
                             "instance_id": "string",
+                            "key_fingerprint": "string",
                             "key_name": "string",
                             "metadata": [
                               "map",
@@ -65,6 +73,7 @@
                                             "object",
                                             {
                                               "charging_mode": "string",
+                                              "id": "string",
                                               "share_type": "string",
                                               "size": "number"
                                             }
@@ -81,10 +90,12 @@
                               "list",
                               "string"
                             ],
+                            "tenancy": "string",
                             "user_data": "string"
                           }
                         ]
                       ],
+                      "scaling_configuration_id": "string",
                       "scaling_configuration_name": "string",
                       "status": "string"
                     }

@@ -17,6 +17,14 @@
                 "type": "string",
                 "computed": true
               },
+              "instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ip_version": {
+                "type": "string",
+                "optional": true
+              },
               "member_id": {
                 "type": "string",
                 "optional": true
@@ -32,11 +40,48 @@
                     "object",
                     {
                       "address": "string",
+                      "created_at": "string",
                       "id": "string",
+                      "instance_id": "string",
+                      "ip_version": "string",
                       "member_type": "string",
                       "name": "string",
+                      "operating_status": "string",
                       "protocol_port": "number",
+                      "reason": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "expected_response": "string",
+                            "healthcheck_response": "string",
+                            "reason_code": "string"
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "listener_id": "string",
+                            "operating_status": "string",
+                            "reason": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "expected_response": "string",
+                                  "healthcheck_response": "string",
+                                  "reason_code": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
                       "subnet_id": "string",
+                      "updated_at": "string",
                       "weight": "number"
                     }
                   ]
@@ -44,6 +89,10 @@
                 "computed": true
               },
               "name": {
+                "type": "string",
+                "optional": true
+              },
+              "operating_status": {
                 "type": "string",
                 "optional": true
               },

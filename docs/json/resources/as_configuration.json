@@ -5,6 +5,10 @@
         "huaweicloud_as_configuration": {
           "block": {
             "attributes": {
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -74,6 +78,10 @@
                       "optional": true,
                       "computed": true,
                       "forcenew": true
+                    },
+                    "key_fingerprint": {
+                      "type": "string",
+                      "computed": true
                     },
                     "key_name": {
                       "type": "string",

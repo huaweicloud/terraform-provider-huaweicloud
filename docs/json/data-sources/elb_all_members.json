@@ -58,6 +58,7 @@
                       "address": "string",
                       "created_at": "string",
                       "id": "string",
+                      "instance_id": "string",
                       "ip_version": "string",
                       "loadbalancer_id": "string",
                       "member_type": "string",

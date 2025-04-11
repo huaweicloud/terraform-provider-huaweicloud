@@ -173,6 +173,14 @@
                 "optional": true,
                 "computed": true
               },
+              "lts_custom_tag": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The custom tags configuration that used to filter the LTS logs.",
+                "optional": true
+              },
               "max_instance_num": {
                 "type": "string",
                 "description": "The maximum number of instances of the function.",

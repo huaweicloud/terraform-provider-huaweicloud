@@ -28,6 +28,11 @@
                 "type": "string",
                 "computed": true
               },
+              "is_favorite": {
+                "type": "bool",
+                "description": "Whether to favorite the log stream.",
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
