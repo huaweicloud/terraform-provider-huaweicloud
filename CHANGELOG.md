@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.73.8 (April 14, 2025)
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_node_attach: fix attributes setting issue [GH-6659]
+
 ## 1.73.7 (April 11, 2025)
 
 ENHANCEMENTS:
