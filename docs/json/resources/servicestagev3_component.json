@@ -8,8 +8,7 @@
               "application_id": {
                 "type": "string",
                 "description": "The application ID to which the component belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "build": {
                 "type": "string",
@@ -19,6 +18,12 @@
               "command": {
                 "type": "string",
                 "description": "The start commands of the component, in JSON format.",
+                "optional": true,
+                "computed": true
+              },
+              "config_mode": {
+                "type": "string",
+                "description": "The configuration mode of the component.",
                 "optional": true,
                 "computed": true
               },
@@ -36,8 +41,7 @@
               "environment_id": {
                 "type": "string",
                 "description": "The environment ID where the component is deployed.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -52,18 +56,19 @@
               "limit_cpu": {
                 "type": "number",
                 "description": "The maximum number of the CPU limit.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "limit_memory": {
                 "type": "number",
                 "description": "The maximum number of the memory limit.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "name": {
                 "type": "string",
                 "description": "The name of the component.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",
@@ -73,18 +78,20 @@
               "replica": {
                 "type": "number",
                 "description": "The replica number of the component.",
-                "required": true,
-                "forcenew": true
+                "optional": true,
+                "computed": true
               },
               "request_cpu": {
                 "type": "number",
                 "description": "The number of the CPU request resources.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "request_memory": {
                 "type": "number",
                 "description": "The number of the memory request resources.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "source": {
                 "type": "string",
@@ -130,6 +137,12 @@
                 "type": "string",
                 "description": "The version of the component.",
                 "required": true
+              },
+              "workload_content": {
+                "type": "string",
+                "description": "The workload content of the component, in JSON format.",
+                "optional": true,
+                "computed": true
               }
             },
             "block_types": {
@@ -294,7 +307,8 @@
                     "value": {
                       "type": "string",
                       "description": "The value of the environment variable.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     }
                   },
                   "description": "The configuration of the environment variables."
@@ -434,27 +448,32 @@
                         "string"
                       ],
                       "description": "The command list of the lifecycle configuration.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "host": {
                       "type": "string",
                       "description": "The host (IP) of the lifecycle configuration.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "path": {
                       "type": "string",
                       "description": "The request path of the lifecycle configuration.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "port": {
                       "type": "number",
                       "description": "The port number of the lifecycle configuration.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "scheme": {
                       "type": "string",
                       "description": "The HTTP request type.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "type": {
                       "type": "string",
@@ -476,27 +495,32 @@
                         "string"
                       ],
                       "description": "The command list of the lifecycle configuration.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "host": {
                       "type": "string",
                       "description": "The host (IP) of the lifecycle configuration.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "path": {
                       "type": "string",
                       "description": "The request path of the lifecycle configuration.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "port": {
                       "type": "number",
                       "description": "The port number of the lifecycle configuration.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "scheme": {
                       "type": "string",
                       "description": "The HTTP request type.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "type": {
                       "type": "string",
@@ -596,33 +620,28 @@
                     "deploy_mode": {
                       "type": "string",
                       "description": "The deploy mode of the stack.",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "name": {
                       "type": "string",
                       "description": "The stack name.",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "type": {
                       "type": "string",
                       "description": "The stack type.",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "version": {
                       "type": "string",
                       "description": "The stack version.",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     }
                   },
                   "description": "The configuration of the runtime stack."
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
               },

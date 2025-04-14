@@ -51,6 +51,18 @@
                 "type": "string",
                 "computed": true
               },
+              "extension_nics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "subnet_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "flavor_id": {
                 "type": "string",
                 "computed": true

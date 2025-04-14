@@ -5,9 +5,37 @@
         "huaweicloud_lb_listeners": {
           "block": {
             "attributes": {
+              "client_ca_tls_container_ref": {
+                "type": "string",
+                "optional": true
+              },
+              "default_pool_id": {
+                "type": "string",
+                "optional": true
+              },
+              "default_tls_container_ref": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "http2_enable": {
+                "type": "string",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "listener_id": {
+                "type": "string",
+                "optional": true
               },
               "listeners": {
                 "type": [
@@ -15,12 +43,24 @@
                   [
                     "object",
                     {
+                      "client_ca_tls_container_ref": "string",
                       "connection_limit": "number",
+                      "created_at": "string",
                       "default_pool_id": "string",
                       "default_tls_container_ref": "string",
                       "description": "string",
                       "http2_enable": "bool",
                       "id": "string",
+                      "insert_headers": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "x_forwarded_elb_ip": "string",
+                            "x_forwarded_host": "string"
+                          }
+                        ]
+                      ],
                       "loadbalancers": [
                         "list",
                         [
@@ -31,36 +71,48 @@
                         ]
                       ],
                       "name": "string",
+                      "protection_reason": "string",
+                      "protection_status": "string",
                       "protocol": "string",
                       "protocol_port": "number",
                       "sni_container_refs": [
                         "list",
                         "string"
-                      ]
+                      ],
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "tls_ciphers_policy": "string",
+                      "updated_at": "string"
                     }
                   ]
                 ],
-                "description": "Listener list.",
                 "computed": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "optional": true
               },
               "name": {
                 "type": "string",
-                "description": "The listener name.",
                 "optional": true
               },
               "protocol": {
                 "type": "string",
-                "description": "The listener protocol.",
                 "optional": true
               },
               "protocol_port": {
                 "type": "string",
-                "description": "The front-end listening port of the listener.",
                 "optional": true
               },
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "tls_ciphers_policy": {
+                "type": "string",
+                "optional": true
               }
             }
           },
