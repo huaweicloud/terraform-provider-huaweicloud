@@ -1054,6 +1054,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_elb_availability_zones":                  elb.DataSourceAvailabilityZones(),
 			"huaweicloud_elb_certificate":                         elb.DataSourceELBCertificateV3(),
+			"huaweicloud_elb_certificates":                        elb.DataSourceElbCertificates(),
 			"huaweicloud_elb_flavors":                             elb.DataSourceElbFlavorsV3(),
 			"huaweicloud_elb_pools":                               elb.DataSourcePools(),
 			"huaweicloud_elb_active_standby_pools":                elb.DataSourceActiveStandbyPools(),

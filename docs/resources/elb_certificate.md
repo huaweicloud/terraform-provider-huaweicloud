@@ -116,6 +116,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the resource ID.
 
+* `common_name` - Indicates the primary domain name of the certificate.
+
 * `fingerprint` - Indicates the fingerprint of the certificate.
 
 * `subject_alternative_names` - Indicates all the domain names of the certificate.
