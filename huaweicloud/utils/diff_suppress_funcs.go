@@ -228,7 +228,7 @@ func FindDecreaseKeys(objA, objB map[string]interface{}) map[string]interface{} 
 // only allow the local script to take effect.
 func SuppressObjectDiffs() schema.SchemaDiffSuppressFunc {
 	return func(paramKey, o, n string, d *schema.ResourceData) bool {
-		if !strings.HasSuffix(paramKey, ".%") || !strings.HasSuffix(paramKey, ".#") {
+		if strings.HasSuffix(paramKey, ".%") || strings.HasSuffix(paramKey, ".#") {
 			log.Printf("[DEBUG] The current change object is not of type object.")
 			return false
 		}
