@@ -382,7 +382,7 @@ The following arguments are supported:
   Changing this will create a new MapReduce cluster resource.
 
 * `master_nodes` - (Required, List, ForceNew) Specifies the informations about master nodes in the MapReduce cluster.
-  The `nodes` object structure of the `master_nodes` is documented below.
+  The [master_nodes](#v2_mapreduce_cluster_master_nodes) structure is documented below.
   Changing this will create a new MapReduce cluster resource.
 
 * `manager_admin_pass` - (Required, String, ForceNew) Specifies the administrator password, which is used to log in to
@@ -443,27 +443,27 @@ The EIP must have been created and must be in the same region as the cluster.
   than 500 nodes. Components can be deployed separately, which can be used for a larger cluster scale.
 
 * `analysis_core_nodes` - (Optional, List, ForceNew) Specifies the informations about analysis core nodes in the
-  MapReduce cluster.
-  The `nodes` object structure of the `analysis_core_nodes` is documented below.
+  MapReduce cluster.  
+  The [master_nodes](#v2_mapreduce_cluster_core_task_nodes) structure is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
 * `streaming_core_nodes` - (Optional, List, ForceNew) Specifies the informations about streaming core nodes in the
-  MapReduce cluster.
-  The `nodes` object structure of the `streaming_core_nodes` is documented below.
+  MapReduce cluster.  
+  The [master_nodes](#v2_mapreduce_cluster_core_task_nodes) structure is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
 * `analysis_task_nodes` - (Optional, List, ForceNew) Specifies the informations about analysis task nodes in the
-  MapReduce cluster.
-  The `nodes` object structure of the `analysis_task_nodes` is documented below.
+  MapReduce cluster.  
+  The [master_nodes](#v2_mapreduce_cluster_core_task_nodes) structure is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
 * `streaming_task_nodes` - (Optional, List, ForceNew) Specifies the informations about streaming task nodes in the
-  MapReduce cluster.
-  The `nodes` object structure of the `streaming_task_nodes` is documented below.
+  MapReduce cluster.  
+  The [master_nodes](#v2_mapreduce_cluster_core_task_nodes) structure is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
-* `custom_nodes` - (Optional, List, ForceNew) Specifies the informations about custom nodes in the MapReduce cluster.
-  The `nodes` object structure of the `custom_nodes` is documented below.
+* `custom_nodes` - (Optional, List, ForceNew) Specifies the informations about custom nodes in the MapReduce cluster.  
+  The [master_nodes](#v2_mapreduce_cluster_custom_nodes) structure is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
 * `component_configs` - (Optional, List, ForceNew) Specifies the component configurations of the cluster.
@@ -502,19 +502,63 @@ The EIP must have been created and must be in the same region as the cluster.
   This parameter is mandatory if `charging_mode` is set to **prePaid**.  
   Changing this parameter will create a new MapReduce cluster resource.
 
-The `nodes` block supports:
+<a name="v2_mapreduce_cluster_master_nodes"></a>
+The `master_nodes` block supports:
 
-* `group_name` - (Optional, String, ForceNew) Specifies the name of nodes for the node group.
+* `flavor` - (Required, String, ForceNew) Specifies the instance specifications for each nodes in node group.
+  Changing this will create a new MapReduce cluster resource.
 
-  -> This parameter is only valid and mandatory for `custom_nodes`.
+* `node_number` - (Required, Int, ForceNew) Specifies the number of nodes for the node group.  
+  Changing this will create a new MapReduce cluster resource.
+
+* `root_volume_type` - (Required, String, ForceNew) Specifies the system disk flavor of the nodes. Changing this will
+  create a new MapReduce cluster resource.
+
+* `root_volume_size` - (Required, Int, ForceNew) Specifies the system disk size of the nodes. Changing this will create
+  a new MapReduce cluster resource.
+
+* `data_volume_count` - (Required, Int, ForceNew) Specifies the data disk number of the nodes.  
+  The valid value is `1`.  
+  Changing this will create a new MapReduce cluster resource.
+
+* `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes.
+  Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce cluster resource.
+   The following disk types are supported:
+  + **SATA**: common I/O disk.
+  + **SAS**: high I/O disk.
+  + **SSD**: ultra-high I/O disk.
+
+* `data_volume_size` - (Optional, Int, ForceNew) Specifies the data disk size of the nodes,in GB. The value range is 10
+  to 32768. Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce
+  cluster resource.
+
+* `assigned_roles` - (Optional, List, ForceNew) Specifies the roles deployed in a node group.This argument is mandatory
+ when the cluster type is **CUSTOM**. Each character string represents a role expression.
+
+  **Role expression definition:**
+
+   + If the role is deployed on all nodes in the node group, set this parameter to role_name, for example: `DataNode`.
+   + If the role is deployed on a specified subscript node in the node group: role_name:index1,index2..., indexN,
+ for example: `DataNode:1,2`. The subscript starts from 1.
+   + Some roles support multi-instance deployment (that is, multiple instances of the same role are deployed on a node):
+  role_name[instance_count], for example: `EsNode[9]`.
+  
+  [For details about components](https://support.huaweicloud.com/intl/en-us/productdesc-mrs/mrs_08_0005.html)
+
+  [Mapping between roles and components](https://support.huaweicloud.com/intl/en-us/api-mrs/mrs_02_0106.html)
+
+  -> `DBService` is a basic component of a cluster. Components such as Hive, Hue, Oozie, Loader, and Redis, and Loader
+   store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
+
+<a name="v2_mapreduce_cluster_core_task_nodes"></a>
+The `analysis_core_nodes`, `streaming_core_nodes`, `analysis_task_nodes` and `streaming_task_nodes` blocks support:
 
 * `flavor` - (Required, String, ForceNew) Specifies the instance specifications for each nodes in node group.
   Changing this will create a new MapReduce cluster resource.
 
 * `node_number` - (Required, Int) Specifies the number of nodes for the node group.
 
-  -> Only the core node group and task node group are allowed to be updated. The number of nodes after scaling
-  cannot be less than the number of nodes originally created.
+  -> The number of nodes after scaling cannot be less than the number of nodes originally created.
 
 * `root_volume_type` - (Required, String, ForceNew) Specifies the system disk flavor of the nodes. Changing this will
   create a new MapReduce cluster resource.
@@ -524,7 +568,6 @@ The `nodes` block supports:
 
 * `data_volume_count` - (Required, Int, ForceNew) Specifies the data disk number of the nodes. The number configuration
   of each node are as follows:
-  + **master_nodes**: 1.
   + **analysis_core_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
   + **streaming_core_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
   + **analysis_task_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
@@ -532,6 +575,57 @@ The `nodes` block supports:
 
   Changing this will create a new MapReduce cluster resource.
   
+* `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes.
+  Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce cluster resource.
+   The following disk types are supported:
+  + **SATA**: common I/O disk.
+  + **SAS**: high I/O disk.
+  + **SSD**: ultra-high I/O disk.
+
+* `data_volume_size` - (Optional, Int, ForceNew) Specifies the data disk size of the nodes,in GB. The value range is 10
+  to 32768. Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce
+  cluster resource.
+
+* `assigned_roles` - (Optional, List, ForceNew) Specifies the roles deployed in a node group.This argument is mandatory
+ when the cluster type is **CUSTOM**. Each character string represents a role expression.
+
+  **Role expression definition:**
+
+   + If the role is deployed on all nodes in the node group, set this parameter to role_name, for example: `DataNode`.
+   + If the role is deployed on a specified subscript node in the node group: role_name:index1,index2..., indexN,
+ for example: `DataNode:1,2`. The subscript starts from 1.
+   + Some roles support multi-instance deployment (that is, multiple instances of the same role are deployed on a node):
+  role_name[instance_count], for example: `EsNode[9]`.
+  
+  [For details about components](https://support.huaweicloud.com/intl/en-us/productdesc-mrs/mrs_08_0005.html)
+
+  [Mapping between roles and components](https://support.huaweicloud.com/intl/en-us/api-mrs/mrs_02_0106.html)
+
+  -> `DBService` is a basic component of a cluster. Components such as Hive, Hue, Oozie, Loader, and Redis, and Loader
+   store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
+
+<a name="v2_mapreduce_cluster_custom_nodes"></a>
+The `custom_nodes` block supports:
+
+* `group_name` - (Optional, String, ForceNew) Specifies the name of nodes for the node group.  
+  Changing this will create a new MapReduce cluster resource.
+
+* `flavor` - (Required, String, ForceNew) Specifies the instance specifications for each nodes in node group.
+  Changing this will create a new MapReduce cluster resource.
+
+* `node_number` - (Required, Int, ForceNew) Specifies the number of nodes for the node group.  
+  Changing this will create a new MapReduce cluster resource.
+
+* `root_volume_type` - (Required, String, ForceNew) Specifies the system disk flavor of the nodes. Changing this will
+  create a new MapReduce cluster resource.
+
+* `root_volume_size` - (Required, Int, ForceNew) Specifies the system disk size of the nodes. Changing this will create
+  a new MapReduce cluster resource.
+
+* `data_volume_count` - (Required, Int, ForceNew) Specifies the data disk number of the nodes.  
+  The valid value is `1`.  
+  Changing this will create a new MapReduce cluster resource.
+
 * `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes.
   Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce cluster resource.
    The following disk types are supported:
