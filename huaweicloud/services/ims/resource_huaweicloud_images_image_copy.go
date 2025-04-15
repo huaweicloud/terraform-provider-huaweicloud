@@ -2,20 +2,17 @@ package ims
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/imageservice/v2/images"
-	"github.com/chnsz/golangsdk/openstack/ims/v1/imagecopy"
-	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -164,121 +161,233 @@ func ResourceImsImageCopy() *schema.Resource {
 	}
 }
 
+func buildCreateWithinRegionCopyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                  d.Get("name"),
+		"description":           d.Get("description"),
+		"cmk_id":                utils.ValueIgnoreEmpty(d.Get("kms_key_id")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(d.Get("enterprise_project_id")),
+	}
+
+	return bodyParams
+}
+
+func buildCreateCrossRegionCopyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":         d.Get("name"),
+		"description":  d.Get("description"),
+		"region":       utils.ValueIgnoreEmpty(d.Get("target_region")),
+		"project_name": utils.ValueIgnoreEmpty(d.Get("target_region")),
+		"agency_name":  utils.ValueIgnoreEmpty(d.Get("agency_name")),
+		"vault_id":     utils.ValueIgnoreEmpty(d.Get("vault_id")),
+	}
+
+	return bodyParams
+}
+
 func resourceImsImageCopyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg          = meta.(*config.Config)
-		sourceRegion = cfg.GetRegion(d)
-		jobId        string
+		cfg                     = meta.(*config.Config)
+		sourceRegion            = cfg.GetRegion(d)
+		targetRegion            = d.Get("target_region").(string)
+		sourceImageId           = d.Get("source_image_id").(string)
+		product                 = "ims"
+		withinRegionCopyHttpUrl = "v1/cloudimages/{image_id}/copy"
+		crossRegionCopyHttpUrl  = "v1/cloudimages/{image_id}/cross_region_copy"
+		jobId                   string
 	)
 
-	imsV1Client, err := cfg.ImageV1Client(sourceRegion)
+	client, err := cfg.NewServiceClient(product, sourceRegion)
 	if err != nil {
-		return diag.Errorf("error creating IMS v1 client: %s", err)
+		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
-	imsV2Client, err := getImsV2Client(d, cfg)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	targetRegion := d.Get("target_region").(string)
 	if targetRegion == "" || targetRegion == sourceRegion {
-		withinRegionCopyOpts := imagecopy.WithinRegionCopyOpts{
-			Name:                d.Get("name").(string),
-			Description:         d.Get("description").(string),
-			CmkId:               d.Get("kms_key_id").(string),
-			EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+		createPath := client.Endpoint + withinRegionCopyHttpUrl
+		createPath = strings.ReplaceAll(createPath, "{image_id}", sourceImageId)
+		createOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+			JSONBody:         utils.RemoveNil(buildCreateWithinRegionCopyBodyParams(d)),
 		}
-		log.Printf("[DEBUG] Within region copy Options: %#v", withinRegionCopyOpts)
 
-		sourceImageId := d.Get("source_image_id").(string)
-		jobRes, err := imagecopy.WithinRegionCopy(imsV1Client, sourceImageId, withinRegionCopyOpts).ExtractJobStatus()
+		createResp, err := client.Request("POST", createPath, &createOpt)
 		if err != nil {
 			return diag.Errorf("error creating IMS image copy within region: %s", err)
 		}
-		jobId = jobRes.JobID
-	} else {
-		crossRegionCopyOpts := imagecopy.CrossRegionCopyOpts{
-			Name:              d.Get("name").(string),
-			Description:       d.Get("description").(string),
-			TargetRegion:      targetRegion,
-			TargetProjectName: targetRegion,
-			AgencyName:        d.Get("agency_name").(string),
-			VaultId:           d.Get("vault_id").(string),
-		}
-		log.Printf("[DEBUG] Cross region copy Options: %#v", crossRegionCopyOpts)
 
-		sourceImageId := d.Get("source_image_id").(string)
-		jobRes, err := imagecopy.CrossRegionCopy(imsV1Client, sourceImageId, crossRegionCopyOpts).ExtractJobStatus()
+		createRespBody, err := utils.FlattenResponse(createResp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		jobId = utils.PathSearch("job_id", createRespBody, "").(string)
+		if jobId == "" {
+			return diag.Errorf("error creating IMS image copy within region: job ID is not found in API response")
+		}
+
+	} else {
+		createPath := client.Endpoint + crossRegionCopyHttpUrl
+		createPath = strings.ReplaceAll(createPath, "{image_id}", sourceImageId)
+		createOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+			JSONBody:         utils.RemoveNil(buildCreateCrossRegionCopyBodyParams(d)),
+		}
+
+		createResp, err := client.Request("POST", createPath, &createOpt)
 		if err != nil {
 			return diag.Errorf("error creating IMS image copy cross region: %s", err)
 		}
-		jobId = jobRes.JobID
+
+		createRespBody, err := utils.FlattenResponse(createResp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		jobId = utils.PathSearch("job_id", createRespBody, "").(string)
+		if jobId == "" {
+			return diag.Errorf("error creating IMS image copy cross region: job ID is not found in API response")
+		}
 	}
 
 	// Wait for the copy image to become available.
-	err = cloudimages.WaitForJobSuccess(imsV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), jobId)
+	imageId, err := waitForCreateImageCopyJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error waiting for IMS image copy to complete: %s", err)
 	}
 
-	imageId, err := cloudimages.GetJobEntity(imsV1Client, jobId, "image_id")
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	d.SetId(imageId)
 
-	d.SetId(imageId.(string))
+	copiedRegionClient, err := getCopiedRegionClient(d, cfg)
+	if err != nil {
+		return diag.Errorf("error creating IMS copied region client: %s", err)
+	}
 
 	// Set `max_ram` and `min_ram` attributes.
-	updateOpts := make(cloudimages.UpdateOpts, 0)
+	updateOpts := make([]map[string]interface{}, 0)
 	if v, ok := d.GetOk("max_ram"); ok {
-		maxRAM := cloudimages.UpdateImageProperty{
-			Op:    cloudimages.ReplaceOp,
-			Name:  "max_ram",
-			Value: strconv.Itoa(v.(int)),
-		}
-		updateOpts = append(updateOpts, maxRAM)
+		updateOpts = append(updateOpts, map[string]interface{}{
+			"op":    "replace",
+			"path":  "/max_ram",
+			"value": v,
+		})
 	}
+
 	if v, ok := d.GetOk("min_ram"); ok {
-		minRAM := cloudimages.UpdateImageProperty{
-			Op:    cloudimages.ReplaceOp,
-			Name:  "min_ram",
-			Value: v.(int),
-		}
-		updateOpts = append(updateOpts, minRAM)
+		updateOpts = append(updateOpts, map[string]interface{}{
+			"op":    "replace",
+			"path":  "/min_ram",
+			"value": v,
+		})
 	}
+
 	if len(updateOpts) > 0 {
-		_, err = cloudimages.Update(imsV2Client, d.Id(), updateOpts).Extract()
+		updatePath := copiedRegionClient.Endpoint + "v2/cloudimages/{image_id}"
+		updatePath = strings.ReplaceAll(updatePath, "{image_id}", imageId)
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+			JSONBody:         updateOpts,
+		}
+
+		_, err = copiedRegionClient.Request("PATCH", updatePath, &updateOpt)
 		if err != nil {
-			return diag.Errorf("error setting attributes of image (%s): %s", d.Id(), err)
+			return diag.Errorf("error setting IMS image attributes in creation operation: %s", err)
 		}
 	}
 
 	// Set tags.
-	tagRaw := d.Get("tags").(map[string]interface{})
-	if len(tagRaw) > 0 {
-		tagList := utils.ExpandResourceTags(tagRaw)
-		if tagErr := tags.Create(imsV2Client, "images", d.Id(), tagList).ExtractErr(); tagErr != nil {
-			return diag.Errorf("error setting tags of image (%s): %s", d.Id(), tagErr)
+	if _, ok := d.GetOk("tags"); ok {
+		err = updateIMSImageTags(copiedRegionClient, d)
+		if err != nil {
+			return diag.Errorf("error setting IMS image tags field: %s", err)
 		}
 	}
 
 	return resourceImsImageCopyRead(ctx, d, meta)
 }
 
-func resourceImsImageCopyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	imsClient, err := getImsV2Client(d, cfg)
-	if err != nil {
-		return diag.FromErr(err)
+func waitForCreateImageCopyJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
+	timeout time.Duration) (string, error) {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      imageCopyJobStatusRefreshFunc(jobId, client),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
-	err = updateImage(ctx, cfg, imsClient, d)
+	getRespBody, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error updating IMS image copy: %s", err)
+		return "", fmt.Errorf("error waiting for IMS image copy job (%s) to succeed: %s", jobId, err)
 	}
 
-	return resourceImsImageCopyRead(ctx, d, meta)
+	imageId := utils.PathSearch("entities.image_id", getRespBody, "").(string)
+	if imageId == "" {
+		return "", errors.New("the image ID is not found in API response")
+	}
+
+	return imageId, nil
+}
+
+func imageCopyJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
+		getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+		getPath = strings.ReplaceAll(getPath, "{job_id}", fmt.Sprintf("%v", jobId))
+		getOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+
+		getResp, err := client.Request("GET", getPath, &getOpt)
+		if err != nil {
+			return getResp, "ERROR", fmt.Errorf("error retrieving IMS image copy job: %s", err)
+		}
+
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return getRespBody, "ERROR", err
+		}
+
+		status := utils.PathSearch("status", getRespBody, "").(string)
+		if status == "SUCCESS" {
+			return getRespBody, "COMPLETED", nil
+		}
+
+		if status == "FAIL" {
+			return getRespBody, "COMPLETED", errors.New("the image copy job execution failed")
+		}
+
+		if status == "" {
+			return getRespBody, "ERROR", errors.New("status field is not found in API response")
+		}
+
+		return getRespBody, "PENDING", nil
+	}
+}
+
+func getImageCopy(client *golangsdk.ServiceClient, imageId string) (interface{}, error) {
+	// If the `enterprise_project_id` is not filled, the list API will query images under all enterprise projects.
+	// So there's no need to fill `enterprise_project_id` here.
+	getPath := client.Endpoint + "v2/cloudimages"
+	getPath += fmt.Sprintf("?id=%s", imageId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving IMS image copy: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.PathSearch("images[0]", getRespBody, nil), nil
 }
 
 func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -287,90 +396,237 @@ func resourceImsImageCopyRead(_ context.Context, d *schema.ResourceData, meta in
 		region = cfg.GetRegion(d)
 	)
 
-	imsClient, err := getImsV2Client(d, cfg)
+	client, err := getCopiedRegionClient(d, cfg)
+	if err != nil {
+		return diag.Errorf("error creating IMS client: %s", err)
+	}
+
+	image, err := getImageCopy(client, d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	imageList, err := GetImageList(imsClient, d.Id())
-	if err != nil {
-		return diag.Errorf("error retrieving IMS images: %s", err)
-	}
-
 	// If the list API return empty, then process `CheckDeleted` logic.
-	if len(imageList) < 1 {
+	if image == nil {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "IMS image copy")
 	}
 
-	img := imageList[0]
-	imageTags := flattenImageTags(d, imsClient)
+	dataOrigin := utils.PathSearch("__data_origin", image, "").(string)
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", img.Name),
-		d.Set("description", img.Description),
-		d.Set("max_ram", flattenMaxRAM(img.MaxRam)),
-		d.Set("min_ram", img.MinRam),
-		d.Set("tags", imageTags),
-		d.Set("kms_key_id", img.SystemCmkid),
-		d.Set("instance_id", flattenSpecificValueFormDataOrigin(img.DataOrigin, "instance")),
-		d.Set("os_version", img.OsVersion),
-		d.Set("visibility", img.Visibility),
-		d.Set("min_disk", img.MinDisk),
-		d.Set("data_origin", img.DataOrigin),
-		d.Set("disk_format", img.DiskFormat),
-		d.Set("image_size", img.ImageSize),
-		d.Set("status", img.Status),
-		d.Set("enterprise_project_id", img.EnterpriseProjectID),
-		d.Set("active_at", img.ActiveAt),
-		d.Set("created_at", img.CreatedAt.Format(time.RFC3339)),
-		d.Set("updated_at", img.UpdatedAt.Format(time.RFC3339)),
+		d.Set("name", utils.PathSearch("name", image, nil)),
+		d.Set("description", utils.PathSearch("__description", image, nil)),
+		d.Set("max_ram", flattenMaxRAM(utils.PathSearch("max_ram", image, "").(string))),
+		d.Set("min_ram", utils.PathSearch("min_ram", image, nil)),
+		d.Set("tags", flattenIMSImageTags(client, d.Id())),
+		d.Set("kms_key_id", utils.PathSearch("__system__cmkid", image, nil)),
+		d.Set("instance_id", flattenSpecificValueFormDataOrigin(dataOrigin, "instance")),
+		d.Set("os_version", utils.PathSearch("__os_version", image, nil)),
+		d.Set("visibility", utils.PathSearch("visibility", image, nil)),
+		d.Set("min_disk", utils.PathSearch("min_disk", image, nil)),
+		d.Set("data_origin", dataOrigin),
+		d.Set("disk_format", utils.PathSearch("disk_format", image, nil)),
+		d.Set("image_size", utils.PathSearch("__image_size", image, nil)),
+		d.Set("status", utils.PathSearch("status", image, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", image, nil)),
+		d.Set("active_at", utils.PathSearch("active_at", image, nil)),
+		d.Set("created_at", utils.PathSearch("created_at", image, nil)),
+		d.Set("updated_at", utils.PathSearch("updated_at", image, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceImsImageCopyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceImsImageCopyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/cloudimages/{image_id}"
 		imageId = d.Id()
 	)
 
-	imsClient, err := getImsV2Client(d, cfg)
+	client, err := getCopiedRegionClient(d, cfg)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating IMS client: %s", err)
+	}
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{image_id}", imageId)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	if d.HasChange("name") {
+		bodyParams := []map[string]interface{}{
+			{
+				"op":    "replace",
+				"path":  "/name",
+				"value": d.Get("name"),
+			},
+		}
+
+		updateOpt.JSONBody = bodyParams
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating IMS image copy name field: %s", err)
+		}
+	}
+
+	if d.HasChange("description") {
+		bodyParams := []map[string]interface{}{
+			{
+				"op":    "replace",
+				"path":  "/__description",
+				"value": d.Get("description"),
+			},
+		}
+
+		updateOpt.JSONBody = bodyParams
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
+		if err != nil {
+			err = processUpdateDescriptionError(d, client, err)
+			if err != nil {
+				return diag.Errorf("error updating IMS image copy description field: %s", err)
+			}
+		}
+	}
+
+	if d.HasChange("max_ram") {
+		bodyParams := []map[string]interface{}{
+			{
+				"op":    "replace",
+				"path":  "/max_ram",
+				"value": d.Get("max_ram"),
+			},
+		}
+
+		updateOpt.JSONBody = bodyParams
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
+		if err != nil {
+			err = processUpdateMaxRAMError(d, client, err)
+			if err != nil {
+				return diag.Errorf("error updating IMS image copy max_ram field: %s", err)
+			}
+		}
+	}
+
+	if d.HasChange("min_ram") {
+		bodyParams := []map[string]interface{}{
+			{
+				"op":    "replace",
+				"path":  "/min_ram",
+				"value": d.Get("min_ram"),
+			},
+		}
+
+		updateOpt.JSONBody = bodyParams
+		_, err = client.Request("PATCH", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating IMS image copy min_ram field: %s", err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		err = updateIMSImageTags(client, d)
+		if err != nil {
+			return diag.Errorf("error updating IMS image copy tags field: %s", err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := config.MigrateResourceOpts{
+			ResourceId:   imageId,
+			ResourceType: "images",
+			RegionId:     region,
+			ProjectId:    client.ProjectID,
+		}
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	return resourceImsImageCopyRead(ctx, d, meta)
+}
+
+func resourceImsImageCopyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		httpUrl = "v2/images/{image_id}"
+		imageId = d.Id()
+	)
+
+	client, err := getCopiedRegionClient(d, cfg)
+	if err != nil {
+		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
 	// Before deleting, call the query API first, if the query result is empty, then process `CheckDeleted` logic.
-	imageList, err := GetImageList(imsClient, imageId)
+	image, err := getImageCopy(client, imageId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if len(imageList) < 1 {
+	if image == nil {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "IMS image copy")
 	}
 
-	if err = images.Delete(imsClient, imageId).Err; err != nil {
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{image_id}", imageId)
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
 		return diag.Errorf("error deleting IMS image copy: %s", err)
 	}
 
-	err = waitForDeleteImageCompleted(ctx, imsClient, d)
+	// Because the delete API always return `204` status code,
+	// so we need to call the list query API to check if the image has been successfully deleted.
+	err = waitForImageCopyDeleted(ctx, client, d)
 	if err != nil {
-		return diag.Errorf("error waiting for delete image copy (%s) complete: %s", imageId, err)
+		return diag.Errorf("error waiting for IMS image copy to be deleted: %s", err)
 	}
 
 	return nil
 }
 
-func getImsV2Client(d *schema.ResourceData, cfg *config.Config) (*golangsdk.ServiceClient, error) {
+func waitForImageCopyDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			image, err := getImageCopy(client, d.Id())
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			if image == nil {
+				return "SUCCESS", "COMPLETED", nil
+			}
+
+			return image, "PENDING", nil
+		},
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+
+	return err
+}
+
+func getCopiedRegionClient(d *schema.ResourceData, cfg *config.Config) (*golangsdk.ServiceClient, error) {
 	imageRegion := cfg.GetRegion(d)
 	if v, ok := d.GetOk("target_region"); ok {
 		imageRegion = v.(string)
 	}
 
-	imsClient, err := cfg.ImageV2Client(imageRegion)
+	imsClient, err := cfg.NewServiceClient("ims", imageRegion)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IMS v2 client: %s", err)
+		return nil, err
 	}
 
 	return imsClient, nil
