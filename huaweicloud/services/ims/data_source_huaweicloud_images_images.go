@@ -88,6 +88,10 @@ func DataSourceImagesImages() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"__support_agent_list": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"os_version": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -205,6 +209,10 @@ func ImagesImageRefSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"__support_agent_list": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -273,6 +281,11 @@ func dataSourceImagesImagesRead(_ context.Context, d *schema.ResourceData, meta 
 		if nameRegexRes != nil && !nameRegexRes.MatchString(image.Name) {
 			continue
 		}
+
+		if v, ok := d.GetOk("__support_agent_list"); ok && v.(string) != item.SupportAgentList {
+			continue
+		}
+
 		ids = append(ids, image.ID)
 		resultImages = append(resultImages, flattenImage(&image))
 	}
@@ -312,6 +325,7 @@ func flattenImage(image *cloudimages.Image) map[string]interface{} {
 		"active_at":             image.ActiveAt,
 		"created_at":            image.CreatedAt.Format(time.RFC3339),
 		"updated_at":            image.UpdatedAt.Format(time.RFC3339),
+		"__support_agent_list":  image.SupportAgentList,
 	}
 
 	if size, err := strconv.Atoi(image.ImageSize); err == nil {
