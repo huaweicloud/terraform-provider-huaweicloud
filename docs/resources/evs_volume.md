@@ -240,6 +240,72 @@ In addition to all arguments above, the following attributes are exported:
 
 * `wwn` - The unique identifier used for mounting the EVS disk.
 
+* `dedicated_storage_name` - The name of the DSS storage pool accommodating the disk.
+
+* `status` - The disk status.
+  Please refer to [EVS Disk Status](https://support.huaweicloud.com/intl/en-us/api-evs/evs_04_0040.html).
+
+* `bootable` - Whether the disk is bootable. **true**: The disk is bootable. **false**: The disk is not bootable.
+
+* `created_at` - The time when the disk was created.
+
+* `updated_at` - The time when the disk was updated.
+
+* `iops_attribute` - The disk IOPS information. This attribute appears only for a general purpose SSD V2 or an extreme
+  SSD V2 disk. The [iops_attribute](#iops_attribute_struct) structure is documented below.
+
+* `throughput_attribute` - The disk throughput information. This attribute appears only for a general purpose SSD V2 disk.
+  The [throughput_attribute](#throughput_attribute_struct) structure is documented below.
+
+* `links` - The disk URI.
+  The [links](#links_struct) structure is documented below.
+
+* `all_metadata` - The key-value pair disk metadata. Valid key-value pairs are as follows:
+  + **__system__cmkid**: The encryption CMK ID in metadata. This attribute is used together with **__system__encrypted**
+    for encryption.
+  + **__system__encrypted**: The encryption field in metadata. The value can be `0` (no encryption) or `1` (encryption).
+    If this attribute is not specified, the encryption attribute of the disk is the same as that of the data source.
+    If the disk is not created from a data source, the disk is not encrypted by default.
+  + **full_clone**: The creation method when the disk is created from a snapshot. `0`: linked clone. `1`: full clone.
+  + **hw:passthrough**: If this attribute value is **true**, the disk device type is SCSI, which allows ECS OSs to directly
+    access the underlying storage media and supports SCSI reservation commands. If this attribute is set to **false**,
+    the disk device type is VBD, which is also the default type. VBD supports only simple SCSI read/write commands.
+    If this attribute is not specified, the disk device type is VBD.
+  + **orderID**: The attribute that describes the disk billing mode in metadata. If this attribute has a value, the disk
+    is billed on a yearly/monthly basis. If this attribute is empty, the disk is billed on a pay-per-use basis.
+
+* `serial_number` - The disk serial number. This field is returned only for non-HyperMetro SCSI disks and is used for
+  disk mapping in the VM.
+
+* `service_type` - The service type. Supported services are **EVS**, **DSS**, and **DESS**.
+
+* `all_volume_image_metadata` - The metadata of the disk image.
+
+<a name="links_struct"></a>
+The `links` block supports:
+
+* `href` - The corresponding shortcut link.
+
+* `rel` - The shortcut link marker name.
+
+<a name="iops_attribute_struct"></a>
+The `iops_attribute` block supports:
+
+* `frozened` - The frozen tag.
+
+* `id` - The ID of the disk IOPS.
+
+* `total_val` - The IOPS.
+
+<a name="throughput_attribute_struct"></a>
+The `throughput_attribute` block supports:
+
+* `frozened` - The frozen tag.
+
+* `id` - The throughput ID.
+
+* `total_val` - The throughput.
+
 <a name="attachment_struct"></a>
 The `attachment` block supports:
 
@@ -249,10 +315,13 @@ The `attachment` block supports:
 
 * `device` - The device name.
 
-* `dedicated_storage_name` - The name of the DSS storage pool accommodating the disk.
+* `attached_at` - The time when the disk was attached.
 
-* `status` - The disk status.
-  Please refer to [EVS Disk Status](https://support.huaweicloud.com/intl/en-us/api-evs/evs_04_0040.html).
+* `host_name` - The name of the physical host housing the cloud server to which the disk is attached.
+
+* `attached_volume_id` - The ID of the attached disk.
+
+* `volume_id` - The disk ID.
 
 ## Timeouts
 
