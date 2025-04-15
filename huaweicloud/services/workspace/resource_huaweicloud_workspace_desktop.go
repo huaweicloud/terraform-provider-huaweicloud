@@ -358,7 +358,10 @@ func resourceDesktopCreate(ctx context.Context, d *schema.ResourceData, meta int
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildDesktopCreateOpts(d, conf)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildDesktopCreateOpts(d, conf)),
 	}
 	resp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
@@ -559,6 +562,9 @@ func updateDesktopFlavor(ctx context.Context, client *golangsdk.ServiceClient, d
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 	opts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 		JSONBody: map[string]interface{}{
 			"desktops": []map[string]interface{}{
 				{
@@ -644,6 +650,9 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 			}
 			newVolumeOpts := golangsdk.RequestOpts{
 				KeepResponseBody: true,
+				MoreHeaders: map[string]string{
+					"Content-Type": "application/json",
+				},
 				JSONBody: map[string]interface{}{
 					"addDesktopVolumesReq": []map[string]interface{}{
 						{
@@ -679,6 +688,9 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 			expandHttpUrl = "v2/{project_id}/volumes/expand"
 			expandOpts    = golangsdk.RequestOpts{
 				KeepResponseBody: true,
+				MoreHeaders: map[string]string{
+					"Content-Type": "application/json",
+				},
 				JSONBody: map[string]interface{}{
 					"expandVolumesReq": expandSlice,
 				},
@@ -717,6 +729,9 @@ func updateDesktopNetwork(ctx context.Context, client *golangsdk.ServiceClient, 
 		desktopId = d.Id()
 		opts      = golangsdk.RequestOpts{
 			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
 			JSONBody: map[string]interface{}{
 				"vpc_id":             d.Get("vpc_id").(string),
 				"subnet_id":          utils.PathSearch("network_id", nicRaw[0], nil),
@@ -803,7 +818,10 @@ func updateDesktopPowerAction(ctx context.Context, client *golangsdk.ServiceClie
 		}
 		opts = golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			JSONBody:         utils.RemoveNil(params),
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(params),
 		}
 	)
 
@@ -827,6 +845,9 @@ func updateDesktopImage(ctx context.Context, client *golangsdk.ServiceClient, d 
 		desktopId   = d.Id()
 		rebuildOpts = golangsdk.RequestOpts{
 			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
 			JSONBody: map[string]interface{}{
 				"desktop_ids": []string{desktopId},
 				"image_type":  d.Get("image_type"),
@@ -1010,6 +1031,9 @@ func resourceDesktopDelete(ctx context.Context, d *schema.ResourceData, meta int
 		isDeleteUser = d.Get("delete_user").(bool)
 		opts         = golangsdk.RequestOpts{
 			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
 		}
 	)
 
