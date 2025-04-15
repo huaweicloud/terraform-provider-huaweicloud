@@ -85,6 +85,10 @@ func ResourceCertificateV3() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"common_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -215,6 +219,7 @@ func resourceCertificateV3Read(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("enc_certificate", utils.PathSearch("certificate.enc_certificate", getRespBody, nil)),
 		d.Set("scm_certificate_id", utils.PathSearch("certificate.scm_certificate_id", getRespBody, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("certificate.enterprise_project_id", getRespBody, nil)),
+		d.Set("common_name", utils.PathSearch("certificate.common_name", getRespBody, nil)),
 		d.Set("fingerprint", utils.PathSearch("certificate.fingerprint", getRespBody, nil)),
 		d.Set("subject_alternative_names", utils.PathSearch("certificate.subject_alternative_names",
 			getRespBody, nil)),
