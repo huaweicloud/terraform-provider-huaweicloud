@@ -44,8 +44,10 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the keywords alarm rule.
-  The value can contain no more than 64 characters.
+* `name` - (Required, String, ForceNew) Specifies the name of the keywords alarm rule.  
+  The maximum lanegth is `128` characters, only Chinese characters, letters, digits, hyphens (-) and underscores (_)
+  are allowed.  
+  The name cannot start with and end with a hyphen or a underscore.  
   Changing this parameter will create a new resource.
 
 * `keywords_requests` - (Required, List) Specifies the keywords requests.
@@ -54,14 +56,15 @@ The following arguments are supported:
 * `frequency` - (Required, List) Specifies the alarm frequency configurations.
   The [Frequency](#KeywordsAlarmRule_Frequency) structure is documented below.
 
-* `alarm_level` - (Required, String) Specifies the alarm level.
+* `alarm_level` - (Required, String) Specifies the alarm level.  
   The value can be: **INFO**, **MINOR**, **MAJOR** and **CRITICAL**.
 
 * `description` - (Optional, String) Specifies the description of the keywords alarm rule.
 
 * `send_notifications` - (Optional, Bool, ForceNew) Specifies whether to send notifications.
   Changing this parameter will create a new resource.
-
+  Defaults to **false**.
+  
 * `notification_rule` - (Optional, List, ForceNew) Specifies the notification rule.
   The [NotificationRule](#KeywordsAlarmRule_NotificationRule) structure is documented below.
   Changing this parameter will create a new resource.
@@ -72,12 +75,14 @@ The following arguments are supported:
 * `trigger_condition_frequency` - (Optional, Int) Specifies the frequency to trigger the alarm.
   Defaults to `1`.
 
-* `send_recovery_notifications` - (Optional, Bool) Specifies whether to send recovery notifications.
+* `send_recovery_notifications` - (Optional, Bool) Specifies whether to send recovery notifications.  
+  Defaults to **false**
 
 * `recovery_frequency` - (Optional, Int) Specifies the frequency to recover the alarm.
   Defaults to `3`.
 
-* `status` - (Optional, String) Specifies the status. The value can be: **RUNNING** and **STOPPING**.
+* `status` - (Optional, String) Specifies the status.  
+  The value can be: **RUNNING** and **STOPPING**.  
   Defaults to **RUNNING**.
 
 <a name="KeywordsAlarmRule_KeywordsRequests"></a>
@@ -85,16 +90,16 @@ The `KeywordsRequests` block supports:
 
 * `keywords` - (Required, String) Specifies the keywords.
 
-* `condition` - (Required, String) Specifies the keywords request condition.
+* `condition` - (Required, String) Specifies the keywords request condition.  
   The value can be: **>=**, **<=**, **<** and **>**.
 
 * `number` - (Required, Int) Specifies the line number.
 
-* `log_stream_id` - (Required, String) Specifies the log stream id.
+* `log_stream_id` - (Required, String) Specifies the ID of the log stream.
 
-* `log_group_id` - (Required, String) Specifies the log group id.
+* `log_group_id` - (Required, String) Specifies the ID of the log group.
 
-* `search_time_range_unit` - (Required, String) Specifies the unit of search time range.
+* `search_time_range_unit` - (Required, String) Specifies the unit of search time range.  
   The value can be: **minute** and **hour**.
 
 * `search_time_range` - (Required, Int) Specifies the search time range.
@@ -104,24 +109,24 @@ The `KeywordsRequests` block supports:
 <a name="KeywordsAlarmRule_Frequency"></a>
 The `Frequency` block supports:
 
-* `type` - (Required, String) Specifies the frequency type.
+* `type` - (Required, String) Specifies the frequency type.  
   The value can be: **CRON**, **HOURLY**, **DAILY**, **WEEKLY** and **FIXED_RATE**.
 
-* `cron_expression` - (Optional, String) Specifies the cron expression.
+* `cron_expression` - (Optional, String) Specifies the cron expression.  
   This parameter is used when `type` is set to **CRON**.
 
-* `hour_of_day` - (Optional, Int) Specifies the hour of day.
-  This parameter is used when `type` is set to **DAILY** or **WEEKLY**.
+* `hour_of_day` - (Optional, Int) Specifies the hour of day.  
+  This parameter is used when `type` is set to **DAILY** or **WEEKLY**.  
   The value ranges from `0` to `23`.
 
-* `day_of_week` - (Optional, Int) Specifies the day of week.
-  This parameter is used when `type` is set to **WEEKLY**.
+* `day_of_week` - (Optional, Int) Specifies the day of week.  
+  This parameter is used when `type` is set to **WEEKLY**.  
   The value ranges from `1` to `7`. `1` means Sunday.
 
-* `fixed_rate_unit` - (Optional, String) Specifies the unit of fixed rate.
+* `fixed_rate_unit` - (Optional, String) Specifies the unit of fixed rate.  
   The value can be: **minute** and **hour**.
 
-* `fixed_rate` - (Optional, Int) Specifies the unit fixed rate.
+* `fixed_rate` - (Optional, Int) Specifies the unit fixed rate.  
   This parameter is used when `type` is set to **FIXED_RATE**.
   + When the `fixed_rate_unit` is **minute**, the value ranges from `1` to `60`.
   + When the `fixed_rate_unit` is **hour**, the value ranges from `1` to `24`
@@ -172,7 +177,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created_at` - The creation time of the alarm rule.
 
-* `updated_at` - The last update time of the alarm rule.
+* `updated_at` - The latest update time of the alarm rule.
 
 ## Import
 
